@@ -1,0 +1,184 @@
+<!-- perfil.page.html - Updated to show location names -->
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title class="ion-text-center">Perfil de Usuario</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <ion-card class="main-card">
+    <div *ngIf="cargando" class="loading-container">
+      <ion-spinner name="crescent" color="primary"></ion-spinner>
+      <p>Cargando datos de perfil...</p>
+    </div>
+
+    <div *ngIf="!cargando && datosUsuario">
+      <!-- Tarjeta de presentación -->
+      <div class="profile-header fade-in">
+        <div class="profile-image-container">
+          <div class="profile-image">
+            <ion-avatar>
+              <img [src]="datosUsuario.Imagen_Perfil || 'assets/avatar-placeholder.png'" alt="Foto de perfil">
+            </ion-avatar>
+            <div class="edit-photo-button" (click)="actualizarFotoPerfil()">
+              <ion-icon name="camera"></ion-icon>
+            </div>
+          </div>
+        </div>
+        <div class="profile-info">
+          <h2>{{ datosUsuario.Nombre_Usuario || '' }} {{ datosUsuario.apellido || ''}}</h2>
+          <p class="profile-role">
+            <ion-icon name="shield-checkmark-outline"></ion-icon>
+            {{ obtenerRolTexto(datosUsuario.Rol_Usuario) }}
+          </p>
+          <div class="profile-stats">
+            <div class="stat-item">
+              <span class="stat-value">{{ capacitacionesInscritas }}</span>
+              <span class="stat-label">Capacitaciones</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-value">{{ certificadosObtenidos }}</span>
+              <span class="stat-label">Certificados</span>
+            </div>
+            <div class="stat-item" *ngIf="datosUsuario.Firma_Usuario">
+              <span class="stat-value"><ion-icon name="checkmark-circle" color="success"></ion-icon></span>
+              <span class="stat-label">Firma Digital</span>
+            </div>
+            <div class="stat-item" *ngIf="!datosUsuario.Firma_Usuario">
+              <span class="stat-value"><ion-icon name="close-circle" color="danger"></ion-icon></span>
+              <span class="stat-label">Firma Digital</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contenido de perfil -->
+      <ion-card-content>
+        <!-- Información personal -->
+        <div class="profile-section fade-in" style="animation-delay: 0.1s;">
+          <h3 class="section-title">Información Personal</h3>
+          <div class="info-grid">
+            <div class="info-item">
+              <ion-icon name="person-outline" color="primary"></ion-icon>
+              <div class="info-content">
+                <span class="info-label">Nombre Completo</span>
+                <span class="info-value">{{ datosUsuario.Nombre_Usuario || '' }} {{ datosUsuario.apellido || '' }}</span>
+              </div>
+            </div>
+            <div class="info-item">
+              <ion-icon name="id-card-outline" color="primary"></ion-icon>
+              <div class="info-content">
+                <span class="info-label">Cédula</span>
+                <span class="info-value">{{ datosUsuario.CI_Usuario || datosUsuario.cedula || 'No especificado' }}</span>
+              </div>
+            </div>
+            <div class="info-item">
+              <ion-icon name="mail-outline" color="primary"></ion-icon>
+              <div class="info-content">
+                <span class="info-label">Correo Electrónico</span>
+                <span class="info-value">{{ datosUsuario.email }}</span>
+              </div>
+            </div>
+            <div class="info-item">
+              <ion-icon name="call-outline" color="primary"></ion-icon>
+              <div class="info-content">
+                <span class="info-label">Teléfono</span>
+                <span class="info-value">{{ datosUsuario.Celular_Usuario || datosUsuario.telefono || 'No especificado' }}</span>
+              </div>
+            </div>
+            <div class="info-item" *ngIf="datosUsuario.Genero_Usuario">
+              <ion-icon name="person-circle-outline" color="primary"></ion-icon>
+              <div class="info-content">
+                <span class="info-label">Género</span>
+                <span class="info-value">{{ datosUsuario.Genero_Usuario }}</span>
+              </div>
+            </div>
+            <div class="info-item" *ngIf="datosUsuario.Nacionalidad_Usuario">
+              <ion-icon name="flag-outline" color="primary"></ion-icon>
+              <div class="info-content">
+                <span class="info-label">Nacionalidad</span>
+                <span class="info-value">{{ datosUsuario.Nacionalidad_Usuario }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dirección y ubicación -->
+        <div class="profile-section fade-in" style="animation-delay: 0.15s;" *ngIf="datosUsuario.Canton_Nombre || datosUsuario.Parroquia_Nombre || provinciaUsuario">
+          <h3 class="section-title">Ubicación y Dirección</h3>
+          <div class="info-grid">
+            <div class="info-item" *ngIf="provinciaUsuario">
+              <ion-icon name="map-outline" color="primary"></ion-icon>
+              <div class="info-content">
+                <span class="info-label">Provincia</span>
+                <span class="info-value">{{ provinciaUsuario }}</span>
+              </div>
+            </div>
+            <div class="info-item" *ngIf="cantonUsuario">
+              <ion-icon name="business-outline" color="primary"></ion-icon>
+              <div class="info-content">
+                <span class="info-label">Cantón</span>
+                <span class="info-value">{{ cantonUsuario }}</span>
+              </div>
+            </div>
+            <div class="info-item" *ngIf="parroquiaUsuario">
+              <ion-icon name="location-outline" color="primary"></ion-icon>
+              <div class="info-content">
+                <span class="info-label">Parroquia</span>
+                <span class="info-value">{{ parroquiaUsuario }}</span>
+              </div>
+            </div>
+            <div class="info-item" *ngIf="datosUsuario.direccion">
+              <ion-icon name="home-outline" color="primary"></ion-icon>
+              <div class="info-content">
+                <span class="info-label">Dirección</span>
+                <span class="info-value">{{ datosUsuario.direccion }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Firma digital -->
+        <div class="profile-section fade-in" style="animation-delay: 0.2s;" *ngIf="datosUsuario.Firma_Usuario">
+          <h3 class="section-title">Firma Digital</h3>
+          <div class="signature-container">
+            <img [src]="datosUsuario.Firma_Usuario" alt="Firma digital" class="signature-image">
+            <ion-button fill="outline" color="primary" size="small" (click)="navegarAFirma()">
+              <ion-icon name="create-outline" slot="start"></ion-icon>
+              Actualizar Firma
+            </ion-button>
+          </div>
+        </div>
+
+        <!-- Acciones de perfil -->
+        <div class="profile-actions fade-in" style="animation-delay: 0.3s;">
+          <ion-button expand="block" color="primary" (click)="editarPerfil()">
+            <ion-icon name="create-outline" slot="start"></ion-icon>
+            Editar Perfil
+          </ion-button>
+          <ion-button expand="block" color="medium" (click)="cambiarContrasena()">
+            <ion-icon name="lock-closed-outline" slot="start"></ion-icon>
+            Cambiar Contraseña
+          </ion-button>
+          <ion-button expand="block" color="secondary" (click)="navegarAFirma()" *ngIf="!datosUsuario.Firma_Usuario">
+            <ion-icon name="create-outline" slot="start"></ion-icon>
+            Agregar Firma Digital
+          </ion-button>
+        </div>
+      </ion-card-content>
+    </div>
+
+    <!-- Estado vacío si no hay datos -->
+    <div *ngIf="!cargando && !datosUsuario" class="empty-state">
+      <ion-icon name="alert-circle-outline" color="medium"></ion-icon>
+      <h4>No se pudo cargar el perfil</h4>
+      <p>No se encontraron datos del usuario. Intente iniciar sesión nuevamente.</p>
+      <ion-button expand="block" color="primary" (click)="cerrarSesion()">
+        Volver a Iniciar Sesión
+      </ion-button>
+    </div>
+  </ion-card>
+</ion-content>

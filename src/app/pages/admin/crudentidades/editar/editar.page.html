@@ -1,0 +1,106 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/gestionar-entidades"></ion-back-button>
+    </ion-buttons>
+    <ion-title class="ion-text-center">Editar Entidad</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <ion-card class="main-card">
+    <div *ngIf="isLoading" class="loading-container">
+      <ion-spinner name="crescent" color="primary"></ion-spinner>
+      <p>Cargando datos de la entidad...</p>
+    </div>
+
+    <div *ngIf="!isLoading">
+      <div class="form-header">
+        <ion-icon name="create-outline" color="warning"></ion-icon>
+        <h2>Editar Entidad</h2>
+        <p>Modifique la información de la entidad</p>
+      </div>
+
+      <form (ngSubmit)="onSubmit()" #entidadForm="ngForm">
+        <div class="entity-info">
+          <ion-text color="medium">ID de la Entidad: {{ idEntidad }}</ion-text>
+        </div>
+
+        <div class="form-group">
+          <ion-item class="form-item">
+            <ion-icon name="business-outline" slot="start" color="primary"></ion-icon>
+            <ion-label position="floating">Nombre de Entidad <ion-text color="danger">*</ion-text></ion-label>
+            <ion-input [(ngModel)]="entidad.Nombre_Entidad" name="nombreEntidad" required minlength="3" #nombre="ngModel"></ion-input>
+          </ion-item>
+          <ion-note color="danger" *ngIf="nombre.invalid && (nombre.dirty || nombre.touched || formSubmitted)">
+            <ion-icon name="alert-circle-outline"></ion-icon>
+            El nombre es obligatorio y debe tener al menos 3 caracteres
+          </ion-note>
+        </div>
+
+        <div class="form-group">
+          <div class="image-upload-container">
+            <h4 class="upload-title">Imagen de la Entidad</h4>
+
+            <div class="image-container">
+              <div class="current-image">
+                <h5>Imagen Actual</h5>
+                <div class="image-wrapper">
+                  <img *ngIf="entidad.Imagen_Entidad" [src]="entidad.Imagen_Entidad" alt="Imagen actual" />
+                  <div *ngIf="!entidad.Imagen_Entidad" class="no-image">
+                    <ion-icon name="image-outline"></ion-icon>
+                    <p>Sin imagen</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="new-image" *ngIf="previsualizacionImagen">
+                <h5>Nueva Imagen</h5>
+                <div class="image-wrapper">
+                  <img [src]="previsualizacionImagen" alt="Nueva imagen" />
+                </div>
+              </div>
+            </div>
+
+            <ion-button expand="block" color="secondary" (click)="onImageUpload()" class="upload-button">
+              <ion-icon name="cloud-upload-outline" slot="start"></ion-icon>
+              Seleccionar Nueva Imagen
+            </ion-button>
+
+            <ion-note *ngIf="nuevaImagen" color="success">
+              <ion-icon name="checkmark-circle-outline"></ion-icon>
+              Nueva imagen seleccionada: {{ nuevaImagen.name }}
+            </ion-note>
+          </div>
+        </div>
+
+        <div class="form-group status-toggle">
+          <ion-item class="form-item toggle-item">
+            <ion-icon name="checkmark-circle-outline" slot="start" color="primary"></ion-icon>
+            <ion-label>Estado</ion-label>
+            <ion-select [(ngModel)]="entidad.Estado_Entidad" name="estadoEntidad" interface="action-sheet">
+              <ion-select-option [value]="1">Entidad Válida</ion-select-option>
+              <ion-select-option [value]="0">Entidad No Válida</ion-select-option>
+            </ion-select>
+          </ion-item>
+          <ion-note>
+            <ion-icon name="information-circle-outline"></ion-icon>
+            El estado determina si la entidad está activa o inactiva
+          </ion-note>
+        </div>
+
+        <div class="form-actions">
+          <ion-button color="medium" fill="outline" type="button" (click)="cancelar()">
+            <ion-icon name="close-outline" slot="start"></ion-icon>
+            Cancelar
+          </ion-button>
+          <ion-button color="warning" type="submit" [disabled]="enviando || !entidad.Nombre_Entidad">
+            <ion-icon name="save-outline" slot="start"></ion-icon>
+            {{ enviando ? 'Guardando...' : 'Guardar Cambios' }}
+            <ion-spinner name="crescent" *ngIf="enviando"></ion-spinner>
+          </ion-button>
+        </div>
+      </form>
+    </div>
+  </ion-card>
+</ion-content>

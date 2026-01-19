@@ -1,0 +1,140 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Certificados Oficiales</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <ion-card class="main-card">
+    <div class="welcome-header">
+      <img src="../../../../assets/certificados/cnc.png" alt="Logo CNC" class="logo">
+      <h1>Bienvenido, {{ usuarioactual && usuarioactual.length > 0 ? usuarioactual[0].Nombre_Usuario : 'Usuario' }}</h1>
+      <p>Aquí puedes ver y descargar tu certificado oficial emitido por el CNC</p>
+    </div>
+
+    <ion-card-content>
+      <!-- Información de la capacitación -->
+      <div class="certificate-info-section fade-in">
+        <h3 class="section-title">Información del Certificado</h3>
+
+        <div class="info-container">
+          <div class="info-item">
+            <ion-icon name="school-outline" color="primary"></ion-icon>
+            <div class="info-content">
+              <span class="info-label">Capacitación</span>
+              <span class="info-value">{{ capacitacion?.Nombre_Capacitacion || 'Cargando...' }}</span>
+            </div>
+          </div>
+
+          <div class="info-item">
+            <ion-icon name="time-outline" color="primary"></ion-icon>
+            <div class="info-content">
+              <span class="info-label">Duración</span>
+              <span class="info-value">{{ capacitacion?.Horas || 0 }} horas</span>
+            </div>
+          </div>
+
+          <div class="info-item">
+            <ion-icon name="desktop-outline" color="primary"></ion-icon>
+            <div class="info-content">
+              <span class="info-label">Modalidad</span>
+              <span class="info-value">{{ capacitacion?.Modalidades || 'No especificada' }}</span>
+            </div>
+          </div>
+
+          <div class="info-item">
+            <ion-icon name="person-outline" color="primary"></ion-icon>
+            <div class="info-content">
+              <span class="info-label">Rol en capacitación</span>
+              <span class="info-value">{{ rol_usuario_conferiencia && rol_usuario_conferiencia.length > 0 ? rol_usuario_conferiencia[0].Rol_Capacitacion : 'Participante' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Entidades organizadoras -->
+      <div class="organizers-section fade-in" style="animation-delay: 0.2s;">
+        <h3 class="section-title">Entidades Organizadoras</h3>
+
+        <div class="entities-container">
+          <div class="entity-card" *ngFor="let entidad of entidades">
+            <div class="entity-logo" *ngIf="entidad.Imagen_Entidad">
+              <img [src]="entidad.Imagen_Entidad" [alt]="entidad.Nombre_Entidad">
+            </div>
+            <div class="entity-name">{{ entidad.Nombre_Entidad }}</div>
+          </div>
+
+          <div class="empty-state" *ngIf="entidades.length === 0">
+            <ion-icon name="business-outline" color="medium"></ion-icon>
+            <p>No hay entidades organizadoras registradas</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Vista previa del certificado -->
+      <div class="preview-section fade-in" style="animation-delay: 0.3s;">
+        <h3 class="section-title">Vista Previa del Certificado</h3>
+
+        <div class="certificate-preview">
+          <div class="ecuador-certificate">
+            <div class="certificate-content">
+              <div class="certificate-header">
+                <div class="certificate-title">Certificado de Reconocimiento</div>
+                <div class="qr-code" *ngIf="qrCode">
+                  <img [src]="qrCode" alt="QR Code">
+                </div>
+              </div>
+
+              <div class="certificate-body">
+                <div class="certificate-recipient">
+                  <div class="role-text">Por ocupar el rol de {{ rol_usuario_conferiencia && rol_usuario_conferiencia.length > 0 ? rol_usuario_conferiencia[0].Rol_Capacitacion : 'Participante' }}</div>
+                  <div class="recipient-name">{{ usuarioactual && usuarioactual.length > 0 ? usuarioactual[0].Nombre_Usuario : 'Usuario' }}</div>
+                </div>
+
+                <div class="certificate-text">
+                  El Consejo Nacional de Competencias de Ecuador certifica oficialmente que {{ usuarioactual && usuarioactual.length > 0 ? usuarioactual[0].Nombre_Usuario : 'Usuario' }},
+                  con Cédula de Identidad {{ usuarioactual && usuarioactual.length > 0 ? usuarioactual[0].CI_Usuario : '' }}, ha completado satisfactoriamente la capacitación titulada "{{ capacitacion?.Nombre_Capacitacion || 'asdasd' }}",
+                  impartida bajo la modalidad "{{ capacitacion?.Modalidades || 'Virtual' }}", con una duración total de {{ capacitacion?.Horas || 2 }} horas académicas.
+                </div>
+
+                <div class="certificate-footer-text">
+                  En reconocimiento a su participación activa y aprovechamiento en el programa de formación profesional, se expide el presente certificado.
+                </div>
+
+                <div class="certificate-date">
+                  Emitido en Ecuador, a los {{ '28 de abril de 2025' }}.
+                </div>
+              </div>
+
+              <div class="certificate-footer">
+                <div class="certificate-logo">
+                  <img src="../../../../assets/certificados/cnc.png" alt="CNC Logo">
+                  <div class="logo-text">
+                    <div class="signatory-name">{{ usuarioactual && usuarioactual.length > 0 ? usuarioactual[0].Nombre_Usuario : 'Usuario' }}</div>
+                    <div class="signatory-id">CI: {{ usuarioactual && usuarioactual.length > 0 ? usuarioactual[0].CI_Usuario : '' }}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Acciones -->
+      <div class="actions-section fade-in" style="animation-delay: 0.4s;">
+        <ion-button expand="block" color="primary" (click)="generarPDF()" class="generate-button">
+          <ion-icon name="document-text-outline" slot="start"></ion-icon>
+          Generar y Descargar Certificado
+        </ion-button>
+
+        <div class="verification-info">
+          <ion-icon name="shield-checkmark-outline" color="success"></ion-icon>
+          <p>Este certificado incluye un código QR único para verificar su autenticidad</p>
+        </div>
+      </div>
+    </ion-card-content>
+  </ion-card>
+</ion-content>

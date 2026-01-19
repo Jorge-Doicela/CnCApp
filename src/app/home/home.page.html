@@ -1,0 +1,328 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title class="ion-text-center">{{ pageTitle }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <ion-card class="main-card">
+    <!-- Logo y cabecera -->
+    <div class="logo-container ion-text-center">
+      <img src="assets/cnc.png" alt="Logo CNC" class="logo">
+    </div>
+
+    <!-- Sección de bienvenida -->
+    <ion-card-content>
+      <!-- Contenido para usuarios no autenticados -->
+      <div *ngIf="!userName" class="welcome-section fade-in">
+        <h2 class="welcome-title">Bienvenido al Consejo Nacional de Competencias</h2>
+        <p class="welcome-subtitle">Plataforma para la gestión de certificados y conferencias</p>
+
+        <div class="intro-cards">
+          <div class="intro-card">
+            <ion-icon name="calendar-outline" color="primary"></ion-icon>
+            <h3>Conferencias</h3>
+            <p>Accede a conferencias y capacitaciones relevantes para tu desarrollo profesional.</p>
+          </div>
+
+          <div class="intro-card">
+            <ion-icon name="document-text-outline" color="success"></ion-icon>
+            <h3>Certificados</h3>
+            <p>Obtén certificados oficiales que validan tus conocimientos y habilidades.</p>
+          </div>
+
+          <div class="intro-card">
+            <ion-icon name="people-outline" color="tertiary"></ion-icon>
+            <h3>Comunidad</h3>
+            <p>Conecta con otros profesionales y amplía tu red de contactos.</p>
+          </div>
+        </div>
+
+        <ion-button expand="block" color="primary" (click)="iraLogin()" class="login-button">
+          <ion-icon name="log-in-outline" slot="start"></ion-icon>
+          Iniciar Sesión
+        </ion-button>
+      </div>
+
+      <!-- Contenido para usuarios autenticados normales -->
+      <div *ngIf="userName && roleName === 'Usuario'" class="user-dashboard fade-in">
+        <div class="welcome-user">
+          <h2>Bienvenido, {{ userName }}</h2>
+          <p>Estamos encantados de tenerte de vuelta en nuestra plataforma.</p>
+        </div>
+
+        <!-- Estadísticas del usuario -->
+        <div class="stats-section fade-in" style="animation-delay: 0.1s;">
+          <h3 class="section-title">Resumen</h3>
+          <div class="stats-container">
+            <div class="stat-card">
+              <div class="stat-icon">
+                <ion-icon name="calendar-outline" color="primary"></ion-icon>
+              </div>
+              <div class="stat-details">
+                <span class="stat-value">{{ ConferenciasInscritas.length }}</span>
+                <span class="stat-label">Mis Conferencias</span>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon">
+                <ion-icon name="timer-outline" color="success"></ion-icon>
+              </div>
+              <div class="stat-details">
+                <span class="stat-value">{{ proximasConferencias }}</span>
+                <span class="stat-label">Próximas</span>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon">
+                <ion-icon name="document-text-outline" color="tertiary"></ion-icon>
+              </div>
+              <div class="stat-details">
+                <span class="stat-value">{{ certificadosDisponibles }}</span>
+                <span class="stat-label">Certificados</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Conferencias disponibles -->
+        <div class="conferences-section fade-in" style="animation-delay: 0.2s;">
+          <div class="section-header">
+            <h3 class="section-title">Conferencias Disponibles</h3>
+            <span class="results-count">{{ capacitacionesDisponibles.length }} disponibles</span>
+          </div>
+
+          <div *ngIf="cargandoCapacitaciones" class="loading-container">
+            <ion-spinner name="crescent" color="primary"></ion-spinner>
+            <p>Cargando conferencias...</p>
+          </div>
+
+          <div *ngIf="!cargandoCapacitaciones && capacitacionesDisponibles.length === 0" class="empty-state">
+            <ion-icon name="calendar-outline" color="medium"></ion-icon>
+            <h4>No hay conferencias disponibles</h4>
+            <p>Actualmente no hay conferencias programadas. Vuelve a revisar más tarde.</p>
+          </div>
+
+          <div class="conferences-grid" *ngIf="!cargandoCapacitaciones && capacitacionesDisponibles.length > 0">
+            <div class="conference-card" *ngFor="let capacitacion of capacitacionesDisponibles">
+              <div class="conference-header">
+                <div class="conference-title">
+                  <h4>{{ capacitacion.Nombre_Capacitacion }}</h4>
+                  <span class="conference-badge"
+                        [ngClass]="{
+                      'active': capacitacion.Estado === 0,
+                      'inactive': capacitacion.Estado === 2,
+                      'completed': capacitacion.Estado === 1
+                    }">
+                    {{ capacitacion.Estado === 0 ? 'Disponible' :
+                       capacitacion.Estado === 1 ? 'Completada' : 'Cancelada' }}
+                  </span>
+                </div>
+              </div>
+              <div class="conference-content">
+                <div class="conference-detail">
+                  <ion-icon name="information-circle-outline" color="primary"></ion-icon>
+                  <span>{{ capacitacion.Descripcion_Capacitacion }}</span>
+                </div>
+                <div class="conference-detail">
+                  <ion-icon name="location-outline" color="primary"></ion-icon>
+                  <span>{{ capacitacion.Lugar_Capacitacion }}</span>
+                </div>
+                <div class="conference-detail">
+                  <ion-icon name="calendar-outline" color="primary"></ion-icon>
+                  <span>{{ capacitacion.Fecha_Capacitacion | date:'dd/MM/yyyy HH:mm' }}</span>
+                </div>
+                <div class="conference-detail">
+                  <ion-icon name="time-outline" color="primary"></ion-icon>
+                  <span>{{ capacitacion.Horas }} Horas</span>
+                </div>
+                <div class="conference-detail">
+                  <ion-icon name="school-outline" color="primary"></ion-icon>
+                  <span>{{ capacitacion.Modalidades }}</span>
+                </div>
+              </div>
+              <div class="conference-actions">
+                <ion-button *ngIf="puedeInscribirse(capacitacion)" expand="block" color="primary" (click)="inscribirse(capacitacion.Id_Capacitacion)">
+                  <ion-icon name="add-circle-outline" slot="start"></ion-icon>
+                  Participar
+                </ion-button>
+                <ion-button *ngIf="puedeCancelarInscripcion(capacitacion)" expand="block" color="danger" (click)="cancelarInscripcion(capacitacion.Id_Capacitacion)">
+                  <ion-icon name="close-circle-outline" slot="start"></ion-icon>
+                  Cancelar Inscripción
+                </ion-button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mis conferencias -->
+        <div *ngIf="ConferenciasInscritas.length > 0" class="my-conferences-section fade-in" style="animation-delay: 0.3s;">
+          <h3 class="section-title">Mis Conferencias</h3>
+
+          <div class="conferences-grid">
+            <div class="conference-card my-conference" *ngFor="let conferencia of ConferenciasInscritas">
+              <div class="conference-header">
+                <div class="conference-title">
+                  <h4>{{ conferencia.Nombre_Capacitacion }}</h4>
+                  <span class="conference-badge"
+                        [ngClass]="{
+                      'active': conferencia.Estado === 0,
+                      'inactive': conferencia.Estado === 2,
+                      'completed': conferencia.Estado === 1
+                    }">
+                    {{ conferencia.Estado === 0 ? 'Pendiente' :
+                       conferencia.Estado === 1 ? 'Completada' : 'Cancelada' }}
+                  </span>
+                </div>
+              </div>
+              <div class="conference-content">
+                <div class="conference-detail">
+                  <ion-icon name="information-circle-outline" color="primary"></ion-icon>
+                  <span>{{ conferencia.Descripcion_Capacitacion }}</span>
+                </div>
+                <div class="conference-detail">
+                  <ion-icon name="location-outline" color="primary"></ion-icon>
+                  <span>{{ conferencia.Lugar_Capacitacion }}</span>
+                </div>
+                <div class="conference-detail">
+                  <ion-icon name="calendar-outline" color="primary"></ion-icon>
+                  <span>{{ conferencia.Fecha_Capacitacion | date:'dd/MM/yyyy HH:mm' }}</span>
+                </div>
+                <div class="conference-detail">
+                  <ion-icon name="time-outline" color="primary"></ion-icon>
+                  <span>{{ conferencia.Horas }} Horas</span>
+                </div>
+              </div>
+              <div class="conference-actions">
+                <ion-button *ngIf="conferencia.Estado === 0" expand="block" color="danger" (click)="cancelarInscripcion(conferencia.Id_Capacitacion)">
+                  <ion-icon name="close-circle-outline" slot="start"></ion-icon>
+                  Cancelar Inscripción
+                </ion-button>
+                <ion-button *ngIf="conferencia.Estado === 1" expand="block" color="success" disabled>
+                  <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
+                  Completada
+                </ion-button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contenido para administradores -->
+      <div *ngIf="userName && roleName === 'Administrador'" class="admin-dashboard fade-in">
+        <div class="welcome-admin">
+          <h2>Bienvenido al Panel Administrativo</h2>
+          <p>Gestione conferencias, usuarios y recursos del Consejo Nacional de Competencias</p>
+        </div>
+
+        <!-- Estadísticas para administradores -->
+        <div class="stats-section fade-in" style="animation-delay: 0.1s;">
+          <h3 class="section-title">Resumen General</h3>
+          <div class="stats-container">
+            <div class="stat-card">
+              <div class="stat-icon">
+                <ion-icon name="people-outline" color="primary"></ion-icon>
+              </div>
+              <div class="stat-details">
+                <span class="stat-value">{{ usuariosCount }}</span>
+                <span class="stat-label">Usuarios</span>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon">
+                <ion-icon name="calendar-outline" color="success"></ion-icon>
+              </div>
+              <div class="stat-details">
+                <span class="stat-value">{{ conferenciasCount }}</span>
+                <span class="stat-label">Conferencias</span>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon">
+                <ion-icon name="document-text-outline" color="tertiary"></ion-icon>
+              </div>
+              <div class="stat-details">
+                <span class="stat-value">{{ certificadosCount }}</span>
+                <span class="stat-label">Certificados</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel de acceso rápido para administradores -->
+        <div class="admin-quick-access fade-in" style="animation-delay: 0.2s;">
+          <h3 class="section-title">Accesos Rápidos</h3>
+          <div class="admin-panels">
+            <div class="admin-panel" *ngFor="let modulo of modulos" (click)="navegarModulo(modulo)">
+              <ion-icon [name]="getIconForModule(modulo)" color="primary"></ion-icon>
+              <h4>{{ modulo }}</h4>
+              <p>Gestionar y administrar {{ modulo.toLowerCase() }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Próximas conferencias (Vista admin) -->
+        <div class="admin-conferences fade-in" style="animation-delay: 0.3s;">
+          <div class="section-header">
+            <h3 class="section-title">Próximas Conferencias</h3>
+            <ion-button size="small" color="primary" fill="outline" (click)="navegarModulo('Gestionar capacitación')">
+              <ion-icon name="add-outline" slot="start"></ion-icon>
+              Ver Todas
+            </ion-button>
+          </div>
+
+          <div *ngIf="cargandoCapacitaciones" class="loading-container">
+            <ion-spinner name="crescent" color="primary"></ion-spinner>
+            <p>Cargando conferencias...</p>
+          </div>
+
+          <div class="conferences-grid" *ngIf="!cargandoCapacitaciones && capacitacionesDisponibles.length > 0">
+            <div class="conference-card admin-view" *ngFor="let capacitacion of capacitacionesDisponibles.slice(0, 3)">
+              <div class="conference-header">
+                <div class="conference-title">
+                  <h4>{{ capacitacion.Nombre_Capacitacion }}</h4>
+                  <span class="conference-badge"
+                        [ngClass]="{
+                      'active': capacitacion.Estado === 0,
+                      'inactive': capacitacion.Estado === 2,
+                      'completed': capacitacion.Estado === 1
+                    }">
+                    {{ capacitacion.Estado === 0 ? 'Disponible' :
+                       capacitacion.Estado === 1 ? 'Completada' : 'Cancelada' }}
+                  </span>
+                </div>
+              </div>
+              <div class="conference-content">
+                <div class="conference-detail">
+                  <ion-icon name="information-circle-outline" color="primary"></ion-icon>
+                  <span>{{ capacitacion.Descripcion_Capacitacion }}</span>
+                </div>
+                <div class="conference-detail">
+                  <ion-icon name="location-outline" color="primary"></ion-icon>
+                  <span>{{ capacitacion.Lugar_Capacitacion }}</span>
+                </div>
+                <div class="conference-detail">
+                  <ion-icon name="calendar-outline" color="primary"></ion-icon>
+                  <span>{{ capacitacion.Fecha_Capacitacion | date:'dd/MM/yyyy HH:mm' }}</span>
+                </div>
+              </div>
+              <div class="conference-actions">
+                <ion-button expand="block" color="primary" (click)="editarCapacitacion(capacitacion.Id_Capacitacion)">
+                  <ion-icon name="create-outline" slot="start"></ion-icon>
+                  Editar
+                </ion-button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ion-card-content>
+  </ion-card>
+</ion-content>

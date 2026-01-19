@@ -1,0 +1,68 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/gestionar-competencias"></ion-back-button>
+    </ion-buttons>
+    <ion-title class="ion-text-center">Crear Competencia</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <ion-card class="main-card">
+    <div class="form-header">
+      <ion-icon name="add-circle-outline" color="primary"></ion-icon>
+      <h2>Nueva Competencia</h2>
+      <p>Complete la información para crear una nueva competencia</p>
+    </div>
+
+    <form (ngSubmit)="crearCompetencia()" #competenciaForm="ngForm">
+      <div class="form-group">
+        <ion-item class="form-item">
+          <ion-icon name="text-outline" slot="start" color="primary"></ion-icon>
+          <ion-label position="floating">Nombre de la Competencia <ion-text color="danger">*</ion-text></ion-label>
+          <ion-input [(ngModel)]="nuevaCompetencia.nombre_competencias" name="nombre_competencias" required minlength="3" #nombre="ngModel"></ion-input>
+        </ion-item>
+        <ion-note color="danger" *ngIf="nombre.invalid && (nombre.dirty || nombre.touched)">
+          <ion-icon name="alert-circle-outline"></ion-icon>
+          El nombre es obligatorio y debe tener al menos 3 caracteres
+        </ion-note>
+      </div>
+
+      <div class="form-group">
+        <ion-item class="form-item">
+          <ion-icon name="document-text-outline" slot="start" color="primary"></ion-icon>
+          <ion-label position="floating">Descripción</ion-label>
+          <ion-textarea [(ngModel)]="nuevaCompetencia.descripcion" name="descripcion" rows="3"></ion-textarea>
+        </ion-item>
+        <ion-note color="medium">
+          <ion-icon name="information-circle-outline"></ion-icon>
+          Proporcione una descripción breve sobre esta competencia
+        </ion-note>
+      </div>
+
+      <div class="form-group status-toggle">
+        <ion-item class="form-item toggle-item">
+          <ion-icon name="checkmark-circle-outline" slot="start" color="primary"></ion-icon>
+          <ion-label>Estado</ion-label>
+          <ion-toggle [(ngModel)]="nuevaCompetencia.estado_competencia" name="estado_competencia" color="success"></ion-toggle>
+        </ion-item>
+        <ion-note>
+          <ion-icon name="information-circle-outline"></ion-icon>
+          Activo: La competencia está disponible | Inactivo: La competencia no está disponible
+        </ion-note>
+      </div>
+
+      <div class="form-actions">
+        <ion-button color="medium" fill="outline" type="button" (click)="cancelar()">
+          <ion-icon name="close-outline" slot="start"></ion-icon>
+          Cancelar
+        </ion-button>
+        <ion-button color="primary" type="submit" [disabled]="competenciaForm.invalid || enviando">
+          <ion-icon name="save-outline" slot="start"></ion-icon>
+          {{ enviando ? 'Guardando...' : 'Guardar Competencia' }}
+          <ion-spinner name="crescent" *ngIf="enviando"></ion-spinner>
+        </ion-button>
+      </div>
+    </form>
+  </ion-card>
+</ion-content>

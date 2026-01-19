@@ -1,0 +1,115 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/ver-perfil"></ion-back-button>
+    </ion-buttons>
+    <ion-title class="ion-text-center">{{ tieneFirma ? 'Actualizar Firma Digital' : 'Agregar Firma Digital' }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <div *ngIf="cargando" class="loading-container">
+    <ion-spinner name="crescent" color="primary"></ion-spinner>
+    <p>Cargando...</p>
+  </div>
+
+  <ion-card *ngIf="!cargando" class="signature-card">
+    <ion-card-header>
+      <ion-card-title class="ion-text-center">{{ tieneFirma ? 'Actualizar Firma Digital' : 'Agregar Firma Digital' }}</ion-card-title>
+      <ion-card-subtitle class="ion-text-center">
+        Esta firma se utilizará para certificados y documentos oficiales
+      </ion-card-subtitle>
+    </ion-card-header>
+
+    <ion-card-content>
+      <!-- Firma actual si existe -->
+      <div *ngIf="tieneFirma" class="current-signature-container">
+        <h3 class="section-title">Firma Actual</h3>
+        <div class="current-signature">
+          <img [src]="usuario.Firma_Usuario" alt="Firma actual" class="signature-image">
+        </div>
+      </div>
+
+      <!-- Opciones para agregar firma -->
+      <div class="signature-options">
+        <h3 class="section-title">{{ tieneFirma ? 'Seleccionar Nueva Firma' : 'Seleccionar Método' }}</h3>
+
+        <div class="option-tabs">
+          <ion-segment [(ngModel)]="metodoSeleccionado" (ionChange)="cambiarMetodo()">
+            <ion-segment-button value="dibujar">
+              <ion-icon name="create-outline"></ion-icon>
+              <ion-label>Dibujar</ion-label>
+            </ion-segment-button>
+            <ion-segment-button value="subir">
+              <ion-icon name="image-outline"></ion-icon>
+              <ion-label>Subir Imagen</ion-label>
+            </ion-segment-button>
+          </ion-segment>
+        </div>
+
+        <!-- Dibujar firma -->
+        <div *ngIf="metodoSeleccionado === 'dibujar'" class="draw-signature-container">
+          <div class="signature-pad-container">
+            <div class="signature-pad">
+              <canvas #signaturePad width="800" height="300" class="signature-canvas"></canvas>
+            </div>
+            <div class="signature-actions">
+              <ion-button color="medium" fill="outline" (click)="limpiarFirma()">
+                <ion-icon name="trash-outline" slot="start"></ion-icon>
+                Limpiar
+              </ion-button>
+              <ion-button color="primary" [disabled]="firmaDibujada === false" (click)="guardarFirma()">
+                <ion-icon name="save-outline" slot="start"></ion-icon>
+                Guardar Firma
+              </ion-button>
+            </div>
+          </div>
+          <div class="signature-instructions">
+            <p>
+              <ion-icon name="information-circle-outline"></ion-icon>
+              Dibuje su firma en el recuadro utilizando el dedo o un lápiz táctil.
+            </p>
+          </div>
+        </div>
+
+        <!-- Subir imagen de firma -->
+        <div *ngIf="metodoSeleccionado === 'subir'" class="upload-signature-container">
+          <div class="upload-area" (click)="seleccionarImagenFirma()" [class.has-image]="previewFirma">
+            <div *ngIf="!previewFirma" class="upload-placeholder">
+              <ion-icon name="cloud-upload-outline"></ion-icon>
+              <p>Toque para seleccionar una imagen</p>
+              <span>Formatos: JPEG, PNG</span>
+            </div>
+            <div *ngIf="previewFirma" class="upload-preview">
+              <img [src]="previewFirma" alt="Vista previa de firma" class="preview-image">
+            </div>
+          </div>
+          <div class="upload-actions" *ngIf="previewFirma">
+            <ion-button color="medium" fill="outline" (click)="cancelarSubidaFirma()">
+              <ion-icon name="close-outline" slot="start"></ion-icon>
+              Cancelar
+            </ion-button>
+            <ion-button color="primary" (click)="guardarFirmaImagen()">
+              <ion-icon name="save-outline" slot="start"></ion-icon>
+              Guardar Firma
+            </ion-button>
+          </div>
+          <div class="signature-instructions">
+            <p>
+              <ion-icon name="information-circle-outline"></ion-icon>
+              Seleccione una imagen con fondo transparente o blanco que contenga su firma.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Acciones generales -->
+      <div class="general-actions">
+        <ion-button expand="block" color="medium" (click)="cancelar()">
+          <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
+          Volver a Perfil
+        </ion-button>
+      </div>
+    </ion-card-content>
+  </ion-card>
+</ion-content>

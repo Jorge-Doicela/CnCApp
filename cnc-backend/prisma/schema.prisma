@@ -1,0 +1,224 @@
+// Prisma Schema para CNC Backend
+// Generador y configuración de base de datos
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// TABLAS DE AUTENTICACIÓN Y USUARIOS
+// ============================================
+
+model Rol {
+  id          Int       @id @default(autoincrement()) @map("Id_Rol")
+  nombre      String    @unique @map("nombre_rol") @db.VarChar(100)
+  descripcion String?   @db.Text
+  modulos     Json?     @default("[]")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  
+  usuarios    Usuario[]
+
+  @@map("Rol")
+}
+
+model Entidad {
+  id        Int       @id @default(autoincrement()) @map("Id_Entidad")
+  nombre    String    @map("Nombre_Entidad") @db.VarChar(200)
+  createdAt DateTime  @default(now()) @map("created_at")
+  
+  usuarios  Usuario[]
+
+  @@map("Entidades")
+}
+
+model Usuario {
+  id                Int       @id @default(autoincrement()) @map("Id_Usuario")
+  authUid           String?   @unique @map("auth_uid")
+  nombre            String    @map("Nombre_Usuario") @db.VarChar(200)
+  ci                String    @unique @map("CI_Usuario") @db.VarChar(20)
+  email             String?   @map("Email_Usuario") @db.VarChar(200)
+  telefono          String?   @map("Telefono_Usuario") @db.VarChar(20)
+  password          String    @db.VarChar(255)
+  rolId             Int?      @map("Rol_Usuario")
+  entidadId         Int?      @map("Entidad_Usuario")
+  tipoParticipante  Int       @default(0) @map("tipo_participante")
+  fotoPerfilUrl     String?   @map("foto_perfil_url") @db.Text
+  firmaUrl          String?   @map("firma_url") @db.Text
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+  
+  rol               Rol?      @relation(fields: [rolId], references: [id])
+  entidad           Entidad?  @relation(fields: [entidadId], references: [id])
+  
+  inscripciones     UsuarioCapacitacion[]
+  certificados      Certificado[]
+  autoridades       Autoridad[]
+  funcionarios      FuncionarioGAD[]
+  instituciones     InstitucionUsuario[]
+
+  @@index([authUid])
+  @@index([ci])
+  @@map("Usuario")
+}
+
+// ============================================
+// TABLAS GEOGRÁFICAS (Ecuador)
+// ============================================
+
+model Provincia {
+  id       Int       @id @default(autoincrement()) @map("Id_Provincia")
+  nombre   String    @map("Nombre_Provincia") @db.VarChar(100)
+  
+  cantones Canton[]
+
+  @@map("Provincias")
+}
+
+model Canton {
+  id          Int       @id @default(autoincrement()) @map("Id_Canton")
+  nombre      String    @map("Nombre_Canton") @db.VarChar(100)
+  provinciaId Int       @map("Id_Provincia")
+  
+  provincia   Provincia @relation(fields: [provinciaId], references: [id])
+  parroquias  Parroquia[]
+
+  @@map("Cantones")
+}
+
+model Parroquia {
+  id        Int    @id @default(autoincrement()) @map("Id_Parroquia")
+  nombre    String @map("Nombre_Parroquia") @db.VarChar(100)
+  cantonId  Int    @map("Id_Canton")
+  
+  canton    Canton @relation(fields: [cantonId], references: [id])
+
+  @@map("parroquia")
+}
+
+// ============================================
+// TABLAS DE CAPACITACIONES
+// ============================================
+
+model Capacitacion {
+  id                Int       @id @default(autoincrement()) @map("Id_Capacitacion")
+  nombre            String    @map("Nombre_Capacitacion") @db.VarChar(300)
+  descripcion       String?   @db.Text
+  fechaInicio       DateTime? @map("Fecha_Inicio") @db.Date
+  fechaFin          DateTime? @map("Fecha_Fin") @db.Date
+  lugar             String?   @db.VarChar(200)
+  cuposDisponibles  Int       @default(0) @map("Cupos_Disponibles")
+  modalidad         String?   @db.VarChar(50)
+  estado            String    @default("Activa") @db.VarChar(50)
+  createdAt         DateTime  @default(now()) @map("created_at")
+  
+  inscripciones     UsuarioCapacitacion[]
+  certificados      Certificado[]
+
+  @@map("Capacitaciones")
+}
+
+model UsuarioCapacitacion {
+  id                Int       @id @default(autoincrement()) @map("Id_Inscripcion")
+  usuarioId         Int       @map("Id_Usuario")
+  capacitacionId    Int       @map("Id_Capacitacion")
+  fechaInscripcion  DateTime  @default(now()) @map("Fecha_Inscripcion")
+  estadoInscripcion String    @default("Activa") @map("Estado_Inscripcion") @db.VarChar(50)
+  asistio           Boolean   @default(false)
+  
+  usuario           Usuario       @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  capacitacion      Capacitacion  @relation(fields: [capacitacionId], references: [id], onDelete: Cascade)
+
+  @@unique([usuarioId, capacitacionId])
+  @@index([usuarioId])
+  @@index([capacitacionId])
+  @@map("Usuarios_Capacitaciones")
+}
+
+model Certificado {
+  id              Int       @id @default(autoincrement()) @map("Id_Certificado")
+  usuarioId       Int       @map("Id_Usuario")
+  capacitacionId  Int       @map("Id_Capacitacion")
+  codigoQR        String    @unique @map("Codigo_QR") @db.Text
+  fechaEmision    DateTime  @default(now()) @map("Fecha_Emision")
+  pdfUrl          String?   @map("PDF_URL") @db.Text
+  
+  usuario         Usuario       @relation(fields: [usuarioId], references: [id])
+  capacitacion    Capacitacion  @relation(fields: [capacitacionId], references: [id])
+
+  @@index([codigoQR])
+  @@map("Certificados")
+}
+
+// ============================================
+// TABLAS ADMINISTRATIVAS
+// ============================================
+
+model Competencia {
+  id     Int    @id @default(autoincrement()) @map("Id_Competencia")
+  nombre String @map("Nombre_Competencia") @db.VarChar(200)
+
+  @@map("competencias")
+}
+
+model InstitucionSistema {
+  id   Int    @id @default(autoincrement()) @map("Id_Institucion")
+  nombre String @map("Nombre_Institucion") @db.VarChar(300)
+  tipo   String? @map("Tipo_Institucion") @db.VarChar(100)
+  
+  instituciones InstitucionUsuario[]
+
+  @@map("instituciones_sistema")
+}
+
+model Cargo {
+  id     Int    @id @default(autoincrement()) @map("Id_Cargo")
+  nombre String @map("Nombre_Cargo") @db.VarChar(200)
+
+  @@map("cargos")
+}
+
+model Autoridad {
+  id        Int     @id @default(autoincrement()) @map("Id_Autoridad")
+  usuarioId Int     @map("Id_Usuario")
+  cargo     String? @db.VarChar(200)
+  entidad   String? @db.VarChar(200)
+  
+  usuario   Usuario @relation(fields: [usuarioId], references: [id])
+
+  @@map("Autoridades")
+}
+
+model FuncionarioGAD {
+  id           Int     @id @default(autoincrement()) @map("Id_Funcionario")
+  usuarioId    Int     @map("Id_Usuario")
+  cargo        String? @db.VarChar(200)
+  departamento String? @db.VarChar(200)
+  
+  usuario      Usuario @relation(fields: [usuarioId], references: [id])
+
+  @@map("FuncionarioGAD")
+}
+
+model InstitucionUsuario {
+  id            Int     @id @default(autoincrement())
+  usuarioId     Int     @map("Id_Usuario")
+  institucionId Int     @map("Id_Institucion")
+  
+  usuario       Usuario            @relation(fields: [usuarioId], references: [id])
+  institucion   InstitucionSistema @relation(fields: [institucionId], references: [id])
+
+  @@map("Instituciones_usuario")
+}
+
+model Mancomunidad {
+  id     Int    @id @default(autoincrement()) @map("Id_Mancomunidad")
+  nombre String @map("Nombre_Mancomunidad") @db.VarChar(300)
+
+  @@map("mancomunidades")
+}

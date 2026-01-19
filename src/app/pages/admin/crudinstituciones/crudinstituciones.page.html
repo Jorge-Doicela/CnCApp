@@ -1,0 +1,163 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title class="ion-text-center">Gestión de Instituciones</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <ion-card class="main-card">
+    <div class="logo-container ion-text-center">
+      <img src="../../../../assets/cnc.png" alt="Logo Instituciones" class="logo">
+    </div>
+
+    <!-- Buscador y filtros -->
+    <ion-card-content>
+      <div class="search-section fade-in">
+        <h3 class="section-title">Administración de Instituciones</h3>
+        <div class="search-container">
+          <ion-item class="search-item">
+            <ion-icon name="search-outline" slot="start" color="primary"></ion-icon>
+            <ion-input placeholder="Buscar institución por nombre" [(ngModel)]="searchTerm" (ionChange)="filtrarInstituciones()"></ion-input>
+            <ion-button slot="end" fill="clear" (click)="filtrarInstituciones()">
+              <ion-icon name="search"></ion-icon>
+            </ion-button>
+          </ion-item>
+
+          <div class="filter-container">
+            <ion-item class="filter-item">
+              <ion-icon name="checkmark-circle-outline" slot="start" color="primary"></ion-icon>
+              <ion-label>Estado</ion-label>
+              <ion-select [(ngModel)]="filtroEstado" interface="action-sheet" placeholder="Todos" (ionChange)="filtrarInstituciones()">
+                <ion-select-option value="todos">Todos</ion-select-option>
+                <ion-select-option value="true">Activo</ion-select-option>
+                <ion-select-option value="false">Inactivo</ion-select-option>
+              </ion-select>
+            </ion-item>
+
+            <ion-item class="filter-item">
+              <ion-icon name="funnel-outline" slot="start" color="primary"></ion-icon>
+              <ion-label>Ordenar por</ion-label>
+              <ion-select [(ngModel)]="ordenarPor" interface="action-sheet" placeholder="Nombre" (ionChange)="filtrarInstituciones()">
+                <ion-select-option value="nombre">Nombre</ion-select-option>
+                <ion-select-option value="id">ID</ion-select-option>
+              </ion-select>
+            </ion-item>
+          </div>
+        </div>
+
+        <!-- Botón para crear nueva institución -->
+        <ion-button expand="block" color="primary" (click)="crearInstitucion()" class="create-button">
+          <ion-icon name="add-circle-outline" slot="start"></ion-icon>
+          Crear Nueva Institución
+        </ion-button>
+      </div>
+
+      <!-- Estadísticas -->
+      <div class="stats-section fade-in" style="animation-delay: 0.1s;">
+        <h3 class="section-title">Estadísticas</h3>
+        <div class="stats-container">
+          <div class="stat-card">
+            <div class="stat-icon">
+              <ion-icon name="business-outline" color="primary"></ion-icon>
+            </div>
+            <div class="stat-details">
+              <span class="stat-value">{{ institucionesFiltradas.length }}</span>
+              <span class="stat-label">Instituciones</span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon">
+              <ion-icon name="checkmark-circle-outline" color="success"></ion-icon>
+            </div>
+            <div class="stat-details">
+              <span class="stat-value">{{ institucionesActivas }}</span>
+              <span class="stat-label">Activas</span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon">
+              <ion-icon name="close-circle-outline" color="danger"></ion-icon>
+            </div>
+            <div class="stat-details">
+              <span class="stat-value">{{ instituciones.length - institucionesActivas }}</span>
+              <span class="stat-label">Inactivas</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lista de instituciones -->
+      <div class="instituciones-section fade-in" style="animation-delay: 0.2s;">
+        <div class="section-header">
+          <h3 class="section-title">Listado de Instituciones</h3>
+          <span class="results-count">{{ institucionesFiltradas.length }} registros</span>
+        </div>
+
+        <div *ngIf="cargando" class="loading-container">
+          <ion-spinner name="crescent" color="primary"></ion-spinner>
+          <p>Cargando instituciones...</p>
+        </div>
+
+        <div *ngIf="!cargando && institucionesFiltradas.length === 0" class="empty-state">
+          <ion-icon name="alert-circle-outline" color="medium"></ion-icon>
+          <h4>No se encontraron instituciones</h4>
+          <p>No hay instituciones que coincidan con los criterios de búsqueda. Intenta modificar los filtros.</p>
+        </div>
+
+        <div class="instituciones-grid" *ngIf="!cargando && institucionesFiltradas.length > 0">
+          <div class="institucion-card" *ngFor="let institucion of institucionesFiltradas" [ngClass]="{'active-card': institucion.estado_institucion, 'inactive-card': !institucion.estado_institucion}">
+            <div class="institucion-header">
+              <div class="institucion-title">
+                <h4>{{ institucion.nombre_institucion }}</h4>
+                <span class="institucion-badge" [ngClass]="{'active': institucion.estado_institucion, 'inactive': !institucion.estado_institucion}">
+                  {{ institucion.estado_institucion ? 'Activo' : 'Inactivo' }}
+                </span>
+              </div>
+            </div>
+            <div class="institucion-content">
+              <div class="institucion-detail">
+                <ion-icon name="key-outline" color="primary"></ion-icon>
+                <span>ID: {{ institucion.id_institucion }}</span>
+              </div>
+              <div *ngIf="institucion.direccion" class="institucion-detail">
+                <ion-icon name="location-outline" color="primary"></ion-icon>
+                <span>{{ institucion.direccion }}</span>
+              </div>
+              <div *ngIf="institucion.telefono" class="institucion-detail">
+                <ion-icon name="call-outline" color="primary"></ion-icon>
+                <span>{{ institucion.telefono }}</span>
+              </div>
+              <div *ngIf="institucion.email" class="institucion-detail">
+                <ion-icon name="mail-outline" color="primary"></ion-icon>
+                <span>{{ institucion.email }}</span>
+              </div>
+              <div class="institucion-detail">
+                <ion-icon name="calendar-outline" color="primary"></ion-icon>
+                <span>Última actualización: {{ institucion.fecha_ultima_actualizacion | date:'dd/MM/yyyy' }}</span>
+              </div>
+            </div>
+            <div class="institucion-actions">
+              <ion-button fill="clear" color="primary" (click)="editarInstitucion(institucion.id_institucion)">
+                <ion-icon name="create-outline"></ion-icon>
+                Editar
+              </ion-button>
+              <ion-button fill="clear" color="danger" (click)="confirmarEliminar(institucion)">
+                <ion-icon name="trash-outline"></ion-icon>
+                Eliminar
+              </ion-button>
+              <ion-button fill="clear" [color]="institucion.estado_institucion ? 'warning' : 'success'" (click)="cambiarEstado(institucion)">
+                <ion-icon name="swap-vertical-outline"></ion-icon>
+                {{ institucion.estado_institucion ? 'Desactivar' : 'Activar' }}
+              </ion-button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ion-card-content>
+  </ion-card>
+</ion-content>

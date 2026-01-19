@@ -1,0 +1,92 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/gestionar-instituciones"></ion-back-button>
+    </ion-buttons>
+    <ion-title class="ion-text-center">Crear Institución</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <ion-card class="main-card">
+    <div class="form-header">
+      <ion-icon name="add-circle-outline" color="primary"></ion-icon>
+      <h2>Nueva Institución</h2>
+      <p>Complete la información para crear una nueva institución</p>
+    </div>
+
+    <form (ngSubmit)="crearInstitucion()" #institucionForm="ngForm">
+      <div class="form-group">
+        <ion-item class="form-item">
+          <ion-icon name="business-outline" slot="start" color="primary"></ion-icon>
+          <ion-label position="floating">Nombre de la Institución <ion-text color="danger">*</ion-text></ion-label>
+          <ion-input [(ngModel)]="nuevaInstitucion.nombre_institucion" name="nombre_institucion" required minlength="3" #nombre="ngModel"></ion-input>
+        </ion-item>
+        <ion-note color="danger" *ngIf="nombre.invalid && (nombre.dirty || nombre.touched)">
+          <ion-icon name="alert-circle-outline"></ion-icon>
+          El nombre es obligatorio y debe tener al menos 3 caracteres
+        </ion-note>
+      </div>
+
+      <div class="form-group">
+        <ion-item class="form-item">
+          <ion-icon name="location-outline" slot="start" color="primary"></ion-icon>
+          <ion-label position="floating">Dirección</ion-label>
+          <ion-input [(ngModel)]="nuevaInstitucion.direccion" name="direccion"></ion-input>
+        </ion-item>
+      </div>
+
+      <div class="form-group">
+        <ion-item class="form-item">
+          <ion-icon name="call-outline" slot="start" color="primary"></ion-icon>
+          <ion-label position="floating">Teléfono</ion-label>
+          <ion-input [(ngModel)]="nuevaInstitucion.telefono" name="telefono" type="tel"></ion-input>
+        </ion-item>
+      </div>
+
+      <div class="form-group">
+        <ion-item class="form-item">
+          <ion-icon name="mail-outline" slot="start" color="primary"></ion-icon>
+          <ion-label position="floating">Email</ion-label>
+          <ion-input [(ngModel)]="nuevaInstitucion.email" name="email" type="email" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" #email="ngModel"></ion-input>
+        </ion-item>
+        <ion-note color="danger" *ngIf="email.invalid && (email.dirty || email.touched)">
+          <ion-icon name="alert-circle-outline"></ion-icon>
+          Por favor, introduce un email válido
+        </ion-note>
+      </div>
+
+      <div class="form-group">
+        <ion-item class="form-item">
+          <ion-icon name="document-text-outline" slot="start" color="primary"></ion-icon>
+          <ion-label position="floating">Descripción</ion-label>
+          <ion-textarea [(ngModel)]="nuevaInstitucion.descripcion" name="descripcion" rows="3"></ion-textarea>
+        </ion-item>
+      </div>
+
+      <div class="form-group status-toggle">
+        <ion-item class="form-item toggle-item">
+          <ion-icon name="checkmark-circle-outline" slot="start" color="primary"></ion-icon>
+          <ion-label>Estado</ion-label>
+          <ion-toggle [(ngModel)]="nuevaInstitucion.estado_institucion" name="estado_institucion" color="success"></ion-toggle>
+        </ion-item>
+        <ion-note>
+          <ion-icon name="information-circle-outline"></ion-icon>
+          Activo: La institución está disponible | Inactivo: La institución no está disponible
+        </ion-note>
+      </div>
+
+      <div class="form-actions">
+        <ion-button color="medium" fill="outline" type="button" (click)="cancelar()">
+          <ion-icon name="close-outline" slot="start"></ion-icon>
+          Cancelar
+        </ion-button>
+        <ion-button color="primary" type="submit" [disabled]="institucionForm.invalid || enviando">
+          <ion-icon name="save-outline" slot="start"></ion-icon>
+          {{ enviando ? 'Guardando...' : 'Guardar Institución' }}
+          <ion-spinner name="crescent" *ngIf="enviando"></ion-spinner>
+        </ion-button>
+      </div>
+    </form>
+  </ion-card>
+</ion-content>

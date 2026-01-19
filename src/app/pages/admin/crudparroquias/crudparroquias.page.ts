@@ -1,0 +1,226 @@
+import { Component, OnInit } from '@angular/core';
+import { supabase } from 'src/supabase';
+import { Router } from '@angular/router';
+import { AlertController, LoadingController, ToastController } from '@ionic/angular';
+
+@Component({
+  selector: 'app-crudparroquias',
+  templateUrl: './crudparroquias.page.html',
+  styleUrls: ['./crudparroquias.page.scss'],
+  standalone: false
+})
+export class CrudparroquiasPage implements OnInit {
+
+  parroquias: any[] = [];
+  parroquiasFiltradas: any[] = [];
+  cantones: any[] = [];
+  cargando: boolean = true;
+  searchTerm: string = '';
+  filtroCanton: string = 'todos';
+  filtroEstado: string = 'todos';
+  parroquiasActivas: number = 0;
+
+  constructor(
+    private router: Router,
+    private alertController: AlertController,
+    private loadingController: LoadingController,
+    private toastController: ToastController
+  ) { }
+
+  ngOnInit() {
+    this.cargarDatos();
+  }
+
+  async cargarDatos() {
+    this.cargando = true;
+    await this.obtenerCantones();
+    await this.obtenerParroquias();
+    this.cargando = false;
+  }
+
+  async obtenerParroquias() {
+    const loading = await this.loadingController.create({
+      message: 'Obteniendo parroquias...',
+      spinner: 'crescent'
+    });
+    await loading.present();
+
+    try {
+      const { data: parroquias, error } = await supabase
+        .from('parroquia')
+        .select('*');
+
+      if (error) {
+        this.presentToast('Error al obtener parroquias: ' + error.message, 'danger');
+        return;
+      }
+
+      this.parroquias = parroquias || [];
+      this.asociarCantones();
+      this.calcularEstadisticas();
+      this.filtrarParroquias();
+    } catch (error: any) {
+      this.presentToast('Error en la solicitud: ' + error.message, 'danger');
+    } finally {
+      loading.dismiss();
+    }
+  }
+
+  async obtenerCantones() {
+    try {
+      const { data: Cantones, error } = await supabase
+        .from('Cantones')
+        .select('*');
+
+      if (error) {
+        this.presentToast('Error al obtener cantones: ' + error.message, 'danger');
+        return;
+      }
+
+      this.cantones = Cantones || [];
+    } catch (error: any) {
+      this.presentToast('Error en la solicitud: ' + error.message, 'danger');
+    }
+  }
+
+  asociarCantones() {
+    this.parroquias = this.parroquias.map(parroquia => {
+      const canton = this.cantones.find(c => c.codigo_canton === parroquia.codigo_canton);
+      return {
+        ...parroquia,
+        nombre_canton: canton ? canton.nombre_canton : 'Cantón no encontrado'
+      };
+    });
+  }
+
+  calcularEstadisticas() {
+    this.parroquiasActivas = this.parroquias.filter(p => p.estado === true).length;
+  }
+
+  filtrarParroquias() {
+    this.parroquiasFiltradas = this.parroquias.filter(parroquia => {
+      // Filtrar por término de búsqueda
+      const matchesSearchTerm = this.searchTerm.trim() === '' ||
+        parroquia.nombre_parroquia.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+        parroquia.codigo_parroquia.toString().includes(this.searchTerm.toLowerCase());
+
+      // Filtrar por cantón
+      const matchesCanton = this.filtroCanton === 'todos' ||
+        parroquia.codigo_canton === this.filtroCanton;
+
+      // Filtrar por estado
+      const matchesEstado = this.filtroEstado === 'todos' ||
+        parroquia.estado.toString() === this.filtroEstado;
+
+      return matchesSearchTerm && matchesCanton && matchesEstado;
+    });
+  }
+
+  crearParroquia() {
+    this.router.navigate(['/gestionar-parroquias/crear']);
+  }
+
+  editarParroquia(idparroquia: any) {
+    this.router.navigate(['/gestionar-parroquias/editar', idparroquia]);
+  }
+
+  async cambiarEstado(parroquia: any) {
+    const loading = await this.loadingController.create({
+      message: 'Actualizando estado...',
+      spinner: 'crescent'
+    });
+    await loading.present();
+
+    try {
+      const nuevoEstado = !parroquia.estado;
+      const { error } = await supabase
+        .from('parroquia')
+        .update({ estado: nuevoEstado })
+        .eq('codigo_parroquia', parroquia.codigo_parroquia);
+
+      if (error) {
+        this.presentToast('Error al cambiar estado: ' + error.message, 'danger');
+        return;
+      }
+
+      // Actualizar el objeto local
+      parroquia.estado = nuevoEstado;
+      this.calcularEstadisticas();
+      this.presentToast(
+        `Parroquia "${parroquia.nombre_parroquia}" ahora está ${nuevoEstado ? 'activa' : 'inactiva'}`,
+        'success'
+      );
+    } catch (error: any) {
+      this.presentToast('Error en la solicitud: ' + error.message, 'danger');
+    } finally {
+      loading.dismiss();
+    }
+  }
+
+  async confirmarEliminar(parroquia: any) {
+    const alert = await this.alertController.create({
+      header: 'Confirmar eliminación',
+      message: `¿Está seguro que desea eliminar la parroquia "${parroquia.nombre_parroquia}"?`,
+      buttons: [
+        {
+          text: 'Cancelar',
+          role: 'cancel',
+          cssClass: 'secondary'
+        }, {
+          text: 'Eliminar',
+          cssClass: 'danger',
+          handler: () => {
+            this.eliminarParroquia(parroquia.codigo_parroquia);
+          }
+        }
+      ]
+    });
+
+    await alert.present();
+  }
+
+  async eliminarParroquia(codigo_parroquia: string) {
+    const loading = await this.loadingController.create({
+      message: 'Eliminando parroquia...',
+      spinner: 'crescent'
+    });
+    await loading.present();
+
+    try {
+      const { error } = await supabase
+        .from('parroquia')
+        .delete()
+        .eq('codigo_parroquia', codigo_parroquia);
+
+      if (error) {
+        this.presentToast('Error al eliminar parroquia: ' + error.message, 'danger');
+        return;
+      }
+
+      this.presentToast('Parroquia eliminada correctamente', 'success');
+      this.obtenerParroquias();
+    } catch (error: any) {
+      this.presentToast('Error en la solicitud: ' + error.message, 'danger');
+    } finally {
+      loading.dismiss();
+    }
+  }
+
+  async presentToast(message: string, color: string = 'primary') {
+    const toast = await this.toastController.create({
+      message: message,
+      duration: 3000,
+      position: 'bottom',
+      color: color,
+      buttons: [
+        {
+          side: 'end',
+          icon: 'close',
+          role: 'cancel'
+        }
+      ]
+    });
+
+    await toast.present();
+  }
+}

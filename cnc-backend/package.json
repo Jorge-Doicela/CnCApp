@@ -1,0 +1,62 @@
+{
+    "name": "cnc-backend",
+    "version": "1.0.0",
+    "description": "Backend API para el Consejo Nacional de Competencias",
+    "main": "dist/app.js",
+    "scripts": {
+        "dev": "tsx watch src/app.ts",
+        "build": "tsc",
+        "start": "node dist/app.js",
+        "prisma:generate": "prisma generate",
+        "prisma:migrate": "prisma migrate dev",
+        "prisma:studio": "prisma studio",
+        "prisma:seed": "tsx prisma/seed.ts",
+        "test": "jest",
+        "lint": "eslint src --ext .ts"
+    },
+    "prisma": {
+        "seed": "tsx prisma/seed.ts"
+    },
+    "keywords": [
+        "cnc",
+        "api",
+        "backend",
+        "ecuador"
+    ],
+    "author": "CNC Development Team",
+    "license": "MIT",
+    "dependencies": {
+        "@prisma/client": "^5.22.0",
+        "express": "^4.21.2",
+        "cors": "^2.8.5",
+        "helmet": "^8.0.0",
+        "dotenv": "^16.4.7",
+        "bcrypt": "^5.1.1",
+        "jsonwebtoken": "^9.0.2",
+        "zod": "^3.24.1",
+        "express-rate-limit": "^7.5.0",
+        "compression": "^1.7.5",
+        "morgan": "^1.10.0",
+        "qrcode": "^1.5.4",
+        "pdfkit": "^0.15.0",
+        "multer": "^1.4.5-lts.1"
+    },
+    "devDependencies": {
+        "@types/express": "^5.0.0",
+        "@types/node": "^22.10.5",
+        "@types/cors": "^2.8.17",
+        "@types/bcrypt": "^5.0.2",
+        "@types/jsonwebtoken": "^9.0.7",
+        "@types/compression": "^1.7.5",
+        "@types/morgan": "^1.9.9",
+        "@types/qrcode": "^1.5.5",
+        "@types/pdfkit": "^0.13.5",
+        "@types/multer": "^1.4.12",
+        "typescript": "^5.7.2",
+        "tsx": "^4.19.2",
+        "prisma": "^5.22.0",
+        "@typescript-eslint/eslint-plugin": "^8.18.2",
+        "@typescript-eslint/parser": "^8.18.2",
+        "eslint": "^9.16.0"
+    }
+}

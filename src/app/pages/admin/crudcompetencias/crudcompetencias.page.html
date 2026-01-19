@@ -1,0 +1,151 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title class="ion-text-center">Gestión de Competencias</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <ion-card class="main-card">
+    <div class="logo-container ion-text-center">
+      <img src="../../../../assets/cnc.png" alt="Logo Competencias" class="logo">
+    </div>
+
+    <!-- Buscador y filtros -->
+    <ion-card-content>
+      <div class="search-section fade-in">
+        <h3 class="section-title">Administración de Competencias</h3>
+        <div class="search-container">
+          <ion-item class="search-item">
+            <ion-icon name="search-outline" slot="start" color="primary"></ion-icon>
+            <ion-input placeholder="Buscar competencia por nombre" [(ngModel)]="searchTerm" (ionChange)="filtrarCompetencias()"></ion-input>
+            <ion-button slot="end" fill="clear" (click)="filtrarCompetencias()">
+              <ion-icon name="search"></ion-icon>
+            </ion-button>
+          </ion-item>
+
+          <div class="filter-container">
+            <ion-item class="filter-item">
+              <ion-icon name="checkmark-circle-outline" slot="start" color="primary"></ion-icon>
+              <ion-label>Estado</ion-label>
+              <ion-select [(ngModel)]="filtroEstado" interface="action-sheet" placeholder="Todos" (ionChange)="filtrarCompetencias()">
+                <ion-select-option value="todos">Todos</ion-select-option>
+                <ion-select-option value="true">Activo</ion-select-option>
+                <ion-select-option value="false">Inactivo</ion-select-option>
+              </ion-select>
+            </ion-item>
+
+            <ion-item class="filter-item">
+              <ion-icon name="funnel-outline" slot="start" color="primary"></ion-icon>
+              <ion-label>Ordenar por</ion-label>
+              <ion-select [(ngModel)]="ordenarPor" interface="action-sheet" placeholder="Nombre" (ionChange)="filtrarCompetencias()">
+                <ion-select-option value="nombre">Nombre</ion-select-option>
+                <ion-select-option value="id">ID</ion-select-option>
+              </ion-select>
+            </ion-item>
+          </div>
+        </div>
+
+        <!-- Botón para crear nueva competencia -->
+        <ion-button expand="block" color="primary" (click)="crearCompetencia()" class="create-button">
+          <ion-icon name="add-circle-outline" slot="start"></ion-icon>
+          Crear Nueva Competencia
+        </ion-button>
+      </div>
+
+      <!-- Estadísticas -->
+      <div class="stats-section fade-in" style="animation-delay: 0.1s;">
+        <h3 class="section-title">Estadísticas</h3>
+        <div class="stats-container">
+          <div class="stat-card">
+            <div class="stat-icon">
+              <ion-icon name="trophy-outline" color="primary"></ion-icon>
+            </div>
+            <div class="stat-details">
+              <span class="stat-value">{{ competenciasFiltradas.length }}</span>
+              <span class="stat-label">Competencias</span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon">
+              <ion-icon name="checkmark-circle-outline" color="success"></ion-icon>
+            </div>
+            <div class="stat-details">
+              <span class="stat-value">{{ competenciasActivas }}</span>
+              <span class="stat-label">Activas</span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon">
+              <ion-icon name="close-circle-outline" color="danger"></ion-icon>
+            </div>
+            <div class="stat-details">
+              <span class="stat-value">{{ competencias.length - competenciasActivas }}</span>
+              <span class="stat-label">Inactivas</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lista de competencias -->
+      <div class="competencias-section fade-in" style="animation-delay: 0.2s;">
+        <div class="section-header">
+          <h3 class="section-title">Listado de Competencias</h3>
+          <span class="results-count">{{ competenciasFiltradas.length }} registros</span>
+        </div>
+
+        <div *ngIf="cargando" class="loading-container">
+          <ion-spinner name="crescent" color="primary"></ion-spinner>
+          <p>Cargando competencias...</p>
+        </div>
+
+        <div *ngIf="!cargando && competenciasFiltradas.length === 0" class="empty-state">
+          <ion-icon name="alert-circle-outline" color="medium"></ion-icon>
+          <h4>No se encontraron competencias</h4>
+          <p>No hay competencias que coincidan con los criterios de búsqueda. Intenta modificar los filtros.</p>
+        </div>
+
+        <div class="competencias-grid" *ngIf="!cargando && competenciasFiltradas.length > 0">
+          <div class="competencia-card" *ngFor="let competencia of competenciasFiltradas" [ngClass]="{'active-card': competencia.estado_competencia, 'inactive-card': !competencia.estado_competencia}">
+            <div class="competencia-header">
+              <div class="competencia-title">
+                <h4>{{ competencia.nombre_competencias }}</h4>
+                <span class="competencia-badge" [ngClass]="{'active': competencia.estado_competencia, 'inactive': !competencia.estado_competencia}">
+                  {{ competencia.estado_competencia ? 'Activo' : 'Inactivo' }}
+                </span>
+              </div>
+            </div>
+            <div class="competencia-content">
+              <div class="competencia-detail">
+                <ion-icon name="key-outline" color="primary"></ion-icon>
+                <span>ID: {{ competencia.id_competencias }}</span>
+              </div>
+              <div class="competencia-detail">
+                <ion-icon name="calendar-outline" color="primary"></ion-icon>
+                <span>Última actualización: {{ competencia.fecha_ultima_actualizacion | date:'dd/MM/yyyy' }}</span>
+              </div>
+            </div>
+            <div class="competencia-actions">
+              <ion-button fill="clear" color="primary" (click)="editarCompetencia(competencia.id_competencias)">
+                <ion-icon name="create-outline"></ion-icon>
+                Editar
+              </ion-button>
+              <ion-button fill="clear" color="danger" (click)="confirmarEliminar(competencia)">
+                <ion-icon name="trash-outline"></ion-icon>
+                Eliminar
+              </ion-button>
+              <ion-button fill="clear" [color]="competencia.estado_competencia ? 'warning' : 'success'" (click)="cambiarEstado(competencia)">
+                <ion-icon name="swap-vertical-outline"></ion-icon>
+                {{ competencia.estado_competencia ? 'Desactivar' : 'Activar' }}
+              </ion-button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ion-card-content>
+  </ion-card>
+</ion-content>

@@ -1,0 +1,151 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title class="ion-text-center">Gestión de Entidades</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <ion-card class="main-card">
+    <div class="logo-container ion-text-center">
+      <img src="../../../../assets/cnc.png" alt="Logo Entidades" class="logo">
+    </div>
+
+    <!-- Buscador y filtros -->
+    <ion-card-content>
+      <div class="search-section fade-in">
+        <h3 class="section-title">Administración de Entidades</h3>
+        <div class="search-container">
+          <ion-item class="search-item">
+            <ion-icon name="search-outline" slot="start" color="primary"></ion-icon>
+            <ion-input placeholder="Buscar entidad por nombre" [(ngModel)]="searchTerm" (ionChange)="filtrarEntidades()"></ion-input>
+            <ion-button slot="end" fill="clear" (click)="filtrarEntidades()">
+              <ion-icon name="search"></ion-icon>
+            </ion-button>
+          </ion-item>
+
+          <div class="filter-container">
+            <ion-item class="filter-item">
+              <ion-icon name="checkmark-circle-outline" slot="start" color="primary"></ion-icon>
+              <ion-label>Estado</ion-label>
+              <ion-select [(ngModel)]="filtroEstado" interface="action-sheet" placeholder="Todos" (ionChange)="filtrarEntidades()">
+                <ion-select-option value="todos">Todos</ion-select-option>
+                <ion-select-option value="1">Válidas</ion-select-option>
+                <ion-select-option value="0">No Válidas</ion-select-option>
+              </ion-select>
+            </ion-item>
+
+            <ion-item class="filter-item">
+              <ion-icon name="funnel-outline" slot="start" color="primary"></ion-icon>
+              <ion-label>Ordenar por</ion-label>
+              <ion-select [(ngModel)]="ordenPor" interface="action-sheet" placeholder="Nombre" (ionChange)="ordenarEntidades()">
+                <ion-select-option value="nombre">Nombre</ion-select-option>
+                <ion-select-option value="estado">Estado</ion-select-option>
+                <ion-select-option value="id">ID</ion-select-option>
+              </ion-select>
+            </ion-item>
+          </div>
+        </div>
+
+        <!-- Botón para crear nueva entidad -->
+        <ion-button expand="block" color="primary" (click)="iraCrearEntidad()" class="create-button">
+          <ion-icon name="add-circle-outline" slot="start"></ion-icon>
+          Crear Nueva Entidad
+        </ion-button>
+      </div>
+
+      <!-- Estadísticas -->
+      <div class="stats-section fade-in" style="animation-delay: 0.1s;">
+        <h3 class="section-title">Estadísticas</h3>
+        <div class="stats-container">
+          <div class="stat-card">
+            <div class="stat-icon">
+              <ion-icon name="business-outline" color="primary"></ion-icon>
+            </div>
+            <div class="stat-details">
+              <span class="stat-value">{{ Entidades.length }}</span>
+              <span class="stat-label">Total Entidades</span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon">
+              <ion-icon name="checkmark-circle-outline" color="success"></ion-icon>
+            </div>
+            <div class="stat-details">
+              <span class="stat-value">{{ getValidEntidades() }}</span>
+              <span class="stat-label">Entidades Válidas</span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon">
+              <ion-icon name="close-circle-outline" color="danger"></ion-icon>
+            </div>
+            <div class="stat-details">
+              <span class="stat-value">{{ getInvalidEntidades() }}</span>
+              <span class="stat-label">Entidades Inválidas</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lista de entidades -->
+      <div class="entidades-section fade-in" style="animation-delay: 0.2s;">
+        <div class="section-header">
+          <h3 class="section-title">Listado de Entidades</h3>
+          <span class="results-count">{{ entidadesFiltradas.length }} registros</span>
+        </div>
+
+        <div *ngIf="isLoading" class="loading-container">
+          <ion-spinner name="crescent" color="primary"></ion-spinner>
+          <p>Cargando entidades...</p>
+        </div>
+
+        <div *ngIf="!isLoading && entidadesFiltradas.length === 0" class="empty-state">
+          <ion-icon name="alert-circle-outline" color="medium"></ion-icon>
+          <h4>No se encontraron entidades</h4>
+          <p>No hay entidades que coincidan con los criterios de búsqueda. Intenta modificar los filtros.</p>
+        </div>
+
+        <div class="entidades-grid" *ngIf="!isLoading && entidadesFiltradas.length > 0">
+          <div class="entidad-card" *ngFor="let entidad of entidadesFiltradas" [ngClass]="{'active-card': entidad.Estado_Entidad === 1, 'inactive-card': entidad.Estado_Entidad === 0}">
+            <div class="entidad-header">
+              <div class="entidad-title">
+                <h4>{{ entidad.Nombre_Entidad }}</h4>
+                <span class="entidad-badge" [ngClass]="{'active': entidad.Estado_Entidad === 1, 'inactive': entidad.Estado_Entidad === 0}">
+                  {{ entidad.Estado_Entidad === 1 ? 'Válida' : 'No Válida' }}
+                </span>
+              </div>
+            </div>
+            <div class="entidad-content">
+              <div class="entidad-image">
+                <img [src]="entidad.Imagen_Entidad || '../../../../assets/no-image.png'" alt="Imagen de la entidad">
+              </div>
+              <div class="entidad-detail">
+                <ion-icon name="key-outline" color="primary"></ion-icon>
+                <span>ID: {{ entidad.Id_Entidad }}</span>
+              </div>
+            </div>
+            <div class="entidad-actions">
+              <ion-button fill="clear" color="primary" (click)="iraEditarEntidad(entidad.Id_Entidad)">
+                <ion-icon name="create-outline"></ion-icon>
+                Editar
+              </ion-button>
+              <ion-button fill="clear" color="danger" (click)="confirmarEliminar(entidad)">
+                <ion-icon name="trash-outline"></ion-icon>
+                Eliminar
+              </ion-button>
+              <ion-button fill="clear" [color]="entidad.Estado_Entidad === 1 ? 'warning' : 'success'" (click)="cambiarEstado(entidad)">
+                <ion-icon name="swap-vertical-outline"></ion-icon>
+                {{ entidad.Estado_Entidad === 1 ? 'Desactivar' : 'Activar' }}
+              </ion-button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ion-card-content>
+  </ion-card>
+</ion-content>

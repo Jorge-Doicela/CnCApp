@@ -1,0 +1,261 @@
+ion-content {
+  --background: #f5f7fa;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 40px 20px;
+  text-align: center;
+
+  ion-spinner {
+    margin-bottom: 15px;
+  }
+
+  p {
+    color: #666;
+    font-size: 16px;
+  }
+}
+
+.signature-card {
+  margin: 16px 0;
+  border-radius: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+  background-color: #ffffff;
+  overflow: hidden;
+
+  ion-card-header {
+    padding: 24px 20px;
+    background: linear-gradient(135deg, var(--ion-color-primary), var(--ion-color-primary-shade));
+    color: white;
+    text-align: center;
+
+    ion-card-title {
+      font-size: 22px;
+      font-weight: 600;
+    }
+
+    ion-card-subtitle {
+      margin-top: 8px;
+      font-size: 14px;
+      opacity: 0.9;
+    }
+  }
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--ion-color-primary);
+  margin: 25px 0 15px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #eaeef5;
+  position: relative;
+
+  &:after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 60px;
+    height: 2px;
+    background-color: var(--ion-color-primary);
+  }
+}
+
+.ion-text-center{
+  color: white;
+  }
+
+.current-signature-container {
+  margin-bottom: 30px;
+
+  .current-signature {
+    background-color: #f9fafc;
+    border: 1px dashed #ccc;
+    border-radius: 10px;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .signature-image {
+      max-width: 100%;
+      max-height: 150px;
+      object-fit: contain;
+    }
+  }
+}
+
+.option-tabs {
+  margin-bottom: 20px;
+
+  ion-segment {
+    background: #f5f7fa;
+    border-radius: 12px;
+    padding: 4px;
+    border: 1px solid #e1e5eb;
+
+    ion-segment-button {
+      --background-checked: var(--ion-color-primary);
+      --color-checked: white;
+      --indicator-color: transparent;
+      --border-radius: 10px;
+      --padding-top: 8px;
+      --padding-bottom: 8px;
+      min-height: 44px;
+      font-weight: 500;
+      text-transform: none;
+      letter-spacing: 0;
+
+      ion-icon {
+        margin-bottom: 4px;
+      }
+
+      &::part(indicator) {
+        height: 0;
+      }
+    }
+  }
+}
+
+// Estilos para el método de dibujo
+.draw-signature-container {
+  .signature-pad-container {
+    margin-bottom: 15px;
+
+    .signature-pad {
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      background-color: #fff;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+      overflow: hidden;
+
+      .signature-canvas {
+        width: 100%;
+        height: auto;
+        touch-action: none;
+      }
+    }
+
+    .signature-actions {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 15px;
+      gap: 10px;
+    }
+  }
+}
+
+// Estilos para el método de subida
+.upload-signature-container {
+  .upload-area {
+    border: 2px dashed #ccc;
+    border-radius: 10px;
+    background-color: #fafbfc;
+    padding: 30px 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-bottom: 15px;
+    min-height: 200px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    &:hover {
+      background-color: #eef1f5;
+      border-color: var(--ion-color-primary);
+    }
+
+    &.has-image {
+      border-style: solid;
+      background-color: #fff;
+    }
+
+    .upload-placeholder {
+      text-align: center;
+
+      ion-icon {
+        font-size: 48px;
+        color: #999;
+        margin-bottom: 10px;
+      }
+
+      p {
+        font-size: 16px;
+        color: #666;
+        margin-bottom: 5px;
+      }
+
+      span {
+        font-size: 12px;
+        color: #999;
+      }
+    }
+
+    .upload-preview {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      .preview-image {
+        max-width: 100%;
+        max-height: 180px;
+        object-fit: contain;
+      }
+    }
+  }
+
+  .upload-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+    gap: 10px;
+  }
+}
+
+.signature-instructions {
+  background-color: #f5f8ff;
+  border-radius: 8px;
+  padding: 12px 15px;
+  margin-top: 15px;
+
+  p {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    color: #666;
+    margin: 0;
+
+    ion-icon {
+      color: var(--ion-color-primary);
+      font-size: 18px;
+      margin-right: 8px;
+      flex-shrink: 0;
+    }
+  }
+}
+
+.general-actions {
+  margin-top: 30px;
+
+  ion-button {
+    --border-radius: 12px;
+    --box-shadow: 0 4px 12px rgba(var(--ion-color-primary-rgb), 0.25);
+    height: 50px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    transition: transform 0.3s ease;
+
+    &:hover:not([disabled]) {
+      transform: translateY(-2px);
+      --box-shadow: 0 6px 15px rgba(var(--ion-color-primary-rgb), 0.35);
+    }
+  }
+}

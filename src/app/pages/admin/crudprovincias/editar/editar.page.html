@@ -1,0 +1,92 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/gestionar-provincias"></ion-back-button>
+    </ion-buttons>
+    <ion-title class="ion-text-center">Editar Provincia</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <div class="loading-container" *ngIf="isLoading">
+    <ion-spinner name="crescent" color="primary"></ion-spinner>
+    <p>Cargando información de la provincia...</p>
+  </div>
+
+  <ion-card class="form-card fade-in" *ngIf="!isLoading">
+    <ion-card-header>
+      <div class="header-icon">
+        <ion-icon name="create"></ion-icon>
+      </div>
+      <ion-card-title>Editar Provincia</ion-card-title>
+      <ion-card-subtitle>ID: {{ idProvincia }}</ion-card-subtitle>
+    </ion-card-header>
+
+    <ion-card-content>
+      <form [formGroup]="provinciaForm" (ngSubmit)="guardarCambios()">
+        <div class="form-group">
+          <ion-item class="form-item">
+            <ion-icon name="text-outline" slot="start" color="primary"></ion-icon>
+            <ion-label position="floating">Nombre de la Provincia *</ion-label>
+            <ion-input formControlName="nombre" type="text"></ion-input>
+          </ion-item>
+          <div class="error-message" *ngIf="provinciaForm.get('nombre')?.invalid && provinciaForm.get('nombre')?.touched">
+            <ion-text color="danger" *ngIf="provinciaForm.get('nombre')?.errors?.['required']">
+              <ion-icon name="alert-circle-outline"></ion-icon> El nombre es obligatorio
+            </ion-text>
+            <ion-text color="danger" *ngIf="provinciaForm.get('nombre')?.errors?.['minlength']">
+              <ion-icon name="alert-circle-outline"></ion-icon> El nombre debe tener al menos 3 caracteres
+            </ion-text>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <ion-item class="form-item">
+            <ion-icon name="barcode-outline" slot="start" color="primary"></ion-icon>
+            <ion-label position="floating">Código de la Provincia *</ion-label>
+            <ion-input formControlName="codigo" type="text"></ion-input>
+          </ion-item>
+          <div class="error-message" *ngIf="provinciaForm.get('codigo')?.invalid && provinciaForm.get('codigo')?.touched">
+            <ion-text color="danger" *ngIf="provinciaForm.get('codigo')?.errors?.['required']">
+              <ion-icon name="alert-circle-outline"></ion-icon> El código es obligatorio
+            </ion-text>
+            <ion-text color="danger" *ngIf="provinciaForm.get('codigo')?.errors?.['minlength']">
+              <ion-icon name="alert-circle-outline"></ion-icon> El código debe tener al menos 2 caracteres
+            </ion-text>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <ion-item class="toggle-item">
+            <ion-icon name="checkmark-circle-outline" slot="start" color="primary"></ion-icon>
+            <ion-label>Estado</ion-label>
+            <ion-toggle formControlName="estado" color="primary"></ion-toggle>
+          </ion-item>
+          <div class="status-hint">
+            <ion-text color="medium">
+              <ion-icon name="information-circle-outline"></ion-icon>
+              {{ provinciaForm.get('estado')?.value ? 'La provincia estará activa' : 'La provincia estará inactiva' }}
+            </ion-text>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <ion-button type="button" fill="outline" color="medium" (click)="cancelar()">
+            <ion-icon name="close-outline" slot="start"></ion-icon>
+            Cancelar
+          </ion-button>
+          <ion-button type="submit" expand="block" color="primary" [disabled]="!provinciaForm.valid || isSubmitting">
+            <ion-icon name="save-outline" slot="start"></ion-icon>
+            {{ isSubmitting ? 'Guardando...' : 'Guardar Cambios' }}
+          </ion-button>
+        </div>
+      </form>
+
+      <div class="history-section" *ngIf="lastUpdated">
+        <ion-text color="medium">
+          <ion-icon name="time-outline"></ion-icon> Última actualización: {{ lastUpdated | date:'dd/MM/yyyy HH:mm' }}
+        </ion-text>
+      </div>
+    </ion-card-content>
+  </ion-card>
+</ion-content>
