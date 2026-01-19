@@ -1,0 +1,448 @@
+ion-content {
+  --background: #f5f7fa;
+}
+
+.main-card {
+  margin: 16px 0;
+  border-radius: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+  background-color: #ffffff;
+  overflow: hidden;
+}
+
+.logo-container {
+  padding: 20px 0;
+  margin-bottom: 10px;
+
+  .logo {
+    max-width: 200px;
+    height: auto;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+    transition: transform 0.3s ease;
+
+    &:hover {
+      transform: scale(1.05);
+    }
+  }
+}
+
+.welcome-section {
+  text-align: center;
+  padding: 0 20px;
+  margin-bottom: 30px;
+
+  .welcome-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--ion-color-primary);
+    margin-bottom: 15px;
+  }
+
+  .welcome-text {
+    font-size: 16px;
+    color: #666;
+    line-height: 1.5;
+  }
+}
+
+.section-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--ion-color-primary);
+  margin: 25px 0 15px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #eaeef5;
+  position: relative;
+
+  &:after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 60px;
+    height: 2px;
+    background-color: var(--ion-color-primary);
+  }
+}
+
+.stats-section {
+  margin-bottom: 30px;
+
+  .stats-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-top: 20px;
+
+    @media (min-width: 768px) {
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    .stat-card {
+      background: #f9fafc;
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      transition: transform 0.3s ease;
+
+      &:hover {
+        transform: translateY(-5px);
+      }
+
+      .stat-icon {
+        margin-bottom: 10px;
+
+        ion-icon {
+          font-size: 32px;
+        }
+      }
+
+      .stat-details {
+        .stat-value {
+          display: block;
+          font-size: 28px;
+          font-weight: 700;
+          color: var(--ion-color-primary);
+        }
+
+        .stat-label {
+          display: block;
+          font-size: 14px;
+          color: #666;
+          margin-top: 5px;
+        }
+      }
+    }
+  }
+}
+
+.filter-section {
+  margin-bottom: 30px;
+
+  .filter-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+
+    @media (min-width: 768px) {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .filter-item {
+      --background: #f9fafc;
+      border-radius: 12px;
+      margin-bottom: 0;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+
+      ion-icon {
+        font-size: 20px;
+      }
+    }
+  }
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+
+  ion-spinner {
+    margin-bottom: 15px;
+  }
+
+  p {
+    color: #666;
+    font-size: 16px;
+  }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  background: #f9fafc;
+  border-radius: 16px;
+  border: 1px dashed #ddd;
+
+  ion-icon {
+    font-size: 48px;
+    color: #999;
+    margin-bottom: 15px;
+  }
+
+  h4 {
+    font-size: 18px;
+    color: #333;
+    margin-bottom: 10px;
+  }
+
+  p {
+    color: #666;
+    font-size: 14px;
+  }
+}
+
+.capacitaciones-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (min-width: 1200px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .capacitacion-card {
+    margin: 0;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    .capacitacion-header {
+      height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+
+      &.estado-pendiente {
+        background: linear-gradient(135deg, var(--ion-color-warning), #f8d568);
+      }
+
+      &.estado-completada {
+        background: linear-gradient(135deg, var(--ion-color-success), #4cd3a7);
+      }
+
+      &.estado-cancelada {
+        background: linear-gradient(135deg, var(--ion-color-danger), #ff7e93);
+      }
+
+      ion-icon {
+        font-size: 100px;
+        opacity: 0.2;
+        position: absolute;
+        right: -15px;
+        top: -15px;
+        color: white;
+      }
+
+      .status-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        background-color: rgba(255, 255, 255, 0.2);
+        color: white;
+        backdrop-filter: blur(4px);
+      }
+    }
+
+    ion-card-content {
+      padding: 20px;
+
+      .capacitacion-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--ion-color-primary);
+        margin: 0 0 15px;
+        line-height: 1.3;
+      }
+
+      .capacitacion-details {
+        margin-bottom: 20px;
+
+        .detail-item {
+          display: flex;
+          margin-bottom: 10px;
+
+          ion-icon {
+            font-size: 20px;
+            color: var(--ion-color-primary);
+            margin-right: 10px;
+            flex-shrink: 0;
+          }
+
+          span {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.4;
+          }
+        }
+      }
+
+      .capacitacion-actions {
+        margin-top: 15px;
+
+        ion-button {
+          --border-radius: 10px;
+          --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+          margin-bottom: 10px;
+          height: 40px;
+
+          &:last-child {
+            margin-bottom: 0;
+          }
+
+          ion-icon {
+            margin-right: 5px;
+          }
+        }
+      }
+    }
+  }
+}
+
+/* Estilos para el selector de tiempo */
+.time-picker {
+  .time-icon {
+    margin-right: 8px;
+    font-size: 20px;
+    opacity: 0.7;
+  }
+
+  ion-input[type="time"] {
+    --padding-start: 8px;
+    font-size: 16px;
+  }
+}
+
+/* Estilos para enlaces virtuales */
+.virtual-link-group {
+  .link-icon {
+    cursor: pointer;
+    font-size: 20px;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+}
+
+/* Estilos para enlaces en la tarjeta de conferencias */
+.enlace-virtual {
+  display: flex;
+  align-items: center;
+  color: var(--ion-color-tertiary);
+  text-decoration: none;
+  font-weight: 500;
+  transition: opacity 0.2s;
+
+  ion-icon {
+    margin-left: 5px;
+    font-size: 14px;
+  }
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
+.enlace-item {
+  margin-top: 4px;
+}
+
+.enlace-disabled {
+  opacity: 0.7;
+
+  .texto-deshabilitado {
+    color: var(--ion-color-medium);
+    font-style: italic;
+  }
+}
+
+/* Estado de la capacitación en las tarjetas */
+.capacitacion-header {
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  ion-icon {
+    font-size: 24px;
+  }
+
+  .status-badge {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+  }
+
+  &.estado-pendiente {
+    background-color: rgba(var(--ion-color-warning-rgb), 0.15);
+
+    ion-icon {
+      color: var(--ion-color-warning);
+    }
+
+    .status-badge {
+      background-color: var(--ion-color-warning);
+      color: var(--ion-color-warning-contrast);
+    }
+  }
+
+  &.estado-completada {
+    background-color: rgba(var(--ion-color-success-rgb), 0.15);
+
+    ion-icon {
+      color: var(--ion-color-success);
+    }
+
+    .status-badge {
+      background-color: var(--ion-color-success);
+      color: var(--ion-color-success-contrast);
+    }
+  }
+
+  &.estado-cancelada {
+    background-color: rgba(var(--ion-color-danger-rgb), 0.15);
+
+    ion-icon {
+      color: var(--ion-color-danger);
+    }
+
+    .status-badge {
+      background-color: var(--ion-color-danger);
+      color: var(--ion-color-danger-contrast);
+    }
+  }
+}
+
+// Animación para elementos
+.fade-in {
+  animation: fadeInUp 0.5s ease forwards;
+  opacity: 0;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

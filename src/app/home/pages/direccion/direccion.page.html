@@ -1,0 +1,67 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button default-href="/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title class="ion-text-center">Dirección CNC</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-card class="main-card">
+    <ion-card-header>
+      <ion-card-title class="ion-text-center">Ubicación del Consejo Nacional de Competencias</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <div class="logo-container ion-text-center">
+        <img src="../../../../assets/cnc.png" alt="Logo CNC" class="cnc-logo">
+      </div>
+
+      <div class="direction-details">
+        <div class="info-item">
+          <ion-icon name="location-outline" color="primary"></ion-icon>
+          <span>Plataforma Gubernamental Financiera, bloque rojo, tercer piso, ala sur. Av. Amazonas entre Juan José Villalengua y Unión Nacional de Periodistas.</span>
+        </div>
+        <div class="info-item">
+          <ion-icon name="call-outline" color="primary"></ion-icon>
+          <span>02 3834 004</span>
+        </div>
+        <div class="info-item">
+          <ion-icon name="mail-outline" color="primary"></ion-icon>
+          <span>info&#64;competencias.gob.ec</span>
+        </div>
+        <div class="info-item">
+          <ion-icon name="time-outline" color="primary"></ion-icon>
+          <span>Lunes a Viernes de 8:30 a 17:30</span>
+        </div>
+      </div>
+
+      <div class="map-container">
+        <h3 class="section-title">Mapa de ubicación</h3>
+        <div class="map-interactive" id="map"></div>
+      </div>
+
+      <div class="transport-info">
+        <h3 class="section-title">Cómo llegar</h3>
+        <div class="transport-options">
+          <div class="transport-item">
+            <ion-icon name="bus-outline" color="primary"></ion-icon>
+            <div class="transport-details">
+              <h4>Transporte público</h4>
+              <p>Líneas de bus: C1, C2, Central Norte Metrobús, NO44, NO3.</p>
+              <p>Metro de Quito: Línea 1, estación Iñaquito.</p>
+            </div>
+          </div>
+          <div class="transport-item">
+            <ion-icon name="car-outline" color="primary"></ion-icon>
+            <div class="transport-details">
+              <h4>En vehículo particular</h4>
+              <p>La Plataforma Gubernamental Financiera dispone de 536 plazas en tres niveles.</p>
+              <p>También hay parqueaderos públicos cercanos en La Carolina.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ion-card-content>
+  </ion-card>
+</ion-content>

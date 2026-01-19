@@ -1,0 +1,247 @@
+import { Component, OnInit } from '@angular/core';
+import { supabase } from 'src/supabase';
+import { Router } from '@angular/router';
+import { AlertController, LoadingController, ToastController } from '@ionic/angular';
+
+@Component({
+  selector: 'app-crudcantones',
+  templateUrl: './crudcantones.page.html',
+  styleUrls: ['./crudcantones.page.scss'],
+  standalone: false
+})
+export class CrudcantonesPage implements OnInit {
+
+  cantones: any[] = [];
+  cantonesFiltrados: any[] = [];
+  provincias: any[] = [];
+  cargando: boolean = true;
+  searchTerm: string = '';
+  filtroProvincia: string = 'todas';
+  filtroEstado: string = 'todos';
+  totalCantones: number = 0;
+  cantonesActivos: number = 0;
+  cantonesInactivos: number = 0;
+
+  constructor(
+    private router: Router,
+    private alertController: AlertController,
+    private loadingController: LoadingController,
+    private toastController: ToastController
+  ) { }
+
+  ngOnInit() {
+    this.cargarDatos();
+  }
+
+  async cargarDatos() {
+    this.cargando = true;
+    await this.obtenerProvincias();
+    await this.obtenerCantones();
+    this.cargando = false;
+  }
+
+  async obtenerCantones() {
+    const loading = await this.loadingController.create({
+      message: 'Obteniendo cantones...',
+      spinner: 'crescent'
+    });
+    await loading.present();
+
+    try {
+      const { data: cantones, error } = await supabase
+        .from('Cantones')
+        .select('*');
+
+      if (error) {
+        this.presentToast('Error al obtener cantones: ' + error.message, 'danger');
+        return;
+      }
+
+      this.cantones = cantones || [];
+      this.asociarProvincias();
+      this.calcularEstadisticas();
+      this.filtrarCantones();
+    } catch (error: any) {
+      this.presentToast('Error en la solicitud: ' + error.message, 'danger');
+    } finally {
+      loading.dismiss();
+    }
+  }
+
+  async obtenerProvincias() {
+    try {
+      const { data: Provincias, error } = await supabase
+        .from('Provincias')
+        .select('*');
+
+      if (error) {
+        this.presentToast('Error al obtener provincias: ' + error.message, 'danger');
+        return;
+      }
+
+      this.provincias = Provincias || [];
+    } catch (error: any) {
+      this.presentToast('Error en la solicitud: ' + error.message, 'danger');
+    }
+  }
+
+  asociarProvincias() {
+    this.cantones = this.cantones.map(canton => {
+      const provincia = this.provincias.find(p => p.Codigo_Provincia === canton.codigo_provincia);
+      return {
+        ...canton,
+        nombre_provincia: provincia ? provincia.Nombre_Provincia : 'Provincia no encontrada'
+      };
+    });
+  }
+
+  calcularEstadisticas() {
+    this.totalCantones = this.cantones.length;
+    this.cantonesActivos = this.cantones.filter(c => c.estado === true).length;
+    this.cantonesInactivos = this.cantones.filter(c => c.estado === false).length;
+  }
+
+  filtrarCantones() {
+    this.cantonesFiltrados = this.cantones.filter(canton => {
+      // Filtrar por término de búsqueda
+      const matchesSearchTerm = this.searchTerm.trim() === '' ||
+        canton.nombre_canton.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+        canton.codigo_canton.toString().includes(this.searchTerm.toLowerCase());
+
+      // Filtrar por provincia
+      const matchesProvincia = this.filtroProvincia === 'todas' ||
+        canton.codigo_provincia === this.filtroProvincia;
+
+      // Filtrar por estado
+      const matchesEstado = this.filtroEstado === 'todos' ||
+        (this.filtroEstado === 'activo' && canton.estado === true) ||
+        (this.filtroEstado === 'inactivo' && canton.estado === false);
+
+      return matchesSearchTerm && matchesProvincia && matchesEstado;
+    });
+  }
+
+  crearCanton() {
+    this.router.navigate(['/gestionar-cantones/crear']);
+  }
+
+  editarCanton(idCanton: any) {
+    this.router.navigate(['/gestionar-cantones/editar', idCanton]);
+  }
+
+  async cambiarEstado(canton: any) {
+    const loading = await this.loadingController.create({
+      message: 'Actualizando estado...',
+      spinner: 'crescent'
+    });
+    await loading.present();
+
+    try {
+      const nuevoEstado = !canton.estado;
+      const { error } = await supabase
+        .from('Cantones')
+        .update({ estado: nuevoEstado })
+        .eq('codigo_canton', canton.codigo_canton);
+
+      if (error) {
+        this.presentToast('Error al cambiar estado: ' + error.message, 'danger');
+        return;
+      }
+
+      // Actualizar el objeto local
+      canton.estado = nuevoEstado;
+      this.calcularEstadisticas();
+      this.presentToast(
+        `Cantón "${canton.nombre_canton}" ahora está ${nuevoEstado ? 'activo' : 'inactivo'}`,
+        'success'
+      );
+    } catch (error: any) {
+      this.presentToast('Error en la solicitud: ' + error.message, 'danger');
+    } finally {
+      loading.dismiss();
+    }
+  }
+
+  async verDetallesCanton(canton: any) {
+    const alert = await this.alertController.create({
+      header: canton.nombre_canton,
+      subHeader: `Código: ${canton.codigo_canton}`,
+      message: `<div>
+                  <p><strong>Provincia:</strong> ${canton.nombre_provincia}</p>
+                  <p><strong>Estado:</strong> ${canton.estado ? 'Activo' : 'Inactivo'}</p>
+                  ${canton.notas ? `<p><strong>Notas:</strong> ${canton.notas}</p>` : ''}
+                </div>`,
+      buttons: ['Cerrar'],
+      cssClass: 'canton-details-alert'
+    });
+
+    await alert.present();
+  }
+
+  async confirmarEliminacion(canton: any) {
+    const alert = await this.alertController.create({
+      header: 'Confirmar eliminación',
+      message: `¿Está seguro que desea eliminar el cantón "${canton.nombre_canton}"?`,
+      buttons: [
+        {
+          text: 'Cancelar',
+          role: 'cancel',
+          cssClass: 'secondary'
+        }, {
+          text: 'Eliminar',
+          cssClass: 'danger',
+          handler: () => {
+            this.eliminarCanton(canton.codigo_canton);
+          }
+        }
+      ]
+    });
+
+    await alert.present();
+  }
+
+  async eliminarCanton(codigo_canton: string) {
+    const loading = await this.loadingController.create({
+      message: 'Eliminando cantón...',
+      spinner: 'crescent'
+    });
+    await loading.present();
+
+    try {
+      const { error } = await supabase
+        .from('Cantones')
+        .delete()
+        .eq('codigo_canton', codigo_canton);
+
+      if (error) {
+        this.presentToast('Error al eliminar cantón: ' + error.message, 'danger');
+        return;
+      }
+
+      this.presentToast('Cantón eliminado correctamente', 'success');
+      this.obtenerCantones();
+    } catch (error: any) {
+      this.presentToast('Error en la solicitud: ' + error.message, 'danger');
+    } finally {
+      loading.dismiss();
+    }
+  }
+
+  async presentToast(message: string, color: string = 'primary') {
+    const toast = await this.toastController.create({
+      message: message,
+      duration: 3000,
+      position: 'bottom',
+      color: color,
+      buttons: [
+        {
+          side: 'end',
+          icon: 'close',
+          role: 'cancel'
+        }
+      ]
+    });
+
+    await toast.present();
+  }
+}

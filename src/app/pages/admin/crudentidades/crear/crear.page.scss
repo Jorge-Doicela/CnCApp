@@ -1,0 +1,167 @@
+ion-content {
+  --background: #f5f7fa;
+}
+
+.main-card {
+  margin: 16px 0;
+  border-radius: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+  background-color: #ffffff;
+  overflow: hidden;
+}
+
+.form-header {
+  text-align: center;
+  padding: 20px;
+  border-bottom: 1px solid #eaeef5;
+
+  ion-icon {
+    font-size: 48px;
+    margin-bottom: 10px;
+  }
+
+  h2 {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0 0 8px;
+    color: var(--ion-color-primary);
+  }
+
+  p {
+    font-size: 16px;
+    color: #666;
+    margin: 0;
+  }
+}
+
+form {
+  padding: 20px;
+
+  .form-group {
+    margin-bottom: 24px;
+
+    .form-item {
+      --background: #f9fafc;
+      --border-radius: 12px;
+      --highlight-height: 0;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+      margin-bottom: 4px;
+
+      ion-icon {
+        font-size: 22px;
+        margin-right: 10px;
+      }
+    }
+
+    .upload-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 15px;
+    }
+
+    ion-note {
+      margin-left: 10px;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+
+      ion-icon {
+        margin-right: 5px;
+        font-size: 16px;
+      }
+    }
+  }
+
+  .image-upload-container {
+    background: #f9fafc;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-left: 4px solid var(--ion-color-secondary);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+
+    .image-preview {
+      display: flex;
+      justify-content: center;
+      margin: 15px 0;
+
+      img {
+        max-width: 200px;
+        max-height: 200px;
+        object-fit: contain;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+    }
+
+    .image-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #edf2f7;
+      border: 2px dashed #cbd5e0;
+      border-radius: 8px;
+      padding: 30px;
+      margin: 15px 0;
+
+      ion-icon {
+        font-size: 48px;
+        color: #a0aec0;
+        margin-bottom: 10px;
+      }
+
+      p {
+        color: #718096;
+        margin: 0;
+      }
+    }
+
+    .upload-button {
+      margin-top: 15px;
+      --border-radius: 12px;
+      height: 48px;
+    }
+  }
+
+  .status-toggle {
+    .toggle-item {
+      --inner-padding-end: 0;
+    }
+  }
+
+  .form-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+
+    ion-button {
+      min-width: 140px;
+      height: 48px;
+      --border-radius: 12px;
+      font-weight: 500;
+
+      ion-spinner {
+        margin-left: 8px;
+      }
+    }
+  }
+}
+
+// Animación para elementos
+.fade-in {
+  animation: fadeInUp 0.5s ease forwards;
+  opacity: 0;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

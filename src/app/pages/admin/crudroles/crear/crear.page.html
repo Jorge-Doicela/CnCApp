@@ -1,0 +1,111 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/gestionar-roles"></ion-back-button>
+    </ion-buttons>
+    <ion-title class="ion-text-center">Crear Nuevo Rol</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <ion-card class="main-card">
+    <div class="form-header">
+      <ion-icon name="add-circle-outline" color="primary"></ion-icon>
+      <h2>Nuevo Rol</h2>
+      <p>Complete la información para crear un nuevo rol en el sistema</p>
+    </div>
+
+    <form (ngSubmit)="crearRol()" #rolForm="ngForm">
+      <div class="form-group">
+        <ion-item class="form-item">
+          <ion-icon name="text-outline" slot="start" color="primary"></ion-icon>
+          <ion-label position="floating">Nombre del Rol <ion-text color="danger">*</ion-text></ion-label>
+          <ion-input [(ngModel)]="rol.nombre_rol" name="nombre_rol" required #nombre="ngModel"></ion-input>
+        </ion-item>
+        <ion-note color="danger" *ngIf="nombre.invalid && (nombre.dirty || nombre.touched)">
+          <ion-icon name="alert-circle-outline"></ion-icon>
+          El nombre del rol es obligatorio
+        </ion-note>
+      </div>
+
+      <div class="form-group status-toggle">
+        <ion-item class="form-item toggle-item">
+          <ion-icon name="checkmark-circle-outline" slot="start" color="primary"></ion-icon>
+          <ion-label>Estado</ion-label>
+          <ion-toggle [(ngModel)]="estadoInicial" name="estadoInicial" color="success"></ion-toggle>
+        </ion-item>
+        <ion-note>
+          <ion-icon name="information-circle-outline"></ion-icon>
+          El estado determina si el rol está activo o inactivo
+        </ion-note>
+      </div>
+
+      <div class="form-group">
+        <h4 class="modules-title">
+          <ion-icon name="apps-outline" color="primary"></ion-icon>
+          Módulos del Sistema
+          <span class="selected-count">{{ obtenerModulosSeleccionados().length }} seleccionados</span>
+        </h4>
+        <p class="modules-subtitle">Seleccione los módulos a los que tendrá acceso este rol</p>
+
+        <div class="module-actions">
+          <ion-button size="small" fill="outline" (click)="seleccionarTodos()">
+            <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
+            Seleccionar todos
+          </ion-button>
+          <ion-button size="small" fill="outline" (click)="desseleccionarTodos()">
+            <ion-icon name="close-outline" slot="start"></ion-icon>
+            Desseleccionar todos
+          </ion-button>
+        </div>
+
+        <div class="modules-grid">
+          <ion-item class="module-item" *ngFor="let modulo of modulos">
+            <ion-checkbox [(ngModel)]="modulosSeleccionados[modulo]" [name]="'modulo_' + modulo"></ion-checkbox>
+            <ion-label>{{ modulo }}</ion-label>
+          </ion-item>
+        </div>
+
+        <ion-note color="danger" *ngIf="!hayModulosSeleccionados() && rolForm.submitted">
+          <ion-icon name="alert-circle-outline"></ion-icon>
+          Debe seleccionar al menos un módulo para el rol
+        </ion-note>
+      </div>
+
+      <div class="summary-section">
+        <h4 class="summary-title">
+          <ion-icon name="information-circle-outline" color="primary"></ion-icon>
+          Resumen del Rol
+        </h4>
+        <div class="summary-content">
+          <div class="summary-item">
+            <span class="label">Nombre:</span>
+            <span class="value">{{ rol.nombre_rol || 'No definido' }}</span>
+          </div>
+          <div class="summary-item">
+            <span class="label">Estado inicial:</span>
+            <span class="value" [ngClass]="estadoInicial ? 'active-state' : 'inactive-state'">
+              {{ estadoInicial ? 'Activo' : 'Inactivo' }}
+            </span>
+          </div>
+          <div class="summary-item">
+            <span class="label">Módulos seleccionados:</span>
+            <span class="value">{{ obtenerModulosSeleccionados().length }} de {{ modulos.length }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <ion-button color="medium" fill="outline" type="button" (click)="cancelar()">
+          <ion-icon name="close-outline" slot="start"></ion-icon>
+          Cancelar
+        </ion-button>
+        <ion-button color="primary" type="submit" [disabled]="!esFormularioValido() || guardando">
+          <ion-icon name="save-outline" slot="start"></ion-icon>
+          {{ guardando ? 'Guardando...' : 'Guardar Rol' }}
+          <ion-spinner name="crescent" *ngIf="guardando"></ion-spinner>
+        </ion-button>
+      </div>
+    </form>
+  </ion-card>
+</ion-content>

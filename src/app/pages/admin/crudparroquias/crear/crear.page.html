@@ -1,0 +1,84 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/crudparroquias"></ion-back-button>
+    </ion-buttons>
+    <ion-title class="ion-text-center">Crear Parroquia</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <ion-card class="main-card">
+    <div class="form-header">
+      <ion-icon name="add-circle-outline" color="primary"></ion-icon>
+      <h2>Nueva Parroquia</h2>
+      <p>Complete la información para crear una nueva parroquia</p>
+    </div>
+
+    <form (ngSubmit)="crearParroquia()" #parroquiaForm="ngForm">
+      <div class="form-group">
+        <ion-item class="form-item">
+          <ion-icon name="key-outline" slot="start" color="primary"></ion-icon>
+          <ion-label position="floating">Código Parroquia <ion-text color="danger">*</ion-text></ion-label>
+          <ion-input [(ngModel)]="nuevaParroquia.codigo_parroquia" name="codigo_parroquia" required pattern="^[A-Za-z0-9]+$" #codigo="ngModel"></ion-input>
+        </ion-item>
+        <ion-note color="danger" *ngIf="codigo.invalid && (codigo.dirty || codigo.touched)">
+          <ion-icon name="alert-circle-outline"></ion-icon>
+          El código es obligatorio y debe contener solo letras y números
+        </ion-note>
+      </div>
+
+      <div class="form-group">
+        <ion-item class="form-item">
+          <ion-icon name="text-outline" slot="start" color="primary"></ion-icon>
+          <ion-label position="floating">Nombre Parroquia <ion-text color="danger">*</ion-text></ion-label>
+          <ion-input [(ngModel)]="nuevaParroquia.nombre_parroquia" name="nombre_parroquia" required minlength="3" #nombre="ngModel"></ion-input>
+        </ion-item>
+        <ion-note color="danger" *ngIf="nombre.invalid && (nombre.dirty || nombre.touched)">
+          <ion-icon name="alert-circle-outline"></ion-icon>
+          El nombre es obligatorio y debe tener al menos 3 caracteres
+        </ion-note>
+      </div>
+
+      <div class="form-group">
+        <ion-item class="form-item">
+          <ion-icon name="location-outline" slot="start" color="primary"></ion-icon>
+          <ion-label position="floating">Cantón <ion-text color="danger">*</ion-text></ion-label>
+          <ion-select [(ngModel)]="nuevaParroquia.codigo_canton" name="codigo_canton" required interface="action-sheet" #canton="ngModel">
+            <ion-select-option *ngFor="let canton of cantones" [value]="canton.codigo_canton">
+              {{ canton.nombre_canton }}
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+        <ion-note color="danger" *ngIf="canton.invalid && (canton.dirty || canton.touched)">
+          <ion-icon name="alert-circle-outline"></ion-icon>
+          Debe seleccionar un cantón
+        </ion-note>
+      </div>
+
+      <div class="form-group status-toggle">
+        <ion-item class="form-item toggle-item">
+          <ion-icon name="checkmark-circle-outline" slot="start" color="primary"></ion-icon>
+          <ion-label>Estado</ion-label>
+          <ion-toggle [(ngModel)]="nuevaParroquia.estado" name="estado" color="success"></ion-toggle>
+        </ion-item>
+        <ion-note>
+          <ion-icon name="information-circle-outline"></ion-icon>
+          El estado determina si la parroquia está activa o inactiva
+        </ion-note>
+      </div>
+
+      <div class="form-actions">
+        <ion-button color="medium" fill="outline" type="button" (click)="cancelar()">
+          <ion-icon name="close-outline" slot="start"></ion-icon>
+          Cancelar
+        </ion-button>
+        <ion-button color="primary" type="submit" [disabled]="parroquiaForm.invalid || enviando">
+          <ion-icon name="save-outline" slot="start"></ion-icon>
+          {{ enviando ? 'Guardando...' : 'Guardar Parroquia' }}
+          <ion-spinner name="crescent" *ngIf="enviando"></ion-spinner>
+        </ion-button>
+      </div>
+    </form>
+  </ion-card>
+</ion-content>

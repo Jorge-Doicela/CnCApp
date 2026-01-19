@@ -1,0 +1,159 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title class="ion-text-center">Gestión de Roles</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <ion-card class="main-card">
+    <div class="logo-container ion-text-center">
+      <img src="../../../../assets/cnc.png" alt="Logo Roles" class="logo">
+    </div>
+
+    <ion-card-content>
+      <div class="search-section fade-in">
+        <h3 class="section-title">Administración de Roles</h3>
+        <div class="search-container">
+          <ion-item class="search-item">
+            <ion-icon name="search-outline" slot="start" color="primary"></ion-icon>
+            <ion-input placeholder="Buscar rol por nombre" [(ngModel)]="searchTerm" (ionChange)="filtrarRoles()"></ion-input>
+            <ion-button slot="end" fill="clear" (click)="filtrarRoles()">
+              <ion-icon name="search"></ion-icon>
+            </ion-button>
+          </ion-item>
+
+          <div class="filter-container">
+            <ion-item class="filter-item">
+              <ion-icon name="checkmark-circle-outline" slot="start" color="primary"></ion-icon>
+              <ion-label>Estado</ion-label>
+              <ion-select [(ngModel)]="filtroEstado" interface="action-sheet" placeholder="Todos" (ionChange)="filtrarRoles()">
+                <ion-select-option value="todos">Todos</ion-select-option>
+                <ion-select-option value="true">Activo</ion-select-option>
+                <ion-select-option value="false">Inactivo</ion-select-option>
+              </ion-select>
+            </ion-item>
+          </div>
+        </div>
+
+        <!-- Botón para crear nuevo rol -->
+        <ion-button expand="block" color="primary" (click)="iraCrearRol()" class="create-button">
+          <ion-icon name="add-circle-outline" slot="start"></ion-icon>
+          Crear Nuevo Rol
+        </ion-button>
+      </div>
+
+      <!-- Estadísticas -->
+      <div class="stats-section fade-in" style="animation-delay: 0.1s;">
+        <h3 class="section-title">Estadísticas</h3>
+        <div class="stats-container">
+          <div class="stat-card">
+            <div class="stat-icon">
+              <ion-icon name="people-outline" color="primary"></ion-icon>
+            </div>
+            <div class="stat-details">
+              <span class="stat-value">{{ Roles.length }}</span>
+              <span class="stat-label">Roles</span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon">
+              <ion-icon name="checkmark-circle-outline" color="success"></ion-icon>
+            </div>
+            <div class="stat-details">
+              <span class="stat-value">{{ rolesActivos }}</span>
+              <span class="stat-label">Activos</span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon">
+              <ion-icon name="apps-outline" color="tertiary"></ion-icon>
+            </div>
+            <div class="stat-details">
+              <span class="stat-value">{{ obtenerTotalModulos() }}</span>
+              <span class="stat-label">Módulos</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lista de roles -->
+      <div class="roles-section fade-in" style="animation-delay: 0.2s;">
+        <div class="section-header">
+          <h3 class="section-title">Listado de Roles</h3>
+          <span class="results-count">{{ rolesFiltrados.length }} registros</span>
+        </div>
+
+        <div *ngIf="cargando" class="loading-container">
+          <ion-spinner name="crescent" color="primary"></ion-spinner>
+          <p>Cargando roles...</p>
+        </div>
+
+        <div *ngIf="!cargando && rolesFiltrados.length === 0" class="empty-state">
+          <ion-icon name="alert-circle-outline" color="medium"></ion-icon>
+          <h4>No se encontraron roles</h4>
+          <p>No hay roles que coincidan con los criterios de búsqueda. Intenta modificar los filtros o crear un nuevo rol.</p>
+        </div>
+
+        <div class="roles-grid" *ngIf="!cargando && rolesFiltrados.length > 0">
+          <div class="role-card" *ngFor="let rol of rolesFiltrados" [ngClass]="{'active-card': rol.estado, 'inactive-card': !rol.estado}">
+            <div class="role-header">
+              <div class="role-title">
+                <h4>{{ rol.nombre_rol }}</h4>
+                <span class="role-badge" [ngClass]="{'active': rol.estado, 'inactive': !rol.estado}">
+                  {{ rol.estado ? 'Activo' : 'Inactivo' }}
+                </span>
+              </div>
+            </div>
+            <div class="role-content">
+              <div class="module-list">
+                <h5 class="module-title">
+                  <ion-icon name="apps-outline" color="primary"></ion-icon>
+                  Módulos asignados
+                </h5>
+                <div class="no-modules" *ngIf="!rol.modulos || rol.modulos.length === 0">
+                  <ion-icon name="alert-circle-outline"></ion-icon>
+                  <p>No hay módulos asignados a este rol</p>
+                </div>
+                <div class="modules-chips" *ngIf="rol.modulos && rol.modulos.length > 0">
+                  <ion-chip *ngFor="let modulo of rol.modulos | slice:0:3" color="primary" outline>
+                    <ion-icon name="checkmark-circle-outline"></ion-icon>
+                    <ion-label>{{ modulo }}</ion-label>
+                  </ion-chip>
+                  <ion-chip *ngIf="rol.modulos.length > 3" color="tertiary" outline (click)="mostrarTodosLosModulos(rol)">
+                    <ion-icon name="ellipsis-horizontal"></ion-icon>
+                    <ion-label>{{ rol.modulos.length - 3 }} más</ion-label>
+                  </ion-chip>
+                </div>
+              </div>
+              <div class="role-stats">
+                <div class="stat-item">
+                  <ion-icon name="calendar-outline" color="primary"></ion-icon>
+                  <span>Última modificación: {{ obtenerFechaModificacion(rol) }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="role-actions">
+              <ion-button fill="clear" color="primary" (click)="iraEditarRol(rol.Id_Rol)">
+                <ion-icon name="create-outline"></ion-icon>
+                Editar
+              </ion-button>
+              <ion-button fill="clear" color="danger" (click)="confirmarEliminar(rol)">
+                <ion-icon name="trash-outline"></ion-icon>
+                Eliminar
+              </ion-button>
+              <ion-button fill="clear" [color]="rol.estado ? 'warning' : 'success'" (click)="cambiarEstadoRol(rol)">
+                <ion-icon name="swap-vertical-outline"></ion-icon>
+                {{ rol.estado ? 'Desactivar' : 'Activar' }}
+              </ion-button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ion-card-content>
+  </ion-card>
+</ion-content>

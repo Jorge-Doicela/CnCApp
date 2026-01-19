@@ -1,0 +1,141 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title class="ion-text-center">Gestión de Provincias</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <ion-card class="main-card">
+    <div class="logo-container ion-text-center">
+      <img src="../../../../assets/cnc.png" alt="Logo Provincias" class="logo">
+    </div>
+
+    <ion-card-content>
+      <div class="search-section fade-in">
+        <h3 class="section-title">Buscador de Provincias</h3>
+        <div class="search-container">
+          <ion-item class="search-item">
+            <ion-icon name="search-outline" slot="start" color="primary"></ion-icon>
+            <ion-input placeholder="Buscar provincia por nombre o código" [(ngModel)]="searchTerm"></ion-input>
+            <ion-button slot="end" fill="clear" (click)="buscarProvincia()">
+              <ion-icon name="search"></ion-icon>
+            </ion-button>
+          </ion-item>
+
+          <div class="filter-container">
+            <ion-item class="filter-item">
+              <ion-icon name="filter-outline" slot="start" color="primary"></ion-icon>
+              <ion-label>Estado</ion-label>
+              <ion-select [(ngModel)]="filtroEstado" interface="action-sheet" placeholder="Todos">
+                <ion-select-option value="todos">Todos</ion-select-option>
+                <ion-select-option value="activo">Activo</ion-select-option>
+                <ion-select-option value="inactivo">Inactivo</ion-select-option>
+              </ion-select>
+            </ion-item>
+          </div>
+
+          <ion-button expand="block" color="primary" (click)="buscarProvincia()">
+            <ion-icon name="search-outline" slot="start"></ion-icon>
+            Buscar Provincia
+          </ion-button>
+        </div>
+      </div>
+
+      <!-- Estadísticas Rápidas -->
+      <div class="stats-section fade-in" style="animation-delay: 0.1s;">
+        <h3 class="section-title">Estadísticas</h3>
+        <div class="stats-container">
+          <div class="stat-card">
+            <div class="stat-icon">
+              <ion-icon name="map-outline" color="primary"></ion-icon>
+            </div>
+            <div class="stat-details">
+              <span class="stat-value">{{ totalProvincias }}</span>
+              <span class="stat-label">Total de Provincias</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">
+              <ion-icon name="checkmark-circle-outline" color="success"></ion-icon>
+            </div>
+            <div class="stat-details">
+              <span class="stat-value">{{ provinciasActivas }}</span>
+              <span class="stat-label">Provincias Activas</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">
+              <ion-icon name="close-circle-outline" color="danger"></ion-icon>
+            </div>
+            <div class="stat-details">
+              <span class="stat-value">{{ provinciasInactivas }}</span>
+              <span class="stat-label">Provincias Inactivas</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Botón de Crear Provincia -->
+      <div class="action-button-container fade-in" style="animation-delay: 0.2s;">
+        <ion-button expand="block" color="primary" (click)="crearProvincia()" class="create-button">
+          <ion-icon name="add-circle-outline" slot="start"></ion-icon>
+          Crear Nueva Provincia
+        </ion-button>
+      </div>
+
+      <!-- Lista de Provincias -->
+      <div class="provinces-section fade-in" style="animation-delay: 0.3s;">
+        <div class="section-header">
+          <h3 class="section-title">Listado de Provincias</h3>
+          <span class="results-count">{{ filteredProvincias.length }} registros</span>
+        </div>
+
+        <div *ngIf="filteredProvincias.length === 0" class="empty-state">
+          <ion-icon name="alert-circle-outline" color="medium"></ion-icon>
+          <h4>No se encontraron provincias</h4>
+          <p>No hay provincias que coincidan con los criterios de búsqueda. Intenta modificar los filtros.</p>
+        </div>
+
+        <div class="provincias-grid">
+          <div class="provincia-card" *ngFor="let provincia of filteredProvincias" [ngClass]="{'active-card': provincia.Estado, 'inactive-card': !provincia.Estado}">
+            <div class="provincia-header">
+              <div class="provincia-title">
+                <h4>{{ provincia.Nombre_Provincia }}</h4>
+                <span class="provincia-badge" [ngClass]="{'active': provincia.Estado, 'inactive': !provincia.Estado}">
+                  {{ provincia.Estado ? 'Activo' : 'Inactivo' }}
+                </span>
+              </div>
+            </div>
+            <div class="provincia-content">
+              <div class="provincia-detail">
+                <ion-icon name="key-outline" color="primary"></ion-icon>
+                <span>{{ provincia.Codigo_Provincia }}</span>
+              </div>
+              <div class="provincia-detail">
+                <ion-icon name="information-circle-outline" color="primary"></ion-icon>
+                <span>ID: {{ provincia.IdProvincia }}</span>
+              </div>
+            </div>
+            <div class="provincia-actions">
+              <ion-button fill="clear" color="primary" (click)="editarProvincia(provincia.IdProvincia)">
+                <ion-icon name="create-outline"></ion-icon>
+                Editar
+              </ion-button>
+              <ion-button fill="clear" color="danger" (click)="confirmarEliminar(provincia)">
+                <ion-icon name="trash-outline"></ion-icon>
+                Eliminar
+              </ion-button>
+              <ion-button fill="clear" [color]="provincia.Estado ? 'warning' : 'success'" (click)="cambiarEstado(provincia)">
+                <ion-icon name="swap-vertical-outline"></ion-icon>
+                {{ provincia.Estado ? 'Desactivar' : 'Activar' }}
+              </ion-button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ion-card-content>
+  </ion-card>
+</ion-content>

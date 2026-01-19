@@ -1,0 +1,118 @@
+// Estilos generales del menú
+.menu-content {
+  --background: #f9fafc;
+}
+
+.menu-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  .menu-logo {
+    max-width: 30px;
+    height: auto;
+  }
+
+  span {
+    font-weight: 600;
+    font-size: 18px;
+  }
+}
+
+// Perfil de usuario
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 20px 10px;
+  margin-bottom: 15px;
+  background: rgba(var(--ion-color-primary-rgb), 0.1);
+  border-radius: 12px;
+
+  .profile-avatar {
+    ion-icon {
+      font-size: 50px;
+      color: var(--ion-color-primary);
+    }
+  }
+
+  .profile-details {
+    h2 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #333;
+      margin: 0 0 5px;
+    }
+
+    p {
+      font-size: 14px;
+      color: var(--ion-color-primary);
+      margin: 0;
+    }
+  }
+}
+
+// Lista del menú
+.menu-list {
+  background: transparent;
+
+  .menu-item {
+    --background: transparent;
+    --background-hover: rgba(var(--ion-color-primary-rgb), 0.08);
+    --background-activated: rgba(var(--ion-color-primary-rgb), 0.12);
+    --border-radius: 10px;
+    --padding-start: 10px;
+    --padding-end: 10px;
+    margin-bottom: 5px;
+
+    ion-icon {
+      color: var(--ion-color-primary);
+      font-size: 22px;
+    }
+  }
+
+  .highlight-item {
+    --background: rgba(var(--ion-color-primary-rgb), 0.1);
+    font-weight: 500;
+  }
+
+  .logout-item {
+    --background: rgba(var(--ion-color-danger-rgb), 0.08);
+    --background-hover: rgba(var(--ion-color-danger-rgb), 0.12);
+    --background-activated: rgba(var(--ion-color-danger-rgb), 0.16);
+
+    ion-icon {
+      color: var(--ion-color-danger);
+    }
+
+    ion-label {
+      color: var(--ion-color-danger);
+    }
+  }
+
+  .menu-divider {
+    margin-top: 15px;
+    margin-bottom: 5px;
+    --background: transparent;
+    --color: #999;
+    font-size: 13px;
+    min-height: 20px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  }
+}
+
+// Footer del menú
+.menu-footer {
+  position: absolute;
+  bottom: 20px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  padding: 10px;
+  font-size: 12px;
+  color: #999;
+
+  p {
+    margin: 5px 0;
+  }
+}

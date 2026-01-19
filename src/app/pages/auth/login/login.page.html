@@ -1,0 +1,61 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button default-href="/"></ion-back-button>
+    </ion-buttons>
+    <ion-title class="ion-text-center">Consejo Nacional de Competencias</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class="login-container">
+    <div class="logo-container ion-text-center fade-in">
+      <img src="../../../../assets/cnc.png" alt="Logo CNC" class="logo">
+      <h2 class="ion-text-center">Bienvenido</h2>
+      <p class="ion-text-center subtitle">Accede a tu cuenta para continuar</p>
+    </div>
+
+    <div class="form-container fade-in" style="animation-delay: 0.2s">
+      <ion-card class="login-card">
+        <ion-card-content>
+          <ion-item class="ion-margin-bottom form-item">
+            <ion-icon name="card-outline" slot="start" color="primary"></ion-icon>
+            <ion-label position="floating">Cédula de Identidad</ion-label>
+            <ion-input [(ngModel)]="ci" type="text" maxlength="10" inputmode="numeric" required="true"></ion-input>
+          </ion-item>
+
+          <ion-item class="ion-margin-bottom form-item">
+            <ion-icon name="lock-closed-outline" slot="start" color="primary"></ion-icon>
+            <ion-label position="floating">Contraseña</ion-label>
+            <ion-input [(ngModel)]="password" type="password" required="true"></ion-input>
+          </ion-item>
+
+          <div class="forgot-password ion-text-end">
+            <ion-button fill="clear" size="small" color="medium" (click)="solicitarRecuperacion()">
+              ¿Olvidaste tu contraseña?
+            </ion-button>
+          </div>
+
+          <ion-button expand="block" color="primary" class="ion-margin-top login-button" (click)="loginUser()">
+            <ion-icon name="log-in-outline" slot="start"></ion-icon>
+            Iniciar sesión
+          </ion-button>
+
+          <div class="divider">
+            <span>o</span>
+          </div>
+
+          <ion-button expand="block" color="secondary" class="register-button" (click)="iraRegister()">
+            <ion-icon name="person-add-outline" slot="start"></ion-icon>
+            Crear cuenta
+          </ion-button>
+        </ion-card-content>
+      </ion-card>
+    </div>
+
+    <div class="footer ion-text-center fade-in" style="animation-delay: 0.4s">
+      <p>© 2025 Consejo Nacional de Competencias</p>
+      <p>República del Ecuador</p>
+    </div>
+  </div>
+</ion-content>
