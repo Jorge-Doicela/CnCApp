@@ -1,3 +1,23 @@
 {
-  "typescript.preferences.autoImportFileExcludePatterns": ["@ionic/angular/common", "@ionic/angular/standalone"]
+  "typescript.preferences.autoImportFileExcludePatterns": [
+    "@ionic/angular/common",
+    "@ionic/angular/standalone"
+  ],
+  "files.exclude": {
+    "**/node_modules": false,
+    "node_modules": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "node_modules": true
+  },
+  "files.watcherExclude": {
+    "**/node_modules/**": true,
+    "node_modules/**": true
+  },
+  "typescript.tsdk": "frontend/node_modules/typescript/lib",
+  "eslint.workingDirectories": [
+    "frontend",
+    "backend"
+  ]
 }
