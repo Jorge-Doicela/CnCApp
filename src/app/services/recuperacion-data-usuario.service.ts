@@ -1,23 +1,24 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal, computed, effect } from '@angular/core';
 import { supabase } from 'src/supabase';
-import { BehaviorSubject } from 'rxjs';
 import { AlertController } from '@ionic/angular';
 
 @Injectable({
   providedIn: 'root',
 })
 export class RecuperacionDataUsuarioService {
-  private userNameSubject = new BehaviorSubject<string | null>(null);
-  private userRoleSubject = new BehaviorSubject<string | null>(null);
-  private modulosSubject = new BehaviorSubject<string[]>([]);
-  private userIdSubject = new BehaviorSubject<number | null>(null);
-  private roleNameSubject = new BehaviorSubject<string | null>(null);
+  // Signals replacing BehaviorSubjects
+  userName = signal<string | null>(null);
+  userRole = signal<string | null>(null);
+  modulos = signal<string[]>([]);
+  userId = signal<number | null>(null);
+  roleName = signal<string | null>(null);
 
-  userName$ = this.userNameSubject.asObservable();
-  userRole$ = this.userRoleSubject.asObservable();
-  modulos$ = this.modulosSubject.asObservable();
-  userId$ = this.userIdSubject.asObservable();
-  roleName$ = this.roleNameSubject.asObservable();
+  // Computed values (derived state)
+  isAuthenticated = computed(() => this.userName() !== null);
+  userRoleNumber = computed(() => {
+    const role = this.userRole();
+    return role !== null ? Number(role) : null;
+  });
 
   // Intervalo para verificar cambios de rol
   private roleCheckInterval: any = null;
@@ -125,11 +126,11 @@ export class RecuperacionDataUsuarioService {
       }
     }
 
-    // Actualiza el estado del usuario
-    this.userNameSubject.next(userData.Nombre_Usuario);
-    this.userIdSubject.next(userData.Id_Usuario);
-    this.userRoleSubject.next(userData.Rol_Usuario.toString());
-    this.roleNameSubject.next(roleData.nombre_rol);
+    // Actualiza el estado del usuario usando signals
+    this.userName.set(userData.Nombre_Usuario);
+    this.userId.set(userData.Id_Usuario);
+    this.userRole.set(userData.Rol_Usuario.toString());
+    this.roleName.set(roleData.nombre_rol);
 
     // Actualizar localStorage
     localStorage.setItem('user_role', userData.Rol_Usuario.toString());
@@ -156,7 +157,7 @@ export class RecuperacionDataUsuarioService {
       const modulosArray = typeof data.modulos === 'string' ? JSON.parse(data.modulos) : data.modulos;
 
       if (Array.isArray(modulosArray)) {
-        this.modulosSubject.next(modulosArray);
+        this.modulos.set(modulosArray);
       } else {
         console.error('Los módulos no están en formato de arreglo después del parseo');
       }
@@ -180,6 +181,14 @@ export class RecuperacionDataUsuarioService {
     localStorage.removeItem('auth_uid');
     localStorage.removeItem('last_login_time');
     localStorage.removeItem('role_check_time');
+    localStorage.removeItem('token');
+
+    // Limpiar signals
+    this.userName.set(null);
+    this.userId.set(null);
+    this.userRole.set(null);
+    this.roleName.set(null);
+    this.modulos.set([]);
 
     console.log('Sesión cerrada con éxito.');
     window.location.href = '/login'; // Forzar recarga completa para ir a login

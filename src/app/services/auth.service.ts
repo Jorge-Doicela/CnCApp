@@ -1,7 +1,26 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
-import { Observable } from 'rxjs'; // Import Observable
+import { Observable } from 'rxjs';
+
+export interface AuthUser {
+    id: number;
+    nombre: string;
+    ci: string;
+    email?: string;
+    rolId: number;
+    rol: {
+        id: number;
+        nombre: string;
+        modulos?: string[];
+    };
+}
+
+export interface AuthResponse {
+    message: string;
+    user: AuthUser;
+    token: string;
+}
 
 @Injectable({
     providedIn: 'root'
@@ -9,19 +28,52 @@ import { Observable } from 'rxjs'; // Import Observable
 export class AuthService {
     private apiUrl = environment.apiUrl;
 
-    constructor(private http: HttpClient) { }
+    // Signals for auth state
+    currentUser = signal<AuthUser | null>(null);
+    isAuthenticated = signal<boolean>(false);
+    token = signal<string | null>(null);
 
-    login(ci: string, password: string): Observable<any> {
-        return this.http.post(`${this.apiUrl}/auth/login`, { ci, password });
+    constructor(private http: HttpClient) {
+        this.loadAuthState();
     }
 
-    register(data: any): Observable<any> {
-        return this.http.post(`${this.apiUrl}/auth/register`, data);
+    private loadAuthState() {
+        const storedToken = localStorage.getItem('token');
+        if (storedToken) {
+            this.token.set(storedToken);
+            this.isAuthenticated.set(true);
+        }
     }
 
-    getProfile(token: string): Observable<any> {
-        return this.http.get(`${this.apiUrl}/auth/profile`, {
+    login(ci: string, password: string): Observable<AuthResponse> {
+        return this.http.post<AuthResponse>(`${this.apiUrl}/auth/login`, { ci, password });
+    }
+
+    register(data: any): Observable<AuthResponse> {
+        return this.http.post<AuthResponse>(`${this.apiUrl}/auth/register`, data);
+    }
+
+    getProfile(token: string): Observable<AuthUser> {
+        return this.http.get<AuthUser>(`${this.apiUrl}/auth/profile`, {
             headers: { Authorization: `Bearer ${token}` }
         });
+    }
+
+    setAuthData(user: AuthUser, token: string) {
+        this.currentUser.set(user);
+        this.token.set(token);
+        this.isAuthenticated.set(true);
+        localStorage.setItem('token', token);
+        localStorage.setItem('user_role', user.rolId.toString());
+        localStorage.setItem('auth_uid', user.id.toString());
+    }
+
+    clearAuthData() {
+        this.currentUser.set(null);
+        this.token.set(null);
+        this.isAuthenticated.set(false);
+        localStorage.removeItem('token');
+        localStorage.removeItem('user_role');
+        localStorage.removeItem('auth_uid');
     }
 }

@@ -10,14 +10,14 @@ import rateLimit from 'express-rate-limit';
 dotenv.config();
 
 // Importar rutas
-import authRoutes from './routes/auth.routes';
-import userRoutes from './routes/user.routes';
-import capacitacionRoutes from './routes/capacitacion.routes';
-import certificadoRoutes from './routes/certificado.routes';
+import authRoutes from './infrastructure/web/routes/auth.routes';
+import userRoutes from './infrastructure/web/routes/user.routes';
+import capacitacionRoutes from './infrastructure/web/routes/capacitacion.routes';
+import certificadoRoutes from './infrastructure/web/routes/certificado.routes';
 
 // Importar middleware
-import { errorHandler } from './middleware/error.middleware';
-import { notFound } from './middleware/notFound.middleware';
+import { errorHandler } from './infrastructure/web/middleware/error.middleware';
+import { notFound } from './infrastructure/web/middleware/notFound.middleware';
 
 const app: Application = express();
 const PORT = process.env.PORT || 3000;
@@ -67,7 +67,7 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // ============================================
 
 // Ruta de health check
-app.get('/health', (req, res) => {
+app.get('/health', (_req, res) => {
     res.json({
         status: 'ok',
         timestamp: new Date().toISOString(),

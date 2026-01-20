@@ -16,7 +16,8 @@ export const authenticate = (
         const authHeader = req.headers.authorization;
 
         if (!authHeader || !authHeader.startsWith('Bearer ')) {
-            return res.status(401).json({ error: 'No autorizado - Token no proporcionado' });
+            res.status(401).json({ error: 'No autorizado - Token no proporcionado' });
+            return;
         }
 
         const token = authHeader.substring(7); // Remover 'Bearer '
@@ -33,7 +34,7 @@ export const authenticate = (
 
         next();
     } catch (error) {
-        return res.status(401).json({ error: 'Token inválido o expirado' });
+        res.status(401).json({ error: 'Token inválido o expirado' });
     }
 };
 
@@ -41,11 +42,13 @@ export const authenticate = (
 export const authorize = (...allowedRoles: number[]) => {
     return (req: AuthRequest, res: Response, next: NextFunction) => {
         if (!req.userRole) {
-            return res.status(403).json({ error: 'Acceso denegado - Sin rol asignado' });
+            res.status(403).json({ error: 'Acceso denegado - Sin rol asignado' });
+            return;
         }
 
         if (!allowedRoles.includes(req.userRole)) {
-            return res.status(403).json({ error: 'Acceso denegado - Permisos insuficientes' });
+            res.status(403).json({ error: 'Acceso denegado - Permisos insuficientes' });
+            return;
         }
 
         next();

@@ -21,13 +21,15 @@
           <ion-item class="ion-margin-bottom form-item">
             <ion-icon name="card-outline" slot="start" color="primary"></ion-icon>
             <ion-label position="floating">Cédula de Identidad</ion-label>
-            <ion-input [(ngModel)]="ci" type="text" maxlength="10" inputmode="numeric" required="true"></ion-input>
+            <ion-input [value]="ci()" (ionInput)="updateCi($event)" type="text" maxlength="10" inputmode="numeric"
+              required="true"></ion-input>
           </ion-item>
 
           <ion-item class="ion-margin-bottom form-item">
             <ion-icon name="lock-closed-outline" slot="start" color="primary"></ion-icon>
             <ion-label position="floating">Contraseña</ion-label>
-            <ion-input [(ngModel)]="password" type="password" required="true"></ion-input>
+            <ion-input [value]="password()" (ionInput)="updatePassword($event)" type="password"
+              required="true"></ion-input>
           </ion-item>
 
           <div class="forgot-password ion-text-end">

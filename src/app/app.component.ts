@@ -1,69 +1,52 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { MenuController, AlertController } from '@ionic/angular';
+import { Component, OnInit, OnDestroy, effect } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterModule, Router, NavigationEnd } from '@angular/router';
+import { IonicModule, MenuController, AlertController } from '@ionic/angular';
 import { RecuperacionDataUsuarioService } from './services/recuperacion-data-usuario.service';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
-import { Router, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
 import { supabase } from 'src/supabase';
 
 @Component({
   selector: 'app-root',
   templateUrl: 'app.component.html',
   styleUrls: ['app.component.scss'],
-  standalone: false
+  standalone: true,
+  imports: [CommonModule, RouterModule, IonicModule]
 })
 export class AppComponent implements OnInit, OnDestroy {
-  userName: string | null = null;
-  userRole: number | null = null;
-  roleName: string | null = null;
-  modulos: string[] = [];
-  lastUrl: string = '';
+  // Access signals directly from service
+  userName = this.recuperacionDataUsuarioService.userName;
+  userRole = this.recuperacionDataUsuarioService.userRoleNumber;
+  roleName = this.recuperacionDataUsuarioService.roleName;
+  modulos = this.recuperacionDataUsuarioService.modulos;
 
-  private destroy$ = new Subject<void>(); // Subject para limpiar suscripciones
+  lastUrl: string = '';
 
   constructor(
     private router: Router,
     private menuCtrl: MenuController,
     private alertController: AlertController,
     private recuperacionDataUsuarioService: RecuperacionDataUsuarioService
-  ) {}
+  ) {
+    // Effect to log user changes (example of using effects with signals)
+    effect(() => {
+      const user = this.userName();
+      if (user) {
+        console.log('Usuario autenticado:', user);
+      }
+    });
+  }
 
   ngOnInit() {
     this.recuperacionDataUsuarioService.checkUserSession();
 
-    this.recuperacionDataUsuarioService.userName$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((userName) => {
-        this.userName = userName;
-      });
-
-    this.recuperacionDataUsuarioService.userRole$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((userRole) => {
-        this.userRole = userRole !== null ? Number(userRole) : null;
-      });
-
-    this.recuperacionDataUsuarioService.roleName$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((roleName) => {
-        this.roleName = roleName;
-      });
-
-    this.recuperacionDataUsuarioService.modulos$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((modulos) => {
-        this.modulos = modulos;
-      });
-
     // Monitorear cambios de ruta para verificar el rol del usuario
     this.router.events
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(event => {
-        if (event instanceof NavigationEnd) {
-          if (this.lastUrl !== event.url) {
-            this.lastUrl = event.url;
-            this.verificarRolEnCambioRuta();
-          }
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe((event: any) => {
+        if (this.lastUrl !== event.url) {
+          this.lastUrl = event.url;
+          this.verificarRolEnCambioRuta();
         }
       });
   }
@@ -117,8 +100,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
+    // No need for destroy$ with signals, but keep for router subscription cleanup
   }
 
   openMenu() {

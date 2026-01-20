@@ -1,0 +1,270 @@
+
+> EventApp@0.0.1 build
+> ng build
+
+- Generating browser application bundles (phase: setup)...
+Ô£ö Browser application bundle generation complete.
+Ô£ö Browser application bundle generation complete.
+
+Warning: src/app/app.component.html:22:18 - warning NG8109: userName is a function and should be invoked: userName()
+
+22           <h2>{{ userName }}</h2>
+                    ~~~~~~~~
+
+  src/app/app.component.ts:11:16
+    11   templateUrl: 'app.component.html',
+                      ~~~~~~~~~~~~~~~~~~~~
+    Error occurs in the template of component AppComponent.
+
+
+Warning: src/app/app.component.html:23:17 - warning NG8109: roleName is a function and should be invoked: roleName()
+
+23           <p>{{ roleName }}</p>
+                   ~~~~~~~~
+
+  src/app/app.component.ts:11:16
+    11   templateUrl: 'app.component.html',
+                      ~~~~~~~~~~~~~~~~~~~~
+    Error occurs in the template of component AppComponent.
+
+
+Warning: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/home/home.page.scss exceeded maximum budget. Budget 2.00 kB was not met by 5.86 kB with a total of 7.86 kB.
+
+Warning: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/home/pages/direccion/direccion.page.scss exceeded maximum budget. Budget 2.00 kB was not met by 1.95 kB with a total of 3.95 kB.
+
+Warning: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/home/pages/historia/historia.page.scss exceeded maximum budget. Budget 2.00 kB was not met by 2.08 kB with a total of 4.08 kB.
+
+Warning: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/home/pages/informacion/informacion.page.scss exceeded maximum budget. Budget 2.00 kB was not met by 3.12 kB with a total of 5.12 kB.
+
+Warning: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/home/pages/norma-regul/norma-regul.page.scss exceeded maximum budget. Budget 2.00 kB was not met by 5.38 kB with a total of 7.38 kB.
+
+Warning: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/home/pages/servi-progra/servi-progra.page.scss exceeded maximum budget. Budget 2.00 kB was not met by 18.33 kB with a total of 20.33 kB.
+
+Warning: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/pages/admin/certificados/certificados.page.scss exceeded maximum budget. Budget 2.00 kB was not met by 3.02 kB with a total of 5.01 kB.
+
+Warning: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/pages/admin/crudcantones/crudcantones.page.scss exceeded maximum budget. Budget 2.00 kB was not met by 5.83 kB with a total of 7.83 kB.
+
+Warning: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/pages/admin/crudcapacitaciones/crear/crear.page.scss exceeded maximum budget. Budget 2.00 kB was not met by 2.48 kB with a total of 4.48 kB.
+
+Warning: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/pages/admin/crudcapacitaciones/crudcapacitaciones.page.scss exceeded maximum budget. Budget 2.00 kB was not met by 5.18 kB with a total of 7.18 kB.
+
+Warning: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/pages/admin/crudcapacitaciones/editar/editar.page.scss exceeded maximum budget. Budget 2.00 kB was not met by 3.95 kB with a total of 5.95 kB.
+
+Warning: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/pages/admin/crudcapacitaciones/visualizarinscritos/visualizarinscritos.page.scss exceeded maximum budget. Budget 2.00 kB was not met by 11.88 kB with a total of 13.88 kB.
+
+Warning: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/pages/admin/crudcompetencias/crear/crear.page.scss exceeded maximum budget. Budget 2.00 kB was not met by 118.05 kB with a total of 120.05 kB.
+
+Warning: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/pages/admin/crudcompetencias/crudcompetencias.page.scss exceeded maximum budget. Budget 2.00 kB was not met by 118.05 kB with a total of 120.05 kB.
+
+Warning: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/pages/admin/crudcompetencias/editar/editar.page.scss exceeded maximum budget. Budget 2.00 kB was not met by 118.05 kB with a total of 120.05 kB.
+
+Warning: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/pages/admin/crudentidades/crear/crear.page.scss exceeded maximum budget. Budget 2.00 kB was not met by 291 bytes with a total of 2.29 kB.
+
+Warning: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/pages/admin/crudentidades/crudentidades.page.scss exceeded maximum budget. Budget 2.00 kB was not met by 5.40 kB with a total of 7.40 kB.
+
+Warning: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/pages/admin/crudentidades/editar/editar.page.scss exceeded maximum budget. Budget 2.00 kB was not met by 1.84 kB with a total of 3.84 kB.
+
+Warning: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/pages/admin/crudinstituciones/crear/crear.page.scss exceeded maximum budget. Budget 2.00 kB was not met by 118.05 kB with a total of 120.05 kB.
+
+Warning: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/pages/admin/crudinstituciones/crudinstituciones.page.scss exceeded maximum budget. Budget 2.00 kB was not met by 118.05 kB with a total of 120.05 kB.
+
+Warning: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/pages/admin/crudinstituciones/editar/editar.page.scss exceeded maximum budget. Budget 2.00 kB was not met by 118.05 kB with a total of 120.05 kB.
+
+Warning: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/pages/admin/crudparroquias/crear/crear.page.scss exceeded maximum budget. Budget 2.00 kB was not met by 5.02 kB with a total of 7.02 kB.
+
+Warning: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/pages/admin/crudparroquias/crudparroquias.page.scss exceeded maximum budget. Budget 2.00 kB was not met by 5.24 kB with a total of 7.24 kB.
+
+Warning: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/pages/admin/crudparroquias/editar/editar.page.scss exceeded maximum budget. Budget 2.00 kB was not met by 5.01 kB with a total of 7.01 kB.
+
+Warning: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/pages/admin/crudprovincias/crear/crear.page.scss exceeded maximum budget. Budget 2.00 kB was not met by 78 bytes with a total of 2.08 kB.
+
+Warning: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/pages/admin/crudprovincias/crudprovincias.page.scss exceeded maximum budget. Budget 2.00 kB was not met by 3.66 kB with a total of 5.66 kB.
+
+Warning: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/pages/admin/crudprovincias/editar/editar.page.scss exceeded maximum budget. Budget 2.00 kB was not met by 437 bytes with a total of 2.44 kB.
+
+Warning: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/pages/admin/crudroles/crear/crear.page.scss exceeded maximum budget. Budget 2.00 kB was not met by 1.26 kB with a total of 3.26 kB.
+
+Warning: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/pages/admin/crudroles/crudroles.page.scss exceeded maximum budget. Budget 2.00 kB was not met by 4.47 kB with a total of 6.47 kB.
+
+Warning: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/pages/admin/crudroles/editar/editar.page.scss exceeded maximum budget. Budget 2.00 kB was not met by 6.88 kB with a total of 8.88 kB.
+
+Warning: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/pages/admin/crudusuarios/crear/crear.page.scss exceeded maximum budget. Budget 2.00 kB was not met by 2.49 kB with a total of 4.49 kB.
+
+Warning: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/pages/admin/crudusuarios/crudusuarios.page.scss exceeded maximum budget. Budget 2.00 kB was not met by 2.69 kB with a total of 4.69 kB.
+
+Warning: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/pages/admin/crudusuarios/editar/editar.page.scss exceeded maximum budget. Budget 2.00 kB was not met by 1.38 kB with a total of 3.38 kB.
+
+Warning: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/pages/apps/validar-qr/validar-qr.page.scss exceeded maximum budget. Budget 2.00 kB was not met by 2.25 kB with a total of 4.25 kB.
+
+Warning: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/pages/auth/login/login.page.scss exceeded maximum budget. Budget 2.00 kB was not met by 868 bytes with a total of 2.87 kB.
+
+Warning: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/pages/auth/recuperar-password/recuperar-password.page.scss exceeded maximum budget. Budget 2.00 kB was not met by 2.40 kB with a total of 4.40 kB.
+
+Warning: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/pages/auth/register/register.page.scss exceeded maximum budget. Budget 2.00 kB was not met by 3.40 kB with a total of 5.40 kB.
+
+Warning: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/pages/user/conferencias/conferencias.page.scss exceeded maximum budget. Budget 2.00 kB was not met by 5.63 kB with a total of 7.63 kB.
+
+Warning: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/pages/user/perfil/editar/editar.page.scss exceeded maximum budget. Budget 2.00 kB was not met by 1.49 kB with a total of 3.49 kB.
+
+Warning: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/pages/user/perfil/firma/firma.page.scss exceeded maximum budget. Budget 2.00 kB was not met by 2.36 kB with a total of 4.36 kB.
+
+Warning: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/pages/user/perfil/perfil.page.scss exceeded maximum budget. Budget 2.00 kB was not met by 3.22 kB with a total of 5.22 kB.
+
+
+
+Error: src/app/app.component.html:46:38 - error TS2322: Type 'WritableSignal<string[]>' is not assignable to type 'NgIterable<any> | null | undefined'.
+
+46         <ion-item *ngFor="let modulo of modulos" button detail="false" (click)="navegarModulo(modulo)" class="menu-item">
+                                        ~~~~~~~~~~
+
+  src/app/app.component.ts:11:16
+    11   templateUrl: 'app.component.html',
+                      ~~~~~~~~~~~~~~~~~~~~
+    Error occurs in the template of component AppComponent.
+
+
+Error: src/app/home/home.page.ts:45:41 - error TS2551: Property 'userName$' does not exist on type 'RecuperacionDataUsuarioService'. Did you mean 'userName'?
+
+45     this.recuperacionDataUsuarioService.userName$.subscribe(name => {
+                                           ~~~~~~~~~
+
+  src/app/services/recuperacion-data-usuario.service.ts:10:3
+    10   userName = signal<string | null>(null);
+         ~~~~~~~~
+    'userName' is declared here.
+
+
+Error: src/app/home/home.page.ts:45:61 - error TS7006: Parameter 'name' implicitly has an 'any' type.
+
+45     this.recuperacionDataUsuarioService.userName$.subscribe(name => {
+                                                               ~~~~
+
+
+Error: src/app/home/home.page.ts:50:41 - error TS2551: Property 'userRole$' does not exist on type 'RecuperacionDataUsuarioService'. Did you mean 'userRole'?
+
+50     this.recuperacionDataUsuarioService.userRole$.subscribe(role => {
+                                           ~~~~~~~~~
+
+  src/app/services/recuperacion-data-usuario.service.ts:11:3
+    11   userRole = signal<string | null>(null);
+         ~~~~~~~~
+    'userRole' is declared here.
+
+
+Error: src/app/home/home.page.ts:50:61 - error TS7006: Parameter 'role' implicitly has an 'any' type.
+
+50     this.recuperacionDataUsuarioService.userRole$.subscribe(role => {
+                                                               ~~~~
+
+
+Error: src/app/home/home.page.ts:54:41 - error TS2551: Property 'roleName$' does not exist on type 'RecuperacionDataUsuarioService'. Did you mean 'roleName'?
+
+54     this.recuperacionDataUsuarioService.roleName$.subscribe(roleName => {
+                                           ~~~~~~~~~
+
+  src/app/services/recuperacion-data-usuario.service.ts:14:3
+    14   roleName = signal<string | null>(null);
+         ~~~~~~~~
+    'roleName' is declared here.
+
+
+Error: src/app/home/home.page.ts:54:61 - error TS7006: Parameter 'roleName' implicitly has an 'any' type.
+
+54     this.recuperacionDataUsuarioService.roleName$.subscribe(roleName => {
+                                                               ~~~~~~~~
+
+
+Error: src/app/home/home.page.ts:59:41 - error TS2551: Property 'modulos$' does not exist on type 'RecuperacionDataUsuarioService'. Did you mean 'modulos'?
+
+59     this.recuperacionDataUsuarioService.modulos$.subscribe(modulos => {
+                                           ~~~~~~~~
+
+  src/app/services/recuperacion-data-usuario.service.ts:12:3
+    12   modulos = signal<string[]>([]);
+         ~~~~~~~
+    'modulos' is declared here.
+
+
+Error: src/app/home/home.page.ts:59:60 - error TS7006: Parameter 'modulos' implicitly has an 'any' type.
+
+59     this.recuperacionDataUsuarioService.modulos$.subscribe(modulos => {
+                                                              ~~~~~~~
+
+
+Error: src/app/pages/auth/login/login.module.ts:18:18 - error NG6008: Component LoginPage is standalone, and cannot be declared in an NgModule. Did you mean to import it instead?
+
+18   declarations: [LoginPage]
+                    ~~~~~~~~~
+
+
+Error: src/app/services/auth.service.ts:29:34 - error TS2339: Property 'apiUrl' does not exist on type '{ production: boolean; supabaseUrl: string; supabaseKey: string; redirectUrl: string; }'.
+
+29     private apiUrl = environment.apiUrl;
+                                    ~~~~~~
+
+
+Error: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/home/home.page.scss exceeded maximum budget. Budget 4.00 kB was not met by 3.86 kB with a total of 7.86 kB.
+
+Error: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/home/pages/historia/historia.page.scss exceeded maximum budget. Budget 4.00 kB was not met by 83 bytes with a total of 4.08 kB.
+
+Error: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/home/pages/informacion/informacion.page.scss exceeded maximum budget. Budget 4.00 kB was not met by 1.12 kB with a total of 5.12 kB.
+
+Error: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/home/pages/norma-regul/norma-regul.page.scss exceeded maximum budget. Budget 4.00 kB was not met by 3.38 kB with a total of 7.38 kB.
+
+Error: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/home/pages/servi-progra/servi-progra.page.scss exceeded maximum budget. Budget 4.00 kB was not met by 16.33 kB with a total of 20.33 kB.
+
+Error: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/pages/admin/certificados/certificados.page.scss exceeded maximum budget. Budget 4.00 kB was not met by 1.01 kB with a total of 5.01 kB.
+
+Error: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/pages/admin/crudcantones/crudcantones.page.scss exceeded maximum budget. Budget 4.00 kB was not met by 3.83 kB with a total of 7.83 kB.
+
+Error: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/pages/admin/crudcapacitaciones/crear/crear.page.scss exceeded maximum budget. Budget 4.00 kB was not met by 481 bytes with a total of 4.48 kB.
+
+Error: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/pages/admin/crudcapacitaciones/crudcapacitaciones.page.scss exceeded maximum budget. Budget 4.00 kB was not met by 3.18 kB with a total of 7.18 kB.
+
+Error: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/pages/admin/crudcapacitaciones/editar/editar.page.scss exceeded maximum budget. Budget 4.00 kB was not met by 1.95 kB with a total of 5.95 kB.
+
+Error: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/pages/admin/crudcapacitaciones/visualizarinscritos/visualizarinscritos.page.scss exceeded maximum budget. Budget 4.00 kB was not met by 9.88 kB with a total of 13.88 kB.
+
+Error: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/pages/admin/crudcompetencias/crear/crear.page.scss exceeded maximum budget. Budget 4.00 kB was not met by 116.05 kB with a total of 120.05 kB.
+
+Error: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/pages/admin/crudcompetencias/crudcompetencias.page.scss exceeded maximum budget. Budget 4.00 kB was not met by 116.05 kB with a total of 120.05 kB.
+
+Error: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/pages/admin/crudcompetencias/editar/editar.page.scss exceeded maximum budget. Budget 4.00 kB was not met by 116.05 kB with a total of 120.05 kB.
+
+Error: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/pages/admin/crudentidades/crudentidades.page.scss exceeded maximum budget. Budget 4.00 kB was not met by 3.40 kB with a total of 7.40 kB.
+
+Error: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/pages/admin/crudinstituciones/crear/crear.page.scss exceeded maximum budget. Budget 4.00 kB was not met by 116.05 kB with a total of 120.05 kB.
+
+Error: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/pages/admin/crudinstituciones/crudinstituciones.page.scss exceeded maximum budget. Budget 4.00 kB was not met by 116.05 kB with a total of 120.05 kB.
+
+Error: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/pages/admin/crudinstituciones/editar/editar.page.scss exceeded maximum budget. Budget 4.00 kB was not met by 116.05 kB with a total of 120.05 kB.
+
+Error: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/pages/admin/crudparroquias/crear/crear.page.scss exceeded maximum budget. Budget 4.00 kB was not met by 3.02 kB with a total of 7.02 kB.
+
+Error: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/pages/admin/crudparroquias/crudparroquias.page.scss exceeded maximum budget. Budget 4.00 kB was not met by 3.24 kB with a total of 7.24 kB.
+
+Error: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/pages/admin/crudparroquias/editar/editar.page.scss exceeded maximum budget. Budget 4.00 kB was not met by 3.01 kB with a total of 7.01 kB.
+
+Error: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/pages/admin/crudprovincias/crudprovincias.page.scss exceeded maximum budget. Budget 4.00 kB was not met by 1.66 kB with a total of 5.66 kB.
+
+Error: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/pages/admin/crudroles/crudroles.page.scss exceeded maximum budget. Budget 4.00 kB was not met by 2.48 kB with a total of 6.47 kB.
+
+Error: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/pages/admin/crudroles/editar/editar.page.scss exceeded maximum budget. Budget 4.00 kB was not met by 4.88 kB with a total of 8.88 kB.
+
+Error: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/pages/admin/crudusuarios/crear/crear.page.scss exceeded maximum budget. Budget 4.00 kB was not met by 489 bytes with a total of 4.49 kB.
+
+Error: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/pages/admin/crudusuarios/crudusuarios.page.scss exceeded maximum budget. Budget 4.00 kB was not met by 690 bytes with a total of 4.69 kB.
+
+Error: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/pages/apps/validar-qr/validar-qr.page.scss exceeded maximum budget. Budget 4.00 kB was not met by 251 bytes with a total of 4.25 kB.
+
+Error: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/pages/auth/recuperar-password/recuperar-password.page.scss exceeded maximum budget. Budget 4.00 kB was not met by 398 bytes with a total of 4.40 kB.
+
+Error: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/pages/auth/register/register.page.scss exceeded maximum budget. Budget 4.00 kB was not met by 1.40 kB with a total of 5.40 kB.
+
+Error: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/pages/user/conferencias/conferencias.page.scss exceeded maximum budget. Budget 4.00 kB was not met by 3.63 kB with a total of 7.63 kB.
+
+Error: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/pages/user/perfil/firma/firma.page.scss exceeded maximum budget. Budget 4.00 kB was not met by 360 bytes with a total of 4.36 kB.
+
+Error: C:/Users/Jorge Doicela/Desktop/CnCApp/src/app/pages/user/perfil/perfil.page.scss exceeded maximum budget. Budget 4.00 kB was not met by 1.22 kB with a total of 5.22 kB.
+
+
