@@ -14,13 +14,13 @@
 
     <ion-content class="ion-padding menu-content">
       <!-- Perfil del usuario (si está autenticado) -->
-      <div *ngIf="userName" class="user-profile">
+      <div *ngIf="userName()" class="user-profile">
         <div class="profile-avatar">
           <ion-icon name="person-circle-outline"></ion-icon>
         </div>
         <div class="profile-details">
-          <h2>{{ userName }}</h2>
-          <p>{{ roleName }}</p>
+          <h2>{{ userName() }}</h2>
+          <p>{{ roleName() }}</p>
         </div>
       </div>
 
@@ -33,27 +33,28 @@
         </ion-item>
 
         <!-- Opción para ir al login si no está autenticado -->
-        <ion-item *ngIf="!userName" button detail="false" (click)="iraLogin()" class="menu-item highlight-item">
+        <ion-item *ngIf="!userName()" button detail="false" (click)="iraLogin()" class="menu-item highlight-item">
           <ion-icon name="log-in-outline" slot="start"></ion-icon>
           <ion-label>Iniciar Sesión</ion-label>
         </ion-item>
 
         <!-- Módulos dinámicos según el rol del usuario autenticado -->
-        <ion-item-divider *ngIf="modulos.length > 0" class="menu-divider">
+        <ion-item-divider *ngIf="modulos().length > 0" class="menu-divider">
           <ion-label>Acciones</ion-label>
         </ion-item-divider>
 
-        <ion-item *ngFor="let modulo of modulos" button detail="false" (click)="navegarModulo(modulo)" class="menu-item">
+        <ion-item *ngFor="let modulo of modulos()" button detail="false" (click)="navegarModulo(modulo)"
+          class="menu-item">
           <ion-icon [name]="getIconForModule(modulo)" slot="start"></ion-icon>
           <ion-label>{{ modulo }}</ion-label>
         </ion-item>
 
         <!-- Opciones para usuarios no autenticados -->
-        <ion-item-divider *ngIf="!userName" class="menu-divider">
+        <ion-item-divider *ngIf="!userName()" class="menu-divider">
           <ion-label>Información</ion-label>
         </ion-item-divider>
 
-        <ng-container *ngIf="!userName">
+        <ng-container *ngIf="!userName()">
           <ion-item button detail="false" (click)="navegarModulo('informacion')" class="menu-item">
             <ion-icon name="information-circle-outline" slot="start"></ion-icon>
             <ion-label>Acerca de Nosotros</ion-label>
@@ -77,11 +78,11 @@
         </ng-container>
 
         <!-- Opción para cerrar sesión -->
-        <ion-item-divider *ngIf="userName" class="menu-divider">
+        <ion-item-divider *ngIf="userName()" class="menu-divider">
           <ion-label>Sesión</ion-label>
         </ion-item-divider>
 
-        <ion-item *ngIf="userName" button detail="false" (click)="cerrarSesion()" class="menu-item logout-item">
+        <ion-item *ngIf="userName()" button detail="false" (click)="cerrarSesion()" class="menu-item logout-item">
           <ion-icon name="log-out-outline" slot="start"></ion-icon>
           <ion-label>Cerrar sesión</ion-label>
         </ion-item>

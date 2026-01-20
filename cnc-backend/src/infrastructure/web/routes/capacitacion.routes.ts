@@ -3,7 +3,7 @@ import { Router } from 'express';
 const router = Router();
 
 // TODO: Implementar rutas de capacitaciones
-router.get('/', (req, res) => {
+router.get('/', (_req, res) => {
     res.json({ message: 'Capacitacion routes - Coming soon' });
 });
 
