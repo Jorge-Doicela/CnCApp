@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import { injectable } from 'tsyringe';
-import { GetAllUsersUseCase } from '../../../application/use-cases/get-all-users.use-case';
-import { UpdateUserUseCase } from '../../../application/use-cases/update-user.use-case';
-import { DeleteUserUseCase } from '../../../application/use-cases/delete-user.use-case';
-import { GetUserProfileUseCase } from '../../../application/use-cases/get-user-profile.use-case';
+import { GetAllUsersUseCase } from '../../../application/user/use-cases/get-all-users.use-case';
+import { UpdateUserUseCase } from '../../../application/user/use-cases/update-user.use-case';
+import { DeleteUserUseCase } from '../../../application/user/use-cases/delete-user.use-case';
+import { GetUserProfileUseCase } from '../../../application/user/use-cases/get-user-profile.use-case';
 import { z } from 'zod';
 
 const updateUserSchema = z.object({

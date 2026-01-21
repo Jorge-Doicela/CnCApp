@@ -1,11 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
 import { injectable } from 'tsyringe';
 import { z } from 'zod';
-import { RegisterUserUseCase } from '../../../application/use-cases/register-user.use-case';
-import { LoginUserUseCase } from '../../../application/use-cases/login-user.use-case';
-import { GetUserProfileUseCase } from '../../../application/use-cases/get-user-profile.use-case';
+import { RegisterUserUseCase } from '../../../application/auth/use-cases/register-user.use-case';
+import { LoginUserUseCase } from '../../../application/auth/use-cases/login-user.use-case';
+import { GetUserProfileUseCase } from '../../../application/user/use-cases/get-user-profile.use-case';
 import { AuthRequest } from '../middleware/auth.middleware';
-import { RegisterUserDto, LoginUserDto } from '../../../application/dtos/auth.dtos';
+import { RegisterUserDto, LoginUserDto } from '../../../application/auth/dtos/auth.dtos';
 
 // Schemas
 const registerSchema = z.object({

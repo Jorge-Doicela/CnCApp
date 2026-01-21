@@ -1,8 +1,8 @@
 import { injectable } from 'tsyringe';
-import prisma from '../../../config/database';
-import { User } from '../../../domain/entities/user.entity';
-import { UserRepository } from '../../../domain/repositories/user.repository';
-import { UserMapper } from '../../../domain/mappers/user.mapper';
+import prisma from '../../../../config/database';
+import { User } from '../../../../domain/user/entities/user.entity';
+import { UserRepository } from '../../../../domain/user/repositories/user.repository';
+import { UserMapper } from '../../../../domain/user/mappers/user.mapper';
 
 @injectable()
 export class PrismaUserRepository implements UserRepository {

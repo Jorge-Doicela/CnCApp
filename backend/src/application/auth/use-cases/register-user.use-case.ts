@@ -1,9 +1,9 @@
 import { injectable, inject } from 'tsyringe';
-import { UserRepository } from '../../domain/repositories/user.repository';
-import { PasswordHasher } from '../interfaces/password-hasher.interface';
-import { TokenProvider } from '../interfaces/token-provider.interface';
+import { UserRepository } from '../../../domain/user/repositories/user.repository';
+import { PasswordHasher } from '../../shared/interfaces/password-hasher.interface';
+import { TokenProvider } from '../../shared/interfaces/token-provider.interface';
 import { RegisterUserDto, AuthResponseDto } from '../dtos/auth.dtos';
-import { ValidationError } from '../../domain/errors';
+import { ValidationError } from '../../../domain/shared/errors';
 
 @injectable()
 export class RegisterUserUseCase {

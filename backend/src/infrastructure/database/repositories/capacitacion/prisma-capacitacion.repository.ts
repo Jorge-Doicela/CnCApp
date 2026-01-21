@@ -1,8 +1,8 @@
 import { injectable } from 'tsyringe';
-import prisma from '../../../config/database';
-import { Capacitacion } from '../../../domain/entities/capacitacion.entity';
-import { CapacitacionRepository } from '../../../domain/repositories/capacitacion.repository';
-import { CapacitacionMapper } from '../../../domain/mappers/capacitacion.mapper';
+import prisma from '../../../../config/database';
+import { Capacitacion } from '../../../../domain/capacitacion/entities/capacitacion.entity';
+import { CapacitacionRepository } from '../../../../domain/capacitacion/repositories/capacitacion.repository';
+import { CapacitacionMapper } from '../../../../domain/capacitacion/mappers/capacitacion.mapper';
 
 @injectable()
 export class PrismaCapacitacionRepository implements CapacitacionRepository {

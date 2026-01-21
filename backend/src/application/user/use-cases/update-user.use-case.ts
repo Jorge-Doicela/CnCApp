@@ -1,7 +1,7 @@
 import { injectable, inject } from 'tsyringe';
-import { UserRepository } from '../../domain/repositories/user.repository';
-import { User } from '../../domain/entities/user.entity';
-import { NotFoundError } from '../../domain/errors';
+import { UserRepository } from '../../../domain/user/repositories/user.repository';
+import { User } from '../../../domain/user/entities/user.entity';
+import { NotFoundError } from '../../../domain/shared/errors';
 
 @injectable()
 export class UpdateUserUseCase {

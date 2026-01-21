@@ -1,6 +1,6 @@
 import { injectable } from 'tsyringe';
 import jwt from 'jsonwebtoken';
-import { TokenProvider } from '../../application/interfaces/token-provider.interface';
+import { TokenProvider } from '../../application/shared/interfaces/token-provider.interface';
 
 @injectable()
 export class JwtTokenProvider implements TokenProvider {

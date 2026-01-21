@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { DomainError, ValidationError, AuthenticationError, NotFoundError } from '../../../domain/errors';
+import { DomainError, ValidationError, AuthenticationError, NotFoundError } from '../../../domain/shared/errors';
 import { ZodError } from 'zod';
 import logger from '../../../config/logger';
 

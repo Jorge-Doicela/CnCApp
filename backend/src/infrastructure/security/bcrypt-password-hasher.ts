@@ -1,6 +1,6 @@
 import { injectable } from 'tsyringe';
 import bcrypt from 'bcrypt';
-import { PasswordHasher } from '../../application/interfaces/password-hasher.interface';
+import { PasswordHasher } from '../../application/shared/interfaces/password-hasher.interface';
 
 @injectable()
 export class BcryptPasswordHasher implements PasswordHasher {
