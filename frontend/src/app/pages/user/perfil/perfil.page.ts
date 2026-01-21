@@ -10,7 +10,7 @@ import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { v4 as uuidv4 } from 'uuid';
 import { environment } from 'src/environments/environment';
 import { firstValueFrom } from 'rxjs';
-import { AuthService } from 'src/app/services/auth.service';
+import { AuthService } from 'src/app/pages/auth/services/auth.service';
 
 @Component({
   selector: 'app-perfil',

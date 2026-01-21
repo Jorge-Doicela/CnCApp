@@ -4,9 +4,9 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, ViewChild, inject } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { ToastController, AlertController, NavController, LoadingController } from '@ionic/angular';
-import { CapacitacionesService } from 'src/app/services/capacitaciones.service';
-import { CatalogoService } from 'src/app/services/catalogo.service';
-import { UsuarioService } from 'src/app/services/usuario.service';
+import { CapacitacionesService } from 'src/app/pages/admin/crudcapacitaciones/services/capacitaciones.service';
+import { CatalogoService } from 'src/app/shared/services/catalogo.service';
+import { UsuarioService } from 'src/app/pages/user/services/usuario.service';
 
 @Component({
   selector: 'app-crear',

@@ -4,8 +4,8 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { ToastController, LoadingController, AlertController } from '@ionic/angular';
-import { UsuarioService } from 'src/app/services/usuario.service';
-import { CatalogoService } from 'src/app/services/catalogo.service';
+import { UsuarioService } from 'src/app/pages/user/services/usuario.service';
+import { CatalogoService } from 'src/app/shared/services/catalogo.service';
 import { map } from 'rxjs/operators';
 
 @Component({

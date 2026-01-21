@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ToastController, AlertController, NavController, LoadingController } from '@ionic/angular';
-import { CatalogoService } from 'src/app/services/catalogo.service';
+import { CatalogoService } from 'src/app/shared/services/catalogo.service';
 
 @Component({
   selector: 'app-editar',

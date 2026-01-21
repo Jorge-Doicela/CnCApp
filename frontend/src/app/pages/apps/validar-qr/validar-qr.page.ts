@@ -4,8 +4,8 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ToastController, LoadingController } from '@ionic/angular';
-import { CertificadosService } from 'src/app/services/certificados.service';
-import { CapacitacionesService } from 'src/app/services/capacitaciones.service';
+import { CertificadosService } from 'src/app/pages/admin/certificados/services/certificados.service';
+import { CapacitacionesService } from 'src/app/pages/admin/crudcapacitaciones/services/capacitaciones.service';
 import { firstValueFrom } from 'rxjs';
 
 @Component({

@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { LoadingController, ToastController, AlertController } from '@ionic/angular';
-import { AuthService } from 'src/app/services/auth.service';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-login',
