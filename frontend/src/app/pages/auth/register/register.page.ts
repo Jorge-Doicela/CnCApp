@@ -665,4 +665,8 @@ export class RegisterPage implements OnInit {
       this.generacionParroquias();
     }
   }
+
+  iraLogin() {
+    this.router.navigate(['/login']);
+  }
 }

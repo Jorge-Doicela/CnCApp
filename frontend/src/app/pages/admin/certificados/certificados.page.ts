@@ -7,7 +7,7 @@ import * as QRCode from 'qrcode';
 import * as CryptoJS from 'crypto-js';
 import { CertificadosService } from 'src/app/pages/admin/certificados/services/certificados.service';
 import { UsuarioService } from 'src/app/pages/user/services/usuario.service';
-import { AuthService } from 'src/app/services/auth.service';
+import { AuthService } from 'src/app/pages/auth/services/auth.service';
 
 const pdfMake = require('pdfmake/build/pdfmake');
 const pdfFonts = require('pdfmake/build/vfs_fonts');

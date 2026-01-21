@@ -16,8 +16,14 @@ import { environment } from 'src/environments/environment';
 })
 export class ConferenciasPage implements OnInit {
   Capacitaciones: any[] = []; // Array to store trainings
+  CapacitacionesFiltradas: any[] = []; // Filtered trainings
   loading: boolean = true;
+  cargando: boolean = true; // Alias for loading
   userProfile: any = null;
+
+  // Filter properties
+  searchTerm: string = '';
+  filtroEstado: string = 'todos';
 
   constructor(
     private router: Router,
@@ -32,6 +38,8 @@ export class ConferenciasPage implements OnInit {
 
   async cargarDatos() {
     try {
+      this.cargando = true;
+      this.loading = true;
       // Mock data loading or fetch from backend
       // const authUid = localStorage.getItem('auth_uid');
       // if (authUid) {
@@ -39,15 +47,44 @@ export class ConferenciasPage implements OnInit {
       // }
       // For now, empty
       this.Capacitaciones = [];
+      this.CapacitacionesFiltradas = [];
+      this.filtrarCapacitaciones();
+      this.cargando = false;
       this.loading = false;
     } catch (error) {
       console.error('Error loading data', error);
+      this.cargando = false;
       this.loading = false;
     }
   }
 
   getCapacitacionesConCertificado(): number {
     return this.Capacitaciones.filter(cap => cap.Certificado === true).length;
+  }
+
+  getCapacitacionesPorEstado(estado: number): number {
+    return this.Capacitaciones.filter(cap => cap.Estado === estado).length;
+  }
+
+  filtrarCapacitaciones() {
+    let resultado = [...this.Capacitaciones];
+
+    // Filtrar por término de búsqueda
+    if (this.searchTerm && this.searchTerm.trim() !== '') {
+      const termino = this.searchTerm.toLowerCase().trim();
+      resultado = resultado.filter(cap =>
+        cap.Nombre_Capacitacion?.toLowerCase().includes(termino) ||
+        cap.Descripcion_Capacitacion?.toLowerCase().includes(termino)
+      );
+    }
+
+    // Filtrar por estado
+    if (this.filtroEstado !== 'todos') {
+      const estadoNumero = parseInt(this.filtroEstado);
+      resultado = resultado.filter(cap => cap.Estado === estadoNumero);
+    }
+
+    this.CapacitacionesFiltradas = resultado;
   }
 
   async verDetallesCapacitacion(capacitacion: any) {
