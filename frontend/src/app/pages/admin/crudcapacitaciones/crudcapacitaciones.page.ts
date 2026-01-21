@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AlertController, LoadingController, ToastController } from '@ionic/angular';
-import { CapacitacionesService } from 'src/app/services/capacitaciones.service';
+import { CapacitacionesService } from 'src/app/pages/admin/crudcapacitaciones/services/capacitaciones.service';
 
 @Component({
   selector: 'app-crudcapacitaciones',

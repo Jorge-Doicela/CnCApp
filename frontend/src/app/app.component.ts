@@ -2,9 +2,9 @@ import { Component, OnInit, OnDestroy, effect, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { IonicModule, MenuController, AlertController } from '@ionic/angular';
-import { RecuperacionDataUsuarioService } from './services/recuperacion-data-usuario.service';
-import { AuthService } from './services/auth.service';
-import { UsuarioService } from './services/usuario.service';
+import { RecuperacionDataUsuarioService } from './pages/user/services/recuperacion-data-usuario.service';
+import { AuthService } from './pages/auth/services/auth.service';
+import { UsuarioService } from './pages/user/services/usuario.service';
 import { filter } from 'rxjs/operators';
 import { firstValueFrom } from 'rxjs';
 

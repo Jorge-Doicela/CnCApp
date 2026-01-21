@@ -4,8 +4,8 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { ToastController, AlertController, LoadingController } from '@ionic/angular';
 import { ActivatedRoute, Router } from '@angular/router';
-import { UsuarioService } from 'src/app/services/usuario.service';
-import { CatalogoService } from 'src/app/services/catalogo.service';
+import { UsuarioService } from 'src/app/pages/user/services/usuario.service';
+import { CatalogoService } from 'src/app/shared/services/catalogo.service';
 
 @Component({
   selector: 'app-editar',

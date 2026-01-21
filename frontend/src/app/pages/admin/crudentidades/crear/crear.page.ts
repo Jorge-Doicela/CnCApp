@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AlertController, LoadingController, ToastController } from '@ionic/angular';
-import { CatalogoService } from 'src/app/services/catalogo.service';
+import { CatalogoService } from 'src/app/shared/services/catalogo.service';
 
 @Component({
   selector: 'app-crear',

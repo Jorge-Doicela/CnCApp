@@ -4,9 +4,9 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AlertController, ToastController, NavController, LoadingController } from '@ionic/angular';
-import { CapacitacionesService } from 'src/app/services/capacitaciones.service';
-import { CatalogoService } from 'src/app/services/catalogo.service';
-import { UsuarioService } from 'src/app/services/usuario.service';
+import { CapacitacionesService } from 'src/app/pages/admin/crudcapacitaciones/services/capacitaciones.service';
+import { CatalogoService } from 'src/app/shared/services/catalogo.service';
+import { UsuarioService } from 'src/app/pages/user/services/usuario.service';
 import { firstValueFrom } from 'rxjs';
 
 @Component({

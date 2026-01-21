@@ -3,7 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { ToastController, AlertController, NavController } from '@ionic/angular';
-import { CatalogoService } from 'src/app/services/catalogo.service';
+import { CatalogoService } from 'src/app/shared/services/catalogo.service';
 
 @Component({
   selector: 'app-crear',

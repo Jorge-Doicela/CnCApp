@@ -3,10 +3,10 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule, ToastController, LoadingController } from '@ionic/angular';
 import { Router } from '@angular/router';
-import { RecuperacionDataUsuarioService } from '../services/recuperacion-data-usuario.service';
-import { CapacitacionesService } from '../services/capacitaciones.service';
-import { UsuarioService } from '../services/usuario.service';
-import { AuthService } from '../services/auth.service';
+import { RecuperacionDataUsuarioService } from '../pages/user/services/recuperacion-data-usuario.service';
+import { CapacitacionesService } from '../pages/admin/crudcapacitaciones/services/capacitaciones.service';
+import { UsuarioService } from '../pages/user/services/usuario.service';
+import { AuthService } from '../pages/auth/services/auth.service';
 import { firstValueFrom } from 'rxjs';
 
 @Component({

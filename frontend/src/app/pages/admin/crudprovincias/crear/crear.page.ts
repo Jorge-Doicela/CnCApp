@@ -5,7 +5,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { Router } from '@angular/router';
 import { AlertController, ToastController } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
-import { CatalogoService } from 'src/app/services/catalogo.service';
+import { CatalogoService } from 'src/app/shared/services/catalogo.service';
 import { map } from 'rxjs/operators';
 
 @Component({

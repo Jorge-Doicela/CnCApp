@@ -5,7 +5,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AlertController, ToastController } from '@ionic/angular';
-import { CatalogoService } from 'src/app/services/catalogo.service';
+import { CatalogoService } from 'src/app/shared/services/catalogo.service';
 import { map } from 'rxjs/operators';
 
 @Component({
