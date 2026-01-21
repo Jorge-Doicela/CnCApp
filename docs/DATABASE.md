@@ -1,4 +1,4 @@
-# 🗄️ Documentación de Base de Datos - CnCApp
+# Documentación de Base de Datos - CnCApp
 
 ## Visión General
 
@@ -6,7 +6,7 @@ La aplicación utiliza **PostgreSQL** como motor de base de datos relacional y *
 
 ---
 
-## 📊 Diagrama Entidad-Relación (ER)
+## Diagrama Entidad-Relación (ER)
 
 ```mermaid
 erDiagram
@@ -61,7 +61,7 @@ erDiagram
 
 ---
 
-## 📝 Descripción del Schema
+## Descripción del Schema
 
 ### 1. Usuarios y Autenticación
 
@@ -119,7 +119,7 @@ Tablas para almacenar datos específicos según el `tipoParticipante`.
 
 ---
 
-## 🔄 Migraciones y Gestión de Cambios
+## Migraciones y Gestión de Cambios
 
 Utilizamos Prisma Migrate para gestionar los cambios en el esquema de base de datos de manera segura y versionada.
 
@@ -146,7 +146,7 @@ npx prisma migrate reset
 
 ---
 
-## 🌱 Seeding (Datos Iniciales)
+## Seeding (Datos Iniciales)
 
 El proyecto incluye un script de seed robusto que puebla la base de datos con información esencial para el funcionamiento.
 
@@ -167,7 +167,7 @@ npm run prisma:seed
 
 ---
 
-## 🔒 Seguridad y Best Practices
+## Seguridad y Best Practices
 
 1.  **Índices**: Se han definido índices en columnas de búsqueda frecuente (`CI`, `email`, `auth_uid`, relaciones FK) para optimizar el rendimiento.
 2.  **Constraints**: Uso de `Unique` para prevenir duplicados críticos (Cédula, Email, Código QR).
@@ -177,7 +177,7 @@ npm run prisma:seed
 
 ---
 
-## 📋 Diccionario de Datos (Resumido)
+## Diccionario de Datos (Resumido)
 
 | Tabla | Columna | Tipo | Descripción |
 |-------|---------|------|-------------|
@@ -191,6 +191,6 @@ npm run prisma:seed
 
 <div align="center">
 
-**[⬆ Volver al Índice](INDEX.md)**
+**[Volver al Índice](INDEX.md)**
 
 </div>

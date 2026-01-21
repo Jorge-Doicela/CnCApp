@@ -1,4 +1,4 @@
-# 🤝 Guía de Contribución - CnCApp
+# Guía de Contribución - CnCApp
 
 ¡Gracias por tu interés en contribuir al Sistema de Gestión de Capacitaciones del Consejo Nacional de Competencias!
 
@@ -6,18 +6,18 @@ Este documento establece las pautas para contribuir al proyecto, asegurando cali
 
 ---
 
-## 📋 Tabla de Contenidos
+## Tabla de Contenidos
 
-- [Código de Conducta](#-código-de-conducta)
-- [Empezando](#-empezando)
-- [Flujo de Trabajo Git](#-flujo-de-trabajo-git)
-- [Estándares de Código](#-estándares-de-código)
-- [Proceso de Pull Request](#-proceso-de-pull-request)
-- [Reporte de Bugs](#-reporte-de-bugs)
+- [Código de Conducta](#código-de-conducta)
+- [Empezando](#empezando)
+- [Flujo de Trabajo Git](#flujo-de-trabajo-git)
+- [Estándares de Código](#estándares-de-código)
+- [Proceso de Pull Request](#proceso-de-pull-request)
+- [Reporte de Bugs](#reporte-de-bugs)
 
 ---
 
-## 📜 Código de Conducta
+## Código de Conducta
 
 Este proyecto se adhiere a un código de conducta estándar para fomentar un ambiente abierto y acogedor.
 - **Respeto**: Trata a todos con respeto y consideración.
@@ -26,7 +26,7 @@ Este proyecto se adhiere a un código de conducta estándar para fomentar un amb
 
 ---
 
-## 🚀 Empezando
+## Empezando
 
 1.  **Fork** el repositorio en GitHub.
 2.  **Clona** tu fork localmente:
@@ -38,7 +38,7 @@ Este proyecto se adhiere a un código de conducta estándar para fomentar un amb
 
 ---
 
-## 🌲 Flujo de Trabajo Git
+## Flujo de Trabajo Git
 
 Utilizamos una variante simplificada de Gitflow.
 
@@ -79,7 +79,7 @@ feat(auth): implementar login con JWT y refresh token
 
 ---
 
-## 💻 Estándares de Código
+## Estándares de Código
 
 ### General
 - Todo el código debe estar escrito en **English** (variables, funciones, comentarios de código) o **Español** (textos de UI, documentación), pero sé consistente. *Nota: Este proyecto usa mezcla actualmente, favor priorizar nombres en inglés para código nuevo backend.*
@@ -112,7 +112,7 @@ npm run lint --prefix frontend
 
 ---
 
-## 🔀 Proceso de Pull Request
+## Proceso de Pull Request
 
 1.  Asegúrate de que tu código compila y pasa todos los tests.
 2.  Actualiza la documentación si hiciste cambios en API o configuración.
@@ -127,7 +127,7 @@ npm run lint --prefix frontend
 
 ---
 
-## 🐛 Reporte de Bugs
+## Reporte de Bugs
 
 Si encuentras un error, por favor abre un Issue incluyendo:
 1.  **Título descriptivo**.
@@ -140,6 +140,6 @@ Si encuentras un error, por favor abre un Issue incluyendo:
 
 <div align="center">
 
-**[⬆ Volver al Índice](INDEX.md)**
+**[Volver al Índice](INDEX.md)**
 
 </div>

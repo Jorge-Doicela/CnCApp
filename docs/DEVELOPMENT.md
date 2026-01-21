@@ -1,10 +1,10 @@
-# 💻 Guía de Desarrollo Profesional - CnCApp
+# Guía de Desarrollo Profesional - CnCApp
 
 Bienvenido al manual de ingeniería y desarrollo del Sistema de Gestión de Capacitaciones (CnCApp). Esta guía está diseñada para proporcionar un entendimiento profundo del entorno de trabajo, flujos de desarrollo y estándares de calidad.
 
 ---
 
-## 📋 Tabla de Contenidos
+## Tabla de Contenidos
 
 1.  [Filosofía de Desarrollo](#1-filosofía-de-desarrollo)
 2.  [Configuración del Entorno (Deep Dive)](#2-configuración-del-entorno-deep-dive)
@@ -247,6 +247,6 @@ npx webpack-bundle-analyzer dist/stats.json
 
 <div align="center">
 
-**[⬆ Volver al Índice](INDEX.md)**
+**[Volver al Índice](INDEX.md)**
 
 </div>

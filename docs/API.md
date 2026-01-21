@@ -1,17 +1,17 @@
-# 🔌 Documentación de API RESTful - CnCApp
+# Documentación de API RESTful - CnCApp
 
 Bienvenido a la referencia completa de la API del Sistema de Gestión de Capacitaciones. Esta documentación detalla todos los endpoints disponibles, formatos de solicitud/respuesta, y códigos de error.
 
 ---
 
-## 📋 Información General
+## Información General
 
 - **Base URL**: `http://localhost:3000/api` (Desarrollo) / `https://api.cnc.gob.ec/api` (Producción)
 - **Protocolo**: HTTP/1.1 (HTTPS requerido en Producción)
 - **Formato de Comunicación**: JSON (`Content-Type: application/json`)
 - **Codificación**: UTF-8
 
-### 🔐 Autenticación
+### Autenticación
 
 La API utiliza **JWT (JSON Web Tokens)** para la autenticación.
 Para acceder a endpoints protegidos, debe incluir el token en el header `Authorization`.
@@ -21,7 +21,7 @@ Para acceder a endpoints protegidos, debe incluir el token en el header `Authori
 Authorization: Bearer <tu_token_jwt_aqui>
 ```
 
-### 🏷️ Convenciones de Respuesta Estandarizada
+### Convenciones de Respuesta Estandarizada
 
 Todas las respuestas de la API siguen una estructura predecible:
 
@@ -42,11 +42,11 @@ Depende del endpoint, pero generalmente retorna el objeto solicitado o una confi
 
 ---
 
-## � Endpoints
+## Endpoints
 
 ### 1. Autenticación (`/auth`)
 
-#### 🟢 Iniciar Sesión
+#### Iniciar Sesión
 Autentica a un usuario y retorna un token de acceso.
 
 - **Método**: `POST`
@@ -80,7 +80,7 @@ Autentica a un usuario y retorna un token de acceso.
 - `401 Unauthorized`: "Credenciales incorrectas"
 - `400 Bad Request`: "Faltan datos requeridos (CI o Password)"
 
-#### 🟢 Registrar Usuario
+#### Registrar Usuario
 Crea una nueva cuenta de usuario en el sistema.
 
 - **Método**: `POST`
@@ -119,7 +119,7 @@ Crea una nueva cuenta de usuario en el sistema.
 
 ### 2. Gestión de Usuarios (`/users`)
 
-#### 🔵 Obtener Perfil (Yo)
+#### Obtener Perfil (Yo)
 Obtiene los datos del usuario autenticado actual.
 
 - **Método**: `GET`
@@ -144,7 +144,7 @@ Obtiene los datos del usuario autenticado actual.
 }
 ```
 
-#### 🟡 Listar Usuarios (Admin)
+#### Listar Usuarios (Admin)
 Obtiene una lista paginada de usuarios registrados.
 
 - **Método**: `GET`
@@ -183,7 +183,7 @@ Obtiene una lista paginada de usuarios registrados.
 
 ### 3. Capacitaciones (`/capacitaciones`)
 
-#### 🔵 Listar Capacitaciones Disponibles
+#### Listar Capacitaciones Disponibles
 Muestra las capacitaciones activas disponibles para inscripción.
 
 - **Método**: `GET`
@@ -213,7 +213,7 @@ Muestra las capacitaciones activas disponibles para inscripción.
 ]
 ```
 
-#### 🟡 Crear Capacitación (Admin)
+#### Crear Capacitación (Admin)
 Registra un nuevo evento de capacitación.
 
 - **Método**: `POST`
@@ -243,7 +243,7 @@ Registra un nuevo evento de capacitación.
 }
 ```
 
-#### 🔵 Inscribirse en Capacitación
+#### Inscribirse en Capacitación
 Permite a un usuario inscribirse en un evento.
 
 - **Método**: `POST`
@@ -270,7 +270,7 @@ Permite a un usuario inscribirse en un evento.
 
 ### 4. Certificados (`/certificados`)
 
-#### 🔵 Descargar Certificado
+#### Descargar Certificado
 Genera la URL o stream del PDF del certificado.
 
 - **Método**: `GET`
@@ -290,7 +290,7 @@ Genera la URL o stream del PDF del certificado.
 - `403 Forbidden`: "El usuario no cumple los requisitos para el certificado (Asistencia/Aprobación)"
 - `404 Not Found`: "Capacitación no encontrada"
 
-#### 🟢 Validar Certificado (Público)
+#### Validar Certificado (Público)
 Verifica la autenticidad de un certificado mediante su código hash/QR.
 
 - **Método**: `GET`
@@ -337,7 +337,7 @@ Endpoints de solo lectura para llenar selects en el frontend.
 
 ---
 
-## ⚠️ Códigos de Estado HTTP
+## Códigos de Estado HTTP
 
 | Código | Significado | Descripción |
 |--------|-------------|-------------|
@@ -356,6 +356,6 @@ Endpoints de solo lectura para llenar selects en el frontend.
 
 <div align="center">
 
-**[⬆ Volver al Índice](INDEX.md)**
+**[Volver al Índice](INDEX.md)**
 
 </div>

@@ -1,10 +1,10 @@
-# 🔒 Seguridad - CnCApp
+# Seguridad - CnCApp
 
 La seguridad es una prioridad fundamental en el Sistema de Gestión de Capacitaciones del CNC. Este documento describe las prácticas, políticas y configuraciones de seguridad implementadas en el proyecto.
 
 ---
 
-## 🛡️ Autenticación y Autorización
+## Autenticación y Autorización
 
 ### JWT (JSON Web Tokens)
 El sistema utiliza JWT para la autenticación stateless.
@@ -23,7 +23,7 @@ Implementamos Role-Based Access Control (RBAC) estricto.
 
 ---
 
-## 🔐 Protección de Datos
+## Protección de Datos
 
 ### Contraseñas
 - **Hashing**: Las contraseñas **nunca** se almacenan en texto plano.
@@ -36,7 +36,7 @@ Implementamos Role-Based Access Control (RBAC) estricto.
 
 ---
 
-## 🌐 Seguridad de Red y API
+## Seguridad de Red y API
 
 ### HTTPS
 En producción, todo el tráfico debe estar cifrado mediante TLS/HTTPS.
@@ -60,7 +60,7 @@ Para prevenir ataques de fuerza bruta y DoS:
 
 ---
 
-## 🐳 Seguridad en Docker
+## Seguridad en Docker
 
 ### Contenedores
 - **Usuarios no root**: Los contenedores no deberían correr como root en producción (pendiente de implementación completa en Dockerfiles actuales).
@@ -72,18 +72,18 @@ Para prevenir ataques de fuerza bruta y DoS:
 
 ---
 
-## 🚨 Reporte de Vulnerabilidades
+## Reporte de Vulnerabilidades
 
 Si descubres una vulnerabilidad de seguridad en CnCApp, por favor sigue estos pasos:
 
 1.  **NO** abras un Issue público en GitHub.
 2.  Envía un correo electrónico detallado a `seguridad@competencias.gob.ec` (o el contacto designado).
 3.  Incluye pasos para reproducir la vulnerabilidad (PoC).
-4.  El equipo de desarrollo responderá en un plazo de 48 horas.
+4.  El desarrollador responderá en un plazo de 48 horas.
 
 ---
 
-## ✅ Checklist de Despliegue Seguro
+## Checklist de Despliegue Seguro
 
 Antes de pasar a producción:
 
@@ -98,6 +98,6 @@ Antes de pasar a producción:
 
 <div align="center">
 
-**[⬆ Volver al Índice](INDEX.md)**
+**[Volver al Índice](INDEX.md)**
 
 </div>

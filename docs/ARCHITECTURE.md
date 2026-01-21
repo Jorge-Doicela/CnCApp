@@ -1,4 +1,4 @@
-# 🏛️ Arquitectura del Sistema - CnCApp
+# Arquitectura del Sistema - CnCApp
 
 ## Visión General
 
@@ -6,7 +6,7 @@ CnCApp es un sistema full-stack moderno para la gestión de capacitaciones y cer
 
 ---
 
-## 📐 Diagrama General del Sistema
+## Diagrama General del Sistema
 
 ```mermaid
 graph TB
@@ -51,7 +51,7 @@ graph TB
 
 ---
 
-## 🎯 Principios Arquitectónicos
+## Principios Arquitectónicos
 
 ### 1. Separación de Concerns
 - **Frontend**: Presentación y experiencia de usuario
@@ -75,7 +75,7 @@ graph TB
 
 ---
 
-## 🔧 Backend - Clean Architecture
+## Backend - Clean Architecture
 
 ### Estructura de Capas
 
@@ -206,7 +206,7 @@ export class PrismaUserRepository implements IUserRepository {
 
 ---
 
-## 🎨 Frontend - Arquitectura Modular
+## Frontend - Arquitectura Modular
 
 ### Estructura de Módulos
 
@@ -287,7 +287,7 @@ CnCApp usa **Standalone Components** (Angular 19) sin NgModules:
   selector: 'app-login',
   templateUrl: './login.page.html',
   styleUrls: ['./login.page.scss'],
-  standalone: true,  // ✅ Standalone
+  standalone: true,  // Standalone
   imports: [CommonModule, FormsModule, IonicModule]  // Imports directos
 })
 export class LoginPage {
@@ -311,7 +311,7 @@ export class RecuperacionDataUsuarioService {
 
 ---
 
-## 🔐 Flujo de Autenticación
+## Flujo de Autenticación
 
 ```mermaid
 sequenceDiagram
@@ -348,7 +348,7 @@ sequenceDiagram
 
 ---
 
-## 📜 Flujo de Generación de Certificados
+## Flujo de Generación de Certificados
 
 ```mermaid
 sequenceDiagram
@@ -377,7 +377,7 @@ sequenceDiagram
 
 ---
 
-## 🗄️ Arquitectura de Base de Datos
+## Arquitectura de Base de Datos
 
 ### Modelo de Datos Principal
 
@@ -423,7 +423,7 @@ Ver [DATABASE.md](DATABASE.md) para detalles completos del schema.
 
 ---
 
-## 🔄 Patrones de Diseño Utilizados
+## Patrones de Diseño Utilizados
 
 ### Backend
 
@@ -447,7 +447,7 @@ Ver [DATABASE.md](DATABASE.md) para detalles completos del schema.
 
 ---
 
-## 🚀 Escalabilidad
+## Escalabilidad
 
 ### Horizontal Scaling
 
@@ -471,7 +471,7 @@ La arquitectura actual permite migrar a microservicios:
 
 ---
 
-## 🔧 Tecnologías y Herramientas
+## Tecnologías y Herramientas
 
 ### Backend Stack
 
@@ -498,7 +498,7 @@ graph LR
 
 ---
 
-## 📊 Métricas y Monitoreo (Futuro)
+## Métricas y Monitoreo (Futuro)
 
 ### Propuestas
 
@@ -509,7 +509,7 @@ graph LR
 
 ---
 
-## 🔮 Evolución Futura
+## Evolución Futura
 
 ### Corto Plazo
 - [ ] Implementar tests unitarios completos
@@ -528,7 +528,7 @@ graph LR
 
 ---
 
-## 📚 Referencias
+## Referencias
 
 - [Clean Architecture - Robert C. Martin](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
 - [Angular Architecture Guide](https://angular.dev/guide/architecture)
@@ -539,6 +539,6 @@ graph LR
 
 <div align="center">
 
-**[⬆ Volver al Índice](INDEX.md)**
+**[Volver al Índice](INDEX.md)**
 
 </div>
