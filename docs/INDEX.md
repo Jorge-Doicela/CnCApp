@@ -189,8 +189,4 @@ Esta documentación se actualiza regularmente:
 
 ---
 
-<div align="center">
 
-**[⬆ Volver al README Principal](../README.md)**
-
-</div>
