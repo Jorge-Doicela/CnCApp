@@ -1,48 +1,48 @@
-# 📚 Documentación Técnica - CnCApp
+# Documentación Técnica - CnCApp
 
 Bienvenido a la documentación técnica del Sistema de Gestión de Capacitaciones del Consejo Nacional de Competencias.
 
 ---
 
-## 🗺️ Guía de Navegación
+## Guía de Navegación
 
 Esta documentación está organizada por temas para facilitar su consulta:
 
-### 🏁 Primeros Pasos
+### Primeros Pasos
 
 | Documento | Descripción | Audiencia |
 |-----------|-------------|-----------|
-| [📖 README Principal](../README.md) | Visión general del proyecto | Todos |
-| [💻 Guía de Desarrollo](DEVELOPMENT.md) | Setup y flujo de trabajo | Desarrolladores |
-| [🐳 Docker Setup](DOCKER_SETUP.md) | Despliegue con Docker | DevOps, Desarrolladores |
+| [README Principal](../README.md) | Visión general del proyecto | Todos |
+| [Guía de Desarrollo](DEVELOPMENT.md) | Setup y flujo de trabajo | Desarrolladores |
+| [Docker Setup](DOCKER_SETUP.md) | Despliegue con Docker | DevOps, Desarrolladores |
 
-### 🏗️ Arquitectura y Diseño
-
-| Documento | Descripción | Audiencia |
-|-----------|-------------|-----------|
-| [🏛️ Arquitectura del Sistema](ARCHITECTURE.md) | Diseño general y patrones | Arquitectos, Desarrolladores |
-| [🗄️ Base de Datos](DATABASE.md) | Schema, migraciones y relaciones | Desarrolladores, DBAs |
-| [🔌 API Documentation](API.md) | Endpoints y ejemplos | Desarrolladores Frontend/Backend |
-
-### 🚀 Deployment y Operaciones
+### Arquitectura y Diseño
 
 | Documento | Descripción | Audiencia |
 |-----------|-------------|-----------|
-| [🚢 Deployment Guide](DEPLOYMENT.md) | Despliegue en producción | DevOps, SysAdmins |
-| [🔒 Seguridad](SECURITY.md) | Políticas y mejores prácticas | Todos |
-| [🔧 Troubleshooting](TROUBLESHOOTING.md) | Solución de problemas comunes | Desarrolladores, DevOps |
+| [Arquitectura del Sistema](ARCHITECTURE.md) | Diseño general y patrones | Arquitectos, Desarrolladores |
+| [Base de Datos](DATABASE.md) | Schema, migraciones y relaciones | Desarrolladores, DBAs |
+| [API Documentation](API.md) | Endpoints y ejemplos | Desarrolladores Frontend/Backend |
 
-### 🤝 Colaboración
+### Deployment y Operaciones
 
 | Documento | Descripción | Audiencia |
 |-----------|-------------|-----------|
-| [🤝 Guía de Contribución](CONTRIBUTING.md) | Cómo contribuir al proyecto | Contribuidores |
-| [🧪 Testing Guide](TESTING.md) | Estrategia y guías de testing | Desarrolladores, QA |
-| [📝 Changelog](CHANGELOG.md) | Historial de cambios | Todos |
+| [Deployment Guide](DEPLOYMENT.md) | Despliegue en producción | DevOps, SysAdmins |
+| [Seguridad](SECURITY.md) | Políticas y mejores prácticas | Todos |
+| [Troubleshooting](TROUBLESHOOTING.md) | Solución de problemas comunes | Desarrolladores, DevOps |
+
+### Colaboración
+
+| Documento | Descripción | Audiencia |
+|-----------|-------------|-----------|
+| [Guía de Contribución](CONTRIBUTING.md) | Cómo contribuir al proyecto | Contribuidores |
+| [Testing Guide](TESTING.md) | Estrategia y guías de testing | Desarrolladores, QA |
+| [Changelog](CHANGELOG.md) | Historial de cambios | Todos |
 
 ---
 
-## 📂 Estructura de la Documentación
+## Estructura de la Documentación
 
 ```
 docs/
@@ -51,12 +51,12 @@ docs/
 ├── DEVELOPMENT.md                 # Guía de desarrollo
 ├── API.md                         # Documentación de API
 ├── DATABASE.md                    # Base de datos
-├── DOCKER_SETUP.md               # Setup con Docker
+├── DOCKER_SETUP.md                # Setup con Docker
 ├── DEPLOYMENT.md                  # Guía de despliegue
 ├── SECURITY.md                    # Seguridad
 ├── CONTRIBUTING.md                # Contribución
 ├── TESTING.md                     # Testing
-├── TROUBLESHOOTING.md            # Solución de problemas
+├── TROUBLESHOOTING.md             # Solución de problemas
 ├── CHANGELOG.md                   # Historial de cambios
 │
 ├── architecture/                  # Diagramas y diseños detallados
@@ -64,13 +64,13 @@ docs/
 │   ├── frontend-architecture.md
 │   └── diagrams/
 │
-├── api/                          # Documentación detallada de API
+├── api/                           # Documentación detallada de API
 │   ├── authentication.md
 │   ├── users.md
 │   ├── capacitaciones.md
 │   └── certificados.md
 │
-└── guides/                       # Guías específicas
+└── guides/                        # Guías específicas
     ├── mobile-build.md
     ├── environment-setup.md
     └── code-style.md
@@ -78,7 +78,7 @@ docs/
 
 ---
 
-## 🎯 Rutas Rápidas
+## Rutas Rápidas
 
 ### Para Desarrolladores Nuevos
 
@@ -102,7 +102,7 @@ docs/
 
 ---
 
-## 🔍 Búsqueda Rápida
+## Búsqueda Rápida
 
 ### Backend
 - [Clean Architecture](ARCHITECTURE.md#backend-clean-architecture)
@@ -124,7 +124,7 @@ docs/
 
 ---
 
-## 📊 Diagramas
+## Diagramas
 
 Los diagramas están escritos en Mermaid y se renderizan automáticamente en GitHub:
 
@@ -135,7 +135,7 @@ Los diagramas están escritos en Mermaid y se renderizan automáticamente en Git
 
 ---
 
-## 🆘 Ayuda y Soporte
+## Ayuda y Soporte
 
 ### Problemas Comunes
 
@@ -154,7 +154,7 @@ Consulta [Troubleshooting](TROUBLESHOOTING.md) para soluciones a problemas frecu
 
 ---
 
-## 📝 Convenciones
+## Convenciones
 
 ### Formato de Documentación
 
@@ -171,7 +171,7 @@ Consulta [Troubleshooting](TROUBLESHOOTING.md) para soluciones a problemas frecu
 
 ---
 
-## 🔄 Mantenimiento
+## Mantenimiento
 
 Esta documentación se actualiza regularmente:
 
@@ -182,9 +182,9 @@ Esta documentación se actualiza regularmente:
 
 ---
 
-## 📌 Versión
+## Versión
 
-**Última actualización**: Enero 2025  
+**Última actualización**: Enero 2025
 **Versión del sistema**: 1.0.0
 
 ---

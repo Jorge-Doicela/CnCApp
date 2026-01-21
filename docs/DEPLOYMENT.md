@@ -1,10 +1,10 @@
-# 🚢 Guía de Despliegue - CnCApp
+# Guía de Despliegue - CnCApp
 
 Esta guía detalla los pasos para desplegar el Sistema de Gestión de Capacitaciones (CnCApp) en un entorno de producción utilizando Docker.
 
 ---
 
-## 📋 Requisitos del Servidor
+## Requisitos del Servidor
 
 - **OS**: Linux (Ubuntu 22.04 LTS recomendado)
 - **CPU**: 2 vCPU mínimo
@@ -17,7 +17,7 @@ Esta guía detalla los pasos para desplegar el Sistema de Gestión de Capacitaci
 
 ---
 
-## 🏗️ Arquitectura de Despliegue
+## Arquitectura de Despliegue
 
 Utilizamos una arquitectura de contenedores orquestada por Docker Compose:
 
@@ -35,7 +35,7 @@ graph LR
 
 ---
 
-## 🚀 Pasos de Despliegue
+## Pasos de Despliegue
 
 ### 1. Preparación del Servidor
 
@@ -143,7 +143,7 @@ docker-compose exec backend npm run prisma:seed
 
 ---
 
-## 🔄 Actualización (CI/CD Manual)
+## Actualización (CI/CD Manual)
 
 Para actualizar la aplicación a una nueva versión:
 
@@ -163,7 +163,7 @@ docker image prune -f
 
 ---
 
-## 📈 Monitoreo y Logs
+## Monitoreo y Logs
 
 ### Ver Logs en Tiempo Real
 
@@ -183,7 +183,7 @@ docker-compose ps
 
 ---
 
-## 💾 Backups
+## Backups
 
 ### Base de Datos
 
@@ -200,6 +200,6 @@ gzip dump_$TIMESTAMP.sql
 
 <div align="center">
 
-**[⬆ Volver al Índice](INDEX.md)**
+**[Volver al Índice](INDEX.md)**
 
 </div>

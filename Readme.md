@@ -11,71 +11,71 @@
 
 **Sistema oficial de gestión de capacitaciones y certificaciones del Consejo Nacional de Competencias (CNC) del Ecuador**
 
-[Características](#-características) •
-[Inicio Rápido](#-inicio-rápido) •
-[Documentación](#-documentación) •
-[Stack Tecnológico](#-stack-tecnológico)
+[Características](#características) •
+[Inicio Rápido](#inicio-rápido) •
+[Documentación](#documentación) •
+[Stack Tecnológico](#stack-tecnológico)
 
 </div>
 
 ---
 
-## 📑 Tabla de Contenidos
+## Tabla de Contenidos
 
-- [Características](#-características)
-- [Inicio Rápido](#-inicio-rápido)
-  - [Con Docker (Recomendado)](#-con-docker-recomendado)
-  - [Instalación Manual](#-instalación-manual)
-- [Stack Tecnológico](#-stack-tecnológico)
-- [Estructura del Proyecto](#-estructura-del-proyecto)
-- [Scripts Disponibles](#-scripts-disponibles)
-- [Documentación](#-documentación)
-- [Aplicación Móvil](#-aplicación-móvil-android)
-- [Contribución](#-contribución)
-- [Licencia](#-licencia)
-
----
-
-## ✨ Características
-
-### 🎓 Gestión de Capacitaciones
-- ✅ Registro y administración de eventos de capacitación
-- ✅ Inscripción de participantes con validación de datos
-- ✅ Modalidades: Presencial, Virtual e Híbrida
-- ✅ Gestión de horarios y ubicaciones
-- ✅ Control de asistencia y participación
-
-### 📜 Certificados Digitales
-- ✅ Generación automática de certificados en PDF
-- ✅ Códigos QR únicos para validación
-- ✅ Sistema de verificación pública de certificados
-- ✅ Descarga y compartir en redes sociales
-- ✅ Firma digital con hash criptográfico
-
-### 👥 Gestión de Usuarios
-- ✅ Sistema de roles: Administrador, Usuario, Autoridad, Funcionario GAD
-- ✅ Perfiles personalizados por tipo de participante
-- ✅ Autenticación segura con JWT
-- ✅ Gestión de datos personales y profesionales
-- ✅ Historial de capacitaciones y certificados
-
-### 🎛️ Panel Administrativo
-- ✅ CRUD completo de catálogos (roles, entidades, instituciones)
-- ✅ Gestión geográfica (provincias, cantones, parroquias)
-- ✅ Administración de competencias y cargos
-- ✅ Reportes y estadísticas en tiempo real
-- ✅ Gestión de usuarios inscritos por capacitación
-
-### 🔒 Seguridad
-- ✅ Autenticación JWT con tokens seguros
-- ✅ Contraseñas hasheadas con bcrypt
-- ✅ Rate limiting para prevenir ataques
-- ✅ Validación de datos en frontend y backend
-- ✅ CORS configurado para producción
+- [Características](#características)
+- [Inicio Rápido](#inicio-rápido)
+  - [Con Docker (Recomendado)](#con-docker-recomendado)
+  - [Instalación Manual](#instalación-manual)
+- [Stack Tecnológico](#stack-tecnológico)
+- [Estructura del Proyecto](#estructura-del-proyecto)
+- [Scripts Disponibles](#scripts-disponibles)
+- [Documentación](#documentación)
+- [Aplicación Móvil](#aplicación-móvil-android)
+- [Contribución](#contribución)
+- [Licencia](#licencia)
 
 ---
 
-## 🚀 Inicio Rápido
+## Características
+
+### Gestión de Capacitaciones
+- Registro y administración de eventos de capacitación
+- Inscripción de participantes con validación de datos
+- Modalidades: Presencial, Virtual e Híbrida
+- Gestión de horarios y ubicaciones
+- Control de asistencia y participación
+
+### Certificados Digitales
+- Generación automática de certificados en PDF
+- Códigos QR únicos para validación
+- Sistema de verificación pública de certificados
+- Descarga y compartir en redes sociales
+- Firma digital con hash criptográfico
+
+### Gestión de Usuarios
+- Sistema de roles: Administrador, Usuario, Autoridad, Funcionario GAD
+- Perfiles personalizados por tipo de participante
+- Autenticación segura con JWT
+- Gestión de datos personales y profesionales
+- Historial de capacitaciones y certificados
+
+### Panel Administrativo
+- CRUD completo de catálogos (roles, entidades, instituciones)
+- Gestión geográfica (provincias, cantones, parroquias)
+- Administración de competencias y cargos
+- Reportes y estadísticas en tiempo real
+- Gestión de usuarios inscritos por capacitación
+
+### Seguridad
+- Autenticación JWT con tokens seguros
+- Contraseñas hasheadas con bcrypt
+- Rate limiting para prevenir ataques
+- Validación de datos en frontend y backend
+- CORS configurado para producción
+
+---
+
+## Inicio Rápido
 
 ### Requisitos Previos
 
@@ -84,7 +84,7 @@
 - **npm**: v9 o superior
 - **Docker** (opcional, recomendado): Docker Desktop
 
-### 🐳 Con Docker (Recomendado)
+### Con Docker (Recomendado)
 
 La forma más rápida de ejecutar la aplicación completa:
 
@@ -113,7 +113,7 @@ docker-compose logs -f
 
 **Documentación completa de Docker**: Ver [`docs/DOCKER_SETUP.md`](docs/DOCKER_SETUP.md)
 
-### 📦 Instalación Manual
+### Instalación Manual
 
 #### 1. Configuración del Backend
 
@@ -161,7 +161,7 @@ La aplicación estará disponible en: `http://localhost:8100`
 
 ---
 
-## 🛠️ Stack Tecnológico
+## Stack Tecnológico
 
 ### Backend (Clean Architecture)
 
@@ -200,77 +200,77 @@ La aplicación estará disponible en: `http://localhost:8100`
 
 ---
 
-## 📁 Estructura del Proyecto
+## Estructura del Proyecto
 
 ```
 CnCApp/
-├── 📂 backend/                 # API RESTful
-│   ├── 📂 src/
-│   │   ├── 📂 application/     # Casos de uso y DTOs
+├── backend/                 # API RESTful
+│   ├── src/
+│   │   ├── application/     # Casos de uso y DTOs
 │   │   │   ├── auth/          # Módulo de autenticación
 │   │   │   ├── user/          # Módulo de usuarios
 │   │   │   ├── capacitacion/  # Módulo de capacitaciones
 │   │   │   ├── certificado/   # Módulo de certificados
 │   │   │   └── shared/        # Compartido (errors, interfaces)
-│   │   ├── 📂 domain/          # Entidades y lógica de negocio
+│   │   ├── domain/          # Entidades y lógica de negocio
 │   │   │   ├── auth/
 │   │   │   ├── user/
 │   │   │   ├── capacitacion/
 │   │   │   ├── certificado/
 │   │   │   └── shared/
-│   │   ├── 📂 infrastructure/  # Implementaciones técnicas
+│   │   ├── infrastructure/  # Implementaciones técnicas
 │   │   │   ├── database/      # Repositorios Prisma
 │   │   │   ├── security/      # JWT, Bcrypt
 │   │   │   └── web/           # Controllers, Middleware
-│   │   ├── 📂 config/          # Configuración
+│   │   ├── config/          # Configuración
 │   │   └── app.ts             # Punto de entrada
-│   ├── 📂 prisma/
+│   ├── prisma/
 │   │   ├── schema.prisma      # Schema de base de datos
 │   │   ├── migrations/        # Migraciones
 │   │   └── seed.ts            # Datos iniciales
 │   └── package.json
 │
-├── 📂 frontend/                # Aplicación Web/Móvil
-│   ├── 📂 src/
-│   │   ├── 📂 app/
-│   │   │   ├── 📂 core/       # Servicios singleton y guards
+├── frontend/                # Aplicación Web/Móvil
+│   ├── src/
+│   │   ├── app/
+│   │   │   ├── core/       # Servicios singleton y guards
 │   │   │   │   ├── guards/
 │   │   │   │   └── services/
-│   │   │   ├── 📂 shared/     # Código compartido
+│   │   │   ├── shared/     # Código compartido
 │   │   │   │   ├── models/
 │   │   │   │   └── services/
-│   │   │   ├── 📂 pages/      # Páginas por módulo
+│   │   │   ├── pages/      # Páginas por módulo
 │   │   │   │   ├── auth/      # Login, registro, recuperación
 │   │   │   │   ├── user/      # Perfil, conferencias
 │   │   │   │   ├── admin/     # CRUDs administrativos
 │   │   │   │   └── apps/      # Validación QR
-│   │   │   ├── 📂 home/       # Página principal
+│   │   │   ├── home/       # Página principal
 │   │   │   ├── app.component.ts
 │   │   │   └── app.routes.ts
-│   │   ├── 📂 assets/         # Imágenes, iconos
-│   │   └── 📂 environments/   # Configuración por entorno
+│   │   ├── assets/         # Imágenes, iconos
+│   │   └── environments/   # Configuración por entorno
 │   └── package.json
 │
-├── 📂 android/                 # Proyecto Capacitor Android
+├── android/                 # Proyecto Capacitor Android
 │   └── app/
 │
-├── 📂 docs/                    # Documentación técnica
+├── docs/                    # Documentación técnica
 │   ├── ARCHITECTURE.md
 │   ├── DEVELOPMENT.md
 │   ├── API.md
 │   ├── DOCKER_SETUP.md
 │   └── ...
 │
-├── 📄 docker-compose.yml       # Orquestación de servicios
-├── 📄 docker-compose.prod.yml  # Configuración de producción
-├── 📄 .env.docker              # Variables de entorno Docker
-├── 📄 capacitor.config.ts      # Configuración Capacitor
-└── 📄 README.md                # Este archivo
+├── docker-compose.yml       # Orquestación de servicios
+├── docker-compose.prod.yml  # Configuración de producción
+├── .env.docker              # Variables de entorno Docker
+├── capacitor.config.ts      # Configuración Capacitor
+└── README.md                # Este archivo
 ```
 
 ---
 
-## 📜 Scripts Disponibles
+## Scripts Disponibles
 
 ### Monorepo (Raíz)
 
@@ -320,25 +320,25 @@ npm run lint                 # Ejecutar linter
 
 ---
 
-## 📚 Documentación
+## Documentación
 
 La documentación técnica completa se encuentra en el directorio [`/docs`](docs/):
 
 | Documento | Descripción |
 |-----------|-------------|
-| [📖 Índice de Documentación](docs/INDEX.md) | Guía de navegación de toda la documentación |
-| [🏗️ Arquitectura](docs/ARCHITECTURE.md) | Diseño del sistema y patrones arquitectónicos |
-| [💻 Guía de Desarrollo](docs/DEVELOPMENT.md) | Setup, convenciones y flujo de trabajo |
-| [🔌 Documentación de API](docs/API.md) | Endpoints, autenticación y ejemplos |
-| [🗄️ Base de Datos](docs/DATABASE.md) | Schema, migraciones y relaciones |
-| [🐳 Docker Setup](docs/DOCKER_SETUP.md) | Despliegue con Docker (completo) |
-| [🚀 Deployment](docs/DEPLOYMENT.md) | Guía de despliegue en producción |
-| [🔒 Seguridad](docs/SECURITY.md) | Consideraciones de seguridad |
-| [🤝 Contribución](docs/CONTRIBUTING.md) | Cómo contribuir al proyecto |
+| [Índice de Documentación](docs/INDEX.md) | Guía de navegación de toda la documentación |
+| [Arquitectura](docs/ARCHITECTURE.md) | Diseño del sistema y patrones arquitectónicos |
+| [Guía de Desarrollo](docs/DEVELOPMENT.md) | Setup, convenciones y flujo de trabajo |
+| [Documentación de API](docs/API.md) | Endpoints, autenticación y ejemplos |
+| [Base de Datos](docs/DATABASE.md) | Schema, migraciones y relaciones |
+| [Docker Setup](docs/DOCKER_SETUP.md) | Despliegue con Docker (completo) |
+| [Deployment](docs/DEPLOYMENT.md) | Guía de despliegue en producción |
+| [Seguridad](docs/SECURITY.md) | Consideraciones de seguridad |
+| [Contribución](docs/CONTRIBUTING.md) | Cómo contribuir al proyecto |
 
 ---
 
-## 📱 Aplicación Móvil (Android)
+## Aplicación Móvil (Android)
 
 ### Compilar para Android
 
@@ -368,7 +368,7 @@ npx cap open android
 
 ---
 
-## 🤝 Contribución
+## Contribución
 
 ¡Las contribuciones son bienvenidas! Por favor lee nuestra [Guía de Contribución](docs/CONTRIBUTING.md) para conocer:
 
@@ -388,15 +388,15 @@ npx cap open android
 
 ---
 
-## 🔐 Seguridad
+## Seguridad
 
-Si descubres una vulnerabilidad de seguridad, por favor **NO** abras un issue público. En su lugar, contacta al equipo de desarrollo directamente.
+Si descubres una vulnerabilidad de seguridad, por favor **NO** abras un issue público. En su lugar, contacta a **Jorge Doicela** directamente.
 
 Ver [SECURITY.md](docs/SECURITY.md) para más información sobre nuestras políticas de seguridad.
 
 ---
 
-## 📄 Licencia
+## Licencia
 
 **Derechos Reservados © 2025 Consejo Nacional de Competencias del Ecuador**
 
@@ -406,13 +406,13 @@ El uso, copia, modificación y/o distribución de este software está estrictame
 
 ---
 
-## 👥 Equipo de Desarrollo
+## Autor y Desarrollo
 
-Desarrollado y mantenido por el equipo de tecnología del Consejo Nacional de Competencias.
+Este proyecto ha sido desarrollado por **Jorge Doicela**.
 
 ---
 
-## 📞 Soporte
+## Soporte
 
 Para soporte técnico o consultas:
 
@@ -426,6 +426,6 @@ Para soporte técnico o consultas:
 
 **[⬆ Volver arriba](#cncapp---sistema-de-gestión-de-capacitaciones)**
 
-Hecho con ❤️ por el equipo CNC
+Desarrollado por **Jorge Doicela**
 
 </div>

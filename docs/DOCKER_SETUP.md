@@ -1,4 +1,4 @@
-# 🐳 Docker Setup Guide - CNC Application
+# Docker Setup Guide - CNC Application
 
 ## Quick Start
 
