@@ -1,0 +1,14 @@
+import { injectable, inject } from 'tsyringe';
+import { CapacitacionRepository } from '../../domain/repositories/capacitacion.repository';
+import { Capacitacion } from '../../domain/entities/capacitacion.entity';
+
+@injectable()
+export class GetAllCapacitacionesUseCase {
+    constructor(
+        @inject('CapacitacionRepository') private capacitacionRepository: CapacitacionRepository
+    ) { }
+
+    async execute(): Promise<Capacitacion[]> {
+        return this.capacitacionRepository.findAll();
+    }
+}

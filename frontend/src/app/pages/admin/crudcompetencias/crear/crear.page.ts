@@ -1,13 +1,17 @@
-import { Component, OnInit } from '@angular/core';
+import { IonicModule } from '@ionic/angular';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { LoadingController, ToastController } from '@ionic/angular';
-import { supabase } from 'src/supabase';
+import { CatalogoService } from 'src/app/services/catalogo.service';
 
 @Component({
   selector: 'app-crear',
   templateUrl: './crear.page.html',
   styleUrls: ['./crear.page.scss'],
-  standalone: false
+  standalone: true,
+  imports: [CommonModule, FormsModule, IonicModule]
 })
 export class CrearPage implements OnInit {
 
@@ -18,6 +22,7 @@ export class CrearPage implements OnInit {
   };
 
   enviando: boolean = false;
+  private catalogoService = inject(CatalogoService);
 
   constructor(
     private router: Router,
@@ -40,31 +45,27 @@ export class CrearPage implements OnInit {
     });
     await loading.present();
 
-    try {
-      const { data, error } = await supabase
-        .from('competencias')
-        .insert([
-          {
-            nombre_competencias: this.nuevaCompetencia.nombre_competencias,
-            descripcion: this.nuevaCompetencia.descripcion || null,
-            estado_competencia: this.nuevaCompetencia.estado_competencia,
-            fecha_ultima_actualizacion: new Date().toISOString()
-          }
-        ]);
+    const nuevaCompetenciaData = {
+      nombre_competencias: this.nuevaCompetencia.nombre_competencias,
+      descripcion: this.nuevaCompetencia.descripcion || null,
+      estado_competencia: this.nuevaCompetencia.estado_competencia,
+      fecha_ultima_actualizacion: new Date().toISOString()
+    };
 
-      if (error) {
-        this.presentToast('Error al crear la competencia: ' + error.message, 'danger');
-        return;
+    this.catalogoService.createItem('competencias', nuevaCompetenciaData).subscribe({
+      next: async () => {
+        this.presentToast('Competencia creada exitosamente', 'success');
+        this.router.navigate(['/gestionar competencias']);
+        loading.dismiss();
+        this.enviando = false;
+      },
+      error: async (error) => {
+        console.error('Error al crear competencia:', error);
+        this.presentToast('Error al crear la competencia: ' + (error.message || error.statusText), 'danger');
+        loading.dismiss();
+        this.enviando = false;
       }
-
-      this.presentToast('Competencia creada exitosamente', 'success');
-      this.router.navigate(['/gestionar competencias']);
-    } catch (error: any) {
-      this.presentToast('Error en la solicitud: ' + error.message, 'danger');
-    } finally {
-      loading.dismiss();
-      this.enviando = false;
-    }
+    });
   }
 
   cancelar() {

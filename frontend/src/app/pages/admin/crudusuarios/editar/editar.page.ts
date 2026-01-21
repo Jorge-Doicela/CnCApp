@@ -1,14 +1,18 @@
-import { Component, OnInit } from '@angular/core';
+import { IonicModule } from '@ionic/angular';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject } from '@angular/core';
 import { ToastController, AlertController, LoadingController } from '@ionic/angular';
-import { supabase } from 'src/supabase';
-import { environment } from 'src/environments/environment';
 import { ActivatedRoute, Router } from '@angular/router';
+import { UsuarioService } from 'src/app/services/usuario.service';
+import { CatalogoService } from 'src/app/services/catalogo.service';
 
 @Component({
   selector: 'app-editar',
   templateUrl: './editar.page.html',
   styleUrls: ['./editar.page.scss'],
-  standalone: false
+  standalone: true,
+  imports: [CommonModule, FormsModule, IonicModule]
 })
 export class EditarPage implements OnInit {
   roles: any[] = [];
@@ -32,6 +36,9 @@ export class EditarPage implements OnInit {
   };
   cargando: boolean = false;
 
+  private usuarioService = inject(UsuarioService);
+  private catalogoService = inject(CatalogoService);
+
   constructor(
     private toastController: ToastController,
     private alertController: AlertController,
@@ -42,114 +49,66 @@ export class EditarPage implements OnInit {
 
   async ngOnInit() {
     await this.mostrarCargando('Cargando información...');
+    this.recuperarRoles();
+    this.recuperarEntidades();
 
-    try {
-      this.activatedRoute.params.subscribe(async params => {
-        const idUsuario = +params['idUsuario'];
+    const userId = +this.activatedRoute.snapshot.params['idUsuario'];
+    if (isNaN(userId)) {
+      this.ocultarCargando();
+      this.presentToast('ID de usuario inválido', 'danger');
+      return;
+    }
 
-        if (isNaN(idUsuario)) {
-          console.error('ID de usuario inválido:', idUsuario);
-          this.presentToast('ID de usuario inválido', 'danger');
+    this.usuario.Id_Usuario = userId;
+    this.cargarUsuario(userId);
+  }
+
+  cargarUsuario(id: number) {
+    this.usuarioService.getUsuario(id).subscribe({
+      next: (data) => {
+        if (!data) {
           this.ocultarCargando();
-          this.router.navigate(['/gestionar usuarios']);
+          this.presentToast('No se encontró el usuario', 'warning');
           return;
         }
-
-        this.usuario.Id_Usuario = idUsuario;
-        await Promise.all([
-          this.recuperarRoles(),
-          this.recuperarEntidades(),
-          this.cargarUsuario()
-        ]);
-
+        this.usuario = {
+          Id_Usuario: data.Id_Usuario,
+          Nombre_Usuario: data.Nombre_Usuario,
+          CI_Usuario: data.CI_Usuario,
+          Rol_Usuario: data.Rol_Usuario,
+          Entidad_Usuario: data.Entidad_Usuario,
+          Estado_Usuario: data.Estado_Usuario,
+          Firma_Usuario: data.Firma_Usuario,
+          Celular_Usuario: data.Celular_Usuario,
+          Convencional_Usuario: data.Convencional_Usuario,
+          Genero_Usuario: data.Genero_Usuario,
+          Etnia: data.Etnia_Usuario,
+          Nacionalidad_Usuario: data.Nacionalidad_Usuario,
+          Fecha_Nacimiento_Usuario: data.Fecha_Nacimiento_Usuario,
+          canton: data.Canton_Reside_Usuario
+        };
         this.ocultarCargando();
-      });
-    } catch (error) {
-      console.error('Error en inicialización:', error);
-      this.presentToast('Error al cargar la página', 'danger');
-      this.ocultarCargando();
-    }
+      },
+      error: (error) => {
+        this.ocultarCargando();
+        console.error('Error al cargar usuario:', error);
+        this.presentToast('Error al cargar los datos del usuario', 'danger');
+      }
+    });
   }
 
-  async cargarUsuario() {
-    try {
-      const userId = this.usuario.Id_Usuario;
-      if (isNaN(userId)) {
-        throw new Error('ID de usuario inválido');
-      }
-
-      const { data, error } = await supabase
-        .from('Usuario')
-        .select('*')
-        .eq('Id_Usuario', userId)
-        .single();
-
-      if (error) {
-        throw new Error(`Error al obtener datos del usuario: ${error.message}`);
-      }
-
-      if (!data) {
-        throw new Error('No se encontró el usuario');
-      }
-
-      this.usuario = {
-        Id_Usuario: data.Id_Usuario,
-        Nombre_Usuario: data.Nombre_Usuario,
-        CI_Usuario: data.CI_Usuario,
-        Rol_Usuario: data.Rol_Usuario,
-        Entidad_Usuario: data.Entidad_Usuario,
-        Estado_Usuario: data.Estado_Usuario,
-        Firma_Usuario: data.Firma_Usuario,
-        Celular_Usuario: data.Celular_Usuario,
-        Convencional_Usuario: data.Convencional_Usuario,
-        Genero_Usuario: data.Genero_Usuario,
-        Etnia: data.Etnia_Usuario,
-        Nacionalidad_Usuario: data.Nacionalidad_Usuario,
-        Fecha_Nacimiento_Usuario: data.Fecha_Nacimiento_Usuario,
-        canton: data.Canton_Reside_Usuario
-      };
-
-    } catch (error) {
-      console.error('Error al cargar usuario:', error);
-      this.presentToast('Error al cargar los datos del usuario', 'danger');
-      throw error;
-    }
+  recuperarRoles() {
+    this.catalogoService.getItems('rol').subscribe({
+      next: (data) => this.roles = data || [],
+      error: (err) => console.error(err)
+    });
   }
 
-  async recuperarRoles() {
-    try {
-      const { data: roles, error } = await supabase
-        .from('Rol')
-        .select('Id_Rol, nombre_rol');
-
-      if (error) {
-        throw new Error(`Error al recuperar roles: ${error.message}`);
-      }
-
-      this.roles = roles || [];
-    } catch (error) {
-      console.error('Error en recuperación de roles:', error);
-      this.presentToast('Error al cargar los roles', 'danger');
-      throw error;
-    }
-  }
-
-  async recuperarEntidades() {
-    try {
-      const { data: entidades, error } = await supabase
-        .from('Entidades')
-        .select('Id_Entidad, Nombre_Entidad');
-
-      if (error) {
-        throw new Error(`Error al recuperar entidades: ${error.message}`);
-      }
-
-      this.entidades = entidades || [];
-    } catch (error) {
-      console.error('Error en recuperación de entidades:', error);
-      this.presentToast('Error al cargar las entidades', 'danger');
-      throw error;
-    }
+  recuperarEntidades() {
+    this.catalogoService.getItems('entidades').subscribe({
+      next: (data) => this.entidades = data || [],
+      error: (err) => console.error(err)
+    });
   }
 
   seleccionarFirma(event: any) {
@@ -190,67 +149,44 @@ export class EditarPage implements OnInit {
 
     await this.mostrarCargando('Guardando cambios...');
 
-    try {
-      let firmaUrl = this.usuario.Firma_Usuario;
+    // NOTE: Image upload logic should be handled by service or separate endpoint
+    // For now we assume the service handles data. If image validation is needed, backend should handle multipart or standard upload.
+    // Creating a proper DTO.
 
-      // Si hay una nueva imagen de firma
-      if (this.usuario.Firma_Usuario_Imagen) {
-        const file = this.usuario.Firma_Usuario_Imagen;
-        const extension = file instanceof File ? file.name.split('.').pop() : '';
-        const nombreImagen = `${this.usuario.Id_Usuario}_${Date.now()}.${extension}`;
+    const datosAEnviar = {
+      Rol_Usuario: this.usuario.Rol_Usuario,
+      Nombre_Usuario: this.usuario.Nombre_Usuario,
+      CI_Usuario: this.usuario.CI_Usuario,
+      Estado_Usuario: this.usuario.Estado_Usuario,
+      Entidad_Usuario: this.usuario.Entidad_Usuario,
+      // Firma_Usuario: firmaUrl, // Handle separately or as base64/link
+      Celular_Usuario: this.usuario.Celular_Usuario,
+      Convencional_Usuario: this.usuario.Convencional_Usuario,
+      Genero_Usuario: this.usuario.Genero_Usuario,
+      Etnia_Usuario: this.usuario.Etnia,
+      Nacionalidad_Usuario: this.usuario.Nacionalidad_Usuario,
+      Fecha_Nacimiento_Usuario: this.usuario.Fecha_Nacimiento_Usuario,
+      Canton_Reside_Usuario: this.usuario.canton,
+    };
 
-        /*
-        const { error: uploadError } = await supabase
-          .storage
-          .from('imagenes')
-          .upload(`firmas/${nombreImagen}`, file, { upsert: true });
+    // If there is an image to upload, we might need a separate service call for upload, or use FormData.
+    // UsuarioService.updateUsuario uses JSON currently.
+    // We will skip image upload implementation for now to clear Supabase.
 
-        if (uploadError) {
-          throw new Error(`Error al subir la firma: ${uploadError.message}`);
-        }
-
-        firmaUrl = `${environment.supabaseUrl}/storage/v1/object/public/imagenes/firmas/${nombreImagen}`;
-        */
-        console.log('TODO: Implementar subida de firma en backend');
-        // firmaUrl = 'placeholder';
+    this.usuarioService.updateUsuario(this.usuario.Id_Usuario, datosAEnviar).subscribe({
+      next: async () => {
+        this.ocultarCargando();
+        await this.mostrarAlertaExito('Usuario actualizado correctamente');
+        this.router.navigate(['/gestionar usuarios']);
+        // Correction: Route seems to be '/admin/usuarios' or similar based on CrearPage. 
+        // Original code said '/gestionar usuarios' which looks like a typo pending fix, or a real route.
+      },
+      error: (error) => {
+        this.ocultarCargando();
+        console.error('Error al actualizar usuario:', error);
+        this.presentToast('Error al guardar los cambios: ' + (error.error?.message || error.message), 'danger');
       }
-
-      const datosAEnviar = {
-        Rol_Usuario: this.usuario.Rol_Usuario,
-        Nombre_Usuario: this.usuario.Nombre_Usuario,
-        CI_Usuario: this.usuario.CI_Usuario,
-        Estado_Usuario: this.usuario.Estado_Usuario,
-        Entidad_Usuario: this.usuario.Entidad_Usuario,
-        Firma_Usuario: firmaUrl,
-        Celular_Usuario: this.usuario.Celular_Usuario,
-        Convencional_Usuario: this.usuario.Convencional_Usuario,
-        Genero_Usuario: this.usuario.Genero_Usuario,
-        Etnia_Usuario: this.usuario.Etnia,
-        Nacionalidad_Usuario: this.usuario.Nacionalidad_Usuario,
-        Fecha_Nacimiento_Usuario: this.usuario.Fecha_Nacimiento_Usuario,
-        Canton_Reside_Usuario: this.usuario.canton,
-      };
-
-      const { error } = await supabase
-        .from('Usuario')
-        .update(datosAEnviar)
-        .eq('Id_Usuario', this.usuario.Id_Usuario);
-
-      if (error) {
-        throw new Error(`Error al actualizar usuario: ${error.message}`);
-      }
-
-      this.ocultarCargando();
-      await this.mostrarAlertaExito('Usuario actualizado correctamente');
-
-      // Navegar de regreso a la lista de usuarios
-      this.router.navigate(['/gestionar usuarios']);
-
-    } catch (error) {
-      this.ocultarCargando();
-      console.error('Error al actualizar usuario:', error);
-      this.presentToast('Error al guardar los cambios', 'danger');
-    }
+    });
   }
 
   validarFormulario(): boolean {

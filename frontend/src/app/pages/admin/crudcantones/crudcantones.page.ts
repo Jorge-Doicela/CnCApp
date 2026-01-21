@@ -1,13 +1,18 @@
-import { Component, OnInit } from '@angular/core';
-import { supabase } from 'src/supabase';
+```typescript
+import { IonicModule } from '@ionic/angular';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AlertController, LoadingController, ToastController } from '@ionic/angular';
+import { CatalogoService } from 'src/app/services/catalogo.service';
 
 @Component({
   selector: 'app-crudcantones',
   templateUrl: './crudcantones.page.html',
   styleUrls: ['./crudcantones.page.scss'],
-  standalone: false
+  standalone: true,
+  imports: [CommonModule, FormsModule, IonicModule]
 })
 export class CrudcantonesPage implements OnInit {
 
@@ -21,6 +26,8 @@ export class CrudcantonesPage implements OnInit {
   totalCantones: number = 0;
   cantonesActivos: number = 0;
   cantonesInactivos: number = 0;
+  
+  private catalogoService = inject(CatalogoService);
 
   constructor(
     private router: Router,
@@ -35,6 +42,7 @@ export class CrudcantonesPage implements OnInit {
 
   async cargarDatos() {
     this.cargando = true;
+    // Load both matching parallel ideally, but sequential is fine
     await this.obtenerProvincias();
     await this.obtenerCantones();
     this.cargando = false;
@@ -47,42 +55,36 @@ export class CrudcantonesPage implements OnInit {
     });
     await loading.present();
 
-    try {
-      const { data: cantones, error } = await supabase
-        .from('Cantones')
-        .select('*');
-
-      if (error) {
-        this.presentToast('Error al obtener cantones: ' + error.message, 'danger');
-        return;
-      }
-
-      this.cantones = cantones || [];
-      this.asociarProvincias();
-      this.calcularEstadisticas();
-      this.filtrarCantones();
-    } catch (error: any) {
-      this.presentToast('Error en la solicitud: ' + error.message, 'danger');
-    } finally {
-      loading.dismiss();
-    }
+    this.catalogoService.getItems('cantones').subscribe({
+        next: (cantones) => {
+             this.cantones = cantones || [];
+             this.asociarProvincias();
+             this.calcularEstadisticas();
+             this.filtrarCantones();
+             loading.dismiss();
+        },
+        error: (error) => {
+             loading.dismiss();
+             this.presentToast('Error al obtener cantones (API no implementada)', 'danger');
+             console.error(error);
+        }
+    });
   }
 
   async obtenerProvincias() {
-    try {
-      const { data: Provincias, error } = await supabase
-        .from('Provincias')
-        .select('*');
-
-      if (error) {
-        this.presentToast('Error al obtener provincias: ' + error.message, 'danger');
-        return;
-      }
-
-      this.provincias = Provincias || [];
-    } catch (error: any) {
-      this.presentToast('Error en la solicitud: ' + error.message, 'danger');
-    }
+    return new Promise<void>((resolve) => {
+        this.catalogoService.getItems('provincias').subscribe({
+            next: (provincias) => {
+                this.provincias = provincias || [];
+                resolve();
+            },
+            error: (error) => {
+                console.error('Error al obtener provincias:', error);
+                this.presentToast('Error al obtener provincias', 'danger');
+                resolve(); // resolve anyway to continue
+            }
+        });
+    });
   }
 
   asociarProvincias() {
@@ -136,112 +138,99 @@ export class CrudcantonesPage implements OnInit {
     });
     await loading.present();
 
-    try {
-      const nuevoEstado = !canton.estado;
-      const { error } = await supabase
-        .from('Cantones')
-        .update({ estado: nuevoEstado })
-        .eq('codigo_canton', canton.codigo_canton);
-
-      if (error) {
-        this.presentToast('Error al cambiar estado: ' + error.message, 'danger');
-        return;
-      }
-
-      // Actualizar el objeto local
-      canton.estado = nuevoEstado;
-      this.calcularEstadisticas();
-      this.presentToast(
-        `Cantón "${canton.nombre_canton}" ahora está ${nuevoEstado ? 'activo' : 'inactivo'}`,
-        'success'
-      );
-    } catch (error: any) {
-      this.presentToast('Error en la solicitud: ' + error.message, 'danger');
-    } finally {
-      loading.dismiss();
-    }
+    const nuevoEstado = !canton.estado;
+    this.catalogoService.updateItem('cantones', canton.codigo_canton, { estado: nuevoEstado }).subscribe({
+        next: () => {
+             loading.dismiss();
+              // Actualizar el objeto local
+              canton.estado = nuevoEstado;
+              this.calcularEstadisticas();
+              this.presentToast(
+                `Cantón "${canton.nombre_canton}" ahora está ${ nuevoEstado ? 'activo' : 'inactivo' } `,
+                'success'
+              );
+        },
+        error: (error) => {
+            loading.dismiss();
+            this.presentToast('Error al cambiar estado: ' + error.message, 'danger');
+        }
+    });
   }
 
   async verDetallesCanton(canton: any) {
     const alert = await this.alertController.create({
       header: canton.nombre_canton,
-      subHeader: `Código: ${canton.codigo_canton}`,
-      message: `<div>
-                  <p><strong>Provincia:</strong> ${canton.nombre_provincia}</p>
-                  <p><strong>Estado:</strong> ${canton.estado ? 'Activo' : 'Inactivo'}</p>
-                  ${canton.notas ? `<p><strong>Notas:</strong> ${canton.notas}</p>` : ''}
-                </div>`,
-      buttons: ['Cerrar'],
-      cssClass: 'canton-details-alert'
+      subHeader: `Código: ${ canton.codigo_canton } `,
+      message: `< div >
+  <p><strong>Provincia: </strong> ${canton.nombre_provincia}</p >
+    <p><strong>Estado: </strong> ${canton.estado ? 'Activo' : 'Inactivo'}</p >
+      ${ canton.notas ? `<p><strong>Notas:</strong> ${canton.notas}</p>` : '' }
+</div>`,
+buttons: ['Cerrar'],
+  cssClass: 'canton-details-alert'
     });
 
-    await alert.present();
+await alert.present();
   }
 
   async confirmarEliminacion(canton: any) {
-    const alert = await this.alertController.create({
-      header: 'Confirmar eliminación',
-      message: `¿Está seguro que desea eliminar el cantón "${canton.nombre_canton}"?`,
-      buttons: [
-        {
-          text: 'Cancelar',
-          role: 'cancel',
-          cssClass: 'secondary'
-        }, {
-          text: 'Eliminar',
-          cssClass: 'danger',
-          handler: () => {
-            this.eliminarCanton(canton.codigo_canton);
-          }
+  const alert = await this.alertController.create({
+    header: 'Confirmar eliminación',
+    message: `¿Está seguro que desea eliminar el cantón "${canton.nombre_canton}"?`,
+    buttons: [
+      {
+        text: 'Cancelar',
+        role: 'cancel',
+        cssClass: 'secondary'
+      }, {
+        text: 'Eliminar',
+        cssClass: 'danger',
+        handler: () => {
+          this.eliminarCanton(canton.codigo_canton);
         }
-      ]
-    });
+      }
+    ]
+  });
 
-    await alert.present();
-  }
+  await alert.present();
+}
 
   async eliminarCanton(codigo_canton: string) {
-    const loading = await this.loadingController.create({
-      message: 'Eliminando cantón...',
-      spinner: 'crescent'
-    });
-    await loading.present();
+  const loading = await this.loadingController.create({
+    message: 'Eliminando cantón...',
+    spinner: 'crescent'
+  });
+  await loading.present();
 
-    try {
-      const { error } = await supabase
-        .from('Cantones')
-        .delete()
-        .eq('codigo_canton', codigo_canton);
-
-      if (error) {
-        this.presentToast('Error al eliminar cantón: ' + error.message, 'danger');
-        return;
-      }
-
-      this.presentToast('Cantón eliminado correctamente', 'success');
-      this.obtenerCantones();
-    } catch (error: any) {
-      this.presentToast('Error en la solicitud: ' + error.message, 'danger');
-    } finally {
+  this.catalogoService.deleteItem('cantones', codigo_canton).subscribe({
+    next: () => {
       loading.dismiss();
+      this.presentToast('Cantón eliminado correctamente', 'success');
+      this.obtenerCantones(); // Reload list
+    },
+    error: (error) => {
+      loading.dismiss();
+      this.presentToast('Error al eliminar cantón: ' + error.message, 'danger');
     }
-  }
+  });
+}
 
   async presentToast(message: string, color: string = 'primary') {
-    const toast = await this.toastController.create({
-      message: message,
-      duration: 3000,
-      position: 'bottom',
-      color: color,
-      buttons: [
-        {
-          side: 'end',
-          icon: 'close',
-          role: 'cancel'
-        }
-      ]
-    });
+  const toast = await this.toastController.create({
+    message: message,
+    duration: 3000,
+    position: 'bottom',
+    color: color,
+    buttons: [
+      {
+        side: 'end',
+        icon: 'close',
+        role: 'cancel'
+      }
+    ]
+  });
 
-    await toast.present();
-  }
+  await toast.present();
 }
+}
+```

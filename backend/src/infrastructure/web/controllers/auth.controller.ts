@@ -1,22 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
+import { injectable } from 'tsyringe';
 import { z } from 'zod';
 import { RegisterUserUseCase } from '../../../application/use-cases/register-user.use-case';
 import { LoginUserUseCase } from '../../../application/use-cases/login-user.use-case';
 import { GetUserProfileUseCase } from '../../../application/use-cases/get-user-profile.use-case';
-import { PrismaUserRepository } from '../../database/repositories/prisma-user.repository';
-import { BcryptPasswordHasher } from '../../security/bcrypt-password-hasher';
-import { JwtTokenProvider } from '../../security/jwt-token-provider';
 import { AuthRequest } from '../middleware/auth.middleware';
-
-// Initialize dependencies
-// In a proper DI setup these would be injected
-const userRepository = new PrismaUserRepository();
-const passwordHasher = new BcryptPasswordHasher();
-const tokenProvider = new JwtTokenProvider();
-
-const registerUseCase = new RegisterUserUseCase(userRepository, passwordHasher, tokenProvider);
-const loginUseCase = new LoginUserUseCase(userRepository, passwordHasher, tokenProvider);
-const getProfileUseCase = new GetUserProfileUseCase(userRepository);
+import { RegisterUserDto, LoginUserDto } from '../../../application/dtos/auth.dtos';
 
 // Schemas
 const registerSchema = z.object({
@@ -33,41 +22,50 @@ const loginSchema = z.object({
     password: z.string().min(1, 'La contraseña es requerida')
 });
 
-export const register = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const data = registerSchema.parse(req.body);
-        const result = await registerUseCase.execute(data);
-        res.status(201).json({
-            message: 'Usuario registrado exitosamente',
-            ...result
-        });
-    } catch (error) {
-        next(error);
-    }
-};
+@injectable()
+export class AuthController {
+    constructor(
+        private registerUseCase: RegisterUserUseCase,
+        private loginUseCase: LoginUserUseCase,
+        private getProfileUseCase: GetUserProfileUseCase
+    ) { }
 
-export const login = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const data = loginSchema.parse(req.body);
-        const result = await loginUseCase.execute(data);
-        res.json({
-            message: 'Inicio de sesión exitoso',
-            ...result
-        });
-    } catch (error) {
-        next(error);
-    }
-};
-
-export const getProfile = async (req: AuthRequest, res: Response, next: NextFunction) => {
-    try {
-        if (!req.userId) {
-            res.status(401).json({ error: 'Usuario no autenticado' });
-            return;
+    register = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const data = registerSchema.parse(req.body);
+            const result = await this.registerUseCase.execute(data as RegisterUserDto);
+            res.status(201).json({
+                message: 'Usuario registrado exitosamente',
+                ...result
+            });
+        } catch (error) {
+            next(error);
         }
-        const user = await getProfileUseCase.execute(req.userId);
-        res.json(user);
-    } catch (error) {
-        next(error);
-    }
-};
+    };
+
+    login = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const data = loginSchema.parse(req.body);
+            const result = await this.loginUseCase.execute(data as LoginUserDto);
+            res.json({
+                message: 'Inicio de sesión exitoso',
+                ...result
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    getProfile = async (req: AuthRequest, res: Response, next: NextFunction) => {
+        try {
+            if (!req.userId) {
+                res.status(401).json({ error: 'Usuario no autenticado' });
+                return;
+            }
+            const user = await this.getProfileUseCase.execute(req.userId);
+            res.json(user);
+        } catch (error) {
+            next(error);
+        }
+    };
+}

@@ -1,14 +1,16 @@
+import { injectable, inject } from 'tsyringe';
 import { UserRepository } from '../../domain/repositories/user.repository';
 import { PasswordHasher } from '../interfaces/password-hasher.interface';
 import { TokenProvider } from '../interfaces/token-provider.interface';
 import { RegisterUserDto, AuthResponseDto } from '../dtos/auth.dtos';
 import { ValidationError } from '../../domain/errors';
 
+@injectable()
 export class RegisterUserUseCase {
     constructor(
-        private userRepository: UserRepository,
-        private passwordHasher: PasswordHasher,
-        private tokenProvider: TokenProvider
+        @inject('UserRepository') private userRepository: UserRepository,
+        @inject('PasswordHasher') private passwordHasher: PasswordHasher,
+        @inject('TokenProvider') private tokenProvider: TokenProvider
     ) { }
 
     async execute(dto: RegisterUserDto): Promise<AuthResponseDto> {

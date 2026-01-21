@@ -1,20 +1,24 @@
-// crear.page.ts
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { IonicModule } from '@ionic/angular';
+import { FormsModule } from '@angular/forms';
+import { Component, OnInit, inject } from '@angular/core';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AlertController, ToastController, IonicModule } from '@ionic/angular';
+import { AlertController, ToastController } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
-import { supabase } from 'src/supabase';
+import { CatalogoService } from 'src/app/services/catalogo.service';
+import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-crear',
   templateUrl: './crear.page.html',
   styleUrls: ['./crear.page.scss'],
-  standalone: false,
+  standalone: true,
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, IonicModule],
 })
 export class CrearPage implements OnInit {
   provinciaForm: FormGroup;
   isSubmitting: boolean = false;
+  private catalogoService = inject(CatalogoService);
 
   constructor(
     private formBuilder: FormBuilder,
@@ -29,7 +33,7 @@ export class CrearPage implements OnInit {
     });
   }
 
-  ngOnInit() {}
+  ngOnInit() { }
 
   async crearProvincia() {
     if (this.provinciaForm.invalid) {
@@ -39,50 +43,49 @@ export class CrearPage implements OnInit {
 
     this.isSubmitting = true;
 
-    try {
-      // Verificar si ya existe una provincia con el mismo código
-      const { data: existingData, error: existingError } = await supabase
-        .from('Provincias')
-        .select('*')
-        .eq('Codigo_Provincia', this.provinciaForm.value.codigo)
-        .maybeSingle();
+    // Verificar si ya existe una provincia con el mismo código
+    this.catalogoService.getItems('provincias').pipe(
+      map(provincias => provincias.find((p: any) => p.codigo_provincia === this.provinciaForm.value.codigo))
+    ).subscribe({
+      next: (existing) => {
+        if (existing) {
+          this.presentAlert(
+            'Código duplicado',
+            `Ya existe una provincia con el código "${this.provinciaForm.value.codigo}". Por favor, utilice otro código.`
+          );
+          this.isSubmitting = false;
+          return;
+        }
 
-      if (existingError) {
-        throw existingError;
-      }
-
-      if (existingData) {
-        this.presentAlert(
-          'Código duplicado',
-          `Ya existe una provincia con el código "${this.provinciaForm.value.codigo}". Por favor, utilice otro código.`
-        );
+        this.guardarProvincia();
+      },
+      error: (error) => {
+        console.error('Error al verificar duplicados:', error);
+        this.presentToast('Error al verificar duplicados. Intente nuevamente.', 'danger');
         this.isSubmitting = false;
-        return;
       }
+    });
+  }
 
-      // Crear la provincia
-      const { data, error } = await supabase
-        .from('Provincias')
-        .insert([
-          {
-            Nombre_Provincia: this.provinciaForm.value.nombre,
-            Codigo_Provincia: this.provinciaForm.value.codigo,
-            Estado: this.provinciaForm.value.estado
-          }
-        ]);
+  guardarProvincia() {
+    const nuevaProvincia = {
+      nombre_provincia: this.provinciaForm.value.nombre,
+      codigo_provincia: this.provinciaForm.value.codigo,
+      estado: this.provinciaForm.value.estado
+    };
 
-      if (error) {
-        throw error;
+    this.catalogoService.createItem('provincias', nuevaProvincia).subscribe({
+      next: () => {
+        this.presentToast(`Provincia "${this.provinciaForm.value.nombre}" creada exitosamente`, 'success');
+        this.router.navigate(['/gestionar provincias']);
+        this.isSubmitting = false;
+      },
+      error: (error) => {
+        console.error('Error al crear la provincia:', error);
+        this.presentToast('Error al crear la provincia: ' + (error.message || error.statusText), 'danger');
+        this.isSubmitting = false;
       }
-
-      this.presentToast(`Provincia "${this.provinciaForm.value.nombre}" creada exitosamente`, 'success');
-      this.router.navigate(['/gestionar provincias']);
-    } catch (error) {
-      console.error('Error al crear la provincia:', error);
-      this.presentToast('Error al crear la provincia. Por favor, intente nuevamente.', 'danger');
-    } finally {
-      this.isSubmitting = false;
-    }
+    });
   }
 
   marcarCamposInvalidos() {

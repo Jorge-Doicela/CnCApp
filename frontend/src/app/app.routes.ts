@@ -11,27 +11,49 @@ export const routes: Routes = [
     // Páginas de home y públicas
     {
         path: 'home',
-        loadChildren: () => import('./home/home.module').then(m => m.HomePageModule)
+        loadComponent: () => import('./home/home.page').then(m => m.HomePage),
+        children: [
+            {
+                path: 'direccion',
+                loadComponent: () => import('./home/pages/direccion/direccion.page').then(m => m.DireccionPage)
+            },
+            {
+                path: 'historia',
+                loadComponent: () => import('./home/pages/historia/historia.page').then(m => m.HistoriaPage)
+            },
+            {
+                path: 'informacion',
+                loadComponent: () => import('./home/pages/informacion/informacion.page').then(m => m.InformacionPage)
+            },
+            {
+                path: 'norma-regul',
+                loadComponent: () => import('./home/pages/norma-regul/norma-regul.page').then(m => m.NormaRegulPage)
+            },
+            {
+                path: 'servi-progra',
+                loadComponent: () => import('./home/pages/servi-progra/servi-progra.page').then(m => m.ServiPrograPage)
+            }
+        ]
     },
     {
         path: 'direccion',
-        loadChildren: () => import('./home/pages/direccion/direccion.module').then(m => m.DireccionPageModule)
+        loadComponent: () => import('./home/pages/direccion/direccion.page').then(m => m.DireccionPage)
     },
     {
         path: 'historia',
-        loadChildren: () => import('./home/pages/historia/historia.module').then(m => m.HistoriaPageModule)
+        loadComponent: () => import('./home/pages/historia/historia.page').then(m => m.HistoriaPage)
     },
     {
         path: 'informacion',
-        loadChildren: () => import('./home/pages/informacion/informacion.module').then(m => m.InformacionPageModule)
+        loadComponent: () => import('./home/pages/informacion/informacion.page').then(m => m.InformacionPage)
     },
     {
         path: 'norma-regul',
-        loadChildren: () => import('./home/pages/norma-regul/norma-regul.module').then(m => m.NormaRegulPageModule)
+        loadComponent: () => import('./home/pages/norma-regul/norma-regul.page').then(m => m.NormaRegulPage)
     },
     {
         path: 'servi-progra',
-        loadChildren: () => import('./home/pages/servi-progra/servi-progra.module').then(m => m.ServiPrograPageModule)
+        loadComponent: () => import('./home/pages/servi-progra/servi-progra.page').then(m => m.ServiPrograPage)
     },
     // Rutas de autenticación
     {
@@ -40,88 +62,88 @@ export const routes: Routes = [
     },
     {
         path: 'register',
-        loadChildren: () => import('./pages/auth/register/register.module').then(m => m.RegisterPageModule)
+        loadComponent: () => import('./pages/auth/register/register.page').then(m => m.RegisterPage)
     },
     // Rutas para administradores
     {
         path: 'gestionar-usuarios',
-        loadChildren: () => import('./pages/admin/crudusuarios/crudusuarios.module').then(m => m.CRUDUsuariosPageModule),
+        loadComponent: () => import('./pages/admin/crudusuarios/crudusuarios.page').then(m => m.CRUDUsuariosPage),
         canActivate: [AuthGuard]
     },
     {
         path: 'gestionar-roles',
-        loadChildren: () => import('./pages/admin/crudroles/crudroles.module').then(m => m.CRUDRolesPageModule),
+        loadComponent: () => import('./pages/admin/crudroles/crudroles.page').then(m => m.CRUDRolesPage),
         canActivate: [AuthGuard]
     },
     {
         path: 'gestionar-entidades',
-        loadChildren: () => import('./pages/admin/crudentidades/crudentidades.module').then(m => m.CrudentidadesPageModule),
+        loadComponent: () => import('./pages/admin/crudentidades/crudentidades.page').then(m => m.CrudentidadesPage),
         canActivate: [AuthGuard]
     },
     {
         path: 'gestionar-capacitaciones',
-        loadChildren: () => import('./pages/admin/crudcapacitaciones/crudcapacitaciones.module').then(m => m.CrudcapacitacionesPageModule),
+        loadComponent: () => import('./pages/admin/crudcapacitaciones/crudcapacitaciones.page').then(m => m.CrudcapacitacionesPage),
         canActivate: [AuthGuard]
     },
     {
         path: 'gestionar-capacitaciones/editar/:id',
-        loadChildren: () => import('./pages/admin/crudcapacitaciones/crudcapacitaciones.module').then(m => m.CrudcapacitacionesPageModule),
+        loadComponent: () => import('./pages/admin/crudcapacitaciones/crudcapacitaciones.page').then(m => m.CrudcapacitacionesPage),
         canActivate: [AuthGuard]
     },
     {
         path: 'certificados/:Id_Capacitacion',
-        loadChildren: () => import('./pages/admin/certificados/certificados.module').then(m => m.CertificadosPageModule),
+        loadComponent: () => import('./pages/admin/certificados/certificados.page').then(m => m.CertificadosPage),
         canActivate: [AuthGuard]
     },
     {
         path: 'gestionar-provincias',
-        loadChildren: () => import('./pages/admin/crudprovincias/crudprovincias.module').then(m => m.CrudprovinciasPageModule),
+        loadComponent: () => import('./pages/admin/crudprovincias/crudprovincias.page').then(m => m.CrudprovinciasPage),
         canActivate: [AuthGuard]
     },
     {
         path: 'gestionar-parroquias',
-        loadChildren: () => import('./pages/admin/crudparroquias/crudparroquias.module').then(m => m.CrudparroquiasPageModule),
+        loadComponent: () => import('./pages/admin/crudparroquias/crudparroquias.page').then(m => m.CrudparroquiasPage),
         canActivate: [AuthGuard]
     },
     {
         path: 'gestionar-cantones',
-        loadChildren: () => import('./pages/admin/crudcantones/crudcantones.module').then(m => m.CrudcantonesPageModule),
+        loadComponent: () => import('./pages/admin/crudcantones/crudcantones.page').then(m => m.CrudcantonesPage),
         canActivate: [AuthGuard]
     },
     {
         path: 'gestionar-competencias',
-        loadChildren: () => import('./pages/admin/crudcompetencias/crudcompetencias.module').then(m => m.CrudcompetenciasPageModule),
+        loadComponent: () => import('./pages/admin/crudcompetencias/crudcompetencias.page').then(m => m.CrudcompetenciasPage),
         canActivate: [AuthGuard]
     },
     {
         path: 'gestionar-instituciones',
-        loadChildren: () => import('./pages/admin/crudinstituciones/crudinstituciones.module').then(m => m.CrudinstitucionesPageModule),
+        loadComponent: () => import('./pages/admin/crudinstituciones/crudinstituciones.page').then(m => m.CrudinstitucionesPage),
         canActivate: [AuthGuard]
     },
     {
         path: 'gestionar-cargos-instituciones',
-        loadChildren: () => import('./pages/admin/crudcargosinstituciones/crudcargosinstituciones.module').then(m => m.CrudcargosinstitucionesPageModule),
+        loadComponent: () => import('./pages/admin/crudcargosinstituciones/crudcargosinstituciones.page').then(m => m.CrudcargosinstitucionesPage),
         canActivate: [AuthGuard]
     },
     // Rutas para usuarios registrados
     {
         path: 'ver-perfil',
-        loadChildren: () => import('./pages/user/perfil/perfil.module').then(m => m.PerfilPageModule),
+        loadComponent: () => import('./pages/user/perfil/perfil.page').then(m => m.PerfilPage),
         canActivate: [AuthGuard]
     },
     {
         path: 'ver-conferencias',
-        loadChildren: () => import('./pages/user/conferencias/conferencias.module').then(m => m.ConferenciasPageModule),
+        loadComponent: () => import('./pages/user/conferencias/conferencias.page').then(m => m.ConferenciasPage),
         canActivate: [AuthGuard]
     },
     // Aplicaciones públicas
     {
         path: 'validar-certificados',
-        loadChildren: () => import('./pages/apps/validar-qr/validar-qr.module').then(m => m.ValidarQrPageModule)
+        loadComponent: () => import('./pages/apps/validar-qr/validar-qr.page').then(m => m.ValidarQrPage)
     },
     {
         path: 'recuperar-password',
-        loadChildren: () => import('./pages/auth/recuperar-password/recuperar-password.module').then(m => m.RecuperarPasswordPageModule)
+        loadComponent: () => import('./pages/auth/recuperar-password/recuperar-password.page').then(m => m.RecuperarPasswordPage)
     },
     // Wildcard route for handling 404
     {

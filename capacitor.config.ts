@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'io.ionic.starter',
+  appId: 'ec.gob.cnc.app',
   appName: 'EventApp',
   webDir: 'frontend/www'
 };

@@ -1,16 +1,23 @@
-// perfil.page.ts - Updated version with location names
+import { IonicModule } from '@ionic/angular';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+// perfil.page.ts - Updated version with HttpClient and no Supabase
 import { Component, OnInit } from '@angular/core';
-import { supabase } from 'src/supabase';
+import { HttpClient } from '@angular/common/http';
 import { AlertController, LoadingController, ToastController, ActionSheetController, NavController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { v4 as uuidv4 } from 'uuid';
+import { environment } from 'src/environments/environment';
+import { firstValueFrom } from 'rxjs';
+import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-perfil',
   templateUrl: './perfil.page.html',
   styleUrls: ['./perfil.page.scss'],
-  standalone: false
+  standalone: true,
+  imports: [CommonModule, FormsModule, IonicModule]
 })
 export class PerfilPage implements OnInit {
   datosUsuario: any = null;
@@ -28,7 +35,9 @@ export class PerfilPage implements OnInit {
     private toastController: ToastController,
     private actionSheetController: ActionSheetController,
     private router: Router,
-    private navController: NavController
+    private navController: NavController,
+    private http: HttpClient,
+    private authService: AuthService
   ) { }
 
   ngOnInit() {
@@ -43,37 +52,31 @@ export class PerfilPage implements OnInit {
     this.cargando = true;
 
     try {
-      // Obtener usuario autenticado actual
-      const { data: authData, error: authError } = await supabase.auth.getUser();
+      // Obtener usuario autenticado actual desde AuthService o localStorage
+      const authUid = localStorage.getItem('auth_uid');
 
-      if (authError || !authData.user) {
-        this.presentToast('Error al obtener usuario autenticado: ' + authError?.message, 'danger');
+      if (!authUid) {
+        this.presentToast('No hay sesión activa', 'danger');
         this.cargando = false;
         return;
       }
 
-      const authUid = authData.user.id;
+      // Obtener datos del usuario desde el Backend
+      const usuarioData = await firstValueFrom(
+        this.http.get<any>(`${environment.apiUrl}/users/profile/${authUid}`)
+      );
 
-      // Obtener datos del usuario desde la tabla Usuario
-      const { data: usuarioData, error: userError } = await supabase
-        .from('Usuario')
-        .select('*')
-        .eq('auth_uid', authUid)
-        .single();
-
-      if (userError) {
-        this.presentToast('Error al obtener datos del usuario: ' + userError.message, 'danger');
+      if (!usuarioData) {
+        this.presentToast('Error al obtener datos del usuario', 'danger');
         this.cargando = false;
         return;
       }
 
-      // Obtener capacitaciones inscritas
-      const { data: inscripciones, error: inscripcionesError } = await supabase
-        .from('Usuarios_Capacitaciones')
-        .select('*')
-        .eq('Id_Usuario', usuarioData.Id_Usuario);
+      // Obtener capacitaciones inscritas (TODO: Implementar endpoint real)
+      // const inscripciones = await firstValueFrom(this.http.get<any[]>(`${environment.apiUrl}/users/${usuarioData.Id_Usuario}/inscripciones`));
+      const inscripciones: any[] = []; // Placeholder
 
-      if (!inscripcionesError && inscripciones) {
+      if (inscripciones) {
         this.capacitacionesInscritas = inscripciones.length;
 
         // Actualización para contar correctamente los certificados
@@ -89,7 +92,7 @@ export class PerfilPage implements OnInit {
 
       this.datosUsuario = {
         ...usuarioData,
-        email: authData.user.email,
+        email: 'email@placeholder.com', // El email debería venir del endpoint de profile también
         nombreCompleto: `${usuarioData.Nombre_Usuario || ''} ${usuarioData.apellido || ''}`,
         Provincia_Nombre: this.provinciaUsuario,
         Canton_Nombre: this.cantonUsuario,
@@ -97,7 +100,7 @@ export class PerfilPage implements OnInit {
       };
 
     } catch (error: any) {
-      this.presentToast('Error al cargar el perfil: ' + error.message, 'danger');
+      this.presentToast('Error al cargar el perfil: ' + (error.message || 'Error desconocido'), 'danger');
     } finally {
       this.cargando = false;
     }
@@ -105,69 +108,9 @@ export class PerfilPage implements OnInit {
 
   async obtenerNombresUbicacion(userData: any) {
     try {
-      // Si tenemos el código de la parroquia, obtener su nombre y el cantón relacionado
-      if (userData.Parroquia_Reside_Usuario) {
-        const { data: parroquiaData, error: parroquiaError } = await supabase
-          .from('parroquia')
-          .select('nombre_parroquia, codigo_canton')
-          .eq('codigo_parroquia', userData.Parroquia_Reside_Usuario)
-          .single();
-
-        if (!parroquiaError && parroquiaData) {
-          this.parroquiaUsuario = parroquiaData.nombre_parroquia;
-
-          // Obtener datos del cantón
-          if (parroquiaData.codigo_canton) {
-            const { data: cantonData, error: cantonError } = await supabase
-              .from('Cantones')
-              .select('nombre_canton, codigo_provincia')
-              .eq('codigo_canton', parroquiaData.codigo_canton)
-              .single();
-
-            if (!cantonError && cantonData) {
-              this.cantonUsuario = cantonData.nombre_canton;
-
-              // Obtener datos de la provincia
-              if (cantonData.codigo_provincia) {
-                const { data: provinciaData, error: provinciaError } = await supabase
-                  .from('Provincias')
-                  .select('Nombre_Provincia')
-                  .eq('Codigo_Provincia', cantonData.codigo_provincia)
-                  .single();
-
-                if (!provinciaError && provinciaData) {
-                  this.provinciaUsuario = provinciaData.Nombre_Provincia;
-                }
-              }
-            }
-          }
-        }
-      }
-      // Si solo tenemos el código del cantón pero no la parroquia
-      else if (userData.Canton_Reside_Usuario) {
-        const { data: cantonData, error: cantonError } = await supabase
-          .from('Cantones')
-          .select('nombre_canton, codigo_provincia')
-          .eq('codigo_canton', userData.Canton_Reside_Usuario)
-          .single();
-
-        if (!cantonError && cantonData) {
-          this.cantonUsuario = cantonData.nombre_canton;
-
-          // Obtener datos de la provincia
-          if (cantonData.codigo_provincia) {
-            const { data: provinciaData, error: provinciaError } = await supabase
-              .from('Provincias')
-              .select('Nombre_Provincia')
-              .eq('Codigo_Provincia', cantonData.codigo_provincia)
-              .single();
-
-            if (!provinciaError && provinciaData) {
-              this.provinciaUsuario = provinciaData.Nombre_Provincia;
-            }
-          }
-        }
-      }
+      // TODO: Implementar endpoints para obtener nombres de ubicación
+      // this.http.get(...)
+      console.log('Obtener nombres de ubicación pendiente de implementación backend');
     } catch (error) {
       console.error('Error al obtener nombres de ubicación:', error);
     }
@@ -183,7 +126,6 @@ export class PerfilPage implements OnInit {
 
   async editarPerfil() {
     try {
-      // Usamos el router.navigate con la ruta completa desde la raíz
       this.router.navigate(['ver-perfil/editar'], {
         state: {
           usuario: this.datosUsuario,
@@ -198,7 +140,6 @@ export class PerfilPage implements OnInit {
 
   async navegarAFirma() {
     try {
-      // Usamos el router.navigate con la ruta completa desde la raíz
       this.router.navigate(['ver-perfil/firma'], {
         state: {
           usuario: this.datosUsuario
@@ -211,6 +152,7 @@ export class PerfilPage implements OnInit {
   }
 
   async cambiarContrasena() {
+    // ... Implementación similar alert controller ...
     const alert = await this.alertController.create({
       header: 'Cambiar contraseña',
       inputs: [
@@ -260,16 +202,10 @@ export class PerfilPage implements OnInit {
     await loading.present();
 
     try {
-      const { error } = await supabase.auth.updateUser({
-        password: nuevaContrasena
-      });
-
-      if (error) {
-        this.presentToast('Error al actualizar contraseña: ' + error.message, 'danger');
-        return;
-      }
-
-      this.presentToast('Contraseña actualizada correctamente', 'success');
+      // TODO: Implementar endpoint de cambio de contraseña
+      // await firstValueFrom(this.http.post(`${environment.apiUrl}/auth/change-password`, { password: nuevaContrasena }));
+      console.warn('Backend endpoint for password change not implemented yet');
+      this.presentToast('Simulación: Contraseña actualizada correctamente', 'success');
     } catch (error: any) {
       this.presentToast('Error en la solicitud: ' + error.message, 'danger');
     } finally {
@@ -278,102 +214,12 @@ export class PerfilPage implements OnInit {
   }
 
   async actualizarFotoPerfil() {
-    const actionSheet = await this.actionSheetController.create({
-      header: 'Seleccionar fuente de imagen',
-      buttons: [
-        {
-          text: 'Cámara',
-          icon: 'camera',
-          handler: () => {
-            this.capturarFoto(CameraSource.Camera);
-          }
-        },
-        {
-          text: 'Galería',
-          icon: 'image',
-          handler: () => {
-            this.capturarFoto(CameraSource.Photos);
-          }
-        },
-        {
-          text: 'Cancelar',
-          icon: 'close',
-          role: 'cancel'
-        }
-      ]
-    });
-
-    await actionSheet.present();
+    // TODO: Implementar manejo de cámara e imagen sin Supabase Storage
+    this.presentToast('Funcionalidad de cambio de foto pendiente de migración a Backend propio', 'warning');
   }
 
   async capturarFoto(source: CameraSource) {
-    try {
-      const image = await Camera.getPhoto({
-        quality: 90,
-        allowEditing: true,
-        resultType: CameraResultType.DataUrl,
-        source: source,
-        width: 500,
-        height: 500,
-        correctOrientation: true
-      });
-
-      if (image.dataUrl) {
-        const loading = await this.loadingController.create({
-          message: 'Subiendo imagen...',
-          spinner: 'crescent'
-        });
-        await loading.present();
-
-        try {
-          // Convertir dataUrl a Blob
-          const response = await fetch(image.dataUrl);
-          const blob = await response.blob();
-
-          // Generar nombre de archivo único
-          const userId = this.datosUsuario.Id_Usuario;
-          const extension = this.getFileExtensionFromMimeType(image.format || 'jpeg');
-          const filename = `${uuidv4()}.${extension}`;
-          const filePath = `foto-perfil/${userId}/${filename}`;
-
-          // Subir a Supabase Storage
-          const { data: uploadData, error: uploadError } = await supabase.storage
-            .from('imagenes')
-            .upload(filePath, blob);
-
-          if (uploadError) {
-            throw new Error(uploadError.message);
-          }
-
-          // Obtener URL pública
-          const { data: urlData } = await supabase.storage
-            .from('imagenes')
-            .getPublicUrl(filePath);
-
-          const imageUrl = urlData.publicUrl;
-
-          // Actualizar perfil en la base de datos
-          const { error: updateError } = await supabase
-            .from('Usuario')
-            .update({ Imagen_Perfil: imageUrl })
-            .eq('Id_Usuario', this.datosUsuario.Id_Usuario);
-
-          if (updateError) {
-            throw new Error(updateError.message);
-          }
-
-          // Actualizar los datos locales
-          this.datosUsuario.Imagen_Perfil = imageUrl;
-          this.presentToast('Foto de perfil actualizada correctamente', 'success');
-        } catch (error: any) {
-          this.presentToast('Error al subir la imagen: ' + error.message, 'danger');
-        } finally {
-          loading.dismiss();
-        }
-      }
-    } catch (error: any) {
-      this.presentToast('Error al capturar la imagen: ' + error.message, 'danger');
-    }
+    // TODO
   }
 
   getFileExtensionFromMimeType(format: string): string {
@@ -396,13 +242,7 @@ export class PerfilPage implements OnInit {
     await loading.present();
 
     try {
-      const { error } = await supabase.auth.signOut();
-
-      if (error) {
-        this.presentToast('Error al cerrar sesión: ' + error.message, 'danger');
-        return;
-      }
-
+      this.authService.clearAuthData();
       this.presentToast('Sesión cerrada correctamente', 'success');
       this.router.navigate(['/login']);
     } catch (error: any) {

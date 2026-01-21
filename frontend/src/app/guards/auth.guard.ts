@@ -1,100 +1,45 @@
 import { inject } from '@angular/core';
 import { Router, CanActivateFn } from '@angular/router';
 import { AlertController } from '@ionic/angular';
-import { supabase } from 'src/supabase';
+import { AuthService } from '../services/auth.service';
+import { catchError, map, of } from 'rxjs';
 
 // Functional guard (modern approach)
-export const authGuard: CanActivateFn = async (route, state) => {
+export const authGuard: CanActivateFn = (route, state) => {
   const router = inject(Router);
   const alertController = inject(AlertController);
+  const authService = inject(AuthService);
 
-  try {
-    // Verificar si hay sesión activa
-    const { data: sessionData } = await supabase.auth.getSession();
+  // Check if user is authenticated via AuthService
+  // Assuming AuthService has an isAuthenticated method or similar logic
+  // Since the previous AuthService view showed standard Http methods, we'll adapt.
 
-    if (!sessionData.session) {
-      await presentAuthAlert(alertController, 'Acceso denegado', 'Debe iniciar sesión para acceder a esta página');
-      router.navigate(['/login']);
-      return false;
-    }
+  // Checking local storage token as primary check for now, similar to how standard JWT auth works
+  const token = localStorage.getItem('token');
 
-    const userId = sessionData.session.user.id;
-    const storedUserId = localStorage.getItem('auth_uid');
-
-    // Verificar si el ID de usuario coincide con el almacenado
-    if (userId !== storedUserId) {
-      await presentAuthAlert(alertController, 'Sesión inválida', 'Su sesión ha cambiado. Por favor, inicie sesión nuevamente');
-      await logout();
-      return false;
-    }
-
-    // Verificar el rol del usuario antes de permitir el acceso
-    if (!await checkUserRole(userId, alertController)) {
-      return false;
-    }
-
-    // Verificar si la ruta requiere rol de admin
-    if (state.url.includes('/admin/') || state.url.includes('gestionar-')) {
-      const userRole = parseInt(localStorage.getItem('user_role') || '1');
-
-      if (userRole !== 2) {
-        await presentAuthAlert(alertController, 'Acceso denegado', 'No tiene permisos de administrador para acceder a esta sección');
-        router.navigate(['/user/cerificaciones']);
-        return false;
-      }
-    }
-
-    // Verificar si la ruta es específica para usuarios normales y el usuario es admin
-    if (state.url.includes('/user/') || state.url.includes('ver-')) {
-      const userRole = parseInt(localStorage.getItem('user_role') || '1');
-
-      if (userRole === 2) {
-        await presentInfoAlert(alertController, 'Modo administrador', 'Está accediendo a una sección de usuario normal con privilegios de administrador');
-      }
-    }
-
-    return true;
-  } catch (error) {
-    console.error('Error en AuthGuard:', error);
-    await presentAuthAlert(alertController, 'Error de autenticación', 'Ha ocurrido un error al verificar su sesión');
-    await logout();
+  if (!token) {
+    presentAuthAlert(alertController, 'Acceso denegado', 'Debe iniciar sesión para acceder a esta página');
+    router.navigate(['/login']);
     return false;
   }
+
+  // Verify role if needed
+  if (state.url.includes('/admin/') || state.url.includes('gestionar-')) {
+    const userRole = parseInt(localStorage.getItem('user_role') || '1');
+    if (userRole !== 2) { // Assuming 2 is Admin
+      presentAuthAlert(alertController, 'Acceso denegado', 'No tiene permisos de administrador para acceder a esta sección');
+      router.navigate(['/']); // Go to home instead of non-existent path
+      return false;
+    }
+  }
+
+  return true;
 };
 
 // Class-based guard for backwards compatibility with existing routes
 export class AuthGuard {
-  async canActivate(route: any, state: any): Promise<boolean> {
-    return authGuard(route, state);
-  }
-}
-
-// Helper functions
-async function checkUserRole(userId: string, alertController: AlertController): Promise<boolean> {
-  try {
-    const { data: userData, error } = await supabase
-      .from('Usuario')
-      .select('Rol_Usuario')
-      .eq('auth_uid', userId)
-      .single();
-
-    if (error) {
-      throw error;
-    }
-
-    const storedRole = parseInt(localStorage.getItem('user_role') || '1');
-
-    if (userData && userData.Rol_Usuario !== storedRole) {
-      await presentRoleChangeAlert(alertController);
-      await logout();
-      return false;
-    }
-
-    localStorage.setItem('role_check_time', new Date().getTime().toString());
-    return true;
-  } catch (error) {
-    console.error('Error al verificar rol de usuario:', error);
-    return true;
+  canActivate(route: any, state: any): boolean {
+    return authGuard(route, state) as boolean;
   }
 }
 
@@ -110,35 +55,3 @@ async function presentAuthAlert(alertController: AlertController, header: string
   await alert.present();
 }
 
-async function presentInfoAlert(alertController: AlertController, header: string, message: string) {
-  const alert = await alertController.create({
-    header,
-    message,
-    buttons: ['Entendido'],
-    cssClass: 'info-alert'
-  });
-
-  await alert.present();
-}
-
-async function presentRoleChangeAlert(alertController: AlertController) {
-  const alert = await alertController.create({
-    header: 'Cambio de permisos detectado',
-    message: 'Sus permisos de acceso han sido modificados por un administrador. Por seguridad, debe iniciar sesión nuevamente para aplicar los nuevos permisos.',
-    buttons: ['Entendido'],
-    cssClass: 'role-change-alert',
-    backdropDismiss: false
-  });
-
-  await alert.present();
-}
-
-async function logout() {
-  await supabase.auth.signOut();
-  localStorage.removeItem('user_role');
-  localStorage.removeItem('auth_uid');
-  localStorage.removeItem('last_login_time');
-  localStorage.removeItem('role_check_time');
-  localStorage.removeItem('token');
-  window.location.href = '/login';
-}

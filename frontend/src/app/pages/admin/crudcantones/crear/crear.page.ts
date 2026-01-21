@@ -1,14 +1,19 @@
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { IonicModule } from '@ionic/angular';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject } from '@angular/core';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AlertController, LoadingController, ToastController } from '@ionic/angular';
-import { supabase } from 'src/supabase';
+import { CatalogoService } from 'src/app/services/catalogo.service';
+import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-crear',
   templateUrl: './crear.page.html',
   styleUrls: ['./crear.page.scss'],
-  standalone: false
+  standalone: true,
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, IonicModule]
 })
 export class CrearPage implements OnInit {
 
@@ -16,6 +21,8 @@ export class CrearPage implements OnInit {
   cantonForm: FormGroup;
   submitted = false;
   isSubmitting = false;
+
+  private catalogoService = inject(CatalogoService);
 
   constructor(
     private formBuilder: FormBuilder,
@@ -41,27 +48,15 @@ export class CrearPage implements OnInit {
 
   async obtenerProvincias() {
     try {
-      const loader = await this.loadingController.create({
-        message: 'Cargando provincias...',
-        spinner: 'circles'
+      this.catalogoService.getItems('provincias').subscribe({
+        next: (data) => {
+          this.provincias = data.sort((a, b) => a.nombre_provincia.localeCompare(b.nombre_provincia));
+        },
+        error: (error) => {
+          console.error('Error al obtener provincias:', error);
+          this.presentToast('Error al cargar las provincias', 'danger');
+        }
       });
-      await loader.present();
-
-      let { data: Provincias, error } = await supabase
-        .from('Provincias')
-        .select('Codigo_Provincia, Nombre_Provincia')
-        .order('Nombre_Provincia', { ascending: true });
-
-      await loader.dismiss();
-
-      if (error) {
-        console.error('Error al obtener las provincias', error);
-        this.presentToast('Error al cargar las provincias', 'danger');
-        return;
-      }
-
-      this.provincias = Provincias || [];
-
     } catch (error) {
       console.error('Error inesperado:', error);
       this.presentToast('Error al cargar los datos', 'danger');
@@ -79,68 +74,63 @@ export class CrearPage implements OnInit {
 
     this.isSubmitting = true;
 
-    try {
-      const loader = await this.loadingController.create({
-        message: 'Guardando cantón...',
-        spinner: 'circles'
-      });
-      await loader.present();
+    const loader = await this.loadingController.create({
+      message: 'Guardando cantón...',
+      spinner: 'circles'
+    });
+    await loader.present();
 
-      // Extraer valores del formulario
-      const { nombre_canton, codigo_canton, codigo_provincia, estado, notas } = this.cantonForm.value;
-
-      // Verificar si ya existe un cantón con el mismo código
-      let { data: existingCantons, error: checkError } = await supabase
-        .from('Cantones')
-        .select('codigo_canton')
-        .eq('codigo_canton', codigo_canton);
-
-      if (checkError) {
-        throw checkError;
-      }
-
-      if (existingCantons && existingCantons.length > 0) {
+    // Check for duplicate code
+    this.catalogoService.getItems('cantones').pipe(
+      map(cantones => cantones.find((c: any) => c.codigo_canton === this.cantonForm.value.codigo_canton))
+    ).subscribe({
+      next: async (existing) => {
+        if (existing) {
+          await loader.dismiss();
+          this.presentAlert(
+            'Código duplicado',
+            `Ya existe un cantón con el código ${this.cantonForm.value.codigo_canton}. Por favor, utilice un código diferente.`
+          );
+          this.isSubmitting = false;
+          return;
+        }
+        this.guardarCanton(loader);
+      },
+      error: async (error) => {
+        console.error('Error al verificar duplicados:', error);
         await loader.dismiss();
-        this.presentAlert(
-          'Código duplicado',
-          `Ya existe un cantón con el código ${codigo_canton}. Por favor, utilice un código diferente.`
-        );
+        this.presentToast('Error al verificar duplicados. Intente nuevamente.', 'danger');
         this.isSubmitting = false;
-        return;
       }
+    });
+  }
 
-      // Guardar los datos en Supabase
-      let { data, error } = await supabase
-        .from('Cantones')
-        .insert([
-          {
-            nombre_canton,
-            codigo_canton,
-            codigo_provincia,
-            estado,
-            notas // Campo adicional
-          }
-        ]);
+  guardarCanton(loader: HTMLIonLoadingElement) {
+    const { nombre_canton, codigo_canton, codigo_provincia, estado, notas } = this.cantonForm.value;
 
-      await loader.dismiss();
+    const nuevoCanton = {
+      nombre_canton,
+      codigo_canton,
+      codigo_provincia,
+      estado,
+      notas
+    };
 
-      if (error) {
-        throw error;
+    this.catalogoService.createItem('cantones', nuevoCanton).subscribe({
+      next: async () => {
+        await loader.dismiss();
+        this.presentToast('Cantón creado exitosamente', 'success');
+        setTimeout(() => {
+          this.router.navigate(['/gestionar cantones']);
+        }, 1000);
+      },
+      error: async (error) => {
+        console.error('Error al crear canton:', error);
+        await loader.dismiss();
+        this.presentToast('Error al guardar el cantón: ' + (error.message || error.statusText), 'danger');
+        this.isSubmitting = false;
       }
-
-      // Mostrar mensaje de éxito
-      this.presentToast('Cantón creado exitosamente', 'success');
-
-      // Redireccionar a la página de listado
-      setTimeout(() => {
-        this.router.navigate(['/gestionar cantones']);
-      }, 1000);
-
-    } catch (error: any) {
-      console.error('Error al crear el cantón:', error);
-      this.presentToast('Error al guardar el cantón: ' + (error.message || 'Error desconocido'), 'danger');
-      this.isSubmitting = false;
-    }
+    });
   }
 
   cancelar() {

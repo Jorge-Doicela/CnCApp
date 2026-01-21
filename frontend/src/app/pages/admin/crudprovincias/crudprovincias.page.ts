@@ -1,13 +1,17 @@
-import { Component, OnInit } from '@angular/core';
-import { supabase } from 'src/supabase';
+import { IonicModule } from '@ionic/angular';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AlertController, ToastController } from '@ionic/angular';
+import { CatalogoService } from 'src/app/services/catalogo.service';
 
 @Component({
   selector: 'app-crudprovincias',
   templateUrl: './crudprovincias.page.html',
   styleUrls: ['./crudprovincias.page.scss'],
-  standalone: false
+  standalone: true,
+  imports: [CommonModule, FormsModule, IonicModule]
 })
 export class CrudprovinciasPage implements OnInit {
   // Variables para provincias
@@ -23,6 +27,8 @@ export class CrudprovinciasPage implements OnInit {
   provinciasActivas: number = 0;
   provinciasInactivas: number = 0;
 
+  private catalogoService = inject(CatalogoService);
+
   constructor(
     private router: Router,
     private alertController: AlertController,
@@ -33,25 +39,20 @@ export class CrudprovinciasPage implements OnInit {
     this.obtenerProvincias();
   }
 
-  async obtenerProvincias() {
-    try {
-      const { data, error } = await supabase
-        .from('Provincias')
-        .select('*')
-        .order('Nombre_Provincia', { ascending: true });
-
-      if (error) {
-        console.error('Error al obtener provincias:', error);
-        this.presentToast('Error al cargar provincias. Por favor, intente nuevamente.', 'danger');
-      } else {
+  obtenerProvincias() {
+    this.catalogoService.getItems('provincias').subscribe({
+      next: (data) => {
         this.provincias = data || [];
+        // Sort manually since backend might not
+        this.provincias.sort((a, b) => a.Nombre_Provincia.localeCompare(b.Nombre_Provincia));
         this.filteredProvincias = [...this.provincias];
         this.calcularEstadisticas();
+      },
+      error: (error) => {
+        console.error('Error al obtener provincias:', error);
+        this.presentToast('Error al cargar provincias. (API no implementada)', 'danger');
       }
-    } catch (error) {
-      console.error('Error inesperado:', error);
-      this.presentToast('Error en el servidor. Por favor, intente más tarde.', 'danger');
-    }
+    });
   }
 
   buscarProvincia() {
@@ -88,18 +89,14 @@ export class CrudprovinciasPage implements OnInit {
     this.router.navigate(['/gestionar-provincias/editar', id]);
   }
 
-  async cambiarEstado(provincia: any) {
-    try {
-      const nuevoEstado = !provincia.Estado;
-      const { error } = await supabase
-        .from('Provincias')
-        .update({ Estado: nuevoEstado })
-        .eq('IdProvincia', provincia.IdProvincia);
+  cambiarEstado(provincia: any) {
+    const nuevoEstado = !provincia.Estado;
+    // Assuming partial update is supported or we send full object. 
+    // Usually status toggle is a specific patch or we update the whole item.
+    // For now, let's assume we update the specific field if API supports it, or generic update.
 
-      if (error) {
-        console.error('Error al cambiar estado:', error);
-        this.presentToast('Error al cambiar el estado de la provincia', 'danger');
-      } else {
+    this.catalogoService.updateItem('provincias', provincia.IdProvincia, { Estado: nuevoEstado }).subscribe({
+      next: () => {
         // Actualizar el objeto local
         provincia.Estado = nuevoEstado;
         this.calcularEstadisticas();
@@ -107,11 +104,12 @@ export class CrudprovinciasPage implements OnInit {
           `Provincia "${provincia.Nombre_Provincia}" ahora está ${nuevoEstado ? 'activa' : 'inactiva'}`,
           'success'
         );
+      },
+      error: (error) => {
+        console.error('Error al cambiar estado:', error);
+        this.presentToast('Error al cambiar el estado de la provincia', 'danger');
       }
-    } catch (error) {
-      console.error('Error inesperado:', error);
-      this.presentToast('Error en el servidor. Por favor, intente más tarde.', 'danger');
-    }
+    });
   }
 
   async confirmarEliminar(provincia: any) {
@@ -136,27 +134,20 @@ export class CrudprovinciasPage implements OnInit {
     await alert.present();
   }
 
-  async eliminarProvincia(provincia: any) {
-    try {
-      const { error } = await supabase
-        .from('Provincias')
-        .delete()
-        .eq('IdProvincia', provincia.IdProvincia);
-
-      if (error) {
-        console.error('Error al eliminar provincia:', error);
-        this.presentToast('Error al eliminar la provincia. Puede que tenga registros relacionados.', 'danger');
-      } else {
+  eliminarProvincia(provincia: any) {
+    this.catalogoService.deleteItem('provincias', provincia.IdProvincia).subscribe({
+      next: () => {
         // Actualizar listas locales
         this.provincias = this.provincias.filter(p => p.IdProvincia !== provincia.IdProvincia);
         this.filteredProvincias = this.filteredProvincias.filter(p => p.IdProvincia !== provincia.IdProvincia);
         this.calcularEstadisticas();
         this.presentToast(`Provincia "${provincia.Nombre_Provincia}" eliminada correctamente`, 'success');
+      },
+      error: (error) => {
+        console.error('Error al eliminar provincia:', error);
+        this.presentToast('Error al eliminar la provincia. Puede que tenga registros relacionados.', 'danger');
       }
-    } catch (error) {
-      console.error('Error inesperado:', error);
-      this.presentToast('Error en el servidor. Por favor, intente más tarde.', 'danger');
-    }
+    });
   }
 
   async presentToast(message: string, color: string = 'primary') {

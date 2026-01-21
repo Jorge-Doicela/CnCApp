@@ -1,13 +1,13 @@
+import 'reflect-metadata';
+import './config/di.container';
 import express, { Application } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
 import morgan from 'morgan';
-import dotenv from 'dotenv';
 import rateLimit from 'express-rate-limit';
-
-// Cargar variables de entorno
-dotenv.config();
+import { env } from './config/env';
+import logger from './config/logger';
 
 // Importar rutas
 import authRoutes from './infrastructure/web/routes/auth.routes';
@@ -20,7 +20,7 @@ import { errorHandler } from './infrastructure/web/middleware/error.middleware';
 import { notFound } from './infrastructure/web/middleware/notFound.middleware';
 
 const app: Application = express();
-const PORT = process.env.PORT || 3000;
+const PORT = env.PORT;
 
 // ============================================
 // MIDDLEWARE DE SEGURIDAD
@@ -30,16 +30,15 @@ const PORT = process.env.PORT || 3000;
 app.use(helmet());
 
 // CORS - Permitir peticiones desde el frontend
-const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:8100'];
 app.use(cors({
-    origin: allowedOrigins,
+    origin: env.ALLOWED_ORIGINS,
     credentials: true
 }));
 
 // Rate Limiting - Prevenir ataques de fuerza bruta
 const limiter = rateLimit({
-    windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || '900000'), // 15 minutos
-    max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '100'),
+    windowMs: env.RATE_LIMIT_WINDOW_MS,
+    max: env.RATE_LIMIT_MAX_REQUESTS,
     message: 'Demasiadas peticiones desde esta IP, intenta de nuevo más tarde'
 });
 app.use('/api/', limiter);
@@ -52,7 +51,7 @@ app.use('/api/', limiter);
 app.use(compression());
 
 // Logging de peticiones
-if (process.env.NODE_ENV === 'development') {
+if (env.NODE_ENV === 'development') {
     app.use(morgan('dev'));
 } else {
     app.use(morgan('combined'));
@@ -71,7 +70,8 @@ app.get('/health', (_req, res) => {
     res.json({
         status: 'ok',
         timestamp: new Date().toISOString(),
-        uptime: process.uptime()
+        uptime: process.uptime(),
+        environment: env.NODE_ENV
     });
 });
 
@@ -96,14 +96,8 @@ app.use(errorHandler);
 // ============================================
 
 app.listen(PORT, () => {
-    console.log(`
-╔═══════════════════════════════════════════╗
-║   🚀 CNC Backend API                      ║
-║   📡 Puerto: ${PORT}                        ║
-║   🌍 Entorno: ${process.env.NODE_ENV || 'development'}          ║
-║   ⏰ Iniciado: ${new Date().toLocaleString('es-EC')}  ║
-╚═══════════════════════════════════════════╝
-  `);
+    logger.info(`Server running on port ${PORT} in ${env.NODE_ENV} mode`);
+    logger.info(`URL: http://localhost:${PORT}`);
 });
 
 export default app;

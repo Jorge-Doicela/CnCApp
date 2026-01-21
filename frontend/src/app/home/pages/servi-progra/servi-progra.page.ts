@@ -2,11 +2,16 @@ import { Component, OnInit } from '@angular/core';
 import { AlertController, ToastController } from '@ionic/angular';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { IonicModule } from '@ionic/angular';
+
 @Component({
   selector: 'app-servi-progra',
   templateUrl: './servi-progra.page.html',
   styleUrls: ['./servi-progra.page.scss'],
-  standalone: false
+  standalone: true,
+  imports: [CommonModule, FormsModule, IonicModule]
 })
 export class ServiPrograPage implements OnInit {
   selectedSegment: string = 'servicios';
@@ -592,8 +597,8 @@ export class ServiPrograPage implements OnInit {
           <h4>Cursos disponibles:</h4>
           <ul>
             ${programa.cursos.map((c: any) =>
-              `<li><strong>${c.nombre}</strong> - ${c.duracion}, ${c.modalidad}, Inicio: ${c.fechaInicio}</li>`
-            ).join('')}
+      `<li><strong>${c.nombre}</strong> - ${c.duracion}, ${c.modalidad}, Inicio: ${c.fechaInicio}</li>`
+    ).join('')}
           </ul>
         ` : ''}
       </div>

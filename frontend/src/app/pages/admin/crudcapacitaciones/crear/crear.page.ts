@@ -1,14 +1,19 @@
-// crear.page.ts
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { IonicModule } from '@ionic/angular';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { Component, OnInit, ViewChild, inject } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { ToastController, AlertController, NavController, LoadingController } from '@ionic/angular';
-import { supabase } from 'src/supabase';
+import { CapacitacionesService } from 'src/app/services/capacitaciones.service';
+import { CatalogoService } from 'src/app/services/catalogo.service';
+import { UsuarioService } from 'src/app/services/usuario.service';
 
 @Component({
   selector: 'app-crear',
   templateUrl: './crear.page.html',
   styleUrls: ['./crear.page.scss'],
-  standalone: false
+  standalone: true,
+  imports: [CommonModule, FormsModule, IonicModule]
 })
 export class CrearPage implements OnInit {
   @ViewChild('capacitacionForm') capacitacionForm!: NgForm;
@@ -33,6 +38,10 @@ export class CrearPage implements OnInit {
   entidades: any[] = [];
   usuarios: any[] = [];
   usuariosDisponibles: any[] = []; // Lista filtrada para participantes (sin expositores)
+
+  private capacitacionesService = inject(CapacitacionesService);
+  private catalogoService = inject(CatalogoService);
+  private usuarioService = inject(UsuarioService);
 
   constructor(
     private toastController: ToastController,
@@ -78,58 +87,40 @@ export class CrearPage implements OnInit {
 
   // Función para cargar las entidades y usuarios
   async cargarEntidadesYUsuarios() {
-    try {
-      const loading = await this.loadingController.create({
-        message: 'Cargando datos...',
-        spinner: 'crescent'
-      });
-      await loading.present();
+    const loading = await this.loadingController.create({
+      message: 'Cargando datos...',
+      spinner: 'crescent'
+    });
+    await loading.present();
 
-      // Recuperar las entidades
-      const { data: entidadesData, error: errorEntidades } = await supabase
-        .from('Entidades')
-        .select('*')
-        .order('Nombre_Entidad', { ascending: true });
-
-      if (errorEntidades) {
-        console.error('Error al cargar las entidades:', errorEntidades.message);
+    this.catalogoService.getItems('entidades').subscribe({
+      next: (entidadesData) => {
+        this.entidades = entidadesData || [];
+        // Buscar el CNC
+        const cncEntidad = this.entidades.find(e => e.Nombre_Entidad.toLowerCase().includes('cnc') ||
+          e.Nombre_Entidad.toLowerCase().includes('consejo nacional'));
+        if (cncEntidad) {
+          this.capacitacion.entidades_encargadas = [cncEntidad.Id_Entidad];
+        }
+      },
+      error: (err) => {
+        console.error(err);
         this.mostrarToast('Error al cargar las entidades', 'danger');
+      }
+    });
+
+    this.usuarioService.getUsuarios().subscribe({
+      next: (usuariosData) => {
+        this.usuarios = usuariosData || [];
+        this.usuariosDisponibles = [...this.usuarios];
         loading.dismiss();
-        return;
-      }
-      this.entidades = entidadesData || [];
-
-      // Buscar el CNC y asegurarse de que esté seleccionado por defecto
-      const cncEntidad = this.entidades.find(e => e.Nombre_Entidad.toLowerCase().includes('cnc') ||
-                                               e.Nombre_Entidad.toLowerCase().includes('consejo nacional'));
-      if (cncEntidad) {
-        this.capacitacion.entidades_encargadas = [cncEntidad.Id_Entidad];
-      }
-
-      // Recuperar los usuarios
-      const { data: usuariosData, error: errorUsuarios } = await supabase
-        .from('Usuario')
-        .select('*')
-        .order('Nombre_Usuario', { ascending: true });
-
-      if (errorUsuarios) {
-        console.error('Error al cargar los usuarios:', errorUsuarios.message);
+      },
+      error: (err) => {
+        console.error(err);
         this.mostrarToast('Error al cargar los usuarios', 'danger');
         loading.dismiss();
-        return;
       }
-      this.usuarios = usuariosData || [];
-      this.usuariosDisponibles = [...this.usuarios]; // Inicialmente todos están disponibles
-
-      loading.dismiss();
-    } catch (error) {
-      console.error('Error al cargar entidades y usuarios:', error);
-      this.mostrarToast('Error al cargar los datos necesarios', 'danger');
-      const loading = await this.loadingController.getTop();
-      if (loading) {
-        loading.dismiss();
-      }
-    }
+    });
   }
 
   // Validar horarios
@@ -184,117 +175,73 @@ export class CrearPage implements OnInit {
     });
     await loading.present();
 
-    try {
-      // Verificar que hay al menos un expositor/responsable
-      if (!this.capacitacion.expositores || this.capacitacion.expositores.length === 0) {
-        this.mostrarToast('Debe seleccionar al menos un responsable/expositor', 'warning');
-        loading.dismiss();
-        return;
-      }
+    // Verificar que hay al menos un expositor/responsable
+    if (!this.capacitacion.expositores || this.capacitacion.expositores.length === 0) {
+      this.mostrarToast('Debe seleccionar al menos un responsable/expositor', 'warning');
+      loading.dismiss();
+      return;
+    }
 
-      // Asegurar que el enlace tenga el formato correcto
-      if (this.capacitacion.Enlace_Virtual &&
-          !this.capacitacion.Enlace_Virtual.startsWith('http://') &&
-          !this.capacitacion.Enlace_Virtual.startsWith('https://')) {
-        this.capacitacion.Enlace_Virtual = 'https://' + this.capacitacion.Enlace_Virtual;
-      }
+    // Asegurar que el enlace tenga el formato correcto
+    if (this.capacitacion.Enlace_Virtual &&
+      !this.capacitacion.Enlace_Virtual.startsWith('http://') &&
+      !this.capacitacion.Enlace_Virtual.startsWith('https://')) {
+      this.capacitacion.Enlace_Virtual = 'https://' + this.capacitacion.Enlace_Virtual;
+    }
 
-      // Formatear las horas como strings simples antes de guardar
-      const horaInicio = this.capacitacion.Hora_Inicio; // Ya está en formato correcto (HH:MM)
-      const horaFin = this.capacitacion.Hora_Fin;       // Ya está en formato correcto (HH:MM)
+    this.capacitacionesService.createCapacitacion(this.capacitacion).subscribe({
+      next: async (data: any) => {
+        // Data returns created object usually inside array or object depending on backend
+        // Assuming data is the object or { data: object }
+        const created = Array.isArray(data) ? data[0] : (data.data ? data.data : data);
+        const capacitacionId = created?.Id_Capacitacion;
 
-      // Crear la capacitación en la base de datos
-      const { data, error } = await supabase
-        .from('Capacitaciones')
-        .insert([{
-          Nombre_Capacitacion: this.capacitacion.Nombre_Capacitacion,
-          Descripcion_Capacitacion: this.capacitacion.Descripcion_Capacitacion,
-          Fecha_Capacitacion: this.capacitacion.Fecha_Capacitacion,
-          Lugar_Capacitacion: this.capacitacion.Lugar_Capacitacion,
-          Estado: this.capacitacion.Estado,
-          Modalidades: this.capacitacion.Modalidades,
-          Enlace_Virtual: this.capacitacion.Enlace_Virtual,
-          Hora_Inicio: horaInicio,  // String en formato HH:MM
-          Hora_Fin: horaFin,        // String en formato HH:MM
-          Horas: this.capacitacion.Horas,
-          Limite_Participantes: this.capacitacion.Limite_Participantes,
-          entidades_encargadas: this.capacitacion.entidades_encargadas,
-          ids_usuarios: this.capacitacion.ids_usuarios, // Participantes
-          expositores: this.capacitacion.expositores, // Responsables/expositores
-          Certificado: false // Por defecto, no tiene certificado
-        }])
-        .select();
-
-      if (error) {
-        console.error('Error al insertar la capacitación:', error.message);
-        this.mostrarToast('Error al crear la capacitación', 'danger');
-        loading.dismiss();
-        return;
-      }
-
-      // Si hay datos de la capacitación creada
-      if (data && data.length > 0) {
-        const capacitacionId = data[0].Id_Capacitacion;
-
-        try {
-          // Registrar expositores con rol de "Expositor"
+        if (capacitacionId) {
+          // Assign Expositores
           for (const expositorId of this.capacitacion.expositores) {
             await this.registrarUsuarioCapacitacion(capacitacionId, expositorId, 'Expositor');
           }
-
-          // Registrar participantes seleccionados con rol de "Participante" (si hay)
+          // Assign Participantes
           if (this.capacitacion.ids_usuarios && this.capacitacion.ids_usuarios.length > 0) {
             for (const usuarioId of this.capacitacion.ids_usuarios) {
-              // Evitar duplicar si un usuario es tanto expositor como participante
               if (!this.capacitacion.expositores.includes(usuarioId)) {
                 await this.registrarUsuarioCapacitacion(capacitacionId, usuarioId, 'Participante');
               }
             }
           }
-
-          // Mostrar alerta de éxito y luego redirigir
           loading.dismiss();
           this.mostrarToast('Capacitación creada exitosamente', 'success');
           await this.mostrarAlertaExito('Capacitación creada exitosamente', '¿Desea crear otra capacitación?');
-        } catch (error) {
-          console.error('Error al registrar usuarios:', error);
-          // A pesar del error en los usuarios, la capacitación fue creada
+        } else {
           loading.dismiss();
-          this.mostrarToast('Capacitación creada, pero hubo problemas al asignar algunos usuarios', 'warning');
-          await this.mostrarAlertaExito('Capacitación creada con advertencias', '¿Desea crear otra capacitación?');
+          this.mostrarToast('Error: No se recibió confirmación de la base de datos', 'danger');
         }
-      } else {
+      },
+      error: (error) => {
         loading.dismiss();
-        this.mostrarToast('Error: No se recibió confirmación de la base de datos', 'danger');
+        console.error('Error al crear capacitación:', error);
+        this.mostrarToast('Error al crear la capacitación: ' + (error.error?.message || error.message), 'danger');
       }
-    } catch (error) {
-      console.error('Error al crear la capacitación:', error);
-      loading.dismiss();
-      this.mostrarToast('Error al procesar los datos', 'danger');
-    }
+    });
+
   }
 
   // Función para registrar la relación entre usuario y capacitación con un rol específico
   async registrarUsuarioCapacitacion(capacitacionId: number, usuarioId: number, rol: string) {
-    const { error } = await supabase
-      .from('Usuarios_Capacitaciones')
-      .insert([{
-        Id_Usuario: usuarioId,
-        Id_Capacitacion: capacitacionId,
-        Rol_Capacitacion: rol,
-        Fecha_Asignacion: new Date().toISOString(),
-        Asistencia: false // Por defecto, no ha asistido todavía
-      }]);
-
-    if (error) {
-      console.error(`Error al registrar ${rol} (ID: ${usuarioId}):`, error.message);
-      throw new Error(`Error al registrar usuario: ${error.message}`);
-    }
+    return new Promise<void>((resolve) => {
+      this.capacitacionesService.assignUser(capacitacionId, usuarioId, rol).subscribe({
+        next: () => resolve(),
+        error: (err) => {
+          console.error(`Error assigning ${rol}:`, err);
+          resolve(); // Continue anyway
+        }
+      });
+    });
   }
 
   // Función para cancelar la creación
   async cancelarCreacion() {
-    // Verificar si hay cambios en el formulario
+    // Verificar si hay datos ingresados
     if (this.hayDatosIngresados()) {
       const alert = await this.alertController.create({
         header: 'Cancelar creación',
@@ -319,7 +266,6 @@ export class CrearPage implements OnInit {
     }
   }
 
-  // Función para mostrar un mensaje de toast
   async mostrarToast(mensaje: string, color: string = 'primary') {
     const toast = await this.toastController.create({
       message: mensaje,
@@ -337,7 +283,6 @@ export class CrearPage implements OnInit {
     await toast.present();
   }
 
-  // Función para mostrar alerta de éxito con opciones
   async mostrarAlertaExito(mensaje: string, pregunta: string) {
     const alert = await this.alertController.create({
       header: '¡Éxito!',
@@ -361,15 +306,11 @@ export class CrearPage implements OnInit {
     await alert.present();
   }
 
-  // Función para reiniciar el formulario
   reiniciarFormulario() {
-    // Conservar las entidades por defecto (CNC)
     const defaultEntidades = [...this.capacitacion.entidades_encargadas];
 
-    // Establecer horas por defecto nuevamente
     const now = new Date();
-    now.setHours(now.getHours() + 1, 0, 0); // Próxima hora en punto
-
+    now.setHours(now.getHours() + 1, 0, 0);
     const horaInicio = now.toTimeString().substr(0, 5);
     now.setHours(now.getHours() + 1);
     const horaFin = now.toTimeString().substr(0, 5);
@@ -396,15 +337,12 @@ export class CrearPage implements OnInit {
     }
   }
 
-  // Función para verificar si hay datos ingresados
   hayDatosIngresados(): boolean {
     return !!(
       this.capacitacion.Nombre_Capacitacion ||
       this.capacitacion.Descripcion_Capacitacion ||
       this.capacitacion.Lugar_Capacitacion ||
-      this.capacitacion.Fecha_Capacitacion ||
-      this.capacitacion.Hora_Inicio ||
-      this.capacitacion.Hora_Fin ||
+      // this.capacitacion.Fecha_Capacitacion || // Always has value
       this.capacitacion.Enlace_Virtual ||
       this.capacitacion.Horas > 0 ||
       this.capacitacion.Limite_Participantes > 0 ||
@@ -414,12 +352,10 @@ export class CrearPage implements OnInit {
     );
   }
 
-  // Función para calcular el progreso del formulario (para la barra de progreso)
   calcularProgresoFormulario(): number {
     let camposCompletados = 0;
-    let totalCampos = 10; // Base de campos requeridos (añadimos 2 más por horario)
+    let totalCampos = 10;
 
-    // Si es modalidad virtual, añadimos un campo más al total (enlace)
     if (this.capacitacion.Modalidades === 'Virtual') {
       totalCampos = 11;
     }

@@ -1,10 +1,5 @@
+// Styles optimized using shared.scss
 // Main card styling
-.main-card {
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
-  margin-bottom: 20px;
-}
 
 // Welcome header
 .welcome-header {
@@ -31,18 +26,6 @@
 }
 
 // Section styling
-.section-title {
-  font-size: 18px;
-  color: var(--ion-color-primary);
-  margin-bottom: 15px;
-  display: flex;
-  align-items: center;
-
-  ion-icon {
-    margin-right: 8px;
-    font-size: 20px;
-  }
-}
 
 // Certificate info section
 .certificate-info-section {
@@ -127,18 +110,6 @@
       .entity-name {
         font-size: 14px;
         text-align: center;
-      }
-    }
-
-    .empty-state {
-      width: 100%;
-      text-align: center;
-      padding: 30px;
-      color: #777;
-
-      ion-icon {
-        font-size: 40px;
-        margin-bottom: 10px;
       }
     }
   }
@@ -345,15 +316,13 @@
 }
 
 // Animation
-.fade-in {
-  animation: fadeIn 0.5s ease forwards;
-}
 
 @keyframes fadeIn {
   from {
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);

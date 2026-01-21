@@ -1,16 +1,20 @@
+import { IonicModule } from '@ionic/angular';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
-import { supabase } from 'src/supabase';
 import { AlertController, LoadingController, ToastController, NavController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { v4 as uuidv4 } from 'uuid';
 import SignaturePad from 'signature_pad';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-firma',
   templateUrl: './firma.page.html',
   styleUrls: ['./firma.page.scss'],
-  standalone: false
+  standalone: true,
+  imports: [CommonModule, FormsModule, IonicModule]
 })
 export class FirmaPage implements OnInit, AfterViewInit {
   @ViewChild('signaturePad') signaturePadElement!: ElementRef;
@@ -29,7 +33,8 @@ export class FirmaPage implements OnInit, AfterViewInit {
     private loadingController: LoadingController,
     private toastController: ToastController,
     private router: Router,
-    private navController: NavController
+    private navController: NavController,
+    private http: HttpClient
   ) { }
 
   ngOnInit() {
@@ -37,7 +42,6 @@ export class FirmaPage implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    // Inicializar el pad de firma después de que la vista esté lista
     this.inicializarSignaturePad();
   }
 
@@ -50,15 +54,12 @@ export class FirmaPage implements OnInit, AfterViewInit {
         velocityFilterWeight: 0.7
       });
 
-      // Configurar eventos para detectar cuando se está dibujando
       this.signaturePad.addEventListener("beginStroke", () => {
         this.firmaDibujada = true;
       });
 
-      // Ajustar el tamaño del canvas al contenedor
       this.resizeCanvas();
 
-      // Ajustar el tamaño del canvas cuando se cambia el tamaño de la ventana
       window.addEventListener('resize', () => {
         this.resizeCanvas();
       });
@@ -77,7 +78,7 @@ export class FirmaPage implements OnInit, AfterViewInit {
       canvas.style.height = `${parentWidth * 0.5}px`;
 
       canvas.getContext('2d').scale(ratio, ratio);
-      this.signaturePad.clear(); // Limpiar y volver a dibujar
+      this.signaturePad.clear();
       this.firmaDibujada = false;
     }
   }
@@ -97,11 +98,9 @@ export class FirmaPage implements OnInit, AfterViewInit {
   }
 
   cambiarMetodo() {
-    // Reiniciar variables cuando se cambia el método
     this.firmaDibujada = false;
     this.previewFirma = null;
 
-    // Si se cambia a dibujar, inicializar el pad de firma
     if (this.metodoSeleccionado === 'dibujar') {
       setTimeout(() => {
         this.inicializarSignaturePad();
@@ -151,26 +150,8 @@ export class FirmaPage implements OnInit, AfterViewInit {
 
     if (!confirmar) return;
 
-    const loading = await this.loadingController.create({
-      message: 'Guardando firma...',
-      spinner: 'crescent'
-    });
-    await loading.present();
-
-    try {
-      // Obtener la imagen en formato base64
-      const dataUrl = this.signaturePad.toDataURL('image/png');
-
-      // Subir la firma
-      await this.subirFirma(dataUrl);
-
-      this.presentToast('Firma guardada correctamente', 'success');
-      this.navController.navigateBack('/ver-perfil');
-    } catch (error: any) {
-      this.presentToast('Error al guardar la firma: ' + error.message, 'danger');
-    } finally {
-      loading.dismiss();
-    }
+    // TODO: Implementar guardado de firma (imagen) en backend
+    this.presentToast('Funcionalidad de guardado de firma pendiente de migración a Backend', 'warning');
   }
 
   async guardarFirmaImagen() {
@@ -186,64 +167,13 @@ export class FirmaPage implements OnInit, AfterViewInit {
 
     if (!confirmar) return;
 
-    const loading = await this.loadingController.create({
-      message: 'Guardando firma...',
-      spinner: 'crescent'
-    });
-    await loading.present();
-
-    try {
-      // Subir la firma
-      await this.subirFirma(this.previewFirma);
-
-      this.presentToast('Firma guardada correctamente', 'success');
-      this.navController.navigateBack('/ver-perfil');
-    } catch (error: any) {
-      this.presentToast('Error al guardar la firma: ' + error.message, 'danger');
-    } finally {
-      loading.dismiss();
-    }
+    // TODO: Implementar guardado de firma (imagen) en backend
+    this.presentToast('Funcionalidad de guardado de firma pendiente de migración a Backend', 'warning');
   }
 
   async subirFirma(dataUrl: string) {
-    // Convertir dataUrl a Blob
-    const response = await fetch(dataUrl);
-    const blob = await response.blob();
-
-    // Generar nombre de archivo único
-    const userId = this.usuario.Id_Usuario;
-    const filename = `${uuidv4()}.png`;
-    const filePath = `firmas/${userId}/${filename}`;
-
-    // Subir a Supabase Storage
-    const { data: uploadData, error: uploadError } = await supabase.storage
-      .from('imagenes')
-      .upload(filePath, blob);
-
-    if (uploadError) {
-      throw new Error(uploadError.message);
-    }
-
-    // Obtener URL pública
-    const { data: urlData } = await supabase.storage
-      .from('imagenes')
-      .getPublicUrl(filePath);
-
-    const imageUrl = urlData.publicUrl;
-
-    // Actualizar perfil en la base de datos
-    const { error: updateError } = await supabase
-      .from('Usuario')
-      .update({ Firma_Usuario: imageUrl })
-      .eq('Id_Usuario', this.usuario.Id_Usuario);
-
-    if (updateError) {
-      throw new Error(updateError.message);
-    }
-
-    // Actualizar datos locales
-    this.usuario.Firma_Usuario = imageUrl;
-    this.tieneFirma = true;
+    // Deprecated: Supabase implementation removed
+    console.warn('subirFirma: Backend implementation required');
   }
 
   async mostrarConfirmacion(header: string, message: string): Promise<boolean> {

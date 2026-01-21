@@ -1,13 +1,17 @@
-import { Component, OnInit } from '@angular/core';
-import { supabase } from 'src/supabase';
+import { IonicModule } from '@ionic/angular';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AlertController, LoadingController, ToastController } from '@ionic/angular';
+import { CatalogoService } from 'src/app/services/catalogo.service';
 
 @Component({
   selector: 'app-crudparroquias',
   templateUrl: './crudparroquias.page.html',
   styleUrls: ['./crudparroquias.page.scss'],
-  standalone: false
+  standalone: true,
+  imports: [CommonModule, FormsModule, IonicModule]
 })
 export class CrudparroquiasPage implements OnInit {
 
@@ -19,6 +23,8 @@ export class CrudparroquiasPage implements OnInit {
   filtroCanton: string = 'todos';
   filtroEstado: string = 'todos';
   parroquiasActivas: number = 0;
+
+  private catalogoService = inject(CatalogoService);
 
   constructor(
     private router: Router,
@@ -45,42 +51,36 @@ export class CrudparroquiasPage implements OnInit {
     });
     await loading.present();
 
-    try {
-      const { data: parroquias, error } = await supabase
-        .from('parroquia')
-        .select('*');
-
-      if (error) {
-        this.presentToast('Error al obtener parroquias: ' + error.message, 'danger');
-        return;
+    this.catalogoService.getItems('parroquias').subscribe({
+      next: (parroquias) => {
+        this.parroquias = parroquias || [];
+        this.asociarCantones();
+        this.calcularEstadisticas();
+        this.filtrarParroquias();
+        loading.dismiss();
+      },
+      error: (error) => {
+        loading.dismiss();
+        this.presentToast('Error al obtener parroquias (API no implementada)', 'danger');
+        console.error(error);
       }
+    });
 
-      this.parroquias = parroquias || [];
-      this.asociarCantones();
-      this.calcularEstadisticas();
-      this.filtrarParroquias();
-    } catch (error: any) {
-      this.presentToast('Error en la solicitud: ' + error.message, 'danger');
-    } finally {
-      loading.dismiss();
-    }
   }
 
   async obtenerCantones() {
-    try {
-      const { data: Cantones, error } = await supabase
-        .from('Cantones')
-        .select('*');
-
-      if (error) {
-        this.presentToast('Error al obtener cantones: ' + error.message, 'danger');
-        return;
-      }
-
-      this.cantones = Cantones || [];
-    } catch (error: any) {
-      this.presentToast('Error en la solicitud: ' + error.message, 'danger');
-    }
+    return new Promise<void>((resolve) => {
+      this.catalogoService.getItems('cantones').subscribe({
+        next: (cantones) => {
+          this.cantones = cantones || [];
+          resolve();
+        },
+        error: (error) => {
+          console.error('Error al obtener cantones:', error);
+          resolve();
+        }
+      });
+    });
   }
 
   asociarCantones() {
@@ -131,30 +131,23 @@ export class CrudparroquiasPage implements OnInit {
     });
     await loading.present();
 
-    try {
-      const nuevoEstado = !parroquia.estado;
-      const { error } = await supabase
-        .from('parroquia')
-        .update({ estado: nuevoEstado })
-        .eq('codigo_parroquia', parroquia.codigo_parroquia);
-
-      if (error) {
+    const nuevoEstado = !parroquia.estado;
+    this.catalogoService.updateItem('parroquias', parroquia.codigo_parroquia, { estado: nuevoEstado }).subscribe({
+      next: () => {
+        loading.dismiss();
+        // Actualizar el objeto local
+        parroquia.estado = nuevoEstado;
+        this.calcularEstadisticas();
+        this.presentToast(
+          `Parroquia "${parroquia.nombre_parroquia}" ahora está ${nuevoEstado ? 'activa' : 'inactiva'}`,
+          'success'
+        );
+      },
+      error: (error) => {
+        loading.dismiss();
         this.presentToast('Error al cambiar estado: ' + error.message, 'danger');
-        return;
       }
-
-      // Actualizar el objeto local
-      parroquia.estado = nuevoEstado;
-      this.calcularEstadisticas();
-      this.presentToast(
-        `Parroquia "${parroquia.nombre_parroquia}" ahora está ${nuevoEstado ? 'activa' : 'inactiva'}`,
-        'success'
-      );
-    } catch (error: any) {
-      this.presentToast('Error en la solicitud: ' + error.message, 'danger');
-    } finally {
-      loading.dismiss();
-    }
+    });
   }
 
   async confirmarEliminar(parroquia: any) {
@@ -186,24 +179,17 @@ export class CrudparroquiasPage implements OnInit {
     });
     await loading.present();
 
-    try {
-      const { error } = await supabase
-        .from('parroquia')
-        .delete()
-        .eq('codigo_parroquia', codigo_parroquia);
-
-      if (error) {
+    this.catalogoService.deleteItem('parroquias', codigo_parroquia).subscribe({
+      next: () => {
+        loading.dismiss();
+        this.presentToast('Parroquia eliminada correctamente', 'success');
+        this.obtenerParroquias();
+      },
+      error: (error) => {
+        loading.dismiss();
         this.presentToast('Error al eliminar parroquia: ' + error.message, 'danger');
-        return;
       }
-
-      this.presentToast('Parroquia eliminada correctamente', 'success');
-      this.obtenerParroquias();
-    } catch (error: any) {
-      this.presentToast('Error en la solicitud: ' + error.message, 'danger');
-    } finally {
-      loading.dismiss();
-    }
+    });
   }
 
   async presentToast(message: string, color: string = 'primary') {

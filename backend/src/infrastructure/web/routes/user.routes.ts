@@ -1,10 +1,16 @@
 import { Router } from 'express';
+import { container } from 'tsyringe';
+import { UserController } from '../controllers/user.controller';
+import { authenticate } from '../middleware/auth.middleware';
 
 const router = Router();
+const userController = container.resolve(UserController);
 
-// TODO: Implementar rutas de usuarios
-router.get('/', (_req, res) => {
-    res.json({ message: 'User routes - Coming soon' });
-});
+router.use(authenticate); // Protect all user routes
+
+router.get('/', userController.getAll);
+router.get('/:id', userController.getById);
+router.put('/:id', userController.update);
+router.delete('/:id', userController.delete);
 
 export default router;

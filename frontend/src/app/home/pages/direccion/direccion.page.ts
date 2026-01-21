@@ -7,11 +7,16 @@ import { environment } from '../../../../environments/environment.prod';
 
 declare var google: any;
 
+import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { IonicModule } from '@ionic/angular';
+
 @Component({
   selector: 'app-direccion',
   templateUrl: './direccion.page.html',
   styleUrls: ['./direccion.page.scss'],
-  standalone: false
+  standalone: true,
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, IonicModule]
 })
 export class DireccionPage implements OnInit, AfterViewInit {
   // Inicializar contactForm aquí para resolver error TS2564
@@ -28,7 +33,7 @@ export class DireccionPage implements OnInit, AfterViewInit {
     private toastController: ToastController,
     private loadingController: LoadingController,
     private http: HttpClient
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.loadGoogleMapsScript();

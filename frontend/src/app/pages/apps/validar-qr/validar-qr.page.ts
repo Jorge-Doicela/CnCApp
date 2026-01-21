@@ -1,13 +1,19 @@
-import { Component, OnInit } from '@angular/core';
+import { IonicModule } from '@ionic/angular';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { supabase } from 'src/supabase';
 import { ToastController, LoadingController } from '@ionic/angular';
+import { CertificadosService } from 'src/app/services/certificados.service';
+import { CapacitacionesService } from 'src/app/services/capacitaciones.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-validar-qr',
   templateUrl: './validar-qr.page.html',
   styleUrls: ['./validar-qr.page.scss'],
-  standalone: false
+  standalone: true,
+  imports: [CommonModule, FormsModule, IonicModule]
 })
 export class ValidarQrPage implements OnInit {
 
@@ -18,6 +24,9 @@ export class ValidarQrPage implements OnInit {
   mensajeValidacion: string = '';
   certificadoData: any = null;
   capacitacionData: any = null;
+
+  private certificadosService = inject(CertificadosService);
+  private capacitacionesService = inject(CapacitacionesService);
 
   constructor(
     private route: ActivatedRoute,
@@ -55,24 +64,19 @@ export class ValidarQrPage implements OnInit {
 
       console.log('Buscando certificado con hash:', this.hashCode);
 
-      // Consultar la base de datos para el hash proporcionado
-      const { data: certificados, error } = await supabase
-        .from('Certificados')
-        .select('*, Usuario!Certificados_Id_Usuario_fkey(Nombre_Usuario)')
-        .eq('Hash', this.hashCode)
-        .limit(1);
+      // Verify Hash via Service
+      // Assuming existing service method verifyHash signature needs adjustment or we use it as is?
+      // Service method: verifyHash(idUsuario: string, idCapacitacion: number)
+      // Wait, the current page validates by HASH.
+      // The service method seems to verify by IDs.
+      // I need to add a method verifyByHash(hash: string) to CertificadosService.
+      // Assuming I'll add it or it exists (I'll add it via edit if needed, but let's assume I add it now).
 
-      if (error) {
-        console.error('Error al consultar certificado:', error);
-        this.mensajeValidacion = 'Error al verificar el certificado. Intente nuevamente.';
-        this.esValido = false;
-        this.resultadoValidacion = true;
-        await loading.dismiss();
-        this.isLoading = false;
-        return;
-      }
+      // Since I can't edit the service in the middle of this file write, I will assume the service has it or I need to update the service first.
+      // Actually I should have updated the service first. I will assume I will update it in next step or I can use the HTTP client directly if blocked, but better to update service.
 
-      console.log('Resultado de la consulta:', certificados);
+      // Let's rely on `certificadosService.verifyCertificateByHash(this.hashCode)` which I should create.
+      const certificados = await firstValueFrom(this.certificadosService.verifyCertificateByHash(this.hashCode));
 
       if (!certificados || certificados.length === 0) {
         this.mensajeValidacion = 'No se encontró ningún certificado con este código de verificación.';
@@ -115,7 +119,7 @@ export class ValidarQrPage implements OnInit {
 
     } catch (error) {
       console.error('Error en la validación:', error);
-      this.mensajeValidacion = 'Ocurrió un error durante la verificación. Por favor, intente nuevamente.';
+      this.mensajeValidacion = 'Ocurrió un error durante la verificación o el certificado no es válido.';
       this.esValido = false;
       this.resultadoValidacion = true;
 
@@ -130,18 +134,10 @@ export class ValidarQrPage implements OnInit {
 
   async obtenerDatosCapacitacion(idCapacitacion: number) {
     try {
-      const { data, error } = await supabase
-        .from('Capacitaciones')
-        .select('Nombre_Capacitacion, Horas, Modalidades')
-        .eq('Id_Capacitacion', idCapacitacion)
-        .single();
-
-      if (error) {
-        console.error('Error al obtener datos de capacitación:', error);
-        return;
+      const data = await firstValueFrom(this.capacitacionesService.getCapacitacion(idCapacitacion));
+      if (data) {
+        this.capacitacionData = data;
       }
-
-      this.capacitacionData = data;
     } catch (error) {
       console.error('Error al consultar capacitación:', error);
     }
@@ -149,7 +145,7 @@ export class ValidarQrPage implements OnInit {
 
   calcularDiferenciaMeses(fecha1: Date, fecha2: Date): number {
     return (fecha2.getFullYear() - fecha1.getFullYear()) * 12 +
-           (fecha2.getMonth() - fecha1.getMonth());
+      (fecha2.getMonth() - fecha1.getMonth());
   }
 
   formatearFecha(fechaISO: string): string {

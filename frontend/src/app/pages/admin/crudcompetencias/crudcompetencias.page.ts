@@ -1,13 +1,17 @@
-import { Component, OnInit } from '@angular/core';
+import { IonicModule } from '@ionic/angular';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AlertController, LoadingController, ToastController } from '@ionic/angular';
-import { supabase } from 'src/supabase';
+import { CatalogoService } from 'src/app/services/catalogo.service';
 
 @Component({
   selector: 'app-crudcompetencias',
   templateUrl: './crudcompetencias.page.html',
   styleUrls: ['./crudcompetencias.page.scss'],
-  standalone: false
+  standalone: true,
+  imports: [CommonModule, FormsModule, IonicModule]
 })
 export class CrudcompetenciasPage implements OnInit {
 
@@ -18,6 +22,8 @@ export class CrudcompetenciasPage implements OnInit {
   filtroEstado: string = 'todos';
   ordenarPor: string = 'nombre';
   competenciasActivas: number = 0;
+
+  private catalogoService = inject(CatalogoService);
 
   constructor(
     private router: Router,
@@ -43,29 +49,23 @@ export class CrudcompetenciasPage implements OnInit {
     });
     await loading.present();
 
-    try {
-      const { data: competencias, error } = await supabase
-        .from('competencias')
-        .select('*');
+    this.catalogoService.getItems('competencias').subscribe({
+      next: (competencias) => {
+        // Añadir un campo de fecha de última actualización (simulado si no existe)
+        this.competencias = (competencias || []).map((comp: any) => ({
+          ...comp,
+          fecha_ultima_actualizacion: comp.fecha_ultima_actualizacion || new Date().toISOString()
+        }));
 
-      if (error) {
+        this.calcularEstadisticas();
+        this.filtrarCompetencias();
+        loading.dismiss();
+      },
+      error: (error) => {
+        loading.dismiss();
         this.presentToast('Error al obtener competencias: ' + error.message, 'danger');
-        return;
       }
-
-      // Añadir un campo de fecha de última actualización (simulado si no existe)
-      this.competencias = (competencias || []).map((comp: any) => ({
-        ...comp,
-        fecha_ultima_actualizacion: comp.fecha_ultima_actualizacion || new Date().toISOString()
-      }));
-
-      this.calcularEstadisticas();
-      this.filtrarCompetencias();
-    } catch (error: any) {
-      this.presentToast('Error en la solicitud: ' + error.message, 'danger');
-    } finally {
-      loading.dismiss();
-    }
+    });
   }
 
   calcularEstadisticas() {
@@ -109,34 +109,27 @@ export class CrudcompetenciasPage implements OnInit {
     });
     await loading.present();
 
-    try {
-      const nuevoEstado = !competencia.estado_competencia;
-      const { error } = await supabase
-        .from('competencias')
-        .update({
-          estado_competencia: nuevoEstado,
-          fecha_ultima_actualizacion: new Date().toISOString()
-        })
-        .eq('id_competencias', competencia.id_competencias);
-
-      if (error) {
+    const nuevoEstado = !competencia.estado_competencia;
+    this.catalogoService.updateItem('competencias', competencia.id_competencias, {
+      estado_competencia: nuevoEstado,
+      fecha_ultima_actualizacion: new Date().toISOString()
+    }).subscribe({
+      next: () => {
+        loading.dismiss();
+        // Actualizar el objeto local
+        competencia.estado_competencia = nuevoEstado;
+        competencia.fecha_ultima_actualizacion = new Date().toISOString();
+        this.calcularEstadisticas();
+        this.presentToast(
+          `Competencia "${competencia.nombre_competencias}" ahora está ${nuevoEstado ? 'activa' : 'inactiva'}`,
+          'success'
+        );
+      },
+      error: (error) => {
+        loading.dismiss();
         this.presentToast('Error al cambiar estado: ' + error.message, 'danger');
-        return;
       }
-
-      // Actualizar el objeto local
-      competencia.estado_competencia = nuevoEstado;
-      competencia.fecha_ultima_actualizacion = new Date().toISOString();
-      this.calcularEstadisticas();
-      this.presentToast(
-        `Competencia "${competencia.nombre_competencias}" ahora está ${nuevoEstado ? 'activa' : 'inactiva'}`,
-        'success'
-      );
-    } catch (error: any) {
-      this.presentToast('Error en la solicitud: ' + error.message, 'danger');
-    } finally {
-      loading.dismiss();
-    }
+    });
   }
 
   async confirmarEliminar(competencia: any) {
@@ -168,24 +161,17 @@ export class CrudcompetenciasPage implements OnInit {
     });
     await loading.present();
 
-    try {
-      const { error } = await supabase
-        .from('competencias')
-        .delete()
-        .eq('id_competencias', idCompetencia);
-
-      if (error) {
+    this.catalogoService.deleteItem('competencias', idCompetencia).subscribe({
+      next: () => {
+        loading.dismiss();
+        this.presentToast('Competencia eliminada correctamente', 'success');
+        this.obtenerCompetencias();
+      },
+      error: (error) => {
+        loading.dismiss();
         this.presentToast('Error al eliminar competencia: ' + error.message, 'danger');
-        return;
       }
-
-      this.presentToast('Competencia eliminada correctamente', 'success');
-      this.obtenerCompetencias();
-    } catch (error: any) {
-      this.presentToast('Error en la solicitud: ' + error.message, 'danger');
-    } finally {
-      loading.dismiss();
-    }
+    });
   }
 
   async presentToast(message: string, color: string = 'primary') {

@@ -1,17 +1,23 @@
+import { IonicModule } from '@ionic/angular';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 // editar.page.ts - Fixed version with correct navigation state handling
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { supabase } from 'src/supabase';
 import { AlertController, LoadingController, ToastController, ActionSheetController, NavController } from '@ionic/angular';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { v4 as uuidv4 } from 'uuid';
+import { HttpClient } from '@angular/common/http';
+import { environment } from 'src/environments/environment';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-editar',
   templateUrl: './editar.page.html',
   styleUrls: ['./editar.page.scss'],
-  standalone: false
+  standalone: true,
+  imports: [CommonModule, FormsModule, IonicModule]
 })
 export class EditarPage implements OnInit {
   perfilForm!: FormGroup;
@@ -40,7 +46,8 @@ export class EditarPage implements OnInit {
     private actionSheetController: ActionSheetController,
     private router: Router,
     private route: ActivatedRoute,
-    private navController: NavController
+    private navController: NavController,
+    private http: HttpClient
   ) {
     // Obtener datos del estado de navegación
     const navigation = this.router.getCurrentNavigation();
@@ -78,6 +85,7 @@ export class EditarPage implements OnInit {
       provincia: [''],
       canton: [''],
       parroquia: [''],
+      direccion: ['']
     });
 
     // Escuchar cambios en los campos de ubicación
@@ -113,35 +121,12 @@ export class EditarPage implements OnInit {
 
   async cargarUbicaciones() {
     try {
-      // Cargar provincias
-      const { data: provinciasData, error: provinciasError } = await supabase
-        .from('Provincias')
-        .select('*')
-        .eq('Estado', true)
-        .order('Nombre_Provincia', { ascending: true });
+      // TODO: Implementar endpoints reales o usar JSON local
+      console.warn('Carga de ubicaciones pendiente de implementación backend');
 
-      if (provinciasError) throw provinciasError;
-      this.provincias = provinciasData || [];
-
-      // Cargar todos los cantones (se filtrarán después)
-      const { data: cantonesData, error: cantonesError } = await supabase
-        .from('Cantones')
-        .select('*')
-        .eq('estado', true)
-        .order('nombre_canton', { ascending: true });
-
-      if (cantonesError) throw cantonesError;
-      this.cantonesOriginales = cantonesData || [];
-
-      // Cargar todas las parroquias (se filtrarán después)
-      const { data: parroquiasData, error: parroquiasError } = await supabase
-        .from('parroquia')
-        .select('*')
-        .eq('estado', true)
-        .order('nombre_parroquia', { ascending: true });
-
-      if (parroquiasError) throw parroquiasError;
-      this.parroquiasOriginales = parroquiasData || [];
+      this.provincias = [];
+      this.cantonesOriginales = [];
+      this.parroquiasOriginales = [];
 
       // Después de cargar todas las ubicaciones, cargar los datos del usuario
       await this.cargarDatosUsuario();
@@ -168,37 +153,16 @@ export class EditarPage implements OnInit {
     try {
       // Si no tenemos usuario, intentar obtenerlo del parámetro de ruta o navegación al perfil
       if (!this.usuario) {
-        console.log('No hay datos de usuario, intentando cargar datos desde auth...');
-        // Obtener usuario autenticado actual
-        const { data: authData, error: authError } = await supabase.auth.getUser();
-
-        if (authError || !authData.user) {
-          throw new Error('Error al obtener usuario autenticado: ' + (authError?.message || 'Usuario no encontrado'));
+        const authUid = localStorage.getItem('auth_uid');
+        if (authUid) {
+          // TODO: Fetch from backend
+          console.warn('Fetch user from backend unimplemented in editar page');
+          // Mock empty
+          this.usuario = {};
         }
-
-        const authUid = authData.user.id;
-
-        // Obtener datos del usuario desde la tabla Usuario
-        const { data: usuarioData, error: userError } = await supabase
-          .from('Usuario')
-          .select('*')
-          .eq('auth_uid', authUid)
-          .single();
-
-        if (userError || !usuarioData) {
-          throw new Error('Error al obtener datos del usuario: ' + (userError?.message || 'Usuario no encontrado'));
-        }
-
-        this.usuario = {
-          ...usuarioData,
-          email: authData.user.email,
-          nombreCompleto: `${usuarioData.Nombre_Usuario || ''} ${usuarioData.apellido || ''}`
-        };
-
-        console.log('Usuario cargado desde la base de datos:', this.usuario);
       }
 
-      if (this.usuario) {
+      if (this.usuario && Object.keys(this.usuario).length > 0) {
         // Si el usuario tiene asignados códigos, necesitamos obtener los valores iniciales para los selectores
         await this.inicializarDatosUbicacion();
 
@@ -217,8 +181,6 @@ export class EditarPage implements OnInit {
         });
 
         console.log('Formulario inicializado con datos de usuario');
-      } else {
-        throw new Error('No se encontró información del usuario para editar');
       }
     } catch (error: any) {
       console.error('Error al cargar datos de usuario:', error);
@@ -241,148 +203,15 @@ export class EditarPage implements OnInit {
   }
 
   async inicializarDatosUbicacion() {
-    try {
-      // Si el usuario tiene parroquia asignada, necesitamos buscar su cantón y provincia
-      if (this.usuario.Parroquia_Reside_Usuario) {
-        this.parroquiaSeleccionadaId = this.usuario.Parroquia_Reside_Usuario;
-
-        // Buscar la parroquia para obtener el cantón
-        const parroquia = this.parroquiasOriginales.find(p =>
-          p.codigo_parroquia === this.parroquiaSeleccionadaId
-        );
-
-        if (parroquia) {
-          this.cantonSeleccionadoId = parroquia.codigo_canton;
-          this.filtrarParroquiasPorCanton(this.cantonSeleccionadoId);
-
-          // Buscar el cantón para obtener la provincia
-          const canton = this.cantonesOriginales.find(c =>
-            c.codigo_canton === this.cantonSeleccionadoId
-          );
-
-          if (canton) {
-            this.provinciaSeleccionadaId = canton.codigo_provincia;
-            this.filtrarCantonesPorProvincia(this.provinciaSeleccionadaId);
-          }
-        }
-      }
-      // Si el usuario solo tiene cantón, buscar su provincia
-      else if (this.usuario.Canton_Reside_Usuario) {
-        this.cantonSeleccionadoId = this.usuario.Canton_Reside_Usuario;
-
-        // Buscar el cantón para obtener la provincia
-        const canton = this.cantonesOriginales.find(c =>
-          c.codigo_canton === this.cantonSeleccionadoId
-        );
-
-        if (canton) {
-          this.provinciaSeleccionadaId = canton.codigo_provincia;
-          this.filtrarCantonesPorProvincia(this.provinciaSeleccionadaId);
-          this.filtrarParroquiasPorCanton(this.cantonSeleccionadoId);
-        }
-      }
-    } catch (error) {
-      console.error('Error al inicializar datos de ubicación:', error);
-    }
+    // TODO: Implementar lógica de ubicación con datos del backend
   }
 
   async actualizarFotoPerfil() {
-    const actionSheet = await this.actionSheetController.create({
-      header: 'Seleccionar fuente de imagen',
-      buttons: [
-        {
-          text: 'Cámara',
-          icon: 'camera',
-          handler: () => {
-            this.capturarFoto(CameraSource.Camera);
-          }
-        },
-        {
-          text: 'Galería',
-          icon: 'image',
-          handler: () => {
-            this.capturarFoto(CameraSource.Photos);
-          }
-        },
-        {
-          text: 'Cancelar',
-          icon: 'close',
-          role: 'cancel'
-        }
-      ]
-    });
-
-    await actionSheet.present();
+    this.presentToast('Cambio de foto no disponible (Migrando a Backend)', 'warning');
   }
 
   async capturarFoto(source: CameraSource) {
-    try {
-      const image = await Camera.getPhoto({
-        quality: 90,
-        allowEditing: true,
-        resultType: CameraResultType.DataUrl,
-        source: source,
-        width: 500,
-        height: 500,
-        correctOrientation: true
-      });
-
-      if (image.dataUrl) {
-        const loading = await this.loadingController.create({
-          message: 'Subiendo imagen...',
-          spinner: 'crescent'
-        });
-        await loading.present();
-
-        try {
-          // Convertir dataUrl a Blob
-          const response = await fetch(image.dataUrl);
-          const blob = await response.blob();
-
-          // Generar nombre de archivo único
-          const userId = this.usuario.Id_Usuario;
-          const extension = this.getFileExtensionFromMimeType(image.format || 'jpeg');
-          const filename = `${uuidv4()}.${extension}`;
-          const filePath = `foto-perfil/${userId}/${filename}`;
-
-          // Subir a Supabase Storage
-          const { data: uploadData, error: uploadError } = await supabase.storage
-            .from('imagenes')
-            .upload(filePath, blob);
-
-          if (uploadError) {
-            throw new Error(uploadError.message);
-          }
-
-          // Obtener URL pública
-          const { data: urlData } = await supabase.storage
-            .from('imagenes')
-            .getPublicUrl(filePath);
-
-          const imageUrl = urlData.publicUrl;
-
-          // Actualizar perfil en la base de datos
-          const { error: updateError } = await supabase
-            .from('Usuario')
-            .update({ Imagen_Perfil: imageUrl })
-            .eq('Id_Usuario', this.usuario.Id_Usuario);
-
-          if (updateError) {
-            throw new Error(updateError.message);
-          }
-
-          // Actualizar los datos locales
-          this.usuario.Imagen_Perfil = imageUrl;
-          this.presentToast('Foto de perfil actualizada correctamente', 'success');
-        } catch (error: any) {
-          this.presentToast('Error al subir la imagen: ' + error.message, 'danger');
-        } finally {
-          loading.dismiss();
-        }
-      }
-    } catch (error: any) {
-      this.presentToast('Error al capturar la imagen: ' + error.message, 'danger');
-    }
+    // TODO
   }
 
   getFileExtensionFromMimeType(format: string): string {
@@ -419,56 +248,13 @@ export class EditarPage implements OnInit {
       // Obtener valores del formulario
       const formData = this.perfilForm.value;
 
-      // Preparar objeto de actualización
-      const updateData: any = {};
+      // TODO: Prepare backend DTO
 
-      // Verificar qué campos existen en la tabla Usuario y usar los nombres correctos
-      if (formData.nombre) {
-        updateData.Nombre_Usuario = formData.nombre;
-        updateData.nombre = formData.nombre; // Mantener compatibilidad con ambos campos
-      }
+      // Actualizar datos en la base de datos (Backend call)
+      // await firstValueFrom(this.http.put(`${environment.apiUrl}/users/${this.usuario.Id_Usuario}`, updateData));
+      console.warn('Update user unimplemented');
 
-      if (formData.apellido) {
-        updateData.apellido = formData.apellido;
-      }
-
-      if (formData.telefono) {
-        updateData.Celular_Usuario = formData.telefono;
-        updateData.telefono = formData.telefono; // Mantener compatibilidad con ambos campos
-      }
-
-      if (formData.genero) {
-        updateData.Genero_Usuario = formData.genero;
-      }
-
-      if (formData.nacionalidad) {
-        updateData.Nacionalidad_Usuario = formData.nacionalidad;
-      }
-
-      // Guardar los códigos seleccionados, no los nombres mostrados
-      if (this.cantonSeleccionadoId) {
-        updateData.Canton_Reside_Usuario = this.cantonSeleccionadoId;
-      }
-
-      if (this.parroquiaSeleccionadaId) {
-        updateData.Parroquia_Reside_Usuario = this.parroquiaSeleccionadaId;
-      }
-
-      if (formData.direccion) {
-        updateData.direccion = formData.direccion;
-      }
-
-      // Actualizar datos en la base de datos
-      const { error } = await supabase
-        .from('Usuario')
-        .update(updateData)
-        .eq('Id_Usuario', this.usuario.Id_Usuario);
-
-      if (error) {
-        throw new Error(error.message);
-      }
-
-      this.presentToast('Perfil actualizado correctamente', 'success');
+      this.presentToast('Simulación: Perfil actualizado correctamente', 'success');
       this.volver();
     } catch (error: any) {
       this.presentToast('Error al actualizar el perfil: ' + error.message, 'danger');

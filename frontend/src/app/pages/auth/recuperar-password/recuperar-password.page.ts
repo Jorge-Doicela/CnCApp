@@ -1,14 +1,18 @@
-import { Component, OnInit } from '@angular/core';
-import { supabase } from 'src/supabase';
+import { IonicModule } from '@ionic/angular';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { LoadingController, ToastController, AlertController, Platform } from '@ionic/angular';
 import { environment } from 'src/environments/environment';
+import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-recuperar-password',
   templateUrl: './recuperar-password.page.html',
   styleUrls: ['./recuperar-password.page.scss'],
-  standalone: false
+  standalone: true,
+  imports: [CommonModule, FormsModule, IonicModule]
 })
 export class RecuperarPasswordPage implements OnInit {
   email: string = '';
@@ -19,6 +23,8 @@ export class RecuperarPasswordPage implements OnInit {
   token: string | null = null;
   siteURL: string = '';
 
+  private authService = inject(AuthService);
+
   constructor(
     private router: Router,
     private route: ActivatedRoute,
@@ -26,7 +32,7 @@ export class RecuperarPasswordPage implements OnInit {
     private toastController: ToastController,
     private alertController: AlertController,
     private platform: Platform
-  ) {}
+  ) { }
 
   ngOnInit() {
     // Determinar la URL base para redirección
@@ -41,19 +47,7 @@ export class RecuperarPasswordPage implements OnInit {
     });
 
     // Verificar si hay una sesión asociada con el token en la URL
-    this.verificarSesion();
-  }
-
-  async verificarSesion() {
-    try {
-      const { data: { session }, error } = await supabase.auth.getSession();
-      if (session && this.token) {
-        console.log('Sesión activa detectada');
-        this.paso = 'resetear';
-      }
-    } catch (error) {
-      console.error('Error al verificar sesión:', error);
-    }
+    // this.verificarSesion(); // Ya no es necesario con custom backend, token en URL es suficiente
   }
 
   // Métodos para validación de contraseña
@@ -70,7 +64,11 @@ export class RecuperarPasswordPage implements OnInit {
   }
 
   async solicitarRecuperacion() {
-    // Validaciones iniciales (mantén el código existente)
+    // Validaciones iniciales
+    if (!this.email) {
+      this.presentToast('Por favor ingrese su correo electrónico', 'warning');
+      return;
+    }
 
     this.enviando = true;
     const loading = await this.loadingController.create({
@@ -83,36 +81,24 @@ export class RecuperarPasswordPage implements OnInit {
       const redirectTo = environment.redirectUrl;
 
       console.log('Enviando solicitud de recuperación a:', this.email);
-      console.log('URL de redirección:', redirectTo);
 
-      // Modificación para capturar más información del error
-      const { data, error } = await supabase.auth.resetPasswordForEmail(this.email, {
-        redirectTo: redirectTo
+      this.authService.requestPasswordReset(this.email, redirectTo).subscribe({
+        next: (response) => {
+          loading.dismiss();
+          this.enviando = false;
+          this.presentAlerta(
+            '¡Solicitud procesada!',
+            'Si el correo existe en nuestro sistema, recibirá un enlace de recuperación. Por favor revise su bandeja de entrada y carpeta de spam.'
+          );
+        },
+        error: (error) => {
+          loading.dismiss();
+          this.enviando = false;
+          console.error('Error al solicitar recuperación:', error);
+          this.presentToast('Error al enviar solicitud (API no implementada)', 'danger');
+        }
       });
 
-      console.log('Respuesta completa:', { data, error });
-
-      loading.dismiss();
-      this.enviando = false;
-
-      if (error) {
-        console.error('Error detallado:', error);
-
-        // Mensaje de error más descriptivo
-        let errorMsg = error.message || 'Error desconocido con el servidor';
-        if (Object.keys(error).length === 0) {
-          errorMsg = 'Error en el servidor de autenticación. Verifica la configuración SMTP.';
-        }
-
-        this.presentToast(`Error al enviar enlace: ${errorMsg}`, 'danger');
-        return;
-      }
-
-      // Notificar éxito incluso si no hubo error (independientemente si el email existe)
-      await this.presentAlerta(
-        '¡Solicitud procesada!',
-        'Si el correo existe en nuestro sistema, recibirá un enlace de recuperación. Por favor revise su bandeja de entrada y carpeta de spam.'
-      );
     } catch (error: any) {
       loading.dismiss();
       this.enviando = false;
@@ -153,52 +139,33 @@ export class RecuperarPasswordPage implements OnInit {
     await loading.present();
 
     try {
-      // Verificar la sesión actual
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-
-      if (!session && sessionError) {
-        console.error("Error al obtener sesión:", sessionError);
-        throw new Error('No hay una sesión activa. El token puede haber expirado.');
-      }
-
       // Actualizar la contraseña del usuario autenticado
-      const { error } = await supabase.auth.updateUser({
-        password: this.nuevaContrasena
+      // En un flujo real de recuperación por token, el token vendría en la URL y se usaría para autorizar
+      // Aquí asumimos que authService manejaría eso o que el usuario ya 'inicio sesión' con el token
+
+      this.authService.updatePassword(this.nuevaContrasena).subscribe({
+        next: () => {
+          loading.dismiss();
+          this.enviando = false;
+          this.paso = 'exito';
+          this.presentToast('¡Contraseña actualizada exitosamente!', 'success');
+          setTimeout(() => {
+            this.router.navigate(['/login']);
+          }, 3000);
+        },
+        error: (error) => {
+          loading.dismiss();
+          this.enviando = false;
+          console.error('Error al actualizar:', error);
+          this.presentToast('Error al actualizar contraseña (API no implementada)', 'danger');
+        }
       });
 
-      loading.dismiss();
-      this.enviando = false;
-
-      if (error) {
-        console.error('Error al actualizar:', error);
-        this.presentToast('Error al actualizar contraseña: ' + error.message, 'danger');
-        return;
-      }
-
-      // Si no hay error, actualizamos el estado y mostramos un mensaje de éxito
-      this.paso = 'exito';
-      this.presentToast('¡Contraseña actualizada exitosamente!', 'success');
-
-      // Opcionalmente, redirigir al login después de un tiempo
-      setTimeout(() => {
-        this.router.navigate(['/login']);
-      }, 3000);
     } catch (error: any) {
       loading.dismiss();
       this.enviando = false;
       console.error('Error completo:', error);
-
-      if (error.message.includes('token') || error.message.includes('sesión')) {
-        this.presentAlerta(
-          'Enlace expirado',
-          'El enlace de recuperación ha expirado o no es válido. Por favor, solicite un nuevo enlace de recuperación.'
-        );
-        setTimeout(() => {
-          this.paso = 'email';
-        }, 2000);
-      } else {
-        this.presentToast('Error al procesar la solicitud: ' + error.message, 'danger');
-      }
+      this.presentToast('Error al procesar la solicitud: ' + error.message, 'danger');
     }
   }
 
@@ -235,3 +202,4 @@ export class RecuperarPasswordPage implements OnInit {
     await alert.present();
   }
 }
+

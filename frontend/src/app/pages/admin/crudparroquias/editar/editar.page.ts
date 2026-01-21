@@ -1,13 +1,17 @@
-import { Component, OnInit } from '@angular/core';
+import { IonicModule } from '@ionic/angular';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { supabase } from 'src/supabase';
 import { AlertController, LoadingController, ToastController } from '@ionic/angular';
+import { CatalogoService } from 'src/app/services/catalogo.service';
 
 @Component({
   selector: 'app-editar',
   templateUrl: './editar.page.html',
   styleUrls: ['./editar.page.scss'],
-  standalone: false
+  standalone: true,
+  imports: [CommonModule, FormsModule, IonicModule]
 })
 export class EditarPage implements OnInit {
 
@@ -24,13 +28,15 @@ export class EditarPage implements OnInit {
   enviando: boolean = false;
   fechaModificacion: string = 'No disponible';
 
+  private catalogoService = inject(CatalogoService);
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private alertController: AlertController,
     private loadingController: LoadingController,
     private toastController: ToastController
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.idParroquia = this.route.snapshot.paramMap.get('Id_Parroquia');
@@ -57,56 +63,45 @@ export class EditarPage implements OnInit {
     });
     await loading.present();
 
-    try {
-      let { data, error } = await supabase
-        .from('parroquia')
-        .select('*')
-        .eq('codigo_parroquia', id)
-        .single();
+    this.catalogoService.getItem('parroquias', id).subscribe({
+      next: (data) => {
+        loading.dismiss();
+        if (!data) {
+          this.presentToast('No se encontró la parroquia', 'warning');
+          this.router.navigate(['/crudparroquias']);
+          return;
+        }
 
-      if (error) {
-        this.presentToast('Error al obtener parroquia: ' + error.message, 'danger');
+        this.parroquia = data;
+        this.fechaModificacion = new Date().toLocaleDateString('es-ES', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+      },
+      error: (error) => {
+        loading.dismiss();
+        this.presentToast('Error al obtener parroquia: ' + (error.message || error.statusText), 'danger');
         this.router.navigate(['/crudparroquias']);
-        return;
       }
-
-      if (!data) {
-        this.presentToast('No se encontró la parroquia', 'warning');
-        this.router.navigate(['/crudparroquias']);
-        return;
-      }
-
-      this.parroquia = data;
-      this.fechaModificacion = new Date().toLocaleDateString('es-ES', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      });
-    } catch (error: any) {
-      this.presentToast('Error en la solicitud: ' + error.message, 'danger');
-    } finally {
-      loading.dismiss();
-    }
+    });
   }
 
   async obtenerCantones() {
-    try {
-      let { data: Cantones, error } = await supabase
-        .from('Cantones')
-        .select('*')
-        .order('nombre_canton', { ascending: true });
-
-      if (error) {
-        this.presentToast('Error al obtener cantones: ' + error.message, 'danger');
-        return;
-      }
-
-      this.cantones = Cantones || [];
-    } catch (error: any) {
-      this.presentToast('Error en la solicitud: ' + error.message, 'danger');
-    }
+    return new Promise<void>((resolve) => {
+      this.catalogoService.getItems('cantones').subscribe({
+        next: (data) => {
+          this.cantones = data.sort((a, b) => a.nombre_canton.localeCompare(b.nombre_canton));
+          resolve();
+        },
+        error: (error) => {
+          this.presentToast('Error al obtener cantones: ' + (error.message || error.statusText), 'danger');
+          resolve();
+        }
+      });
+    });
   }
 
   async actualizarParroquia() {
@@ -117,38 +112,36 @@ export class EditarPage implements OnInit {
     });
     await loading.present();
 
-    try {
-      const { codigo_parroquia, nombre_parroquia, codigo_canton, estado } = this.parroquia;
+    const { codigo_parroquia, nombre_parroquia, codigo_canton, estado } = this.parroquia;
 
-      // Validación de campos
-      if (!codigo_parroquia || !nombre_parroquia || !codigo_canton) {
-        this.presentToast('Todos los campos marcados con * son obligatorios', 'warning');
-        return;
-      }
-
-      // Actualizar la parroquia
-      let { error } = await supabase
-        .from('parroquia')
-        .update({
-          nombre_parroquia,
-          codigo_canton,
-          estado
-        })
-        .eq('codigo_parroquia', this.idParroquia);
-
-      if (error) {
-        this.presentToast('Error al actualizar parroquia: ' + error.message, 'danger');
-        return;
-      }
-
-      this.presentAlert('Éxito', 'Parroquia actualizada correctamente');
-      this.router.navigate(['/crudparroquias']);
-    } catch (error: any) {
-      this.presentToast('Error en la solicitud: ' + error.message, 'danger');
-    } finally {
+    // Validación de campos
+    if (!codigo_parroquia || !nombre_parroquia || !codigo_canton) {
       loading.dismiss();
       this.enviando = false;
+      this.presentToast('Todos los campos marcados con * son obligatorios', 'warning');
+      return;
     }
+
+    const dataToUpdate = {
+      nombre_parroquia,
+      codigo_canton,
+      estado
+    };
+
+    // Use ID from URL
+    this.catalogoService.updateItem('parroquias', this.idParroquia!, dataToUpdate).subscribe({
+      next: () => {
+        loading.dismiss();
+        this.enviando = false;
+        this.presentAlert('Éxito', 'Parroquia actualizada correctamente');
+        this.router.navigate(['/crudparroquias']);
+      },
+      error: (error) => {
+        loading.dismiss();
+        this.enviando = false;
+        this.presentToast('Error al actualizar parroquia: ' + (error.message || error.statusText), 'danger');
+      }
+    });
   }
 
   cancelar() {

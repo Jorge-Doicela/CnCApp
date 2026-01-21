@@ -1,57 +1,85 @@
 # CNC Application
 
-Aplicación del Consejo Nacional de Competencias del Ecuador.
+Aplicación oficial del Consejo Nacional de Competencias (CNC) del Ecuador.
 
-## 📁 Estructura del Proyecto
+## 🏗️ Estructura del Proyecto
+
+El proyecto está organizado como un monorepo que contiene tanto el backend como el frontend:
 
 ```
 CnCApp/
-├── backend/          # Backend API (Node.js + Express + Prisma)
-├── frontend/         # Frontend App (Angular 19 + Ionic)
-├── android/          # Aplicación Android (Capacitor)
-├── capacitor.config.ts
-└── README.md
+├── docs/             # Documentación técnica y guías
+├── backend/          # API RESTful (Node.js + Express + Prisma)
+├── frontend/         # Aplicación Cliente (Angular 19 + Ionic 8)
+├── android/          # Proyecto nativo Android (Capacitor)
+└── README.md         # Documentación principal
 ```
 
-## 🚀 Backend
+## 🚀 Inicio Rápido
 
-**Tecnologías:**
-- Node.js + Express
-- TypeScript
-- Prisma ORM
-- PostgreSQL
-- Clean Architecture
+### Requisitos Previos
 
-**Iniciar:**
+- **Node.js**: v18 o superior
+- **PostgreSQL**: v14 o superior
+- **NPM**: v9 o superior
+
+### 1. Configuración del Backend
+
 ```bash
 cd backend
+
+# Instalar dependencias
 npm install
+
+# Configurar variables de entorno
+cp .env.example .env
+# (Edita .env con tus credenciales de base de datos)
+
+# Inicializar base de datos
+npm run prisma:generate
+npm run prisma:migrate
+
+# Iniciar servidor de desarrollo
 npm run dev
 ```
 
-**Puerto:** `http://localhost:3000`
+El servidor estará disponible en: `http://localhost:3000`
 
-## 🎨 Frontend
+### 2. Configuración del Frontend
 
-**Tecnologías:**
-- Angular 19
-- Ionic 8
-- Standalone Components
-- Signals (State Management)
-- Capacitor
-
-**Iniciar:**
 ```bash
 cd frontend
+
+# Instalar dependencias
 npm install
+
+# Iniciar servidor de desarrollo
 npm start
 ```
 
-**Puerto:** `http://localhost:8100`
+La aplicación estará disponible en: `http://localhost:8100`
 
-## 📱 Android
+## 🛠️ Stack Tecnológico
 
-**Compilar:**
+### Backend (Clean Architecture)
+- **Runtime**: Node.js
+- **Framework**: Express
+- **Lenguaje**: TypeScript
+- **ORM**: Prisma
+- **Base de Datos**: PostgreSQL
+- **Seguridad**: JWT, Bcrypt, Helmet, Rate Limiting
+
+### Frontend (Standalone Components)
+- **Framework**: Angular 19
+- **UI Toolkit**: Ionic 8
+- **Estado**: Signals (Zero RxJS for state)
+- **Móvil**: Capacitor 7
+- **Estilos**: SCSS Modular
+
+## 📱 Compilación Móvil (Android)
+
+Para generar el APK o ejecutar en un dispositivo Android:
+
 ```bash
 cd frontend
 npm run build
@@ -60,25 +88,13 @@ npx cap sync android
 npx cap open android
 ```
 
-## 🗂️ Arquitectura
+## 📚 Documentación Adicional
 
-### Backend (Clean Architecture)
-```
-backend/src/
-├── domain/           # Entidades e interfaces
-├── application/      # Casos de uso
-└── infrastructure/   # Implementaciones (DB, Web, Security)
-```
-
-### Frontend (Standalone Components)
-```
-frontend/src/app/
-├── pages/           # Páginas de la aplicación
-├── services/        # Servicios con Signals
-├── guards/          # Guards funcionales
-└── app.component.ts # Componente raíz standalone
-```
+Documentación técnica detallada se encuentra en el directorio `/docs`:
+- `DOCKER_POSTGRES.md`: Guía para levantar la base de datos con Docker.
+- `seed-data.sql`: Datos semilla para inicializar la base de datos.
+- Guías de arquitectura y contribución.
 
 ## 📄 Licencia
 
-MIT © 2025 Consejo Nacional de Competencias
+Derechos Reservados © 2025 Consejo Nacional de Competencias.

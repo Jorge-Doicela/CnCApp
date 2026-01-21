@@ -1,19 +1,25 @@
-import { Component, OnInit } from '@angular/core';
+import { IonicModule } from '@ionic/angular';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AlertController, ToastController } from '@ionic/angular';
-import { supabase } from 'src/supabase';
+import { UsuarioService } from 'src/app/services/usuario.service';
 
 @Component({
   selector: 'app-crudusuarios',
   templateUrl: './crudusuarios.page.html',
   styleUrls: ['./crudusuarios.page.scss'],
-  standalone: false
+  standalone: true,
+  imports: [CommonModule, FormsModule, IonicModule]
 })
 export class CRUDUsuariosPage implements OnInit {
   usuarios: any[] = [];
   filteredUsuarios: any[] = [];
   searchTerm: string = '';
   cargando: boolean = true;
+
+  private usuarioService = inject(UsuarioService);
 
   constructor(
     private router: Router,
@@ -33,29 +39,31 @@ export class CRUDUsuariosPage implements OnInit {
   async RecuperarUsuarios() {
     this.cargando = true;
     try {
-      const { data, error } = await supabase
-        .from('Usuario')
-        .select('*, Rol_Usuario:Rol(Id_Rol,nombre_rol), Entidad_Usuario:Entidades(Id_Entidad,Nombre_Entidad)');
+      this.usuarioService.getUsuarios().subscribe({
+        next: (data) => {
+          this.usuarios = data?.map((usuario: any) => ({
+            ...usuario,
+            Nombre_Rol: usuario.Rol_Usuario?.nombre_rol ?? 'Rol no asignado',
+            Entidad_Usario: usuario.Entidad_Usuario?.Nombre_Entidad ?? 'Entidad no asignada',
+          })) ?? [];
 
-      if (error) {
-        console.error('Error al obtener los usuarios:', error.message);
-        this.presentToast('Error al cargar los usuarios', 'danger');
-        this.cargando = false;
-        return;
-      }
+          this.filteredUsuarios = [...this.usuarios];
+          this.cargando = false;
 
-      this.usuarios = data?.map((usuario: any) => ({
-        ...usuario,
-        Nombre_Rol: usuario.Rol_Usuario?.nombre_rol ?? 'Rol no asignado',
-        Entidad_Usario: usuario.Entidad_Usuario?.Nombre_Entidad ?? 'Entidad no asignada',
-      })) ?? [];
+          if (this.usuarios.length > 0) {
+            this.presentToast(`Se cargaron ${this.usuarios.length} usuarios correctamente`, 'success');
+          }
+        },
+        error: (error) => {
+          console.error('Error al obtener los usuarios:', error);
+          this.presentToast('Error al cargar los usuarios (API no implementada)', 'warning');
+          this.cargando = false;
+          // Fallback or empty state
+          this.usuarios = [];
+          this.filteredUsuarios = [];
+        }
+      });
 
-      this.filteredUsuarios = [...this.usuarios];
-      this.cargando = false;
-
-      if (this.usuarios.length > 0) {
-        this.presentToast(`Se cargaron ${this.usuarios.length} usuarios correctamente`, 'success');
-      }
     } catch (error) {
       console.error('Error inesperado:', error);
       this.presentToast('Error inesperado al cargar usuarios', 'danger');
@@ -78,9 +86,9 @@ export class CRUDUsuariosPage implements OnInit {
     }
 
     const term = this.searchTerm.toLowerCase().trim();
-    this.filteredUsuarios = this.usuarios.filter(usuario =>
-      usuario.Nombre_Usuario.toLowerCase().includes(term) ||
-      usuario.CI_Usuario.toLowerCase().includes(term)
+    this.filteredUsuarios = this.usuarios.filter((usuario: any) =>
+      (usuario.Nombre_Usuario || '').toLowerCase().includes(term) ||
+      (usuario.CI_Usuario || '').toLowerCase().includes(term)
     );
 
     this.presentToast(`Se encontraron ${this.filteredUsuarios.length} resultados`, 'primary');
@@ -111,22 +119,18 @@ export class CRUDUsuariosPage implements OnInit {
 
   async eliminarUsuario(idUsuario: number) {
     try {
-      const { error } = await supabase
-        .from('Usuario')
-        .delete()
-        .eq('Id_Usuario', idUsuario);
-
-      if (error) {
-        console.error('Error al eliminar usuario:', error.message);
-        this.presentToast('Error al eliminar el usuario', 'danger');
-        return;
-      }
-
-      // Actualizar la lista de usuarios
-      this.usuarios = this.usuarios.filter(u => u.Id_Usuario !== idUsuario);
-      this.filteredUsuarios = this.filteredUsuarios.filter(u => u.Id_Usuario !== idUsuario);
-
-      this.presentToast('Usuario eliminado correctamente', 'success');
+      this.usuarioService.deleteUsuario(idUsuario).subscribe({
+        next: () => {
+          // Actualizar la lista de usuarios
+          this.usuarios = this.usuarios.filter(u => u.Id_Usuario !== idUsuario);
+          this.filteredUsuarios = this.filteredUsuarios.filter(u => u.Id_Usuario !== idUsuario);
+          this.presentToast('Usuario eliminado correctamente', 'success');
+        },
+        error: (error) => {
+          console.error('Error al eliminar usuario:', error);
+          this.presentToast('Error al eliminar el usuario (API no implementada)', 'warning');
+        }
+      });
     } catch (error) {
       console.error('Error inesperado:', error);
       this.presentToast('Error inesperado al eliminar usuario', 'danger');

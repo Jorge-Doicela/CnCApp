@@ -1,13 +1,17 @@
-import { Component, OnInit } from '@angular/core';
+import { IonicModule } from '@ionic/angular';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { LoadingController, ToastController } from '@ionic/angular';
-import { supabase } from 'src/supabase';
+import { CatalogoService } from 'src/app/services/catalogo.service';
 
 @Component({
   selector: 'app-editar',
   templateUrl: './editar.page.html',
   styleUrls: ['./editar.page.scss'],
-  standalone: false
+  standalone: true,
+  imports: [CommonModule, FormsModule, IonicModule]
 })
 export class EditarPage implements OnInit {
 
@@ -23,6 +27,8 @@ export class EditarPage implements OnInit {
   cargando: boolean = true;
   enviando: boolean = false;
   fechaModificacion: string = 'No disponible';
+
+  private catalogoService = inject(CatalogoService);
 
   constructor(
     private route: ActivatedRoute,
@@ -45,31 +51,38 @@ export class EditarPage implements OnInit {
     });
     await loading.present();
 
-    try {
-      const { data, error } = await supabase
-        .from('competencias')
-        .select('*')
-        .eq('id_competencias', this.idCompetencia)
-        .single();
-
-      if (error) {
-        this.presentToast('Error al cargar competencia: ' + error.message, 'danger');
-        return;
-      }
-
-      this.competencia = data;
-
-      // Formatear fecha para mostrar
-      if (this.competencia.fecha_ultima_actualizacion) {
-        const fecha = new Date(this.competencia.fecha_ultima_actualizacion);
-        this.fechaModificacion = fecha.toLocaleString();
-      }
-    } catch (error: any) {
-      this.presentToast('Error en la solicitud: ' + error.message, 'danger');
-    } finally {
+    if (!this.idCompetencia) {
       loading.dismiss();
       this.cargando = false;
+      return;
     }
+
+    this.catalogoService.getItem('competencias', this.idCompetencia).subscribe({
+      next: (data) => {
+        if (!data) {
+          this.presentToast('No se encontró la competencia.', 'danger');
+          loading.dismiss();
+          this.cargando = false;
+          return;
+        }
+
+        this.competencia = data;
+
+        // Formatear fecha para mostrar
+        if (this.competencia.fecha_ultima_actualizacion) {
+          const fecha = new Date(this.competencia.fecha_ultima_actualizacion);
+          this.fechaModificacion = fecha.toLocaleString();
+        }
+        loading.dismiss();
+        this.cargando = false;
+      },
+      error: (error) => {
+        console.error('Error al cargar competencia:', error);
+        this.presentToast('Error al cargar competencia: ' + (error.message || error.statusText), 'danger');
+        loading.dismiss();
+        this.cargando = false;
+      }
+    });
   }
 
   async actualizarCompetencia() {
@@ -85,32 +98,28 @@ export class EditarPage implements OnInit {
     });
     await loading.present();
 
-    try {
-      const fechaActual = new Date().toISOString();
+    const fechaActual = new Date().toISOString();
+    const dataToUpdate = {
+      nombre_competencias: this.competencia.nombre_competencias,
+      descripcion: this.competencia.descripcion,
+      estado_competencia: this.competencia.estado_competencia,
+      fecha_ultima_actualizacion: fechaActual
+    };
 
-      const { data, error } = await supabase
-        .from('competencias')
-        .update({
-          nombre_competencias: this.competencia.nombre_competencias,
-          descripcion: this.competencia.descripcion,
-          estado_competencia: this.competencia.estado_competencia,
-          fecha_ultima_actualizacion: fechaActual
-        })
-        .eq('id_competencias', this.idCompetencia);
-
-      if (error) {
-        this.presentToast('Error al actualizar competencia: ' + error.message, 'danger');
-        return;
+    this.catalogoService.updateItem('competencias', this.idCompetencia, dataToUpdate).subscribe({
+      next: async () => {
+        this.fechaModificacion = new Date(fechaActual).toLocaleString();
+        this.presentToast('Competencia actualizada exitosamente', 'success');
+        loading.dismiss();
+        this.enviando = false;
+      },
+      error: async (error) => {
+        console.error('Error al actualizar competencia:', error);
+        this.presentToast('Error al actualizar competencia: ' + (error.message || error.statusText), 'danger');
+        loading.dismiss();
+        this.enviando = false;
       }
-
-      this.fechaModificacion = new Date(fechaActual).toLocaleString();
-      this.presentToast('Competencia actualizada exitosamente', 'success');
-    } catch (error: any) {
-      this.presentToast('Error en la solicitud: ' + error.message, 'danger');
-    } finally {
-      loading.dismiss();
-      this.enviando = false;
-    }
+    });
   }
 
   cancelar() {

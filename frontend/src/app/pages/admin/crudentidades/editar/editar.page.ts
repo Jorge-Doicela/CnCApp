@@ -1,14 +1,17 @@
-import { Component, OnInit } from '@angular/core';
+import { IonicModule } from '@ionic/angular';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { supabase } from 'src/supabase';
-import { environment } from 'src/environments/environment';
 import { AlertController, LoadingController, ToastController } from '@ionic/angular';
+import { CatalogoService } from 'src/app/services/catalogo.service';
 
 @Component({
   selector: 'app-editar',
   templateUrl: './editar.page.html',
   styleUrls: ['./editar.page.scss'],
-  standalone: false
+  standalone: true,
+  imports: [CommonModule, FormsModule, IonicModule]
 })
 export class EditarPage implements OnInit {
   idEntidad: string = '';
@@ -22,6 +25,8 @@ export class EditarPage implements OnInit {
   formSubmitted: boolean = false;
   isLoading: boolean = true;
   enviando: boolean = false;
+
+  private catalogoService = inject(CatalogoService);
 
   constructor(
     private route: ActivatedRoute,
@@ -46,34 +51,25 @@ export class EditarPage implements OnInit {
   // Función para cargar los datos de la entidad específica
   async cargarEntidad() {
     this.isLoading = true;
-    try {
-      const { data, error } = await supabase
-        .from('Entidades')
-        .select('*')
-        .eq('Id_Entidad', this.idEntidad)
-        .single();
 
-      if (error) {
-        console.error('Error al cargar la entidad:', error.message);
-        this.presentToast('Error al cargar datos de la entidad: ' + error.message, 'danger');
+    this.catalogoService.getItem('entidades', this.idEntidad).subscribe({
+      next: (data) => {
+        if (!data) {
+          this.presentToast('No se encontró la entidad solicitada', 'warning');
+          this.router.navigate(['/gestionar-entidades']);
+          return;
+        }
+        this.entidad = data;
+        console.log('Entidad cargada:', this.entidad);
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error al cargar la entidad:', error);
+        this.presentToast('Error al cargar datos de la entidad: ' + (error.message || error.statusText), 'danger');
         this.router.navigate(['/gestionar-entidades']);
-        return;
+        this.isLoading = false;
       }
-
-      if (!data) {
-        this.presentToast('No se encontró la entidad solicitada', 'warning');
-        this.router.navigate(['/gestionar-entidades']);
-        return;
-      }
-
-      this.entidad = data;
-      console.log('Entidad cargada:', this.entidad);
-    } catch (error: any) {
-      console.error('Error inesperado:', error);
-      this.presentToast('Error inesperado al cargar la entidad', 'danger');
-    } finally {
-      this.isLoading = false;
-    }
+    });
   }
 
   // Función para seleccionar una nueva imagen
@@ -148,66 +144,29 @@ export class EditarPage implements OnInit {
 
       // Si hay una nueva imagen, subirla primero
       if (this.nuevaImagen) {
-        // Intentar eliminar la imagen anterior si existe
-        if (this.entidad.Imagen_Entidad) {
-          const oldImagePath = this.entidad.Imagen_Entidad.split('/').pop();
-          if (oldImagePath) {
-            await supabase.storage.from('imagenes').remove(['entidades/' + oldImagePath]);
-          }
+        // TODO: Implement backend image upload
+        console.log('Image upload pending backend implementation');
+      }
+
+      const dataToUpdate = {
+        Nombre_Entidad: this.entidad.Nombre_Entidad,
+        Imagen_Entidad: updatedImageUrl,
+        Estado_Entidad: this.entidad.Estado_Entidad,
+      };
+
+      this.catalogoService.updateItem('entidades', this.idEntidad, dataToUpdate).subscribe({
+        next: async () => {
+          loading.dismiss();
+          this.enviando = false;
+          this.presentAlertExito();
+        },
+        error: async (error) => {
+          console.error('Error al actualizar la entidad:', error);
+          this.presentToast('Error al actualizar la entidad: ' + (error.message || error.statusText), 'danger');
+          loading.dismiss();
+          this.enviando = false;
         }
-
-        // Subir la nueva imagen
-        const extension = this.nuevaImagen.name.split('.').pop();
-        // Generar nombre único para evitar colisiones
-        const uniqueId = new Date().getTime();
-        const nombreImagen = `${this.entidad.Nombre_Entidad.replace(/\s+/g, '_')}_${uniqueId}.${extension}`;
-
-        /*
-        const { data: uploadData, error: uploadError } = await supabase
-          .storage
-          .from('imagenes')
-          .upload('entidades/' + nombreImagen, this.nuevaImagen);
-
-        if (uploadError) { ... }
-
-        // Actualizar la URL de la imagen
-        updatedImageUrl = `${environment.supabaseUrl}/storage/v1/object/public/imagenes/${uploadData.path}`;
-        */
-        console.log('TODO: Implementar subida de imagen nueva en backend');
-      }
-
-      /*
-      // Actualizar la entidad en la base de datos
-      const { data, error } = await supabase
-        .from('Entidades')
-        .update({
-          Nombre_Entidad: this.entidad.Nombre_Entidad,
-          Imagen_Entidad: updatedImageUrl,
-          Estado_Entidad: this.entidad.Estado_Entidad,
-        })
-        .eq('Id_Entidad', this.idEntidad);
-      */
-
-      console.log('TODO: Implementar actualización de entidad en backend Node.js');
-      loading.dismiss();
-      this.enviando = false;
-      this.presentToast('Funcionalidad en migración al nuevo backend', 'warning');
-      this.cancelar();
-      return;
-
-      /*
-      if (error) {
-        console.error('Error al actualizar la entidad:', error.message);
-        this.presentToast('Error al actualizar la entidad: ' + error.message, 'danger');
-        loading.dismiss();
-        this.enviando = false;
-        return;
-      }
-      */
-
-      loading.dismiss();
-      this.enviando = false;
-      this.presentAlertExito();
+      });
 
     } catch (error: any) {
       console.error('Error al actualizar la entidad:', error);
