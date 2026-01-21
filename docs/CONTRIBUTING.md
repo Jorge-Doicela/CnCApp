@@ -140,6 +140,6 @@ Si encuentras un error, por favor abre un Issue incluyendo:
 
 <div align="center">
 
-**[Volver al Índice](INDEX.md)**
+**[Volver al Inicio](../README.md)**
 
 </div>
