@@ -1,6 +1,6 @@
 import { injectable, inject } from 'tsyringe';
-import { CapacitacionRepository } from '../../domain/repositories/capacitacion.repository';
-import { NotFoundError } from '../../domain/errors';
+import { CapacitacionRepository } from '../../../domain/capacitacion/repositories/capacitacion.repository';
+import { NotFoundError } from '../../../domain/shared/errors';
 
 @injectable()
 export class DeleteCapacitacionUseCase {

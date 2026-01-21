@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import { injectable } from 'tsyringe';
-import { CreateCapacitacionUseCase } from '../../../application/use-cases/create-capacitacion.use-case';
-import { GetAllCapacitacionesUseCase } from '../../../application/use-cases/get-all-capacitaciones.use-case';
-import { UpdateCapacitacionUseCase } from '../../../application/use-cases/update-capacitacion.use-case';
-import { DeleteCapacitacionUseCase } from '../../../application/use-cases/delete-capacitacion.use-case';
+import { CreateCapacitacionUseCase } from '../../../application/capacitacion/use-cases/create-capacitacion.use-case';
+import { GetAllCapacitacionesUseCase } from '../../../application/capacitacion/use-cases/get-all-capacitaciones.use-case';
+import { UpdateCapacitacionUseCase } from '../../../application/capacitacion/use-cases/update-capacitacion.use-case';
+import { DeleteCapacitacionUseCase } from '../../../application/capacitacion/use-cases/delete-capacitacion.use-case';
 import { z } from 'zod';
 
 const capacitacionSchema = z.object({

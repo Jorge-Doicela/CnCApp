@@ -1,8 +1,8 @@
 import { injectable } from 'tsyringe';
-import prisma from '../../../config/database';
-import { Certificado } from '../../../domain/entities/certificado.entity';
-import { CertificadoRepository } from '../../../domain/repositories/certificado.repository';
-import { CertificadoMapper } from '../../../domain/mappers/certificado.mapper';
+import prisma from '../../../../config/database';
+import { Certificado } from '../../../../domain/certificado/entities/certificado.entity';
+import { CertificadoRepository } from '../../../../domain/certificado/repositories/certificado.repository';
+import { CertificadoMapper } from '../../../../domain/certificado/mappers/certificado.mapper';
 
 @injectable()
 export class PrismaCertificadoRepository implements CertificadoRepository {

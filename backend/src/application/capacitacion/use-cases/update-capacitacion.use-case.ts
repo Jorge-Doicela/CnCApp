@@ -1,7 +1,7 @@
 import { injectable, inject } from 'tsyringe';
-import { CapacitacionRepository } from '../../domain/repositories/capacitacion.repository';
-import { Capacitacion } from '../../domain/entities/capacitacion.entity';
-import { NotFoundError } from '../../domain/errors';
+import { CapacitacionRepository } from '../../../domain/capacitacion/repositories/capacitacion.repository';
+import { Capacitacion } from '../../../domain/capacitacion/entities/capacitacion.entity';
+import { NotFoundError } from '../../../domain/shared/errors';
 
 @injectable()
 export class UpdateCapacitacionUseCase {

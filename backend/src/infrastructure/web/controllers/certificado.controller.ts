@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import { injectable } from 'tsyringe';
-import { CreateCertificadoUseCase } from '../../../application/use-cases/create-certificado.use-case';
-import { GetCertificadoByQRUseCase } from '../../../application/use-cases/get-certificado-by-qr.use-case';
-import { GetUserCertificadosUseCase } from '../../../application/use-cases/get-user-certificados.use-case';
+import { CreateCertificadoUseCase } from '../../../application/certificado/use-cases/create-certificado.use-case';
+import { GetCertificadoByQRUseCase } from '../../../application/certificado/use-cases/get-certificado-by-qr.use-case';
+import { GetUserCertificadosUseCase } from '../../../application/certificado/use-cases/get-user-certificados.use-case';
 import { AuthRequest } from '../middleware/auth.middleware';
 import { z } from 'zod';
 

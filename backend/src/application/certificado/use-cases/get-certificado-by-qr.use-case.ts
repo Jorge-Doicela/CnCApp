@@ -1,6 +1,6 @@
 import { injectable, inject } from 'tsyringe';
-import { CertificadoRepository } from '../../domain/repositories/certificado.repository';
-import { Certificado } from '../../domain/entities/certificado.entity';
+import { CertificadoRepository } from '../../../domain/certificado/repositories/certificado.repository';
+import { Certificado } from '../../../domain/certificado/entities/certificado.entity';
 
 @injectable()
 export class GetCertificadoByQRUseCase {

@@ -1,7 +1,7 @@
 import { container } from 'tsyringe';
-import { PrismaUserRepository } from '../infrastructure/database/repositories/prisma-user.repository';
-import { PrismaCapacitacionRepository } from '../infrastructure/database/repositories/prisma-capacitacion.repository';
-import { PrismaCertificadoRepository } from '../infrastructure/database/repositories/prisma-certificado.repository';
+import { PrismaUserRepository } from '../infrastructure/database/repositories/user/prisma-user.repository';
+import { PrismaCapacitacionRepository } from '../infrastructure/database/repositories/capacitacion/prisma-capacitacion.repository';
+import { PrismaCertificadoRepository } from '../infrastructure/database/repositories/certificado/prisma-certificado.repository';
 import { BcryptPasswordHasher } from '../infrastructure/security/bcrypt-password-hasher';
 import { JwtTokenProvider } from '../infrastructure/security/jwt-token-provider';
 
