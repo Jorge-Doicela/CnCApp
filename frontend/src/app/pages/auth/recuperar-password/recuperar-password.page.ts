@@ -5,7 +5,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { LoadingController, ToastController, AlertController, Platform } from '@ionic/angular';
 import { environment } from 'src/environments/environment';
-import { AuthService } from 'src/app/services/auth.service';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-recuperar-password',

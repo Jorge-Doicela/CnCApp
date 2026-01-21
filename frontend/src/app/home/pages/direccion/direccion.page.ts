@@ -242,7 +242,7 @@ export class DireccionPage implements OnInit, AfterViewInit {
     try {
       // Enviar email usando un servicio backend
       // Esto es un ejemplo y debe adaptarse a tu API real
-      await this.http.post(`${environment.supabaseUrl}/api/send-email`, emailData).toPromise();
+      await this.http.post(`${environment.apiUrl}/api/send-email`, emailData).toPromise();
 
       await loading.dismiss();
 
