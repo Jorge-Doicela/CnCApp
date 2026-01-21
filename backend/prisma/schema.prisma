@@ -73,7 +73,7 @@ model Usuario {
 
 model Provincia {
   id       Int       @id @default(autoincrement()) @map("Id_Provincia")
-  nombre   String    @map("Nombre_Provincia") @db.VarChar(100)
+  nombre   String    @unique @map("Nombre_Provincia") @db.VarChar(100)
   
   cantones Canton[]
 
@@ -161,14 +161,14 @@ model Certificado {
 
 model Competencia {
   id     Int    @id @default(autoincrement()) @map("Id_Competencia")
-  nombre String @map("Nombre_Competencia") @db.VarChar(200)
+  nombre String @unique @map("Nombre_Competencia") @db.VarChar(200)
 
   @@map("competencias")
 }
 
 model InstitucionSistema {
   id   Int    @id @default(autoincrement()) @map("Id_Institucion")
-  nombre String @map("Nombre_Institucion") @db.VarChar(300)
+  nombre String @unique @map("Nombre_Institucion") @db.VarChar(300)
   tipo   String? @map("Tipo_Institucion") @db.VarChar(100)
   
   instituciones InstitucionUsuario[]
@@ -178,7 +178,7 @@ model InstitucionSistema {
 
 model Cargo {
   id     Int    @id @default(autoincrement()) @map("Id_Cargo")
-  nombre String @map("Nombre_Cargo") @db.VarChar(200)
+  nombre String @unique @map("Nombre_Cargo") @db.VarChar(200)
 
   @@map("cargos")
 }
