@@ -4,7 +4,7 @@ import * as bcrypt from 'bcrypt';
 const prisma = new PrismaClient();
 
 async function main() {
-    console.log('🌱 Iniciando seed de base de datos...');
+    console.log(' Iniciando seed de base de datos...');
 
     // Limpiar datos existentes (opcional, comentar en producción)
     // await prisma.usuario.deleteMany();
@@ -13,7 +13,7 @@ async function main() {
     // await prisma.provincia.deleteMany();
 
     // 1. Crear Roles
-    console.log('📝 Creando roles...');
+    console.log(' Creando roles...');
     const adminRole = await prisma.rol.upsert({
         where: { nombre: 'Administrador' },
         update: {},
@@ -52,10 +52,10 @@ async function main() {
         }
     });
 
-    console.log(`✅ Roles creados: ${adminRole.nombre}, ${userRole.nombre}`);
+    console.log(` Roles creados: ${adminRole.nombre}, ${userRole.nombre}`);
 
     // 2. Crear Entidad Principal
-    console.log('🏢 Creando entidad principal...');
+    console.log(' Creando entidad principal...');
     const cncEntidad = await prisma.entidad.upsert({
         where: { id: 1 },
         update: {},
@@ -64,11 +64,11 @@ async function main() {
         }
     });
 
-    console.log(`✅ Entidad creada: ${cncEntidad.nombre}`);
+    console.log(` Entidad creada: ${cncEntidad.nombre}`);
 
     // 3. Crear Usuarios de Prueba
-    console.log('👥 Creando usuarios de prueba...');
-    const hashedPassword = await bcrypt.hash('123456', 10);
+    console.log(' Creando usuarios de prueba...');
+    const hashedPassword = await bcrypt.hash('AdminPassword123!', 10);
 
     const adminUser = await prisma.usuario.upsert({
         where: { ci: '1234567890' },
@@ -100,10 +100,10 @@ async function main() {
         }
     });
 
-    console.log(`✅ Usuarios creados: ${adminUser.nombre}, ${regularUser.nombre}`);
+    console.log(` Usuarios creados: ${adminUser.nombre}, ${regularUser.nombre}`);
 
     // 4. Crear Provincias de Ecuador
-    console.log('🗺️  Creando provincias de Ecuador...');
+    console.log('  Creando provincias de Ecuador...');
     const provincias = [
         'Azuay', 'Bolívar', 'Cañar', 'Carchi',
         'Chimborazo', 'Cotopaxi', 'El Oro', 'Esmeraldas',
@@ -121,10 +121,10 @@ async function main() {
         });
     }
 
-    console.log(`✅ ${provincias.length} provincias creadas`);
+    console.log(` ${provincias.length} provincias creadas`);
 
     // 5. Crear Competencias Iniciales
-    console.log('🎯 Creando competencias iniciales...');
+    console.log(' Creando competencias iniciales...');
     const competencias = [
         'Gestión Pública',
         'Planificación Territorial',
@@ -140,10 +140,10 @@ async function main() {
         });
     }
 
-    console.log(`✅ ${competencias.length} competencias creadas`);
+    console.log(` ${competencias.length} competencias creadas`);
 
     // 6. Crear Instituciones del Sistema
-    console.log('🏛️  Creando instituciones del sistema...');
+    console.log('  Creando instituciones del sistema...');
     const instituciones = [
         { nombre: 'Ministerio de Educación', tipo: 'Ministerio' },
         { nombre: 'Ministerio de Salud', tipo: 'Ministerio' },
@@ -159,10 +159,10 @@ async function main() {
         });
     }
 
-    console.log(`✅ ${instituciones.length} instituciones creadas`);
+    console.log(` ${instituciones.length} instituciones creadas`);
 
     // 7. Crear Cargos Iniciales
-    console.log('💼 Creando cargos iniciales...');
+    console.log(' Creando cargos iniciales...');
     const cargos = [
         'Director',
         'Coordinador',
@@ -178,25 +178,25 @@ async function main() {
         });
     }
 
-    console.log(`✅ ${cargos.length} cargos creados`);
+    console.log(` ${cargos.length} cargos creados`);
 
-    console.log('\n✨ Seed completado exitosamente!');
-    console.log('\n📊 Resumen:');
+    console.log('\n  Seed completado exitosamente!');
+    console.log('\n  Resumen:');
     console.log(`   - Roles: 2`);
     console.log(`   - Entidades: 1`);
-    console.log(`   - Usuarios: 2 (password: 123456)`);
+    console.log(`   - Usuarios: 2 (password: AdminPassword123!)`);
     console.log(`   - Provincias: ${provincias.length}`);
     console.log(`   - Competencias: ${competencias.length}`);
     console.log(`   - Instituciones: ${instituciones.length}`);
     console.log(`   - Cargos: ${cargos.length}`);
-    console.log('\n🔐 Credenciales de prueba:');
-    console.log('   Admin: CI 1234567890 / Password: 123456');
-    console.log('   Usuario: CI 0987654321 / Password: 123456');
+    console.log('\n  Credenciales de prueba:');
+    console.log('   Admin: CI 1234567890 / Password: AdminPassword123!');
+    console.log('   Usuario: CI 0987654321 / Password: AdminPassword123!');
 }
 
 main()
     .catch((e) => {
-        console.error('❌ Error durante el seed:', e);
+        console.error(' Error durante el seed:', e);
         process.exit(1);
     })
     .finally(async () => {
