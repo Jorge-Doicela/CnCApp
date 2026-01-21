@@ -1,4 +1,3 @@
-```typescript
 import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -26,7 +25,7 @@ export class CrudcantonesPage implements OnInit {
   totalCantones: number = 0;
   cantonesActivos: number = 0;
   cantonesInactivos: number = 0;
-  
+
   private catalogoService = inject(CatalogoService);
 
   constructor(
@@ -56,34 +55,34 @@ export class CrudcantonesPage implements OnInit {
     await loading.present();
 
     this.catalogoService.getItems('cantones').subscribe({
-        next: (cantones) => {
-             this.cantones = cantones || [];
-             this.asociarProvincias();
-             this.calcularEstadisticas();
-             this.filtrarCantones();
-             loading.dismiss();
-        },
-        error: (error) => {
-             loading.dismiss();
-             this.presentToast('Error al obtener cantones (API no implementada)', 'danger');
-             console.error(error);
-        }
+      next: (cantones) => {
+        this.cantones = cantones || [];
+        this.asociarProvincias();
+        this.calcularEstadisticas();
+        this.filtrarCantones();
+        loading.dismiss();
+      },
+      error: (error) => {
+        loading.dismiss();
+        this.presentToast('Error al obtener cantones (API no implementada)', 'danger');
+        console.error(error);
+      }
     });
   }
 
   async obtenerProvincias() {
     return new Promise<void>((resolve) => {
-        this.catalogoService.getItems('provincias').subscribe({
-            next: (provincias) => {
-                this.provincias = provincias || [];
-                resolve();
-            },
-            error: (error) => {
-                console.error('Error al obtener provincias:', error);
-                this.presentToast('Error al obtener provincias', 'danger');
-                resolve(); // resolve anyway to continue
-            }
-        });
+      this.catalogoService.getItems('provincias').subscribe({
+        next: (provincias) => {
+          this.provincias = provincias || [];
+          resolve();
+        },
+        error: (error) => {
+          console.error('Error al obtener provincias:', error);
+          this.presentToast('Error al obtener provincias', 'danger');
+          resolve(); // resolve anyway to continue
+        }
+      });
     });
   }
 
@@ -140,97 +139,96 @@ export class CrudcantonesPage implements OnInit {
 
     const nuevoEstado = !canton.estado;
     this.catalogoService.updateItem('cantones', canton.codigo_canton, { estado: nuevoEstado }).subscribe({
-        next: () => {
-             loading.dismiss();
-              // Actualizar el objeto local
-              canton.estado = nuevoEstado;
-              this.calcularEstadisticas();
-              this.presentToast(
-                `Cantón "${canton.nombre_canton}" ahora está ${ nuevoEstado ? 'activo' : 'inactivo' } `,
-                'success'
-              );
-        },
-        error: (error) => {
-            loading.dismiss();
-            this.presentToast('Error al cambiar estado: ' + error.message, 'danger');
-        }
+      next: () => {
+        loading.dismiss();
+        // Actualizar el objeto local
+        canton.estado = nuevoEstado;
+        this.calcularEstadisticas();
+        this.presentToast(
+          `Cantón "${canton.nombre_canton}" ahora está ${nuevoEstado ? 'activo' : 'inactivo'} `,
+          'success'
+        );
+      },
+      error: (error) => {
+        loading.dismiss();
+        this.presentToast('Error al cambiar estado: ' + error.message, 'danger');
+      }
     });
   }
 
   async verDetallesCanton(canton: any) {
     const alert = await this.alertController.create({
       header: canton.nombre_canton,
-      subHeader: `Código: ${ canton.codigo_canton } `,
+      subHeader: `Código: ${canton.codigo_canton} `,
       message: `< div >
   <p><strong>Provincia: </strong> ${canton.nombre_provincia}</p >
     <p><strong>Estado: </strong> ${canton.estado ? 'Activo' : 'Inactivo'}</p >
-      ${ canton.notas ? `<p><strong>Notas:</strong> ${canton.notas}</p>` : '' }
+      ${canton.notas ? `<p><strong>Notas:</strong> ${canton.notas}</p>` : ''}
 </div>`,
-buttons: ['Cerrar'],
-  cssClass: 'canton-details-alert'
+      buttons: ['Cerrar'],
+      cssClass: 'canton-details-alert'
     });
 
-await alert.present();
+    await alert.present();
   }
 
   async confirmarEliminacion(canton: any) {
-  const alert = await this.alertController.create({
-    header: 'Confirmar eliminación',
-    message: `¿Está seguro que desea eliminar el cantón "${canton.nombre_canton}"?`,
-    buttons: [
-      {
-        text: 'Cancelar',
-        role: 'cancel',
-        cssClass: 'secondary'
-      }, {
-        text: 'Eliminar',
-        cssClass: 'danger',
-        handler: () => {
-          this.eliminarCanton(canton.codigo_canton);
+    const alert = await this.alertController.create({
+      header: 'Confirmar eliminación',
+      message: `¿Está seguro que desea eliminar el cantón "${canton.nombre_canton}"?`,
+      buttons: [
+        {
+          text: 'Cancelar',
+          role: 'cancel',
+          cssClass: 'secondary'
+        }, {
+          text: 'Eliminar',
+          cssClass: 'danger',
+          handler: () => {
+            this.eliminarCanton(canton.codigo_canton);
+          }
         }
-      }
-    ]
-  });
+      ]
+    });
 
-  await alert.present();
-}
+    await alert.present();
+  }
 
   async eliminarCanton(codigo_canton: string) {
-  const loading = await this.loadingController.create({
-    message: 'Eliminando cantón...',
-    spinner: 'crescent'
-  });
-  await loading.present();
+    const loading = await this.loadingController.create({
+      message: 'Eliminando cantón...',
+      spinner: 'crescent'
+    });
+    await loading.present();
 
-  this.catalogoService.deleteItem('cantones', codigo_canton).subscribe({
-    next: () => {
-      loading.dismiss();
-      this.presentToast('Cantón eliminado correctamente', 'success');
-      this.obtenerCantones(); // Reload list
-    },
-    error: (error) => {
-      loading.dismiss();
-      this.presentToast('Error al eliminar cantón: ' + error.message, 'danger');
-    }
-  });
-}
+    this.catalogoService.deleteItem('cantones', codigo_canton).subscribe({
+      next: () => {
+        loading.dismiss();
+        this.presentToast('Cantón eliminado correctamente', 'success');
+        this.obtenerCantones(); // Reload list
+      },
+      error: (error) => {
+        loading.dismiss();
+        this.presentToast('Error al eliminar cantón: ' + error.message, 'danger');
+      }
+    });
+  }
 
   async presentToast(message: string, color: string = 'primary') {
-  const toast = await this.toastController.create({
-    message: message,
-    duration: 3000,
-    position: 'bottom',
-    color: color,
-    buttons: [
-      {
-        side: 'end',
-        icon: 'close',
-        role: 'cancel'
-      }
-    ]
-  });
+    const toast = await this.toastController.create({
+      message: message,
+      duration: 3000,
+      position: 'bottom',
+      color: color,
+      buttons: [
+        {
+          side: 'end',
+          icon: 'close',
+          role: 'cancel'
+        }
+      ]
+    });
 
-  await toast.present();
+    await toast.present();
+  }
 }
-}
-```

@@ -2,7 +2,7 @@
 
 Aplicación oficial del Consejo Nacional de Competencias (CNC) del Ecuador.
 
-## 🏗️ Estructura del Proyecto
+## Estructura del Proyecto
 
 El proyecto está organizado como un monorepo que contiene tanto el backend como el frontend:
 
@@ -15,7 +15,7 @@ CnCApp/
 └── README.md         # Documentación principal
 ```
 
-## 🚀 Inicio Rápido
+## Inicio Rápido
 
 ### Requisitos Previos
 
@@ -59,7 +59,7 @@ npm start
 
 La aplicación estará disponible en: `http://localhost:8100`
 
-## 🛠️ Stack Tecnológico
+## Stack Tecnológico
 
 ### Backend (Clean Architecture)
 - **Runtime**: Node.js
@@ -76,7 +76,7 @@ La aplicación estará disponible en: `http://localhost:8100`
 - **Móvil**: Capacitor 7
 - **Estilos**: SCSS Modular
 
-## 📱 Compilación Móvil (Android)
+## Compilación Móvil (Android)
 
 Para generar el APK o ejecutar en un dispositivo Android:
 
@@ -88,13 +88,13 @@ npx cap sync android
 npx cap open android
 ```
 
-## 📚 Documentación Adicional
+## Documentación Adicional
 
 Documentación técnica detallada se encuentra en el directorio `/docs`:
 - `DOCKER_POSTGRES.md`: Guía para levantar la base de datos con Docker.
 - `seed-data.sql`: Datos semilla para inicializar la base de datos.
 - Guías de arquitectura y contribución.
 
-## 📄 Licencia
+## Licencia
 
 Derechos Reservados © 2025 Consejo Nacional de Competencias.
