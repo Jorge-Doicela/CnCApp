@@ -189,8 +189,4 @@ npm run prisma:seed
 
 ---
 
-<div align="center">
 
-**[Volver al Inicio](../README.md)**
-
-</div>

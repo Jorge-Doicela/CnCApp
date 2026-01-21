@@ -537,8 +537,4 @@ graph LR
 
 ---
 
-<div align="center">
 
-**[Volver al Inicio](../README.md)**
-
-</div>

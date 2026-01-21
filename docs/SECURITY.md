@@ -96,8 +96,4 @@ Antes de pasar a producción:
 
 ---
 
-<div align="center">
 
-**[Volver al Inicio](../README.md)**
-
-</div>

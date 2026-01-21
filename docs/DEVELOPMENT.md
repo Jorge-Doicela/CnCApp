@@ -245,8 +245,4 @@ npx webpack-bundle-analyzer dist/stats.json
 
 ---
 
-<div align="center">
 
-**[Volver al Inicio](../README.md)**
-
-</div>

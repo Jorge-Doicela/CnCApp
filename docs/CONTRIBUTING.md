@@ -138,8 +138,4 @@ Si encuentras un error, por favor abre un Issue incluyendo:
 
 ---
 
-<div align="center">
 
-**[Volver al Inicio](../README.md)**
-
-</div>
