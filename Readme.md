@@ -424,7 +424,7 @@ Para soporte técnico o consultas:
 
 <div align="center">
 
-**[⬆ Volver arriba](#cncapp---sistema-de-gestión-de-capacitaciones)**
+**[Volver arriba](#cncapp---sistema-de-gestión-de-capacitaciones)**
 
 Desarrollado por **Jorge Doicela**
 

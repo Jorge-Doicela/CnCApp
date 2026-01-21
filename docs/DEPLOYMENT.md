@@ -200,6 +200,6 @@ gzip dump_$TIMESTAMP.sql
 
 <div align="center">
 
-**[Volver al Índice](INDEX.md)**
+**[Volver al Inicio](../README.md)**
 
 </div>

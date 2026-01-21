@@ -98,6 +98,6 @@ Antes de pasar a producción:
 
 <div align="center">
 
-**[Volver al Índice](INDEX.md)**
+**[Volver al Inicio](../README.md)**
 
 </div>

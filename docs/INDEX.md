@@ -46,7 +46,7 @@ Esta documentación está organizada por temas para facilitar su consulta:
 
 ```
 docs/
-├── README.md                      # Este archivo (índice)
+├── INDEX.md                      # Este archivo (índice)
 ├── ARCHITECTURE.md                # Arquitectura del sistema
 ├── DEVELOPMENT.md                 # Guía de desarrollo
 ├── API.md                         # Documentación de API

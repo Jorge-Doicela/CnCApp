@@ -356,6 +356,6 @@ Endpoints de solo lectura para llenar selects en el frontend.
 
 <div align="center">
 
-**[Volver al Índice](INDEX.md)**
+**[Volver al Inicio](../README.md)**
 
 </div>
