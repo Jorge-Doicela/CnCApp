@@ -1,4 +1,3 @@
-```typescript
 import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -37,7 +36,7 @@ export class CrearPage implements OnInit {
   estadoInicial: boolean = true;
   modulosSeleccionados: { [key: string]: boolean } = {};
   guardando: boolean = false;
-  
+
   private catalogoService = inject(CatalogoService);
 
   constructor(
@@ -97,43 +96,43 @@ export class CrearPage implements OnInit {
       // Verificar existencia por nombre (obteniendo todos por ahora)
       // Idealmente el backend debería tener un endpoint de búsqueda o validación
       this.catalogoService.getItems('roles').subscribe({
-          next: async (roles) => {
-              const existe = roles.some((r: any) => r.nombre_rol.toLowerCase() === this.rol.nombre_rol.trim().toLowerCase());
-              
-              if (existe) {
-                  await this.presentToast('Ya existe un rol con este nombre. Por favor, utilice otro nombre.', 'warning');
-                  this.guardando = false;
-                  return;
-              }
+        next: async (roles) => {
+          const existe = roles.some((r: any) => r.nombre_rol.toLowerCase() === this.rol.nombre_rol.trim().toLowerCase());
 
-              // Crear el nuevo rol
-              const nuevoRol = {
-                nombre_rol: this.rol.nombre_rol.trim(),
-                modulos: modulosSeleccionados,
-                estado: this.estadoInicial
-              };
-
-              this.catalogoService.createItem('roles', nuevoRol).subscribe({
-                  next: async () => {
-                       await this.presentAlert(
-                        'Rol Creado',
-                        `El rol "${this.rol.nombre_rol}" ha sido creado exitosamente con ${ modulosSeleccionados.length } módulos asignados.`,
-                        true
-                      );
-                      this.guardando = false;
-                  },
-                  error: async (error) => {
-                      console.error('Error al insertar el rol:', error);
-                      await this.presentToast('Error al crear el rol: ' + (error.message || error.statusText), 'danger');
-                      this.guardando = false;
-                  }
-              });
-          },
-          error: async (error) => {
-               console.error('Error al verificar roles:', error);
-               await this.presentToast('Error al verificar existencia del rol', 'danger');
-               this.guardando = false;
+          if (existe) {
+            await this.presentToast('Ya existe un rol con este nombre. Por favor, utilice otro nombre.', 'warning');
+            this.guardando = false;
+            return;
           }
+
+          // Crear el nuevo rol
+          const nuevoRol = {
+            nombre_rol: this.rol.nombre_rol.trim(),
+            modulos: modulosSeleccionados,
+            estado: this.estadoInicial
+          };
+
+          this.catalogoService.createItem('roles', nuevoRol).subscribe({
+            next: async () => {
+              await this.presentAlert(
+                'Rol Creado',
+                `El rol "${this.rol.nombre_rol}" ha sido creado exitosamente con ${modulosSeleccionados.length} módulos asignados.`,
+                true
+              );
+              this.guardando = false;
+            },
+            error: async (error) => {
+              console.error('Error al insertar el rol:', error);
+              await this.presentToast('Error al crear el rol: ' + (error.message || error.statusText), 'danger');
+              this.guardando = false;
+            }
+          });
+        },
+        error: async (error) => {
+          console.error('Error al verificar roles:', error);
+          await this.presentToast('Error al verificar existencia del rol', 'danger');
+          this.guardando = false;
+        }
       });
 
     } catch (error: any) {
@@ -205,4 +204,3 @@ export class CrearPage implements OnInit {
     await alert.present();
   }
 }
-```
