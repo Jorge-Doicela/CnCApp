@@ -1,13 +1,17 @@
-import { Component, OnInit } from '@angular/core';
+import { IonicModule } from '@ionic/angular';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { supabase } from 'src/supabase';
 import { AlertController, ModalController, ToastController } from '@ionic/angular';
+import { CatalogoService } from 'src/app/services/catalogo.service';
 
 @Component({
   selector: 'app-crudentidades',
   templateUrl: './crudentidades.page.html',
   styleUrls: ['./crudentidades.page.scss'],
-  standalone: false
+  standalone: true,
+  imports: [CommonModule, FormsModule, IonicModule]
 })
 export class CrudentidadesPage implements OnInit {
   Entidades: any[] = [];
@@ -16,6 +20,8 @@ export class CrudentidadesPage implements OnInit {
   filtroEstado: string = 'todos';
   ordenPor: string = 'nombre';
   isLoading: boolean = false;
+
+  private catalogoService = inject(CatalogoService);
 
   constructor(
     private router: Router,
@@ -35,23 +41,20 @@ export class CrudentidadesPage implements OnInit {
 
   async RecuperarEntidades() {
     this.isLoading = true;
-    try {
-      const { data, error } = await supabase.from('Entidades').select('*');
-      if (error) {
-        console.error('Error al obtener las entidades:', error.message);
-        this.presentToast('Error al cargar entidades: ' + error.message, 'danger');
-        return;
+    this.catalogoService.getItems('entidades').subscribe({
+      next: (data) => {
+        this.Entidades = data ?? [];
+        this.entidadesFiltradas = [...this.Entidades];
+        this.ordenarEntidades();
+        console.log('Entidades cargadas:', this.Entidades);
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error al obtener las entidades:', error);
+        this.presentToast('Error al cargar entidades (API)', 'danger');
+        this.isLoading = false;
       }
-      this.Entidades = data ?? [];
-      this.entidadesFiltradas = [...this.Entidades];
-      this.ordenarEntidades();
-      console.log('Entidades cargadas:', this.Entidades);
-    } catch (error) {
-      console.error('Error inesperado:', error);
-      this.presentToast('Error inesperado al cargar entidades', 'danger');
-    } finally {
-      this.isLoading = false;
-    }
+    });
   }
 
   filtrarEntidades() {
@@ -114,22 +117,17 @@ export class CrudentidadesPage implements OnInit {
           role: 'cancel'
         }, {
           text: 'Confirmar',
-          handler: async () => {
-            try {
-              const { error } = await supabase
-                .from('Entidades')
-                .update({ Estado_Entidad: newState })
-                .eq('Id_Entidad', entidad.Id_Entidad);
-              if (error) {
+          handler: () => {
+            this.catalogoService.updateItem('entidades', entidad.Id_Entidad, { Estado_Entidad: newState }).subscribe({
+              next: () => {
+                // Actualizar el estado en el arreglo local
+                entidad.Estado_Entidad = newState;
+                this.presentToast(`La entidad ha sido ${newState === 1 ? 'activada' : 'desactivada'} correctamente`, 'success');
+              },
+              error: (error) => {
                 this.presentToast(`Error al ${stateText} la entidad: ${error.message}`, 'danger');
-                return;
               }
-              // Actualizar el estado en el arreglo local
-              entidad.Estado_Entidad = newState;
-              this.presentToast(`La entidad ha sido ${newState === 1 ? 'activada' : 'desactivada'} correctamente`, 'success');
-            } catch (error: any) {
-              this.presentToast(`Error al ${stateText} la entidad: ${error.message}`, 'danger');
-            }
+            });
           }
         }
       ]
@@ -161,35 +159,18 @@ export class CrudentidadesPage implements OnInit {
   }
 
   async eliminarEntidad(id: string) {
-    try {
-      // Primero intentamos eliminar la imagen asociada
-      const entidad = this.Entidades.find(e => e.Id_Entidad === id);
-      if (entidad && entidad.Imagen_Entidad) {
-        const imagePath = entidad.Imagen_Entidad.split('/').pop();
-        if (imagePath) {
-          await supabase.storage.from('imagenes').remove(['entidades/' + imagePath]);
-        }
+    // Deletion of associated images should be handled by the backend
+    this.catalogoService.deleteItem('entidades', id).subscribe({
+      next: () => {
+        this.presentToast('Entidad eliminada correctamente', 'success');
+        // Actualizar la lista de entidades
+        this.RecuperarEntidades();
+      },
+      error: (error) => {
+        console.error('Error al eliminar la entidad:', error);
+        this.presentToast('Error al eliminar la entidad. ', 'danger');
       }
-
-      // Luego eliminamos el registro
-      const { error } = await supabase
-        .from('Entidades')
-        .delete()
-        .eq('Id_Entidad', id);
-
-      if (error) {
-        console.error('Error al eliminar la entidad:', error.message);
-        this.presentToast('Error al eliminar la entidad: ' + error.message, 'danger');
-        return;
-      }
-
-      this.presentToast('Entidad eliminada correctamente', 'success');
-      // Actualizar la lista de entidades
-      this.RecuperarEntidades();
-    } catch (error) {
-      console.error('Error inesperado al eliminar:', error);
-      this.presentToast('Error inesperado al eliminar la entidad', 'danger');
-    }
+    });
   }
 
   async presentToast(message: string, color: string = 'primary') {

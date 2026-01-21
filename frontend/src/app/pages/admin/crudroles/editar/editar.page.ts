@@ -1,13 +1,17 @@
-import { Component, OnInit } from '@angular/core';
+import { IonicModule } from '@ionic/angular';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ToastController, AlertController, NavController, LoadingController } from '@ionic/angular';
-import { supabase } from 'src/supabase';
+import { CatalogoService } from 'src/app/services/catalogo.service';
 
 @Component({
   selector: 'app-editar',
   templateUrl: './editar.page.html',
   styleUrls: ['./editar.page.scss'],
-  standalone: false
+  standalone: true,
+  imports: [CommonModule, FormsModule, IonicModule]
 })
 export class EditarPage implements OnInit {
   idRol: number | null = null;
@@ -43,13 +47,15 @@ export class EditarPage implements OnInit {
   errorCarga: boolean = false;
   actualizando: boolean = false;
 
+  private catalogoService = inject(CatalogoService);
+
   constructor(
     private route: ActivatedRoute,
     private toastController: ToastController,
     private alertController: AlertController,
     private navController: NavController,
     private loadingController: LoadingController
-  ) {}
+  ) { }
 
   async ngOnInit() {
     this.idRol = Number(this.route.snapshot.paramMap.get('idRol'));
@@ -74,44 +80,50 @@ export class EditarPage implements OnInit {
       });
       await loading.present();
 
-      const { data, error } = await supabase
-        .from('Rol')
-        .select('*')
-        .eq('Id_Rol', this.idRol)
-        .single();
+      if (!this.idRol) return;
 
-      if (error || !data) {
-        console.error('Error al obtener el rol:', error?.message);
-        this.presentToast('No se pudo cargar el rol.', 'danger');
-        this.errorCarga = true;
-        loading.dismiss();
-        return;
-      }
+      this.catalogoService.getItem('roles', this.idRol).subscribe({
+        next: (data) => {
+          if (!data) {
+            this.presentToast('No se pudo cargar el rol.', 'danger');
+            this.errorCarga = true;
+            loading.dismiss();
+            return;
+          }
 
-      // Guardar datos originales para comparar cambios
-      this.rolOriginal = {
-        nombre_rol: data.nombre_rol,
-        modulos: data.modulos || [],
-        estado: data.estado || false
-      };
+          // Guardar datos originales para comparar cambios
+          this.rolOriginal = {
+            nombre_rol: data.nombre_rol,
+            modulos: data.modulos || [],
+            estado: data.estado || false
+          };
 
-      // Asignar datos al modelo de edición
-      this.rol = {
-        nombre_rol: data.nombre_rol,
-        modulos: data.modulos || []
-      };
-      this.rolActivo = data.estado || false;
+          // Asignar datos al modelo de edición
+          this.rol = {
+            nombre_rol: data.nombre_rol,
+            modulos: data.modulos || []
+          };
+          this.rolActivo = data.estado || false;
 
-      // Marcar los módulos seleccionados
-      this.modulosSeleccionados = {};
-      this.modulos.forEach(modulo => {
-        this.modulosSeleccionados[modulo] = this.rol.modulos.includes(modulo);
+          // Marcar los módulos seleccionados
+          this.modulosSeleccionados = {};
+          this.modulos.forEach(modulo => {
+            this.modulosSeleccionados[modulo] = this.rol.modulos.includes(modulo);
+          });
+
+          loading.dismiss();
+        },
+        error: (error) => {
+          console.error('Error al obtener el rol:', error);
+          this.presentToast('Error al cargar los datos.', 'danger');
+          this.errorCarga = true;
+          loading.dismiss();
+        }
       });
 
-      loading.dismiss();
     } catch (error: any) {
-      console.error('Error al cargar el rol:', error);
-      this.presentToast('Error al cargar los datos.', 'danger');
+      console.error('Error al iniciar carga del rol:', error);
+      this.presentToast('Error inesperado.', 'danger');
       this.errorCarga = true;
     } finally {
       this.cargando = false;
@@ -154,8 +166,8 @@ export class EditarPage implements OnInit {
   esFormularioValido(): boolean {
     const modulosSeleccionados = this.obtenerModulosSeleccionados();
     return this.rol.nombre_rol.trim().length > 0 &&
-           modulosSeleccionados.length > 0 &&
-           this.hayModificaciones();
+      modulosSeleccionados.length > 0 &&
+      this.hayModificaciones();
   }
 
   async actualizarRol() {
@@ -205,36 +217,35 @@ export class EditarPage implements OnInit {
     });
     await loading.present();
 
-    try {
-      const modulosSeleccionados = this.obtenerModulosSeleccionados();
-
-      const { error } = await supabase
-        .from('Rol')
-        .update({
-          nombre_rol: this.rol.nombre_rol.trim(),
-          modulos: modulosSeleccionados,
-          estado: this.rolActivo
-        })
-        .eq('Id_Rol', this.idRol);
-
-      if (error) {
-        console.error('Error al actualizar el rol:', error.message);
-        await this.presentToast('Error al actualizar el rol: ' + error.message, 'danger');
-        return;
-      }
-
-      await this.presentAlert(
-        'Rol Actualizado',
-        `El rol "${this.rol.nombre_rol}" ha sido actualizado exitosamente.`,
-        true
-      );
-    } catch (error: any) {
-      console.error('Error en la actualización:', error);
-      await this.presentToast('Error inesperado al actualizar.', 'danger');
-    } finally {
-      this.actualizando = false;
+    if (!this.idRol) {
       loading.dismiss();
+      return;
     }
+
+    const modulosSeleccionados = this.obtenerModulosSeleccionados();
+    const dataToUpdate = {
+      nombre_rol: this.rol.nombre_rol.trim(),
+      modulos: modulosSeleccionados,
+      estado: this.rolActivo
+    };
+
+    this.catalogoService.updateItem('roles', this.idRol, dataToUpdate).subscribe({
+      next: async () => {
+        await this.presentAlert(
+          'Rol Actualizado',
+          `El rol "${this.rol.nombre_rol}" ha sido actualizado exitosamente.`,
+          true
+        );
+        this.actualizando = false;
+        loading.dismiss();
+      },
+      error: async (error) => {
+        console.error('Error al actualizar el rol:', error);
+        await this.presentToast('Error al actualizar el rol: ' + (error.message || error.statusText), 'danger');
+        this.actualizando = false;
+        loading.dismiss();
+      }
+    });
   }
 
   async cancelar() {

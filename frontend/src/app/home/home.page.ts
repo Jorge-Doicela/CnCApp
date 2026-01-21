@@ -1,14 +1,20 @@
-import { Component, OnInit } from '@angular/core';
-import { supabase } from 'src/supabase';
-import { ToastController, LoadingController } from '@ionic/angular';
+import { Component, OnInit, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { IonicModule, ToastController, LoadingController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { RecuperacionDataUsuarioService } from '../services/recuperacion-data-usuario.service';
+import { CapacitacionesService } from '../services/capacitaciones.service';
+import { UsuarioService } from '../services/usuario.service';
+import { AuthService } from '../services/auth.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-home',
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss'],
-  standalone: false
+  standalone: true,
+  imports: [CommonModule, FormsModule, IonicModule]
 })
 export class HomePage implements OnInit {
   // Datos del usuario
@@ -33,6 +39,10 @@ export class HomePage implements OnInit {
   // Título de la página
   pageTitle: string = 'Inicio';
 
+  private capacitacionesService = inject(CapacitacionesService);
+  private usuarioService = inject(UsuarioService);
+  private authService = inject(AuthService);
+
   constructor(
     private toastController: ToastController,
     private loadingController: LoadingController,
@@ -41,24 +51,13 @@ export class HomePage implements OnInit {
   ) { }
 
   ngOnInit() {
-    // Suscribirse a los cambios en los datos del usuario
-    this.recuperacionDataUsuarioService.userName$.subscribe(name => {
-      this.userName = name;
-      this.actualizarTitulo();
-    });
+    // Leer valores de signals directamente
+    this.userName = this.recuperacionDataUsuarioService.userName();
+    this.userRole = this.recuperacionDataUsuarioService.userRoleNumber();
+    this.roleName = this.recuperacionDataUsuarioService.roleName();
+    this.modulos = this.recuperacionDataUsuarioService.modulos();
 
-    this.recuperacionDataUsuarioService.userRole$.subscribe(role => {
-      this.userRole = role !== null ? Number(role) : null;
-    });
-
-    this.recuperacionDataUsuarioService.roleName$.subscribe(roleName => {
-      this.roleName = roleName;
-      this.actualizarTitulo();
-    });
-
-    this.recuperacionDataUsuarioService.modulos$.subscribe(modulos => {
-      this.modulos = modulos;
-    });
+    this.actualizarTitulo();
 
     // Verificar sesión y cargar datos
     this.checkSession();
@@ -99,11 +98,7 @@ export class HomePage implements OnInit {
   async RecuperarCapacitaciones() {
     this.cargandoCapacitaciones = true;
     try {
-      const { data, error } = await supabase.from('Capacitaciones').select('*');
-      if (error) {
-        console.error('Error al obtener conferencias:', error.message);
-        return;
-      }
+      const data = await firstValueFrom(this.capacitacionesService.getCapacitaciones());
       this.Capacitaciones = data ?? [];
       this.capacitacionesDisponibles = this.Capacitaciones.filter(c => c.Estado === 0);
     } catch (error) {
@@ -114,41 +109,40 @@ export class HomePage implements OnInit {
   }
 
   async RecuperarConferenciasInscrito() {
+    // Need ID Usuario
+    const authUid = localStorage.getItem('auth_uid');
+    if (!authUid) return;
+
     try {
-      const { data: usuario, error } = await supabase.auth.getUser();
-      if (error || !usuario?.user) {
-        console.error('Error al obtener usuario:', error?.message);
-        return;
-      }
-      const idUsuario = await this.recuperarDataUsuario(usuario.user.id);
+      const idUsuario = await this.recuperarDataUsuario(authUid);
+      if (!idUsuario) return;
 
-      // Recuperamos los Id_Capacitacion en las que está inscrito el usuario
-      const { data: inscripciones, error: inscripcionesError } = await supabase
-        .from('Usuarios_Capacitaciones')
-        .select('Id_Capacitacion')
-        .eq('Id_Usuario', idUsuario);
+      const inscripciones = await firstValueFrom(this.capacitacionesService.getInscripcionesUsuario(idUsuario));
 
-      if (inscripcionesError) {
-        console.error('Error al recuperar inscripciones:', inscripcionesError.message);
-        return;
-      }
-
-      // Si el usuario está inscrito en alguna conferencia
       if (inscripciones?.length) {
+        // The service might just return junction table rows or full details.
+        // If junction table rows, we need to fetch capacitaciones details.
+        // Assuming service returns array with join or I need to fetch them.
+        // Let's assume it returns { Id_Capacitacion, ... } and we need to fetch details if not joined.
+        // Optimization: `getInscripcionesUsuario` could return partial capacitacion data.
+        // If not, we fetch them.
+
         const capacitacionIds = inscripciones.map((item: any) => item.Id_Capacitacion);
-        // Ahora recuperamos las capacitaciones correspondientes
-        const { data: capacitaciones, error: capacitacionesError } = await supabase
-          .from('Capacitaciones')
-          .select('*')
-          .in('Id_Capacitacion', capacitacionIds);
 
-        if (capacitacionesError) {
-          console.error('Error al obtener capacitaciones inscritas:', capacitacionesError.message);
-          return;
+        if (capacitacionIds.length > 0) {
+          // Since we don't have "getByIds" in service, and `Capacitaciones` are already loaded in `RecuperarCapacitaciones` likely,
+          // we can filter from `this.Capacitaciones` if loaded.
+          // But strictly, we should ensure we have them.
+
+          // If `this.Capacitaciones` is empty, load them first or use getCapacitacion in loop (bad)
+          if (this.Capacitaciones.length === 0) {
+            await this.RecuperarCapacitaciones();
+          }
+
+          this.ConferenciasInscritas = this.Capacitaciones.filter(c => capacitacionIds.includes(c.Id_Capacitacion));
         }
-
-        // Almacenamos las capacitaciones en el array
-        this.ConferenciasInscritas = capacitaciones ?? [];
+      } else {
+        this.ConferenciasInscritas = [];
       }
     } catch (error) {
       console.error('Error al recuperar conferencias inscritas:', error);
@@ -156,16 +150,13 @@ export class HomePage implements OnInit {
   }
 
   async recuperarDataUsuario(authUid: string) {
-    const { data, error } = await supabase
-      .from('Usuario')
-      .select('Id_Usuario')
-      .eq('auth_uid', authUid)
-      .single();
-    if (error) {
-      console.error('Error al recuperar el Id_Usuario:', error.message);
+    try {
+      const userData = await firstValueFrom(this.usuarioService.getUsuarioByAuthId(authUid));
+      return userData?.Id_Usuario;
+    } catch (error) {
+      console.error('Error al recuperar datos usuario:', error);
       return null;
     }
-    return data?.Id_Usuario;
   }
 
   calcularEstadisticas() {
@@ -176,33 +167,15 @@ export class HomePage implements OnInit {
 
   async cargarEstadisticasAdmin() {
     try {
-      // Contar usuarios
-      const { count: userCount, error: userError } = await supabase
-        .from('Usuario')
-        .select('*', { count: 'exact', head: true });
+      const userStats = await firstValueFrom(this.usuarioService.countUsuarios());
+      this.usuariosCount = userStats?.count || 0;
 
-      if (!userError) {
-        this.usuariosCount = userCount || 0;
-      }
+      const confStats = await firstValueFrom(this.capacitacionesService.countCapacitaciones());
+      this.conferenciasCount = confStats?.count || 0;
 
-      // Contar conferencias
-      const { count: confCount, error: confError } = await supabase
-        .from('Capacitaciones')
-        .select('*', { count: 'exact', head: true });
+      const certStats = await firstValueFrom(this.capacitacionesService.countCertificados());
+      this.certificadosCount = certStats?.count || 0;
 
-      if (!confError) {
-        this.conferenciasCount = confCount || 0;
-      }
-
-      // Para simplificar, usamos la misma cantidad de conferencias completadas como certificados
-      const { count: certCount, error: certError } = await supabase
-        .from('Capacitaciones')
-        .select('*', { count: 'exact', head: true })
-        .eq('Estado', 1);
-
-      if (!certError) {
-        this.certificadosCount = certCount || 0;
-      }
     } catch (error) {
       console.error('Error al cargar estadísticas admin:', error);
     }
@@ -217,74 +190,30 @@ export class HomePage implements OnInit {
     await loading.present();
 
     try {
-      const { data: usuario, error } = await supabase.auth.getUser();
-      if (error || !usuario?.user) {
-        const toast = await this.toastController.create({
-          message: 'Por favor, inicie sesión para inscribirse.',
-          duration: 3000,
-          position: 'top',
-          color: 'warning'
-        });
-        toast.present();
+      const authUid = localStorage.getItem('auth_uid');
+      if (!authUid) {
+        this.showAuthWarning();
         return;
       }
 
       // Obtener el ID de usuario desde la base de datos usando el auth_uid
-      const idUsuario = await this.recuperarDataUsuario(usuario.user.id);
+      const idUsuario = await this.recuperarDataUsuario(authUid);
       if (!idUsuario) {
-        const toast = await this.toastController.create({
-          message: 'Error al obtener el ID de usuario.',
-          duration: 3000,
-          position: 'top',
-          color: 'danger'
-        });
-        toast.present();
+        this.showErrorToast('Error al obtener el ID de usuario.');
         return;
       }
 
-      // Insertar el registro de inscripción en la tabla intermedia
-      const { data, error: inscripcionError } = await supabase
-        .from('Usuarios_Capacitaciones')
-        .insert([
-          {
-            Id_Usuario: idUsuario,
-            Id_Capacitacion: idCapacitacion,
-            Rol_Capacitacion: 'Participante',
-            Asistencia: false,
-          },
-        ]);
+      await firstValueFrom(this.capacitacionesService.inscribirse(idUsuario, idCapacitacion));
 
-      if (inscripcionError) {
-        console.error('Error al inscribirse:', inscripcionError.message);
-        const toast = await this.toastController.create({
-          message: 'Hubo un error al inscribirse en la conferencia.',
-          duration: 3000,
-          position: 'top',
-          color: 'danger'
-        });
-        toast.present();
-      } else {
-        const toast = await this.toastController.create({
-          message: '¡Te has inscrito exitosamente en la conferencia!',
-          duration: 3000,
-          position: 'top',
-          color: 'success'
-        });
-        toast.present();
+      this.showSuccessToast('¡Te has inscrito exitosamente en la conferencia!');
 
-        // Actualizar los datos
-        await this.RecuperarConferenciasInscrito();
-        this.calcularEstadisticas();
-      }
+      // Actualizar los datos
+      await this.RecuperarConferenciasInscrito();
+      this.calcularEstadisticas();
+
     } catch (error) {
       console.error('Error en inscripción:', error);
-      const toast = await this.toastController.create({
-        message: 'Error en el proceso de inscripción.',
-        duration: 3000,
-        position: 'top',
-        color: 'danger'
-      });
-      toast.present();
+      this.showErrorToast('Hubo un error al inscribirse en la conferencia.');
     } finally {
       loading.dismiss();
     }
@@ -299,68 +228,29 @@ export class HomePage implements OnInit {
     await loading.present();
 
     try {
-      const { data: usuario, error } = await supabase.auth.getUser();
-      if (error || !usuario?.user) {
-        const toast = await this.toastController.create({
-          message: 'Por favor, inicie sesión para cancelar la inscripción.',
-          duration: 3000,
-          position: 'top',
-          color: 'warning'
-        });
-        toast.present();
+      const authUid = localStorage.getItem('auth_uid');
+      if (!authUid) {
+        this.showAuthWarning();
         return;
       }
 
-      const idUsuario = await this.recuperarDataUsuario(usuario.user.id);
+      const idUsuario = await this.recuperarDataUsuario(authUid);
       if (!idUsuario) {
-        const toast = await this.toastController.create({
-          message: 'Error al obtener el ID de usuario.',
-          duration: 3000,
-          position: 'top',
-          color: 'danger'
-        });
-        toast.present();
+        this.showErrorToast('Error al obtener el ID de usuario.');
         return;
       }
 
-      // Eliminar el registro de inscripción
-      const { data, error: cancelacionError } = await supabase
-        .from('Usuarios_Capacitaciones')
-        .delete()
-        .eq('Id_Usuario', idUsuario)
-        .eq('Id_Capacitacion', idCapacitacion);
+      await firstValueFrom(this.capacitacionesService.cancelarInscripcion(idUsuario, idCapacitacion));
 
-      if (cancelacionError) {
-        console.error('Error al cancelar inscripción:', cancelacionError.message);
-        const toast = await this.toastController.create({
-          message: 'Hubo un error al cancelar la inscripción.',
-          duration: 3000,
-          position: 'top',
-          color: 'danger'
-        });
-        toast.present();
-      } else {
-        const toast = await this.toastController.create({
-          message: 'Inscripción cancelada exitosamente.',
-          duration: 3000,
-          position: 'top',
-          color: 'success'
-        });
-        toast.present();
+      this.showSuccessToast('Inscripción cancelada exitosamente.');
 
-        // Actualizar datos
-        await this.RecuperarConferenciasInscrito();
-        this.calcularEstadisticas();
-      }
+      // Actualizar datos
+      await this.RecuperarConferenciasInscrito();
+      this.calcularEstadisticas();
+
     } catch (error) {
       console.error('Error en cancelación:', error);
-      const toast = await this.toastController.create({
-        message: 'Error en el proceso de cancelación.',
-        duration: 3000,
-        position: 'top',
-        color: 'danger'
-      });
-      toast.present();
+      this.showErrorToast('Error en el proceso de cancelación.');
     } finally {
       loading.dismiss();
     }
@@ -441,5 +331,35 @@ export class HomePage implements OnInit {
     };
 
     return iconMap[modulo] || 'apps-outline';
+  }
+
+  async showAuthWarning() {
+    const toast = await this.toastController.create({
+      message: 'Por favor, inicie sesión para realizar esta acción.',
+      duration: 3000,
+      position: 'top',
+      color: 'warning'
+    });
+    toast.present();
+  }
+
+  async showErrorToast(message: string) {
+    const toast = await this.toastController.create({
+      message,
+      duration: 3000,
+      position: 'top',
+      color: 'danger'
+    });
+    toast.present();
+  }
+
+  async showSuccessToast(message: string) {
+    const toast = await this.toastController.create({
+      message,
+      duration: 3000,
+      position: 'top',
+      color: 'success'
+    });
+    toast.present();
   }
 }

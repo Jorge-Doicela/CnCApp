@@ -1,10 +1,13 @@
 import { Router } from 'express';
+import { container } from 'tsyringe';
+import { CertificadoController } from '../controllers/certificado.controller';
+import { authenticate } from '../middleware/auth.middleware';
 
 const router = Router();
+const controller = container.resolve(CertificadoController);
 
-// TODO: Implementar rutas de certificados
-router.get('/', (_req, res) => {
-    res.json({ message: 'Certificado routes - Coming soon' });
-});
+router.get('/qr/:qr', controller.getByQR);
+router.get('/my', authenticate, controller.getMyCertificados);
+router.post('/', authenticate, controller.create); // Should ideally restrict to admin
 
 export default router;

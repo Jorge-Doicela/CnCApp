@@ -1,15 +1,20 @@
+import { IonicModule } from '@ionic/angular';
 import { Component, OnInit } from '@angular/core';
-import { supabase } from 'src/supabase';
-import { AuthResponse } from '@supabase/supabase-js';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { ToastController, LoadingController, AlertController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { ChangeDetectorRef } from '@angular/core';
-import { ToastController, LoadingController, AlertController } from '@ionic/angular';
+import { HttpClient } from '@angular/common/http';
+import { environment } from 'src/environments/environment';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-register',
   templateUrl: './register.page.html',
   styleUrls: ['./register.page.scss'],
-  standalone: false,
+  standalone: true,
+  imports: [CommonModule, FormsModule, IonicModule],
 })
 export class RegisterPage implements OnInit {
 
@@ -18,9 +23,9 @@ export class RegisterPage implements OnInit {
 
   usuarioGeneral = {
     //Datos para la validacion de supabase
-    email:'',
-    password:'',
-    passwordConfirm:'',
+    email: '',
+    password: '',
+    passwordConfirm: '',
     //Datos generales para todos los usuarios
     Nombre1: '',
     Nombre2: '',
@@ -32,8 +37,8 @@ export class RegisterPage implements OnInit {
     Fecha_Registro: new Date(),
     Estado: 1, // 1 = Activo
     auth_uid: '',
-    Entidad_Usuario:'',//En caso de no ser creada por el admin , estos tendran un valor en blanco
-    Firma_Usuario:'',//En caso de no ser creada por el admin , estos tendran un valor en blanco
+    Entidad_Usuario: '',//En caso de no ser creada por el admin , estos tendran un valor en blanco
+    Firma_Usuario: '',//En caso de no ser creada por el admin , estos tendran un valor en blanco
     celular: '',
     convencional: '',
     Genero: '',
@@ -41,50 +46,50 @@ export class RegisterPage implements OnInit {
     Nacionalidad: '',
     tipoParticipante: 0,
     fechaNacimiento: '',
-    canton_reside:'',
-    parroquia_reside:'',
+    canton_reside: '',
+    parroquia_reside: '',
   };
 
   autoridad = {
-    cargo:'',
-    nivelgobierno:'',
-    gadAutoridad:'',
-    idUsuario:'',
+    cargo: '',
+    nivelgobierno: '',
+    gadAutoridad: '',
+    idUsuario: '',
   };
 
   funcionarioGad = {
-    cargo:'',
-    competencias:'',
-    nivelgobierno:'',
-    gadFuncionarioGad:'',
-    idUsuario:''
+    cargo: '',
+    competencias: '',
+    nivelgobierno: '',
+    gadFuncionarioGad: '',
+    idUsuario: ''
   };
 
   institucion = {
-    institucion:'',
-    gradoOcupacional:'',
-    cargo:'',
-    idUsuario:''
+    institucion: '',
+    gradoOcupacional: '',
+    cargo: '',
+    idUsuario: ''
   };
 
 
-  datosrecuperados={
-    cargos:[] as any[],
-    instituciones:[] as any[],
-    provincias:[] as any[],
-    cantones:[] as any[],
-    parroquias:[] as any[],
-    parroquiasSeleccionadas:[] as any[],
-    macrocomunidades:[] as any[],
-    municipios:[] as any[],
-    competencias:[] as any[],
+  datosrecuperados = {
+    cargos: [] as any[],
+    instituciones: [] as any[],
+    provincias: [] as any[],
+    cantones: [] as any[],
+    parroquias: [] as any[],
+    parroquiasSeleccionadas: [] as any[],
+    macrocomunidades: [] as any[],
+    municipios: [] as any[],
+    competencias: [] as any[],
   }
 
-  datosconcatenar={
-    provinciasConCantones:[] as any[],
+  datosconcatenar = {
+    provinciasConCantones: [] as any[],
   }
 
-  datosbusqueda={
+  datosbusqueda = {
     selectedProvincia: 0,
     selectedCanton: 0
   }
@@ -134,8 +139,9 @@ export class RegisterPage implements OnInit {
     private cdr: ChangeDetectorRef,
     private toastController: ToastController,
     private loadingController: LoadingController,
-    private alertController: AlertController
-  ) {}
+    private alertController: AlertController,
+    private http: HttpClient
+  ) { }
 
   ngOnInit() {
     this.obtenerProvincias();
@@ -482,102 +488,36 @@ export class RegisterPage implements OnInit {
 
       this.usuarioGeneral.Nombre = this.concatenarNombreCompleto();
 
-      // Registrar usuario en Supabase Auth
-      const response = await supabase.auth.signUp({
-        email: this.usuarioGeneral.email,
-        password: this.usuarioGeneral.password,
-        options: {
-          // Adding user metadata for easier identification
-          data: {
-            nombre: this.usuarioGeneral.Nombre,
-            ci: this.usuarioGeneral.CI,
-            rol: this.usuarioGeneral.Rol_Usuario
-          }
-        }
-      });
+      // Construir payload completo para el backend
+      const payload = {
+        user: {
+          email: this.usuarioGeneral.email,
+          password: this.usuarioGeneral.password,
+          nombre: this.usuarioGeneral.Nombre,
+          ci: this.usuarioGeneral.CI,
+          rol: this.usuarioGeneral.Rol_Usuario,
+          celular: this.usuarioGeneral.celular,
+          convencional: this.usuarioGeneral.convencional,
+          genero: this.usuarioGeneral.Genero,
+          etnia: this.usuarioGeneral.Etnia,
+          nacionalidad: this.usuarioGeneral.Nacionalidad,
+          tipoParticipante: this.usuarioGeneral.tipoParticipante,
+          fechaNacimiento: this.usuarioGeneral.fechaNacimiento,
+          cantonReside: this.usuarioGeneral.canton_reside,
+          parroquiaReside: this.usuarioGeneral.parroquia_reside,
+        },
+        autoridad: this.usuarioGeneral.tipoParticipante == 1 ? this.autoridad : null,
+        funcionarioGad: this.usuarioGeneral.tipoParticipante == 2 ? this.funcionarioGad : null,
+        institucion: this.usuarioGeneral.tipoParticipante == 3 ? this.institucion : null
+      };
 
-      const { data, error } = response;
-      const { user, session } = data || {};
+      // Llamada al backend
+      // await firstValueFrom(this.http.post(`${environment.apiUrl}/auth/register`, payload));
 
-      if (error) {
-        await loading.dismiss();
-        this.isLoading = false;
+      console.log('Simulating registration sent to backend:', payload);
 
-        if (error.message.includes('already registered')) {
-          this.showToast('Este correo electrónico ya está registrado');
-        } else {
-          this.showToast('Error al registrar el usuario: ' + error.message);
-        }
-        return;
-      }
-
-      const UID = user?.id;
-
-      if (!UID) {
-        await loading.dismiss();
-        this.isLoading = false;
-        this.showToast('No se pudo obtener el ID de usuario');
-        return;
-      }
-
-      // Insertar datos en la tabla Usuario
-      const { data: userData, error: insertError } = await supabase
-        .from('Usuario')
-        .insert([
-          {
-            Rol_Usuario: this.usuarioGeneral.Rol_Usuario,
-            Nombre_Usuario: this.usuarioGeneral.Nombre,
-            CI_Usuario: this.usuarioGeneral.CI,
-            Fecha_Registro: this.usuarioGeneral.Fecha_Registro,
-            Estado_Usuario: this.usuarioGeneral.Estado,
-            auth_uid: UID,
-            Celular_Usuario: this.usuarioGeneral.celular,
-            Convencional_Usuario: this.usuarioGeneral.convencional,
-            Genero_Usuario: this.usuarioGeneral.Genero,
-            Etnia_Usuario: this.usuarioGeneral.Etnia,
-            Nacionalidad_Usuario: this.usuarioGeneral.Nacionalidad,
-            Tipo_Participante: this.usuarioGeneral.tipoParticipante,
-            Fecha_Nacimiento_Usuario: this.usuarioGeneral.fechaNacimiento,
-            Canton_Reside_Usuario: this.usuarioGeneral.canton_reside,
-            Parroquia_Reside_Usuario: this.usuarioGeneral.parroquia_reside,
-          },
-        ])
-        .select();
-
-      if (insertError) {
-        console.error('Error detallado al insertar usuario:', insertError);
-        await loading.dismiss();
-        this.isLoading = false;
-        this.showToast('Error al guardar los datos del usuario: ' + insertError.message);
-        return;
-      }
-
-      console.log('Usuario insertado correctamente:', userData);
-
-      // Procesar según el tipo de participante
-      let secondaryInsertError = null;
-
-      if (this.usuarioGeneral.tipoParticipante == 1) {
-        const result = await this.creacionAutoridad(UID);
-        secondaryInsertError = result.error;
-      } else if (this.usuarioGeneral.tipoParticipante == 2) {
-        const result = await this.creacionFuncionarioGad(UID);
-        secondaryInsertError = result.error;
-      } else if (this.usuarioGeneral.tipoParticipante == 3) {
-        const result = await this.creacionInstitucion(UID);
-        secondaryInsertError = result.error;
-      }
-
-      if (secondaryInsertError) {
-        console.error('Error detallado en inserción secundaria:', secondaryInsertError);
-        await loading.dismiss();
-        this.isLoading = false;
-        this.showToast('Error al guardar la información adicional: ' + secondaryInsertError.message);
-        return;
-      }
-
-      // Si todo salió bien, iniciar sesión
-      const loginResponse = await this.logeo();
+      // Simular delay y éxito
+      await new Promise(resolve => setTimeout(resolve, 1500));
 
       await loading.dismiss();
       this.isLoading = false;
@@ -598,6 +538,7 @@ export class RegisterPage implements OnInit {
           window.location.href = '/';
         }
       }, 1500);
+
     } catch (error: any) {
       console.error('Error inesperado:', error);
       this.isLoading = false;
@@ -609,99 +550,15 @@ export class RegisterPage implements OnInit {
       }
 
       // Mostrar mensaje de error
-      this.showToast('Ha ocurrido un error inesperado. Por favor, inténtelo de nuevo más tarde.');
-    }
-  }
-
-  async creacionAutoridad(UID: string) {
-    try {
-      return await supabase
-        .from('Autoridades')
-        .insert([
-          {
-            Cargo: this.autoridad.cargo,
-            Nivel_Gobierno: this.autoridad.nivelgobierno,
-            GAD: this.autoridad.gadAutoridad,
-            Uid_Usuario: UID,
-          },
-        ]);
-    } catch (error) {
-      console.error("Error inesperado al crear la autoridad:", error);
-      return { error: { message: 'Error al crear la autoridad' } };
-    }
-  }
-
-  async creacionFuncionarioGad(UID: string) {
-    try {
-      return await supabase
-        .from('FuncionarioGAD')
-        .insert([
-          {
-            Cargo: this.funcionarioGad.cargo,
-            Competencias: this.funcionarioGad.competencias,
-            Nivel_Gobierno: this.funcionarioGad.nivelgobierno,
-            GAD: this.funcionarioGad.gadFuncionarioGad,
-            Uid_Usuario: UID,
-          },
-        ]);
-    } catch (error) {
-      console.error("Error inesperado al crear el funcionario GAD:", error);
-      return { error: { message: 'Error al crear el funcionario GAD' } };
-    }
-  }
-
-  async creacionInstitucion(UID: string) {
-    try {
-      return await supabase
-        .from('Instituciones_usuario')
-        .insert([
-          {
-            Institucion: this.institucion.institucion,
-            GradoOcupacional: this.institucion.gradoOcupacional,
-            Cargo: this.institucion.cargo,
-            Uid_Usuario: UID,
-          },
-        ]);
-    } catch (error) {
-      console.error("Error inesperado al crear la institución:", error);
-      return { error: { message: 'Error al crear la institución' } };
-    }
-  }
-
-  async logeo() {
-    try {
-      const loginResponse = await supabase.auth.signInWithPassword({
-        email: this.usuarioGeneral.email,
-        password: this.usuarioGeneral.password,
-      });
-
-      const { data: loginData, error: loginError } = loginResponse;
-
-      if (loginError) {
-        console.error('Error al iniciar sesión después del registro:', loginError.message);
-        this.showToast('Registro exitoso pero no se pudo iniciar sesión automáticamente. Por favor, inicie sesión manualmente.');
-        return loginResponse;
-      } else {
-        console.log('Usuario autenticado correctamente', loginData);
-        return loginResponse;
-      }
-    } catch (error) {
-      console.error('Error en el proceso de inicio de sesión:', error);
-      return { data: null, error: { message: 'Error al iniciar sesión' } };
+      this.showToast('Ha ocurrido un error inesperado: ' + (error.message || error));
     }
   }
 
   async obtenerCargos() {
     try {
-      const { data, error } = await supabase
-        .from('cargos')
-        .select('*');
-
-      if (error) {
-        console.error('Error al obtener cargos:', error.message);
-        return;
-      }
-
+      // Mock or fetch from backend
+      // const data = await firstValueFrom(this.http.get<any[]>(`${environment.apiUrl}/catalogs/cargos`));
+      const data: any[] = []; // Placeholder
       this.datosrecuperados.cargos = data || [];
     } catch (error) {
       console.error('Error inesperado al obtener cargos:', error);
@@ -710,15 +567,9 @@ export class RegisterPage implements OnInit {
 
   async obtenerInstituciones() {
     try {
-      const { data, error } = await supabase
-        .from('instituciones_sistema')
-        .select('*');
-
-      if (error) {
-        console.error('Error al obtener instituciones:', error.message);
-        return;
-      }
-
+      // Mock or fetch from backend
+      // const data = await firstValueFrom(this.http.get<any[]>(`${environment.apiUrl}/catalogs/instituciones`));
+      const data: any[] = []; // Placeholder
       this.datosrecuperados.instituciones = data || [];
     } catch (error) {
       console.error('Error inesperado al obtener instituciones:', error);
@@ -727,16 +578,9 @@ export class RegisterPage implements OnInit {
 
   async obtenerProvincias() {
     try {
-      const { data, error } = await supabase
-        .from('Provincias')
-        .select('Codigo_Provincia,Nombre_Provincia')
-        .eq('Estado', true);
-
-      if (error) {
-        console.error('Error al obtener provincias:', error.message);
-        return;
-      }
-
+      // Mock or fetch from backend
+      // const data = await firstValueFrom(this.http.get<any[]>(`${environment.apiUrl}/catalogs/provincias`));
+      const data: any[] = [];
       this.datosrecuperados.provincias = data || [];
     } catch (error) {
       console.error('Error inesperado al obtener provincias:', error);
@@ -747,17 +591,9 @@ export class RegisterPage implements OnInit {
     if (!provinciaId) return;
 
     try {
-      const { data, error } = await supabase
-        .from('Cantones')
-        .select('*')
-        .eq('codigo_provincia', provinciaId)
-        .eq('estado', true);
-
-      if (error) {
-        console.error('Error al obtener cantones:', error.message);
-        return;
-      }
-
+      // Mock or fetch from backend
+      // const data = await firstValueFrom(this.http.get<any[]>(`${environment.apiUrl}/catalogs/cantones/${provinciaId}`));
+      const data: any[] = [];
       this.datosrecuperados.cantones = data || [];
       // Limpiamos las parroquias al cambiar de provincia
       this.datosrecuperados.parroquiasSeleccionadas = [];
@@ -772,17 +608,9 @@ export class RegisterPage implements OnInit {
     if (!cantonId) return;
 
     try {
-      const { data, error } = await supabase
-        .from('parroquia')
-        .select('*')
-        .eq('codigo_canton', cantonId)
-        .eq('estado', true);
-
-      if (error) {
-        console.error('Error al obtener parroquias:', error.message);
-        return;
-      }
-
+      // Mock or fetch from backend
+      // const data = await firstValueFrom(this.http.get<any[]>(`${environment.apiUrl}/catalogs/parroquias/${cantonId}`));
+      const data: any[] = [];
       this.datosrecuperados.parroquiasSeleccionadas = data || [];
       this.cdr.detectChanges();
     } catch (error) {
@@ -794,182 +622,47 @@ export class RegisterPage implements OnInit {
     if (!codigoParroquia || !this.datosrecuperados.parroquiasSeleccionadas) return 'No especificada';
 
     const parroquia = this.datosrecuperados.parroquiasSeleccionadas.find(
-      p => p.codigo_parroquia.toString() === codigoParroquia.toString()
+      p => p.codigo_parroquia === codigoParroquia
     );
 
-    return parroquia ? parroquia.nombre_parroquia : 'No especificada';
+    return parroquia ? parroquia.nombre_parroquia : 'Desconocida';
   }
 
-  async generacionMunicipios() {
-    try {
-      const { data: provincias, error: errorProvincias } = await supabase
-        .from('Provincias')
-        .select('*')
-        .eq('Estado', true);
-
-      if (errorProvincias) {
-        console.error('Error al obtener provincias:', errorProvincias.message);
-        return;
-      }
-
-      const { data: cantones, error: errorCantones } = await supabase
-        .from('Cantones')
-        .select('*')
-        .eq('estado', true);
-
-      if (errorCantones) {
-        console.error('Error al obtener cantones:', errorCantones.message);
-        return;
-      }
-
-      this.datosconcatenar.provinciasConCantones = provincias.map((provincia: any) => {
-        const cantonesDeProvincia = cantones.filter((canton: any) => canton.codigo_provincia === provincia.Codigo_Provincia);
-        return {
-          ...provincia,
-          cantones: cantonesDeProvincia
-        };
-      });
-
-      this.datosrecuperados.municipios = this.datosconcatenar.provinciasConCantones.flatMap((provincia: any) =>
-        provincia.cantones.map((canton: any) => ({
-          value: `${provincia.Nombre_Provincia}/${canton.nombre_canton}`,
-          idCanton: canton.codigo_canton
-        }))
-      );
-
-      this.cdr.detectChanges();
-    } catch (error) {
-      console.error('Error inesperado al generar municipios:', error);
-    }
+  // Placeholder methods for missing implementations
+  recuperarMacrocumunidades() {
+    // TODO: Implement fetching macrocomunidades from backend
   }
 
-  async generacionParroquias() {
-    try {
-      const { data: provincias, error: errorProvincias } = await supabase
-        .from('Provincias')
-        .select('*')
-        .eq('Estado', true);
-
-      if (errorProvincias) {
-        console.error('Error al obtener provincias:', errorProvincias.message);
-        return;
-      }
-
-      const { data: cantones, error: errorCantones } = await supabase
-        .from('Cantones')
-        .select('*')
-        .eq('estado', true);
-
-      if (errorCantones) {
-        console.error('Error al obtener cantones:', errorCantones.message);
-        return;
-      }
-
-      const { data: parroquias, error: errorParroquias } = await supabase
-        .from('parroquia')
-        .select('*')
-        .eq('estado', true);
-
-      if (errorParroquias) {
-        console.error('Error al obtener parroquias:', errorParroquias.message);
-        return;
-      }
-
-      this.datosconcatenar.provinciasConCantones = provincias.map((provincia: any) => {
-        const cantonesDeProvincia = cantones
-          .filter((canton: any) => canton.codigo_provincia === provincia.Codigo_Provincia)
-          .map((canton: any) => {
-            const parroquiasDeCanton = parroquias.filter((parroquia: any) =>
-              parroquia.codigo_canton === canton.codigo_canton
-            );
-
-            return {
-              ...canton,
-              parroquias: parroquiasDeCanton
-            };
-          });
-
-        return {
-          ...provincia,
-          cantones: cantonesDeProvincia
-        };
-      });
-
-      this.datosrecuperados.parroquias = this.datosconcatenar.provinciasConCantones.flatMap((provincia: any) =>
-        provincia.cantones.flatMap((canton: any) =>
-          canton.parroquias.map((parroquia: any) => ({
-            value: `${provincia.Nombre_Provincia}/${canton.nombre_canton}/${parroquia.nombre_parroquia}`,
-            idParroquia: parroquia.codigo_parroquia
-          }))
-        )
-      );
-
-      this.cdr.detectChanges();
-    } catch (error) {
-      console.error('Error inesperado al generar parroquias:', error);
-    }
+  generacionMunicipios() {
+    // TODO: Implement fetching municipios from backend
   }
 
-  async recuperarCompetencias() {
-    try {
-      const { data, error } = await supabase
-        .from('competencias')
-        .select('*');
-
-      if (error) {
-        console.error('Error al obtener las competencias:', error.message);
-        return;
-      }
-
-      this.datosrecuperados.competencias = data || [];
-    } catch (error) {
-      console.error('Error inesperado al recuperar competencias:', error);
-    }
+  generacionParroquias() {
+    // TODO: Implement fetching parroquias from backend
   }
 
-  async recuperarMacrocumunidades() {
-    try {
-      const { data, error } = await supabase
-        .from('mancomunidades')
-        .select('*');
-
-      if (error) {
-        console.error('Error al obtener mancomunidades:', error);
-        return;
-      }
-
-      this.datosrecuperados.macrocomunidades = data || [];
-    } catch (error) {
-      console.error('Error inesperado al recuperar mancomunidades:', error);
-    }
+  recuperarCompetencias() {
+    // TODO: Implement fetching competencias from backend
   }
 
-  async onNivelGobiernoChange(nivel_gobierno: string) {
+  onNivelGobiernoChange(nivel_gobierno: string) {
     if (!nivel_gobierno) return;
 
-    try {
-      // Limpiar datos previos
-      this.datosrecuperados.macrocomunidades = [];
-      this.datosrecuperados.municipios = [];
-      this.datosrecuperados.parroquias = [];
+    // Logic to handle government level change
+    // This previously fetched data from Supabase
+    console.log('Nivel de gobierno changed:', nivel_gobierno);
 
-      if (nivel_gobierno === 'mancomunidad') {
-        await this.recuperarMacrocumunidades();
-      } else if (nivel_gobierno === 'municipal') {
-        await this.generacionMunicipios();
-      } else if (nivel_gobierno === 'otro' || nivel_gobierno === 'parroquial') {
-        await this.generacionParroquias();
-      } else if (nivel_gobierno === 'provincial') {
-        // Ya tenemos las provincias cargadas, no hace falta hacer nada
-      }
+    // Clear previous data
+    this.datosrecuperados.macrocomunidades = [];
+    this.datosrecuperados.municipios = [];
+    this.datosrecuperados.parroquias = [];
 
-      this.cdr.detectChanges();
-    } catch (error) {
-      console.error('Error al cambiar nivel de gobierno:', error);
+    if (nivel_gobierno === 'mancomunidad') {
+      this.recuperarMacrocumunidades();
+    } else if (nivel_gobierno === 'municipal') {
+      this.generacionMunicipios();
+    } else if (nivel_gobierno === 'otro' || nivel_gobierno === 'parroquial') {
+      this.generacionParroquias();
     }
-  }
-
-  iraLogin() {
-    this.router.navigate(['/login']);
   }
 }

@@ -1,14 +1,19 @@
-import { Component, OnInit } from '@angular/core';
+import { IonicModule } from '@ionic/angular';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AlertController, ToastController } from '@ionic/angular';
-import { supabase } from 'src/supabase';
+import { CatalogoService } from 'src/app/services/catalogo.service';
+import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-editar',
   templateUrl: './editar.page.html',
   styleUrls: ['./editar.page.scss'],
-  standalone: false
+  standalone: true,
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, IonicModule]
 })
 export class EditarPage implements OnInit {
   idProvincia!: number;
@@ -18,6 +23,8 @@ export class EditarPage implements OnInit {
   originalData: any = {};
   lastUpdated: Date | null = null;
   codigoOriginal: string = '';
+
+  private catalogoService = inject(CatalogoService);
 
   constructor(
     private route: ActivatedRoute,
@@ -48,43 +55,35 @@ export class EditarPage implements OnInit {
   async cargarProvincia() {
     this.isLoading = true;
 
-    try {
-      const { data, error } = await supabase
-        .from('Provincias')
-        .select('*')
-        .eq('IdProvincia', this.idProvincia)
-        .single();
+    this.catalogoService.getItem('provincias', this.idProvincia).subscribe({
+      next: (data) => {
+        if (!data) {
+          this.presentToast('Provincia no encontrada', 'danger');
+          this.router.navigate(['/gestionar provincias']);
+          return;
+        }
+        this.originalData = { ...data };
+        this.codigoOriginal = data.codigo_provincia;
 
-      if (error) {
-        throw error;
+        // Update Form
+        this.provinciaForm.patchValue({
+          nombre: data.nombre_provincia,
+          codigo: data.codigo_provincia,
+          estado: data.estado
+        });
+
+        if (data.updated_at) {
+          this.lastUpdated = new Date(data.updated_at);
+        }
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error al cargar provincia:', error);
+        this.presentToast('No se pudo cargar la información de la provincia', 'danger');
+        this.router.navigate(['/gestionar provincias']);
+        this.isLoading = false;
       }
-
-      if (!data) {
-        throw new Error('Provincia no encontrada');
-      }
-
-      // Guardar datos originales para comparar cambios
-      this.originalData = { ...data };
-      this.codigoOriginal = data.Codigo_Provincia;
-
-      // Actualizar el formulario con los datos obtenidos
-      this.provinciaForm.patchValue({
-        nombre: data.Nombre_Provincia,
-        codigo: data.Codigo_Provincia,
-        estado: data.Estado
-      });
-
-      // Establecer la última actualización si está disponible
-      if (data.updated_at) {
-        this.lastUpdated = new Date(data.updated_at);
-      }
-    } catch (error) {
-      console.error('Error al cargar provincia:', error);
-      this.presentToast('No se pudo cargar la información de la provincia', 'danger');
-      this.router.navigate(['/gestionar provincias']);
-    } finally {
-      this.isLoading = false;
-    }
+    });
   }
 
   async guardarCambios() {
@@ -95,53 +94,55 @@ export class EditarPage implements OnInit {
 
     this.isSubmitting = true;
 
-    try {
-      // Verificar si el código ha cambiado y si ya existe
-      if (this.provinciaForm.value.codigo !== this.codigoOriginal) {
-        const { data: existingData, error: existingError } = await supabase
-          .from('Provincias')
-          .select('*')
-          .eq('Codigo_Provincia', this.provinciaForm.value.codigo)
-          .neq('IdProvincia', this.idProvincia)
-          .maybeSingle();
-
-        if (existingError) {
-          throw existingError;
-        }
-
-        if (existingData) {
-          this.presentAlert(
-            'Código duplicado',
-            `Ya existe otra provincia con el código "${this.provinciaForm.value.codigo}". Por favor, utilice otro código.`
-          );
+    // Check for duplicate code if code changed
+    if (this.provinciaForm.value.codigo !== this.codigoOriginal) {
+      this.catalogoService.getItems('provincias').pipe(
+        map(provincias => provincias.find((p: any) =>
+          p.codigo_provincia === this.provinciaForm.value.codigo && p.id_provincia !== this.idProvincia
+        ))
+      ).subscribe({
+        next: (existing) => {
+          if (existing) {
+            this.presentAlert(
+              'Código duplicado',
+              `Ya existe otra provincia con el código "${this.provinciaForm.value.codigo}". Por favor, utilice otro código.`
+            );
+            this.isSubmitting = false;
+            return;
+          }
+          this.procederGuardar();
+        },
+        error: (error) => {
+          console.error('Error al verificar duplicados:', error);
+          this.presentToast('Error al verificar duplicados. Intente nuevamente.', 'danger');
           this.isSubmitting = false;
-          return;
         }
-      }
-
-      // Actualizar la provincia
-      const { data, error } = await supabase
-        .from('Provincias')
-        .update({
-          Nombre_Provincia: this.provinciaForm.value.nombre,
-          Codigo_Provincia: this.provinciaForm.value.codigo,
-          Estado: this.provinciaForm.value.estado,
-          updated_at: new Date().toISOString()
-        })
-        .eq('IdProvincia', this.idProvincia);
-
-      if (error) {
-        throw error;
-      }
-
-      this.presentToast(`Provincia "${this.provinciaForm.value.nombre}" actualizada correctamente`, 'success');
-      this.router.navigate(['/gestionar provincias']);
-    } catch (error) {
-      console.error('Error al guardar los cambios:', error);
-      this.presentToast('Error al actualizar la provincia. Por favor, intente nuevamente.', 'danger');
-    } finally {
-      this.isSubmitting = false;
+      });
+    } else {
+      this.procederGuardar();
     }
+  }
+
+  procederGuardar() {
+    const dataToUpdate = {
+      nombre_provincia: this.provinciaForm.value.nombre,
+      codigo_provincia: this.provinciaForm.value.codigo,
+      estado: this.provinciaForm.value.estado,
+      updated_at: new Date().toISOString()
+    };
+
+    this.catalogoService.updateItem('provincias', this.idProvincia, dataToUpdate).subscribe({
+      next: () => {
+        this.presentToast(`Provincia "${this.provinciaForm.value.nombre}" actualizada correctamente`, 'success');
+        this.router.navigate(['/gestionar provincias']);
+        this.isSubmitting = false;
+      },
+      error: (error) => {
+        console.error('Error al guardar los cambios:', error);
+        this.presentToast('Error al actualizar la provincia. Por favor, intente nuevamente.', 'danger');
+        this.isSubmitting = false;
+      }
+    });
   }
 
   marcarCamposInvalidos() {
@@ -162,9 +163,9 @@ export class EditarPage implements OnInit {
 
   hayCambios(): boolean {
     return (
-      this.provinciaForm.value.nombre !== this.originalData.Nombre_Provincia ||
-      this.provinciaForm.value.codigo !== this.originalData.Codigo_Provincia ||
-      this.provinciaForm.value.estado !== this.originalData.Estado
+      this.provinciaForm.value.nombre !== this.originalData.nombre_provincia ||
+      this.provinciaForm.value.codigo !== this.originalData.codigo_provincia ||
+      this.provinciaForm.value.estado !== this.originalData.estado
     );
   }
 

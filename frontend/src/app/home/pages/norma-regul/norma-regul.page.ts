@@ -3,11 +3,16 @@ import { Component, OnInit } from '@angular/core';
 import { AlertController, ToastController, ModalController } from '@ionic/angular';
 import { SafeResourceUrl, DomSanitizer } from '@angular/platform-browser';
 
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { IonicModule } from '@ionic/angular';
+
 @Component({
   selector: 'app-norma-regul',
   templateUrl: './norma-regul.page.html',
   styleUrls: ['./norma-regul.page.scss'],
-  standalone: false
+  standalone: true,
+  imports: [CommonModule, FormsModule, IonicModule]
 })
 export class NormaRegulPage implements OnInit {
   searchTerm: string = '';
@@ -345,7 +350,7 @@ export class NormaRegulPage implements OnInit {
   }
 
   obtenerTipoBadge(tipo: string): string {
-    switch(tipo) {
+    switch (tipo) {
       case 'constitucion': return 'Fundamental';
       case 'leyes': return 'Ley Orgánica';
       case 'resoluciones': return 'Resolución';

@@ -1,62 +1,6 @@
+// Styles optimized using shared.scss
 ion-content {
   --background: #f5f7fa;
-}
-
-.main-card {
-  margin: 16px 0;
-  border-radius: 20px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
-  background-color: #ffffff;
-  overflow: hidden;
-}
-
-.logo-container {
-  padding: 20px 0;
-  margin-bottom: 10px;
-
-  .logo {
-    max-width: 200px;
-    height: auto;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
-    transition: transform 0.3s ease;
-
-    &:hover {
-      transform: scale(1.05);
-    }
-  }
-}
-
-.section-title {
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--ion-color-primary);
-  margin: 25px 0 15px;
-  padding-bottom: 10px;
-  border-bottom: 2px solid #eaeef5;
-  position: relative;
-
-  &:after {
-    content: '';
-    position: absolute;
-    bottom: -2px;
-    left: 0;
-    width: 60px;
-    height: 2px;
-    background-color: var(--ion-color-primary);
-  }
-}
-
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-
-  .results-count {
-    font-size: 14px;
-    color: #666;
-    font-weight: 500;
-  }
 }
 
 .search-section {
@@ -116,100 +60,6 @@ ion-content {
   &:hover:not([disabled]) {
     transform: translateY(-2px);
     --box-shadow: 0 6px 15px rgba(var(--ion-color-primary-rgb), 0.4);
-  }
-}
-
-.stats-section {
-  margin-bottom: 30px;
-
-  .stats-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: 16px;
-    margin-top: 20px;
-
-    .stat-card {
-      background: #f9fafc;
-      border-radius: 16px;
-      padding: 16px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      transition: transform 0.3s ease;
-
-      &:hover {
-        transform: translateY(-5px);
-      }
-
-      .stat-icon {
-        margin-bottom: 10px;
-
-        ion-icon {
-          font-size: 32px;
-        }
-      }
-
-      .stat-details {
-        .stat-value {
-          display: block;
-          font-size: 28px;
-          font-weight: 700;
-          color: var(--ion-color-primary);
-        }
-
-        .stat-label {
-          display: block;
-          font-size: 14px;
-          color: #666;
-          margin-top: 5px;
-        }
-      }
-    }
-  }
-}
-
-.loading-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 40px 20px;
-  text-align: center;
-
-  ion-spinner {
-    margin-bottom: 15px;
-  }
-
-  p {
-    color: #666;
-    font-size: 16px;
-  }
-}
-
-.empty-state {
-  text-align: center;
-  padding: 40px 20px;
-  background: #f9fafc;
-  border-radius: 16px;
-  border: 1px dashed #ddd;
-
-  ion-icon {
-    font-size: 48px;
-    color: #999;
-    margin-bottom: 15px;
-  }
-
-  h4 {
-    font-size: 18px;
-    color: #333;
-    margin-bottom: 10px;
-  }
-
-  p {
-    color: #666;
-    font-size: 14px;
   }
 }
 
@@ -310,29 +160,6 @@ ion-content {
 }
 
 // Estilos para el formulario
-.form-header {
-  text-align: center;
-  padding: 20px;
-  border-bottom: 1px solid #eaeef5;
-
-  ion-icon {
-    font-size: 48px;
-    margin-bottom: 10px;
-  }
-
-  h2 {
-    font-size: 24px;
-    font-weight: 600;
-    margin: 0 0 8px;
-    color: var(--ion-color-primary);
-  }
-
-  p {
-    font-size: 16px;
-    color: #666;
-    margin: 0;
-  }
-}
 
 form {
   padding: 20px;
@@ -418,18 +245,4 @@ form {
 }
 
 // Animación para elementos
-.fade-in {
-  animation: fadeInUp 0.5s ease forwards;
-  opacity: 0;
-}
 
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}

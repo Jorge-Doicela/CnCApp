@@ -1,8 +1,9 @@
+import { IonicModule } from '@ionic/angular';
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { IonicModule, LoadingController, ToastController, AlertController } from '@ionic/angular';
+import { LoadingController, ToastController, AlertController } from '@ionic/angular';
 import { AuthService } from 'src/app/services/auth.service';
 
 @Component({

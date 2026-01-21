@@ -1,13 +1,17 @@
-import { Component, OnInit } from '@angular/core';
+import { IonicModule } from '@ionic/angular';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { LoadingController, ToastController } from '@ionic/angular';
-import { supabase } from 'src/supabase';
+import { CatalogoService } from 'src/app/services/catalogo.service';
 
 @Component({
   selector: 'app-crear',
   templateUrl: './crear.page.html',
   styleUrls: ['./crear.page.scss'],
-  standalone: false
+  standalone: true,
+  imports: [CommonModule, FormsModule, IonicModule]
 })
 export class CrearPage implements OnInit {
 
@@ -21,6 +25,7 @@ export class CrearPage implements OnInit {
   };
 
   enviando: boolean = false;
+  private catalogoService = inject(CatalogoService);
 
   constructor(
     private router: Router,
@@ -43,34 +48,30 @@ export class CrearPage implements OnInit {
     });
     await loading.present();
 
-    try {
-      const { data, error } = await supabase
-        .from('instituciones_sistema')
-        .insert([
-          {
-            nombre_institucion: this.nuevaInstitucion.nombre_institucion,
-            direccion: this.nuevaInstitucion.direccion || null,
-            telefono: this.nuevaInstitucion.telefono || null,
-            email: this.nuevaInstitucion.email || null,
-            descripcion: this.nuevaInstitucion.descripcion || null,
-            estado_institucion: this.nuevaInstitucion.estado_institucion,
-            fecha_ultima_actualizacion: new Date().toISOString()
-          }
-        ]);
+    const nuevaInstitucionData = {
+      nombre_institucion: this.nuevaInstitucion.nombre_institucion,
+      direccion: this.nuevaInstitucion.direccion || null,
+      telefono: this.nuevaInstitucion.telefono || null,
+      email: this.nuevaInstitucion.email || null,
+      descripcion: this.nuevaInstitucion.descripcion || null,
+      estado_institucion: this.nuevaInstitucion.estado_institucion,
+      fecha_ultima_actualizacion: new Date().toISOString()
+    };
 
-      if (error) {
-        this.presentToast('Error al crear la institución: ' + error.message, 'danger');
-        return;
+    this.catalogoService.createItem('instituciones', nuevaInstitucionData).subscribe({
+      next: async () => {
+        this.presentToast('Institución creada exitosamente', 'success');
+        this.router.navigate(['/gestionar instituciones']);
+        loading.dismiss();
+        this.enviando = false;
+      },
+      error: async (error) => {
+        console.error('Error al crear institución:', error);
+        this.presentToast('Error al crear la institución: ' + (error.message || error.statusText), 'danger');
+        loading.dismiss();
+        this.enviando = false;
       }
-
-      this.presentToast('Institución creada exitosamente', 'success');
-      this.router.navigate(['/gestionar instituciones']);
-    } catch (error: any) {
-      this.presentToast('Error en la solicitud: ' + error.message, 'danger');
-    } finally {
-      loading.dismiss();
-      this.enviando = false;
-    }
+    });
   }
 
   cancelar() {

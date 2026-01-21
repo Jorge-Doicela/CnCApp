@@ -5,4 +5,6 @@ export interface UserRepository {
     findByCi(ci: string): Promise<User | null>;
     findById(id: number): Promise<User | null>;
     update(id: number, user: Partial<User>): Promise<User>;
+    findAll(): Promise<User[]>;
+    delete(id: number): Promise<void>;
 }

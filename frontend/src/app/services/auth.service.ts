@@ -76,4 +76,16 @@ export class AuthService {
         localStorage.removeItem('user_role');
         localStorage.removeItem('auth_uid');
     }
+
+    requestPasswordReset(email: string, redirectTo: string): Observable<any> {
+        return this.http.post(`${this.apiUrl}/auth/reset-password-request`, { email, redirectTo });
+    }
+
+    updatePassword(password: string): Observable<any> {
+        const token = this.token();
+        return this.http.post(`${this.apiUrl}/auth/update-password`, { password }, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+    }
 }
+

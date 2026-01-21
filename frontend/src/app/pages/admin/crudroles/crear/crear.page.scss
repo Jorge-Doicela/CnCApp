@@ -1,39 +1,6 @@
+// Styles optimized using shared.scss
 ion-content {
   --background: #f5f7fa;
-}
-
-.main-card {
-  margin: 16px 0;
-  border-radius: 20px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
-  background-color: #ffffff;
-  overflow: hidden;
-}
-
-.form-header {
-  text-align: center;
-  padding: 30px 20px;
-  border-bottom: 1px solid #eaeef5;
-  background: linear-gradient(to right, #f5f7fa, #f9fafc);
-
-  ion-icon {
-    font-size: 48px;
-    margin-bottom: 15px;
-    color: var(--ion-color-primary);
-  }
-
-  h2 {
-    font-size: 24px;
-    font-weight: 600;
-    margin: 0 0 8px;
-    color: var(--ion-color-primary);
-  }
-
-  p {
-    font-size: 16px;
-    color: #666;
-    margin: 0;
-  }
 }
 
 form {
@@ -210,18 +177,4 @@ form {
 }
 
 // Animación para elementos
-.fade-in {
-  animation: fadeInUp 0.5s ease forwards;
-  opacity: 0;
-}
 
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}

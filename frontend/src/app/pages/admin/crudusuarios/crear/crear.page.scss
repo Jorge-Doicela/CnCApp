@@ -1,38 +1,6 @@
+// Styles optimized using shared.scss
 ion-content {
   --background: #f5f7fa;
-}
-
-.main-card {
-  margin: 16px 0;
-  border-radius: 20px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
-  background-color: #ffffff;
-  overflow: hidden;
-}
-
-.form-header {
-  margin-bottom: 25px;
-  text-align: center;
-}
-
-.section-title {
-  font-size: 22px;
-  font-weight: 600;
-  color: var(--ion-color-primary);
-  margin: 20px 0 15px;
-  padding-bottom: 10px;
-  border-bottom: 2px solid #eaeef5;
-  position: relative;
-
-  &:after {
-    content: '';
-    position: absolute;
-    bottom: -2px;
-    left: 0;
-    width: 60px;
-    height: 2px;
-    background-color: var(--ion-color-primary);
-  }
 }
 
 .section-description {
@@ -188,11 +156,6 @@ ion-content {
   to { opacity: 1; transform: translateY(0); }
 }
 
-.fade-in {
-  opacity: 0;
-  animation: fadeIn 0.5s ease forwards;
-}
-
 // Estilos para la validación de cédula
 .mensaje-validacion {
   padding: 10px;
@@ -294,11 +257,3 @@ ion-content {
     }
   }
 
-  .section-title {
-    font-size: 20px;
-  }
-
-  .subsection-title {
-    font-size: 16px;
-  }
-}

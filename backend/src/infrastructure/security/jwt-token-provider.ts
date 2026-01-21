@@ -1,6 +1,8 @@
+import { injectable } from 'tsyringe';
 import jwt from 'jsonwebtoken';
 import { TokenProvider } from '../../application/interfaces/token-provider.interface';
 
+@injectable()
 export class JwtTokenProvider implements TokenProvider {
     private readonly secret: string;
     private readonly expiresIn: string;

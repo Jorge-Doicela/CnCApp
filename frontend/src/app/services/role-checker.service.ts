@@ -1,10 +1,11 @@
 // src/app/services/role-checker.service.ts
 import { Injectable } from '@angular/core';
-import { supabase } from 'src/supabase';
+import { HttpClient } from '@angular/common/http';
 import { AlertController } from '@ionic/angular';
 import { Router } from '@angular/router';
-import { interval } from 'rxjs';
+import { interval, firstValueFrom } from 'rxjs';
 import { takeWhile } from 'rxjs/operators';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -14,9 +15,10 @@ export class RoleCheckerService {
   private checkInterval = 30000; // 30 segundos
 
   constructor(
+    private http: HttpClient,
     private alertController: AlertController,
     private router: Router
-  ) {}
+  ) { }
 
   startRoleChecking() {
     if (this.checking) return;
@@ -42,16 +44,10 @@ export class RoleCheckerService {
     }
 
     try {
-      const { data: userData, error } = await supabase
-        .from('Usuario')
-        .select('Rol_Usuario')
-        .eq('auth_uid', userId)
-        .single();
-
-      if (error) {
-        console.error('Error al verificar rol:', error.message);
-        return;
-      }
+      // Reemplazo de Supabase por llamada al Backend
+      const userData = await firstValueFrom(
+        this.http.get<any>(`${environment.apiUrl}/users/${userId}/role`)
+      );
 
       const currentRole = parseInt(localStorage.getItem('user_role') || '1');
 
@@ -84,11 +80,12 @@ export class RoleCheckerService {
   }
 
   async logout() {
-    await supabase.auth.signOut();
+    // await supabase.auth.signOut(); // Eliminado
     localStorage.removeItem('user_role');
     localStorage.removeItem('auth_uid');
     localStorage.removeItem('last_login_time');
     localStorage.removeItem('role_check_time');
+    localStorage.removeItem('token'); // Asegurar borrado de token
     window.location.href = '/login'; // Forzar recarga completa
   }
 }

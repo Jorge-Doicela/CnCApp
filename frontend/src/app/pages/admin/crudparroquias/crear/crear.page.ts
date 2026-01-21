@@ -1,13 +1,18 @@
-import { Component, OnInit } from '@angular/core';
-import { supabase } from 'src/supabase';
+import { IonicModule } from '@ionic/angular';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AlertController, LoadingController, ToastController } from '@ionic/angular';
+import { CatalogoService } from 'src/app/services/catalogo.service';
+import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-crear',
   templateUrl: './crear.page.html',
   styleUrls: ['./crear.page.scss'],
-  standalone: false
+  standalone: true,
+  imports: [CommonModule, FormsModule, IonicModule]
 })
 export class CrearPage implements OnInit {
 
@@ -21,6 +26,8 @@ export class CrearPage implements OnInit {
 
   cantones: any[] = [];
   enviando: boolean = false;
+
+  private catalogoService = inject(CatalogoService);
 
   constructor(
     private router: Router,
@@ -40,49 +47,39 @@ export class CrearPage implements OnInit {
     });
     await loading.present();
 
-    try {
-      let { data: Cantones, error } = await supabase
-        .from('Cantones')
-        .select('*')
-        .order('nombre_canton', { ascending: true });
-
-      if (error) {
-        this.presentToast('Error al obtener cantones: ' + error.message, 'danger');
-        return;
+    this.catalogoService.getItems('cantones').subscribe({
+      next: (data) => {
+        this.cantones = data.sort((a, b) => a.nombre_canton.localeCompare(b.nombre_canton));
+        loading.dismiss();
+      },
+      error: (error) => {
+        console.error('Error al obtener cantones:', error);
+        this.presentToast('Error al obtener cantones.', 'danger');
+        loading.dismiss();
       }
-
-      this.cantones = Cantones || [];
-    } catch (error: any) {
-      this.presentToast('Error en la solicitud: ' + error.message, 'danger');
-    } finally {
-      loading.dismiss();
-    }
+    });
   }
 
   async validarCodigoExistente() {
-    try {
-      const { data, error } = await supabase
-        .from('parroquia')
-        .select('codigo_parroquia')
-        .eq('codigo_parroquia', this.nuevaParroquia.codigo_parroquia)
-        .single();
-
-      if (error && error.code !== 'PGRST116') {
-        // Error diferente a "no se encontró el registro"
-        this.presentToast('Error al validar código: ' + error.message, 'danger');
-        return true;
-      }
-
-      if (data) {
-        this.presentToast('El código de parroquia ya existe. Por favor, utilice otro código.', 'warning');
-        return true;
-      }
-
-      return false;
-    } catch (error: any) {
-      this.presentToast('Error en la validación: ' + error.message, 'danger');
-      return true;
-    }
+    // NOTE: Client-side validation for now, or implement a specific check endpoint
+    return new Promise<boolean>((resolve) => {
+      this.catalogoService.getItems('parroquias').pipe(
+        map(parroquias => parroquias.find((p: any) => p.codigo_parroquia === this.nuevaParroquia.codigo_parroquia))
+      ).subscribe({
+        next: (existing) => {
+          if (existing) {
+            this.presentToast('El código de parroquia ya existe. Por favor, utilice otro código.', 'warning');
+            resolve(true);
+          } else {
+            resolve(false);
+          }
+        },
+        error: (error) => {
+          this.presentToast('Error al validar código: ' + error.message, 'danger');
+          resolve(true); // Fail safe
+        }
+      });
+    });
   }
 
   async crearParroquia() {
@@ -97,38 +94,30 @@ export class CrearPage implements OnInit {
     });
     await loading.present();
 
-    try {
-      const { codigo_parroquia, nombre_parroquia, codigo_canton, estado } = this.nuevaParroquia;
+    const { codigo_parroquia, nombre_parroquia, codigo_canton, estado } = this.nuevaParroquia;
 
-      // Validación adicional de campos
-      if (!codigo_parroquia || !nombre_parroquia || !codigo_canton) {
-        this.presentToast('Todos los campos marcados con * son obligatorios', 'warning');
-        return;
-      }
-
-      // Insertar la nueva parroquia en la base de datos
-      const { data, error } = await supabase
-        .from('parroquia')
-        .insert([{
-          codigo_parroquia,
-          nombre_parroquia,
-          codigo_canton,
-          estado
-        }]);
-
-      if (error) {
-        this.presentToast('Error al crear la parroquia: ' + error.message, 'danger');
-        return;
-      }
-
-      this.presentAlert('Éxito', 'Parroquia creada correctamente');
-      this.router.navigate(['/crudparroquias']);
-    } catch (error: any) {
-      this.presentToast('Error en la solicitud: ' + error.message, 'danger');
-    } finally {
+    // Validación adicional de campos
+    if (!codigo_parroquia || !nombre_parroquia || !codigo_canton) {
       loading.dismiss();
       this.enviando = false;
+      this.presentToast('Todos los campos marcados con * son obligatorios', 'warning');
+      return;
     }
+
+    // Insertar la nueva parroquia
+    this.catalogoService.createItem('parroquias', this.nuevaParroquia).subscribe({
+      next: () => {
+        loading.dismiss();
+        this.enviando = false;
+        this.presentAlert('Éxito', 'Parroquia creada correctamente');
+        this.router.navigate(['/crudparroquias']);
+      },
+      error: (error) => {
+        loading.dismiss();
+        this.enviando = false;
+        this.presentToast('Error al crear la parroquia: ' + (error.message || error.statusText), 'danger');
+      }
+    });
   }
 
   cancelar() {

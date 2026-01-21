@@ -1,13 +1,17 @@
-import { Component, OnInit } from '@angular/core';
+import { IonicModule } from '@ionic/angular';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { LoadingController, ToastController } from '@ionic/angular';
-import { supabase } from 'src/supabase';
+import { CatalogoService } from 'src/app/services/catalogo.service';
 
 @Component({
   selector: 'app-editar',
   templateUrl: './editar.page.html',
   styleUrls: ['./editar.page.scss'],
-  standalone: false
+  standalone: true,
+  imports: [CommonModule, FormsModule, IonicModule]
 })
 export class EditarPage implements OnInit {
 
@@ -26,6 +30,8 @@ export class EditarPage implements OnInit {
   cargando: boolean = true;
   enviando: boolean = false;
   fechaModificacion: string = 'No disponible';
+
+  private catalogoService = inject(CatalogoService);
 
   constructor(
     private route: ActivatedRoute,
@@ -48,31 +54,38 @@ export class EditarPage implements OnInit {
     });
     await loading.present();
 
-    try {
-      const { data, error } = await supabase
-        .from('instituciones_sistema')
-        .select('*')
-        .eq('id_institucion', this.idInstitucion)
-        .single();
-
-      if (error) {
-        this.presentToast('Error al cargar institución: ' + error.message, 'danger');
-        return;
-      }
-
-      this.institucion = data;
-
-      // Formatear fecha para mostrar
-      if (this.institucion.fecha_ultima_actualizacion) {
-        const fecha = new Date(this.institucion.fecha_ultima_actualizacion);
-        this.fechaModificacion = fecha.toLocaleString();
-      }
-    } catch (error: any) {
-      this.presentToast('Error en la solicitud: ' + error.message, 'danger');
-    } finally {
+    if (!this.idInstitucion) {
       loading.dismiss();
       this.cargando = false;
+      return;
     }
+
+    this.catalogoService.getItem('instituciones', this.idInstitucion).subscribe({
+      next: (data) => {
+        if (!data) {
+          this.presentToast('No se encontró la institución.', 'danger');
+          loading.dismiss();
+          this.cargando = false;
+          return;
+        }
+
+        this.institucion = data;
+
+        // Formatear fecha para mostrar
+        if (this.institucion.fecha_ultima_actualizacion) {
+          const fecha = new Date(this.institucion.fecha_ultima_actualizacion);
+          this.fechaModificacion = fecha.toLocaleString();
+        }
+        loading.dismiss();
+        this.cargando = false;
+      },
+      error: (error) => {
+        console.error('Error al cargar institución:', error);
+        this.presentToast('Error al cargar institución: ' + (error.message || error.statusText), 'danger');
+        loading.dismiss();
+        this.cargando = false;
+      }
+    });
   }
 
   async actualizarInstitucion() {
@@ -88,35 +101,31 @@ export class EditarPage implements OnInit {
     });
     await loading.present();
 
-    try {
-      const fechaActual = new Date().toISOString();
+    const fechaActual = new Date().toISOString();
+    const dataToUpdate = {
+      nombre_institucion: this.institucion.nombre_institucion,
+      direccion: this.institucion.direccion,
+      telefono: this.institucion.telefono,
+      email: this.institucion.email,
+      descripcion: this.institucion.descripcion,
+      estado_institucion: this.institucion.estado_institucion,
+      fecha_ultima_actualizacion: fechaActual
+    };
 
-      const { data, error } = await supabase
-        .from('instituciones_sistema')
-        .update({
-          nombre_institucion: this.institucion.nombre_institucion,
-          direccion: this.institucion.direccion,
-          telefono: this.institucion.telefono,
-          email: this.institucion.email,
-          descripcion: this.institucion.descripcion,
-          estado_institucion: this.institucion.estado_institucion,
-          fecha_ultima_actualizacion: fechaActual
-        })
-        .eq('id_institucion', this.idInstitucion);
-
-      if (error) {
-        this.presentToast('Error al actualizar institución: ' + error.message, 'danger');
-        return;
+    this.catalogoService.updateItem('instituciones', this.idInstitucion, dataToUpdate).subscribe({
+      next: async () => {
+        this.fechaModificacion = new Date(fechaActual).toLocaleString();
+        this.presentToast('Institución actualizada exitosamente', 'success');
+        loading.dismiss();
+        this.enviando = false;
+      },
+      error: async (error) => {
+        console.error('Error al actualizar institución:', error);
+        this.presentToast('Error al actualizar institución: ' + (error.message || error.statusText), 'danger');
+        loading.dismiss();
+        this.enviando = false;
       }
-
-      this.fechaModificacion = new Date(fechaActual).toLocaleString();
-      this.presentToast('Institución actualizada exitosamente', 'success');
-    } catch (error: any) {
-      this.presentToast('Error en la solicitud: ' + error.message, 'danger');
-    } finally {
-      loading.dismiss();
-      this.enviando = false;
-    }
+    });
   }
 
   cancelar() {

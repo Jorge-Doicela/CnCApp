@@ -1,0 +1,14 @@
+{
+    "name": "cnc-app",
+    "private": true,
+    "scripts": {
+        "dev:backend": "cd backend && npm run dev",
+        "dev:frontend": "cd frontend && npm start",
+        "build:backend": "cd backend && npm run build",
+        "build:frontend": "cd frontend && npm run build",
+        "install:all": "cd backend && npm install && cd ../frontend && npm install"
+    },
+    "devDependencies": {
+        "@capacitor/cli": "^7.0.1"
+    }
+}

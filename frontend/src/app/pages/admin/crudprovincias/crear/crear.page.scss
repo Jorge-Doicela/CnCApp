@@ -1,12 +1,6 @@
+// Styles optimized using shared.scss
 ion-content {
   --background: #f5f7fa;
-}
-
-.form-card {
-  margin: 20px 0;
-  border-radius: 20px;
-  overflow: hidden;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
 }
 
 ion-card-header {
@@ -131,10 +125,6 @@ ion-card-content {
 }
 
 // Animaciones
-.fade-in {
-  animation: fadeIn 0.5s ease-in-out forwards;
-  opacity: 0;
-}
 
 @keyframes fadeIn {
   from {

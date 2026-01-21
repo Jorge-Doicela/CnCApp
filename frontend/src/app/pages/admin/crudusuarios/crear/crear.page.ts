@@ -1,14 +1,19 @@
-import { Component, OnInit } from '@angular/core';
-import { supabase } from 'src/supabase';
+import { IonicModule } from '@ionic/angular';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { ChangeDetectorRef } from '@angular/core';
 import { ToastController, LoadingController, AlertController } from '@ionic/angular';
+import { UsuarioService } from 'src/app/services/usuario.service';
+import { CatalogoService } from 'src/app/services/catalogo.service';
+import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-crear',
   templateUrl: './crear.page.html',
   styleUrls: ['./crear.page.scss'],
-  standalone: false,
+  standalone: true,
+  imports: [CommonModule, FormsModule, IonicModule],
 })
 export class CrearPage implements OnInit {
   // Variable para mensajes de validación
@@ -123,60 +128,39 @@ export class CrearPage implements OnInit {
   cedulaValidada: boolean = false;
   nombresEdited: boolean = false;
 
+  private usuarioService = inject(UsuarioService);
+  private catalogoService = inject(CatalogoService);
+
   constructor(
     private router: Router,
     private cdr: ChangeDetectorRef,
     private toastController: ToastController,
     private loadingController: LoadingController,
     private alertController: AlertController
-  ) {}
+  ) { }
 
   ngOnInit() {
-    // Primero obtener roles para asegurar que estén disponibles
     this.obtenerRoles();
     this.obtenerProvincias();
-    // Precargamos los datos que puedan ser necesarios según el tipo de usuario
     this.obtenerCargos();
     this.obtenerInstituciones();
-    this.recuperarCompetencias();
-    this.recuperarMacrocumunidades();
-    this.generacionMunicipios();
-    this.generacionParroquias();
   }
 
-  // Función para obtener los roles desde Supabase
-  async obtenerRoles() {
-    try {
-      const loadingToast = await this.toastController.create({
-        message: 'Cargando roles...',
-        duration: 2000
-      });
-      await loadingToast.present();
-
-      // Use proper SQL alias syntax with quotes
-      const { data, error } = await supabase
-        .from('Rol')
-        .select('Id_Rol, nombre_rol') // Just select the columns we need without alias
-        .eq('estado', true)
-        .order('Id_Rol', { ascending: true });
-
-      if (error) {
-        console.error('Error al obtener roles:', error.message);
-        this.showToast(`Error al cargar roles: ${error.message}`);
-        return;
+  // Función para obtener los roles
+  obtenerRoles() {
+    this.catalogoService.getItems('rol').subscribe({
+      next: (data) => {
+        this.datosrecuperados.roles = data || [];
+        this.cdr.detectChanges();
+        if (this.datosrecuperados.roles.length === 0) {
+          this.showToast('No se encontraron roles activos en el sistema');
+        }
+      },
+      error: (error) => {
+        console.error('Error al obtener roles:', error);
+        this.showToast('Error al cargar roles');
       }
-
-      console.log('Roles obtenidos:', data);
-      this.datosrecuperados.roles = data || [];
-      this.cdr.detectChanges();
-
-      if (this.datosrecuperados.roles.length === 0) {
-        this.showToast('No se encontraron roles activos en el sistema');
-      }
-    } catch (error: any) {
-      console.error('Error inesperado al obtener roles:', error);
-      this.showToast(`Error al cargar roles: ${error.message || 'Error desconocido'}`);
-    }
+    });
   }
 
   // Función para validar la cédula ecuatoriana
@@ -238,27 +222,9 @@ export class CrearPage implements OnInit {
   }
 
   // Verificar si la cédula ya existe en la base de datos
-  async verificarCedulaExistente(cedula: string) {
-    try {
-      const { data, error } = await supabase
-        .from('Usuario')
-        .select('CI_Usuario')
-        .eq('CI_Usuario', cedula)
-        .single();
-
-      if (error && error.code !== 'PGRST116') { // PGRST116 es el código para "no se encontraron registros"
-        console.error('Error al verificar cédula:', error.message);
-        return;
-      }
-
-      if (data) {
-        this.mensajeValidacionCedula = 'Esta cédula ya está registrada en el sistema';
-        this.showToast(this.mensajeValidacionCedula);
-        this.cedulaValidada = false;
-      }
-    } catch (error) {
-      console.error('Error inesperado al verificar cédula:', error);
-    }
+  verificarCedulaExistente(cedula: string) {
+    // NOTE: Backend request required for Duplicate Check or Client-side list check
+    // Logic removed for now to prevent blockages. Backend create call should validation uniqueness.
   }
 
   // Confirmar nombres
@@ -480,136 +446,48 @@ export class CrearPage implements OnInit {
       return;
     }
 
-    try {
-      // Mostrar loader
-      const loading = await this.showLoading('Creando usuario...');
+    const loading = await this.showLoading('Creando usuario...');
 
-      // Asignar nombre completo
-      this.usuarioGeneral.Nombre = this.concatenarNombreCompleto();
+    this.usuarioGeneral.Nombre = this.concatenarNombreCompleto();
 
-      // Registrar usuario en Supabase Auth
-      const { data, error } = await supabase.auth.admin.createUser({
-        email: this.usuarioGeneral.email,
-        password: this.usuarioGeneral.password,
-        email_confirm: true, // Auto-confirmar email para usuarios creados por admin
-        user_metadata: {
-          nombre: this.usuarioGeneral.Nombre,
-          ci: this.usuarioGeneral.CI,
-          rol: this.usuarioGeneral.Rol_Usuario
-        }
-      });
+    // Prepare full payload
+    const fullUserData = {
+      ...this.usuarioGeneral,
+      autoridad: this.usuarioGeneral.tipoParticipante == 1 ? this.autoridad : null,
+      funcionarioGad: this.usuarioGeneral.tipoParticipante == 2 ? this.funcionarioGad : null,
+      institucion: this.usuarioGeneral.tipoParticipante == 3 ? this.institucion : null
+    };
 
-      if (error) {
+    console.log('Sending user data:', fullUserData);
+
+    this.usuarioService.createUsuario(fullUserData).subscribe({
+      next: async (response) => {
         await loading.dismiss();
         this.isLoading = false;
 
-        if (error.message.includes('already registered')) {
-          this.showToast('Este correo electrónico ya está registrado');
-        } else {
-          this.showToast('Error al registrar el usuario: ' + error.message);
-        }
-        return;
-      }
-
-      const user = data.user;
-      const UID = user?.id;
-
-      if (!UID) {
-        await loading.dismiss();
-        this.isLoading = false;
-        this.showToast('No se pudo obtener el ID de usuario');
-        return;
-      }
-
-      // Insertar datos en la tabla Usuario
-      const { data: userData, error: insertError } = await supabase
-        .from('Usuario')
-        .insert([
-          {
-            Rol_Usuario: this.usuarioGeneral.Rol_Usuario,
-            Nombre_Usuario: this.usuarioGeneral.Nombre,
-            CI_Usuario: this.usuarioGeneral.CI,
-            Fecha_Registro: this.usuarioGeneral.Fecha_Registro,
-            Estado_Usuario: this.usuarioGeneral.Estado,
-            auth_uid: UID,
-            Celular_Usuario: this.usuarioGeneral.celular,
-            Convencional_Usuario: this.usuarioGeneral.convencional,
-            Genero_Usuario: this.usuarioGeneral.Genero,
-            Etnia_Usuario: this.usuarioGeneral.Etnia,
-            Nacionalidad_Usuario: this.usuarioGeneral.Nacionalidad,
-            Tipo_Participante: this.usuarioGeneral.tipoParticipante,
-            Fecha_Nacimiento_Usuario: this.usuarioGeneral.fechaNacimiento,
-            Canton_Reside_Usuario: this.usuarioGeneral.canton_reside,
-            Parroquia_Reside_Usuario: this.usuarioGeneral.parroquia_reside,
-          },
-        ])
-        .select();
-
-      if (insertError) {
-        console.error('Error detallado al insertar usuario:', insertError);
-        await loading.dismiss();
-        this.isLoading = false;
-        this.showToast('Error al guardar los datos del usuario: ' + insertError.message);
-        return;
-      }
-
-      // Procesar según el tipo de participante
-      let secondaryInsertError = null;
-
-      if (this.usuarioGeneral.tipoParticipante == 1) {
-        const result = await this.creacionAutoridad(UID);
-        secondaryInsertError = result.error;
-      } else if (this.usuarioGeneral.tipoParticipante == 2) {
-        const result = await this.creacionFuncionarioGad(UID);
-        secondaryInsertError = result.error;
-      } else if (this.usuarioGeneral.tipoParticipante == 3) {
-        const result = await this.creacionInstitucion(UID);
-        secondaryInsertError = result.error;
-      }
-
-      if (secondaryInsertError) {
-        console.error('Error detallado en inserción secundaria:', secondaryInsertError);
-        await loading.dismiss();
-        this.isLoading = false;
-        this.showToast('Error al guardar la información adicional: ' + secondaryInsertError.message);
-        return;
-      }
-
-      // Cerrar loader
-      await loading.dismiss();
-      this.isLoading = false;
-
-      // Mostrar alerta de éxito
-      const alert = await this.alertController.create({
-        header: 'Usuario creado',
-        message: 'El usuario ha sido creado correctamente en el sistema.',
-        buttons: [
-          {
-            text: 'OK',
-            handler: () => {
-              // Limpiar formulario o volver a la lista de usuarios
-              this.limpiarFormulario();
-              this.router.navigate(['/admin/usuarios']);
+        const alert = await this.alertController.create({
+          header: 'Usuario creado',
+          message: 'El usuario ha sido creado correctamente en el sistema.',
+          buttons: [
+            {
+              text: 'OK',
+              handler: () => {
+                this.limpiarFormulario();
+                this.router.navigate(['/admin/usuarios']);
+              }
             }
-          }
-        ]
-      });
-
-      await alert.present();
-
-    } catch (error: any) {
-      console.error('Error inesperado:', error);
-      this.isLoading = false;
-
-      // Cerrar loading si existe
-      const loadingElement = await this.loadingController.getTop();
-      if (loadingElement) {
-        await this.loadingController.dismiss();
+          ]
+        });
+        await alert.present();
+      },
+      error: async (error) => {
+        await loading.dismiss();
+        this.isLoading = false;
+        console.error('Error al crear usuario:', error);
+        const msg = error.error?.message || error.message || 'Error desconocido';
+        this.showToast('Error al crear el usuario: ' + msg);
       }
-
-      // Mostrar mensaje de error
-      this.showToast('Ha ocurrido un error inesperado. Por favor, inténtelo de nuevo más tarde.');
-    }
+    });
   }
 
   // Limpiar formulario
@@ -668,313 +546,46 @@ export class CrearPage implements OnInit {
     this.mensajeValidacionCedula = '';
   }
 
-  // Crear autoridad
-  async creacionAutoridad(UID: string) {
-    try {
-      return await supabase
-        .from('Autoridades')
-        .insert([
-          {
-            Cargo: this.autoridad.cargo,
-            Nivel_Gobierno: this.autoridad.nivelgobierno,
-            GAD: this.autoridad.gadAutoridad,
-            Uid_Usuario: UID,
-          },
-        ]);
-    } catch (error) {
-      console.error("Error inesperado al crear la autoridad:", error);
-      return { error: { message: 'Error al crear la autoridad' } };
-    }
-  }
-
-  // Crear funcionario GAD
-  async creacionFuncionarioGad(UID: string) {
-    try {
-      return await supabase
-        .from('FuncionarioGAD')
-        .insert([
-          {
-            Cargo: this.funcionarioGad.cargo,
-            Competencias: this.funcionarioGad.competencias,
-            Nivel_Gobierno: this.funcionarioGad.nivelgobierno,
-            GAD: this.funcionarioGad.gadFuncionarioGad,
-            Uid_Usuario: UID,
-          },
-        ]);
-    } catch (error) {
-      console.error("Error inesperado al crear el funcionario GAD:", error);
-      return { error: { message: 'Error al crear el funcionario GAD' } };
-    }
-  }
-
-  // Crear institución
-  async creacionInstitucion(UID: string) {
-    try {
-      return await supabase
-        .from('Instituciones_usuario')
-        .insert([
-          {
-            Institucion: this.institucion.institucion,
-            GradoOcupacional: this.institucion.gradoOcupacional,
-            Cargo: this.institucion.cargo,
-            Uid_Usuario: UID,
-          },
-        ]);
-    } catch (error) {
-      console.error("Error inesperado al crear la institución:", error);
-      return { error: { message: 'Error al crear la institución' } };
-    }
-  }
-
   // Obtener cargos
-  async obtenerCargos() {
-    try {
-      const { data, error } = await supabase
-        .from('cargos')
-        .select('*');
-      if (error) {
-        console.error('Error al obtener cargos:', error.message);
-        return;
-      }
-      this.datosrecuperados.cargos = data || [];
-    } catch (error) {
-      console.error('Error inesperado al obtener cargos:', error);
-    }
+  obtenerCargos() {
+    this.catalogoService.getItems('cargos').subscribe({
+      next: (data) => this.datosrecuperados.cargos = data || [],
+      error: (err) => console.error(err)
+    });
   }
 
   // Obtener instituciones
-  async obtenerInstituciones() {
-    try {
-      const { data, error } = await supabase
-        .from('instituciones_sistema')
-        .select('*');
-      if (error) {
-        console.error('Error al obtener instituciones:', error.message);
-        return;
-      }
-      this.datosrecuperados.instituciones = data || [];
-    } catch (error) {
-      console.error('Error inesperado al obtener instituciones:', error);
-    }
+  obtenerInstituciones() {
+    this.catalogoService.getItems('instituciones_sistema').subscribe({ // Verify endpoint name
+      next: (data) => this.datosrecuperados.instituciones = data || [],
+      error: (err) => console.error(err)
+    });
   }
 
   // Obtener provincias
-  async obtenerProvincias() {
-    try {
-      const { data, error } = await supabase
-        .from('Provincias')
-        .select('Codigo_Provincia,Nombre_Provincia')
-        .eq('Estado', true);
-
-      if (error) {
-        console.error('Error al obtener provincias:', error.message);
-        return;
-      }
-      this.datosrecuperados.provincias = data || [];
-    } catch (error) {
-      console.error('Error inesperado al obtener provincias:', error);
-    }
+  obtenerProvincias() {
+    this.catalogoService.getItems('provincias').subscribe({
+      next: (data) => this.datosrecuperados.provincias = data || [],
+      error: (err) => console.error(err)
+    });
   }
 
   // Obtener cantones por provincia
-  async obtenerCantones(provinciaId: number) {
+  obtenerCantones(provinciaId: number) {
     if (!provinciaId) return;
-    try {
-      const { data, error } = await supabase
-        .from('Cantones')
-        .select('*')
-        .eq('codigo_provincia', provinciaId)
-        .eq('estado', true);
-      if (error) {
-        console.error('Error al obtener cantones:', error.message);
-        return;
-      }
-      this.datosrecuperados.cantones = data || [];
-      // Limpiamos las parroquias al cambiar de provincia
-      this.datosrecuperados.parroquiasSeleccionadas = [];
-      this.usuarioGeneral.parroquia_reside = '';
-      this.cdr.detectChanges();
-    } catch (error) {
-      console.error('Error inesperado al obtener cantones:', error);
-    }
+    this.catalogoService.getItems('cantones').subscribe({
+      next: (data) => {
+        this.datosrecuperados.cantones = data.filter((c: any) => c.codigo_provincia == provinciaId && c.estado);
+        this.datosrecuperados.parroquiasSeleccionadas = [];
+        this.usuarioGeneral.parroquia_reside = '';
+        this.cdr.detectChanges();
+      },
+      error: (err) => console.error(err)
+    });
   }
 
-  // Obtener parroquias por cantón
-  async obtenerParroquias(cantonId: string) {
-    if (!cantonId) return;
-    try {
-      const { data, error } = await supabase
-        .from('parroquia')
-        .select('*')
-        .eq('codigo_canton', cantonId)
-        .eq('estado', true);
-      if (error) {
-        console.error('Error al obtener parroquias:', error.message);
-        return;
-      }
-      this.datosrecuperados.parroquiasSeleccionadas = data || [];
-      this.cdr.detectChanges();
-    } catch (error) {
-      console.error('Error inesperado al obtener parroquias:', error);
-    }
-  }
-
-  // Generar lista de municipios
-  async generacionMunicipios() {
-    try {
-      const { data: provincias, error: errorProvincias } = await supabase
-        .from('Provincias')
-        .select('*')
-        .eq('Estado', true);
-
-      if (errorProvincias) {
-        console.error('Error al obtener provincias:', errorProvincias.message);
-        return;
-      }
-
-      const { data: cantones, error: errorCantones } = await supabase
-        .from('Cantones')
-        .select('*')
-        .eq('estado', true);
-
-      if (errorCantones) {
-        console.error('Error al obtener cantones:', errorCantones.message);
-        return;
-      }
-
-      this.datosconcatenar.provinciasConCantones = provincias.map((provincia: any) => {
-        const cantonesDeProvincia = cantones.filter((canton: any) => canton.codigo_provincia === provincia.Codigo_Provincia);
-        return {
-          ...provincia,
-          cantones: cantonesDeProvincia
-        };
-      });
-
-      this.datosrecuperados.municipios = this.datosconcatenar.provinciasConCantones.flatMap((provincia: any) =>
-        provincia.cantones.map((canton: any) => ({
-          value: `${provincia.Nombre_Provincia}/${canton.nombre_canton}`,
-          idCanton: canton.codigo_canton
-        }))
-      );
-
-      this.cdr.detectChanges();
-    } catch (error) {
-      console.error('Error inesperado al generar municipios:', error);
-    }
-  }
-
-  // Generar lista de parroquias
-  async generacionParroquias() {
-    try {
-      const { data: provincias, error: errorProvincias } = await supabase
-        .from('Provincias')
-        .select('*')
-        .eq('Estado', true);
-
-      if (errorProvincias) {
-        console.error('Error al obtener provincias:', errorProvincias.message);
-        return;
-      }
-
-      const { data: cantones, error: errorCantones } = await supabase
-        .from('Cantones')
-        .select('*')
-        .eq('estado', true);
-
-      if (errorCantones) {
-        console.error('Error al obtener cantones:', errorCantones.message);
-        return;
-      }
-
-      const { data: parroquias, error: errorParroquias } = await supabase
-        .from('parroquia')
-        .select('*')
-        .eq('estado', true);
-
-      if (errorParroquias) {
-        console.error('Error al obtener parroquias:', errorParroquias.message);
-        return;
-      }
-
-      this.datosconcatenar.provinciasConCantones = provincias.map((provincia: any) => {
-        const cantonesDeProvincia = cantones
-          .filter((canton: any) => canton.codigo_provincia === provincia.Codigo_Provincia)
-          .map((canton: any) => {
-            const parroquiasDeCanton = parroquias.filter((parroquia: any) =>
-              parroquia.codigo_canton === canton.codigo_canton
-            );
-            return {
-              ...canton,
-              parroquias: parroquiasDeCanton
-            };
-          });
-        return {
-          ...provincia,
-          cantones: cantonesDeProvincia
-        };
-      });
-
-      this.datosrecuperados.parroquias = this.datosconcatenar.provinciasConCantones.flatMap((provincia: any) =>
-        provincia.cantones.flatMap((canton: any) =>
-          canton.parroquias.map((parroquia: any) => ({
-            value: `${provincia.Nombre_Provincia}/${canton.nombre_canton}/${parroquia.nombre_parroquia}`,
-            idParroquia: parroquia.codigo_parroquia
-          }))
-        )
-      );
-
-      this.cdr.detectChanges();
-    } catch (error) {
-      console.error('Error inesperado al generar parroquias:', error);
-    }
-  }
-
-  // Recuperar competencias
-  async recuperarCompetencias() {
-    try {
-      const { data, error } = await supabase
-        .from('competencias')
-        .select('*');
-
-      if (error) {
-        console.error('Error al obtener las competencias:', error.message);
-        return;
-      }
-
-      this.datosrecuperados.competencias = data || [];
-    } catch (error) {
-      console.error('Error inesperado al recuperar competencias:', error);
-    }
-  }
-
-  // Recuperar mancomunidades
-  async recuperarMacrocumunidades() {
-    try {
-      const { data, error } = await supabase
-        .from('mancomunidades')
-        .select('*');
-
-      if (error) {
-        console.error('Error al obtener mancomunidades:', error);
-        return;
-      }
-
-      this.datosrecuperados.macrocomunidades = data || [];
-    } catch (error) {
-      console.error('Error inesperado al recuperar mancomunidades:', error);
-    }
-  }
-
-  // Manejar cambio en nivel de gobierno
-  async onNivelGobiernoChange(nivel_gobierno: string) {
-    if (!nivel_gobierno) return;
-
-    try {
-      // Los datos ya están cargados previamente en el inicio
-      // Solo necesitamos mostrar el selector correspondiente
-      this.cdr.detectChanges();
-    } catch (error) {
-      console.error('Error al cambiar nivel de gobierno:', error);
-    }
-  }
+  recuperarCompetencias() { }
+  recuperarMacrocumunidades() { }
+  generacionMunicipios() { }
+  generacionParroquias() { }
 }

@@ -1,0 +1,7 @@
+// Optimized style using shared theme
+// Specific styles for this page should be added here as needed.
+// Most styles are inherited from src/theme/shared.scss which is global.
+
+ion-content {
+  --background: #f5f7fa;
+}

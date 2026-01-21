@@ -1,14 +1,17 @@
-import { Component, OnInit } from '@angular/core';
+import { IonicModule } from '@ionic/angular';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { supabase } from 'src/supabase';
-import { environment } from 'src/environments/environment';
 import { AlertController, LoadingController, ToastController } from '@ionic/angular';
+import { CatalogoService } from 'src/app/services/catalogo.service';
 
 @Component({
   selector: 'app-crear',
   templateUrl: './crear.page.html',
   styleUrls: ['./crear.page.scss'],
-  standalone: false
+  standalone: true,
+  imports: [CommonModule, FormsModule, IonicModule]
 })
 export class CrearPage implements OnInit {
   nombreEntidad: string = '';
@@ -17,6 +20,8 @@ export class CrearPage implements OnInit {
   formSubmitted: boolean = false;
   imageFile: File | null = null;
   enviando: boolean = false;
+
+  private catalogoService = inject(CatalogoService);
 
   constructor(
     private router: Router,
@@ -76,7 +81,7 @@ export class CrearPage implements OnInit {
     this.formSubmitted = true;
 
     // Validar que todos los campos requeridos estén completos
-    if (!this.nombreEntidad || !this.imageFile) {
+    if (!this.nombreEntidad) {
       this.presentToast('Por favor, complete todos los campos obligatorios', 'danger');
       return;
     }
@@ -97,57 +102,29 @@ export class CrearPage implements OnInit {
     await loading.present();
 
     try {
-      // Subir la imagen primero
-      const extension = this.imageFile.name.split('.').pop();
-      // Generar nombre único para evitar colisiones
-      const uniqueId = new Date().getTime();
-      const nombreImagen = `${this.nombreEntidad.replace(/\s+/g, '_')}_${uniqueId}.${extension}`;
-
-      /* 
-      // TODO: Implementar subida de imagen al backend Node.js
-      const { data: uploadData, error: uploadError } = await supabase
-        .storage
-        .from('imagenes')
-        .upload('entidades/' + nombreImagen, this.imageFile);
-
-      if (uploadError) { ... }
-      const imageUrl = `${environment.supabaseUrl}/storage/v1/object/public/imagenes/${uploadData.path}`;
-      */
-
-      // Placeholder data until backend integration
+      // Placeholder data until backend integration for Image Upload
       const imageUrl = 'assets/placeholder.png';
+      // TODO: Handle image upload via backend service when available
 
-      /*
-     const { data, error } = await supabase
-       .from('Entidades')
-       .insert([...]);
-      */
+      const nuevaEntidad = {
+        Nombre_Entidad: this.nombreEntidad,
+        Imagen_Entidad: imageUrl,
+        Estado_Entidad: this.estadoEntidad
+      };
 
-      console.log('TODO: Implementar creación de entidad en backend Node.js');
-      // Simular éxito para no bloquear UI
-      loading.dismiss();
-      this.enviando = false;
-      this.presentToast('Funcionalidad en migración al nuevo backend', 'warning');
-      this.cancelar();
-      return;
-
-      /* Original code commented out for migration
-      if (error) { ... }
-      */
-
-      /*
-      if (error) {
-        console.error('Error al insertar la entidad:', error.message);
-        this.presentToast('Error al crear la entidad: ' + error.message, 'danger');
-        loading.dismiss();
-        this.enviando = false;
-        return;
-      }
-      */
-
-      loading.dismiss();
-      this.enviando = false;
-      this.presentAlertExito();
+      this.catalogoService.createItem('entidades', nuevaEntidad).subscribe({
+        next: async () => {
+          loading.dismiss();
+          this.enviando = false;
+          this.presentAlertExito();
+        },
+        error: async (error) => {
+          console.error('Error al crear la entidad:', error);
+          this.presentToast('Error al crear la entidad: ' + (error.message || error.statusText), 'danger');
+          loading.dismiss();
+          this.enviando = false;
+        }
+      });
 
     } catch (error: any) {
       console.error('Error al crear la entidad:', error);

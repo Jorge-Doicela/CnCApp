@@ -1,13 +1,17 @@
-import { Component, OnInit } from '@angular/core';
+import { IonicModule } from '@ionic/angular';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AlertController, LoadingController, ToastController } from '@ionic/angular';
-import { supabase } from 'src/supabase';
+import { CatalogoService } from 'src/app/services/catalogo.service';
 
 @Component({
   selector: 'app-crudinstituciones',
   templateUrl: './crudinstituciones.page.html',
   styleUrls: ['./crudinstituciones.page.scss'],
-  standalone: false
+  standalone: true,
+  imports: [CommonModule, FormsModule, IonicModule]
 })
 export class CrudinstitucionesPage implements OnInit {
 
@@ -18,6 +22,8 @@ export class CrudinstitucionesPage implements OnInit {
   filtroEstado: string = 'todos';
   ordenarPor: string = 'nombre';
   institucionesActivas: number = 0;
+
+  private catalogoService = inject(CatalogoService);
 
   constructor(
     private router: Router,
@@ -43,29 +49,23 @@ export class CrudinstitucionesPage implements OnInit {
     });
     await loading.present();
 
-    try {
-      const { data: instituciones, error } = await supabase
-        .from('instituciones_sistema')
-        .select('*');
+    this.catalogoService.getItems('instituciones').subscribe({
+      next: (instituciones) => {
+        // Añadir un campo de fecha de última actualización (simulado si no existe)
+        this.instituciones = (instituciones || []).map((inst: any) => ({
+          ...inst,
+          fecha_ultima_actualizacion: inst.fecha_ultima_actualizacion || new Date().toISOString()
+        }));
 
-      if (error) {
+        this.calcularEstadisticas();
+        this.filtrarInstituciones();
+        loading.dismiss();
+      },
+      error: (error) => {
+        loading.dismiss();
         this.presentToast('Error al obtener instituciones: ' + error.message, 'danger');
-        return;
       }
-
-      // Añadir un campo de fecha de última actualización (simulado si no existe)
-      this.instituciones = (instituciones || []).map((inst: any) => ({
-        ...inst,
-        fecha_ultima_actualizacion: inst.fecha_ultima_actualizacion || new Date().toISOString()
-      }));
-
-      this.calcularEstadisticas();
-      this.filtrarInstituciones();
-    } catch (error: any) {
-      this.presentToast('Error en la solicitud: ' + error.message, 'danger');
-    } finally {
-      loading.dismiss();
-    }
+    });
   }
 
   calcularEstadisticas() {
@@ -112,34 +112,27 @@ export class CrudinstitucionesPage implements OnInit {
     });
     await loading.present();
 
-    try {
-      const nuevoEstado = !institucion.estado_institucion;
-      const { error } = await supabase
-        .from('instituciones_sistema')
-        .update({
-          estado_institucion: nuevoEstado,
-          fecha_ultima_actualizacion: new Date().toISOString()
-        })
-        .eq('id_institucion', institucion.id_institucion);
-
-      if (error) {
+    const nuevoEstado = !institucion.estado_institucion;
+    this.catalogoService.updateItem('instituciones', institucion.id_institucion, {
+      estado_institucion: nuevoEstado,
+      fecha_ultima_actualizacion: new Date().toISOString()
+    }).subscribe({
+      next: () => {
+        loading.dismiss();
+        // Actualizar el objeto local
+        institucion.estado_institucion = nuevoEstado;
+        institucion.fecha_ultima_actualizacion = new Date().toISOString();
+        this.calcularEstadisticas();
+        this.presentToast(
+          `Institución "${institucion.nombre_institucion}" ahora está ${nuevoEstado ? 'activa' : 'inactiva'}`,
+          'success'
+        );
+      },
+      error: (error) => {
+        loading.dismiss();
         this.presentToast('Error al cambiar estado: ' + error.message, 'danger');
-        return;
       }
-
-      // Actualizar el objeto local
-      institucion.estado_institucion = nuevoEstado;
-      institucion.fecha_ultima_actualizacion = new Date().toISOString();
-      this.calcularEstadisticas();
-      this.presentToast(
-        `Institución "${institucion.nombre_institucion}" ahora está ${nuevoEstado ? 'activa' : 'inactiva'}`,
-        'success'
-      );
-    } catch (error: any) {
-      this.presentToast('Error en la solicitud: ' + error.message, 'danger');
-    } finally {
-      loading.dismiss();
-    }
+    });
   }
 
   async confirmarEliminar(institucion: any) {
@@ -171,24 +164,17 @@ export class CrudinstitucionesPage implements OnInit {
     });
     await loading.present();
 
-    try {
-      const { error } = await supabase
-        .from('instituciones_sistema')
-        .delete()
-        .eq('id_institucion', idInstitucion);
-
-      if (error) {
+    this.catalogoService.deleteItem('instituciones', idInstitucion).subscribe({
+      next: () => {
+        loading.dismiss();
+        this.presentToast('Institución eliminada correctamente', 'success');
+        this.obtenerInstituciones();
+      },
+      error: (error) => {
+        loading.dismiss();
         this.presentToast('Error al eliminar institución: ' + error.message, 'danger');
-        return;
       }
-
-      this.presentToast('Institución eliminada correctamente', 'success');
-      this.obtenerInstituciones();
-    } catch (error: any) {
-      this.presentToast('Error en la solicitud: ' + error.message, 'danger');
-    } finally {
-      loading.dismiss();
-    }
+    });
   }
 
   async presentToast(message: string, color: string = 'primary') {

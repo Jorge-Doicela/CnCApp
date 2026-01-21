@@ -1,22 +1,9 @@
+// Optimizado para usar estilos compartidos
 ion-content {
   --background: #f5f7fa;
 }
 
-.logo-container {
-  padding: 20px 0;
-  margin-bottom: 10px;
-
-  .cnc-logo {
-    max-width: 200px;
-    height: auto;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
-    transition: transform 0.3s ease;
-
-    &:hover {
-      transform: scale(1.05);
-    }
-  }
-}
+// Estilos específicos de servi-progra no cubiertos por shared.scss
 
 ion-segment {
   margin-bottom: 20px;
@@ -41,10 +28,6 @@ ion-segment {
 }
 
 .intro-card {
-  border-radius: 16px;
-  margin-bottom: 20px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-
   ion-card-title {
     font-size: 20px;
     font-weight: 600;
@@ -65,16 +48,6 @@ ion-segment {
   margin: 20px 0;
 
   .service-card {
-    border-radius: 16px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    overflow: hidden;
-
-    &:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
-    }
-
     .service-icon {
       display: flex;
       justify-content: center;
@@ -149,17 +122,6 @@ ion-segment {
 }
 
 .program-card {
-  border-radius: 16px;
-  margin-bottom: 20px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  overflow: hidden;
-
-  &:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
-  }
-
   ion-card-header {
     ion-card-title {
       font-size: 18px;
@@ -233,17 +195,7 @@ ion-segment {
 }
 
 .ver-mas-card {
-  border-radius: 16px;
-  margin: 20px 0;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  overflow: hidden;
   cursor: pointer;
-
-  &:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-  }
 
   ion-card-content {
     padding: 16px;
@@ -338,7 +290,7 @@ ion-segment {
         font-size: 16px;
         font-weight: 600;
         color: var(--ion-color-primary);
-        padding-right: 80px; // Espacio para el badge
+        padding-right: 80px;
       }
 
       .event-details {
@@ -420,9 +372,13 @@ ion-segment {
   }
 }
 
-// Estilos para los alerts
+// Estilos para los alerts (mantener deep)
 :host ::ng-deep {
-  .servicio-alert, .programa-alert, .evento-alert, .eventos-calendario-alert {
+
+  .servicio-alert,
+  .programa-alert,
+  .evento-alert,
+  .eventos-calendario-alert {
     --max-width: 90%;
     --width: 100%;
 
@@ -431,7 +387,10 @@ ion-segment {
       color: #333;
     }
 
-    .servicio-detalle, .programa-detalle, .evento-detalle, .todos-eventos {
+    .servicio-detalle,
+    .programa-detalle,
+    .evento-detalle,
+    .todos-eventos {
       text-align: left;
 
       h4 {

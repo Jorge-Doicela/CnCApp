@@ -1,14 +1,18 @@
-// crudcapacitaciones.page.ts
-import { Component, OnInit } from '@angular/core';
-import { supabase } from 'src/supabase';
+```typescript
+import { IonicModule } from '@ionic/angular';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AlertController, LoadingController, ToastController } from '@ionic/angular';
+import { CapacitacionesService } from 'src/app/services/capacitaciones.service';
 
 @Component({
   selector: 'app-crudcapacitaciones',
   templateUrl: './crudcapacitaciones.page.html',
   styleUrls: ['./crudcapacitaciones.page.scss'],
-  standalone: false
+  standalone: true,
+  imports: [CommonModule, FormsModule, IonicModule]
 })
 export class CrudcapacitacionesPage implements OnInit {
   Capacitaciones: any[] = [];
@@ -19,6 +23,8 @@ export class CrudcapacitacionesPage implements OnInit {
   ordenarPor: string = 'fecha_desc';
   terminoBusqueda: string = '';
   cargando: boolean = false;
+
+  private capacitacionesService = inject(CapacitacionesService);
 
   constructor(
     private router: Router,
@@ -40,24 +46,20 @@ export class CrudcapacitacionesPage implements OnInit {
     await loading.present();
     this.cargando = true;
 
-    try {
-      const { data, error } = await supabase.from('Capacitaciones').select('*');
-
-      if (error) {
-        console.error('Error al obtener capacitaciones:', error.message);
-        this.presentToast('Error al cargar capacitaciones', 'danger');
-        return;
-      }
-
-      this.Capacitaciones = data || [];
-      this.aplicarFiltros();
-    } catch (error: any) {
-      console.error('Error inesperado:', error);
-      this.presentToast('Error al cargar datos', 'danger');
-    } finally {
-      this.cargando = false;
-      loading.dismiss();
-    }
+    this.capacitacionesService.getCapacitaciones().subscribe({
+        next: (data) => {
+             this.Capacitaciones = data || [];
+             this.aplicarFiltros();
+             this.cargando = false;
+             loading.dismiss();
+        },
+        error: (error) => {
+             console.error('Error al obtener capacitaciones:', error);
+             this.presentToast('Error al cargar capacitaciones (API)', 'danger');
+             this.cargando = false;
+             loading.dismiss();
+        }
+    });
   }
 
   // Aplicar filtros a las capacitaciones
@@ -168,27 +170,18 @@ export class CrudcapacitacionesPage implements OnInit {
     });
     await loading.present();
 
-    try {
-      const { data, error } = await supabase
-        .from('Capacitaciones')
-        .update({ Estado: 1 })
-        .eq('Id_Capacitacion', Id_Capacitacion)
-        .select();
-
-      if (error) {
-        console.error('Error al finalizar la capacitación:', error);
-        this.presentToast('Error al finalizar la capacitación', 'danger');
-        return;
-      }
-
-      this.presentToast('Capacitación finalizada exitosamente', 'success');
-      this.RecuperarCapacitaciones();
-    } catch (error: any) {
-      console.error('Error inesperado:', error);
-      this.presentToast('Error al actualizar el estado', 'danger');
-    } finally {
-      loading.dismiss();
-    }
+    this.capacitacionesService.updateCapacitacion(Id_Capacitacion, { Estado: 1 }).subscribe({
+        next: () => {
+             this.presentToast('Capacitación finalizada exitosamente', 'success');
+             this.RecuperarCapacitaciones();
+             loading.dismiss();
+        },
+        error: (error) => {
+             console.error('Error al finalizar la capacitación:', error);
+             this.presentToast('Error al finalizar la capacitación', 'danger');
+             loading.dismiss();
+        }
+    });
   }
 
   // Eliminar capacitación
@@ -221,81 +214,51 @@ export class CrudcapacitacionesPage implements OnInit {
     });
     await loading.present();
 
-    try {
-      // Primero eliminar registros relacionados en la tabla de unión
-      const { error: errorUsuarios } = await supabase
-        .from('Usuarios_Capacitaciones')
-        .delete()
-        .eq('Id_Capacitacion', Id_Capacitacion);
-
-      if (errorUsuarios) {
-        console.error('Error al eliminar registros de usuarios:', errorUsuarios);
-        this.presentToast('Error al eliminar usuarios asociados', 'danger');
-        return;
-      }
-
-      // Luego eliminar la capacitación
-      const { error } = await supabase
-        .from('Capacitaciones')
-        .delete()
-        .eq('Id_Capacitacion', Id_Capacitacion);
-
-      if (error) {
-        console.error('Error al eliminar capacitación:', error);
-        this.presentToast('Error al eliminar la capacitación', 'danger');
-        return;
-      }
-
-      // Actualizar la lista
-      this.presentToast('Capacitación eliminada correctamente', 'success');
-      this.RecuperarCapacitaciones();
-    } catch (error: any) {
-      console.error('Error inesperado:', error);
-      this.presentToast('Error al eliminar datos', 'danger');
-    } finally {
-      loading.dismiss();
-    }
+    // The backend service should safely handle cascading deletes or check strict conditions.
+    this.capacitacionesService.deleteCapacitacion(Id_Capacitacion).subscribe({
+        next: () => {
+             this.presentToast('Capacitación eliminada correctamente', 'success');
+             this.RecuperarCapacitaciones();
+             loading.dismiss();
+        },
+        error: (error) => {
+             console.error('Error al eliminar capacitación:', error);
+             this.presentToast('Error al eliminar la capacitación', 'danger');
+             loading.dismiss();
+        }
+    });
   }
 
   // Generación de certificados
   async mostrarConfirmacion(Id_Capacitacion: number) {
-    // Obtener usuarios que no asistieron
-    const usuariosNoAsistieron = await this.obtenerUsuariosNoAsistieron(Id_Capacitacion);
-
-    const alert = await this.alertController.create({
-      header: 'Confirmar emisión de certificados',
-      message: `Se va a emitir el certificado para esta capacitación. Los usuarios que no asistieron (${usuariosNoAsistieron.length}) serán eliminados de la lista y no recibirán certificados. Esta acción no se puede deshacer.`,
-      buttons: [
-        {
-          text: 'Cancelar',
-          role: 'cancel'
+    // Obtener usuarios que no asistieron via service
+    // Note: getUsuariosNoAsistieron is async/observable.
+    this.capacitacionesService.getUsuariosNoAsistieron(Id_Capacitacion).subscribe({
+        next: async (usuariosNoAsistieron) => {
+             const alert = await this.alertController.create({
+              header: 'Confirmar emisión de certificados',
+              message: `Se va a emitir el certificado para esta capacitación.Los usuarios que no asistieron(${ usuariosNoAsistieron.length }) serán eliminados de la lista y no recibirán certificados.Esta acción no se puede deshacer.`,
+              buttons: [
+                {
+                  text: 'Cancelar',
+                  role: 'cancel'
+                },
+                {
+                  text: 'Emitir certificados',
+                  handler: () => {
+                    this.eliminarNoAsistieron(Id_Capacitacion);
+                    this.iraGenerarCertificado(Id_Capacitacion);
+                  }
+                }
+              ]
+            });
+            await alert.present();
         },
-        {
-          text: 'Emitir certificados',
-          handler: () => {
-            this.eliminarNoAsistieron(Id_Capacitacion);
-            this.iraGenerarCertificado(Id_Capacitacion);
-          }
+        error: (error) => {
+            console.error('Error fetching non-attending users:', error);
+            this.presentToast('Error al verificar asistencia', 'danger');
         }
-      ]
     });
-
-    await alert.present();
-  }
-
-  async obtenerUsuariosNoAsistieron(Id_Capacitacion: number) {
-    const { data, error } = await supabase
-      .from('Usuarios_Capacitaciones')
-      .select('Id_Usuario')
-      .eq('Id_Capacitacion', Id_Capacitacion)
-      .eq('Asistencia', false);
-
-    if (error) {
-      console.error('Error al obtener usuarios sin asistencia:', error);
-      return [];
-    }
-
-    return data || [];
   }
 
   async eliminarNoAsistieron(Id_Capacitacion: number) {
@@ -305,28 +268,19 @@ export class CrudcapacitacionesPage implements OnInit {
     });
     await loading.present();
 
-    try {
-      const { data, error } = await supabase
-        .from('Usuarios_Capacitaciones')
-        .delete()
-        .eq('Id_Capacitacion', Id_Capacitacion)
-        .eq('Asistencia', false);
-
-      if (error) {
-        console.error('Error al eliminar usuarios sin asistencia:', error);
-        this.presentToast('Error al procesar usuarios sin asistencia', 'danger');
-      } else {
-        console.log('Usuarios sin asistencia eliminados:', data);
-        // Corregimos el acceso a data.length con una verificación más segura
-        const eliminados = data && typeof data === 'object' && 'length' in data ? (data as any[]).length : 0;
-        this.presentToast(`Se han eliminado ${eliminados} usuarios sin asistencia`, 'success');
-      }
-    } catch (error: any) {
-      console.error('Error inesperado:', error);
-      this.presentToast('Error al procesar datos', 'danger');
-    } finally {
-      loading.dismiss();
-    }
+    this.capacitacionesService.deleteUsuariosNoAsistieron(Id_Capacitacion).subscribe({
+        next: (response) => {
+             console.log('Usuarios sin asistencia eliminados:', response);
+             // Assuming response contains count or we just message success
+             this.presentToast(`Se han eliminado usuarios sin asistencia`, 'success');
+             loading.dismiss();
+        },
+        error: (error) => {
+             console.error('Error al eliminar usuarios sin asistencia:', error);
+             this.presentToast('Error al procesar usuarios sin asistencia', 'danger');
+             loading.dismiss();
+        }
+    });
   }
 
   async iraGenerarCertificado(Id_Capacitacion: number) {
@@ -336,27 +290,18 @@ export class CrudcapacitacionesPage implements OnInit {
     });
     await loading.present();
 
-    try {
-      const { data, error } = await supabase
-        .from('Capacitaciones')
-        .update({ Certificado: true })
-        .eq('Id_Capacitacion', Id_Capacitacion)
-        .select();
-
-      if (error) {
-        console.error('Error al emitir el certificado:', error);
-        this.presentToast('Error al emitir certificados', 'danger');
-      } else {
-        console.log('Certificado emitido con éxito:', data);
-        this.presentToast('Certificados emitidos correctamente', 'success');
-        this.RecuperarCapacitaciones();
-      }
-    } catch (error: any) {
-      console.error('Error inesperado:', error);
-      this.presentToast('Error al procesar certificados', 'danger');
-    } finally {
-      loading.dismiss();
-    }
+    this.capacitacionesService.updateCapacitacion(Id_Capacitacion, { Certificado: true }).subscribe({
+        next: () => {
+             this.presentToast('Certificados emitidos correctamente', 'success');
+             this.RecuperarCapacitaciones();
+             loading.dismiss();
+        },
+        error: (error) => {
+             console.error('Error al emitir el certificado:', error);
+             this.presentToast('Error al emitir certificados', 'danger');
+             loading.dismiss();
+        }
+    });
   }
 
   async presentToast(message: string, color: string = 'primary') {
@@ -376,3 +321,4 @@ export class CrudcapacitacionesPage implements OnInit {
     await toast.present();
   }
 }
+```

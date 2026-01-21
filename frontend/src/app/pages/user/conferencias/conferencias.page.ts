@@ -1,142 +1,49 @@
+import { IonicModule } from '@ionic/angular';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { supabase } from 'src/supabase';
+import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { AlertController, LoadingController, ToastController } from '@ionic/angular';
+import { AlertController, ToastController } from '@ionic/angular';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-conferencias',
   templateUrl: './conferencias.page.html',
   styleUrls: ['./conferencias.page.scss'],
-  standalone: false
+  standalone: true,
+  imports: [CommonModule, FormsModule, IonicModule]
 })
 export class ConferenciasPage implements OnInit {
-  Capacitaciones: any[] = [];
-  CapacitacionesFiltradas: any[] = [];
-  cargando: boolean = true;
-  searchTerm: string = '';
-  filtroEstado: string = 'todos';
+  Capacitaciones: any[] = []; // Array to store trainings
+  loading: boolean = true;
+  userProfile: any = null;
 
   constructor(
     private router: Router,
     private alertController: AlertController,
-    private loadingController: LoadingController,
-    private toastController: ToastController
+    private toastController: ToastController,
+    private http: HttpClient
   ) { }
 
   ngOnInit() {
-    this.cargarCapacitaciones();
+    this.cargarDatos();
   }
 
-  async cargarCapacitaciones() {
-    const loading = await this.loadingController.create({
-      message: 'Cargando conferencias...',
-      spinner: 'crescent'
-    });
-    await loading.present();
-
+  async cargarDatos() {
     try {
-      await this.RecuperarCapacitaciones();
-      this.presentToast('Conferencias cargadas correctamente', 'success');
-    } catch (error: any) {
-      this.presentToast('Error al cargar conferencias: ' + error.message, 'danger');
-    } finally {
-      this.cargando = false;
-      loading.dismiss();
+      // Mock data loading or fetch from backend
+      // const authUid = localStorage.getItem('auth_uid');
+      // if (authUid) {
+      //     this.userProfile = await this.http.get(...)
+      // }
+      // For now, empty
+      this.Capacitaciones = [];
+      this.loading = false;
+    } catch (error) {
+      console.error('Error loading data', error);
+      this.loading = false;
     }
-  }
-
-  async obtenerIdUsuarioActivo() {
-    const { data, error } = await supabase.auth.getUser();
-
-    if (error) {
-      this.presentToast('Error al obtener el usuario activo: ' + error.message, 'danger');
-      return null;
-    }
-
-    if (data && data.user) {
-      const idUsuario = data.user.id;
-      return this.obtenerIdUsuario(idUsuario);
-    } else {
-      this.presentToast('No hay usuario activo', 'warning');
-      return null;
-    }
-  }
-
-  async obtenerIdUsuario(idUsuario: string) {
-    let { data: Usuario, error } = await supabase
-      .from('Usuario')
-      .select('Id_Usuario')
-      .eq('auth_uid', idUsuario);
-
-    if (error) {
-      this.presentToast('Error al obtener el usuario: ' + error.message, 'danger');
-      return null;
-    }
-
-    if (Usuario && Usuario.length > 0) {
-      return Usuario[0].Id_Usuario;
-    } else {
-      this.presentToast('No se encontró el usuario', 'warning');
-      return null;
-    }
-  }
-
-  async RecuperarCapacitaciones() {
-    const Id_Usuario = await this.obtenerIdUsuarioActivo();
-
-    if (Id_Usuario) {
-      const { data: inscripciones, error: errorInscripciones } = await supabase
-        .from('Usuarios_Capacitaciones')
-        .select('Id_Capacitacion')
-        .eq('Id_Usuario', Id_Usuario);
-
-      if (errorInscripciones) {
-        this.presentToast('Error al obtener las inscripciones: ' + errorInscripciones.message, 'danger');
-        return;
-      }
-
-      if (!inscripciones || inscripciones.length === 0) {
-        this.Capacitaciones = [];
-        this.CapacitacionesFiltradas = [];
-        return;
-      }
-
-      const capacitacionesIds = inscripciones.map((inscripcion: any) => inscripcion.Id_Capacitacion);
-
-      const { data: capacitaciones, error: errorCapacitaciones } = await supabase
-        .from('Capacitaciones')
-        .select('*')
-        .in('Id_Capacitacion', capacitacionesIds);
-
-      if (errorCapacitaciones) {
-        this.presentToast('Error al obtener las capacitaciones: ' + errorCapacitaciones.message, 'danger');
-        return;
-      }
-
-      this.Capacitaciones = capacitaciones ?? [];
-      this.filtrarCapacitaciones();
-    } else {
-      this.presentToast('No hay usuario activo', 'warning');
-    }
-  }
-
-  filtrarCapacitaciones() {
-    this.CapacitacionesFiltradas = this.Capacitaciones.filter(capacitacion => {
-      // Filtrar por término de búsqueda
-      const matchesSearchTerm = this.searchTerm.trim() === '' ||
-        capacitacion.Nombre_Capacitacion.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        capacitacion.Descripcion_Capacitacion.toLowerCase().includes(this.searchTerm.toLowerCase());
-
-      // Filtrar por estado
-      const matchesEstado = this.filtroEstado === 'todos' ||
-        capacitacion.Estado.toString() === this.filtroEstado;
-
-      return matchesSearchTerm && matchesEstado;
-    });
-  }
-
-  getCapacitacionesPorEstado(estado: number): number {
-    return this.Capacitaciones.filter(cap => cap.Estado === estado).length;
   }
 
   getCapacitacionesConCertificado(): number {

@@ -1,10 +1,12 @@
-import { Component, OnInit, OnDestroy, effect } from '@angular/core';
+import { Component, OnInit, OnDestroy, effect, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { IonicModule, MenuController, AlertController } from '@ionic/angular';
 import { RecuperacionDataUsuarioService } from './services/recuperacion-data-usuario.service';
+import { AuthService } from './services/auth.service';
+import { UsuarioService } from './services/usuario.service';
 import { filter } from 'rxjs/operators';
-import { supabase } from 'src/supabase';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -21,6 +23,9 @@ export class AppComponent implements OnInit, OnDestroy {
   modulos = this.recuperacionDataUsuarioService.modulos;
 
   lastUrl: string = '';
+
+  private authService = inject(AuthService);
+  private usuarioService = inject(UsuarioService);
 
   constructor(
     private router: Router,
@@ -57,16 +62,13 @@ export class AppComponent implements OnInit, OnDestroy {
 
     // Verificar si el rol ha cambiado
     try {
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
-      if (userError || !user) return;
+      // Assuming localStorage has auth_uid, we can check DB.
+      // Ideally we shouldn't trust localStorage alone, but for this check it's okay.
+      // Better to check current AuthService state if available.
 
-      const { data: userData, error } = await supabase
-        .from('Usuario')
-        .select('Rol_Usuario')
-        .eq('auth_uid', user.id)
-        .single();
+      const userData = await firstValueFrom(this.usuarioService.getUsuarioByAuthId(authUid));
 
-      if (error || !userData) return;
+      if (!userData) return;
 
       const storedRoleStr = localStorage.getItem('user_role');
       if (!storedRoleStr) return;

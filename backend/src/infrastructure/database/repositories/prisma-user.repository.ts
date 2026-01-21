@@ -1,11 +1,12 @@
+import { injectable } from 'tsyringe';
 import prisma from '../../../config/database';
 import { User } from '../../../domain/entities/user.entity';
 import { UserRepository } from '../../../domain/repositories/user.repository';
+import { UserMapper } from '../../../domain/mappers/user.mapper';
 
+@injectable()
 export class PrismaUserRepository implements UserRepository {
     async create(user: Partial<User>): Promise<User> {
-        // Prisma expects specific input types. We cast 'any' here for simplicity in this refactor,
-        // but in a strict environment we should separate Domain User from Prisma User input.
         const createdUser = await prisma.usuario.create({
             data: {
                 nombre: user.nombre!,
@@ -22,7 +23,7 @@ export class PrismaUserRepository implements UserRepository {
                 entidad: true
             }
         });
-        return createdUser as unknown as User;
+        return UserMapper.toDomain(createdUser);
     }
 
     async findByCi(ci: string): Promise<User | null> {
@@ -33,7 +34,7 @@ export class PrismaUserRepository implements UserRepository {
                 entidad: true
             }
         });
-        return user as unknown as User;
+        return user ? UserMapper.toDomain(user) : null;
     }
 
     async findById(id: number): Promise<User | null> {
@@ -44,7 +45,7 @@ export class PrismaUserRepository implements UserRepository {
                 entidad: true
             }
         });
-        return user as unknown as User;
+        return user ? UserMapper.toDomain(user) : null;
     }
 
     async update(id: number, userData: Partial<User>): Promise<User> {
@@ -55,13 +56,33 @@ export class PrismaUserRepository implements UserRepository {
                 email: userData.email,
                 telefono: userData.telefono,
                 tipoParticipante: userData.tipoParticipante,
-                // Add other fields as necessary
+                rolId: userData.rolId,
+                entidadId: userData.entidadId
             },
             include: {
                 rol: true,
                 entidad: true
             }
         });
-        return user as unknown as User;
+        return UserMapper.toDomain(user);
+    }
+
+    async findAll(): Promise<User[]> {
+        const users = await prisma.usuario.findMany({
+            include: {
+                rol: true,
+                entidad: true
+            },
+            orderBy: {
+                createdAt: 'desc'
+            }
+        });
+        return users.map(user => UserMapper.toDomain(user));
+    }
+
+    async delete(id: number): Promise<void> {
+        await prisma.usuario.delete({
+            where: { id }
+        });
     }
 }

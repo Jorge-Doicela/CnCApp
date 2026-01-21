@@ -1,14 +1,20 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { IonicModule } from '@ionic/angular';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { Component, OnInit, ViewChild, inject } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { ToastController, AlertController, NavController, LoadingController } from '@ionic/angular';
-import { supabase } from 'src/supabase';
+import { CapacitacionesService } from 'src/app/services/capacitaciones.service';
+import { CatalogoService } from 'src/app/services/catalogo.service';
+import { UsuarioService } from 'src/app/services/usuario.service';
 
 @Component({
   selector: 'app-editar',
   templateUrl: './editar.page.html',
   styleUrls: ['./editar.page.scss'],
-  standalone: false
+  standalone: true,
+  imports: [CommonModule, FormsModule, IonicModule]
 })
 export class EditarPage implements OnInit {
   @ViewChild('capacitacionForm') capacitacionForm!: NgForm;
@@ -29,9 +35,13 @@ export class EditarPage implements OnInit {
     Certificado: false
   };
 
-  capacitacionOriginal: any = {}; // Para comparar cambios
+  capacitacionOriginal: any = {};
   entidadesList: any[] = [];
   usuariosList: any[] = [];
+
+  private capacitacionesService = inject(CapacitacionesService);
+  private catalogoService = inject(CatalogoService);
+  private usuarioService = inject(UsuarioService);
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -52,7 +62,6 @@ export class EditarPage implements OnInit {
     }
   }
 
-  // Función para cargar todos los datos necesarios
   async cargarDatos() {
     const loading = await this.loadingController.create({
       message: 'Cargando datos...',
@@ -63,89 +72,72 @@ export class EditarPage implements OnInit {
     try {
       await Promise.all([
         this.cargarCapacitacion(),
-        this.cargarEntidadesYUsuarios()
+        this.cargarEntidades(),
+        this.cargarUsuarios()
       ]);
-
-      // Guardar copia de la capacitación original para comparar cambios
       this.capacitacionOriginal = JSON.parse(JSON.stringify(this.capacitacion));
       this.cargando = false;
+      loading.dismiss();
     } catch (error) {
       console.error('Error al cargar datos:', error);
       this.mostrarToast('Error al cargar los datos', 'danger');
       this.cargando = false;
-    } finally {
       loading.dismiss();
     }
   }
 
-  // Función para cargar los datos de la capacitación
-  async cargarCapacitacion() {
-    try {
-      const { data, error } = await supabase
-        .from('Capacitaciones')
-        .select('*')
-        .eq('Id_Capacitacion', this.capacitacion.Id_Capacitacion)
-        .single();
-
-      if (error) {
-        console.error('Error al recuperar la capacitación:', error.message);
-        this.mostrarToast('Error al cargar la capacitación', 'danger');
+  cargarCapacitacion() {
+    return new Promise<void>((resolve, reject) => {
+      if (!this.capacitacion.Id_Capacitacion) {
+        reject('No ID');
         return;
       }
-
-      if (!data) {
-        this.mostrarToast('No se encontró la capacitación solicitada', 'warning');
-        this.navController.navigateBack('/gestionar-capacitaciones');
-        return;
-      }
-
-      this.capacitacion = { ...data };
-    } catch (error) {
-      console.error('Error al cargar los datos de la capacitación:', error);
-      throw error; // Propagar el error para manejarlo en cargarDatos()
-    }
+      this.capacitacionesService.getCapacitacion(this.capacitacion.Id_Capacitacion).subscribe({
+        next: (data) => {
+          if (!data) {
+            this.mostrarToast('No se encontró la capacitación', 'warning');
+            this.navController.navigateBack('/gestionar-capacitaciones');
+            reject();
+            return;
+          }
+          this.capacitacion = { ...data };
+          resolve();
+        },
+        error: (err) => reject(err)
+      });
+    });
   }
 
-  // Función para cargar las entidades y usuarios
-  async cargarEntidadesYUsuarios() {
-    try {
-      // Recuperar las entidades
-      const { data: entidadesData, error: errorEntidades } = await supabase
-        .from('Entidades')
-        .select('*')
-        .order('Nombre_Entidad', { ascending: true });
-
-      if (errorEntidades) {
-        console.error('Error al cargar las entidades:', errorEntidades.message);
-        throw new Error('Error al cargar entidades');
-      }
-      this.entidadesList = entidadesData || [];
-
-      // Recuperar los usuarios
-      const { data: usuariosData, error: errorUsuarios } = await supabase
-        .from('Usuario')
-        .select('*')
-        .order('Nombre_Usuario', { ascending: true });
-
-      if (errorUsuarios) {
-        console.error('Error al cargar los usuarios:', errorUsuarios.message);
-        throw new Error('Error al cargar usuarios');
-      }
-      this.usuariosList = usuariosData || [];
-    } catch (error) {
-      console.error('Error al cargar entidades y usuarios:', error);
-      throw error; // Propagar el error para manejarlo en cargarDatos()
-    }
+  cargarEntidades() {
+    return new Promise<void>((resolve, reject) => {
+      this.catalogoService.getItems('entidades').subscribe({
+        next: (data) => {
+          this.entidadesList = data || [];
+          resolve();
+        },
+        error: (err) => reject(err)
+      });
+    });
   }
 
-  // Función para actualizar la capacitación
+  cargarUsuarios() {
+    return new Promise<void>((resolve, reject) => {
+      this.usuarioService.getUsuarios().subscribe({
+        next: (data) => {
+          this.usuariosList = data || [];
+          resolve();
+        },
+        error: (err) => reject(err)
+      });
+    });
+  }
+
   async actualizarCapacitacion() {
     if (!this.capacitacionForm.valid) {
       this.mostrarToast('Por favor complete todos los campos obligatorios', 'warning');
       return;
     }
 
-    // Si tiene certificado emitido, mostrar advertencia antes de actualizar
     if (this.capacitacion.Certificado && this.hayBioCambiosCriticos()) {
       const alert = await this.alertController.create({
         header: 'Advertencia',
@@ -170,7 +162,6 @@ export class EditarPage implements OnInit {
     }
   }
 
-  // Función que verifica si hay cambios en datos críticos para certificados
   hayBioCambiosCriticos(): boolean {
     return (
       this.capacitacion.Nombre_Capacitacion !== this.capacitacionOriginal.Nombre_Capacitacion ||
@@ -180,7 +171,6 @@ export class EditarPage implements OnInit {
     );
   }
 
-  // Función para guardar los cambios en la base de datos
   async guardarCambios() {
     const loading = await this.loadingController.create({
       message: 'Guardando cambios...',
@@ -188,54 +178,35 @@ export class EditarPage implements OnInit {
     });
     await loading.present();
 
-    try {
-      const { data, error } = await supabase
-        .from('Capacitaciones')
-        .update({
-          Nombre_Capacitacion: this.capacitacion.Nombre_Capacitacion,
-          Descripcion_Capacitacion: this.capacitacion.Descripcion_Capacitacion,
-          Fecha_Capacitacion: this.capacitacion.Fecha_Capacitacion,
-          Lugar_Capacitacion: this.capacitacion.Lugar_Capacitacion,
-          Estado: this.capacitacion.Estado,
-          Modalidades: this.capacitacion.Modalidades,
-          Horas: this.capacitacion.Horas,
-          Limite_Participantes: this.capacitacion.Limite_Participantes,
-          entidades_encargadas: this.capacitacion.entidades_encargadas,
-          ids_usuarios: this.capacitacion.ids_usuarios
-        })
-        .eq('Id_Capacitacion', this.capacitacion.Id_Capacitacion);
-
-      if (error) {
-        console.error('Error al actualizar la capacitación:', error.message);
-        this.mostrarToast('Error al actualizar la capacitación', 'danger');
-        return;
-      }
-
-      // Actualizar la capacitación original para futuras comparaciones
-      this.capacitacionOriginal = JSON.parse(JSON.stringify(this.capacitacion));
-      this.mostrarToast('Capacitación actualizada correctamente', 'success');
-
-      // Si el estado cambió a "Realizada", preguntar por la emisión de certificados
-      if (this.capacitacion.Estado === 1 && !this.capacitacion.Certificado) {
-        loading.dismiss();
-        this.preguntarEmitirCertificados();
-      } else {
-        // Esperar un momento antes de volver para que el usuario vea el mensaje de éxito
-        setTimeout(() => {
-          loading.dismiss();
-          this.navController.navigateBack('/gestionar-capacitaciones');
-        }, 1000);
-      }
-    } catch (error) {
-      console.error('Error al actualizar la capacitación:', error);
-      this.mostrarToast('Error al procesar los datos', 'danger');
+    if (!this.capacitacion.Id_Capacitacion) {
       loading.dismiss();
+      return;
     }
+
+    this.capacitacionesService.updateCapacitacion(this.capacitacion.Id_Capacitacion, this.capacitacion).subscribe({
+      next: () => {
+        this.capacitacionOriginal = JSON.parse(JSON.stringify(this.capacitacion));
+        this.mostrarToast('Capacitación actualizada correctamente', 'success');
+
+        if (this.capacitacion.Estado === 1 && !this.capacitacion.Certificado) {
+          loading.dismiss();
+          this.preguntarEmitirCertificados();
+        } else {
+          setTimeout(() => {
+            loading.dismiss();
+            this.navController.navigateBack('/gestionar-capacitaciones');
+          }, 1000);
+        }
+      },
+      error: (error) => {
+        loading.dismiss();
+        console.error('Error al actualizar:', error);
+        this.mostrarToast('Error al actualizar la capacitación', 'danger');
+      }
+    });
   }
 
-  // Función para cancelar la edición
   async cancelarEdicion() {
-    // Verificar si hay cambios no guardados
     if (JSON.stringify(this.capacitacion) !== JSON.stringify(this.capacitacionOriginal)) {
       const alert = await this.alertController.create({
         header: 'Cambios no guardados',
@@ -253,14 +224,12 @@ export class EditarPage implements OnInit {
           }
         ]
       });
-
       await alert.present();
     } else {
       this.navController.navigateBack('/gestionar-capacitaciones');
     }
   }
 
-  // Función para marcar la capacitación como finalizada
   async finalizarCapacitacion() {
     const alert = await this.alertController.create({
       header: 'Finalizar capacitación',
@@ -273,17 +242,15 @@ export class EditarPage implements OnInit {
         {
           text: 'Finalizar',
           handler: async () => {
-            this.capacitacion.Estado = 1; // Marcar como realizada
+            this.capacitacion.Estado = 1;
             await this.guardarCambios();
           }
         }
       ]
     });
-
     await alert.present();
   }
 
-  // Función para confirmar eliminación de capacitación
   async confirmarEliminar() {
     const alert = await this.alertController.create({
       header: 'Confirmar eliminación',
@@ -302,11 +269,9 @@ export class EditarPage implements OnInit {
         }
       ]
     });
-
     await alert.present();
   }
 
-  // Función para eliminar la capacitación
   async eliminarCapacitacion() {
     const loading = await this.loadingController.create({
       message: 'Eliminando capacitación...',
@@ -314,45 +279,27 @@ export class EditarPage implements OnInit {
     });
     await loading.present();
 
-    try {
-      // Primero eliminar registros relacionados en la tabla de unión
-      const { error: errorUsuarios } = await supabase
-        .from('Usuarios_Capacitaciones')
-        .delete()
-        .eq('Id_Capacitacion', this.capacitacion.Id_Capacitacion);
-
-      if (errorUsuarios) {
-        console.error('Error al eliminar registros de usuarios:', errorUsuarios);
-        this.mostrarToast('Error al eliminar usuarios asociados', 'danger');
-        return;
-      }
-
-      // Luego eliminar la capacitación
-      const { error } = await supabase
-        .from('Capacitaciones')
-        .delete()
-        .eq('Id_Capacitacion', this.capacitacion.Id_Capacitacion);
-
-      if (error) {
-        console.error('Error al eliminar capacitación:', error);
-        this.mostrarToast('Error al eliminar la capacitación', 'danger');
-        return;
-      }
-
-      this.mostrarToast('Capacitación eliminada correctamente', 'success');
-      setTimeout(() => {
-        this.navController.navigateBack('/gestionar-capacitaciones');
-      }, 1500);
-
-    } catch (error) {
-      console.error('Error inesperado:', error);
-      this.mostrarToast('Error al eliminar datos', 'danger');
-    } finally {
+    if (!this.capacitacion.Id_Capacitacion) {
       loading.dismiss();
+      return;
     }
+
+    this.capacitacionesService.deleteCapacitacion(this.capacitacion.Id_Capacitacion).subscribe({
+      next: () => {
+        this.mostrarToast('Capacitación eliminada correctamente', 'success');
+        setTimeout(() => {
+          loading.dismiss();
+          this.navController.navigateBack('/gestionar-capacitaciones');
+        }, 1500);
+      },
+      error: (error) => {
+        loading.dismiss();
+        console.error('Error al eliminar:', error);
+        this.mostrarToast('Error al eliminar capacitación', 'danger');
+      }
+    });
   }
 
-  // Preguntar si desea emitir certificados ahora
   async preguntarEmitirCertificados() {
     const alert = await this.alertController.create({
       header: 'Emitir Certificados',
@@ -372,16 +319,13 @@ export class EditarPage implements OnInit {
         }
       ]
     });
-
     await alert.present();
   }
 
-  // Ir a la página de emisión de certificados
   irAEmitirCertificados() {
     this.navController.navigateForward(`/gestionar-capacitaciones/visualizarinscritos/${this.capacitacion.Id_Capacitacion}`);
   }
 
-  // Función para mostrar un mensaje de toast
   async mostrarToast(mensaje: string, color: string = 'primary') {
     const toast = await this.toastController.create({
       message: mensaje,
@@ -395,7 +339,6 @@ export class EditarPage implements OnInit {
         }
       ]
     });
-
     await toast.present();
   }
 }

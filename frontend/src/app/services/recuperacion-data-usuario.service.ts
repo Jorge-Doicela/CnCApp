@@ -1,6 +1,8 @@
-import { Injectable, signal, computed, effect } from '@angular/core';
-import { supabase } from 'src/supabase';
+import { Injectable, signal, computed } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { AlertController } from '@ionic/angular';
+import { environment } from 'src/environments/environment';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -23,7 +25,10 @@ export class RecuperacionDataUsuarioService {
   // Intervalo para verificar cambios de rol
   private roleCheckInterval: any = null;
 
-  constructor(private alertController: AlertController) {
+  constructor(
+    private http: HttpClient,
+    private alertController: AlertController
+  ) {
     // Iniciar verificación periódica de rol
     this.startRoleVerification();
   }
@@ -51,13 +56,11 @@ export class RecuperacionDataUsuarioService {
     const storedRole = parseInt(storedRoleStr);
 
     try {
-      const { data: userData, error } = await supabase
-        .from('Usuario')
-        .select('Rol_Usuario')
-        .eq('auth_uid', authUid)
-        .single();
+      const userData = await firstValueFrom(
+        this.http.get<any>(`${environment.apiUrl}/users/${authUid}/role`)
+      );
 
-      if (error || !userData) return;
+      if (!userData) return;
 
       if (userData.Rol_Usuario !== storedRole) {
         // Rol ha cambiado, mostrar alerta y forzar cierre de sesión
@@ -88,71 +91,71 @@ export class RecuperacionDataUsuarioService {
 
   // Verifica si el usuario está autenticado
   async checkUserSession() {
-    const { data: { user }, error } = await supabase.auth.getUser();
-    if (error || !user) {
-      console.error('Error al obtener el usuario:', error?.message);
-      return;
-    }
+    const token = localStorage.getItem('token');
+    const authUid = localStorage.getItem('auth_uid');
 
-    const { data: userData, error: fetchError } = await supabase
-      .from('Usuario')
-      .select('Nombre_Usuario, Id_Usuario, Rol_Usuario')
-      .eq('auth_uid', user.id)
-      .single();
-
-    if (fetchError || !userData) {
-      console.error('Error al obtener datos del usuario:', fetchError?.message);
-      return;
-    }
-
-    const { data: roleData, error: fetchRoleError } = await supabase
-      .from('Rol')
-      .select('nombre_rol')
-      .eq('Id_Rol', userData.Rol_Usuario)
-      .single();
-
-    if (fetchRoleError || !roleData) {
-      console.error('Error al obtener el nombre de rol del usuario:', fetchRoleError?.message);
-      return;
-    }
-
-    // Comprobar si el rol almacenado es diferente al actual
-    const storedRoleStr = localStorage.getItem('user_role');
-    if (storedRoleStr) {
-      const storedRole = parseInt(storedRoleStr);
-      if (storedRole !== userData.Rol_Usuario) {
-        this.showRoleChangeAlert();
-        return;
-      }
-    }
-
-    // Actualiza el estado del usuario usando signals
-    this.userName.set(userData.Nombre_Usuario);
-    this.userId.set(userData.Id_Usuario);
-    this.userRole.set(userData.Rol_Usuario.toString());
-    this.roleName.set(roleData.nombre_rol);
-
-    // Actualizar localStorage
-    localStorage.setItem('user_role', userData.Rol_Usuario.toString());
-    localStorage.setItem('auth_uid', user.id);
-    localStorage.setItem('role_check_time', new Date().getTime().toString());
-
-    await this.obtenerModulos(userData.Rol_Usuario);
-  }
-
-  async obtenerModulos(userRoleID: number) {
-    const { data, error } = await supabase
-      .from('Rol')
-      .select('modulos')
-      .eq('Id_Rol', userRoleID)
-      .single();
-
-    if (error || !data) {
-      console.error('Error al obtener los módulos:', error?.message);
+    if (!token || !authUid) {
+      // console.error('No hay sesión activa');
       return;
     }
 
     try {
+      // 1. Obtener datos del usuario desde el Backend
+      const userData = await firstValueFrom(
+        this.http.get<any>(`${environment.apiUrl}/users/profile/${authUid}`)
+      );
+
+      if (!userData) {
+        console.error('No se encontraron datos del usuario');
+        return;
+      }
+
+      // 2. Obtener datos del Rol
+      // Asumimos que el backend podría incluir esto, pero si no, hacemos otra llamada o usamos lo que venga
+      // Si userData incluye el nombre del rol, mejor. Si no, llamada separada.
+      // Simulamos llamada separada para mantener estructura anterior por ahora:
+      const roleData = await firstValueFrom(
+        this.http.get<any>(`${environment.apiUrl}/roles/${userData.Rol_Usuario}`)
+      );
+
+      // Comprobar si el rol almacenado es diferente al actual
+      const storedRoleStr = localStorage.getItem('user_role');
+      if (storedRoleStr) {
+        const storedRole = parseInt(storedRoleStr);
+        if (storedRole !== userData.Rol_Usuario) {
+          this.showRoleChangeAlert();
+          return;
+        }
+      }
+
+      // Actualiza el estado del usuario usando signals
+      this.userName.set(userData.Nombre_Usuario);
+      this.userId.set(userData.Id_Usuario);
+      this.userRole.set(userData.Rol_Usuario.toString());
+      this.roleName.set(roleData ? roleData.nombre_rol : 'Rol Desconocido');
+
+      // Actualizar localStorage
+      localStorage.setItem('user_role', userData.Rol_Usuario.toString());
+      localStorage.setItem('auth_uid', authUid); // Debería ya estar
+      localStorage.setItem('role_check_time', new Date().getTime().toString());
+
+      await this.obtenerModulos(userData.Rol_Usuario);
+
+    } catch (error) {
+      console.error('Error al verificar sesión con backend:', error);
+    }
+  }
+
+  async obtenerModulos(userRoleID: number) {
+    try {
+      const data = await firstValueFrom(
+        this.http.get<any>(`${environment.apiUrl}/roles/${userRoleID}/modules`)
+      );
+
+      if (!data) {
+        return;
+      }
+
       // Intentar convertir a un arreglo si está en formato JSON
       const modulosArray = typeof data.modulos === 'string' ? JSON.parse(data.modulos) : data.modulos;
 
@@ -162,7 +165,7 @@ export class RecuperacionDataUsuarioService {
         console.error('Los módulos no están en formato de arreglo después del parseo');
       }
     } catch (e) {
-      console.error('Error al convertir los módulos en un arreglo:', e);
+      console.error('Error al obtener módulos:', e);
     }
   }
 
@@ -170,13 +173,7 @@ export class RecuperacionDataUsuarioService {
     // Detener la verificación periódica
     this.stopRoleVerification();
 
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      console.error('Error al cerrar sesión:', error.message);
-      return;
-    }
-
-    // Limpiar localStorage
+    // Eliminar token y datos locales
     localStorage.removeItem('user_role');
     localStorage.removeItem('auth_uid');
     localStorage.removeItem('last_login_time');
