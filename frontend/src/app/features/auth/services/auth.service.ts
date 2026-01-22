@@ -58,17 +58,23 @@ export class AuthService {
         const user = this.currentUser();
         if (!user || !user.rol || !user.rol.modulos) return [];
 
-        // Handle logic if modules are string or array
-        const mods = user.rol.modulos;
-        try {
-            if (typeof mods === 'string') {
-                return JSON.parse(mods);
+        let mods = user.rol.modulos;
+
+        // Handle if it's already an array
+        if (Array.isArray(mods)) return mods;
+
+        // Handle stringified JSON
+        if (typeof mods === 'string') {
+            try {
+                const parsed = JSON.parse(mods);
+                return Array.isArray(parsed) ? parsed : [];
+            } catch (e) {
+                console.error('[AUTH_SERVICE] Error parsing modules string:', e);
+                return [];
             }
-            return Array.isArray(mods) ? mods : [];
-        } catch (e) {
-            console.error('Error parsing modules:', e);
-            return [];
         }
+
+        return [];
     });
 
     constructor(private http: HttpClient) {
@@ -113,7 +119,8 @@ export class AuthService {
     refresh(): Observable<RefreshResponse> {
         const currentRefreshToken = this.refreshToken();
         if (!currentRefreshToken) {
-            throw new Error('No refresh token available');
+            this.clearAuthData();
+            throw new Error('No valid refresh token found');
         }
 
         return this.http.post<RefreshResponse>(`${this.apiUrl}/auth/refresh`, {
@@ -126,7 +133,12 @@ export class AuthService {
                         this.refreshToken.set(response.data.refreshToken);
                         localStorage.setItem('accessToken', response.data.accessToken);
                         localStorage.setItem('refreshToken', response.data.refreshToken);
+                        localStorage.setItem('token', response.data.accessToken); // Sync legacy
                     }
+                },
+                error: (err) => {
+                    console.error('[AUTH_SERVICE] Refresh failed:', err);
+                    this.clearAuthData();
                 }
             })
         );

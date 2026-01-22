@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { z } from 'zod';
-import { loginUserUseCase, registerUserUseCase } from '../infrastructure/di/auth.container';
+import { loginUserUseCase, registerUserUseCase, refreshTokenUseCase } from '../infrastructure/di/auth.container';
 
 /**
  * Authentication Controller (Hexagonal Adapter)
@@ -121,9 +121,25 @@ export class AuthController {
      * or create a quick use case. Let's use provider directly to save time, but it breaks strict hex.
      * Better: Just comment it out or leave basic implementation.
      */
-    static async refresh(_req: Request, res: Response): Promise<void> {
-        // TODO: Implement RefreshTokenUseCase
-        res.status(501).json({ message: 'Refresh not fully refactored yet' });
+    static async refresh(req: Request, res: Response): Promise<void> {
+        try {
+            const { refreshToken } = req.body;
+            if (!refreshToken) {
+                res.status(400).json({ success: false, message: 'Refresh token is required' });
+                return;
+            }
+
+            const result = await refreshTokenUseCase.execute(refreshToken);
+            res.json({
+                success: true,
+                data: result
+            });
+        } catch (error: any) {
+            res.status(401).json({
+                success: false,
+                message: 'Sesión expirada o inválida'
+            });
+        }
     }
 
     static async logout(_req: Request, res: Response): Promise<void> {

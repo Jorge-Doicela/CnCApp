@@ -4,6 +4,7 @@ import { BcryptPasswordEncoder } from '../security/bcrypt-password.encoder';
 import { JwtTokenProvider } from '../security/jwt-token.provider';
 import { LoginUserUseCase } from '../../application/auth/login-user.usecase';
 import { RegisterUserUseCase } from '../../application/auth/register-user.usecase';
+import { RefreshTokenUseCase } from '../../application/auth/refresh-token.usecase';
 
 // Singleton instances of adapters
 const userRepository = new PrismaUserRepository();
@@ -20,5 +21,9 @@ export const loginUserUseCase = new LoginUserUseCase(
 export const registerUserUseCase = new RegisterUserUseCase(
     userRepository,
     passwordEncoder,
+    tokenProvider
+);
+
+export const refreshTokenUseCase = new RefreshTokenUseCase(
     tokenProvider
 );

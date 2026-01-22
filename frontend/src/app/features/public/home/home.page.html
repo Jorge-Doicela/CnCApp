@@ -14,11 +14,20 @@
           <ion-icon name="log-in-outline" slot="start"></ion-icon>
           Ingresar
         </ion-button>
-        <div class="user-profile" *ngIf="userName()">
-          <span class="welcome-text">Hola, {{ userName() }}</span>
-          <ion-button fill="clear" color="primary" (click)="actualizarTitulo()">
-            <ion-icon name="person-circle-outline" size="large"></ion-icon>
-          </ion-button>
+        <div class="user-account-widget" *ngIf="userName()">
+          <div class="account-info" (click)="navegarModulo('Ver Perfil')">
+            <div class="avatar-wrapper">
+              <ion-icon name="person-circle"></ion-icon>
+            </div>
+            <div class="text-wrapper">
+              <span class="user-name">{{ userName() }}</span>
+              <span class="user-role">{{ roleName() }}</span>
+            </div>
+          </div>
+          <div class="widget-divider"></div>
+          <button class="logout-button" (click)="cerrarSesion()" title="Cerrar Sesión">
+            <ion-icon name="log-out-outline"></ion-icon>
+          </button>
         </div>
       </div>
     </div>

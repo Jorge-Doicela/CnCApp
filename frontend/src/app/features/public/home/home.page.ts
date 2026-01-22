@@ -288,6 +288,12 @@ export class HomePage implements OnInit {
     this.router.navigate(['/login']);
   }
 
+  // Cerrar sesión
+  cerrarSesion() {
+    this.authService.clearAuthData();
+    this.router.navigate(['/login']);
+  }
+
   // Navegar a un módulo
   navegarModulo(modulo: string) {
     // Mapeo específico para rutas de módulos

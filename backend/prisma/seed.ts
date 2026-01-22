@@ -9,7 +9,7 @@ const SALT_ROUNDS = 10;
 async function main() {
     console.log('🌱 Starting database seed...');
 
-    // Create roles
+    // 1. Create roles
     console.log('Creating roles...');
     const adminRole = await prisma.rol.upsert({
         where: { nombre: 'Administrador' },
@@ -43,8 +43,8 @@ async function main() {
 
     console.log('✅ Roles created');
 
-    // Create entity
-    console.log('Creating entity...');
+    // 2. Create entities
+    console.log('Creating entities...');
     const cncEntity = await prisma.entidad.upsert({
         where: { id: 1 },
         update: {},
@@ -53,23 +53,25 @@ async function main() {
         },
     });
 
-    console.log('✅ Entity created');
+    const gadEntity = await prisma.entidad.upsert({
+        where: { id: 2 },
+        update: {},
+        create: {
+            nombre: 'GAD Municipal de Quito',
+        },
+    });
 
-    // Create admin user
-    console.log('Creating admin user...');
+    console.log('✅ Entities created');
+
+    // 3. Create users
+    console.log('Creating users...');
     const plainPassword = 'AdminPassword123!';
     const hashedPassword = await bcrypt.hash(plainPassword, SALT_ROUNDS);
 
-    console.log('Password hash details:');
-    console.log('- Plain password:', plainPassword);
-    console.log('- Salt rounds:', SALT_ROUNDS);
-    console.log('- Hash length:', hashedPassword.length);
-
+    // Admin
     const adminUser = await prisma.usuario.upsert({
         where: { ci: '1234567890' },
-        update: {
-            password: hashedPassword,
-        },
+        update: { password: hashedPassword },
         create: {
             ci: '1234567890',
             nombre: 'Administrador CNC',
@@ -82,21 +84,117 @@ async function main() {
         },
     });
 
-    console.log('✅ Admin user created');
+    // Coordinador
+    const coordUser = await prisma.usuario.upsert({
+        where: { ci: '0987654321' },
+        update: { password: hashedPassword },
+        create: {
+            ci: '0987654321',
+            nombre: 'Coordinadora María',
+            email: 'coord@cnc.gob.ec',
+            telefono: '0988888888',
+            password: hashedPassword,
+            rolId: coordinadorRole.id,
+            entidadId: cncEntity.id,
+            tipoParticipante: 0,
+        },
+    });
 
-    // Verify password immediately
-    console.log('\n🔍 Verifying password...');
-    const isValid = await bcrypt.compare(plainPassword, hashedPassword);
-    console.log('Password verification result:', isValid ? '✅ VALID' : '❌ INVALID');
+    // Participantes
+    const user1 = await prisma.usuario.upsert({
+        where: { ci: '1122334455' },
+        update: { password: hashedPassword },
+        create: {
+            ci: '1122334455',
+            nombre: 'Juan Pérez',
+            email: 'juan.perez@example.com',
+            telefono: '0977777777',
+            password: hashedPassword,
+            rolId: participanteRole.id,
+            entidadId: gadEntity.id,
+            tipoParticipante: 2, // Funcionario GAD
+        },
+    });
 
-    if (!isValid) {
-        throw new Error('Password verification failed immediately after creation!');
-    }
+    const user2 = await prisma.usuario.upsert({
+        where: { ci: '5544332211' },
+        update: { password: hashedPassword },
+        create: {
+            ci: '5544332211',
+            nombre: 'Maria Rodriguez',
+            email: 'maria.rod@example.com',
+            telefono: '0966666666',
+            password: hashedPassword,
+            rolId: participanteRole.id,
+            entidadId: gadEntity.id,
+            tipoParticipante: 2,
+        },
+    });
+
+    console.log('✅ Users created');
+
+    // 4. Create Capacitaciones
+    console.log('Creating capacitaciones...');
+    const capActiva = await prisma.capacitacion.create({
+        data: {
+            nombre: 'Descentralización y Gestión de Competencias',
+            descripcion: 'Curso integral sobre el proceso de descentralización en el Ecuador.',
+            fechaInicio: new Date('2026-02-01'),
+            fechaFin: new Date('2026-02-15'),
+            lugar: 'Aula Virtual CNC',
+            cuposDisponibles: 50,
+            modalidad: 'Virtual',
+            estado: 'Activa',
+        }
+    });
+
+    const capFinalizada = await prisma.capacitacion.create({
+        data: {
+            nombre: 'Gobernanza Local y Participación Ciudadana',
+            descripcion: 'Taller práctico sobre modelos de gobernanza.',
+            fechaInicio: new Date('2025-11-10'),
+            fechaFin: new Date('2025-11-20'),
+            lugar: 'Quito, Auditorio CNC',
+            cuposDisponibles: 30,
+            modalidad: 'Presencial',
+            estado: 'Finalizada',
+        }
+    });
+
+    console.log('✅ Capacitaciones created');
+
+    // 5. Create Enrollments (Inscripciones)
+    console.log('Creating enrollments...');
+    await prisma.usuarioCapacitacion.createMany({
+        data: [
+            { usuarioId: user1.id, capacitacionId: capActiva.id, estadoInscripcion: 'Activa', asistio: false },
+            { usuarioId: user2.id, capacitacionId: capActiva.id, estadoInscripcion: 'Activa', asistio: false },
+            { usuarioId: user1.id, capacitacionId: capFinalizada.id, estadoInscripcion: 'Finalizada', asistio: true },
+        ],
+        skipDuplicates: true
+    });
+
+    console.log('✅ Enrollments created');
+
+    // 6. Create Certificates
+    console.log('Creating certificates...');
+    await prisma.certificado.create({
+        data: {
+            usuarioId: user1.id,
+            capacitacionId: capFinalizada.id,
+            codigoQR: `CERT-CNC-${user1.id}-${capFinalizada.id}`,
+            fechaEmision: new Date(),
+        }
+    });
+
+    console.log('✅ Certificates created');
 
     console.log('\n✅ Seed completed successfully!');
-    console.log('\n📋 Login credentials:');
-    console.log('CI:', adminUser.ci);
-    console.log('Password:', plainPassword);
+    console.log('\n📋 Test Credentials (Password: ' + plainPassword + '):');
+    console.log('1. Admin: ' + adminUser.ci);
+    console.log('2. Coordinador: ' + coordUser.ci);
+    console.log('3. Participante 1: ' + user1.ci);
+    console.log('4. Participante 2: ' + user2.ci);
 }
 
 main()
