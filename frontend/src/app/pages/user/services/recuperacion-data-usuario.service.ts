@@ -141,6 +141,12 @@ export class RecuperacionDataUsuarioService {
 
       await this.obtenerModulos(userData.Rol_Usuario);
 
+      console.log('[USER_SERVICE_DEBUG] Session updated:', {
+        roleName: this.roleName(),
+        userRole: this.userRole(),
+        modulesCount: this.modulos().length
+      });
+
     } catch (error) {
       console.error('Error al verificar sesión con backend:', error);
     }

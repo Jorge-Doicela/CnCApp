@@ -1,675 +1,167 @@
-<ion-header>
-  <ion-toolbar color="primary">
-    <ion-buttons slot="start">
-      <ion-back-button default-href="/"></ion-back-button>
-    </ion-buttons>
-    <ion-title class="ion-text-center">Registro CNC</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content class="register-content">
+  <div class="register-layout">
 
-<ion-content class="ion-padding">
-  <!-- Indicador de progreso -->
-  <div class="progress-container">
-    <div class="progress-bar">
-      <div class="progress-indicator" [style.width]="(currentStep/5*100) + '%'"></div>
-    </div>
-    <div class="steps-container">
-      <div class="step" [ngClass]="{'active': currentStep >= 1, 'completed': currentStep > 1}">
-        <div class="step-number">1</div>
-        <div class="step-label">Bienvenida</div>
-      </div>
-      <div class="step" [ngClass]="{'active': currentStep >= 2, 'completed': currentStep > 2}">
-        <div class="step-number">2</div>
-        <div class="step-label">Contacto</div>
-      </div>
-      <div class="step" [ngClass]="{'active': currentStep >= 3, 'completed': currentStep > 3}">
-        <div class="step-number">3</div>
-        <div class="step-label">Personal</div>
-      </div>
-      <div class="step" [ngClass]="{'active': currentStep >= 4, 'completed': currentStep > 4}">
-        <div class="step-number">4</div>
-        <div class="step-label">Perfil</div>
-      </div>
-      <div class="step" [ngClass]="{'active': currentStep >= 5, 'completed': currentStep > 5}">
-        <div class="step-number">5</div>
-        <div class="step-label">Confirmación</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Paso 1: Bienvenida y términos -->
-  <div *ngIf="currentStep === 1" class="step-content fade-in">
-    <div class="logo-container ion-text-center">
-      <img src="../../../../assets/cnc.png" alt="Logo CNC" class="cnc-logo">
-    </div>
-    <ion-card class="welcome-card">
-      <ion-card-header>
-        <ion-card-title class="ion-text-center">Bienvenido al registro de eventos de fortalecimiento institucional</ion-card-title>
-      </ion-card-header>
-      <ion-card-content>
-        <div class="welcome-text">
-          <p>El <strong>Consejo Nacional de Competencias</strong> le da la bienvenida al módulo de registro de participantes, a través del cual podrá acceder a:</p>
-
-          <div class="benefits-list">
-            <div class="benefit-item">
-              <ion-icon name="school-outline"></ion-icon>
-              <span>Cursos virtuales y presenciales</span>
-            </div>
-            <div class="benefit-item">
-              <ion-icon name="briefcase-outline"></ion-icon>
-              <span>Talleres prácticos</span>
-            </div>
-            <div class="benefit-item">
-              <ion-icon name="people-outline"></ion-icon>
-              <span>Asistencia técnica</span>
-            </div>
-            <div class="benefit-item">
-              <ion-icon name="ribbon-outline"></ion-icon>
-              <span>Capacitaciones especializadas</span>
-            </div>
-            <div class="benefit-item">
-              <ion-icon name="book-outline"></ion-icon>
-              <span>Programas de formación</span>
-            </div>
-          </div>
-
-          <p>Estos recursos ofrecen a todos los servidores públicos y ciudadanía en general herramientas prácticas para el desarrollo e implementación de proyectos y políticas públicas, fortaleciendo las capacidades humanas e institucionales para una adecuada gestión pública.</p>
-
-          <div class="slogan">
-            <p><em>Con la descentralización consolidamos la democracia.</em></p>
-          </div>
+    <!-- Left Side: Branding/Image -->
+    <div class="branding-side">
+      <div class="branding-content">
+        <div class="logo-wrapper">
+          <img src="assets/cnc.png" alt="CNC Logo" class="brand-logo">
         </div>
-      </ion-card-content>
-    </ion-card>
-    <ion-button expand="block" color="primary" class="next-button" (click)="nextStep()">
-      <ion-icon name="arrow-forward" slot="end"></ion-icon>
-      Continuar
-    </ion-button>
-  </div>
+        <h1>Únete a Nosotros</h1>
+        <p>Crea tu cuenta y accede a todas nuestras capacitaciones y certificados</p>
+        <div class="glass-decoration"></div>
+      </div>
+      <div class="branding-overlay"></div>
+    </div>
 
-  <!-- Paso 2: Formulario de datos de contacto -->
-  <div *ngIf="currentStep === 2" class="step-content fade-in">
-    <h2 class="section-title">Información de contacto</h2>
-    <p class="section-description">Por favor complete sus datos de contacto para continuar con el registro.</p>
-
-    <ion-card>
-      <ion-card-content>
-        <ion-item class="form-item">
-          <ion-icon name="card-outline" slot="start" color="primary"></ion-icon>
-          <ion-label position="floating">Cédula de Identidad (CI) *</ion-label>
-          <ion-input [(ngModel)]="usuarioGeneral.CI" type="text" required></ion-input>
-          <ion-button slot="end" size="small" class="validate-button" (click)="validarCedula()">
-            <ion-icon name="checkmark-circle" slot="start"></ion-icon>
-            Validar
+    <!-- Right Side: Registration Form -->
+    <div class="form-side">
+      <div class="form-wrapper">
+        <div class="header-actions">
+          <ion-button fill="clear" color="dark" (click)="iraLogin()" class="back-btn">
+            <ion-icon name="arrow-back-outline" slot="icon-only"></ion-icon>
           </ion-button>
-        </ion-item>
-
-        <div *ngIf="mensajeValidacionCedula" [ngClass]="{'validacion-error': !cedulaValidada, 'validacion-success': cedulaValidada}" class="mensaje-validacion">
-          <ion-icon [name]="cedulaValidada ? 'checkmark-circle' : 'alert-circle'"></ion-icon>
-          {{ mensajeValidacionCedula }}
         </div>
 
-        <ion-item class="form-item">
-          <ion-icon name="mail-outline" slot="start" color="primary"></ion-icon>
-          <ion-label position="floating">Correo Electrónico *</ion-label>
-          <ion-input [(ngModel)]="usuarioGeneral.email" type="email" required></ion-input>
-        </ion-item>
-
-        <ion-item class="form-item">
-          <ion-icon name="lock-closed-outline" slot="start" color="primary"></ion-icon>
-          <ion-label position="floating">Contraseña *</ion-label>
-          <ion-input [(ngModel)]="usuarioGeneral.password" type="password" required></ion-input>
-        </ion-item>
-
-        <ion-item class="form-item">
-          <ion-icon name="shield-checkmark-outline" slot="start" color="primary"></ion-icon>
-          <ion-label position="floating">Confirmar contraseña *</ion-label>
-          <ion-input [(ngModel)]="usuarioGeneral.passwordConfirm" type="password" required></ion-input>
-        </ion-item>
-
-        <ion-item class="form-item">
-          <ion-icon name="call-outline" slot="start" color="primary"></ion-icon>
-          <ion-label position="floating">Teléfono celular *</ion-label>
-          <ion-input [(ngModel)]="usuarioGeneral.celular" type="tel" required></ion-input>
-        </ion-item>
-
-        <ion-item class="form-item">
-          <ion-icon name="home-outline" slot="start" color="primary"></ion-icon>
-          <ion-label position="floating">Teléfono convencional</ion-label>
-          <ion-input [(ngModel)]="usuarioGeneral.convencional" type="tel"></ion-input>
-        </ion-item>
-
-        <div class="location-section">
-          <h4 class="subsection-title">Información de ubicación</h4>
-
-          <ion-item class="form-item">
-            <ion-icon name="map-outline" slot="start" color="primary"></ion-icon>
-            <ion-label>Provincia *</ion-label>
-            <ion-select [(ngModel)]="datosbusqueda.selectedProvincia" (ionChange)="obtenerCantones(datosbusqueda.selectedProvincia)" interface="action-sheet" placeholder="Seleccione">
-              <ion-select-option *ngFor="let provincia of datosrecuperados.provincias" [value]="provincia.Codigo_Provincia">
-                {{ provincia.Nombre_Provincia }}
-              </ion-select-option>
-            </ion-select>
-          </ion-item>
-
-          <ion-item *ngIf="datosrecuperados.cantones.length > 0" class="form-item">
-            <ion-icon name="location-outline" slot="start" color="primary"></ion-icon>
-            <ion-label>Cantón *</ion-label>
-            <ion-select [(ngModel)]="usuarioGeneral.canton_reside" (ionChange)="obtenerParroquias(usuarioGeneral.canton_reside)" interface="action-sheet" placeholder="Seleccione">
-              <ion-select-option *ngFor="let canton of datosrecuperados.cantones" [value]="canton.codigo_canton">
-                {{ canton.nombre_canton }}
-              </ion-select-option>
-            </ion-select>
-          </ion-item>
-
-          <ion-item *ngIf="datosrecuperados.parroquiasSeleccionadas && datosrecuperados.parroquiasSeleccionadas.length > 0" class="form-item">
-            <ion-icon name="pin-outline" slot="start" color="primary"></ion-icon>
-            <ion-label>Parroquia</ion-label>
-            <ion-select [(ngModel)]="usuarioGeneral.parroquia_reside" interface="action-sheet" placeholder="Seleccione">
-              <ion-select-option *ngFor="let parroquia of datosrecuperados.parroquiasSeleccionadas" [value]="parroquia.codigo_parroquia">
-                {{ parroquia.nombre_parroquia }}
-              </ion-select-option>
-            </ion-select>
-          </ion-item>
+        <div class="mobile-logo-container ion-hide-md-up">
+          <img src="assets/cnc.png" alt="CNC Logo" class="mobile-logo">
         </div>
 
-        <div class="form-legend">
-          <p><ion-text color="medium">* Campos obligatorios</ion-text></p>
-        </div>
-      </ion-card-content>
-    </ion-card>
-
-    <div class="button-container">
-      <ion-button fill="outline" color="medium" (click)="prevStep()">
-        <ion-icon name="arrow-back" slot="start"></ion-icon>
-        Atrás
-      </ion-button>
-      <ion-button expand="block" color="primary" (click)="nextStep()">
-        <ion-icon name="arrow-forward" slot="end"></ion-icon>
-        Siguiente
-      </ion-button>
-    </div>
-  </div>
-
-  <!-- Paso 3: Datos personales -->
-  <div *ngIf="currentStep === 3" class="step-content fade-in">
-    <h2 class="section-title">Información personal</h2>
-    <p class="section-description">Por favor complete sus datos personales para continuar con el registro.</p>
-
-    <ion-card>
-      <ion-card-content>
-        <div class="form-row">
-          <ion-item class="form-item">
-            <ion-icon name="person-outline" slot="start" color="primary"></ion-icon>
-            <ion-label position="floating">Primer nombre *</ion-label>
-            <ion-input [(ngModel)]="usuarioGeneral.Nombre1" type="text" required [readonly]="camposNombreReadonly"></ion-input>
-          </ion-item>
-
-          <ion-item class="form-item">
-            <ion-icon name="person-outline" slot="start" color="primary"></ion-icon>
-            <ion-label position="floating">Segundo nombre</ion-label>
-            <ion-input [(ngModel)]="usuarioGeneral.Nombre2" type="text" [readonly]="camposNombreReadonly"></ion-input>
-          </ion-item>
+        <div class="header-text">
+          <h2>Crear Cuenta</h2>
+          <p>Completa tus datos para registrarte</p>
         </div>
 
-        <div class="form-row">
-          <ion-item class="form-item">
-            <ion-icon name="people-outline" slot="start" color="primary"></ion-icon>
-            <ion-label position="floating">Primer apellido *</ion-label>
-            <ion-input [(ngModel)]="usuarioGeneral.Apellido1" type="text" required [readonly]="camposNombreReadonly"></ion-input>
-          </ion-item>
+        <form (ngSubmit)="registerUser()">
+          <!-- Cédula -->
+          <div class="input-group">
+            <ion-item lines="none" class="custom-input">
+              <ion-icon name="card-outline" slot="start" color="primary"></ion-icon>
+              <div class="input-inner">
+                <ion-label position="stacked">Cédula de Identidad</ion-label>
+                <ion-input [value]="ci()" (ionInput)="updateCi($event)" type="tel" maxlength="13"
+                  placeholder="Ingrese su cédula" mode="md">
+                </ion-input>
+              </div>
+            </ion-item>
+          </div>
 
-          <ion-item class="form-item">
-            <ion-icon name="people-outline" slot="start" color="primary"></ion-icon>
-            <ion-label position="floating">Segundo apellido</ion-label>
-            <ion-input [(ngModel)]="usuarioGeneral.Apellido2" type="text" [readonly]="camposNombreReadonly"></ion-input>
-          </ion-item>
+          <!-- Nombre -->
+          <div class="input-group">
+            <ion-item lines="none" class="custom-input">
+              <ion-icon name="person-outline" slot="start" color="primary"></ion-icon>
+              <div class="input-inner">
+                <ion-label position="stacked">Nombre Completo</ion-label>
+                <ion-input [value]="nombre()" (ionInput)="updateNombre($event)" type="text"
+                  placeholder="Nombres y Apellidos" autocapitalize="words" mode="md">
+                </ion-input>
+              </div>
+            </ion-item>
+          </div>
+
+          <!-- Email -->
+          <div class="input-group">
+            <ion-item lines="none" class="custom-input">
+              <ion-icon name="mail-outline" slot="start" color="primary"></ion-icon>
+              <div class="input-inner">
+                <ion-label position="stacked">Correo Electrónico</ion-label>
+                <ion-input [value]="email()" (ionInput)="updateEmail($event)" type="email"
+                  placeholder="ejemplo@correo.com" mode="md">
+                </ion-input>
+              </div>
+            </ion-item>
+          </div>
+
+          <!-- Teléfono -->
+          <div class="input-group">
+            <ion-item lines="none" class="custom-input">
+              <ion-icon name="call-outline" slot="start" color="primary"></ion-icon>
+              <div class="input-inner">
+                <ion-label position="stacked">Teléfono Celular</ion-label>
+                <ion-input [value]="telefono()" (ionInput)="updateTelefono($event)" type="tel" maxlength="10"
+                  placeholder="0999999999" mode="md">
+                </ion-input>
+              </div>
+            </ion-item>
+          </div>
+
+          <!-- Contraseña -->
+          <div class="input-group">
+            <ion-item lines="none" class="custom-input">
+              <ion-icon name="lock-closed-outline" slot="start" color="primary"></ion-icon>
+              <div class="input-inner">
+                <ion-label position="stacked">Contraseña</ion-label>
+                <div class="password-container">
+                  <ion-input [value]="password()" (ionInput)="updatePassword($event)"
+                    [type]="showPassword() ? 'text' : 'password'" placeholder="Mínimo 8 caracteres" mode="md">
+                  </ion-input>
+                  <ion-button fill="clear" slot="end" (click)="togglePasswordVisibility()" class="eye-btn">
+                    <ion-icon [name]="showPassword() ? 'eye-outline' : 'eye-off-outline'" slot="icon-only"></ion-icon>
+                  </ion-button>
+                </div>
+              </div>
+            </ion-item>
+          </div>
+
+          <!-- Indicador de Fortaleza -->
+          <div class="password-strength" *ngIf="password()">
+            <div class="strength-bar">
+              <div class="strength-fill" [style.width]="(passwordStrength().score * 20) + '%'"
+                [style.background-color]="'var(--ion-color-' + passwordStrength().color + ')'"></div>
+            </div>
+            <p [style.color]="'var(--ion-color-' + passwordStrength().color + ')'">
+              Fortaleza: {{ passwordStrength().label }}
+            </p>
+          </div>
+
+          <!-- Confirmar Contraseña -->
+          <div class="input-group">
+            <ion-item lines="none" class="custom-input">
+              <ion-icon name="lock-closed-outline" slot="start" color="primary"></ion-icon>
+              <div class="input-inner">
+                <ion-label position="stacked">Confirmar Contraseña</ion-label>
+                <div class="password-container">
+                  <ion-input [value]="passwordConfirm()" (ionInput)="updatePasswordConfirm($event)"
+                    [type]="showPasswordConfirm() ? 'text' : 'password'" placeholder="Repita su contraseña" mode="md">
+                  </ion-input>
+                  <ion-button fill="clear" slot="end" (click)="togglePasswordConfirmVisibility()" class="eye-btn">
+                    <ion-icon [name]="showPasswordConfirm() ? 'eye-outline' : 'eye-off-outline'"
+                      slot="icon-only"></ion-icon>
+                  </ion-button>
+                </div>
+              </div>
+            </ion-item>
+          </div>
+
+          <!-- Mensaje de coincidencia -->
+          <div class="password-match" *ngIf="passwordConfirm() && password()">
+            <p *ngIf="password() === passwordConfirm()" class="match-success">
+              <ion-icon name="checkmark-circle-outline"></ion-icon> Las contraseñas coinciden
+            </p>
+            <p *ngIf="password() !== passwordConfirm()" class="match-error">
+              <ion-icon name="close-circle-outline"></ion-icon> Las contraseñas no coinciden
+            </p>
+          </div>
+
+          <ion-button expand="block" type="submit" class="submit-btn"
+            [disabled]="isLoading() || !ci() || !nombre() || !email() || !password() || (password() !== passwordConfirm())">
+            <ion-label *ngIf="!isLoading()">Crear Cuenta</ion-label>
+            <ion-spinner *ngIf="isLoading()" name="crescent"></ion-spinner>
+          </ion-button>
+        </form>
+
+        <div class="divider">
+          <span>¿Ya tienes una cuenta?</span>
         </div>
 
-        <ion-button *ngIf="!nombresEdited" expand="block" color="secondary" class="confirm-names-button" (click)="confirmarNombres()" [disabled]="!usuarioGeneral.Nombre1 || !usuarioGeneral.Apellido1">
-          <ion-icon name="lock-closed" slot="start"></ion-icon>
-          Confirmar nombres
+        <ion-button expand="block" fill="outline" class="login-redirect-btn" (click)="iraLogin()">
+          Iniciar Sesión
         </ion-button>
 
-        <div *ngIf="nombresEdited" class="nombres-confirmados">
-          <ion-icon name="checkmark-circle"></ion-icon>
-          <span>Nombres confirmados. No pueden ser modificados.</span>
+        <div class="footer-copy">
+          <p>&copy; 2026 Consejo Nacional de Competencias</p>
         </div>
-
-        <div class="form-row">
-          <ion-item class="form-item">
-            <ion-icon name="male-female-outline" slot="start" color="primary"></ion-icon>
-            <ion-label>Género *</ion-label>
-            <ion-select [(ngModel)]="usuarioGeneral.Genero" placeholder="Seleccione" interface="action-sheet">
-              <ion-select-option value="Masculino">Masculino</ion-select-option>
-              <ion-select-option value="Femenino">Femenino</ion-select-option>
-              <ion-select-option value="Otro">Otro</ion-select-option>
-            </ion-select>
-          </ion-item>
-
-          <ion-item class="form-item">
-            <ion-icon name="globe-outline" slot="start" color="primary"></ion-icon>
-            <ion-label>Nacionalidad *</ion-label>
-            <ion-select [(ngModel)]="usuarioGeneral.Nacionalidad" placeholder="Seleccione" interface="action-sheet">
-              <ion-select-option value="Ecuatoriana">Ecuatoriana</ion-select-option>
-              <ion-select-option value="Otra">Otra</ion-select-option>
-            </ion-select>
-          </ion-item>
-        </div>
-
-        <div class="form-row">
-          <ion-item class="form-item">
-            <ion-icon name="people-circle-outline" slot="start" color="primary"></ion-icon>
-            <ion-label>Autodefinición Étnica *</ion-label>
-            <ion-select [(ngModel)]="usuarioGeneral.Etnia" placeholder="Seleccione" interface="action-sheet">
-              <ion-select-option value="AFROECUATORIANO">Afroecuatoriano</ion-select-option>
-              <ion-select-option value="BLANCO">Blanco</ion-select-option>
-              <ion-select-option value="INDÍGENA">Indígena</ion-select-option>
-              <ion-select-option value="MESTIZO">Mestizo</ion-select-option>
-              <ion-select-option value="MONTUBIO">Montubio</ion-select-option>
-              <ion-select-option value="OTRO">Otro</ion-select-option>
-            </ion-select>
-          </ion-item>
-
-          <ion-item class="form-item">
-            <ion-icon name="calendar-outline" slot="start" color="primary"></ion-icon>
-            <ion-label position="floating">Fecha de nacimiento *</ion-label>
-            <ion-input [(ngModel)]="usuarioGeneral.fechaNacimiento" type="date" required></ion-input>
-          </ion-item>
-        </div>
-
-        <div class="form-legend">
-          <p><ion-text color="medium">* Campos obligatorios</ion-text></p>
-        </div>
-      </ion-card-content>
-    </ion-card>
-
-    <div class="button-container">
-      <ion-button fill="outline" color="medium" (click)="prevStep()">
-        <ion-icon name="arrow-back" slot="start"></ion-icon>
-        Atrás
-      </ion-button>
-      <ion-button expand="block" color="primary" (click)="nextStep()">
-        <ion-icon name="arrow-forward" slot="end"></ion-icon>
-        Siguiente
-      </ion-button>
+      </div>
     </div>
-  </div>
-
-  <!-- Paso 4: Perfil -->
-  <div *ngIf="currentStep === 4" class="step-content fade-in">
-    <h2 class="section-title">Perfil profesional</h2>
-    <p class="section-description">Por favor complete la información sobre su perfil profesional.</p>
-
-    <ion-card>
-      <ion-card-content>
-        <div class="info-alert">
-          <ion-icon name="alert-circle-outline"></ion-icon>
-          <p>Estos datos no podrán ser editados después. Por favor verifique que la información sea correcta antes de continuar.</p>
-        </div>
-
-        <ion-item class="form-item">
-          <ion-icon name="briefcase-outline" slot="start" color="primary"></ion-icon>
-          <ion-label>Tipo de Participante *</ion-label>
-          <ion-select [(ngModel)]="usuarioGeneral.tipoParticipante" (ionChange)="onTipoParticipanteChange()" interface="action-sheet" placeholder="Seleccione">
-            <ion-select-option value="0">Ciudadano</ion-select-option>
-            <ion-select-option value="1">Autoridad</ion-select-option>
-            <ion-select-option value="2">Funcionario de GAD</ion-select-option>
-            <ion-select-option value="3">Institución</ion-select-option>
-          </ion-select>
-        </ion-item>
-
-        <!-- Submenú: Autoridad -->
-        <ng-container *ngIf="usuarioGeneral.tipoParticipante == 1">
-          <div class="profile-section">
-            <div class="profile-section-header">
-              <ion-icon name="shield-outline"></ion-icon>
-              <h3>Información de autoridad</h3>
-            </div>
-
-            <div class="form-row">
-              <ion-item class="form-item">
-                <ion-icon name="ribbon-outline" slot="start" color="primary"></ion-icon>
-                <ion-label>Cargo de la autoridad *</ion-label>
-                <ion-select [(ngModel)]="autoridad.cargo" interface="action-sheet" placeholder="Seleccione">
-                  <ion-select-option value="alcalde">Alcalde(sa)</ion-select-option>
-                  <ion-select-option value="vicealcalde">Vicealcalde(sa)</ion-select-option>
-                  <ion-select-option value="consejal">Consejal(a)</ion-select-option>
-                  <ion-select-option value="prefecto">Prefecto(a)</ion-select-option>
-                  <ion-select-option value="viceprefecto">Viceprefecto(a)</ion-select-option>
-                  <ion-select-option value="presidenteparroquial">Presidente(a) Junta Parroquial</ion-select-option>
-                  <ion-select-option value="vocalparroquial">Vocal Junta Parroquial</ion-select-option>
-                  <ion-select-option value="otro">Otro</ion-select-option>
-                </ion-select>
-              </ion-item>
-
-              <ion-item class="form-item">
-                <ion-icon name="business-outline" slot="start" color="primary"></ion-icon>
-                <ion-label>Nivel de gobierno *</ion-label>
-                <ion-select [(ngModel)]="autoridad.nivelgobierno" (ionChange)="onNivelGobiernoChange(autoridad.nivelgobierno)" interface="action-sheet" placeholder="Seleccione">
-                  <ion-select-option value="mancomunidad">Mancomunidad y Consorcios</ion-select-option>
-                  <ion-select-option value="municipal">Municipal</ion-select-option>
-                  <ion-select-option value="parroquial">Parroquial Rural</ion-select-option>
-                  <ion-select-option value="provincial">Provincial</ion-select-option>
-                  <ion-select-option value="otro">Otro</ion-select-option>
-                </ion-select>
-              </ion-item>
-            </div>
-
-            <ion-item class="form-item">
-              <ion-icon name="location-outline" slot="start" color="primary"></ion-icon>
-              <ion-label>Seleccione su opción *</ion-label>
-
-              <ion-select *ngIf="datosrecuperados.macrocomunidades.length > 0 && autoridad.nivelgobierno==='mancomunidad'" [(ngModel)]="autoridad.gadAutoridad" interface="action-sheet" placeholder="Seleccione">
-                <ion-select-option *ngFor="let mancomunidad of datosrecuperados.macrocomunidades" [value]="mancomunidad.id_mancomunidad">
-                  {{ mancomunidad.nombre_mancomunidad }}
-                </ion-select-option>
-              </ion-select>
-
-              <ion-select *ngIf="datosrecuperados.provincias.length > 0 && autoridad.nivelgobierno==='provincial'" [(ngModel)]="autoridad.gadAutoridad" interface="action-sheet" placeholder="Seleccione">
-                <ion-select-option *ngFor="let provincia of datosrecuperados.provincias" [value]="provincia.Codigo_Provincia">
-                  {{ provincia.Nombre_Provincia }}
-                </ion-select-option>
-              </ion-select>
-
-              <ion-select *ngIf="datosrecuperados.municipios.length > 0 && autoridad.nivelgobierno === 'municipal'" [(ngModel)]="autoridad.gadAutoridad" interface="action-sheet" placeholder="Seleccione">
-                <ion-select-option *ngFor="let municipio of datosrecuperados.municipios" [value]="municipio.idCanton">
-                  {{ municipio.value }}
-                </ion-select-option>
-              </ion-select>
-
-              <ion-select *ngIf="datosrecuperados.parroquias.length > 0 && autoridad.nivelgobierno === 'parroquial'" [(ngModel)]="autoridad.gadAutoridad" interface="action-sheet" placeholder="Seleccione">
-                <ion-select-option *ngFor="let parroquia of datosrecuperados.parroquias" [value]="parroquia.idParroquia">
-                  {{ parroquia.value }}
-                </ion-select-option>
-              </ion-select>
-
-              <ion-select *ngIf="datosrecuperados.parroquias.length > 0 && autoridad.nivelgobierno === 'otro'" [(ngModel)]="autoridad.gadAutoridad" interface="action-sheet" placeholder="Seleccione">
-                <ion-select-option *ngFor="let parroquia of datosrecuperados.parroquias" [value]="parroquia.idParroquia">
-                  {{ parroquia.value }}
-                </ion-select-option>
-              </ion-select>
-            </ion-item>
-          </div>
-        </ng-container>
-
-        <!-- Submenú: Funcionario de GAD -->
-        <ng-container *ngIf="usuarioGeneral.tipoParticipante == 2">
-          <div class="profile-section">
-            <div class="profile-section-header">
-              <ion-icon name="people-outline"></ion-icon>
-              <h3>Información de funcionario GAD</h3>
-            </div>
-
-            <div class="form-row">
-              <ion-item class="form-item">
-                <ion-icon name="briefcase-outline" slot="start" color="primary"></ion-icon>
-                <ion-label>Cargo *</ion-label>
-                <ion-select [(ngModel)]="funcionarioGad.cargo" interface="action-sheet" placeholder="Seleccione">
-                  <ion-select-option value="asesor">Asesor(a)</ion-select-option>
-                  <ion-select-option value="director">Director(a) Dirección/Dpto/Unidad</ion-select-option>
-                  <ion-select-option value="jefe_dpto_unidad">Jefe Dpto/Unidad</ion-select-option>
-                  <ion-select-option value="tecnico">Técnico</ion-select-option>
-                  <ion-select-option value="otro">Otro</ion-select-option>
-                </ion-select>
-              </ion-item>
-
-              <ion-item class="form-item">
-                <ion-icon name="business-outline" slot="start" color="primary"></ion-icon>
-                <ion-label>Nivel de gobierno *</ion-label>
-                <ion-select [(ngModel)]="funcionarioGad.nivelgobierno" (ionChange)="onNivelGobiernoChange(funcionarioGad.nivelgobierno)" interface="action-sheet" placeholder="Seleccione">
-                  <ion-select-option value="mancomunidad">Mancomunidad y Consorcios</ion-select-option>
-                  <ion-select-option value="municipal">Municipal</ion-select-option>
-                  <ion-select-option value="parroquial">Parroquial Rural</ion-select-option>
-                  <ion-select-option value="provincial">Provincial</ion-select-option>
-                  <ion-select-option value="otro">Otro</ion-select-option>
-                </ion-select>
-              </ion-item>
-            </div>
-
-            <ion-item class="form-item">
-              <ion-icon name="construct-outline" slot="start" color="primary"></ion-icon>
-              <ion-label>Seleccione su competencia *</ion-label>
-              <ion-select *ngIf="datosrecuperados.competencias.length > 0" [(ngModel)]="funcionarioGad.competencias" interface="action-sheet" placeholder="Seleccione">
-                <ion-select-option *ngFor="let competencia of datosrecuperados.competencias" [value]="competencia.nombre_competencias">
-                  {{ competencia.nombre_competencias }}
-                </ion-select-option>
-              </ion-select>
-            </ion-item>
-
-            <ion-item class="form-item">
-              <ion-icon name="location-outline" slot="start" color="primary"></ion-icon>
-              <ion-label>Seleccione su opción *</ion-label>
-
-              <ion-select *ngIf="datosrecuperados.macrocomunidades.length > 0 && funcionarioGad.nivelgobierno==='mancomunidad'" [(ngModel)]="funcionarioGad.gadFuncionarioGad" interface="action-sheet" placeholder="Seleccione">
-                <ion-select-option *ngFor="let mancomunidad of datosrecuperados.macrocomunidades" [value]="mancomunidad.id_mancomunidad">
-                  {{ mancomunidad.nombre_mancomunidad }}
-                </ion-select-option>
-              </ion-select>
-
-              <ion-select *ngIf="datosrecuperados.provincias.length > 0 && funcionarioGad.nivelgobierno==='provincial'" [(ngModel)]="funcionarioGad.gadFuncionarioGad" interface="action-sheet" placeholder="Seleccione">
-                <ion-select-option *ngFor="let provincia of datosrecuperados.provincias" [value]="provincia.Codigo_Provincia">
-                  {{ provincia.Nombre_Provincia }}
-                </ion-select-option>
-              </ion-select>
-
-              <ion-select *ngIf="datosrecuperados.municipios.length > 0 && funcionarioGad.nivelgobierno === 'municipal'" [(ngModel)]="funcionarioGad.gadFuncionarioGad" interface="action-sheet" placeholder="Seleccione">
-                <ion-select-option *ngFor="let municipio of datosrecuperados.municipios" [value]="municipio.idCanton">
-                  {{ municipio.value }}
-                </ion-select-option>
-              </ion-select>
-
-              <ion-select *ngIf="datosrecuperados.parroquias.length > 0 && funcionarioGad.nivelgobierno === 'parroquial'" [(ngModel)]="funcionarioGad.gadFuncionarioGad" interface="action-sheet" placeholder="Seleccione">
-                <ion-select-option *ngFor="let parroquia of datosrecuperados.parroquias" [value]="parroquia.idParroquia">
-                  {{ parroquia.value }}
-                </ion-select-option>
-              </ion-select>
-
-              <ion-select *ngIf="datosrecuperados.parroquias.length > 0 && funcionarioGad.nivelgobierno === 'otro'" [(ngModel)]="funcionarioGad.gadFuncionarioGad" interface="action-sheet" placeholder="Seleccione">
-                <ion-select-option *ngFor="let parroquia of datosrecuperados.parroquias" [value]="parroquia.idParroquia">
-                  {{ parroquia.value }}
-                </ion-select-option>
-              </ion-select>
-            </ion-item>
-          </div>
-        </ng-container>
-
-        <!-- Submenú: Institución -->
-        <ng-container *ngIf="usuarioGeneral.tipoParticipante == 3">
-          <div class="profile-section">
-            <div class="profile-section-header">
-              <ion-icon name="business-outline"></ion-icon>
-              <h3>Información de institución</h3>
-            </div>
-
-            <ion-item class="form-item">
-              <ion-icon name="business-outline" slot="start" color="primary"></ion-icon>
-              <ion-label>Seleccione su institución *</ion-label>
-              <ion-select *ngIf="datosrecuperados.instituciones.length > 0" [(ngModel)]="institucion.institucion" interface="action-sheet" placeholder="Seleccione">
-                <ion-select-option *ngFor="let institucion of datosrecuperados.instituciones" [value]="institucion.id_institucion">
-                  {{ institucion.nombre_institucion }}
-                </ion-select-option>
-              </ion-select>
-            </ion-item>
-
-            <div class="form-row">
-              <ion-item class="form-item">
-                <ion-icon name="analytics-outline" slot="start" color="primary"></ion-icon>
-                <ion-label>Grado ocupacional *</ion-label>
-                <ion-select [(ngModel)]="institucion.gradoOcupacional" interface="action-sheet" placeholder="Seleccione">
-                  <ion-select-option value="Servidor Publico de Servicios 1">Servidor Público de Servicios 1</ion-select-option>
-                  <ion-select-option value="Servidor Publico de Servicios 2">Servidor Público de Servicios 2</ion-select-option>
-                  <ion-select-option value="Servidor Publico de Apoyo 1">Servidor Público de Apoyo 1</ion-select-option>
-                  <ion-select-option value="Servidor Publico de Apoyo 2">Servidor Público de Apoyo 2</ion-select-option>
-                  <ion-select-option value="Servidor Publico de Apoyo 3">Servidor Público de Apoyo 3</ion-select-option>
-                  <ion-select-option value="Servidor Publico 1">Servidor Público 1</ion-select-option>
-                  <ion-select-option value="Servidor Publico 2">Servidor Público 2</ion-select-option>
-                  <ion-select-option value="Servidor Publico 3">Servidor Público 3</ion-select-option>
-                  <ion-select-option value="Servidor Publico 4">Servidor Público 4</ion-select-option>
-                  <ion-select-option value="Servidor Publico 5">Servidor Público 5</ion-select-option>
-                  <ion-select-option value="Servidor Publico 6">Servidor Público 6</ion-select-option>
-                  <ion-select-option value="Servidor Publico 7">Servidor Público 7</ion-select-option>
-                  <ion-select-option value="Servidor Publico 8">Servidor Público 8</ion-select-option>
-                  <ion-select-option value="Servidor Publico 9">Servidor Público 9</ion-select-option>
-                  <ion-select-option value="Servidor Publico 10">Servidor Público 10</ion-select-option>
-                  <ion-select-option value="Servidor Publico 11">Servidor Público 11</ion-select-option>
-                  <ion-select-option value="Servidor Publico 12">Servidor Público 12</ion-select-option>
-                  <ion-select-option value="Servidor Publico 13">Servidor Público 13</ion-select-option>
-                  <ion-select-option value="Servidor Publico 14">Servidor Público 14</ion-select-option>
-                  <ion-select-option value="other">Otro</ion-select-option>
-                </ion-select>
-              </ion-item>
-
-              <ion-item class="form-item">
-                <ion-icon name="id-card-outline" slot="start" color="primary"></ion-icon>
-                <ion-label>Seleccione su cargo *</ion-label>
-                <ion-select *ngIf="datosrecuperados.cargos.length > 0" [(ngModel)]="institucion.cargo" interface="action-sheet" placeholder="Seleccione">
-                  <ion-select-option *ngFor="let cargo of datosrecuperados.cargos" [value]="cargo.id_cargo">
-                    {{ cargo.nombre_cargo }}
-                  </ion-select-option>
-                </ion-select>
-              </ion-item>
-            </div>
-          </div>
-        </ng-container>
-
-        <div class="form-legend">
-          <p><ion-text color="medium">* Campos obligatorios</ion-text></p>
-        </div>
-      </ion-card-content>
-    </ion-card>
-
-    <div class="button-container">
-      <ion-button fill="outline" color="medium" (click)="prevStep()">
-        <ion-icon name="arrow-back" slot="start"></ion-icon>
-        Atrás
-      </ion-button>
-      <ion-button expand="block" color="primary" (click)="nextStep()">
-        <ion-icon name="arrow-forward" slot="end"></ion-icon>
-        Siguiente
-      </ion-button>
-    </div>
-  </div>
-
-  <!-- Paso 5: Confirmación -->
-  <div *ngIf="currentStep === 5" class="step-content fade-in">
-    <h2 class="section-title">Confirmación de registro</h2>
-    <p class="section-description">Por favor revise la información antes de completar su registro.</p>
-
-    <ion-card class="confirmation-card">
-      <ion-card-header>
-        <ion-card-title>Resumen de registro</ion-card-title>
-      </ion-card-header>
-      <ion-card-content>
-        <div class="confirmation-section">
-          <h3>Datos personales</h3>
-          <div class="confirmation-item">
-            <span class="label">Nombre completo:</span>
-            <span class="value">{{ concatenarNombreCompleto() }}</span>
-          </div>
-          <div class="confirmation-item">
-            <span class="label">Cédula de identidad:</span>
-            <span class="value">{{ usuarioGeneral.CI }}</span>
-          </div>
-          <div class="confirmation-item">
-            <span class="label">Correo electrónico:</span>
-            <span class="value">{{ usuarioGeneral.email }}</span>
-          </div>
-          <div class="confirmation-item">
-            <span class="label">Teléfono celular:</span>
-            <span class="value">{{ usuarioGeneral.celular }}</span>
-          </div>
-          <div class="confirmation-item">
-            <span class="label">Teléfono convencional:</span>
-            <span class="value">{{ usuarioGeneral.convencional || 'No proporcionado' }}</span>
-          </div>
-          <div class="confirmation-item" *ngIf="usuarioGeneral.parroquia_reside">
-            <span class="label">Parroquia:</span>
-            <span class="value">{{ obtenerNombreParroquia(usuarioGeneral.parroquia_reside) }}</span>
-          </div>
-        </div>
-
-        <div class="confirmation-section">
-          <h3>Información demográfica</h3>
-          <div class="confirmation-item">
-            <span class="label">Género:</span>
-            <span class="value">{{ usuarioGeneral.Genero }}</span>
-          </div>
-          <div class="confirmation-item">
-            <span class="label">Autodefinición étnica:</span>
-            <span class="value">{{ usuarioGeneral.Etnia }}</span>
-          </div>
-          <div class="confirmation-item">
-            <span class="label">Nacionalidad:</span>
-            <span class="value">{{ usuarioGeneral.Nacionalidad }}</span>
-          </div>
-          <div class="confirmation-item">
-            <span class="label">Fecha de nacimiento:</span>
-            <span class="value">{{ usuarioGeneral.fechaNacimiento | date:'dd/MM/yyyy' }}</span>
-          </div>
-        </div>
-
-        <!-- Información específica según el tipo de participante -->
-        <div class="confirmation-section" *ngIf="usuarioGeneral.tipoParticipante == 1">
-          <h3>Información de autoridad</h3>
-          <div class="confirmation-item">
-            <span class="label">Cargo:</span>
-            <span class="value">{{ autoridad.cargo }}</span>
-          </div>
-          <div class="confirmation-item">
-            <span class="label">Nivel de gobierno:</span>
-            <span class="value">{{ autoridad.nivelgobierno }}</span>
-          </div>
-        </div>
-
-        <div class="confirmation-section" *ngIf="usuarioGeneral.tipoParticipante == 2">
-          <h3>Información de funcionario GAD</h3>
-          <div class="confirmation-item">
-            <span class="label">Cargo:</span>
-            <span class="value">{{ funcionarioGad.cargo }}</span>
-          </div>
-          <div class="confirmation-item">
-            <span class="label">Competencias:</span>
-            <span class="value">{{ funcionarioGad.competencias }}</span>
-          </div>
-          <div class="confirmation-item">
-            <span class="label">Nivel de gobierno:</span>
-            <span class="value">{{ funcionarioGad.nivelgobierno }}</span>
-          </div>
-        </div>
-
-        <div class="confirmation-section" *ngIf="usuarioGeneral.tipoParticipante == 3">
-          <h3>Información de institución</h3>
-          <div class="confirmation-item">
-            <span class="label">Grado ocupacional:</span>
-            <span class="value">{{ institucion.gradoOcupacional }}</span>
-          </div>
-        </div>
-
-        <div class="privacy-terms">
-          <p>Al hacer clic en "Confirmar y Registrarse", usted acepta los términos y condiciones del Consejo Nacional de Competencias para el uso de sus datos personales de acuerdo con la normativa vigente.</p>
-        </div>
-      </ion-card-content>
-    </ion-card>
-
-    <div class="button-container">
-      <ion-button fill="outline" color="medium" (click)="prevStep()">
-        <ion-icon name="arrow-back" slot="start"></ion-icon>
-        Atrás
-      </ion-button>
-      <ion-button expand="block" color="success" (click)="registerUser()">
-        <ion-icon name="checkmark-circle" slot="start"></ion-icon>
-        Confirmar y Registrarse
-      </ion-button>
-    </div>
-  </div>
-
-  <!-- Botón para volver a Login -->
-  <div class="login-link">
-    <p>¿Ya tiene una cuenta?</p>
-    <ion-button fill="clear" color="tertiary" (click)="iraLogin()">
-      <ion-icon name="log-in-outline" slot="start"></ion-icon>
-      Iniciar sesión
-    </ion-button>
   </div>
 </ion-content>

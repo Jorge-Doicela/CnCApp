@@ -1,17 +1,32 @@
-import { IonicModule } from '@ionic/angular';
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { LoadingController, ToastController, AlertController } from '@ionic/angular';
+import {
+  IonHeader, IonToolbar, IonButtons, IonBackButton, IonTitle,
+  IonContent, IonCard, IonCardContent, IonItem, IonIcon, IonLabel,
+  IonInput, IonButton, LoadingController, ToastController, AlertController
+} from '@ionic/angular/standalone';
+import { addIcons } from 'ionicons';
+import {
+  cardOutline, lockClosedOutline, logInOutline, personAddOutline,
+  close, arrowBack
+} from 'ionicons/icons';
 import { AuthService } from '../services/auth.service';
+
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.page.html',
   styleUrls: ['./login.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule]
+  imports: [
+    CommonModule,
+    FormsModule,
+    IonHeader, IonToolbar, IonButtons, IonBackButton, IonTitle,
+    IonContent, IonCard, IonCardContent, IonItem, IonIcon, IonLabel,
+    IonInput, IonButton
+  ]
 })
 export class LoginPage implements OnInit {
   // Signals for form state
@@ -25,27 +40,14 @@ export class LoginPage implements OnInit {
     private toastController: ToastController,
     private alertController: AlertController,
     private authService: AuthService
-  ) { }
+  ) {
+    addIcons({ cardOutline, lockClosedOutline, logInOutline, personAddOutline, close, arrowBack });
+  }
 
   ngOnInit() {
-    this.verificarSesionActiva();
+    // Session state is automatically loaded by AuthService
   }
 
-  async verificarSesionActiva() {
-    const token = localStorage.getItem('token');
-    if (token) {
-      this.authService.getProfile(token).subscribe({
-        next: (user) => {
-          this.authService.setAuthData(user, token);
-          this.redirigirUsuario(user.rol.id);
-        },
-        error: () => {
-          localStorage.removeItem('token');
-          console.log('Sesión inválida');
-        }
-      })
-    }
-  }
 
   async loginUser() {
     const ciValue = this.ci();
@@ -75,28 +77,28 @@ export class LoginPage implements OnInit {
         await loading.dismiss();
         this.isLoading.set(false);
 
-        if (response.token) {
-          this.authService.setAuthData(response.user, response.token);
+        if (response.success && response.data) {
+          // Update user session data immediately (AuthService handles state)
           this.presentToast('Sesión iniciada correctamente', 'success');
-          this.redirigirUsuario(response.user.rolId);
+          // Redirect to Home Page (Unified Dashboard) for all users
+          this.router.navigate(['/home']);
+        } else {
+          this.presentToast(response.message || 'Error al iniciar sesión', 'danger');
         }
       },
       error: async (error) => {
         await loading.dismiss();
         this.isLoading.set(false);
-        console.error('Login error:', error);
-        const msg = error.error?.error || 'Usuario o contraseña incorrectos';
+        console.error('[LOGIN_PAGE] Login error:', error);
+        const msg = error.error?.message || 'Cédula o contraseña incorrectos';
         this.presentToast(msg, 'danger');
       }
     });
   }
 
+  // Deprecated redirect method removed in favor of direct navigation to /home
   redirigirUsuario(rolId: number) {
-    if (rolId === 1) { // Asumiendo 1 es Admin basado en seeds
-      this.router.navigate(['/admin/crudusuarios']);
-    } else {
-      this.router.navigate(['/user/cerificaciones']); // Mantener typo original por compatibilidad
-    }
+    this.router.navigate(['/home']);
   }
 
   iraRegister() {

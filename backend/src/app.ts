@@ -10,7 +10,7 @@ import { env } from './config/env';
 import logger from './config/logger';
 
 // Importar rutas
-import authRoutes from './infrastructure/web/routes/auth.routes';
+import authRoutes from './routes/auth.routes';
 import userRoutes from './infrastructure/web/routes/user.routes';
 import capacitacionRoutes from './infrastructure/web/routes/capacitacion.routes';
 import certificadoRoutes from './infrastructure/web/routes/certificado.routes';

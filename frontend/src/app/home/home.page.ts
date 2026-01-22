@@ -1,9 +1,9 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule, ToastController, LoadingController } from '@ionic/angular';
 import { Router } from '@angular/router';
-import { RecuperacionDataUsuarioService } from '../pages/user/services/recuperacion-data-usuario.service';
+
 import { CapacitacionesService } from '../pages/admin/crudcapacitaciones/services/capacitaciones.service';
 import { UsuarioService } from '../pages/user/services/usuario.service';
 import { AuthService } from '../pages/auth/services/auth.service';
@@ -17,11 +17,13 @@ import { firstValueFrom } from 'rxjs';
   imports: [CommonModule, FormsModule, IonicModule]
 })
 export class HomePage implements OnInit {
-  // Datos del usuario
-  userName: string | null = null;
-  userRole: number | null = null;
-  roleName: string | null = null;
-  modulos: string[] = [];
+  // Use AuthService signals directly
+  private authService = inject(AuthService);
+
+  userName = this.authService.userName;
+  userRole = this.authService.userRole;
+  roleName = this.authService.roleName;
+  modulos = this.authService.modulos;
 
   // Datos de conferencias
   Capacitaciones: any[] = [];
@@ -41,36 +43,43 @@ export class HomePage implements OnInit {
 
   private capacitacionesService = inject(CapacitacionesService);
   private usuarioService = inject(UsuarioService);
-  private authService = inject(AuthService);
 
   constructor(
     private toastController: ToastController,
     private loadingController: LoadingController,
-    private router: Router,
-    private recuperacionDataUsuarioService: RecuperacionDataUsuarioService
-  ) { }
+    private router: Router
+  ) {
+    // Use effect for reactive title updates (must be in injection context)
+    effect(() => {
+      this.actualizarTitulo();
+      // Si el usuario cambia y existe, cargar datos
+      if (this.userName()) {
+        this.cargarDatos();
+      }
+    });
+  }
 
   ngOnInit() {
-    // Leer valores de signals directamente
-    this.userName = this.recuperacionDataUsuarioService.userName();
-    this.userRole = this.recuperacionDataUsuarioService.userRoleNumber();
-    this.roleName = this.recuperacionDataUsuarioService.roleName();
-    this.modulos = this.recuperacionDataUsuarioService.modulos();
+    console.log('[HOME_DEBUG] Loaded Role Data:', {
+      userName: this.userName(),
+      roleName: this.roleName(),
+      userRole: this.userRole(),
+      modulos: this.modulos()
+    });
 
     this.actualizarTitulo();
-
-    // Verificar sesión y cargar datos
-    this.checkSession();
   }
 
-  async checkSession() {
-    await this.recuperacionDataUsuarioService.checkUserSession();
-    this.cargarDatos();
-  }
+
 
   actualizarTitulo() {
-    if (this.userName) {
-      if (this.roleName === 'Administrador') {
+    // Unwraps signals
+    const user = this.userName();
+    const role = this.roleName();
+
+    if (user) {
+      const isAdmin = role?.toLowerCase() === 'administrador';
+      if (isAdmin) {
         this.pageTitle = 'Panel Administrativo';
       } else {
         this.pageTitle = 'Mi Portal';
@@ -81,7 +90,7 @@ export class HomePage implements OnInit {
   }
 
   async cargarDatos() {
-    if (this.userName) {
+    if (this.userName()) {
       // Usuario autenticado - cargar datos relevantes
       await this.RecuperarCapacitaciones();
       await this.RecuperarConferenciasInscrito();
@@ -89,7 +98,8 @@ export class HomePage implements OnInit {
       // Calcular estadísticas
       this.calcularEstadisticas();
 
-      if (this.roleName === 'Administrador') {
+      const role = this.roleName();
+      if (role === 'Administrador' || role?.toLowerCase() === 'administrador') {
         await this.cargarEstadisticasAdmin();
       }
     }
@@ -294,7 +304,9 @@ export class HomePage implements OnInit {
       'Ver Perfil': 'ver-perfil',
       'Ver conferencias': 'ver-conferencias',
       'Ver certificaciones': 'ver-certificaciones',
-      'Validar certificados': 'validar-certificados'
+      'Validar certificados': 'validar-certificados',
+      'Servicios y programas': 'servi-progra',
+      'servi-progra': 'servi-progra'
     };
 
     // Obtener la ruta correcta del mapeo o convertir a kebab-case
