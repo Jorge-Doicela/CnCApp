@@ -2,7 +2,12 @@ import { Component, OnInit, OnDestroy, effect, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { IonicModule, MenuController, AlertController } from '@ionic/angular';
-import { RecuperacionDataUsuarioService } from './pages/user/services/recuperacion-data-usuario.service';
+import { addIcons } from 'ionicons';
+import {
+  home, time, book, location, briefcase, informationCircle,
+  logIn, logOut, personAdd, person
+} from 'ionicons/icons';
+
 import { AuthService } from './pages/auth/services/auth.service';
 import { UsuarioService } from './pages/user/services/usuario.service';
 import { filter } from 'rxjs/operators';
@@ -16,24 +21,28 @@ import { firstValueFrom } from 'rxjs';
   imports: [CommonModule, RouterModule, IonicModule]
 })
 export class AppComponent implements OnInit, OnDestroy {
-  // Access signals directly from service
-  userName = this.recuperacionDataUsuarioService.userName;
-  userRole = this.recuperacionDataUsuarioService.userRoleNumber;
-  roleName = this.recuperacionDataUsuarioService.roleName;
-  modulos = this.recuperacionDataUsuarioService.modulos;
+  // Use AuthService signals
+  private authService = inject(AuthService);
+
+  userName = this.authService.userName;
+  userRole = this.authService.roleName;
+  modulos = this.authService.modulos;
 
   lastUrl: string = '';
 
-  private authService = inject(AuthService);
   private usuarioService = inject(UsuarioService);
 
   constructor(
     private router: Router,
     private menuCtrl: MenuController,
-    private alertController: AlertController,
-    private recuperacionDataUsuarioService: RecuperacionDataUsuarioService
+    private alertController: AlertController
   ) {
-    // Effect to log user changes (example of using effects with signals)
+    addIcons({
+      home, time, book, location, briefcase, informationCircle,
+      logIn, logOut, personAdd, person
+    });
+
+    // Effect to log user changes
     effect(() => {
       const user = this.userName();
       if (user) {
@@ -43,7 +52,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.recuperacionDataUsuarioService.checkUserSession();
+    // Auth state is loaded by AuthService constructor automatically.
 
     // Monitorear cambios de ruta para verificar el rol del usuario
     this.router.events
@@ -159,8 +168,13 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   async cerrarSesion() {
-    await this.recuperacionDataUsuarioService.cerrarSesion();
+    // Call logout on AuthService
+    // We can just clear local data or call the API.
+    // Ideally await firstValueFrom(this.authService.logout());
+    // But for speed we can just clear.
+    this.authService.clearAuthData();
     this.closeMenu();
+    this.router.navigate(['/login']);
   }
 
   getIconForModule(modulo: string): string {

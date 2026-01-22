@@ -1,672 +1,326 @@
-import { IonicModule } from '@ionic/angular';
-import { Component, OnInit } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ToastController, LoadingController, AlertController } from '@ionic/angular';
 import { Router } from '@angular/router';
-import { ChangeDetectorRef } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { environment } from 'src/environments/environment';
-import { firstValueFrom } from 'rxjs';
+import {
+  IonHeader, IonToolbar, IonButtons, IonBackButton, IonTitle,
+  IonContent, IonCard, IonCardContent, IonItem, IonIcon, IonLabel,
+  IonInput, IonButton, LoadingController, ToastController, IonSpinner
+} from '@ionic/angular/standalone';
+import { addIcons } from 'ionicons';
+import {
+  cardOutline, lockClosedOutline, personAddOutline, mailOutline,
+  callOutline, eyeOutline, eyeOffOutline, checkmarkCircleOutline,
+  closeCircleOutline, arrowBack
+} from 'ionicons/icons';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-register',
   templateUrl: './register.page.html',
   styleUrls: ['./register.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    IonHeader, IonToolbar, IonButtons, IonBackButton, IonTitle,
+    IonContent, IonCard, IonCardContent, IonItem, IonIcon, IonLabel,
+    IonInput, IonButton, IonSpinner
+  ]
 })
-export class RegisterPage implements OnInit {
+export class RegisterPage {
+  // Form fields
+  ci = signal<string>('');
+  nombre = signal<string>('');
+  email = signal<string>('');
+  telefono = signal<string>('');
+  password = signal<string>('');
+  passwordConfirm = signal<string>('');
 
-  // Add the missing property for validation message
-  mensajeValidacionCedula: string = '';
+  // UI state
+  isLoading = signal<boolean>(false);
+  showPassword = signal<boolean>(false);
+  showPasswordConfirm = signal<boolean>(false);
 
-  usuarioGeneral = {
-    //Datos para la validacion de supabase
-    email: '',
-    password: '',
-    passwordConfirm: '',
-    //Datos generales para todos los usuarios
-    Nombre1: '',
-    Nombre2: '',
-    Apellido1: '',
-    Apellido2: '',
-    Rol_Usuario: 1,
-    Nombre: '',
-    CI: '',
-    Fecha_Registro: new Date(),
-    Estado: 1, // 1 = Activo
-    auth_uid: '',
-    Entidad_Usuario: '',//En caso de no ser creada por el admin , estos tendran un valor en blanco
-    Firma_Usuario: '',//En caso de no ser creada por el admin , estos tendran un valor en blanco
-    celular: '',
-    convencional: '',
-    Genero: '',
-    Etnia: '',
-    Nacionalidad: '',
-    tipoParticipante: 0,
-    fechaNacimiento: '',
-    canton_reside: '',
-    parroquia_reside: '',
-  };
-
-  autoridad = {
-    cargo: '',
-    nivelgobierno: '',
-    gadAutoridad: '',
-    idUsuario: '',
-  };
-
-  funcionarioGad = {
-    cargo: '',
-    competencias: '',
-    nivelgobierno: '',
-    gadFuncionarioGad: '',
-    idUsuario: ''
-  };
-
-  institucion = {
-    institucion: '',
-    gradoOcupacional: '',
-    cargo: '',
-    idUsuario: ''
-  };
-
-
-  datosrecuperados = {
-    cargos: [] as any[],
-    instituciones: [] as any[],
-    provincias: [] as any[],
-    cantones: [] as any[],
-    parroquias: [] as any[],
-    parroquiasSeleccionadas: [] as any[],
-    macrocomunidades: [] as any[],
-    municipios: [] as any[],
-    competencias: [] as any[],
-  }
-
-  datosconcatenar = {
-    provinciasConCantones: [] as any[],
-  }
-
-  datosbusqueda = {
-    selectedProvincia: 0,
-    selectedCanton: 0
-  }
-
-  // Estado de la página
-  currentStep: number = 1;
-  isLoading: boolean = false;
-  formErrors: any = {};
-
-  // Variable para controlar si los campos de nombre están bloqueados
-  camposNombreReadonly: boolean = false;
-
-  // Códigos de provincias para validación de cédula
-  provinciasCodigos: { [key: string]: string } = {
-    '01': 'Azuay',
-    '02': 'Bolívar',
-    '03': 'Cañar',
-    '04': 'Carchi',
-    '05': 'Cotopaxi',
-    '06': 'Chimborazo',
-    '07': 'El Oro',
-    '08': 'Esmeraldas',
-    '09': 'Guayas',
-    '10': 'Imbabura',
-    '11': 'Loja',
-    '12': 'Los Ríos',
-    '13': 'Manabí',
-    '14': 'Morona Santiago',
-    '15': 'Napo',
-    '16': 'Pastaza',
-    '17': 'Pichincha',
-    '18': 'Tungurahua',
-    '19': 'Zamora Chinchipe',
-    '20': 'Galápagos',
-    '21': 'Sucumbíos',
-    '22': 'Orellana',
-    '23': 'Santo Domingo de los Tsáchilas',
-    '24': 'Santa Elena',
-    '30': 'Ecuatorianos en el exterior'
-  };
-
-  cedulaValidada: boolean = false;
-  nombresEdited: boolean = false;
+  // Password strength
+  passwordStrength = signal<{
+    score: number;
+    label: string;
+    color: string;
+  }>({ score: 0, label: '', color: 'medium' });
 
   constructor(
     private router: Router,
-    private cdr: ChangeDetectorRef,
-    private toastController: ToastController,
     private loadingController: LoadingController,
-    private alertController: AlertController,
-    private http: HttpClient
-  ) { }
-
-  ngOnInit() {
-    this.obtenerProvincias();
+    private toastController: ToastController,
+    private authService: AuthService
+  ) {
+    addIcons({
+      cardOutline, lockClosedOutline, personAddOutline, mailOutline,
+      callOutline, eyeOutline, eyeOffOutline, checkmarkCircleOutline,
+      closeCircleOutline, arrowBack
+    });
   }
 
-  // Función para validar la cédula ecuatoriana
-  validarCedula() {
-    const cedula = this.usuarioGeneral.CI;
+  /**
+   * Calculate password strength
+   */
+  calculatePasswordStrength(password: string) {
+    let score = 0;
+    let label = '';
+    let color = 'danger';
 
-    // Verificar longitud
-    if (cedula.length !== 10) {
-      this.mensajeValidacionCedula = 'La cédula debe tener 10 dígitos';
-      this.showToast(this.mensajeValidacionCedula);
-      this.cedulaValidada = false;
+    if (!password) {
+      this.passwordStrength.set({ score: 0, label: '', color: 'medium' });
       return;
     }
 
-    // Verificar que solo contenga dígitos
-    if (!/^\d+$/.test(cedula)) {
-      this.mensajeValidacionCedula = 'La cédula debe contener solo números';
-      this.showToast(this.mensajeValidacionCedula);
-      this.cedulaValidada = false;
-      return;
-    }
+    // Length check
+    if (password.length >= 8) score++;
+    if (password.length >= 12) score++;
 
-    // Verificar código de provincia
-    const codigoProvincia = cedula.substring(0, 2);
-    if (!this.provinciasCodigos[codigoProvincia]) {
-      this.mensajeValidacionCedula = `Código de provincia inválido: ${codigoProvincia}`;
-      this.showToast(this.mensajeValidacionCedula);
-      this.cedulaValidada = false;
-      return;
-    }
+    // Complexity checks
+    if (/[a-z]/.test(password)) score++;
+    if (/[A-Z]/.test(password)) score++;
+    if (/[0-9]/.test(password)) score++;
+    if (/[^a-zA-Z0-9]/.test(password)) score++;
 
-    // Algoritmo de validación (Algoritmo 10)
-    const digitoVerificador = parseInt(cedula.charAt(9), 10);
-    let suma = 0;
-
-    for (let i = 0; i < 9; i++) {
-      let valor = parseInt(cedula.charAt(i), 10);
-
-      // Para los dígitos impares (posiciones pares 0,2,4,6,8)
-      if (i % 2 === 0) {
-        valor = valor * 2;
-        if (valor > 9) {
-          valor = valor - 9;
-        }
-      }
-
-      suma += valor;
-    }
-
-    const digitoCalculado = 10 - (suma % 10);
-    // Si el dígito calculado es 10, se convierte a 0
-    const digitoEsperado = (digitoCalculado === 10) ? 0 : digitoCalculado;
-
-    if (digitoVerificador === digitoEsperado) {
-      this.mensajeValidacionCedula = 'Cédula validada correctamente';
-      this.showSuccessToast(this.mensajeValidacionCedula);
-      this.cedulaValidada = true;
-
-      // Permitir que el usuario llene los campos de nombre y apellido
-      this.camposNombreReadonly = false;
+    // Determine label and color
+    if (score <= 2) {
+      label = 'Muy débil';
+      color = 'danger';
+    } else if (score === 3) {
+      label = 'Débil';
+      color = 'warning';
+    } else if (score === 4) {
+      label = 'Media';
+      color = 'medium';
+    } else if (score === 5) {
+      label = 'Fuerte';
+      color = 'success';
     } else {
-      this.mensajeValidacionCedula = 'La cédula ingresada no es válida';
-      this.showToast(this.mensajeValidacionCedula);
-      this.cedulaValidada = false;
+      label = 'Muy fuerte';
+      color = 'primary';
     }
+
+    this.passwordStrength.set({ score, label, color });
   }
 
-  // Add the missing method for confirming names
-  confirmarNombres() {
-    if (this.usuarioGeneral.Nombre1 && this.usuarioGeneral.Apellido1) {
-      this.nombresEdited = true;
-      this.camposNombreReadonly = true;
-      this.showSuccessToast('Nombres confirmados correctamente');
-    } else {
-      this.showToast('Por favor ingrese al menos el primer nombre y primer apellido');
-    }
-  }
+  /**
+   * Validate CI format
+   */
+  validateCI(): boolean {
+    const ciValue = this.ci();
 
-  // Verificación adicional para el paso 2
-  validateStep2(): boolean {
-    if (!this.cedulaValidada) {
-      this.showToast('Por favor valide su cédula antes de continuar');
+    if (!ciValue) {
+      this.presentToast('Por favor ingrese su cédula', 'warning');
+      return false;
+    }
+
+    if (ciValue.length < 10 || ciValue.length > 13) {
+      this.presentToast('La cédula debe tener entre 10 y 13 dígitos', 'warning');
+      return false;
+    }
+
+    if (!/^\d+$/.test(ciValue)) {
+      this.presentToast('La cédula debe contener solo números', 'warning');
       return false;
     }
 
     return true;
   }
 
-  // Función para bloquear campos de nombre después de validación
-  bloquearCamposNombre() {
-    if (this.usuarioGeneral.Nombre1 && this.usuarioGeneral.Apellido1) {
-      this.camposNombreReadonly = true;
-    }
-  }
+  /**
+   * Validate email format
+   */
+  validateEmail(): boolean {
+    const emailValue = this.email();
 
-  nextStep() {
-    // Validar el formulario actual antes de avanzar
-    if (this.validateCurrentStep()) {
-      // Validación adicional para el paso 2
-      if (this.currentStep === 2) {
-        if (!this.validateStep2()) {
-          return;
-        }
-      }
-
-      // Si estamos en el paso 3 y se han llenado los nombres, los bloqueamos
-      if (this.currentStep === 3) {
-        this.bloquearCamposNombre();
-      }
-
-      this.currentStep++;
-      window.scrollTo(0, 0);
-    }
-  }
-
-  prevStep() {
-    this.currentStep--;
-    window.scrollTo(0, 0);
-  }
-
-  validateCurrentStep(): boolean {
-    this.formErrors = {};
-
-    switch (this.currentStep) {
-      case 1:
-        // El paso 1 es informativo, no hay validación
-        return true;
-
-      case 2:
-        // Validación del paso 2: Información de contacto
-        if (!this.usuarioGeneral.CI) {
-          this.showToast('Por favor ingrese su número de cédula');
-          return false;
-        }
-        if (!this.usuarioGeneral.email) {
-          this.showToast('Por favor ingrese su correo electrónico');
-          return false;
-        }
-        if (!this.validateEmail(this.usuarioGeneral.email)) {
-          return false;
-        }
-        if (!this.usuarioGeneral.password) {
-          this.showToast('Por favor ingrese una contraseña');
-          return false;
-        }
-        if (this.usuarioGeneral.password.length < 6) {
-          this.showToast('La contraseña debe tener al menos 6 caracteres');
-          return false;
-        }
-        if (this.usuarioGeneral.password !== this.usuarioGeneral.passwordConfirm) {
-          this.showToast('Las contraseñas no coinciden');
-          return false;
-        }
-        if (!this.usuarioGeneral.celular) {
-          this.showToast('Por favor ingrese su número de teléfono celular');
-          return false;
-        }
-        if (!this.datosbusqueda.selectedProvincia) {
-          this.showToast('Por favor seleccione una provincia');
-          return false;
-        }
-        if (!this.usuarioGeneral.canton_reside && this.datosrecuperados.cantones.length > 0) {
-          this.showToast('Por favor seleccione un cantón');
-          return false;
-        }
-        return true;
-
-      case 3:
-        // Validación del paso 3: Información personal
-        if (!this.usuarioGeneral.Nombre1) {
-          this.showToast('Por favor ingrese su primer nombre');
-          return false;
-        }
-        if (!this.usuarioGeneral.Apellido1) {
-          this.showToast('Por favor ingrese su primer apellido');
-          return false;
-        }
-        if (!this.usuarioGeneral.Genero) {
-          this.showToast('Por favor seleccione su género');
-          return false;
-        }
-        if (!this.usuarioGeneral.Nacionalidad) {
-          this.showToast('Por favor seleccione su nacionalidad');
-          return false;
-        }
-        if (!this.usuarioGeneral.Etnia) {
-          this.showToast('Por favor seleccione su autodefinición étnica');
-          return false;
-        }
-        if (!this.usuarioGeneral.fechaNacimiento) {
-          this.showToast('Por favor ingrese su fecha de nacimiento');
-          return false;
-        }
-        return true;
-
-      case 4:
-        // Validación del paso 4: Perfil profesional
-        if (this.usuarioGeneral.tipoParticipante == 1) {
-          // Validación para autoridad
-          if (!this.autoridad.cargo) {
-            this.showToast('Por favor seleccione su cargo como autoridad');
-            return false;
-          }
-          if (!this.autoridad.nivelgobierno) {
-            this.showToast('Por favor seleccione el nivel de gobierno');
-            return false;
-          }
-          if (!this.autoridad.gadAutoridad) {
-            this.showToast('Por favor seleccione su GAD');
-            return false;
-          }
-        } else if (this.usuarioGeneral.tipoParticipante == 2) {
-          // Validación para funcionario GAD
-          if (!this.funcionarioGad.cargo) {
-            this.showToast('Por favor seleccione su cargo');
-            return false;
-          }
-          if (!this.funcionarioGad.nivelgobierno) {
-            this.showToast('Por favor seleccione el nivel de gobierno');
-            return false;
-          }
-          if (!this.funcionarioGad.competencias) {
-            this.showToast('Por favor seleccione sus competencias');
-            return false;
-          }
-          if (!this.funcionarioGad.gadFuncionarioGad) {
-            this.showToast('Por favor seleccione su GAD');
-            return false;
-          }
-        } else if (this.usuarioGeneral.tipoParticipante == 3) {
-          // Validación para institución
-          if (!this.institucion.institucion) {
-            this.showToast('Por favor seleccione su institución');
-            return false;
-          }
-          if (!this.institucion.gradoOcupacional) {
-            this.showToast('Por favor seleccione su grado ocupacional');
-            return false;
-          }
-          if (!this.institucion.cargo) {
-            this.showToast('Por favor seleccione su cargo');
-            return false;
-          }
-        }
-        return true;
-
-      default:
-        return true;
-    }
-  }
-
-  validateEmail(email: string): boolean {
-    // Primero validar formato básico del email con dominios comunes
-    const basicEmailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|net|org|edu|gov|mil|biz|info|io|me|tv|co|us|uk|ca|de|jp|fr|au|ru|ch|it|nl|se|no|es|mx)$/i;
-    if (!basicEmailRegex.test(email)) {
-      this.showToast('Por favor, ingrese un correo electrónico válido con un dominio conocido (.com, .net, .org, etc.)');
+    if (!emailValue) {
+      this.presentToast('Por favor ingrese su email', 'warning');
       return false;
     }
 
-    // Luego validar que use un proveedor de correo conocido
-    const knownProviderRegex = /^[a-zA-Z0-9._%+-]+@(gmail|outlook|hotmail|yahoo|icloud|aol|protonmail|zoho|mail|gmx|yandex|live|msn|inbox)\.(com|net|org)$/i;
-    if (!knownProviderRegex.test(email)) {
-      this.showToast('Por favor, utilice un proveedor de correo conocido como Gmail, Outlook, Hotmail, Yahoo, etc.');
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(emailValue)) {
+      this.presentToast('Por favor ingrese un email válido', 'warning');
       return false;
     }
 
     return true;
   }
 
-  concatenarNombreCompleto(): string {
-    return `${this.usuarioGeneral.Nombre1} ${this.usuarioGeneral.Nombre2 || ''} ${this.usuarioGeneral.Apellido1} ${this.usuarioGeneral.Apellido2 || ''}`.trim().replace(/\s+/g, ' ');
+  /**
+   * Validate password
+   */
+  validatePassword(): boolean {
+    const passwordValue = this.password();
+
+    if (!passwordValue) {
+      this.presentToast('Por favor ingrese una contraseña', 'warning');
+      return false;
+    }
+
+    if (passwordValue.length < 8) {
+      this.presentToast('La contraseña debe tener al menos 8 caracteres', 'warning');
+      return false;
+    }
+
+    if (!/[A-Z]/.test(passwordValue)) {
+      this.presentToast('La contraseña debe contener al menos una mayúscula', 'warning');
+      return false;
+    }
+
+    if (!/[a-z]/.test(passwordValue)) {
+      this.presentToast('La contraseña debe contener al menos una minúscula', 'warning');
+      return false;
+    }
+
+    if (!/[0-9]/.test(passwordValue)) {
+      this.presentToast('La contraseña debe contener al menos un número', 'warning');
+      return false;
+    }
+
+    return true;
   }
 
-  onTipoParticipanteChange() {
-    if (this.usuarioGeneral.tipoParticipante == 0) {
-      // Ciudadano - no se necesita acción adicional
-    } else if (this.usuarioGeneral.tipoParticipante == 1) {
-      // Autoridad
-      this.recuperarMacrocumunidades();
-      this.generacionMunicipios();
-      this.generacionParroquias();
-    } else if (this.usuarioGeneral.tipoParticipante == 2) {
-      // Funcionario GAD
-      this.recuperarCompetencias();
-      this.recuperarMacrocumunidades();
-      this.generacionMunicipios();
-      this.generacionParroquias();
-    } else if (this.usuarioGeneral.tipoParticipante == 3) {
-      // Institución
-      this.obtenerCargos();
-      this.obtenerInstituciones();
+  /**
+   * Validate password confirmation
+   */
+  validatePasswordConfirm(): boolean {
+    if (this.password() !== this.passwordConfirm()) {
+      this.presentToast('Las contraseñas no coinciden', 'warning');
+      return false;
+    }
+    return true;
+  }
+
+  /**
+   * Register user
+   */
+  async registerUser() {
+    // Validate all fields
+    if (!this.validateCI()) return;
+    if (!this.nombre()) {
+      this.presentToast('Por favor ingrese su nombre completo', 'warning');
+      return;
+    }
+    if (!this.validateEmail()) return;
+    if (!this.validatePassword()) return;
+    if (!this.validatePasswordConfirm()) return;
+
+    const loading = await this.loadingController.create({
+      message: 'Creando su cuenta...',
+      spinner: 'crescent'
+    });
+    await loading.present();
+    this.isLoading.set(true);
+
+    this.authService.register({
+      ci: this.ci(),
+      nombre: this.nombre(),
+      email: this.email(),
+      telefono: this.telefono() || undefined,
+      password: this.password()
+    }).subscribe({
+      next: async (response) => {
+        await loading.dismiss();
+        this.isLoading.set(false);
+
+        if (response.success && response.data) {
+          this.presentToast('¡Registro exitoso! Bienvenido al CNC', 'success');
+
+          // Auto-login after registration
+          const roleId = response.data.user.rol?.id || 0;
+          setTimeout(() => {
+            this.redirigirUsuario(roleId);
+          }, 1500);
+        } else {
+          this.presentToast(response.message || 'Error al registrarse', 'danger');
+        }
+      },
+      error: async (error) => {
+        await loading.dismiss();
+        this.isLoading.set(false);
+        console.error('[REGISTER_PAGE] Registration error:', error);
+
+        const msg = error.error?.message || 'Error al crear la cuenta';
+        this.presentToast(msg, 'danger');
+      }
+    });
+  }
+
+  /**
+   * Redirect user based on role
+   */
+  redirigirUsuario(rolId: number) {
+    if (rolId === 1) { // Admin
+      this.router.navigate(['/admin/crudusuarios']);
+    } else {
+      this.router.navigate(['/user/certificaciones']);
     }
   }
 
-  async showToast(message: string) {
+  /**
+   * Go to login page
+   */
+  iraLogin() {
+    this.router.navigate(['/login']);
+  }
+
+  /**
+   * Show toast message
+   */
+  async presentToast(message: string, color: string = 'primary') {
     const toast = await this.toastController.create({
       message: message,
       duration: 3000,
       position: 'bottom',
-      color: 'danger',
+      color: color,
       buttons: [
         {
+          side: 'end',
           icon: 'close',
           role: 'cancel'
         }
       ]
     });
-    toast.present();
+
+    await toast.present();
   }
 
-  async showSuccessToast(message: string) {
-    const toast = await this.toastController.create({
-      message: message,
-      duration: 3000,
-      position: 'bottom',
-      color: 'success',
-      buttons: [
-        {
-          icon: 'checkmark',
-          role: 'cancel'
-        }
-      ]
-    });
-    toast.present();
+  // Helper methods for two-way binding with signals
+  updateCi(event: any) {
+    this.ci.set(event.target.value);
   }
 
-  async showLoading(message: string) {
-    this.isLoading = true;
-    const loading = await this.loadingController.create({
-      message: message,
-      spinner: 'circles',
-    });
-    await loading.present();
-    return loading;
+  updateNombre(event: any) {
+    this.nombre.set(event.target.value);
   }
 
-  async registerUser() {
-    try {
-      // Mostrar loader
-      const loading = await this.showLoading('Procesando su registro...');
-
-      this.usuarioGeneral.Nombre = this.concatenarNombreCompleto();
-
-      // Construir payload completo para el backend
-      const payload = {
-        user: {
-          email: this.usuarioGeneral.email,
-          password: this.usuarioGeneral.password,
-          nombre: this.usuarioGeneral.Nombre,
-          ci: this.usuarioGeneral.CI,
-          rol: this.usuarioGeneral.Rol_Usuario,
-          celular: this.usuarioGeneral.celular,
-          convencional: this.usuarioGeneral.convencional,
-          genero: this.usuarioGeneral.Genero,
-          etnia: this.usuarioGeneral.Etnia,
-          nacionalidad: this.usuarioGeneral.Nacionalidad,
-          tipoParticipante: this.usuarioGeneral.tipoParticipante,
-          fechaNacimiento: this.usuarioGeneral.fechaNacimiento,
-          cantonReside: this.usuarioGeneral.canton_reside,
-          parroquiaReside: this.usuarioGeneral.parroquia_reside,
-        },
-        autoridad: this.usuarioGeneral.tipoParticipante == 1 ? this.autoridad : null,
-        funcionarioGad: this.usuarioGeneral.tipoParticipante == 2 ? this.funcionarioGad : null,
-        institucion: this.usuarioGeneral.tipoParticipante == 3 ? this.institucion : null
-      };
-
-      // Llamada al backend
-      // await firstValueFrom(this.http.post(`${environment.apiUrl}/auth/register`, payload));
-
-      console.log('Simulating registration sent to backend:', payload);
-
-      // Simular delay y éxito
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
-      await loading.dismiss();
-      this.isLoading = false;
-
-      // Mostrar alerta de éxito
-      const alert = await this.alertController.create({
-        header: 'Registro exitoso',
-        message: '¡Bienvenido al Consejo Nacional de Competencias! Su registro ha sido completado exitosamente.',
-        buttons: ['OK']
-      });
-      await alert.present();
-
-      // Redireccionar según el rol del usuario
-      setTimeout(() => {
-        if (this.usuarioGeneral.Rol_Usuario === 2) {
-          window.location.href = '/admin/certificados';
-        } else {
-          window.location.href = '/';
-        }
-      }, 1500);
-
-    } catch (error: any) {
-      console.error('Error inesperado:', error);
-      this.isLoading = false;
-
-      // Cerrar loading si existe
-      const loadingElement = await this.loadingController.getTop();
-      if (loadingElement) {
-        await this.loadingController.dismiss();
-      }
-
-      // Mostrar mensaje de error
-      this.showToast('Ha ocurrido un error inesperado: ' + (error.message || error));
-    }
+  updateEmail(event: any) {
+    this.email.set(event.target.value);
   }
 
-  async obtenerCargos() {
-    try {
-      // Mock or fetch from backend
-      // const data = await firstValueFrom(this.http.get<any[]>(`${environment.apiUrl}/catalogs/cargos`));
-      const data: any[] = []; // Placeholder
-      this.datosrecuperados.cargos = data || [];
-    } catch (error) {
-      console.error('Error inesperado al obtener cargos:', error);
-    }
+  updateTelefono(event: any) {
+    this.telefono.set(event.target.value);
   }
 
-  async obtenerInstituciones() {
-    try {
-      // Mock or fetch from backend
-      // const data = await firstValueFrom(this.http.get<any[]>(`${environment.apiUrl}/catalogs/instituciones`));
-      const data: any[] = []; // Placeholder
-      this.datosrecuperados.instituciones = data || [];
-    } catch (error) {
-      console.error('Error inesperado al obtener instituciones:', error);
-    }
+  updatePassword(event: any) {
+    const value = event.target.value;
+    this.password.set(value);
+    this.calculatePasswordStrength(value);
   }
 
-  async obtenerProvincias() {
-    try {
-      // Mock or fetch from backend
-      // const data = await firstValueFrom(this.http.get<any[]>(`${environment.apiUrl}/catalogs/provincias`));
-      const data: any[] = [];
-      this.datosrecuperados.provincias = data || [];
-    } catch (error) {
-      console.error('Error inesperado al obtener provincias:', error);
-    }
+  updatePasswordConfirm(event: any) {
+    this.passwordConfirm.set(event.target.value);
   }
 
-  async obtenerCantones(provinciaId: number) {
-    if (!provinciaId) return;
-
-    try {
-      // Mock or fetch from backend
-      // const data = await firstValueFrom(this.http.get<any[]>(`${environment.apiUrl}/catalogs/cantones/${provinciaId}`));
-      const data: any[] = [];
-      this.datosrecuperados.cantones = data || [];
-      // Limpiamos las parroquias al cambiar de provincia
-      this.datosrecuperados.parroquiasSeleccionadas = [];
-      this.usuarioGeneral.parroquia_reside = '';
-      this.cdr.detectChanges();
-    } catch (error) {
-      console.error('Error inesperado al obtener cantones:', error);
-    }
+  togglePasswordVisibility() {
+    this.showPassword.set(!this.showPassword());
   }
 
-  async obtenerParroquias(cantonId: string) {
-    if (!cantonId) return;
-
-    try {
-      // Mock or fetch from backend
-      // const data = await firstValueFrom(this.http.get<any[]>(`${environment.apiUrl}/catalogs/parroquias/${cantonId}`));
-      const data: any[] = [];
-      this.datosrecuperados.parroquiasSeleccionadas = data || [];
-      this.cdr.detectChanges();
-    } catch (error) {
-      console.error('Error inesperado al obtener parroquias:', error);
-    }
-  }
-
-  obtenerNombreParroquia(codigoParroquia: string): string {
-    if (!codigoParroquia || !this.datosrecuperados.parroquiasSeleccionadas) return 'No especificada';
-
-    const parroquia = this.datosrecuperados.parroquiasSeleccionadas.find(
-      p => p.codigo_parroquia === codigoParroquia
-    );
-
-    return parroquia ? parroquia.nombre_parroquia : 'Desconocida';
-  }
-
-  // Placeholder methods for missing implementations
-  recuperarMacrocumunidades() {
-    // TODO: Implement fetching macrocomunidades from backend
-  }
-
-  generacionMunicipios() {
-    // TODO: Implement fetching municipios from backend
-  }
-
-  generacionParroquias() {
-    // TODO: Implement fetching parroquias from backend
-  }
-
-  recuperarCompetencias() {
-    // TODO: Implement fetching competencias from backend
-  }
-
-  onNivelGobiernoChange(nivel_gobierno: string) {
-    if (!nivel_gobierno) return;
-
-    // Logic to handle government level change
-    // This previously fetched data from Supabase
-    console.log('Nivel de gobierno changed:', nivel_gobierno);
-
-    // Clear previous data
-    this.datosrecuperados.macrocomunidades = [];
-    this.datosrecuperados.municipios = [];
-    this.datosrecuperados.parroquias = [];
-
-    if (nivel_gobierno === 'mancomunidad') {
-      this.recuperarMacrocumunidades();
-    } else if (nivel_gobierno === 'municipal') {
-      this.generacionMunicipios();
-    } else if (nivel_gobierno === 'otro' || nivel_gobierno === 'parroquial') {
-      this.generacionParroquias();
-    }
-  }
-
-  iraLogin() {
-    this.router.navigate(['/login']);
+  togglePasswordConfirmVisibility() {
+    this.showPasswordConfirm.set(!this.showPasswordConfirm());
   }
 }

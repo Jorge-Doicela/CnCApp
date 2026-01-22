@@ -1,9 +1,5 @@
-# ============================================
-# Multi-Stage Build for CNC Frontend
-# ============================================
-
-# Stage 1: Dependencies
-FROM node:20-alpine AS dependencies
+# Stage 1: Build
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
@@ -11,24 +7,16 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm ci && \
-    npm cache clean --force
-
-# Stage 2: Build
-FROM node:20-alpine AS builder
-
-WORKDIR /app
-
-# Copy dependencies
-COPY --from=dependencies /app/node_modules ./node_modules
+RUN rm -f package-lock.json && \
+    npm install
 
 # Copy source code
 COPY . .
 
-# Build Angular application for production
-RUN npm run build -- --configuration production
+# Build Angular application
+RUN npm run build -- --configuration production --progress=false
 
-# Stage 3: Production with Nginx
+# Stage 2: Production with Nginx
 FROM nginx:alpine AS production
 
 # Install curl for health checks
@@ -38,6 +26,7 @@ RUN apk add --no-cache curl
 COPY nginx.conf /etc/nginx/nginx.conf
 
 # Copy built application from builder
+# We know from angular.json that outputPath is "www"
 COPY --from=builder /app/www /usr/share/nginx/html
 
 # Create non-root user for nginx
