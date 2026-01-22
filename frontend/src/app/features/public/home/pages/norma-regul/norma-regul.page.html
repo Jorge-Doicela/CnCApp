@@ -1,0 +1,359 @@
+<!-- norma-regul.page.html -->
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button default-href="/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title class="ion-text-center">Normativa Regulatoria</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-card class="main-card">
+    <div class="logo-container ion-text-center">
+      <img src="assets/cnc.png" alt="Logo CNC" class="cnc-logo">
+    </div>
+
+    <!-- Buscador de normativas -->
+    <ion-card-content>
+      <div class="search-section fade-in">
+        <h3 class="section-title">Buscador de Normativa</h3>
+        <div class="search-container">
+          <ion-item class="search-item">
+            <ion-icon name="search-outline" slot="start" color="primary"></ion-icon>
+            <ion-input placeholder="Buscar normativa por palabra clave" [(ngModel)]="searchTerm"></ion-input>
+            <ion-button slot="end" fill="clear" (click)="buscarNormativa()">
+              <ion-icon name="search"></ion-icon>
+            </ion-button>
+          </ion-item>
+
+          <div class="filter-container">
+            <ion-item class="filter-item">
+              <ion-icon name="filter-outline" slot="start" color="primary"></ion-icon>
+              <ion-label>Tipo</ion-label>
+              <ion-select [(ngModel)]="filtroTipo" interface="action-sheet" placeholder="Todos">
+                <ion-select-option value="todos">Todos</ion-select-option>
+                <ion-select-option value="constitucion">Constitución</ion-select-option>
+                <ion-select-option value="leyes">Leyes</ion-select-option>
+                <ion-select-option value="resoluciones">Resoluciones CNC</ion-select-option>
+                <ion-select-option value="acuerdos">Acuerdos</ion-select-option>
+              </ion-select>
+            </ion-item>
+
+            <ion-item class="filter-item">
+              <ion-icon name="calendar-outline" slot="start" color="primary"></ion-icon>
+              <ion-label>Año</ion-label>
+              <ion-select [(ngModel)]="filtroAnio" interface="action-sheet" placeholder="Todos">
+                <ion-select-option value="todos">Todos</ion-select-option>
+                <ion-select-option value="2023">2023</ion-select-option>
+                <ion-select-option value="2022">2022</ion-select-option>
+                <ion-select-option value="2021">2021</ion-select-option>
+                <ion-select-option value="2020">2020</ion-select-option>
+                <ion-select-option value="2019">2019</ion-select-option>
+                <ion-select-option value="anteriores">Anteriores</ion-select-option>
+              </ion-select>
+            </ion-item>
+          </div>
+
+          <ion-button expand="block" color="primary" (click)="buscarNormativa()">
+            <ion-icon name="search-outline" slot="start"></ion-icon>
+            Buscar Normativa
+          </ion-button>
+        </div>
+      </div>
+
+      <!-- Resultados de Búsqueda (Aparece solo cuando hay resultados) -->
+      <div *ngIf="mostrandoResultados" id="resultados-busqueda" class="normative-section fade-in search-results">
+        <div class="results-header">
+          <h3 class="section-title">{{ resultadosTitulo }}</h3>
+          <span class="results-count">{{ filteredDocumentos.length }} documentos encontrados</span>
+          <ion-button size="small" fill="clear" color="medium" (click)="volverArriba()">
+            <ion-icon slot="start" name="arrow-up-outline"></ion-icon>
+            Volver
+          </ion-button>
+        </div>
+
+        <div class="normativa-section">
+          <div class="normativa-item" *ngFor="let doc of filteredDocumentos" (click)="verDocumento(doc.id)">
+            <div class="normativa-icon">
+              <ion-icon name="document-text-outline" color="primary"></ion-icon>
+            </div>
+            <div class="normativa-details">
+              <h3>{{ doc.nombre }}</h3>
+              <p>{{ doc.descripcion }}</p>
+              <div class="normativa-meta">
+                <span class="badge">{{ obtenerTipoBadge(doc.tipo) }}</span>
+                <span class="date">{{ doc.anio }}</span>
+              </div>
+            </div>
+            <div class="normativa-action">
+              <ion-icon name="chevron-forward-outline"></ion-icon>
+            </div>
+          </div>
+        </div>
+
+        <!-- Botón para cerrar la sección de resultados -->
+        <ion-button expand="block" color="medium" (click)="volverArriba()" *ngIf="!mostrandoTodas">
+          <ion-icon name="close-outline" slot="start"></ion-icon>
+          Cerrar resultados
+        </ion-button>
+      </div>
+
+      <!-- Marco Normativo Principal -->
+      <div class="normative-section fade-in" style="animation-delay: 0.1s;" *ngIf="!mostrandoResultados">
+        <h3 class="section-title">Marco Normativo Principal</h3>
+        <div class="normativa-section">
+          <div class="normativa-item" (click)="verDocumento('constitucion')">
+            <div class="normativa-icon">
+              <ion-icon name="document-text-outline" color="primary"></ion-icon>
+            </div>
+            <div class="normativa-details">
+              <h3>Constitución de la República del Ecuador</h3>
+              <p>Artículos 238-241, 251-252, 260-269. Disposiciones para la organización territorial del Estado, régimen
+                de competencias y sistema nacional de competencias.</p>
+              <div class="normativa-meta">
+                <span class="badge">Fundamental</span>
+                <span class="date">2008</span>
+              </div>
+            </div>
+            <div class="normativa-action">
+              <ion-icon name="chevron-forward-outline"></ion-icon>
+            </div>
+          </div>
+
+          <div class="normativa-item" (click)="verDocumento('cootad')">
+            <div class="normativa-icon">
+              <ion-icon name="document-text-outline" color="primary"></ion-icon>
+            </div>
+            <div class="normativa-details">
+              <h3>Código Orgánico de Organización Territorial, Autonomía y Descentralización (COOTAD)</h3>
+              <p>Establece la organización político-administrativa del Estado, el régimen de los diferentes niveles de
+                gobiernos autónomos descentralizados y los regímenes especiales.</p>
+              <div class="normativa-meta">
+                <span class="badge">Ley Orgánica</span>
+                <span class="date">2010</span>
+              </div>
+            </div>
+            <div class="normativa-action">
+              <ion-icon name="chevron-forward-outline"></ion-icon>
+            </div>
+          </div>
+
+          <div class="normativa-item" (click)="verDocumento('copfp')">
+            <div class="normativa-icon">
+              <ion-icon name="document-text-outline" color="primary"></ion-icon>
+            </div>
+            <div class="normativa-details">
+              <h3>Código Orgánico de Planificación y Finanzas Públicas</h3>
+              <p>Regula el ejercicio de las competencias de planificación y el ejercicio de la política pública en todos
+                los niveles de gobierno.</p>
+              <div class="normativa-meta">
+                <span class="badge">Ley Orgánica</span>
+                <span class="date">2010</span>
+              </div>
+            </div>
+            <div class="normativa-action">
+              <ion-icon name="chevron-forward-outline"></ion-icon>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Resoluciones del CNC -->
+      <div class="normative-section fade-in" style="animation-delay: 0.2s;" *ngIf="!mostrandoResultados">
+        <h3 class="section-title">Resoluciones del CNC</h3>
+        <p class="section-description">Principales resoluciones emitidas por el Consejo Nacional de Competencias para la
+          transferencia y regulación de competencias a los GAD.</p>
+
+        <div class="normativa-section">
+          <div class="normativa-item" (click)="verDocumento('resolucion-transito')">
+            <div class="normativa-icon">
+              <ion-icon name="document-outline" color="primary"></ion-icon>
+            </div>
+            <div class="normativa-details">
+              <h3>Resolución Nro. 006-CNC-2012</h3>
+              <p>Transferencia de competencia para planificar, regular y controlar el tránsito, el transporte terrestre
+                y la seguridad vial a favor de los GAD.</p>
+              <div class="normativa-meta">
+                <span class="badge">Tránsito y Transporte</span>
+                <span class="date">29/05/2012</span>
+              </div>
+            </div>
+            <div class="normativa-action">
+              <ion-icon name="chevron-forward-outline"></ion-icon>
+            </div>
+          </div>
+
+          <div class="normativa-item" (click)="verDocumento('resolucion-riego')">
+            <div class="normativa-icon">
+              <ion-icon name="document-outline" color="primary"></ion-icon>
+            </div>
+            <div class="normativa-details">
+              <h3>Resolución Nro. 008-CNC-2011</h3>
+              <p>Transferencia de la competencia de riego y drenaje a los Gobiernos Autónomos Descentralizados
+                provinciales.</p>
+              <div class="normativa-meta">
+                <span class="badge">Riego y Drenaje</span>
+                <span class="date">14/07/2011</span>
+              </div>
+            </div>
+            <div class="normativa-action">
+              <ion-icon name="chevron-forward-outline"></ion-icon>
+            </div>
+          </div>
+
+          <div class="normativa-item" (click)="verDocumento('resolucion-ambiental')">
+            <div class="normativa-icon">
+              <ion-icon name="document-outline" color="primary"></ion-icon>
+            </div>
+            <div class="normativa-details">
+              <h3>Resolución Nro. 005-CNC-2014</h3>
+              <p>Transferencia de la competencia de gestión ambiental a los GAD provinciales, municipales y parroquiales
+                rurales.</p>
+              <div class="normativa-meta">
+                <span class="badge">Gestión Ambiental</span>
+                <span class="date">06/11/2014</span>
+              </div>
+            </div>
+            <div class="normativa-action">
+              <ion-icon name="chevron-forward-outline"></ion-icon>
+            </div>
+          </div>
+
+          <div class="normativa-item" (click)="verDocumento('resolucion-aridos')">
+            <div class="normativa-icon">
+              <ion-icon name="document-outline" color="primary"></ion-icon>
+            </div>
+            <div class="normativa-details">
+              <h3>Resolución Nro. 004-CNC-2014</h3>
+              <p>Transferencia de la competencia para regular, autorizar y controlar la explotación de materiales áridos
+                y pétreos a los GAD municipales.</p>
+              <div class="normativa-meta">
+                <span class="badge">Áridos y Pétreos</span>
+                <span class="date">06/11/2014</span>
+              </div>
+            </div>
+            <div class="normativa-action">
+              <ion-icon name="chevron-forward-outline"></ion-icon>
+            </div>
+          </div>
+
+          <div class="normativa-item" (click)="verDocumento('resolucion-turismo')">
+            <div class="normativa-icon">
+              <ion-icon name="document-outline" color="primary"></ion-icon>
+            </div>
+            <div class="normativa-details">
+              <h3>Resolución Nro. 001-CNC-2016</h3>
+              <p>Transferencia de la competencia de turismo a los GAD provinciales, municipales y metropolitanos.</p>
+              <div class="normativa-meta">
+                <span class="badge">Turismo</span>
+                <span class="date">11/03/2016</span>
+              </div>
+            </div>
+            <div class="normativa-action">
+              <ion-icon name="chevron-forward-outline"></ion-icon>
+            </div>
+          </div>
+        </div>
+
+        <ion-button expand="block" color="primary" (click)="verTodasResoluciones()">
+          <ion-icon name="list-outline" slot="start"></ion-icon>
+          Ver todas las resoluciones
+        </ion-button>
+      </div>
+
+      <!-- Documentos Técnicos -->
+      <div class="normative-section fade-in" style="animation-delay: 0.3s;" *ngIf="!mostrandoResultados">
+        <h3 class="section-title">Documentos Técnicos</h3>
+        <p class="section-description">Guías metodológicas y documentos técnicos para la implementación de competencias.
+        </p>
+
+        <div class="documents-grid">
+          <div class="document-card" (click)="verDocumento('guia-competencias')">
+            <div class="document-icon">
+              <ion-icon name="book-outline" color="primary"></ion-icon>
+            </div>
+            <div class="document-details">
+              <h4>Guía Metodológica para el Ejercicio de Competencias</h4>
+              <p>Documento técnico que orienta a los GAD en la implementación y ejercicio de las competencias
+                transferidas.</p>
+              <div class="document-meta">
+                <span class="badge">Metodología</span>
+                <span class="date">2022</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="document-card" (click)="verDocumento('manual-costeo')">
+            <div class="document-icon">
+              <ion-icon name="calculator-outline" color="primary"></ion-icon>
+            </div>
+            <div class="document-details">
+              <h4>Manual de Costeo de Competencias</h4>
+              <p>Establece la metodología para determinar los recursos necesarios para el ejercicio de las competencias.
+              </p>
+              <div class="document-meta">
+                <span class="badge">Financiero</span>
+                <span class="date">2018</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="document-card" (click)="verDocumento('modelo-gestion')">
+            <div class="document-icon">
+              <ion-icon name="settings-outline" color="primary"></ion-icon>
+            </div>
+            <div class="document-details">
+              <h4>Modelos de Gestión por Competencias</h4>
+              <p>Modelos de gestión diferenciados según capacidad operativa de los GAD para el ejercicio de
+                competencias.</p>
+              <div class="document-meta">
+                <span class="badge">Gestión</span>
+                <span class="date">2020</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="document-card" (click)="verDocumento('informe-descentralizacion')">
+            <div class="document-icon">
+              <ion-icon name="stats-chart-outline" color="primary"></ion-icon>
+            </div>
+            <div class="document-details">
+              <h4>Informe Anual de Descentralización</h4>
+              <p>Estado del proceso de descentralización del Ecuador e informes de capacidad operativa de los GAD.</p>
+              <div class="document-meta">
+                <span class="badge">Informe</span>
+                <span class="date">2023</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Repositorio Normativa -->
+      <div class="normative-section fade-in" style="animation-delay: 0.4s;" *ngIf="!mostrandoResultados">
+        <h3 class="section-title">Repositorio Normativo</h3>
+        <p class="section-description">Acceda a nuestro repositorio completo de normativa regulatoria del CNC.</p>
+
+        <div class="repository-links">
+          <a class="repo-button" (click)="verRepositorio('resoluciones')">
+            <ion-icon name="file-tray-full-outline"></ion-icon>
+            <span>Resoluciones CNC</span>
+          </a>
+          <a class="repo-button" (click)="verRepositorio('informes')">
+            <ion-icon name="bar-chart-outline"></ion-icon>
+            <span>Informes de Capacidad Operativa</span>
+          </a>
+          <a class="repo-button" (click)="verRepositorio('guias')">
+            <ion-icon name="book-outline"></ion-icon>
+            <span>Guías Metodológicas</span>
+          </a>
+          <a class="repo-button" (click)="verRepositorio('leyes')">
+            <ion-icon name="library-outline"></ion-icon>
+            <span>Marco Legal</span>
+          </a>
+        </div>
+      </div>
+    </ion-card-content>
+  </ion-card>
+</ion-content>

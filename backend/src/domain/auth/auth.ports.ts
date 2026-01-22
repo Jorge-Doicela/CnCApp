@@ -1,0 +1,21 @@
+
+export interface TokenPayload {
+    userId: number;
+    ci: string;
+    roleId: number;
+}
+
+export interface AuthTokens {
+    accessToken: string;
+    refreshToken: string;
+}
+
+export interface TokenProvider {
+    generateTokens(payload: TokenPayload): AuthTokens;
+    verify(token: string): TokenPayload;
+}
+
+export interface PasswordEncoder {
+    hash(password: string): Promise<string>;
+    verify(plain: string, hashed: string): Promise<boolean>;
+}
