@@ -6,16 +6,19 @@ import { Router } from '@angular/router';
 import { AlertController, ToastController } from '@ionic/angular';
 import { UsuarioService } from 'src/app/features/user/services/usuario.service';
 
+import { RouterModule } from '@angular/router';
+import { Usuario } from '../../../core/models/usuario.interface';
+
 @Component({
   selector: 'app-crudusuarios',
   templateUrl: './crudusuarios.page.html',
   styleUrls: ['./crudusuarios.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule]
+  imports: [CommonModule, FormsModule, IonicModule, RouterModule]
 })
 export class CRUDUsuariosPage implements OnInit {
-  usuarios: any[] = [];
-  filteredUsuarios: any[] = [];
+  usuarios: Usuario[] = [];
+  filteredUsuarios: Usuario[] = [];
   searchTerm: string = '';
   cargando: boolean = true;
 
@@ -97,7 +100,7 @@ export class CRUDUsuariosPage implements OnInit {
   async confirmarEliminar(usuario: any) {
     const alert = await this.alertController.create({
       header: 'Confirmar eliminación',
-      message: `¿Está seguro que desea eliminar al usuario ${usuario.Nombre_Usuario}?`,
+      message: `¿Está seguro que desea eliminar al usuario ${usuario.nombre}?`,
       cssClass: 'custom-alert',
       buttons: [
         {
@@ -108,7 +111,7 @@ export class CRUDUsuariosPage implements OnInit {
           text: 'Eliminar',
           cssClass: 'confirm-button',
           handler: () => {
-            this.eliminarUsuario(usuario.Id_Usuario);
+            this.eliminarUsuario(usuario.id);
           }
         }
       ]
@@ -122,8 +125,8 @@ export class CRUDUsuariosPage implements OnInit {
       this.usuarioService.deleteUsuario(idUsuario).subscribe({
         next: () => {
           // Actualizar la lista de usuarios
-          this.usuarios = this.usuarios.filter(u => u.Id_Usuario !== idUsuario);
-          this.filteredUsuarios = this.filteredUsuarios.filter(u => u.Id_Usuario !== idUsuario);
+          this.usuarios = this.usuarios.filter(u => u.id !== idUsuario);
+          this.filteredUsuarios = this.filteredUsuarios.filter(u => u.id !== idUsuario);
           this.presentToast('Usuario eliminado correctamente', 'success');
         },
         error: (error) => {

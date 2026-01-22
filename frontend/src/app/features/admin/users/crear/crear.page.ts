@@ -24,27 +24,27 @@ export class CrearPage implements OnInit {
     email: '',
     password: '',
     // Datos generales para todos los usuarios
-    Nombre1: '',
-    Nombre2: '',
-    Apellido1: '',
-    Apellido2: '',
-    Rol_Usuario: null, // Cambiado a null para requerir selección explícita
-    Nombre: '',
-    CI: '',
-    Fecha_Registro: new Date(),
-    Estado: 1, // 1 = Activo
-    auth_uid: '',
-    Entidad_Usuario: '',
-    Firma_Usuario: '',
+    nombre1: '',
+    nombre2: '',
+    apellido1: '',
+    apellido2: '',
+    rolId: undefined as number | undefined, // Cambiado a null para requerir selección explícita
+    nombre: '',
+    ci: '',
+    fechaRegistro: new Date(),
+    estado: 1, // 1 = Activo
+    authUid: '',
+    entidadId: undefined as number | undefined,
+    firmaUrl: '',
     celular: '',
     convencional: '',
-    Genero: '',
-    Etnia: '',
-    Nacionalidad: '',
+    genero: '',
+    etnia: '',
+    nacionalidad: '',
     tipoParticipante: 0, // Por defecto ciudadano
     fechaNacimiento: '',
-    canton_reside: '',
-    parroquia_reside: '',
+    cantonReside: '',
+    parroquiaReside: '',
   };
 
   autoridad = {
@@ -165,7 +165,7 @@ export class CrearPage implements OnInit {
 
   // Función para validar la cédula ecuatoriana
   validarCedula() {
-    const cedula = this.usuarioGeneral.CI;
+    const cedula = this.usuarioGeneral.ci;
     // Verificar longitud
     if (cedula.length !== 10) {
       this.mensajeValidacionCedula = 'La cédula debe tener 10 dígitos';
@@ -229,7 +229,7 @@ export class CrearPage implements OnInit {
 
   // Confirmar nombres
   confirmarNombres() {
-    if (this.usuarioGeneral.Nombre1 && this.usuarioGeneral.Apellido1) {
+    if (this.usuarioGeneral.nombre1 && this.usuarioGeneral.apellido1) {
       this.nombresEdited = true;
       this.camposNombreReadonly = true;
       this.showSuccessToast('Nombres confirmados correctamente');
@@ -259,7 +259,7 @@ export class CrearPage implements OnInit {
 
   // Concatenar nombre completo
   concatenarNombreCompleto(): string {
-    return `${this.usuarioGeneral.Nombre1} ${this.usuarioGeneral.Nombre2 || ''} ${this.usuarioGeneral.Apellido1} ${this.usuarioGeneral.Apellido2 || ''}`.trim().replace(/\s+/g, ' ');
+    return `${this.usuarioGeneral.nombre1} ${this.usuarioGeneral.nombre2 || ''} ${this.usuarioGeneral.apellido1} ${this.usuarioGeneral.apellido2 || ''}`.trim().replace(/\s+/g, ' ');
   }
 
   // Manejar cambio en tipo de participante
@@ -315,7 +315,7 @@ export class CrearPage implements OnInit {
   // Validar formulario completo
   validateForm(): boolean {
     // Validar datos básicos
-    if (!this.usuarioGeneral.CI || !this.cedulaValidada) {
+    if (!this.usuarioGeneral.ci || !this.cedulaValidada) {
       this.showToast('Por favor ingrese y valide su cédula de identidad');
       return false;
     }
@@ -344,7 +344,7 @@ export class CrearPage implements OnInit {
       return false;
     }
 
-    if (!this.usuarioGeneral.Nombre1 || !this.usuarioGeneral.Apellido1) {
+    if (!this.usuarioGeneral.nombre1 || !this.usuarioGeneral.apellido1) {
       this.showToast('Por favor ingrese al menos el primer nombre y primer apellido');
       return false;
     }
@@ -354,17 +354,17 @@ export class CrearPage implements OnInit {
       return false;
     }
 
-    if (!this.usuarioGeneral.Genero) {
+    if (!this.usuarioGeneral.genero) {
       this.showToast('Por favor seleccione el género');
       return false;
     }
 
-    if (!this.usuarioGeneral.Nacionalidad) {
+    if (!this.usuarioGeneral.nacionalidad) {
       this.showToast('Por favor seleccione la nacionalidad');
       return false;
     }
 
-    if (!this.usuarioGeneral.Etnia) {
+    if (!this.usuarioGeneral.etnia) {
       this.showToast('Por favor seleccione la autodefinición étnica');
       return false;
     }
@@ -379,13 +379,13 @@ export class CrearPage implements OnInit {
       return false;
     }
 
-    if (!this.usuarioGeneral.canton_reside && this.datosrecuperados.cantones.length > 0) {
+    if (!this.usuarioGeneral.cantonReside && this.datosrecuperados.cantones.length > 0) {
       this.showToast('Por favor seleccione un cantón');
       return false;
     }
 
     // Validar rol
-    if (!this.usuarioGeneral.Rol_Usuario) {
+    if (!this.usuarioGeneral.rolId) {
       this.showToast('Por favor seleccione un rol para el usuario');
       return false;
     }
@@ -448,14 +448,14 @@ export class CrearPage implements OnInit {
 
     const loading = await this.showLoading('Creando usuario...');
 
-    this.usuarioGeneral.Nombre = this.concatenarNombreCompleto();
+    this.usuarioGeneral.nombre = this.concatenarNombreCompleto();
 
     // Prepare full payload
     const fullUserData = {
       ...this.usuarioGeneral,
-      autoridad: this.usuarioGeneral.tipoParticipante == 1 ? this.autoridad : null,
-      funcionarioGad: this.usuarioGeneral.tipoParticipante == 2 ? this.funcionarioGad : null,
-      institucion: this.usuarioGeneral.tipoParticipante == 3 ? this.institucion : null
+      autoridad: this.usuarioGeneral.tipoParticipante == 1 ? this.autoridad : undefined,
+      funcionarioGad: this.usuarioGeneral.tipoParticipante == 2 ? this.funcionarioGad : undefined,
+      institucion: this.usuarioGeneral.tipoParticipante == 3 ? this.institucion : undefined
     };
 
     console.log('Sending user data:', fullUserData);
@@ -495,27 +495,27 @@ export class CrearPage implements OnInit {
     this.usuarioGeneral = {
       email: '',
       password: '',
-      Nombre1: '',
-      Nombre2: '',
-      Apellido1: '',
-      Apellido2: '',
-      Rol_Usuario: null,
-      Nombre: '',
-      CI: '',
-      Fecha_Registro: new Date(),
-      Estado: 1,
-      auth_uid: '',
-      Entidad_Usuario: '',
-      Firma_Usuario: '',
+      nombre1: '',
+      nombre2: '',
+      apellido1: '',
+      apellido2: '',
+      rolId: undefined,
+      nombre: '',
+      ci: '',
+      fechaRegistro: new Date(),
+      estado: 1,
+      authUid: '',
+      entidadId: undefined,
+      firmaUrl: '',
       celular: '',
       convencional: '',
-      Genero: '',
-      Etnia: '',
-      Nacionalidad: '',
+      genero: '',
+      etnia: '',
+      nacionalidad: '',
       tipoParticipante: 0,
       fechaNacimiento: '',
-      canton_reside: '',
-      parroquia_reside: '',
+      cantonReside: '',
+      parroquiaReside: '',
     };
 
     this.autoridad = {
@@ -577,7 +577,7 @@ export class CrearPage implements OnInit {
       next: (data) => {
         this.datosrecuperados.cantones = data.filter((c: any) => c.codigo_provincia == provinciaId && c.estado);
         this.datosrecuperados.parroquiasSeleccionadas = [];
-        this.usuarioGeneral.parroquia_reside = '';
+        this.usuarioGeneral.parroquiaReside = '';
         this.cdr.detectChanges();
       },
       error: (err) => console.error(err)

@@ -18,20 +18,20 @@ export class EditarPage implements OnInit {
   roles: any[] = [];
   entidades: any[] = [];
   usuario: any = {
-    Id_Usuario: '',
-    Nombre_Usuario: '',
-    CI_Usuario: '',
-    Rol_Usuario: '',
-    Entidad_Usuario: '',
-    Estado_Usuario: 1,
-    Firma_Usuario: '',
-    Firma_Usuario_Imagen: null,
-    Celular_Usuario: '',
-    Convencional_Usuario: '',
-    Genero_Usuario: '',
-    Etnia: '',
-    Nacionalidad_Usuario: '',
-    Fecha_Nacimiento_Usuario: '',
+    id: '',
+    nombre: '',
+    ci: '',
+    rolId: '',
+    entidadId: '',
+    estado: 1, // Optional in interface
+    firmaUrl: '',
+    Firma_Usuario_Imagen: null, // Local use
+    telefono: '',
+    convencional: '', // Not in interface, keeping local
+    genero: '',
+    etnia: '',
+    nacionalidad: '',
+    fechaNacimiento: '',
     canton: '',
   };
   cargando: boolean = false;
@@ -59,7 +59,7 @@ export class EditarPage implements OnInit {
       return;
     }
 
-    this.usuario.Id_Usuario = userId;
+    this.usuario.id = userId;
     this.cargarUsuario(userId);
   }
 
@@ -72,20 +72,21 @@ export class EditarPage implements OnInit {
           return;
         }
         this.usuario = {
-          Id_Usuario: data.Id_Usuario,
-          Nombre_Usuario: data.Nombre_Usuario,
-          CI_Usuario: data.CI_Usuario,
-          Rol_Usuario: data.Rol_Usuario,
-          Entidad_Usuario: data.Entidad_Usuario,
-          Estado_Usuario: data.Estado_Usuario,
-          Firma_Usuario: data.Firma_Usuario,
-          Celular_Usuario: data.Celular_Usuario,
-          Convencional_Usuario: data.Convencional_Usuario,
-          Genero_Usuario: data.Genero_Usuario,
-          Etnia: data.Etnia_Usuario,
-          Nacionalidad_Usuario: data.Nacionalidad_Usuario,
-          Fecha_Nacimiento_Usuario: data.Fecha_Nacimiento_Usuario,
-          canton: data.Canton_Reside_Usuario
+          id: data.id,
+          nombre: data.nombre,
+          ci: data.ci,
+          rolId: data.rolId,
+          entidadId: data.entidadId,
+          estado: (data as any).estado ?? 1, // Type casting if missing
+          firmaUrl: data.firmaUrl,
+          telefono: data.telefono,
+          // Legacy/Extra fields mapping if backend returns them
+          convencional: (data as any).convencional,
+          genero: (data as any).genero,
+          etnia: (data as any).etnia,
+          nacionalidad: (data as any).nacionalidad,
+          fechaNacimiento: (data as any).fechaNacimiento,
+          canton: (data as any).canton
         };
         this.ocultarCargando();
       },
@@ -132,13 +133,13 @@ export class EditarPage implements OnInit {
     // Preview de la imagen
     const reader = new FileReader();
     reader.onload = (e: any) => {
-      this.usuario.Firma_Usuario = e.target.result;
+      this.usuario.firmaUrl = e.target.result;
     };
     reader.readAsDataURL(file);
   }
 
   eliminarFirma() {
-    this.usuario.Firma_Usuario = null;
+    this.usuario.firmaUrl = null;
     this.usuario.Firma_Usuario_Imagen = null;
   }
 
@@ -154,26 +155,22 @@ export class EditarPage implements OnInit {
     // Creating a proper DTO.
 
     const datosAEnviar = {
-      Rol_Usuario: this.usuario.Rol_Usuario,
-      Nombre_Usuario: this.usuario.Nombre_Usuario,
-      CI_Usuario: this.usuario.CI_Usuario,
-      Estado_Usuario: this.usuario.Estado_Usuario,
-      Entidad_Usuario: this.usuario.Entidad_Usuario,
-      // Firma_Usuario: firmaUrl, // Handle separately or as base64/link
-      Celular_Usuario: this.usuario.Celular_Usuario,
-      Convencional_Usuario: this.usuario.Convencional_Usuario,
-      Genero_Usuario: this.usuario.Genero_Usuario,
-      Etnia_Usuario: this.usuario.Etnia,
-      Nacionalidad_Usuario: this.usuario.Nacionalidad_Usuario,
-      Fecha_Nacimiento_Usuario: this.usuario.Fecha_Nacimiento_Usuario,
-      Canton_Reside_Usuario: this.usuario.canton,
+      rolId: this.usuario.rolId,
+      nombre: this.usuario.nombre,
+      ci: this.usuario.ci,
+      // estado: this.usuario.estado, // Backend might not accept it in update?
+      entidadId: this.usuario.entidadId,
+      // firmaUrl: this.usuario.firmaUrl
+      telefono: this.usuario.telefono,
+      // Extra fields
+      // convencional: this.usuario.convencional, ...
     };
 
     // If there is an image to upload, we might need a separate service call for upload, or use FormData.
     // UsuarioService.updateUsuario uses JSON currently.
     // We will skip image upload implementation for now to clear Supabase.
 
-    this.usuarioService.updateUsuario(this.usuario.Id_Usuario, datosAEnviar).subscribe({
+    this.usuarioService.updateUsuario(this.usuario.id, datosAEnviar).subscribe({
       next: async () => {
         this.ocultarCargando();
         await this.mostrarAlertaExito('Usuario actualizado correctamente');
@@ -190,17 +187,17 @@ export class EditarPage implements OnInit {
   }
 
   validarFormulario(): boolean {
-    if (!this.usuario.Nombre_Usuario?.trim()) {
+    if (!this.usuario.nombre?.trim()) {
       this.presentToast('El nombre es obligatorio', 'warning');
       return false;
     }
 
-    if (!this.usuario.CI_Usuario?.trim()) {
+    if (!this.usuario.ci?.trim()) {
       this.presentToast('La cédula es obligatoria', 'warning');
       return false;
     }
 
-    if (!this.usuario.Rol_Usuario) {
+    if (!this.usuario.rolId) {
       this.presentToast('Debe seleccionar un rol', 'warning');
       return false;
     }

@@ -130,8 +130,8 @@ export class VisualizarinscritosPage implements OnInit {
       // Assuming backend service implementation will join 'Usuario' table.
       const todosUsuarios = await firstValueFrom(this.capacitacionesService.getInscritos(this.idCapacitacion));
 
-      this.expositores = todosUsuarios.filter((u: any) => u.Rol_Capacitacion === 'Expositor');
-      this.usuariosInscritos = todosUsuarios.filter((u: any) => u.Rol_Capacitacion !== 'Expositor');
+      this.expositores = todosUsuarios.filter((u: any) => u.rolCapacitacion === 'Expositor');
+      this.usuariosInscritos = todosUsuarios.filter((u: any) => u.rolCapacitacion !== 'Expositor');
 
     } catch (error) {
       console.error('Error al cargar usuarios inscritos:', error);
@@ -147,15 +147,15 @@ export class VisualizarinscritosPage implements OnInit {
       const idsInscritos: number[] = [];
 
       // Add already loaded identifiers
-      this.expositores.forEach(u => idsInscritos.push(u.Id_Usuario));
-      this.usuariosInscritos.forEach(u => idsInscritos.push(u.Id_Usuario));
+      this.expositores.forEach(u => idsInscritos.push(u.id));
+      this.usuariosInscritos.forEach(u => idsInscritos.push(u.id));
 
       // Filtrar los usuarios que NO están en la lista de inscritos
-      this.usuariosDisponibles = todosUsuarios.filter((u: any) => !idsInscritos.includes(u.Id_Usuario));
+      this.usuariosDisponibles = todosUsuarios.filter((u: any) => !idsInscritos.includes(u.id));
 
       // Sort
       this.usuariosDisponibles.sort((a, b) =>
-        a.Nombre_Usuario.localeCompare(b.Nombre_Usuario)
+        a.nombre.localeCompare(b.nombre)
       );
 
       console.log('Usuarios disponibles cargados:', this.usuariosDisponibles);
@@ -173,16 +173,16 @@ export class VisualizarinscritosPage implements OnInit {
     if (this.terminoBusqueda && this.terminoBusqueda.trim() !== '') {
       const termino = this.terminoBusqueda.toLowerCase().trim();
       resultado = resultado.filter(u =>
-        (u.Nombre_Usuario?.toLowerCase().includes(termino) || false) ||
-        (u.Rol_Capacitacion?.toLowerCase().includes(termino) || false)
+        (u.nombre?.toLowerCase().includes(termino) || false) ||
+        (u.rolCapacitacion?.toLowerCase().includes(termino) || false)
       );
     }
 
     // Filtrar por asistencia
     if (this.filtroAsistencia === 'asistentes') {
-      resultado = resultado.filter(u => u.Asistencia === true);
+      resultado = resultado.filter(u => u.asistio === true);
     } else if (this.filtroAsistencia === 'ausentes') {
-      resultado = resultado.filter(u => u.Asistencia === false);
+      resultado = resultado.filter(u => u.asistio === false);
     }
 
     this.participantesFiltrados = resultado;
@@ -207,14 +207,14 @@ export class VisualizarinscritosPage implements OnInit {
 
   // Obtener total de asistentes
   obtenerTotalAsistentes(): number {
-    return this.usuariosInscritos.filter(u => u.Asistencia === true).length;
+    return this.usuariosInscritos.filter(u => u.asistio === true).length;
   }
 
   // Actualizar asistencia de un usuario
   async actualizarAsistencia(usuario: any) {
     try {
-      // Assuming 'Id_Usuario_Conferencia' is the PK of the junction table
-      await firstValueFrom(this.capacitacionesService.updateAttendance(usuario.Id_Usuario_Conferencia, usuario.Asistencia));
+      // Assuming 'id' is the PK of the junction table (UsuarioCapacitacion)
+      await firstValueFrom(this.capacitacionesService.updateAttendance(usuario.id, usuario.asistio));
       this.mostrarToast(`Asistencia actualizada correctamente`, 'success');
     } catch (error) {
       console.error('Error inesperado:', error);
@@ -240,7 +240,7 @@ export class VisualizarinscritosPage implements OnInit {
             text: 'Confirmar',
             handler: async () => {
               if (this.idCapacitacion) {
-                this.usuariosInscritos.forEach(usuario => usuario.Asistencia = true);
+                this.usuariosInscritos.forEach(usuario => usuario.asistio = true);
 
                 await firstValueFrom(this.capacitacionesService.updateAllAttendance(this.idCapacitacion, true));
 
@@ -262,7 +262,7 @@ export class VisualizarinscritosPage implements OnInit {
   // Mostrar confirmación para emitir certificados
   async mostrarConfirmacion() {
     // Obtener usuarios que no asistieron
-    const usuariosNoAsistieron = this.usuariosInscritos.filter(u => u.Asistencia === false);
+    const usuariosNoAsistieron = this.usuariosInscritos.filter(u => u.asistio === false);
 
     const alert = await this.alertController.create({
       header: 'Confirmar emisión de certificados',
@@ -299,8 +299,8 @@ export class VisualizarinscritosPage implements OnInit {
       await firstValueFrom(this.capacitacionesService.updateCapacitacion(this.idCapacitacion, updatedCap));
 
       // 3. Actualizar datos locales
-      this.infoCapacitacion.Certificado = true;
-      this.usuariosInscritos = this.usuariosInscritos.filter(u => u.Asistencia === true);
+      this.infoCapacitacion.certificado = true;
+      this.usuariosInscritos = this.usuariosInscritos.filter(u => u.asistio === true);
       this.filtrarParticipantes();
 
       // 4. Mostrar mensaje de éxito
@@ -316,7 +316,7 @@ export class VisualizarinscritosPage implements OnInit {
   async confirmarEliminar(usuario: any) {
     const alert = await this.alertController.create({
       header: 'Confirmar eliminación',
-      message: `¿Está seguro de eliminar a ${usuario.Nombre_Usuario} de la lista de participantes?`,
+      message: `¿Está seguro de eliminar a ${usuario.nombre} de la lista de participantes?`,
       buttons: [
         {
           text: 'Cancelar',
@@ -338,16 +338,16 @@ export class VisualizarinscritosPage implements OnInit {
   // Eliminar participante
   async eliminarParticipante(usuario: any) {
     try {
-      await firstValueFrom(this.capacitacionesService.deleteUsuarioCapacitacion(usuario.Id_Usuario_Conferencia));
+      await firstValueFrom(this.capacitacionesService.deleteUsuarioCapacitacion(usuario.id));
 
       // Actualizar listas locales
       this.usuariosInscritos = this.usuariosInscritos.filter(
-        u => u.Id_Usuario_Conferencia !== usuario.Id_Usuario_Conferencia
+        u => u.id !== usuario.id
       );
       this.filtrarParticipantes();
 
       // Actualizar la lista de disponibles - asegurarse de que el usuario eliminado esté allí
-      this.actualizarListadoDisponibles(usuario.Id_Usuario);
+      this.actualizarListadoDisponibles(usuario.usuarioId); // Assuming junction has usuarioId
 
       this.mostrarToast('Participante eliminado correctamente', 'success');
     } catch (error) {
@@ -359,7 +359,7 @@ export class VisualizarinscritosPage implements OnInit {
   // Actualizar la lista de usuarios disponibles
   async actualizarListadoDisponibles(idUsuario: number) {
     // Verificar si el usuario ya está en la lista de disponibles
-    const usuarioExistente = this.usuariosDisponibles.find(u => u.Id_Usuario === idUsuario);
+    const usuarioExistente = this.usuariosDisponibles.find(u => u.id === idUsuario);
 
     if (!usuarioExistente) {
       try {
@@ -369,7 +369,7 @@ export class VisualizarinscritosPage implements OnInit {
           this.usuariosDisponibles.push(data);
           // Ordenar alfabéticamente
           this.usuariosDisponibles.sort((a, b) =>
-            a.Nombre_Usuario.localeCompare(b.Nombre_Usuario)
+            a.nombre.localeCompare(b.nombre)
           );
         }
       } catch (error) {
@@ -389,8 +389,8 @@ export class VisualizarinscritosPage implements OnInit {
     const radioInputs = this.usuariosDisponibles.map(u => ({
       name: 'usuario',
       type: 'radio' as const,
-      label: u.Nombre_Usuario,
-      value: u.Id_Usuario.toString()
+      label: u.nombre,
+      value: u.id.toString()
     }));
 
     // Create alert with correct input configuration
@@ -481,7 +481,7 @@ export class VisualizarinscritosPage implements OnInit {
         this.filtrarParticipantes();
 
         // Quitar de la lista de disponibles
-        this.usuariosDisponibles = this.usuariosDisponibles.filter(u => u.Id_Usuario !== idUsuario);
+        this.usuariosDisponibles = this.usuariosDisponibles.filter(u => u.id !== idUsuario);
       }
 
       this.mostrarToast('Participante agregado correctamente', 'success');

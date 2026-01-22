@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { Capacitacion, UsuarioCapacitacion } from '../../../../core/models/capacitacion.interface';
+import { Certificado } from '../../../../core/models/certificado.interface';
 
 @Injectable({
     providedIn: 'root'
@@ -12,39 +14,39 @@ export class CapacitacionesService {
 
     constructor(private http: HttpClient) { }
 
-    getCapacitaciones(): Observable<any[]> {
-        return this.http.get<any[]>(this.apiUrl);
+    getCapacitaciones(): Observable<Capacitacion[]> {
+        return this.http.get<Capacitacion[]>(this.apiUrl);
     }
 
-    getCapacitacion(id: number): Observable<any> {
-        return this.http.get<any>(`${this.apiUrl}/${id}`);
+    getCapacitacion(id: number): Observable<Capacitacion> {
+        return this.http.get<Capacitacion>(`${this.apiUrl}/${id}`);
     }
 
-    createCapacitacion(data: any): Observable<any> {
-        return this.http.post<any>(this.apiUrl, data);
+    createCapacitacion(data: Partial<Capacitacion>): Observable<Capacitacion> {
+        return this.http.post<Capacitacion>(this.apiUrl, data);
     }
 
-    updateCapacitacion(id: number, data: any): Observable<any> {
-        return this.http.put<any>(`${this.apiUrl}/${id}`, data);
+    updateCapacitacion(id: number, data: Partial<Capacitacion>): Observable<Capacitacion> {
+        return this.http.put<Capacitacion>(`${this.apiUrl}/${id}`, data);
     }
 
-    deleteCapacitacion(id: number): Observable<any> {
-        return this.http.delete<any>(`${this.apiUrl}/${id}`);
+    deleteCapacitacion(id: number): Observable<void> {
+        return this.http.delete<void>(`${this.apiUrl}/${id}`);
     }
 
     // Métodos específicos para Usuarios_Capacitaciones logic
 
-    getUsuariosNoAsistieron(idCapacitacion: number): Observable<any[]> {
+    getUsuariosNoAsistieron(idCapacitacion: number): Observable<UsuarioCapacitacion[]> {
         // Assuming backend endpoint support filtering via query params
-        return this.http.get<any[]>(`${this.usuariosCapacitacionesUrl}?idCapacitacion=${idCapacitacion}&asistencia=false`);
+        return this.http.get<UsuarioCapacitacion[]>(`${this.usuariosCapacitacionesUrl}?idCapacitacion=${idCapacitacion}&asistencia=false`);
     }
 
     deleteUsuariosNoAsistieron(idCapacitacion: number): Observable<any> {
         return this.http.delete<any>(`${this.usuariosCapacitacionesUrl}/no-asistieron/${idCapacitacion}`);
     }
 
-    assignUser(capacitacionId: number, userId: number, role: string): Observable<any> {
-        return this.http.post<any>(this.usuariosCapacitacionesUrl, {
+    assignUser(capacitacionId: number, userId: number, role: string): Observable<UsuarioCapacitacion> {
+        return this.http.post<UsuarioCapacitacion>(this.usuariosCapacitacionesUrl, {
             Id_Capacitacion: capacitacionId,
             Id_Usuario: userId,
             Rol_Capacitacion: role,
@@ -55,6 +57,7 @@ export class CapacitacionesService {
 
     // Obtener usuarios inscritos
     getInscritos(idCapacitacion: number): Observable<any[]> {
+        // Returns mixed User + Junction data, keeping any[] for now until joined interface is defined
         return this.http.get<any[]>(`${this.usuariosCapacitacionesUrl}/${idCapacitacion}`);
     }
 
@@ -80,12 +83,12 @@ export class CapacitacionesService {
     }
 
     // New methods for Home Page
-    getInscripcionesUsuario(idUsuario: number): Observable<any[]> {
-        return this.http.get<any[]>(`${this.usuariosCapacitacionesUrl}/usuario/${idUsuario}`);
+    getInscripcionesUsuario(idUsuario: number): Observable<UsuarioCapacitacion[]> {
+        return this.http.get<UsuarioCapacitacion[]>(`${this.usuariosCapacitacionesUrl}/usuario/${idUsuario}`);
     }
 
-    inscribirse(idUsuario: number, idCapacitacion: number): Observable<any> {
-        return this.http.post<any>(this.usuariosCapacitacionesUrl, {
+    inscribirse(idUsuario: number, idCapacitacion: number): Observable<UsuarioCapacitacion> {
+        return this.http.post<UsuarioCapacitacion>(this.usuariosCapacitacionesUrl, {
             Id_Capacitacion: idCapacitacion,
             Id_Usuario: idUsuario,
             Rol_Capacitacion: 'Participante',
@@ -98,11 +101,12 @@ export class CapacitacionesService {
         return this.http.delete<any>(`${this.usuariosCapacitacionesUrl}/${idCapacitacion}/${idUsuario}`);
     }
 
-    countCapacitaciones(): Observable<any> {
-        return this.http.get<any>(`${this.apiUrl}/count`);
+    countCapacitaciones(): Observable<{ count: number }> {
+        return this.http.get<{ count: number }>(`${this.apiUrl}/count`);
     }
 
-    countCertificados(): Observable<any> {
-        return this.http.get<any>(`${this.apiUrl}/count/certificados`);
+    countCertificados(): Observable<{ count: number }> {
+        return this.http.get<{ count: number }>(`${this.apiUrl}/count/certificados`);
     }
 }
+

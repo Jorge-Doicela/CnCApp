@@ -84,7 +84,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
       const storedRole = parseInt(storedRoleStr);
 
-      if (userData.Rol_Usuario !== storedRole) {
+      if (userData.rolId !== storedRole) {
         this.mostrarAlertaCambioRol();
       }
     } catch (err) {

@@ -4,7 +4,8 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AlertController, LoadingController, ToastController } from '@ionic/angular';
-import { CapacitacionesService } from 'src/app/features/admin/capacitaciones/services/capacitaciones.service';
+import { CapacitacionesService } from './services/capacitaciones.service';
+import { Capacitacion } from '../../../core/models/capacitacion.interface';
 
 @Component({
   selector: 'app-crudcapacitaciones',
@@ -14,8 +15,8 @@ import { CapacitacionesService } from 'src/app/features/admin/capacitaciones/ser
   imports: [CommonModule, FormsModule, IonicModule]
 })
 export class CrudcapacitacionesPage implements OnInit {
-  Capacitaciones: any[] = [];
-  capacitacionesFiltradas: any[] = [];
+  Capacitaciones: Capacitacion[] = [];
+  capacitacionesFiltradas: Capacitacion[] = [];
 
   // Filtros
   filtroEstado: string = 'todos';
@@ -67,29 +68,29 @@ export class CrudcapacitacionesPage implements OnInit {
 
     // Filtrar por estado
     if (this.filtroEstado !== 'todos') {
-      resultado = resultado.filter(cap => cap.Estado.toString() === this.filtroEstado);
+      resultado = resultado.filter(cap => cap.estado === this.filtroEstado);
     }
 
     // Filtrar por término de búsqueda
     if (this.terminoBusqueda && this.terminoBusqueda.trim() !== '') {
       const termino = this.terminoBusqueda.toLowerCase().trim();
       resultado = resultado.filter(cap =>
-        cap.Nombre_Capacitacion.toLowerCase().includes(termino) ||
-        cap.Descripcion_Capacitacion.toLowerCase().includes(termino) ||
-        cap.Lugar_Capacitacion.toLowerCase().includes(termino)
+        cap.nombre.toLowerCase().includes(termino) ||
+        (cap.descripcion && cap.descripcion.toLowerCase().includes(termino)) ||
+        (cap.lugar && cap.lugar.toLowerCase().includes(termino))
       );
     }
 
     // Ordenar resultados
     switch (this.ordenarPor) {
       case 'fecha_asc':
-        resultado.sort((a, b) => new Date(a.Fecha_Capacitacion).getTime() - new Date(b.Fecha_Capacitacion).getTime());
+        resultado.sort((a, b) => new Date(a.fechaInicio || 0).getTime() - new Date(b.fechaInicio || 0).getTime());
         break;
       case 'fecha_desc':
-        resultado.sort((a, b) => new Date(b.Fecha_Capacitacion).getTime() - new Date(a.Fecha_Capacitacion).getTime());
+        resultado.sort((a, b) => new Date(b.fechaInicio || 0).getTime() - new Date(a.fechaInicio || 0).getTime());
         break;
       case 'nombre':
-        resultado.sort((a, b) => a.Nombre_Capacitacion.localeCompare(b.Nombre_Capacitacion));
+        resultado.sort((a, b) => a.nombre.localeCompare(b.nombre));
         break;
     }
 
@@ -104,27 +105,22 @@ export class CrudcapacitacionesPage implements OnInit {
     this.aplicarFiltros();
   }
 
-  // Obtener el texto del estado según el valor numérico
-  getEstadoTexto(estado: number): string {
-    switch (estado) {
-      case 0: return 'Pendiente';
-      case 1: return 'Realizada';
-      case 2: return 'Cancelada';
-      default: return 'Desconocido';
-    }
+  // Obtener el texto del estado (Simplemente retornar el string o mapear si es necesario)
+  getEstadoTexto(estado: string): string {
+    return estado;
   }
 
   // Estadísticas
   obtenerCapacitacionesPendientes(): number {
-    return this.Capacitaciones.filter(cap => cap.Estado === 0).length;
+    return this.Capacitaciones.filter(cap => cap.estado === 'Activa').length;
   }
 
   obtenerCapacitacionesRealizadas(): number {
-    return this.Capacitaciones.filter(cap => cap.Estado === 1).length;
+    return this.Capacitaciones.filter(cap => cap.estado === 'Finalizada').length;
   }
 
   obtenerCertificadosEmitidos(): number {
-    return this.Capacitaciones.filter(cap => cap.Certificado === true).length;
+    return this.Capacitaciones.filter(cap => cap.certificado === true).length;
   }
 
   // Navegación
@@ -169,7 +165,7 @@ export class CrudcapacitacionesPage implements OnInit {
     });
     await loading.present();
 
-    this.capacitacionesService.updateCapacitacion(Id_Capacitacion, { Estado: 1 }).subscribe({
+    this.capacitacionesService.updateCapacitacion(Id_Capacitacion, { estado: 'Finalizada' }).subscribe({
       next: () => {
         this.presentToast('Capacitación finalizada exitosamente', 'success');
         this.RecuperarCapacitaciones();
@@ -289,7 +285,7 @@ export class CrudcapacitacionesPage implements OnInit {
     });
     await loading.present();
 
-    this.capacitacionesService.updateCapacitacion(Id_Capacitacion, { Certificado: true }).subscribe({
+    this.capacitacionesService.updateCapacitacion(Id_Capacitacion, { certificado: true }).subscribe({
       next: () => {
         this.presentToast('Certificados emitidos correctamente', 'success');
         this.RecuperarCapacitaciones();

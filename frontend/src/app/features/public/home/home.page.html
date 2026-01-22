@@ -136,17 +136,16 @@
 
         <div class="horizontal-scroll-container">
           <div class="conference-card-mini" *ngFor="let capacitacion of capacitacionesDisponibles">
-            <div class="card-status status-{{ capacitacion.Estado === 0 ? 'available' : 'closed' }}">
-              {{ capacitacion.Estado === 0 ? 'Disponible' : 'Cerrada' }}
+            <div class="card-status status-{{ capacitacion.estado === 'Activa' ? 'available' : 'closed' }}">
+              {{ capacitacion.estado === 'Activa' ? 'Disponible' : 'Cerrada' }}
             </div>
-            <h4>{{ capacitacion.Nombre_Capacitacion }}</h4>
+            <h4>{{ capacitacion.nombre }}</h4>
             <div class="card-meta">
-              <span><ion-icon name="calendar-outline"></ion-icon> {{ capacitacion.Fecha_Capacitacion | date:'dd MMM'
+              <span><ion-icon name="calendar-outline"></ion-icon> {{ capacitacion.fechaInicio | date:'dd MMM'
                 }}</span>
-              <span><ion-icon name="location-outline"></ion-icon> {{ capacitacion.Lugar_Capacitacion }}</span>
+              <span><ion-icon name="location-outline"></ion-icon> {{ capacitacion.lugar }}</span>
             </div>
-            <button class="action-btn" *ngIf="puedeInscribirse(capacitacion)"
-              (click)="inscribirse(capacitacion.Id_Capacitacion)">
+            <button class="action-btn" *ngIf="puedeInscribirse(capacitacion)" (click)="inscribirse(capacitacion.id)">
               Inscribirse
             </button>
           </div>
@@ -166,12 +165,12 @@
               <ion-icon name="school-outline"></ion-icon>
             </div>
             <div class="item-details">
-              <h4>{{ conferencia.Nombre_Capacitacion }}</h4>
-              <p>{{ conferencia.Fecha_Capacitacion | date:'dd/MM/yyyy HH:mm' }} • {{ conferencia.Modalidades }}</p>
+              <h4>{{ conferencia.nombre }}</h4>
+              <p>{{ conferencia.fechaInicio | date:'dd/MM/yyyy HH:mm' }} • {{ conferencia.modalidad }}</p>
             </div>
             <div class="item-action">
-              <span class="status-badge status-{{ conferencia.Estado === 0 ? 'pending' : 'completed' }}">
-                {{ conferencia.Estado === 0 ? 'Inscrito' : 'Completado' }}
+              <span class="status-badge status-{{ conferencia.estado === 'Activa' ? 'pending' : 'completed' }}">
+                {{ conferencia.estado === 'Activa' ? 'Inscrito' : 'Completado' }}
               </span>
             </div>
           </div>
@@ -194,11 +193,11 @@
               <ion-icon name="create-outline"></ion-icon>
             </div>
             <div class="item-details">
-              <h4>{{ capacitacion.Nombre_Capacitacion }}</h4>
-              <p>{{ capacitacion.Fecha_Capacitacion | date:'dd/MM/yyyy' }} • {{ capacitacion.Lugar_Capacitacion }}</p>
+              <h4>{{ capacitacion.nombre }}</h4>
+              <p>{{ capacitacion.fechaInicio | date:'dd/MM/yyyy' }} • {{ capacitacion.lugar }}</p>
             </div>
             <div class="item-action">
-              <ion-button fill="clear" size="small" (click)="editarCapacitacion(capacitacion.Id_Capacitacion)">
+              <ion-button fill="clear" size="small" (click)="editarCapacitacion(capacitacion.id)">
                 Editar
               </ion-button>
             </div>

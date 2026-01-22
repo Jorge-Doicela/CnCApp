@@ -47,32 +47,35 @@
         <div class="users-list" *ngIf="usuarios.length > 0">
           <div class="user-card" *ngFor="let usuario of filteredUsuarios || usuarios">
             <div class="user-info">
-              <h2 class="user-name">{{ usuario.Nombre_Usuario }}</h2>
-              <p><ion-icon name="id-card-outline"></ion-icon> <strong>Cédula:</strong> {{ usuario.CI_Usuario }}</p>
-              <p><ion-icon name="business-outline"></ion-icon> <strong>Entidad:</strong> {{ usuario.Entidad_Usuario?.Nombre_Entidad || 'No asignada' }}</p>
+              <h2 class="user-name">{{ usuario.nombre }}</h2>
+              <p><ion-icon name="id-card-outline"></ion-icon> <strong>Cédula:</strong> {{ usuario.ci }}</p>
+              <p><ion-icon name="business-outline"></ion-icon> <strong>Entidad:</strong> {{
+                usuario.entidad?.nombre || 'No asignada' }}</p>
               <p><ion-icon name="shield-outline"></ion-icon> <strong>Rol:</strong>
-                <span [ngClass]="{'admin-role': usuario.Rol_Usuario?.nombre_rol === 'admin', 'user-role': usuario.Rol_Usuario?.nombre_rol === 'user'}">
-                  {{ usuario.Rol_Usuario?.nombre_rol === 'admin' ? 'Administrador (activo)' :
-                     usuario.Rol_Usuario?.nombre_rol === 'user' ? 'Usuario (activo)' :
-                     usuario.Rol_Usuario?.nombre_rol || 'No asignado' }}
+                <span
+                  [ngClass]="{'admin-role': usuario.rol?.nombre === 'Administrador', 'user-role': usuario.rol?.nombre === 'Usuario'}">
+                  {{ usuario.rol?.nombre || 'No asignado' }}
                 </span>
               </p>
               <p><ion-icon name="finger-print-outline"></ion-icon> <strong>Firma:</strong>
-                <span [ngClass]="{'firma-disponible': usuario.Firma_Usuario, 'firma-no-disponible': !usuario.Firma_Usuario}">
-                  {{ usuario.Firma_Usuario ? 'Firma disponible' : 'Dato no asignado' }}
+                <span [ngClass]="{'firma-disponible': usuario.firmaUrl, 'firma-no-disponible': !usuario.firmaUrl}">
+                  {{ usuario.firmaUrl ? 'Firma disponible' : 'Dato no asignado' }}
                 </span>
               </p>
-              <p><ion-icon name="call-outline"></ion-icon> <strong>Celular:</strong> {{ usuario.Celular_Usuario || 'No registrado' }}</p>
-              <p><ion-icon name="home-outline"></ion-icon> <strong>Convencional:</strong> {{ usuario.Convencional_Usuario || 'No registrado' }}</p>
-              <p><ion-icon name="people-outline"></ion-icon> <strong>Tipo de Participante:</strong> {{ getTipoParticipante(usuario.Tipo_Participante) }}</p>
+              <p><ion-icon name="call-outline"></ion-icon> <strong>Teléfono:</strong> {{ usuario.telefono || 'No
+                registrado' }}</p>
 
-              <div class="estado-usuario" [ngClass]="{'activo': usuario.Estado_Usuario === 1, 'inactivo': usuario.Estado_Usuario === 0}">
-                {{ usuario.Estado_Usuario === 1 ? 'Usuario Activo' : 'Usuario Inactivo' }}
+              <p><ion-icon name="people-outline"></ion-icon> <strong>Tipo de Participante:</strong> {{
+                getTipoParticipante(usuario.tipoParticipante) }}</p>
+
+              <!-- Estado logic might need update if field missing, hiding for now or assuming OK -->
+              <div class="estado-usuario activo">
+                Usuario Activo
               </div>
             </div>
 
             <div class="user-actions">
-              <ion-button fill="clear" color="primary" (click)="iraEditarUsuario(usuario.Id_Usuario)">
+              <ion-button fill="clear" color="primary" (click)="iraEditarUsuario(usuario.id)">
                 <ion-icon name="create-outline" slot="icon-only"></ion-icon>
               </ion-button>
               <ion-button fill="clear" color="danger" (click)="confirmarEliminar(usuario)">

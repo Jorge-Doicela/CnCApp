@@ -34,7 +34,7 @@ export class CertificadosPage implements OnInit {
   entidadBase64: string[] = [];
   capacitadoresBase64: string[] = [];
   capacitacionId!: number;
-  idUsuario: string = '';
+  idUsuario: number | null = null;
   UIID: string = ''
   hashCertificado: string = '';
   nombreEntidad: string = '';
@@ -77,11 +77,11 @@ export class CertificadosPage implements OnInit {
       // Recuperar datos usuario
       this.usuarioService.getUsuario(Number(userId)).subscribe(u => { // Assuming userId is number
         this.usuarioactual = [u];
-        this.nombreUsuario = u?.Nombre_Usuario;
-        this.idUsuario = u?.Id_Usuario; // Real ID
+        this.nombreUsuario = u?.nombre;
+        this.idUsuario = u?.id; // Real ID
 
         if (this.idUsuario) {
-          this.verificarHashExistente(this.idUsuario);
+          this.verificarHashExistente(this.idUsuario.toString());
           this.ObtenerRolUsuarioConferencia(this.capacitacionId, this.UIID);
         }
       });
@@ -127,15 +127,15 @@ export class CertificadosPage implements OnInit {
     // Loop through this.entidades and convert images
     this.entidadBase64 = [];
     for (const entidad of this.entidades) {
-      if (entidad.Imagen_Entidad) {
-        const base64 = await this.urlToBase64(entidad.Imagen_Entidad);
+      if (entidad.imagenUrl) {
+        const base64 = await this.urlToBase64(entidad.imagenUrl);
         this.entidadBase64.push(base64);
       }
     }
     // Save first entity name
     if (this.entidades.length > 0) {
       const entidad = this.entidades[0];
-      this.nombreEntidad = entidad.Nombre_Entidad + (entidad.Pais_Entidad ? ` (${entidad.Pais_Entidad})` : '');
+      this.nombreEntidad = entidad.nombre + (entidad.pais ? ` (${entidad.pais})` : '');
     }
 
     if (!this.existingHash) {
@@ -146,8 +146,8 @@ export class CertificadosPage implements OnInit {
   async procesarImagenesExpositores() {
     this.capacitadoresBase64 = [];
     for (const expositor of this.expositores) {
-      if (expositor.Firma_Usuario) {
-        const base64 = await this.urlToBase64(expositor.Firma_Usuario);
+      if (expositor.firmaUrl) {
+        const base64 = await this.urlToBase64(expositor.firmaUrl);
         this.capacitadoresBase64.push(base64);
       }
     }
@@ -223,10 +223,10 @@ export class CertificadosPage implements OnInit {
     if (!this.hashCertificado) return;
 
     this.certificadosService.saveCertificate({
-      Hash: this.hashCertificado,
-      Fecha_generado: new Date(),
-      Id_Usuario: this.idUsuario,
-      Id_Capacitacion: this.capacitacionId
+      hash: this.hashCertificado,
+      fechaGenerado: new Date(),
+      usuarioId: this.idUsuario as number,
+      capacitacionId: this.capacitacionId
     }).subscribe({
       next: (res) => console.log('Certificate saved', res),
       error: (err) => console.error('Error saving certificate', err)
@@ -295,7 +295,7 @@ export class CertificadosPage implements OnInit {
           margin: [0, 10, 0, 5],
         },
         {
-          text: `Por ocupar el rol de ${this.rol_usuario_conferiencia.length > 0 ? this.rol_usuario_conferiencia[0].Rol_Capacitacion : 'Participante'}`,
+          text: `Por ocupar el rol de ${this.rol_usuario_conferiencia.length > 0 ? (this.rol_usuario_conferiencia[0].rolCapacitacion || 'Participante') : 'Participante'}`,
           fontSize: 14,
           bold: true,
           alignment: 'center',
@@ -323,7 +323,7 @@ export class CertificadosPage implements OnInit {
           margin: [0, 0, 0, 10],
         },
         {
-          text: `El Consejo Nacional de Competencias de Ecuador certifica oficialmente que ${this.nombreUsuario}, con Cédula de Identidad ${this.usuarioactual.length > 0 ? this.usuarioactual[0].CI_Usuario : ''}, ha completado satisfactoriamente la capacitación titulada "${this.capacitacion.Nombre_Capacitacion || ''}", impartida bajo la modalidad "${this.capacitacion.Modalidades || ''}", con una duración total de ${this.capacitacion.Horas || '0'} horas académicas.
+          text: `El Consejo Nacional de Competencias de Ecuador certifica oficialmente que ${this.nombreUsuario}, con Cédula de Identidad ${this.usuarioactual.length > 0 ? this.usuarioactual[0].ci : ''}, ha completado satisfactoriamente la capacitación titulada "${this.capacitacion.nombre || ''}", impartida bajo la modalidad "${this.capacitacion.modalidad || ''}", con una duración total de ${this.capacitacion.horas || '0'} horas académicas.
             En reconocimiento a su participación activa y aprovechamiento en el programa de formación profesional, se expide el presente certificado.
             Emitido en Ecuador, el ${new Date().toLocaleDateString('es-EC', { day: 'numeric', month: 'long', year: 'numeric' })}.`,
           fontSize: 14,
@@ -346,7 +346,7 @@ export class CertificadosPage implements OnInit {
                       type: 'line',
                       x1: 0,
                       y1: 0,
-                      x2: `${expositor.Nombre_Usuario}`.length * 6, // Calcula dinámicamente la longitud de la línea
+                      x2: `${expositor.nombre}`.length * 6, // Calcula dinámicamente la longitud de la línea
                       y2: 0,
                       lineWidth: 1,
                     },
@@ -355,12 +355,12 @@ export class CertificadosPage implements OnInit {
                   alignment: 'center',
                 },
                 {
-                  text: `${expositor.Nombre_Usuario}`,
+                  text: `${expositor.nombre}`,
                   fontSize: 10,
                   alignment: 'center',
                 },
                 {
-                  text: `CI: ${expositor.CI_Usuario}`,
+                  text: `CI: ${expositor.ci}`,
                   fontSize: 8,
                   alignment: 'center',
                 },
