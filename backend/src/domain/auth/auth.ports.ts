@@ -13,6 +13,7 @@ export interface AuthTokens {
 export interface TokenProvider {
     generateTokens(payload: TokenPayload): AuthTokens;
     verify(token: string): TokenPayload;
+    verifyRefresh(token: string): TokenPayload;
 }
 
 export interface PasswordEncoder {

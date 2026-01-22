@@ -25,9 +25,16 @@ export class JwtTokenProvider implements TokenProvider {
     }
 
     verify(token: string): TokenPayload {
-        // This is a simplified verify that might throw.
-        // In real infra we might wrapping try/catch.
         const decoded = jwt.verify(token, this.ACCESS_SECRET) as any;
+        return {
+            userId: decoded.userId,
+            ci: decoded.ci,
+            roleId: decoded.roleId
+        };
+    }
+
+    verifyRefresh(token: string): TokenPayload {
+        const decoded = jwt.verify(token, this.REFRESH_SECRET) as any;
         return {
             userId: decoded.userId,
             ci: decoded.ci,
