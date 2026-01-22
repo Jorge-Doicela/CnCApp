@@ -21,7 +21,8 @@
         <div class="search-container">
           <ion-item class="search-item">
             <ion-icon name="search-outline" slot="start" color="primary"></ion-icon>
-            <ion-input placeholder="Buscar por nombre o descripción" [(ngModel)]="terminoBusqueda" (ionChange)="aplicarFiltros()"></ion-input>
+            <ion-input placeholder="Buscar por nombre o descripción" [(ngModel)]="terminoBusqueda"
+              (ionChange)="aplicarFiltros()"></ion-input>
             <ion-button slot="end" fill="clear" (click)="aplicarFiltros()">
               <ion-icon name="search"></ion-icon>
             </ion-button>
@@ -111,83 +112,82 @@
         </div>
 
         <div class="capacitaciones-grid" *ngIf="capacitacionesFiltradas.length > 0">
-          <div class="capacitacion-card" *ngFor="let capacitacion of capacitacionesFiltradas"
-               [ngClass]="{'pending-card': capacitacion.Estado === 0,
-                           'completed-card': capacitacion.Estado === 1,
-                           'canceled-card': capacitacion.Estado === 2}">
+          <div class="capacitacion-card" *ngFor="let capacitacion of capacitacionesFiltradas" [ngClass]="{'pending-card': capacitacion.estado === 'Activa',
+                           'completed-card': capacitacion.estado === 'Finalizada',
+                           'canceled-card': capacitacion.estado === 'Cancelada'}">
             <div class="capacitacion-header">
               <div class="capacitacion-title">
-                <h4>{{ capacitacion.Nombre_Capacitacion }}</h4>
-                <span class="capacitacion-badge"
-                      [ngClass]="{'badge-pending': capacitacion.Estado === 0,
-                                  'badge-completed': capacitacion.Estado === 1,
-                                  'badge-canceled': capacitacion.Estado === 2}">
-                  {{ getEstadoTexto(capacitacion.Estado) }}
+                <h4>{{ capacitacion.nombre }}</h4>
+                <span class="capacitacion-badge" [ngClass]="{'badge-pending': capacitacion.estado === 'Activa',
+                                  'badge-completed': capacitacion.estado === 'Finalizada',
+                                  'badge-canceled': capacitacion.estado === 'Cancelada'}">
+                  {{ getEstadoTexto(capacitacion.estado) }}
                 </span>
-                <span *ngIf="capacitacion.Certificado" class="capacitacion-badge badge-certificate">
+                <span *ngIf="capacitacion.certificado" class="capacitacion-badge badge-certificate">
                   <ion-icon name="ribbon-outline"></ion-icon> Certificada
                 </span>
               </div>
             </div>
 
             <div class="capacitacion-content">
-              <p class="capacitacion-description">{{ capacitacion.Descripcion_Capacitacion }}</p>
+              <p class="capacitacion-description">{{ capacitacion.descripcion }}</p>
 
               <div class="capacitacion-details">
                 <div class="detail-item">
                   <ion-icon name="location" color="primary"></ion-icon>
-                  <span>{{ capacitacion.Lugar_Capacitacion }}</span>
+                  <span>{{ capacitacion.lugar }}</span>
                 </div>
 
                 <div class="detail-item">
                   <ion-icon name="calendar" color="primary"></ion-icon>
-                  <span>{{ capacitacion.Fecha_Capacitacion | date:'dd/MM/yyyy HH:mm' }}</span>
+                  <span>{{ capacitacion.fechaInicio | date:'dd/MM/yyyy HH:mm' }}</span>
                 </div>
 
                 <div class="detail-item">
                   <ion-icon name="laptop-outline" color="primary"></ion-icon>
-                  <span>{{ capacitacion.Modalidades }}</span>
+                  <span>{{ capacitacion.modalidad }}</span>
                 </div>
 
                 <div class="detail-item">
                   <ion-icon name="time" color="primary"></ion-icon>
-                  <span>{{ capacitacion.Horas }} horas</span>
+                  <span>{{ capacitacion.horas }} horas</span>
                 </div>
 
                 <div class="detail-item">
                   <ion-icon name="people" color="primary"></ion-icon>
-                  <span>{{ capacitacion.Limite_Participantes }} participantes máx.</span>
+                  <span>{{ capacitacion.limiteParticipantes }} participantes máx.</span>
                 </div>
               </div>
             </div>
 
             <div class="capacitacion-actions">
-              <ion-button fill="clear" color="primary" (click)="iraVisualizarinscritos(capacitacion.Id_Capacitacion)">
+              <ion-button fill="clear" color="primary" (click)="iraVisualizarinscritos(capacitacion.id)">
                 <ion-icon name="people-outline"></ion-icon>
                 Participantes
               </ion-button>
 
-              <ion-button fill="clear" color="success" (click)="iraEditarCapacitacion(capacitacion.Id_Capacitacion)">
+              <ion-button fill="clear" color="success" (click)="iraEditarCapacitacion(capacitacion.id)">
                 <ion-icon name="create-outline"></ion-icon>
                 Editar
               </ion-button>
 
-              <ion-button fill="clear" color="danger" (click)="confirmarEliminar(capacitacion.Id_Capacitacion)">
+              <ion-button fill="clear" color="danger" (click)="confirmarEliminar(capacitacion.id)">
                 <ion-icon name="trash-outline"></ion-icon>
                 Eliminar
               </ion-button>
             </div>
 
             <!-- Botones adicionales según el estado -->
-            <div class="capacitacion-extra-actions" *ngIf="capacitacion.Estado === 0">
-              <ion-button expand="block" color="success" (click)="finalizarCapacitacion(capacitacion.Id_Capacitacion)">
+            <div class="capacitacion-extra-actions" *ngIf="capacitacion.estado === 'Activa'">
+              <ion-button expand="block" color="success" (click)="finalizarCapacitacion(capacitacion.id)">
                 <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
                 Finalizar Capacitación
               </ion-button>
             </div>
 
-            <div class="capacitacion-extra-actions" *ngIf="capacitacion.Estado === 1 && !capacitacion.Certificado">
-              <ion-button expand="block" color="warning" (click)="mostrarConfirmacion(capacitacion.Id_Capacitacion)">
+            <div class="capacitacion-extra-actions"
+              *ngIf="capacitacion.estado === 'Finalizada' && !capacitacion.certificado">
+              <ion-button expand="block" color="warning" (click)="mostrarConfirmacion(capacitacion.id)">
                 <ion-icon name="ribbon-outline" slot="start"></ion-icon>
                 Emitir Certificados
               </ion-button>

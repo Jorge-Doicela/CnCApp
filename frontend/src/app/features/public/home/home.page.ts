@@ -7,6 +7,7 @@ import { Router } from '@angular/router';
 import { CapacitacionesService } from '../../admin/capacitaciones/services/capacitaciones.service';
 import { UsuarioService } from '../../user/services/usuario.service';
 import { AuthService } from '../../auth/services/auth.service';
+import { Capacitacion } from '../../../core/models/capacitacion.interface';
 import { firstValueFrom } from 'rxjs';
 
 @Component({
@@ -26,9 +27,9 @@ export class HomePage implements OnInit {
   modulos = this.authService.modulos;
 
   // Datos de conferencias
-  Capacitaciones: any[] = [];
-  capacitacionesDisponibles: any[] = [];
-  ConferenciasInscritas: any[] = [];
+  Capacitaciones: Capacitacion[] = [];
+  capacitacionesDisponibles: Capacitacion[] = [];
+  ConferenciasInscritas: Capacitacion[] = []; // Actually implies mixed type or just Capacitacion? Based on logic, it filters from Capacitaciones
   cargandoCapacitaciones: boolean = false;
 
   // Estadísticas
@@ -108,9 +109,9 @@ export class HomePage implements OnInit {
   async RecuperarCapacitaciones() {
     this.cargandoCapacitaciones = true;
     try {
-      const data = await firstValueFrom(this.capacitacionesService.getCapacitaciones()) as any[];
+      const data = await firstValueFrom(this.capacitacionesService.getCapacitaciones());
       this.Capacitaciones = data ?? [];
-      this.capacitacionesDisponibles = this.Capacitaciones.filter(c => c.Estado === 0);
+      this.capacitacionesDisponibles = this.Capacitaciones.filter(c => c.estado === 'Activa');
     } catch (error) {
       console.error('Error al cargar capacitaciones:', error);
     } finally {
@@ -137,7 +138,7 @@ export class HomePage implements OnInit {
         // Optimization: `getInscripcionesUsuario` could return partial capacitacion data.
         // If not, we fetch them.
 
-        const capacitacionIds = inscripciones.map((item: any) => item.Id_Capacitacion);
+        const capacitacionIds = inscripciones.map((item: any) => item.capacitacionId || item.Id_Capacitacion); // Handle potential casing mismatch from junction
 
         if (capacitacionIds.length > 0) {
           // Since we don't have "getByIds" in service, and `Capacitaciones` are already loaded in `RecuperarCapacitaciones` likely,
@@ -149,7 +150,7 @@ export class HomePage implements OnInit {
             await this.RecuperarCapacitaciones();
           }
 
-          this.ConferenciasInscritas = this.Capacitaciones.filter(c => capacitacionIds.includes(c.Id_Capacitacion));
+          this.ConferenciasInscritas = this.Capacitaciones.filter(c => capacitacionIds.includes(c.id));
         }
       } else {
         this.ConferenciasInscritas = [];
@@ -171,8 +172,8 @@ export class HomePage implements OnInit {
 
   calcularEstadisticas() {
     // Para usuarios normales
-    this.proximasConferencias = this.ConferenciasInscritas.filter(c => c.Estado === 0).length;
-    this.certificadosDisponibles = this.ConferenciasInscritas.filter(c => c.Estado === 1).length;
+    this.proximasConferencias = this.ConferenciasInscritas.filter(c => c.estado === 'Activa').length;
+    this.certificadosDisponibles = this.ConferenciasInscritas.filter(c => c.estado === 'Finalizada').length;
   }
 
   async cargarEstadisticasAdmin() {
@@ -269,17 +270,17 @@ export class HomePage implements OnInit {
 
   // Verificar si el usuario está inscrito en una capacitación
   isInscrito(idCapacitacion: number): boolean {
-    return this.ConferenciasInscritas.some(c => c.Id_Capacitacion === idCapacitacion);
+    return this.ConferenciasInscritas.some(c => c.id === idCapacitacion);
   }
 
   // Verificar si se puede mostrar el botón de inscripción
-  puedeInscribirse(capacitacion: any): boolean {
-    return capacitacion.Estado === 0 && !this.isInscrito(capacitacion.Id_Capacitacion);
+  puedeInscribirse(capacitacion: Capacitacion): boolean {
+    return capacitacion.estado === 'Activa' && !this.isInscrito(capacitacion.id);
   }
 
   // Verificar si se puede mostrar el botón de cancelar inscripción
-  puedeCancelarInscripcion(capacitacion: any): boolean {
-    return capacitacion.Estado === 0 && this.isInscrito(capacitacion.Id_Capacitacion);
+  puedeCancelarInscripcion(capacitacion: Capacitacion): boolean {
+    return capacitacion.estado === 'Activa' && this.isInscrito(capacitacion.id);
   }
 
   // Navegar al login
