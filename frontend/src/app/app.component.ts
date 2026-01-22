@@ -8,8 +8,8 @@ import {
   logIn, logOut, personAdd, person
 } from 'ionicons/icons';
 
-import { AuthService } from './pages/auth/services/auth.service';
-import { UsuarioService } from './pages/user/services/usuario.service';
+import { AuthService } from './features/auth/services/auth.service';
+import { UsuarioService } from './features/user/services/usuario.service';
 import { filter } from 'rxjs/operators';
 import { firstValueFrom } from 'rxjs';
 

@@ -1,7 +1,7 @@
 import { inject } from '@angular/core';
 import { Router, CanActivateFn } from '@angular/router';
 import { AlertController } from '@ionic/angular';
-import { AuthService } from '../../pages/auth/services/auth.service';
+import { AuthService } from '../../features/auth/services/auth.service';
 import { catchError, map, of } from 'rxjs';
 
 // Functional guard (modern approach)
