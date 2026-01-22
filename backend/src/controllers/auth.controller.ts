@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { z } from 'zod';
-import { loginUserUseCase, registerUserUseCase, refreshTokenUseCase } from '../infrastructure/di/auth.container';
+import { loginUserUseCase, registerUserUseCase, refreshTokenUseCase, requestPasswordResetUseCase, resetPasswordUseCase } from '../infrastructure/di/auth.container';
 
 /**
  * Authentication Controller (Hexagonal Adapter)
@@ -147,5 +147,43 @@ export class AuthController {
             success: true,
             message: 'Sesión cerrada exitosamente',
         });
+    }
+
+    static async requestReset(req: Request, res: Response): Promise<void> {
+        try {
+            const { email, redirectTo } = req.body;
+            if (!email) {
+                res.status(400).json({ success: false, message: 'Email is required' });
+                return;
+            }
+
+            await requestPasswordResetUseCase.execute(email, redirectTo || 'http://localhost:4200/recuperar-password');
+
+            res.json({
+                success: true,
+                message: 'Se ha enviado un enlace de recuperación si el email existe'
+            });
+        } catch (error: any) {
+            res.status(500).json({ success: false, message: 'Error al procesar solicitud' });
+        }
+    }
+
+    static async resetPassword(req: Request, res: Response): Promise<void> {
+        try {
+            const { token, password } = req.body;
+            if (!token || !password) {
+                res.status(400).json({ success: false, message: 'Token and Password are required' });
+                return;
+            }
+
+            await resetPasswordUseCase.execute(token, password);
+
+            res.json({
+                success: true,
+                message: 'Contraseña actualizada exitosamente'
+            });
+        } catch (error: any) {
+            res.status(401).json({ success: false, message: 'Token inválido o expirado' });
+        }
     }
 }

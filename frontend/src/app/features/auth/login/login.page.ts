@@ -1,7 +1,7 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import {
   IonHeader, IonToolbar, IonButtons, IonBackButton, IonTitle,
   IonContent, IonCard, IonCardContent, IonItem, IonIcon, IonLabel,
@@ -10,7 +10,7 @@ import {
 import { addIcons } from 'ionicons';
 import {
   cardOutline, lockClosedOutline, logInOutline, personAddOutline,
-  close, arrowBack
+  close, arrowBack, arrowBackOutline
 } from 'ionicons/icons';
 import { AuthService } from '../services/auth.service';
 
@@ -25,7 +25,7 @@ import { AuthService } from '../services/auth.service';
     FormsModule,
     IonHeader, IonToolbar, IonButtons, IonBackButton, IonTitle,
     IonContent, IonCard, IonCardContent, IonItem, IonIcon, IonLabel,
-    IonInput, IonButton
+    IonInput, IonButton, RouterLink
   ]
 })
 export class LoginPage implements OnInit {
@@ -41,7 +41,7 @@ export class LoginPage implements OnInit {
     private alertController: AlertController,
     private authService: AuthService
   ) {
-    addIcons({ cardOutline, lockClosedOutline, logInOutline, personAddOutline, close, arrowBack });
+    addIcons({ cardOutline, lockClosedOutline, logInOutline, personAddOutline, close, arrowBack, arrowBackOutline });
   }
 
   ngOnInit() {

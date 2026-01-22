@@ -290,30 +290,35 @@ export class RegisterPage {
   }
 
   // Helper methods for two-way binding with signals
-  updateCi(event: any) {
-    this.ci.set(event.target.value);
+  updateCi(event: Event) {
+    const value = (event.target as HTMLInputElement).value;
+    this.ci.set(value);
   }
 
-  updateNombre(event: any) {
-    this.nombre.set(event.target.value);
+  updateNombre(event: Event) {
+    const value = (event.target as HTMLInputElement).value;
+    this.nombre.set(value);
   }
 
-  updateEmail(event: any) {
-    this.email.set(event.target.value);
+  updateEmail(event: Event) {
+    const value = (event.target as HTMLInputElement).value;
+    this.email.set(value);
   }
 
-  updateTelefono(event: any) {
-    this.telefono.set(event.target.value);
+  updateTelefono(event: Event) {
+    const value = (event.target as HTMLInputElement).value;
+    this.telefono.set(value);
   }
 
-  updatePassword(event: any) {
-    const value = event.target.value;
+  updatePassword(event: Event) {
+    const value = (event.target as HTMLInputElement).value;
     this.password.set(value);
     this.calculatePasswordStrength(value);
   }
 
-  updatePasswordConfirm(event: any) {
-    this.passwordConfirm.set(event.target.value);
+  updatePasswordConfirm(event: Event) {
+    const value = (event.target as HTMLInputElement).value;
+    this.passwordConfirm.set(value);
   }
 
   togglePasswordVisibility() {

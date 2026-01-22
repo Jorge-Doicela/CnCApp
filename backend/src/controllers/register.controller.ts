@@ -1,11 +1,9 @@
 import { Request, Response } from 'express';
 import { z } from 'zod';
-import prisma from '../config/database';
-import { PasswordService } from '../services/password.service';
-import { JWTService } from '../services/jwt.service';
+import { registerUserUseCase } from '../infrastructure/di/auth.container';
 
 /**
- * Registration Controller
+ * Registration Controller (Hexagonal Adapter)
  * Handles user registration with validation and security
  */
 
@@ -31,8 +29,7 @@ const registerSchema = z.object({
         .min(8, 'Contraseña debe tener al menos 8 caracteres')
         .regex(/[A-Z]/, 'Debe contener al menos una letra mayúscula')
         .regex(/[a-z]/, 'Debe contener al menos una letra minúscula')
-        .regex(/[0-9]/, 'Debe contener al menos un número'),
-    entidadId: z.number().optional()
+        .regex(/[0-9]/, 'Debe contener al menos un número')
 });
 
 export class RegisterController {
@@ -43,109 +40,22 @@ export class RegisterController {
     static async register(req: Request, res: Response): Promise<void> {
         try {
             // Validate request body
-            const validatedData = registerSchema.parse(req.body);
+            const data = registerSchema.parse(req.body);
 
-            console.log(`[REGISTER] Registration attempt for CI: ${validatedData.ci}`);
+            console.log(`[REGISTER] Registration attempt for CI: ${data.ci}`);
 
-            // Check if CI already exists
-            const existingUserByCi = await prisma.usuario.findUnique({
-                where: { ci: validatedData.ci }
-            });
+            const result = await registerUserUseCase.execute(data);
 
-            if (existingUserByCi) {
-                console.log(`[REGISTER] CI already exists: ${validatedData.ci}`);
-                res.status(409).json({
-                    success: false,
-                    message: 'Ya existe un usuario con esta cédula',
-                    field: 'ci'
-                });
-                return;
-            }
-
-            // Check if email already exists
-            const existingUserByEmail = await prisma.usuario.findFirst({
-                where: { email: validatedData.email }
-            });
-
-            if (existingUserByEmail) {
-                console.log(`[REGISTER] Email already exists: ${validatedData.email}`);
-                res.status(409).json({
-                    success: false,
-                    message: 'Ya existe un usuario con este email',
-                    field: 'email'
-                });
-                return;
-            }
-
-            // Hash password
-            const hashedPassword = await PasswordService.hash(validatedData.password);
-
-            // Get default role (Participante - ID: 4)
-            const defaultRole = await prisma.rol.findFirst({
-                where: { nombre: 'Participante' }
-            });
-
-            if (!defaultRole) {
-                console.error('[REGISTER] Default role "Participante" not found');
-                res.status(500).json({
-                    success: false,
-                    message: 'Error en la configuración del sistema'
-                });
-                return;
-            }
-
-            // Get default entity (CNC)
-            const defaultEntity = await prisma.entidad.findFirst({
-                where: { nombre: 'Consejo Nacional de Competencias' }
-            });
-
-            // Create user
-            const newUser = await prisma.usuario.create({
-                data: {
-                    ci: validatedData.ci,
-                    nombre: validatedData.nombre,
-                    email: validatedData.email,
-                    telefono: validatedData.telefono || null,
-                    password: hashedPassword,
-                    rolId: defaultRole.id,
-                    entidadId: defaultEntity?.id || null,
-                    tipoParticipante: 0
-                },
-                include: {
-                    rol: true,
-                    entidad: true
-                }
-            });
-
-            console.log(`[REGISTER] User created successfully: ${newUser.ci}`);
-
-            // Generate tokens
-            const tokens = JWTService.generateTokens({
-                userId: newUser.id,
-                ci: newUser.ci,
-                roleId: newUser.rolId || 0
-            });
+            console.log(`[REGISTER] User created successfully: ${result.user.ci}`);
 
             // Return user data and tokens
             res.status(201).json({
                 success: true,
                 message: 'Registro exitoso',
-                data: {
-                    user: {
-                        id: newUser.id,
-                        ci: newUser.ci,
-                        nombre: newUser.nombre,
-                        email: newUser.email,
-                        telefono: newUser.telefono,
-                        rol: newUser.rol,
-                        entidad: newUser.entidad
-                    },
-                    accessToken: tokens.accessToken,
-                    refreshToken: tokens.refreshToken
-                }
+                data: result
             });
 
-        } catch (error) {
+        } catch (error: any) {
             if (error instanceof z.ZodError) {
                 const firstError = error.errors[0];
                 res.status(400).json({
@@ -157,7 +67,26 @@ export class RegisterController {
                 return;
             }
 
-            console.error('[REGISTER] Registration error:', error);
+            console.error('[REGISTER] Registration error:', error.message);
+
+            if (error.message === 'User with this CI already exists') {
+                res.status(409).json({
+                    success: false,
+                    message: 'Ya existe un usuario con esta cédula',
+                    field: 'ci'
+                });
+                return;
+            }
+
+            if (error.message === 'User with this Email already exists') {
+                res.status(409).json({
+                    success: false,
+                    message: 'Ya existe un usuario con este email',
+                    field: 'email'
+                });
+                return;
+            }
+
             res.status(500).json({
                 success: false,
                 message: 'Error interno del servidor'

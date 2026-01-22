@@ -19,4 +19,10 @@ router.post('/refresh', AuthController.refresh);
 // POST /api/auth/logout
 router.post('/logout', AuthController.logout);
 
+// POST /api/auth/reset-password-request
+router.post('/reset-password-request', AuthController.requestReset);
+
+// POST /api/auth/reset-password
+router.post('/reset-password', AuthController.resetPassword);
+
 export default router;

@@ -26,13 +26,19 @@ export class RegisterUserUseCase {
     ) { }
 
     async execute(data: RegisterDto): Promise<RegisterResult> {
-        // 1. Check if user exists
-        const existingUser = await this.userRepository.findByCi(data.ci);
-        if (existingUser) {
+        // 1. Check if CI exists
+        const existingUserByCi = await this.userRepository.findByCi(data.ci);
+        if (existingUserByCi) {
             throw new Error('User with this CI already exists');
         }
 
-        // 2. Hash password
+        // 2. Check if Email exists
+        const existingUserByEmail = await this.userRepository.findByEmail(data.email);
+        if (existingUserByEmail) {
+            throw new Error('User with this Email already exists');
+        }
+
+        // 3. Hash password
         const hashedPassword = await this.passwordEncoder.hash(data.password);
 
         // 3. Create User Entity

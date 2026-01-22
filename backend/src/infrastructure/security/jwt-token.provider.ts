@@ -41,4 +41,13 @@ export class JwtTokenProvider implements TokenProvider {
             roleId: decoded.roleId
         };
     }
+
+    verifyReset(token: string): TokenPayload {
+        const decoded = jwt.verify(token, this.ACCESS_SECRET) as any;
+        return {
+            userId: decoded.userId,
+            ci: decoded.ci,
+            roleId: decoded.roleId
+        };
+    }
 }
