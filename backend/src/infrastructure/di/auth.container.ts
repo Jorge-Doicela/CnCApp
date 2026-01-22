@@ -5,6 +5,8 @@ import { JwtTokenProvider } from '../security/jwt-token.provider';
 import { LoginUserUseCase } from '../../application/auth/login-user.usecase';
 import { RegisterUserUseCase } from '../../application/auth/register-user.usecase';
 import { RefreshTokenUseCase } from '../../application/auth/refresh-token.usecase';
+import { RequestPasswordResetUseCase } from '../../application/auth/request-password-reset.usecase';
+import { ResetPasswordUseCase } from '../../application/auth/reset-password.usecase';
 
 // Singleton instances of adapters
 const userRepository = new PrismaUserRepository();
@@ -26,4 +28,15 @@ export const registerUserUseCase = new RegisterUserUseCase(
 
 export const refreshTokenUseCase = new RefreshTokenUseCase(
     tokenProvider
+);
+
+export const requestPasswordResetUseCase = new RequestPasswordResetUseCase(
+    userRepository,
+    tokenProvider
+);
+
+export const resetPasswordUseCase = new ResetPasswordUseCase(
+    userRepository,
+    tokenProvider,
+    passwordEncoder
 );

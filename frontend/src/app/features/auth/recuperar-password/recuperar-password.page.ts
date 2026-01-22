@@ -1,53 +1,62 @@
 import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { LoadingController, ToastController, AlertController, Platform } from '@ionic/angular';
+import { Component, OnInit, inject, signal } from '@angular/core';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { LoadingController, ToastController, AlertController, Platform, IonHeader, IonToolbar, IonButtons, IonBackButton, IonTitle, IonContent, IonCard, IonCardContent, IonItem, IonIcon, IonLabel, IonInput, IonButton, IonSpinner } from '@ionic/angular/standalone';
 import { environment } from 'src/environments/environment';
 import { AuthService } from '../services/auth.service';
+import { addIcons } from 'ionicons';
+import { mailOutline, paperPlaneOutline, lockClosedOutline, saveOutline, checkmarkCircle, closeCircle, informationCircleOutline } from 'ionicons/icons';
 
 @Component({
   selector: 'app-recuperar-password',
   templateUrl: './recuperar-password.page.html',
   styleUrls: ['./recuperar-password.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule]
+  imports: [
+    CommonModule,
+    FormsModule,
+    IonHeader, IonToolbar, IonButtons, IonBackButton, IonTitle,
+    IonContent, IonCard, IonCardContent, IonItem, IonIcon, IonLabel,
+    IonInput, IonButton, IonSpinner, RouterLink
+  ]
 })
 export class RecuperarPasswordPage implements OnInit {
-  email: string = '';
-  nuevaContrasena: string = '';
-  confirmarContrasena: string = '';
-  paso: 'email' | 'resetear' | 'exito' = 'email';
-  enviando: boolean = false;
-  token: string | null = null;
+  // Signals for state management
+  email = signal<string>('');
+  nuevaContrasena = signal<string>('');
+  confirmarContrasena = signal<string>('');
+  paso = signal<'email' | 'resetear' | 'exito'>('email');
+  enviando = signal<boolean>(false);
+  token = signal<string | null>(null);
+
   siteURL: string = '';
 
   private authService = inject(AuthService);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  private loadingController = inject(LoadingController);
+  private toastController = inject(ToastController);
+  private alertController = inject(AlertController);
 
-  constructor(
-    private router: Router,
-    private route: ActivatedRoute,
-    private loadingController: LoadingController,
-    private toastController: ToastController,
-    private alertController: AlertController,
-    private platform: Platform
-  ) { }
+  constructor() {
+    addIcons({
+      mailOutline, paperPlaneOutline, lockClosedOutline,
+      saveOutline, checkmarkCircle, closeCircle, informationCircleOutline
+    });
+  }
 
   ngOnInit() {
-    // Determinar la URL base para redirección
     this.siteURL = window.location.origin;
 
     // Verificar si hay un token de recuperación en la URL
     this.route.queryParams.subscribe(params => {
       if (params['type'] === 'recovery' && params['token']) {
-        this.token = params['token'];
-        this.paso = 'resetear';
+        this.token.set(params['token']);
+        this.paso.set('resetear');
       }
     });
-
-    // Verificar si hay una sesión asociada con el token en la URL
-    // this.verificarSesion(); // Ya no es necesario con custom backend, token en URL es suficiente
   }
 
   // Métodos para validación de contraseña
@@ -64,13 +73,13 @@ export class RecuperarPasswordPage implements OnInit {
   }
 
   async solicitarRecuperacion() {
-    // Validaciones iniciales
-    if (!this.email) {
+    const emailVal = this.email();
+    if (!emailVal) {
       this.presentToast('Por favor ingrese su correo electrónico', 'warning');
       return;
     }
 
-    this.enviando = true;
+    this.enviando.set(true);
     const loading = await this.loadingController.create({
       message: 'Procesando solicitud...',
       spinner: 'crescent'
@@ -78,60 +87,51 @@ export class RecuperarPasswordPage implements OnInit {
     await loading.present();
 
     try {
-      const redirectTo = environment.redirectUrl;
+      const redirectTo = environment.redirectUrl || `${window.location.origin}/recuperar-password`;
 
-      console.log('Enviando solicitud de recuperación a:', this.email);
-
-      this.authService.requestPasswordReset(this.email, redirectTo).subscribe({
-        next: (response) => {
+      this.authService.requestPasswordReset(emailVal, redirectTo).subscribe({
+        next: () => {
           loading.dismiss();
-          this.enviando = false;
+          this.enviando.set(false);
           this.presentAlerta(
             '¡Solicitud procesada!',
-            'Si el correo existe en nuestro sistema, recibirá un enlace de recuperación. Por favor revise su bandeja de entrada y carpeta de spam.'
+            'Si el correo existe en nuestro sistema, recibirá un enlace de recuperación. Por favor revise su bandeja de entrada.'
           );
         },
         error: (error) => {
           loading.dismiss();
-          this.enviando = false;
-          console.error('Error al solicitar recuperación:', error);
-          this.presentToast('Error al enviar solicitud (API no implementada)', 'danger');
+          this.enviando.set(false);
+          this.presentToast('Error al enviar solicitud', 'danger');
         }
       });
-
     } catch (error: any) {
       loading.dismiss();
-      this.enviando = false;
-      console.error('Error completo:', error);
-      this.presentToast('Error al procesar la solicitud: ' + (error.message || 'Error desconocido'), 'danger');
+      this.enviando.set(false);
+      this.presentToast('Error crítico', 'danger');
     }
   }
 
   async actualizarContrasena() {
-    // Validaciones de los campos
-    if (!this.nuevaContrasena || !this.confirmarContrasena) {
+    const password = this.nuevaContrasena();
+    const confirm = this.confirmarContrasena();
+    const resetToken = this.token();
+
+    if (!password || !confirm) {
       this.presentToast('Por favor, complete todos los campos', 'warning');
       return;
     }
 
-    if (this.nuevaContrasena !== this.confirmarContrasena) {
+    if (password !== confirm) {
       this.presentToast('Las contraseñas no coinciden', 'danger');
       return;
     }
 
-    if (this.nuevaContrasena.length < 8) {
-      this.presentToast('La contraseña debe tener al menos 8 caracteres', 'warning');
+    if (password.length < 8 || !this.hasUpperCase(password) || !this.hasLowerCase(password) || !this.hasDigit(password)) {
+      this.presentToast('La contraseña no cumple con los requisitos mínimos', 'warning');
       return;
     }
 
-    // Validar que la contraseña tenga al menos una letra mayúscula, una minúscula y un número
-    const contrasenaRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/;
-    if (!contrasenaRegex.test(this.nuevaContrasena)) {
-      this.presentToast('La contraseña debe contener al menos una letra mayúscula, una minúscula y un número', 'warning');
-      return;
-    }
-
-    this.enviando = true;
+    this.enviando.set(true);
     const loading = await this.loadingController.create({
       message: 'Actualizando contraseña...',
       spinner: 'crescent'
@@ -139,38 +139,44 @@ export class RecuperarPasswordPage implements OnInit {
     await loading.present();
 
     try {
-      // Actualizar la contraseña del usuario autenticado
-      // En un flujo real de recuperación por token, el token vendría en la URL y se usaría para autorizar
-      // Aquí asumimos que authService manejaría eso o que el usuario ya 'inicio sesión' con el token
-
-      this.authService.updatePassword(this.nuevaContrasena).subscribe({
+      this.authService.updatePassword(password, resetToken || undefined).subscribe({
         next: () => {
           loading.dismiss();
-          this.enviando = false;
-          this.paso = 'exito';
+          this.enviando.set(false);
+          this.paso.set('exito');
           this.presentToast('¡Contraseña actualizada exitosamente!', 'success');
-          setTimeout(() => {
-            this.router.navigate(['/login']);
-          }, 3000);
         },
         error: (error) => {
           loading.dismiss();
-          this.enviando = false;
-          console.error('Error al actualizar:', error);
-          this.presentToast('Error al actualizar contraseña (API no implementada)', 'danger');
+          this.enviando.set(false);
+          this.presentToast('Error al actualizar contraseña. El enlace puede haber expirado.', 'danger');
         }
       });
-
     } catch (error: any) {
       loading.dismiss();
-      this.enviando = false;
-      console.error('Error completo:', error);
-      this.presentToast('Error al procesar la solicitud: ' + error.message, 'danger');
+      this.enviando.set(false);
+      this.presentToast('Error crítico al procesar la solicitud', 'danger');
     }
   }
 
-  volverAlLogin() {
-    this.router.navigate(['/login']);
+  volver() {
+    if (this.paso() === 'resetear') {
+      this.paso.set('email');
+    } else {
+      this.router.navigate(['/login']);
+    }
+  }
+
+  updateEmail(event: Event) {
+    this.email.set((event.target as HTMLInputElement).value);
+  }
+
+  updateNuevaContrasena(event: Event) {
+    this.nuevaContrasena.set((event.target as HTMLInputElement).value);
+  }
+
+  updateConfirmarContrasena(event: Event) {
+    this.confirmarContrasena.set((event.target as HTMLInputElement).value);
   }
 
   async presentToast(message: string, color: string = 'primary') {
@@ -178,16 +184,8 @@ export class RecuperarPasswordPage implements OnInit {
       message: message,
       duration: 3000,
       position: 'bottom',
-      color: color,
-      buttons: [
-        {
-          side: 'end',
-          icon: 'close',
-          role: 'cancel'
-        }
-      ]
+      color: color
     });
-
     await toast.present();
   }
 
@@ -195,11 +193,10 @@ export class RecuperarPasswordPage implements OnInit {
     const alert = await this.alertController.create({
       header: header,
       message: message,
-      buttons: ['OK'],
-      cssClass: 'custom-alert'
+      buttons: ['OK']
     });
-
     await alert.present();
   }
 }
+
 

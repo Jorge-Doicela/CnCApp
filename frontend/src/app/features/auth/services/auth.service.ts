@@ -213,10 +213,15 @@ export class AuthService {
         return this.http.post(`${this.apiUrl}/auth/reset-password-request`, { email, redirectTo });
     }
 
-    updatePassword(password: string): Observable<any> {
-        const token = this.accessToken();
+    updatePassword(password: string, token?: string): Observable<any> {
+        // If token is provided, it's a recovery flow. If not, it's an authenticated profile update.
+        if (token) {
+            return this.http.post(`${this.apiUrl}/auth/reset-password`, { token, password });
+        }
+
+        const authToken = this.accessToken();
         return this.http.post(`${this.apiUrl}/auth/update-password`, { password }, {
-            headers: { Authorization: `Bearer ${token}` }
+            headers: { Authorization: `Bearer ${authToken}` }
         });
     }
 }

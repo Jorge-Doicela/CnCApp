@@ -14,6 +14,15 @@ export class PrismaUserRepository implements UserRepository {
         return this.mapToEntity(user);
     }
 
+    async findByEmail(email: string): Promise<User | null> {
+        const user = await prisma.usuario.findFirst({
+            where: { email },
+            include: { rol: true, entidad: true }
+        });
+        if (!user) return null;
+        return this.mapToEntity(user);
+    }
+
     async findById(id: number): Promise<User | null> {
         const user = await prisma.usuario.findUnique({
             where: { id },

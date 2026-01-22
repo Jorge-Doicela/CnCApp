@@ -96,6 +96,21 @@ ion-content {
   }
 }
 
+.header-actions {
+  margin-bottom: 20px;
+  margin-left: -10px;
+}
+
+.back-btn {
+  --color: var(--ion-color-dark);
+  font-weight: 600;
+  text-transform: none;
+
+  ion-icon {
+    margin: 0 !important;
+  }
+}
+
 // Mobile Logo
 .mobile-logo-container {
   text-align: center;
