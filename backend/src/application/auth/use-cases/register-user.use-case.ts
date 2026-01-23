@@ -6,10 +6,21 @@ import { User } from '../../../domain/user/user.entity';
 
 interface RegisterDto {
     ci: string;
-    nombre: string;
+    primerNombre: string;
+    segundoNombre?: string;
+    primerApellido: string;
+    segundoApellido?: string;
     email: string;
     password: string;
     telefono?: string;
+    celular?: string;
+    genero?: string;
+    etnia?: string;
+    nacionalidad?: string;
+    fechaNacimiento?: string; // ISO string
+    provinciaId?: number;
+    cantonId?: number;
+    tipoParticipante?: number;
 }
 
 interface RegisterResult {
@@ -43,13 +54,26 @@ export class RegisterUserUseCase {
         const hashedPassword = await this.passwordEncoder.hash(data.password);
 
         // 3. Create User Entity
+        const nombreCompleto = `${data.primerNombre} ${data.segundoNombre || ''} ${data.primerApellido} ${data.segundoApellido || ''}`.replace(/\s+/g, ' ').trim();
+
         const newUser: User = {
             id: 0,
             ci: data.ci,
-            nombre: data.nombre,
+            nombre: nombreCompleto,
+            primerNombre: data.primerNombre,
+            segundoNombre: data.segundoNombre,
+            primerApellido: data.primerApellido,
+            segundoApellido: data.segundoApellido,
             email: data.email,
             telefono: data.telefono,
+            celular: data.celular,
             password: hashedPassword,
+            genero: data.genero,
+            etnia: data.etnia,
+            nacionalidad: data.nacionalidad,
+            fechaNacimiento: data.fechaNacimiento ? new Date(data.fechaNacimiento) : undefined,
+            provinciaId: data.provinciaId,
+            cantonId: data.cantonId,
             rolId: 3, // Participante
             entidadId: 1 // CNC
         };

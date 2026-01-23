@@ -53,8 +53,27 @@ model Usuario {
   createdAt         DateTime  @default(now()) @map("created_at")
   updatedAt         DateTime  @updatedAt @map("updated_at")
   
+  // Nombres y Apellidos
+  primerNombre      String?   @map("Primer_Nombre") @db.VarChar(100)
+  segundoNombre     String?   @map("Segundo_Nombre") @db.VarChar(100)
+  primerApellido    String?   @map("Primer_Apellido") @db.VarChar(100)
+  segundoApellido   String?   @map("Segundo_Apellido") @db.VarChar(100)
+  
+  // Demografía
+  genero            String?   @db.VarChar(50)
+  etnia             String?   @db.VarChar(50)
+  nacionalidad      String?   @db.VarChar(100)
+  fechaNacimiento   DateTime? @map("Fecha_Nacimiento") @db.Date
+  
+  // Contacto y Ubicación
+  celular           String?   @db.VarChar(20)
+  provinciaId       Int?      @map("Id_Provincia")
+  cantonId          Int?      @map("Id_Canton")
+
   rol               Rol?      @relation(fields: [rolId], references: [id])
   entidad           Entidad?  @relation(fields: [entidadId], references: [id])
+  provincia         Provincia? @relation(fields: [provinciaId], references: [id])
+  canton            Canton?   @relation(fields: [cantonId], references: [id])
   
   inscripciones     UsuarioCapacitacion[]
   certificados      Certificado[]
@@ -76,6 +95,7 @@ model Provincia {
   nombre   String    @unique @map("Nombre_Provincia") @db.VarChar(100)
   
   cantones Canton[]
+  usuarios Usuario[]
 
   @@map("Provincias")
 }
@@ -87,6 +107,7 @@ model Canton {
   
   provincia   Provincia @relation(fields: [provinciaId], references: [id])
   parroquias  Parroquia[]
+  usuarios    Usuario[]
 
   @@map("Cantones")
 }

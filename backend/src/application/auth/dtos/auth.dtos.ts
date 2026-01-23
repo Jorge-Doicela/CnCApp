@@ -1,9 +1,19 @@
 export interface RegisterUserDto {
-    nombre: string;
     ci: string;
-    email?: string;
-    telefono?: string;
+    primerNombre: string;
+    segundoNombre?: string;
+    primerApellido: string;
+    segundoApellido?: string;
+    email: string;
     password: string;
+    telefono?: string;
+    celular?: string;
+    genero?: string;
+    etnia?: string;
+    nacionalidad?: string;
+    fechaNacimiento?: string; // ISO string
+    provinciaId?: number;
+    cantonId?: number;
     tipoParticipante?: number;
     rolId?: number;
 }
