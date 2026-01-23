@@ -1,14 +1,14 @@
 import { injectable } from 'tsyringe';
 import bcrypt from 'bcrypt';
-import { PasswordHasher } from '../../application/shared/interfaces/password-hasher.interface';
+import { PasswordEncoder } from '../../domain/auth/auth.ports';
 
 @injectable()
-export class BcryptPasswordHasher implements PasswordHasher {
+export class BcryptPasswordHasher implements PasswordEncoder {
     async hash(password: string): Promise<string> {
         return bcrypt.hash(password, 10);
     }
 
-    async compare(password: string, hashedPassword: string): Promise<boolean> {
-        return bcrypt.compare(password, hashedPassword);
+    async verify(plain: string, hashed: string): Promise<boolean> {
+        return bcrypt.compare(plain, hashed);
     }
 }

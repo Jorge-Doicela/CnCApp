@@ -2,11 +2,11 @@
 import { PrismaUserRepository } from '../database/prisma-user.repository';
 import { BcryptPasswordEncoder } from '../security/bcrypt-password.encoder';
 import { JwtTokenProvider } from '../security/jwt-token.provider';
-import { LoginUserUseCase } from '../../application/auth/login-user.usecase';
-import { RegisterUserUseCase } from '../../application/auth/register-user.usecase';
-import { RefreshTokenUseCase } from '../../application/auth/refresh-token.usecase';
-import { RequestPasswordResetUseCase } from '../../application/auth/request-password-reset.usecase';
-import { ResetPasswordUseCase } from '../../application/auth/reset-password.usecase';
+import { LoginUserUseCase } from '../../application/auth/use-cases/login-user.use-case';
+import { RegisterUserUseCase } from '../../application/auth/use-cases/register-user.use-case';
+import { RefreshTokenUseCase } from '../../application/auth/use-cases/refresh-token.use-case';
+import { RequestPasswordResetUseCase } from '../../application/auth/use-cases/request-password-reset.use-case';
+import { ResetPasswordUseCase } from '../../application/auth/use-cases/reset-password.use-case';
 
 // Singleton instances of adapters
 const userRepository = new PrismaUserRepository();
