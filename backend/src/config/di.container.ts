@@ -11,7 +11,7 @@ container.register('CapacitacionRepository', { useClass: PrismaCapacitacionRepos
 container.register('CertificadoRepository', { useClass: PrismaCertificadoRepository });
 
 // Register Security Services
-container.register('PasswordHasher', { useClass: BcryptPasswordHasher });
+container.register('PasswordEncoder', { useClass: BcryptPasswordHasher });
 container.register('TokenProvider', { useClass: JwtTokenProvider });
 
 export { container };
