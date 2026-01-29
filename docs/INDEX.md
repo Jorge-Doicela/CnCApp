@@ -13,6 +13,7 @@ Esta documentación está organizada por temas para facilitar su consulta:
 | Documento | Descripción | Audiencia |
 |-----------|-------------|-----------|
 | [README Principal](../README.md) | Visión general del proyecto | Todos |
+| [Inicio Rápido](QUICK_START.md) | Configuración en 5 minutos | Desarrolladores |
 | [Guía de Desarrollo](DEVELOPMENT.md) | Setup y flujo de trabajo | Desarrolladores |
 | [Docker Setup](DOCKER_SETUP.md) | Despliegue con Docker | DevOps, Desarrolladores |
 
@@ -21,7 +22,9 @@ Esta documentación está organizada por temas para facilitar su consulta:
 | Documento | Descripción | Audiencia |
 |-----------|-------------|-----------|
 | [Arquitectura del Sistema](ARCHITECTURE.md) | Diseño general y patrones | Arquitectos, Desarrolladores |
+| [Backend](BACKEND.md) | Configuración completa del backend | Desarrolladores Backend |
 | [Base de Datos](DATABASE.md) | Schema, migraciones y relaciones | Desarrolladores, DBAs |
+| [Guía de Prisma](PRISMA_GUIDE.md) | Prisma en local, Docker y producción | Desarrolladores, DevOps |
 | [API Documentation](API.md) | Endpoints y ejemplos | Desarrolladores Frontend/Backend |
 
 ### Deployment y Operaciones
@@ -47,30 +50,33 @@ Esta documentación está organizada por temas para facilitar su consulta:
 ```
 docs/
 ├── INDEX.md                      # Este archivo (índice)
-├── ARCHITECTURE.md                # Arquitectura del sistema
-├── DEVELOPMENT.md                 # Guía de desarrollo
-├── API.md                         # Documentación de API
-├── DATABASE.md                    # Base de datos
-├── DOCKER_SETUP.md                # Setup con Docker
-├── DEPLOYMENT.md                  # Guía de despliegue
-├── SECURITY.md                    # Seguridad
-├── CONTRIBUTING.md                # Contribución
-├── TESTING.md                     # Testing
-├── TROUBLESHOOTING.md             # Solución de problemas
-├── CHANGELOG.md                   # Historial de cambios
+├── QUICK_START.md                # Inicio rápido (5 minutos)
+├── BACKEND.md                    # Configuración del backend
+├── PRISMA_GUIDE.md               # Guía de Prisma
+├── ARCHITECTURE.md               # Arquitectura del sistema
+├── DEVELOPMENT.md                # Guía de desarrollo
+├── API.md                        # Documentación de API
+├── DATABASE.md                   # Base de datos
+├── DOCKER_SETUP.md               # Setup con Docker
+├── DEPLOYMENT.md                 # Guía de despliegue
+├── SECURITY.md                   # Seguridad
+├── CONTRIBUTING.md               # Contribución
+├── TESTING.md                    # Testing
+├── TROUBLESHOOTING.md            # Solución de problemas
+├── CHANGELOG.md                  # Historial de cambios
 │
-├── architecture/                  # Diagramas y diseños detallados
+├── architecture/                 # Diagramas y diseños detallados
 │   ├── backend-architecture.md
 │   ├── frontend-architecture.md
 │   └── diagrams/
 │
-├── api/                           # Documentación detallada de API
+├── api/                          # Documentación detallada de API
 │   ├── authentication.md
 │   ├── users.md
 │   ├── capacitaciones.md
 │   └── certificados.md
 │
-└── guides/                        # Guías específicas
+└── guides/                       # Guías específicas
     ├── mobile-build.md
     ├── environment-setup.md
     └── code-style.md
@@ -106,8 +112,10 @@ docs/
 
 ### Backend
 - [Clean Architecture](ARCHITECTURE.md#backend-clean-architecture)
+- [Configuración del Backend](BACKEND.md)
 - [Estructura de carpetas](DEVELOPMENT.md#estructura-backend)
-- [Prisma y Base de Datos](DATABASE.md)
+- [Prisma y Base de Datos](PRISMA_GUIDE.md)
+- [Schema y Migraciones](DATABASE.md)
 - [Autenticación JWT](API.md#autenticación)
 
 ### Frontend

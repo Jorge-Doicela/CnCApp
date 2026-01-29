@@ -9,6 +9,7 @@
         "install:all": "cd backend && npm install && cd ../frontend && npm install"
     },
     "devDependencies": {
-        "@capacitor/cli": "^7.0.1"
+        "@capacitor/cli": "^7.0.1",
+        "typescript": "^5.9.3"
     }
 }
