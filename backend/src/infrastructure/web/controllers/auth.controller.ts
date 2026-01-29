@@ -5,6 +5,7 @@ import { RegisterUserUseCase } from '../../../application/auth/use-cases/registe
 import { LoginUserUseCase } from '../../../application/auth/use-cases/login-user.use-case';
 import { GetUserProfileUseCase } from '../../../application/user/use-cases/get-user-profile.use-case';
 import { AuthRequest } from '../middleware/auth.middleware';
+import { UserMapper } from '../../../domain/user/mappers/user.mapper';
 
 // Schemas
 const registerSchema = z.object({
@@ -49,9 +50,15 @@ export class AuthController {
                 telefono: data.telefono,
                 tipoParticipante: data.tipoParticipante
             });
+
             res.status(201).json({
+                success: true,
                 message: 'Usuario registrado exitosamente',
-                ...result
+                data: {
+                    user: UserMapper.toDTO(result.user),
+                    accessToken: result.accessToken,
+                    refreshToken: result.refreshToken
+                }
             });
         } catch (error) {
             next(error);
@@ -63,9 +70,15 @@ export class AuthController {
             const data = loginSchema.parse(req.body);
             // Updated to match Use Case signature execute(ci, password)
             const result = await this.loginUseCase.execute(data.ci, data.password);
+
             res.json({
+                success: true,
                 message: 'Inicio de sesión exitoso',
-                ...result
+                data: {
+                    user: UserMapper.toDTO(result.user),
+                    accessToken: result.accessToken,
+                    refreshToken: result.refreshToken
+                }
             });
         } catch (error) {
             next(error);
@@ -75,11 +88,14 @@ export class AuthController {
     getProfile = async (req: AuthRequest, res: Response, next: NextFunction) => {
         try {
             if (!req.userId) {
-                res.status(401).json({ error: 'Usuario no autenticado' });
+                res.status(401).json({ success: false, error: 'Usuario no autenticado' });
                 return;
             }
             const user = await this.getProfileUseCase.execute(req.userId);
-            res.json(user);
+            res.json({
+                success: true,
+                data: UserMapper.toDTO(user)
+            });
         } catch (error) {
             next(error);
         }

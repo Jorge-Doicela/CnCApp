@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -43,6 +43,9 @@ export class RegisterPage {
   laborData = this.state.laborData;
   termsData = this.state.termsData;
 
+  // Inject AuthService
+  private authService = inject(AuthService);
+
   // Local UI state
   isLoading = signal<boolean>(false);
   showPassword = signal<boolean>(false);
@@ -56,7 +59,6 @@ export class RegisterPage {
     private router: Router,
     private loadingController: LoadingController,
     private toastController: ToastController,
-    private authService: AuthService,
     public state: RegisterStateService
   ) {
     addIcons({

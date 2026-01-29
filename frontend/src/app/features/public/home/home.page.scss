@@ -55,6 +55,12 @@
         margin: 0;
         text-transform: uppercase;
         letter-spacing: 0.5px;
+
+        &.guest-title {
+          font-size: 1.5rem;
+          letter-spacing: 1.5px;
+          color: var(--ion-color-dark);
+        }
       }
 
       p {
@@ -63,6 +69,12 @@
         margin: 2px 0 0;
       }
     }
+  }
+
+  // Fix misalignment in guest-title
+  .guest-title {
+    display: block;
+    margin: 5px 0;
   }
 
   .header-actions {
@@ -415,31 +427,33 @@
 }
 
 .conference-card-mini {
-  flex: 0 0 280px;
+  flex: 0 0 200px; // More compact for horizontal scroll
   background: white;
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-  border: 1px solid #f0f0f0;
-  transition: transform 0.3s;
+  border-radius: 18px;
+  padding: 18px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease;
+  display: flex;
+  flex-direction: column;
 
-  &:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  &:active {
+    transform: scale(0.97);
   }
 
   .card-status {
-    display: inline-block;
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 0.7rem;
-    font-weight: 700;
+    align-self: flex-start;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 0.65rem;
+    font-weight: 800;
     text-transform: uppercase;
-    margin-bottom: 15px;
+    margin-bottom: 12px;
+    letter-spacing: 0.5px;
 
     &.status-available {
-      background: #e6f7ef;
-      color: var(--ion-color-success);
+      background: #f0fff4;
+      color: #38a169;
     }
 
     &.status-closed {
@@ -449,48 +463,52 @@
   }
 
   h4 {
-    font-size: 1.1rem;
+    font-size: 0.95rem;
     font-weight: 700;
-    color: var(--ion-color-dark);
-    margin: 0 0 15px;
-    line-height: 1.4;
-    height: 3rem;
+    color: #2d3748;
+    margin: 0 0 10px;
+    line-height: 1.3;
+    height: 2.6rem;
     overflow: hidden;
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
   }
 
   .card-meta {
-    margin-bottom: 20px;
+    margin-bottom: 15px;
+    flex-grow: 1;
 
     span {
       display: flex;
       align-items: center;
-      gap: 8px;
-      font-size: 0.85rem;
-      color: var(--ion-color-medium);
-      margin-bottom: 6px;
+      gap: 6px;
+      font-size: 0.75rem;
+      color: #718096;
+      margin-bottom: 4px;
 
       ion-icon {
         color: var(--ion-color-primary);
+        font-size: 1rem;
       }
     }
   }
 
   .action-btn {
     width: 100%;
-    background: var(--ion-color-secondary);
-    color: white;
+    background: #edf2f7; // Subtle button
+    color: #4a5568;
     border: none;
-    padding: 10px;
-    border-radius: 8px;
-    font-weight: 600;
+    padding: 8px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 0.8rem;
     cursor: pointer;
-    transition: filter 0.3s;
+    transition: all 0.2s;
 
     &:hover {
-      filter: brightness(0.9);
+      background: #e2e8f0;
     }
   }
 }
@@ -574,93 +592,97 @@
   }
 }
 
-// Section Headers (Same as before)
+// Section Headers
 .section-header {
-  margin-bottom: 40px;
+  margin: 0 auto 30px;
+  text-align: center;
+  max-width: 800px;
+  padding: 0 20px;
 
   h3 {
-    font-size: 1.8rem;
-    font-weight: 700;
-    color: var(--ion-color-dark);
-    margin-bottom: 15px;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #1a202c;
+    margin-bottom: 8px;
+    letter-spacing: -0.5px;
+  }
+
+  p {
+    color: #718096;
+    font-size: 0.95rem;
+    margin: 0 0 12px;
   }
 
   .separator {
-    width: 60px;
+    width: 40px;
     height: 4px;
     background: var(--ion-color-secondary);
     margin: 0 auto;
-    border-radius: 2px;
+    border-radius: 10px;
   }
 }
 
 // Services Grid (Navigation)
 .services-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 25px;
-  padding-bottom: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
+  gap: 16px;
+  padding: 0 10px 30px;
 
   .service-card {
-    background: white;
-    padding: 25px 20px;
-    border-radius: 12px;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+    background: #ffffff;
+    padding: 24px 16px;
+    border-radius: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03), 0 1px 3px rgba(0, 0, 0, 0.02);
     text-align: center;
-    transition: transform 0.3s, box-shadow 0.3s;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
-    border-bottom: 3px solid transparent;
+    border: 1px solid rgba(0, 0, 0, 0.05);
 
-    &:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
-      border-bottom-color: var(--ion-color-secondary);
-
-      .icon-circle {
-        background: var(--ion-color-primary);
-        color: white;
-      }
+    &:active {
+      transform: scale(0.96);
+      background: #fdfdfd;
     }
 
     .icon-circle {
-      width: 60px;
-      height: 60px;
-      background: #f0f4f8;
-      border-radius: 50%;
+      width: 52px;
+      height: 52px;
+      background: #f7fafc;
+      border-radius: 16px; // Squircle style
       display: flex;
       align-items: center;
       justify-content: center;
-      margin: 0 auto 15px;
-      transition: all 0.3s;
+      margin: 0 auto 16px;
+      color: var(--ion-color-primary);
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
 
       ion-icon {
-        font-size: 2rem;
-        color: var(--ion-color-primary);
+        font-size: 1.7rem;
+        display: block; // Force visibility
       }
     }
 
     h4 {
-      font-size: 1.1rem;
+      font-size: 1rem;
       font-weight: 700;
-      color: var(--ion-color-dark);
-      margin-bottom: 10px;
+      color: #2d3748;
+      margin-bottom: 8px;
     }
 
     p {
-      color: var(--ion-color-medium);
-      font-size: 0.85rem;
-      line-height: 1.5;
-      margin-bottom: 15px;
+      color: #718096;
+      font-size: 0.8rem;
+      line-height: 1.4;
+      margin-bottom: 0;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
     }
 
     .card-footer {
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: var(--ion-color-medium);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 5px;
+      display: none; // Cleaner look
     }
   }
 }
@@ -740,102 +762,11 @@
   }
 }
 
-.news-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 30px;
 
-  .news-card {
-    // ... same as before
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-
-    .news-image {
-      height: 180px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      ion-icon {
-        font-size: 3rem;
-        color: white;
-        opacity: 0.5;
-      }
-
-      &.placeholder-blue {
-        background: linear-gradient(135deg, #174a84, #2e5c90);
-      }
-
-      &.placeholder-green {
-        background: linear-gradient(135deg, #2dd36f, #28ba62);
-      }
-
-      &.placeholder-orange {
-        background: linear-gradient(135deg, #ffc409, #e0ad08);
-      }
-    }
-
-    .news-content {
-      padding: 20px;
-
-      .news-date {
-        color: var(--ion-color-secondary);
-        font-size: 0.75rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        margin-bottom: 5px;
-        display: block;
-      }
-
-      h4 {
-        margin: 0 0 10px;
-        font-size: 1.1rem;
-        font-weight: 700;
-      }
-
-      p {
-        font-size: 0.9rem;
-        color: var(--ion-color-medium);
-        margin-bottom: 15px;
-      }
-
-      a {
-        color: var(--ion-color-primary);
-        font-weight: 600;
-        text-decoration: none;
-        font-size: 0.9rem;
-      }
-    }
-  }
-}
 
 // Footer (Same as before)
-.main-footer {
-  background: var(--ion-color-dark);
-  color: white;
-  padding: 60px 0 30px;
-
-  // same logic
-  .footer-grid {
-    margin-bottom: 40px;
-    display: grid;
-    gap: 40px;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  }
-
-  .footer-col h4 {
-    border-bottom: none;
-    margin-bottom: 20px;
-    font-size: 1.1rem;
-  }
-
-  .footer-bottom {
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    padding-top: 20px;
-
-    p {
-      font-size: 0.8rem;
-    }
-  }
+// App Footer (Simple)
+.app-footer {
+  margin-top: auto;
+  padding-bottom: 20px;
 }

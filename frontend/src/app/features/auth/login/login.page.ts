@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -10,7 +10,8 @@ import {
 import { addIcons } from 'ionicons';
 import {
   cardOutline, lockClosedOutline, logInOutline, personAddOutline,
-  close, arrowBack, arrowBackOutline
+  close, arrowBack, arrowBackOutline, personOutline, arrowForwardOutline,
+  eyeOutline, eyeOffOutline
 } from 'ionicons/icons';
 import { AuthService } from '../services/auth.service';
 
@@ -29,25 +30,42 @@ import { AuthService } from '../services/auth.service';
   ]
 })
 export class LoginPage implements OnInit {
+  private authService = inject(AuthService);
+
   // Signals for form state
   ci = signal<string>('');
   password = signal<string>('');
+  showPassword = signal<boolean>(false);
   isLoading = signal<boolean>(false);
 
   constructor(
     private router: Router,
     private loadingController: LoadingController,
     private toastController: ToastController,
-    private alertController: AlertController,
-    private authService: AuthService
+    private alertController: AlertController
   ) {
-    addIcons({ cardOutline, lockClosedOutline, logInOutline, personAddOutline, close, arrowBack, arrowBackOutline });
+    addIcons({
+      cardOutline,
+      lockClosedOutline,
+      logInOutline,
+      personAddOutline,
+      close,
+      arrowBack,
+      arrowBackOutline,
+      personOutline,
+      arrowForwardOutline,
+      eyeOutline,
+      eyeOffOutline
+    });
   }
 
   ngOnInit() {
     // Session state is automatically loaded by AuthService
   }
 
+  togglePassword() {
+    this.showPassword.update(value => !value);
+  }
 
   async loginUser() {
     const ciValue = this.ci();
@@ -90,7 +108,17 @@ export class LoginPage implements OnInit {
         await loading.dismiss();
         this.isLoading.set(false);
         console.error('[LOGIN_PAGE] Login error:', error);
-        const msg = error.error?.message || 'Cédula o contraseña incorrectos';
+
+        let msg = 'Ocurrió un error al intentar iniciar sesión.';
+
+        if (error.status === 0) {
+          msg = 'No se pudo conectar con el servidor. Verifique que el backend esté en ejecución.';
+        } else if (error.status === 401 || error.status === 403) {
+          msg = 'Cédula o contraseña incorrectos. Verifique sus datos.';
+        } else if (error.error && error.error.message) {
+          msg = error.error.message;
+        }
+
         this.presentToast(msg, 'danger');
       }
     });

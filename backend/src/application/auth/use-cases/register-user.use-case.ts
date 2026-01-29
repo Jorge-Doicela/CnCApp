@@ -1,8 +1,8 @@
-
 import { injectable, inject } from 'tsyringe';
 import { UserRepository } from '../../../domain/user/user.repository';
 import { PasswordEncoder, TokenProvider } from '../../../domain/auth/auth.ports';
 import { User } from '../../../domain/user/user.entity';
+import { ValidationError } from '../../../domain/shared/errors';
 
 interface RegisterDto {
     ci: string;
@@ -41,13 +41,13 @@ export class RegisterUserUseCase {
         // 1. Check if CI exists
         const existingUserByCi = await this.userRepository.findByCi(data.ci);
         if (existingUserByCi) {
-            throw new Error('User with this CI already exists');
+            throw new ValidationError('Ya existe un usuario con esta Cédula');
         }
 
         // 2. Check if Email exists
         const existingUserByEmail = await this.userRepository.findByEmail(data.email);
         if (existingUserByEmail) {
-            throw new Error('User with this Email already exists');
+            throw new ValidationError('Ya existe un usuario con este Email');
         }
 
         // 3. Hash password

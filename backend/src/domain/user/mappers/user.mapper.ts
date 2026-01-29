@@ -8,6 +8,7 @@ export class UserMapper {
             nombre: prismaUser.nombre,
             ci: prismaUser.ci,
             email: prismaUser.email,
+            password: prismaUser.password, // Required for internal Auth logic
             telefono: prismaUser.telefono,
             tipoParticipante: prismaUser.tipoParticipante,
             rolId: prismaUser.rolId,
@@ -26,5 +27,10 @@ export class UserMapper {
                 nombre: prismaUser.entidad.nombre
             } : null
         };
+    }
+
+    static toDTO(user: User): any {
+        const { password, ...userWithoutPassword } = user;
+        return userWithoutPassword;
     }
 }

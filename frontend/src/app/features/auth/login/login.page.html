@@ -51,10 +51,14 @@
               <ion-icon name="lock-closed-outline" slot="start" color="primary"></ion-icon>
               <div class="input-inner">
                 <ion-label position="stacked">Contraseña</ion-label>
-                <ion-input [value]="password()" (ionInput)="updatePassword($event)" type="password"
-                  placeholder="Ingrese su contraseña" mode="md">
+                <ion-input [value]="password()" (ionInput)="updatePassword($event)"
+                  [type]="showPassword() ? 'text' : 'password'" placeholder="Ingrese su contraseña" mode="md">
                 </ion-input>
               </div>
+              <ion-button slot="end" fill="clear" (click)="togglePassword()" class="eye-btn">
+                <ion-icon [name]="showPassword() ? 'eye-off-outline' : 'eye-outline'" slot="icon-only"
+                  color="medium"></ion-icon>
+              </ion-button>
             </ion-item>
           </div>
 
