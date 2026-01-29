@@ -8,19 +8,19 @@
   <base href="/" />
 
   <meta name="color-scheme" content="light dark" />
-  <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport"
+    content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <meta name="format-detection" content="telephone=no" />
   <meta name="msapplication-tap-highlight" content="no" />
 
   <link rel="icon" type="image/png" href="assets/icon/cncicon.png" />
   <link rel="shortcut icon" type="image/png" href="assets/icon/cncicon.png" />
 
-  <!-- PWA support -->
-  <link rel="manifest" href="manifest.webmanifest">
+  <!-- PWA support (Disabled until manifest exists) -->
   <meta name="theme-color" content="#1976d2">
 
   <!-- iOS specific -->
-  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <link rel="apple-touch-icon" href="assets/icons/cncicon2.png">
 
@@ -34,10 +34,10 @@
 </head>
 
 <body>
-<app-root></app-root>
+  <app-root></app-root>
 
-<!-- Service worker registration for PWA functionality -->
-<noscript>Por favor habilite JavaScript para utilizar esta aplicación.</noscript>
+  <!-- Service worker registration for PWA functionality -->
+  <noscript>Por favor habilite JavaScript para utilizar esta aplicación.</noscript>
 </body>
 
 </html>

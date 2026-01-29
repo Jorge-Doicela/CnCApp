@@ -3,6 +3,9 @@
     <div class="header-container">
       <!-- Logo Section -->
       <div class="logo-section">
+        <ion-buttons slot="start" class="menu-btn-container">
+          <ion-menu-button color="primary"></ion-menu-button>
+        </ion-buttons>
         <img src="assets/cnc.png" alt="CNC Logo" class="header-logo">
         <div class="header-text" *ngIf="userName()">
           <h1>Consejo Nacional de Competencias</h1>
@@ -68,9 +71,26 @@
   </div>
 
   <!-- ========================================== -->
-  <!-- GUEST SPACE (NO HERO)                      -->
+  <!-- GUEST WELCOME SECTION                    -->
   <!-- ========================================== -->
-  <div class="guest-spacer" *ngIf="!userName()" style="height: 20px;"></div>
+  <div class="guest-welcome animate__animated animate__fadeIn" *ngIf="!userName()">
+    <div class="welcome-banner">
+      <div class="welcome-text">
+        <h2>Impulsando el Fortalecimiento Institucional</h2>
+        <p>Accede a capacitaciones especializadas y gestiona tus certificaciones con el respaldo del CNC.</p>
+        <div class="welcome-actions">
+          <ion-button (click)="iraLogin()" class="primary-btn">Comenzar Ahora</ion-button>
+          <ion-button fill="clear" (click)="navegarModulo('informacion')" class="secondary-btn">Saber más</ion-button>
+        </div>
+      </div>
+      <div class="welcome-graphic">
+        <div class="glass-orb"></div>
+        <ion-icon name="rocket-outline"></ion-icon>
+      </div>
+    </div>
+  </div>
+
+  <div class="guest-spacer" *ngIf="!userName()" style="height: 10px;"></div>
 
 
   <!-- ========================================== -->
@@ -275,7 +295,7 @@
           <h3>Conferencias Disponibles</h3>
           <a class="view-all" (click)="navegarModulo('Ver conferencias')">Ver todas</a>
         </div>
-        <div class="horizontal-scroll-container">
+        <div class="horizontal-scroll-container" *ngIf="capacitacionesDisponibles.length > 0; else emptyCaps">
           <div class="conference-card-mini" *ngFor="let capacitacion of capacitacionesDisponibles">
             <div class="card-status status-{{ capacitacion.estado === 'Activa' ? 'available' : 'closed' }}">
               {{ capacitacion.estado === 'Activa' ? 'Disponible' : 'Cerrada' }}
@@ -290,6 +310,13 @@
             </button>
           </div>
         </div>
+
+        <ng-template #emptyCaps>
+          <div class="empty-state-card">
+            <ion-icon name="notifications-off-outline"></ion-icon>
+            <p>No hay conferencias disponibles en este momento. Vuelve pronto.</p>
+          </div>
+        </ng-template>
       </div>
 
     </div>

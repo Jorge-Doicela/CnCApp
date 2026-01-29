@@ -5,14 +5,40 @@ import { SafeResourceUrl, DomSanitizer } from '@angular/platform-browser';
 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule } from '@ionic/angular';
+import {
+  IonHeader, IonToolbar, IonButtons, IonBackButton,
+  IonTitle, IonContent, IonCard, IonCardHeader,
+  IonCardTitle, IonCardContent, IonSearchbar,
+  IonList, IonItem, IonLabel, IonBadge, IonIcon,
+  IonButton, IonFab, IonFabButton, IonInput,
+  IonSelect, IonSelectOption
+} from '@ionic/angular/standalone';
+import { addIcons } from 'ionicons';
+import {
+  searchOutline, search, arrowForward, downloadOutline,
+  eyeOutline, arrowUpOutline, notificationsOutline,
+  documentTextOutline, bookOutline, schoolOutline,
+  briefcaseOutline, filterOutline, calendarOutline,
+  chevronForwardOutline, closeOutline, documentOutline,
+  listOutline, calculatorOutline, settingsOutline,
+  statsChartOutline, fileTrayFullOutline, barChartOutline,
+  libraryOutline
+} from 'ionicons/icons';
 
 @Component({
   selector: 'app-norma-regul',
   templateUrl: './norma-regul.page.html',
   styleUrls: ['./norma-regul.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule]
+  imports: [
+    CommonModule, FormsModule,
+    IonHeader, IonToolbar, IonButtons, IonBackButton,
+    IonTitle, IonContent, IonCard, IonCardHeader,
+    IonCardTitle, IonCardContent, IonSearchbar,
+    IonList, IonItem, IonLabel, IonBadge, IonIcon,
+    IonButton, IonFab, IonFabButton, IonInput,
+    IonSelect, IonSelectOption
+  ]
 })
 export class NormaRegulPage implements OnInit {
   searchTerm: string = '';
@@ -194,7 +220,33 @@ export class NormaRegulPage implements OnInit {
     private toastController: ToastController,
     private modalController: ModalController,
     private sanitizer: DomSanitizer
-  ) { }
+  ) {
+    addIcons({
+      'search-outline': searchOutline,
+      'search': search,
+      'arrow-forward': arrowForward,
+      'download-outline': downloadOutline,
+      'eye-outline': eyeOutline,
+      'arrow-up-outline': arrowUpOutline,
+      'notifications-outline': notificationsOutline,
+      'document-text-outline': documentTextOutline,
+      'book-outline': bookOutline,
+      'school-outline': schoolOutline,
+      'briefcase-outline': briefcaseOutline,
+      'filter-outline': filterOutline,
+      'calendar-outline': calendarOutline,
+      'chevron-forward-outline': chevronForwardOutline,
+      'close-outline': closeOutline,
+      'document-outline': documentOutline,
+      'list-outline': listOutline,
+      'calculator-outline': calculatorOutline,
+      'settings-outline': settingsOutline,
+      'stats-chart-outline': statsChartOutline,
+      'file-tray-full-outline': fileTrayFullOutline,
+      'bar-chart-outline': barChartOutline,
+      'library-outline': libraryOutline
+    });
+  }
 
   ngOnInit() {
     // Inicializar documentos filtrados con todos los documentos

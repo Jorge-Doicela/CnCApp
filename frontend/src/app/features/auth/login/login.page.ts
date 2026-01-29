@@ -3,8 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import {
-  IonHeader, IonToolbar, IonButtons, IonBackButton, IonTitle,
-  IonContent, IonCard, IonCardContent, IonItem, IonIcon, IonLabel,
+  IonContent, IonItem, IonIcon, IonLabel,
   IonInput, IonButton, LoadingController, ToastController, AlertController
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
@@ -24,8 +23,7 @@ import { AuthService } from '../services/auth.service';
   imports: [
     CommonModule,
     FormsModule,
-    IonHeader, IonToolbar, IonButtons, IonBackButton, IonTitle,
-    IonContent, IonCard, IonCardContent, IonItem, IonIcon, IonLabel,
+    IonContent, IonItem, IonIcon, IonLabel,
     IonInput, IonButton, RouterLink
   ]
 })

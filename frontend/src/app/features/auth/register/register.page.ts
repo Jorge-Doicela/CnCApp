@@ -3,8 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import {
-  IonHeader, IonToolbar, IonButtons, IonBackButton, IonTitle,
-  IonContent, IonCard, IonCardContent, IonItem, IonIcon, IonLabel,
+  IonContent, IonItem, IonIcon, IonLabel,
   IonInput, IonButton, LoadingController, ToastController, IonSpinner,
   IonSelect, IonSelectOption, IonCheckbox
 } from '@ionic/angular/standalone';
@@ -29,8 +28,7 @@ import { RouterModule } from '@angular/router';
     CommonModule,
     FormsModule,
     RouterModule,
-    IonHeader, IonToolbar, IonButtons, IonBackButton, IonTitle,
-    IonContent, IonCard, IonCardContent, IonItem, IonIcon, IonLabel,
+    IonContent, IonItem, IonIcon, IonLabel,
     IonInput, IonButton, IonSpinner,
     IonSelect, IonSelectOption, IonCheckbox
   ]

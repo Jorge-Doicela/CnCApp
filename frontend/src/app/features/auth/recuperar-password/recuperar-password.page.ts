@@ -3,7 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { LoadingController, ToastController, AlertController, Platform, IonHeader, IonToolbar, IonButtons, IonBackButton, IonTitle, IonContent, IonCard, IonCardContent, IonItem, IonIcon, IonLabel, IonInput, IonButton, IonSpinner } from '@ionic/angular/standalone';
+import { LoadingController, ToastController, AlertController, Platform, IonContent, IonItem, IonIcon, IonLabel, IonInput, IonButton, IonSpinner } from '@ionic/angular/standalone';
 import { environment } from 'src/environments/environment';
 import { AuthService } from '../services/auth.service';
 import { addIcons } from 'ionicons';
@@ -17,8 +17,7 @@ import { mailOutline, paperPlaneOutline, lockClosedOutline, saveOutline, checkma
   imports: [
     CommonModule,
     FormsModule,
-    IonHeader, IonToolbar, IonButtons, IonBackButton, IonTitle,
-    IonContent, IonCard, IonCardContent, IonItem, IonIcon, IonLabel,
+    IonContent, IonItem, IonIcon, IonLabel,
     IonInput, IonButton, IonSpinner, RouterLink
   ]
 })

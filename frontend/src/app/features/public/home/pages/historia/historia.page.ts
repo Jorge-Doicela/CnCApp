@@ -2,18 +2,40 @@ import { Component, OnInit } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule } from '@ionic/angular';
+import {
+  IonHeader, IonToolbar, IonButtons, IonBackButton,
+  IonTitle, IonContent, IonCard, IonCardHeader,
+  IonCardTitle, IonCardContent, IonIcon, IonLabel
+} from '@ionic/angular/standalone';
+import { addIcons } from 'ionicons';
+import {
+  shieldCheckmarkOutline, peopleOutline, ribbonOutline,
+  bodyOutline, businessOutline
+} from 'ionicons/icons';
 
 @Component({
   selector: 'app-historia',
   templateUrl: './historia.page.html',
   styleUrls: ['./historia.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule]
+  imports: [
+    CommonModule, FormsModule,
+    IonHeader, IonToolbar, IonButtons, IonBackButton,
+    IonTitle, IonContent, IonCard, IonCardHeader,
+    IonCardTitle, IonCardContent, IonIcon, IonLabel
+  ]
 })
 export class HistoriaPage implements OnInit {
 
-  constructor() { }
+  constructor() {
+    addIcons({
+      'shield-checkmark-outline': shieldCheckmarkOutline,
+      'people-outline': peopleOutline,
+      'ribbon-outline': ribbonOutline,
+      'body-outline': bodyOutline,
+      'business-outline': businessOutline
+    });
+  }
 
   ngOnInit() {
   }
