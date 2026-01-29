@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { injectable } from 'tsyringe';
+import { injectable, inject } from 'tsyringe';
 import { CreateCertificadoUseCase } from '../../../application/certificado/use-cases/create-certificado.use-case';
 import { GetCertificadoByQRUseCase } from '../../../application/certificado/use-cases/get-certificado-by-qr.use-case';
 import { GetUserCertificadosUseCase } from '../../../application/certificado/use-cases/get-user-certificados.use-case';
@@ -16,9 +16,9 @@ const certificadoSchema = z.object({
 @injectable()
 export class CertificadoController {
     constructor(
-        private createUseCase: CreateCertificadoUseCase,
-        private getByQRUseCase: GetCertificadoByQRUseCase,
-        private getByUserUseCase: GetUserCertificadosUseCase
+        @inject(CreateCertificadoUseCase) private createUseCase: CreateCertificadoUseCase,
+        @inject(GetCertificadoByQRUseCase) private getByQRUseCase: GetCertificadoByQRUseCase,
+        @inject(GetUserCertificadosUseCase) private getByUserUseCase: GetUserCertificadosUseCase
     ) { }
 
     create = async (req: Request, res: Response, next: NextFunction) => {

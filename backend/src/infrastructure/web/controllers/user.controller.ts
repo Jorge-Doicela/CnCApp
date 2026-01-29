@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { injectable } from 'tsyringe';
+import { injectable, inject } from 'tsyringe';
 import { GetAllUsersUseCase } from '../../../application/user/use-cases/get-all-users.use-case';
 import { UpdateUserUseCase } from '../../../application/user/use-cases/update-user.use-case';
 import { DeleteUserUseCase } from '../../../application/user/use-cases/delete-user.use-case';
@@ -18,10 +18,10 @@ const updateUserSchema = z.object({
 @injectable()
 export class UserController {
     constructor(
-        private getAllUsersUseCase: GetAllUsersUseCase,
-        private getUserByIdUseCase: GetUserProfileUseCase,
-        private updateUserUseCase: UpdateUserUseCase,
-        private deleteUserUseCase: DeleteUserUseCase
+        @inject(GetAllUsersUseCase) private getAllUsersUseCase: GetAllUsersUseCase,
+        @inject(GetUserProfileUseCase) private getUserByIdUseCase: GetUserProfileUseCase,
+        @inject(UpdateUserUseCase) private updateUserUseCase: UpdateUserUseCase,
+        @inject(DeleteUserUseCase) private deleteUserUseCase: DeleteUserUseCase
     ) { }
 
     getAll = async (_req: Request, res: Response, next: NextFunction) => {

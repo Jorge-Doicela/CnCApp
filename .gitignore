@@ -44,9 +44,6 @@ android/local.properties
 # Angular
 frontend/.angular/
 
-# Prisma
-backend/prisma/migrations/
-
 # Temporary files
 *.tmp
 build-errors.txt

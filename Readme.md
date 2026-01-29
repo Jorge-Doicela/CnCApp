@@ -11,10 +11,10 @@
 
 **Sistema oficial de gestión de capacitaciones y certificaciones del Consejo Nacional de Competencias (CNC) del Ecuador**
 
-[Características](#características) •
-[Inicio Rápido](#inicio-rápido) •
+[Inicio Rápido](#inicio-rápido-5-minutos) •
 [Documentación](#documentación) •
-[Stack Tecnológico](#stack-tecnológico)
+[Stack Tecnológico](#stack-tecnológico) •
+[Características](#características-principales)
 
 </div>
 
@@ -22,142 +22,76 @@
 
 ## Tabla de Contenidos
 
-- [Características](#características)
-- [Inicio Rápido](#inicio-rápido)
-  - [Con Docker (Recomendado)](#con-docker-recomendado)
-  - [Instalación Manual](#instalación-manual)
+- [Inicio Rápido (5 minutos)](#inicio-rápido-5-minutos)
+- [Características Principales](#características-principales)
 - [Stack Tecnológico](#stack-tecnológico)
 - [Estructura del Proyecto](#estructura-del-proyecto)
-- [Scripts Disponibles](#scripts-disponibles)
 - [Documentación](#documentación)
+- [Credenciales de Prueba](#credenciales-de-prueba)
 - [Aplicación Móvil](#aplicación-móvil-android)
 - [Contribución](#contribución)
 - [Licencia](#licencia)
 
 ---
 
-## Características
-
-### Gestión de Capacitaciones
-- Registro y administración de eventos de capacitación
-- Inscripción de participantes con validación de datos
-- Modalidades: Presencial, Virtual e Híbrida
-- Gestión de horarios y ubicaciones
-- Control de asistencia y participación
-
-### Certificados Digitales
-- Generación automática de certificados en PDF
-- Códigos QR únicos para validación
-- Sistema de verificación pública de certificados
-- Descarga y compartir en redes sociales
-- Firma digital con hash criptográfico
-
-### Gestión de Usuarios
-- Sistema de roles: Administrador, Usuario, Autoridad, Funcionario GAD
-- Perfiles personalizados por tipo de participante
-- Autenticación segura con JWT
-- Gestión de datos personales y profesionales
-- Historial de capacitaciones y certificados
-
-### Panel Administrativo
-- CRUD completo de catálogos (roles, entidades, instituciones)
-- Gestión geográfica (provincias, cantones, parroquias)
-- Administración de competencias y cargos
-- Reportes y estadísticas en tiempo real
-- Gestión de usuarios inscritos por capacitación
-
-### Seguridad
-- Autenticación JWT con tokens seguros
-- Contraseñas hasheadas con bcrypt
-- Rate limiting para prevenir ataques
-- Validación de datos en frontend y backend
-- CORS configurado para producción
-
----
-
-## Inicio Rápido
+## Inicio Rápido (5 minutos)
 
 ### Requisitos Previos
 
-- **Node.js**: v18 o superior
-- **PostgreSQL**: v14 o superior
-- **npm**: v9 o superior
-- **Docker** (opcional, recomendado): Docker Desktop
+- **Node.js** v18+ | **PostgreSQL** v14+ | **npm** v9+
+- **Docker** (opcional, recomendado)
 
-### Con Docker (Recomendado)
-
-La forma más rápida de ejecutar la aplicación completa:
+### Opción 1: Con Docker (Recomendado)
 
 ```bash
-# 1. Clonar el repositorio
+# 1. Clonar repositorio
 git clone <repository-url>
 cd CnCApp
 
-# 2. Copiar configuración de ejemplo
+# 2. Configurar variables de entorno
 cp .env.docker .env
+# Editar .env y cambiar POSTGRES_PASSWORD y JWT_SECRET
 
-# 3. Editar .env y configurar contraseñas seguras
-# IMPORTANTE: Cambiar POSTGRES_PASSWORD y JWT_SECRET
-
-# 4. Iniciar todos los servicios
+# 3. Iniciar todos los servicios
 docker-compose up -d
 
-# 5. Esperar a que los servicios estén listos (30-60 segundos)
-docker-compose logs -f
-
-# 6. Acceder a la aplicación
+# 4. Acceder a la aplicación
 # Frontend: http://localhost
-# Backend API: http://localhost:3000
-# Base de datos: localhost:5432
+# Backend: http://localhost:3000
 ```
 
-**Documentación completa de Docker**: Ver [`docs/DOCKER_SETUP.md`](docs/DOCKER_SETUP.md)
+**Documentación completa**: [`docs/DOCKER_SETUP.md`](docs/DOCKER_SETUP.md)
 
-### Instalación Manual
-
-#### 1. Configuración del Backend
+### Opción 2: Instalación Local
 
 ```bash
+# 1. Configurar Backend
 cd backend
-
-# Instalar dependencias
 npm install
-
-# Configurar variables de entorno
 cp .env.example .env
 # Editar .env con tus credenciales de PostgreSQL
-
-# Generar Prisma Client
-npm run prisma:generate
-
-# Ejecutar migraciones de base de datos
 npm run prisma:migrate
-
-# (Opcional) Insertar datos iniciales
 npm run prisma:seed
-
-# Iniciar servidor de desarrollo
 npm run dev
-```
 
-El servidor estará disponible en: `http://localhost:3000`
-
-#### 2. Configuración del Frontend
-
-```bash
+# 2. Configurar Frontend (nueva terminal)
 cd frontend
-
-# Instalar dependencias
 npm install
-
-# Configurar variables de entorno (opcional)
-# Editar src/environments/environment.ts si es necesario
-
-# Iniciar servidor de desarrollo
 npm start
 ```
 
-La aplicación estará disponible en: `http://localhost:8100`
+**Guía detallada**: [`docs/QUICK_START.md`](docs/QUICK_START.md)
+
+---
+
+## Características Principales
+
+- **Gestión de Capacitaciones**: Registro, inscripción, modalidades (presencial/virtual/híbrida), control de asistencia
+- **Certificados Digitales**: Generación automática en PDF con códigos QR únicos para validación
+- **Sistema de Roles**: Administrador, Coordinador, Participante, Autoridad, Funcionario GAD
+- **Panel Administrativo**: CRUD completo de catálogos, reportes y estadísticas
+- **Seguridad**: Autenticación JWT, contraseñas hasheadas (bcrypt), rate limiting, CORS
+- **Aplicación Móvil**: Android nativo con Capacitor
 
 ---
 
@@ -167,35 +101,27 @@ La aplicación estará disponible en: `http://localhost:8100`
 
 | Tecnología | Versión | Propósito |
 |------------|---------|-----------|
-| **Node.js** | 18+ | Runtime de JavaScript |
-| **TypeScript** | 5.0 | Lenguaje tipado |
-| **Express** | 4.x | Framework web |
-| **Prisma** | 5.x | ORM moderno |
-| **PostgreSQL** | 14+ | Base de datos relacional |
-| **JWT** | - | Autenticación |
-| **Bcrypt** | - | Hash de contraseñas |
-| **Helmet** | - | Seguridad HTTP |
-| **CORS** | - | Control de acceso |
-
-**Arquitectura**: Clean Architecture con separación en capas (Domain, Application, Infrastructure)
+| Node.js | 18+ | Runtime |
+| TypeScript | 5.0 | Lenguaje tipado |
+| Express | 4.x | Framework web |
+| Prisma | 5.x | ORM |
+| PostgreSQL | 14+ | Base de datos |
+| JWT + Bcrypt | - | Autenticación y seguridad |
 
 ### Frontend (Standalone Components)
 
 | Tecnología | Versión | Propósito |
 |------------|---------|-----------|
-| **Angular** | 19 | Framework principal |
-| **Ionic** | 8 | UI Components |
-| **TypeScript** | 5.0 | Lenguaje tipado |
-| **Signals** | - | Gestión de estado reactivo |
-| **SCSS** | - | Estilos modulares |
-| **Capacitor** | 7 | Bridge nativo para móvil |
+| Angular | 19 | Framework |
+| Ionic | 8 | UI Components |
+| TypeScript | 5.0 | Lenguaje tipado |
+| Signals | - | Estado reactivo |
+| Capacitor | 7 | Bridge móvil |
 
-**Arquitectura**: Modular con Standalone Components, sin NgModules
+### DevOps
 
-### DevOps & Deployment
-
-- **Docker** & **Docker Compose**: Containerización
-- **Nginx**: Proxy reverso (producción)
+- **Docker** + **Docker Compose**: Containerización
+- **Nginx**: Proxy reverso
 - **Git**: Control de versiones
 
 ---
@@ -204,146 +130,116 @@ La aplicación estará disponible en: `http://localhost:8100`
 
 ```
 CnCApp/
-├── backend/                 # API RESTful
+├── backend/                 # API RESTful (Clean Architecture)
 │   ├── src/
-│   │   ├── application/     # Casos de uso y DTOs
-│   │   │   ├── auth/          # Módulo de autenticación
-│   │   │   ├── user/          # Módulo de usuarios
-│   │   │   ├── capacitacion/  # Módulo de capacitaciones
-│   │   │   ├── certificado/   # Módulo de certificados
-│   │   │   └── shared/        # Compartido (errors, interfaces)
+│   │   ├── application/     # Casos de uso
 │   │   ├── domain/          # Entidades y lógica de negocio
-│   │   │   ├── auth/
-│   │   │   ├── user/
-│   │   │   ├── capacitacion/
-│   │   │   ├── certificado/
-│   │   │   └── shared/
 │   │   ├── infrastructure/  # Implementaciones técnicas
-│   │   │   ├── database/      # Repositorios Prisma
-│   │   │   ├── security/      # JWT, Bcrypt
-│   │   │   └── web/           # Controllers, Middleware
-│   │   ├── config/          # Configuración
-│   │   └── app.ts             # Punto de entrada
-│   ├── prisma/
-│   │   ├── schema.prisma      # Schema de base de datos
-│   │   ├── migrations/        # Migraciones
-│   │   └── seed.ts            # Datos iniciales
-│   └── package.json
+│   │   └── config/          # Configuración
+│   ├── prisma/              # Schema, migraciones, seed
+│   └── Dockerfile
 │
-├── frontend/                # Aplicación Web/Móvil
+├── frontend/                # Aplicación Web/Móvil (Angular + Ionic)
 │   ├── src/
 │   │   ├── app/
-│   │   │   ├── core/       # Servicios singleton y guards
-│   │   │   │   ├── guards/
-│   │   │   │   └── services/
-│   │   │   ├── shared/     # Código compartido
-│   │   │   │   ├── models/
-│   │   │   │   └── services/
-│   │   │   ├── pages/      # Páginas por módulo
-│   │   │   │   ├── auth/      # Login, registro, recuperación
-│   │   │   │   ├── user/      # Perfil, conferencias
-│   │   │   │   ├── admin/     # CRUDs administrativos
-│   │   │   │   └── apps/      # Validación QR
-│   │   │   ├── home/       # Página principal
-│   │   │   ├── app.component.ts
+│   │   │   ├── core/        # Servicios singleton, guards
+│   │   │   ├── shared/      # Código compartido
+│   │   │   ├── features/    # Módulos por funcionalidad
 │   │   │   └── app.routes.ts
-│   │   ├── assets/         # Imágenes, iconos
-│   │   └── environments/   # Configuración por entorno
-│   └── package.json
+│   │   └── environments/    # Configuración por entorno
+│   └── Dockerfile
 │
 ├── android/                 # Proyecto Capacitor Android
-│   └── app/
-│
-├── docs/                    # Documentación técnica
-│   ├── ARCHITECTURE.md
-│   ├── DEVELOPMENT.md
-│   ├── API.md
-│   ├── DOCKER_SETUP.md
-│   └── ...
-│
+├── docs/                    # Documentación técnica completa
 ├── docker-compose.yml       # Orquestación de servicios
-├── docker-compose.prod.yml  # Configuración de producción
-├── .env.docker              # Variables de entorno Docker
-├── capacitor.config.ts      # Configuración Capacitor
-└── README.md                # Este archivo
-```
-
----
-
-## Scripts Disponibles
-
-### Monorepo (Raíz)
-
-```bash
-npm run dev:backend          # Iniciar backend en desarrollo
-npm run dev:frontend         # Iniciar frontend en desarrollo
-npm run build:backend        # Compilar backend a JavaScript
-npm run build:frontend       # Compilar frontend para producción
-npm run install:all          # Instalar dependencias de todo el proyecto
-```
-
-### Backend
-
-```bash
-cd backend
-
-# Desarrollo
-npm run dev                  # Desarrollo con hot reload (tsx watch)
-npm run build                # Compilar TypeScript a JavaScript
-npm run start                # Iniciar servidor en producción
-
-# Base de datos (Prisma)
-npm run prisma:generate      # Generar Prisma Client
-npm run prisma:migrate       # Ejecutar migraciones
-npm run prisma:seed          # Insertar datos iniciales
-npm run prisma:studio        # Abrir Prisma Studio (GUI)
-
-# Calidad de código
-npm run test                 # Ejecutar tests
-npm run lint                 # Ejecutar linter
-```
-
-### Frontend
-
-```bash
-cd frontend
-
-# Desarrollo
-npm start                    # Servidor de desarrollo (http://localhost:8100)
-npm run build                # Compilar para producción
-npm run watch                # Compilar en modo watch
-
-# Calidad de código
-npm test                     # Ejecutar tests
-npm run lint                 # Ejecutar linter
+└── README.md               # Este archivo
 ```
 
 ---
 
 ## Documentación
 
-La documentación técnica completa se encuentra en el directorio [`/docs`](docs/):
+Toda la documentación técnica está en [`/docs`](docs/):
+
+### Guías Esenciales
 
 | Documento | Descripción |
 |-----------|-------------|
-| [Índice de Documentación](docs/INDEX.md) | Guía de navegación de toda la documentación |
-| [Arquitectura](docs/ARCHITECTURE.md) | Diseño del sistema y patrones arquitectónicos |
-| [Guía de Desarrollo](docs/DEVELOPMENT.md) | Setup, convenciones y flujo de trabajo |
-| [Documentación de API](docs/API.md) | Endpoints, autenticación y ejemplos |
-| [Base de Datos](docs/DATABASE.md) | Schema, migraciones y relaciones |
-| [Docker Setup](docs/DOCKER_SETUP.md) | Despliegue con Docker (completo) |
-| [Deployment](docs/DEPLOYMENT.md) | Guía de despliegue en producción |
-| [Seguridad](docs/SECURITY.md) | Consideraciones de seguridad |
-| [Contribución](docs/CONTRIBUTING.md) | Cómo contribuir al proyecto |
+| **[Inicio Rápido](docs/QUICK_START.md)** | Configuración en 5 minutos |
+| **[Guía de Prisma](docs/PRISMA_GUIDE.md)** | Prisma en local, Docker y producción |
+| **[Backend](docs/BACKEND.md)** | Configuración completa del backend |
+| **[Docker Setup](docs/DOCKER_SETUP.md)** | Despliegue con Docker |
+
+### Documentación Técnica
+
+| Documento | Descripción |
+|-----------|-------------|
+| [Índice Completo](docs/INDEX.md) | Navegación de toda la documentación |
+| [Arquitectura](docs/ARCHITECTURE.md) | Diseño del sistema y patrones |
+| [API](docs/API.md) | Endpoints y ejemplos |
+| [Base de Datos](docs/DATABASE.md) | Schema y migraciones |
+| [Desarrollo](docs/DEVELOPMENT.md) | Setup y convenciones |
+| [Deployment](docs/DEPLOYMENT.md) | Despliegue en producción |
+| [Seguridad](docs/SECURITY.md) | Políticas de seguridad |
+| [Testing](docs/TESTING.md) | Guía de pruebas |
+| [Troubleshooting](docs/TROUBLESHOOTING.md) | Solución de problemas |
+| [Contribución](docs/CONTRIBUTING.md) | Cómo contribuir |
+
+---
+
+## Credenciales de Prueba
+
+Después de ejecutar `npm run prisma:seed`:
+
+**Password para todos:** `CncSecure2025!`
+
+| Rol | Cédula | Email |
+|-----|--------|-------|
+| Administrador | 1234567890 | admin@cnc.gob.ec |
+| Coordinador | 0987654321 | coord@cnc.gob.ec |
+| Participante | 1122334455 | juan.perez@example.com |
+
+---
+
+## Scripts Disponibles
+
+### Backend
+
+```bash
+cd backend
+npm run dev              # Desarrollo con hot reload
+npm run build            # Compilar TypeScript
+npm start                # Producción
+npm run prisma:migrate   # Ejecutar migraciones
+npm run prisma:seed      # Cargar datos de prueba
+npm run prisma:studio    # GUI para ver datos
+```
+
+### Frontend
+
+```bash
+cd frontend
+npm start                # Desarrollo (http://localhost:4200)
+npm run build            # Compilar para producción
+npm test                 # Ejecutar tests
+```
+
+### Docker
+
+```bash
+docker-compose up -d     # Iniciar todos los servicios
+docker-compose logs -f   # Ver logs
+docker-compose down      # Detener servicios
+```
 
 ---
 
 ## Aplicación Móvil (Android)
 
-### Compilar para Android
+### Compilar APK
 
 ```bash
-# 1. Compilar el frontend
+# 1. Compilar frontend
 cd frontend
 npm run build
 
@@ -354,29 +250,19 @@ npx cap sync android
 # 3. Abrir en Android Studio
 npx cap open android
 
-# 4. Compilar APK desde Android Studio
-# Build > Build Bundle(s) / APK(s) > Build APK(s)
+# 4. Build > Build Bundle(s) / APK(s) > Build APK(s)
 ```
 
-### Configuración
-
-- **App ID**: `ec.gob.cnc.app`
-- **App Name**: CNC App
-- **Version**: 1.0.0
-
-**Nota**: El keystore para firma de APK no está incluido en el repositorio por seguridad. Ver [`docs/guides/mobile-build.md`](docs/guides/mobile-build.md) para instrucciones de generación.
+**Configuración:**
+- App ID: `ec.gob.cnc.app`
+- App Name: CNC App
+- Version: 1.0.0
 
 ---
 
 ## Contribución
 
-¡Las contribuciones son bienvenidas! Por favor lee nuestra [Guía de Contribución](docs/CONTRIBUTING.md) para conocer:
-
-- Código de conducta
-- Proceso de desarrollo
-- Convenciones de código
-- Proceso de pull requests
-- Guías de estilo
+¡Las contribuciones son bienvenidas! Lee nuestra [Guía de Contribución](docs/CONTRIBUTING.md).
 
 ### Flujo de Trabajo
 
@@ -390,9 +276,9 @@ npx cap open android
 
 ## Seguridad
 
-Si descubres una vulnerabilidad de seguridad, por favor **NO** abras un issue público. En su lugar, contacta a **Jorge Doicela** directamente.
+Si descubres una vulnerabilidad, **NO** abras un issue público. Contacta a **Jorge Doicela** directamente.
 
-Ver [SECURITY.md](docs/SECURITY.md) para más información sobre nuestras políticas de seguridad.
+Ver [SECURITY.md](docs/SECURITY.md) para más información.
 
 ---
 
@@ -408,13 +294,11 @@ El uso, copia, modificación y/o distribución de este software está estrictame
 
 ## Autor y Desarrollo
 
-Este proyecto ha sido desarrollado por **Jorge Doicela**.
+Desarrollado por **Jorge Doicela**
 
 ---
 
 ## Soporte
-
-Para soporte técnico o consultas:
 
 - **Email**: soporte@competencias.gob.ec
 - **Sitio Web**: https://www.competencias.gob.ec
@@ -424,8 +308,8 @@ Para soporte técnico o consultas:
 
 <div align="center">
 
-**[Volver arriba](#cncapp---sistema-de-gestión-de-capacitaciones)**
+**[⬆ Volver arriba](#cncapp---sistema-de-gestión-de-capacitaciones)**
 
-Desarrollado por **Jorge Doicela**
+Desarrollado por **Jorge Doicela** | © 2025 CNC Ecuador
 
 </div>

@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { injectable } from 'tsyringe';
+import { injectable, inject } from 'tsyringe';
 import { z } from 'zod';
 import { RegisterUserUseCase } from '../../../application/auth/use-cases/register-user.use-case';
 import { LoginUserUseCase } from '../../../application/auth/use-cases/login-user.use-case';
@@ -24,20 +24,30 @@ const loginSchema = z.object({
 @injectable()
 export class AuthController {
     constructor(
-        private registerUseCase: RegisterUserUseCase,
-        private loginUseCase: LoginUserUseCase,
-        private getProfileUseCase: GetUserProfileUseCase
+        @inject(RegisterUserUseCase) private registerUseCase: RegisterUserUseCase,
+        @inject(LoginUserUseCase) private loginUseCase: LoginUserUseCase,
+        @inject(GetUserProfileUseCase) private getProfileUseCase: GetUserProfileUseCase
     ) { }
 
     register = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const data = registerSchema.parse(req.body);
+
+            // Split nombre into parts (simple approach)
+            const nameParts = (data.nombre as string).trim().split(' ');
+            const primerNombre = nameParts[0] || '';
+            const primerApellido = nameParts[nameParts.length - 1] || '';
+            const segundoNombre = nameParts.length > 2 ? nameParts.slice(1, -1).join(' ') : undefined;
+
             const result = await this.registerUseCase.execute({
                 ci: data.ci as string,
-                nombre: data.nombre as string,
+                primerNombre,
+                segundoNombre,
+                primerApellido,
                 email: data.email as string,
                 password: data.password as string,
-                telefono: data.telefono
+                telefono: data.telefono,
+                tipoParticipante: data.tipoParticipante
             });
             res.status(201).json({
                 message: 'Usuario registrado exitosamente',

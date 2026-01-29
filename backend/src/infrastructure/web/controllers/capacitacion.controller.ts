@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { injectable } from 'tsyringe';
+import { injectable, inject } from 'tsyringe';
 import { CreateCapacitacionUseCase } from '../../../application/capacitacion/use-cases/create-capacitacion.use-case';
 import { GetAllCapacitacionesUseCase } from '../../../application/capacitacion/use-cases/get-all-capacitaciones.use-case';
 import { UpdateCapacitacionUseCase } from '../../../application/capacitacion/use-cases/update-capacitacion.use-case';
@@ -20,10 +20,10 @@ const capacitacionSchema = z.object({
 @injectable()
 export class CapacitacionController {
     constructor(
-        private createUseCase: CreateCapacitacionUseCase,
-        private getAllUseCase: GetAllCapacitacionesUseCase,
-        private updateUseCase: UpdateCapacitacionUseCase,
-        private deleteUseCase: DeleteCapacitacionUseCase
+        @inject(CreateCapacitacionUseCase) private createUseCase: CreateCapacitacionUseCase,
+        @inject(GetAllCapacitacionesUseCase) private getAllUseCase: GetAllCapacitacionesUseCase,
+        @inject(UpdateCapacitacionUseCase) private updateUseCase: UpdateCapacitacionUseCase,
+        @inject(DeleteCapacitacionUseCase) private deleteUseCase: DeleteCapacitacionUseCase
     ) { }
 
     create = async (req: Request, res: Response, next: NextFunction) => {
