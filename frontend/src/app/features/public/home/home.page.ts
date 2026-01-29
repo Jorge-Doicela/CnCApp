@@ -1,7 +1,21 @@
 import { Component, OnInit, inject, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule, ToastController, LoadingController } from '@ionic/angular';
+import {
+  IonHeader, IonToolbar, IonButtons, IonMenuButton,
+  IonContent, IonIcon, IonButton,
+  ToastController, LoadingController
+} from '@ionic/angular/standalone';
+import { addIcons } from 'ionicons';
+import {
+  logInOutline, personCircle, logOutOutline, searchOutline, mapOutline,
+  peopleOutline, calendarOutline, documentTextOutline, personOutline,
+  schoolOutline, briefcaseOutline, qrCodeOutline, arrowForward,
+  createOutline, timeOutline, bookOutline, informationCircleOutline,
+  locationOutline, personAddOutline, businessOutline, pinOutline,
+  ribbonOutline, idCardOutline, listOutline, appsOutline, homeOutline,
+  rocketOutline, timerOutline, notificationsOffOutline
+} from 'ionicons/icons';
 import { Router } from '@angular/router';
 
 import { CapacitacionesService } from '../../admin/capacitaciones/services/capacitaciones.service';
@@ -15,7 +29,11 @@ import { firstValueFrom } from 'rxjs';
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule]
+  imports: [
+    CommonModule, FormsModule,
+    IonHeader, IonToolbar, IonButtons, IonMenuButton,
+    IonContent, IonIcon, IonButton
+  ]
 })
 export class HomePage implements OnInit {
   // Use AuthService signals directly
@@ -52,6 +70,39 @@ export class HomePage implements OnInit {
     private loadingController: LoadingController,
     private router: Router
   ) {
+    // Register icons for standalone use
+    addIcons({
+      'log-in-outline': logInOutline,
+      'person-circle': personCircle,
+      'log-out-outline': logOutOutline,
+      'search-outline': searchOutline,
+      'map-outline': mapOutline,
+      'people-outline': peopleOutline,
+      'calendar-outline': calendarOutline,
+      'document-text-outline': documentTextOutline,
+      'person-outline': personOutline,
+      'school-outline': schoolOutline,
+      'briefcase-outline': briefcaseOutline,
+      'qr-code-outline': qrCodeOutline,
+      'arrow-forward': arrowForward,
+      'create-outline': createOutline,
+      'time-outline': timeOutline,
+      'book-outline': bookOutline,
+      'information-circle-outline': informationCircleOutline,
+      'location-outline': locationOutline,
+      'person-add-outline': personAddOutline,
+      'business-outline': businessOutline,
+      'pin-outline': pinOutline,
+      'ribbon-outline': ribbonOutline,
+      'id-card-outline': idCardOutline,
+      'list-outline': listOutline,
+      'apps-outline': appsOutline,
+      'home-outline': homeOutline,
+      'rocket-outline': rocketOutline,
+      'timer-outline': timerOutline,
+      'notifications-off-outline': notificationsOffOutline
+    });
+
     // Use effect for reactive title updates (must be in injection context)
     effect(() => {
       this.actualizarTitulo();

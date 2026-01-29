@@ -1,11 +1,18 @@
 import { Component, OnInit, OnDestroy, effect, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router, NavigationEnd } from '@angular/router';
-import { IonicModule, MenuController, AlertController } from '@ionic/angular';
+import {
+  IonApp, IonMenu, IonHeader, IonToolbar, IonTitle, IonContent,
+  IonList, IonItem, IonIcon, IonLabel, IonItemDivider, IonRouterOutlet,
+  MenuController, AlertController
+} from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
-  home, time, book, location, briefcase, informationCircle,
-  logIn, logOut, personAdd, person
+  homeOutline, timeOutline, bookOutline, locationOutline, briefcaseOutline,
+  informationCircleOutline, logInOutline, logOutOutline, personAddOutline,
+  personOutline, personCircleOutline, peopleOutline, calendarOutline,
+  documentTextOutline, businessOutline, mapOutline, pinOutline,
+  ribbonOutline, idCardOutline, listOutline, qrCodeOutline, appsOutline
 } from 'ionicons/icons';
 
 import { AuthService } from './features/auth/services/auth.service';
@@ -18,7 +25,11 @@ import { firstValueFrom } from 'rxjs';
   templateUrl: 'app.component.html',
   styleUrls: ['app.component.scss'],
   standalone: true,
-  imports: [CommonModule, RouterModule, IonicModule]
+  imports: [
+    CommonModule, RouterModule,
+    IonApp, IonMenu, IonHeader, IonToolbar, IonTitle, IonContent,
+    IonList, IonItem, IonIcon, IonLabel, IonItemDivider, IonRouterOutlet
+  ]
 })
 export class AppComponent implements OnInit, OnDestroy {
   // Use AuthService signals
@@ -38,8 +49,28 @@ export class AppComponent implements OnInit, OnDestroy {
     private alertController: AlertController
   ) {
     addIcons({
-      home, time, book, location, briefcase, informationCircle,
-      logIn, logOut, personAdd, person
+      'home-outline': homeOutline,
+      'time-outline': timeOutline,
+      'book-outline': bookOutline,
+      'location-outline': locationOutline,
+      'briefcase-outline': briefcaseOutline,
+      'information-circle-outline': informationCircleOutline,
+      'log-in-outline': logInOutline,
+      'log-out-outline': logOutOutline,
+      'person-add-outline': personAddOutline,
+      'person-outline': personOutline,
+      'person-circle-outline': personCircleOutline,
+      'people-outline': peopleOutline,
+      'calendar-outline': calendarOutline,
+      'document-text-outline': documentTextOutline,
+      'business-outline': businessOutline,
+      'map-outline': mapOutline,
+      'pin-outline': pinOutline,
+      'ribbon-outline': ribbonOutline,
+      'id-card-outline': idCardOutline,
+      'list-outline': listOutline,
+      'qr-code-outline': qrCodeOutline,
+      'apps-outline': appsOutline
     });
 
     // Effect to log user changes

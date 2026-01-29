@@ -9,14 +9,31 @@ declare var google: any;
 
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { IonicModule } from '@ionic/angular';
+import {
+  IonHeader, IonToolbar, IonButtons, IonBackButton,
+  IonTitle, IonContent, IonCard, IonCardHeader,
+  IonCardTitle, IonCardContent, IonIcon, IonItem,
+  IonLabel, IonInput, IonTextarea, IonButton
+} from '@ionic/angular/standalone';
+import { addIcons } from 'ionicons';
+import {
+  locationOutline, callOutline, timeOutline,
+  mailOutline, personOutline, chatbubbleOutline,
+  sendOutline, busOutline, carOutline
+} from 'ionicons/icons';
 
 @Component({
   selector: 'app-direccion',
   templateUrl: './direccion.page.html',
   styleUrls: ['./direccion.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, IonicModule]
+  imports: [
+    CommonModule, FormsModule, ReactiveFormsModule,
+    IonHeader, IonToolbar, IonButtons, IonBackButton,
+    IonTitle, IonContent, IonCard, IonCardHeader,
+    IonCardTitle, IonCardContent, IonIcon, IonItem,
+    IonLabel, IonInput, IonTextarea, IonButton
+  ]
 })
 export class DireccionPage implements OnInit, AfterViewInit {
   // Inicializar contactForm aquí para resolver error TS2564
@@ -33,7 +50,19 @@ export class DireccionPage implements OnInit, AfterViewInit {
     private toastController: ToastController,
     private loadingController: LoadingController,
     private http: HttpClient
-  ) { }
+  ) {
+    addIcons({
+      'location-outline': locationOutline,
+      'call-outline': callOutline,
+      'time-outline': timeOutline,
+      'mail-outline': mailOutline,
+      'person-outline': personOutline,
+      'chatbubble-outline': chatbubbleOutline,
+      'send-outline': sendOutline,
+      'bus-outline': busOutline,
+      'car-outline': carOutline
+    });
+  }
 
   ngOnInit() {
     this.loadGoogleMapsScript();

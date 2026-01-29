@@ -4,14 +4,39 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule } from '@ionic/angular';
+import {
+  IonHeader, IonToolbar, IonButtons, IonBackButton,
+  IonTitle, IonContent, IonSegment, IonSegmentButton,
+  IonLabel, IonSearchbar, IonCard, IonCardHeader,
+  IonCardTitle, IonCardContent, IonGrid, IonRow,
+  IonCol, IonIcon, IonButton, IonList, IonItem,
+  IonBadge, IonSelect, IonSelectOption
+} from '@ionic/angular/standalone';
+import { addIcons } from 'ionicons';
+import {
+  peopleOutline, fitnessOutline, analyticsOutline,
+  shieldOutline, schoolOutline, buildOutline,
+  swapHorizontalOutline, bookOutline, bulbOutline,
+  mapOutline, calendarOutline, timeOutline,
+  locationOutline, arrowForward, briefcaseOutline,
+  laptopOutline, syncOutline, chevronUpOutline,
+  chevronDownOutline, filterOutline, calendar
+} from 'ionicons/icons';
 
 @Component({
   selector: 'app-servi-progra',
   templateUrl: './servi-progra.page.html',
   styleUrls: ['./servi-progra.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule]
+  imports: [
+    CommonModule, FormsModule,
+    IonHeader, IonToolbar, IonButtons, IonBackButton,
+    IonTitle, IonContent, IonSegment, IonSegmentButton,
+    IonLabel, IonSearchbar, IonCard, IonCardHeader,
+    IonCardTitle, IonCardContent, IonGrid, IonRow,
+    IonCol, IonIcon, IonButton, IonList, IonItem,
+    IonBadge, IonSelect, IonSelectOption
+  ]
 })
 export class ServiPrograPage implements OnInit {
   selectedSegment: string = 'servicios';
@@ -417,7 +442,31 @@ export class ServiPrograPage implements OnInit {
     private alertController: AlertController,
     private toastController: ToastController,
     private sanitizer: DomSanitizer
-  ) { }
+  ) {
+    addIcons({
+      'people-outline': peopleOutline,
+      'fitness-outline': fitnessOutline,
+      'analytics-outline': analyticsOutline,
+      'shield-outline': shieldOutline,
+      'school-outline': schoolOutline,
+      'build-outline': buildOutline,
+      'swap-horizontal-outline': swapHorizontalOutline,
+      'book-outline': bookOutline,
+      'bulb-outline': bulbOutline,
+      'map-outline': mapOutline,
+      'calendar-outline': calendarOutline,
+      'time-outline': timeOutline,
+      'location-outline': locationOutline,
+      'arrow-forward': arrowForward,
+      'briefcase-outline': briefcaseOutline,
+      'laptop-outline': laptopOutline,
+      'sync-outline': syncOutline,
+      'chevron-up-outline': chevronUpOutline,
+      'chevron-down-outline': chevronDownOutline,
+      'filter-outline': filterOutline,
+      'calendar': calendar
+    });
+  }
 
   ngOnInit() {
     // Inicializar eventos filtrados
