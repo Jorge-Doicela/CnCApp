@@ -39,6 +39,8 @@ export class HomePage implements OnInit {
   conferenciasCount: number = 0;
   certificadosCount: number = 0;
 
+
+
   // Título de la página
   pageTitle: string = 'Inicio';
 
@@ -313,12 +315,26 @@ export class HomePage implements OnInit {
       'Ver conferencias': 'ver-conferencias',
       'Ver certificaciones': 'ver-certificaciones',
       'Validar certificados': 'validar-certificados',
-      'Servicios y programas': 'servi-progra',
-      'servi-progra': 'servi-progra'
+      'Servicios y programas': 'home/servi-progra',
+      'servi-progra': 'home/servi-progra',
+      // Institutional pages
+      'historia': 'home/historia',
+      'norma-regul': 'home/norma-regul',
+      'informacion': 'home/informacion',
+      'direccion': 'home/direccion'
     };
 
     // Obtener la ruta correcta del mapeo o convertir a kebab-case
     const ruta = rutasModulos[modulo] || modulo.toLowerCase().replace(/\s+/g, '-');
+
+    // Verificar si es una ruta protegida y el usuario no está logueado
+    const isPublicRoute = ruta.startsWith('home/') || ruta === 'validar-certificados';
+
+    if (!isPublicRoute && !this.authService.userName()) {
+      this.showAuthWarning();
+      this.router.navigate(['/login']);
+      return;
+    }
 
     console.log(`Navegando a: /${ruta}`);
     this.router.navigate([`/${ruta}`]);
@@ -382,4 +398,5 @@ export class HomePage implements OnInit {
     });
     toast.present();
   }
+
 }

@@ -1,19 +1,21 @@
 <ion-header class="ion-no-border">
   <ion-toolbar class="main-header">
     <div class="header-container">
+      <!-- Logo Section -->
       <div class="logo-section">
         <img src="assets/cnc.png" alt="CNC Logo" class="header-logo">
-        <div class="header-text">
+        <div class="header-text" *ngIf="userName()">
           <h1>Consejo Nacional de Competencias</h1>
           <p>República del Ecuador</p>
+        </div>
+        <!-- Simple Header for Guests -->
+        <div class="header-text" *ngIf="!userName()">
+          <h1 class="guest-title">CNC App</h1>
         </div>
       </div>
 
       <div class="header-actions">
-        <ion-button fill="clear" color="dark" *ngIf="!userName()" (click)="iraLogin()">
-          <ion-icon name="log-in-outline" slot="start"></ion-icon>
-          Ingresar
-        </ion-button>
+        <!-- User Account Widget for Logged Users -->
         <div class="user-account-widget" *ngIf="userName()">
           <div class="account-info" (click)="navegarModulo('Ver Perfil')">
             <div class="avatar-wrapper">
@@ -36,21 +38,22 @@
 
 <ion-content [fullscreen]="true" class="bg-light">
 
-  <!-- Hero Section -->
-  <div class="hero-section">
+  <!-- ========================================== -->
+  <!-- HERO SECTION (LOGGED IN ONLY)            -->
+  <!-- ========================================== -->
+  <div class="hero-section" *ngIf="userName()">
     <div class="hero-content">
       <div class="hero-text animate__animated animate__fadeInLeft">
-        <h2>Fortaleciendo la Descentralización</h2>
-        <p>Trabajamos por un Ecuador más equitativo y territorialmente integrado.</p>
+        <h2>Bienvenido, {{ userName() }}</h2>
+        <p>Panel de gestión y servicios del Consejo Nacional de Competencias.</p>
 
         <div class="search-box">
           <ion-icon name="search-outline"></ion-icon>
-          <input type="text" placeholder="¿Qué estás buscando? Ej: Capacitaciones, Certificados...">
+          <input type="text" placeholder="¿Qué estás buscando?">
           <button>Buscar</button>
         </div>
       </div>
       <div class="hero-image animate__animated animate__fadeInRight">
-        <!-- Placeholder for hero illustration -->
         <ion-icon name="map-outline" class="hero-icon"></ion-icon>
       </div>
     </div>
@@ -64,45 +67,20 @@
     </div>
   </div>
 
-  <!-- DASHBOARD CONTENT (For Authenticated Users) -->
-  <div class="dashboard-section container section-padding pb-0" *ngIf="userName()">
+  <!-- ========================================== -->
+  <!-- GUEST SPACE (NO HERO)                      -->
+  <!-- ========================================== -->
+  <div class="guest-spacer" *ngIf="!userName()" style="height: 20px;"></div>
 
-    <!-- Stats Row -->
-    <div class="stats-row">
-      <!-- User Stats -->
-      <ng-container *ngIf="roleName() !== 'Administrador' && roleName() !== 'administrador'">
-        <div class="stat-card-modern">
-          <div class="stat-icon-wrapper blue">
-            <ion-icon name="calendar-outline"></ion-icon>
 
-          </div>
-          <div class="stat-info">
-            <h3>{{ ConferenciasInscritas.length }}</h3>
-            <p>Mis Conferencias</p>
-          </div>
-        </div>
-        <div class="stat-card-modern">
-          <div class="stat-icon-wrapper green">
-            <ion-icon name="timer-outline"></ion-icon>
-          </div>
-          <div class="stat-info">
-            <h3>{{ proximasConferencias }}</h3>
-            <p>Próximas</p>
-          </div>
-        </div>
-        <div class="stat-card-modern">
-          <div class="stat-icon-wrapper orange">
-            <ion-icon name="ribbon-outline"></ion-icon>
-          </div>
-          <div class="stat-info">
-            <h3>{{ certificadosDisponibles }}</h3>
-            <p>Certificados</p>
-          </div>
-        </div>
-      </ng-container>
+  <!-- ========================================== -->
+  <!-- ADMIN DASHBOARD                            -->
+  <!-- ========================================== -->
+  <ng-container *ngIf="userName() && (roleName() === 'Administrador' || roleName() === 'administrador')">
+    <div class="dashboard-section container section-padding pb-0">
 
       <!-- Admin Stats -->
-      <ng-container *ngIf="roleName() === 'Administrador' || roleName() === 'administrador'">
+      <div class="stats-row">
         <div class="stat-card-modern">
           <div class="stat-icon-wrapper blue">
             <ion-icon name="people-outline"></ion-icon>
@@ -130,72 +108,35 @@
             <p>Certificados</p>
           </div>
         </div>
-      </ng-container>
-    </div>
+      </div>
 
-    <!-- User Dashboard Content: Conferences Lists -->
-    <ng-container *ngIf="roleName() !== 'Administrador' && roleName() !== 'administrador'">
+      <!-- Admin Modules Grid -->
+      <div class="section-header ion-text-center mt-4">
+        <h3>Módulos de Gestión</h3>
+        <div class="separator"></div>
+      </div>
 
-      <!-- Available Conferences -->
-      <div class="content-block" *ngIf="capacitacionesDisponibles.length > 0">
-        <div class="block-header">
-          <h3>Conferencias Disponibles</h3>
-          <a class="view-all" (click)="navegarModulo('Ver conferencias')">Ver todas</a>
-        </div>
-
-        <div class="horizontal-scroll-container">
-          <div class="conference-card-mini" *ngFor="let capacitacion of capacitacionesDisponibles">
-            <div class="card-status status-{{ capacitacion.estado === 'Activa' ? 'available' : 'closed' }}">
-              {{ capacitacion.estado === 'Activa' ? 'Disponible' : 'Cerrada' }}
-            </div>
-            <h4>{{ capacitacion.nombre }}</h4>
-            <div class="card-meta">
-              <span><ion-icon name="calendar-outline"></ion-icon> {{ capacitacion.fechaInicio | date:'dd MMM'
-                }}</span>
-              <span><ion-icon name="location-outline"></ion-icon> {{ capacitacion.lugar }}</span>
-            </div>
-            <button class="action-btn" *ngIf="puedeInscribirse(capacitacion)" (click)="inscribirse(capacitacion.id)">
-              Inscribirse
-            </button>
+      <div class="services-grid">
+        <div class="service-card" *ngFor="let modulo of modulos()" (click)="navegarModulo(modulo)">
+          <div class="icon-circle">
+            <ion-icon [name]="getIconForModule(modulo)"></ion-icon>
+          </div>
+          <h4>{{ modulo }}</h4>
+          <p>Administración del sistema</p>
+          <div class="card-footer">
+            <span>Acceder</span>
+            <ion-icon name="arrow-forward"></ion-icon>
           </div>
         </div>
       </div>
 
-      <!-- My Conferences -->
-      <div class="content-block" *ngIf="ConferenciasInscritas.length > 0">
-        <div class="block-header">
-          <h3>Mis Inscripciones</h3>
-          <a class="view-all" (click)="navegarModulo('Ver conferencias')">Gestionar</a>
-        </div>
-
-        <div class="list-container">
-          <div class="list-item" *ngFor="let conferencia of ConferenciasInscritas">
-            <div class="item-icon">
-              <ion-icon name="school-outline"></ion-icon>
-            </div>
-            <div class="item-details">
-              <h4>{{ conferencia.nombre }}</h4>
-              <p>{{ conferencia.fechaInicio | date:'dd/MM/yyyy HH:mm' }} • {{ conferencia.modalidad }}</p>
-            </div>
-            <div class="item-action">
-              <span class="status-badge status-{{ conferencia.estado === 'Activa' ? 'pending' : 'completed' }}">
-                {{ conferencia.estado === 'Activa' ? 'Inscrito' : 'Completado' }}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-    </ng-container>
-
-    <!-- Admin Dashboard Content: Recent Conferences -->
-    <ng-container *ngIf="roleName() === 'Administrador' || roleName() === 'administrador'">
+      <!-- Recent Management -->
+      <br>
       <div class="content-block">
         <div class="block-header">
           <h3>Gestión Reciente</h3>
           <a class="view-all" (click)="navegarModulo('Gestionar capacitaciones')">Ir al módulo</a>
         </div>
-
         <div class="list-container">
           <div class="list-item" *ngFor="let capacitacion of capacitacionesDisponibles.slice(0, 5)">
             <div class="item-icon admin">
@@ -213,236 +154,280 @@
           </div>
         </div>
       </div>
-    </ng-container>
-
-  </div>
-
-  <!-- Services Grid (Navigation) -->
-  <div class="container section-padding pt-0">
-    <div class="section-header ion-text-center">
-      <h3>Acceso Rápido</h3>
-      <div class="separator"></div>
     </div>
+  </ng-container>
 
-    <!-- Admin Grid -->
-    <div class="services-grid" *ngIf="roleName() === 'Administrador' || roleName() === 'administrador'">
-      <div class="service-card" *ngFor="let modulo of modulos()" (click)="navegarModulo(modulo)">
-        <div class="icon-circle">
-          <ion-icon [name]="getIconForModule(modulo)"></ion-icon>
-        </div>
-        <h4>{{ modulo }}</h4>
-        <p>Gestión administrativa</p>
-        <div class="card-footer">
-          <span>Acceder</span>
-          <ion-icon name="arrow-forward"></ion-icon>
-        </div>
-      </div>
-    </div>
 
-    <!-- Public/User Grid -->
-    <div class="services-grid" *ngIf="roleName() !== 'Administrador' && roleName()?.toLowerCase() !== 'administrador'">
-      <div class="service-card" (click)="navegarModulo('Ver conferencias')">
-        <div class="icon-circle">
-          <ion-icon name="calendar-outline"></ion-icon>
-        </div>
-        <h4>Capacitaciones</h4>
-        <p>Inscríbete en nuestros eventos y talleres formativos.</p>
-        <div class="card-footer">
-          <span>Ver eventos</span>
-          <ion-icon name="arrow-forward"></ion-icon>
-        </div>
-      </div>
+  <!-- ========================================== -->
+  <!-- USER DASHBOARD (Logged in, Non-Admin)      -->
+  <!-- ========================================== -->
+  <ng-container *ngIf="userName() && roleName() !== 'Administrador' && roleName()?.toLowerCase() !== 'administrador'">
+    <div class="dashboard-section container section-padding pb-0">
 
-      <div class="service-card" (click)="navegarModulo('Ver certificaciones')">
-        <div class="icon-circle">
-          <ion-icon name="document-text-outline"></ion-icon>
+      <!-- User Stats -->
+      <div class="stats-row">
+        <div class="stat-card-modern">
+          <div class="stat-icon-wrapper blue">
+            <ion-icon name="calendar-outline"></ion-icon>
+          </div>
+          <div class="stat-info">
+            <h3>{{ ConferenciasInscritas.length }}</h3>
+            <p>Mis Inscripciones</p>
+          </div>
         </div>
-        <h4>Mis Certificados</h4>
-        <p>Descarga tus certificados de aprobación académica.</p>
-        <div class="card-footer">
-          <span>Descargar</span>
-          <ion-icon name="arrow-forward"></ion-icon>
+        <div class="stat-card-modern">
+          <div class="stat-icon-wrapper green">
+            <ion-icon name="timer-outline"></ion-icon>
+          </div>
+          <div class="stat-info">
+            <h3>{{ proximasConferencias }}</h3>
+            <p>Próximas</p>
+          </div>
+        </div>
+        <div class="stat-card-modern">
+          <div class="stat-icon-wrapper orange">
+            <ion-icon name="ribbon-outline"></ion-icon>
+          </div>
+          <div class="stat-info">
+            <h3>{{ certificadosDisponibles }}</h3>
+            <p>Certificados</p>
+          </div>
         </div>
       </div>
 
-      <div class="service-card" (click)="navegarModulo('Validar certificados')">
-        <div class="icon-circle">
-          <ion-icon name="qr-code-outline"></ion-icon>
-        </div>
-        <h4>Validar Certificados</h4>
-        <p>Verifica la autenticidad de documentos emitidos.</p>
-        <div class="card-footer">
-          <span>Validar</span>
-          <ion-icon name="arrow-forward"></ion-icon>
-        </div>
-      </div>
-
-      <div class="service-card" (click)="navegarModulo('Ver Perfil')">
-        <div class="icon-circle">
-          <ion-icon name="person-outline"></ion-icon>
-        </div>
-        <h4>Mi Perfil</h4>
-        <p>Actualiza tu información personal y profesional.</p>
-        <div class="card-footer">
-          <span>Gestionar</span>
-          <ion-icon name="arrow-forward"></ion-icon>
-        </div>
-      </div>
-    </div>
-  </div>
-
-
-  <!-- Institutional Info Section -->
-  <div class="container section-padding pt-0">
-    <div class="section-header ion-text-center">
-      <h3>Información Institucional</h3>
-      <div class="separator"></div>
-    </div>
-
-    <div class="info-grid">
-      <div class="info-card" (click)="navegarModulo('historia')" routerLink="/home/historia">
-        <div class="card-icon">
-          <ion-icon name="time-outline"></ion-icon>
-        </div>
-        <ion-card-header>
-          <ion-card-title>Historia</ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-          <p>Conoce la trayectoria y evolución del CNC.</p>
-        </ion-card-content>
-      </div>
-
-      <div class="info-card" (click)="navegarModulo('norma-regul')" routerLink="/home/norma-regul">
-        <div class="card-icon">
-          <ion-icon name="book-outline"></ion-icon>
-        </div>
-        <ion-card-header>
-          <ion-card-title>Normativa</ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-          <p>Marco legal, Constitución y COOTAD.</p>
-        </ion-card-content>
-      </div>
-
-      <div class="info-card" (click)="navegarModulo('informacion')" routerLink="/home/informacion">
-        <div class="card-icon">
-          <ion-icon name="information-circle-outline"></ion-icon>
-        </div>
-        <ion-card-header>
-          <ion-card-title>Información</ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-          <p>Misión, visión y estructura organizacional.</p>
-        </ion-card-content>
-      </div>
-
-      <div class="info-card" (click)="navegarModulo('direccion')" routerLink="/home/direccion">
-        <div class="card-icon">
-          <ion-icon name="location-outline"></ion-icon>
-        </div>
-        <ion-card-header>
-          <ion-card-title>Dirección</ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-          <p>Ubícanos y encuentra cómo llegar.</p>
-        </ion-card-content>
-      </div>
-
-      <div class="info-card" (click)="navegarModulo('servi-progra')" routerLink="/home/servi-progra">
-        <div class="card-icon">
-          <ion-icon name="briefcase-outline"></ion-icon>
-        </div>
-        <ion-card-header>
-          <ion-card-title>Servicios</ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-          <p>Programas, eventos y servicios GAD.</p>
-        </ion-card-content>
-      </div>
-    </div>
-  </div>
-
-  <!-- News Section (Visible mainly for guests or at bottom) -->
-  <div class="news-section section-padding" *ngIf="!userName()">
-    <div class="container">
-      <div class="section-header ion-text-center">
-        <h3>Noticias Recientes</h3>
+      <!-- User Quick Access Grid -->
+      <div class="section-header ion-text-center mt-4">
+        <h3>Mis Herramientas</h3>
         <div class="separator"></div>
       </div>
 
-      <div class="news-grid">
-        <div class="news-card">
-          <div class="news-image placeholder-blue">
-            <ion-icon name="newspaper-outline"></ion-icon>
+      <div class="services-grid">
+        <!-- My Profile -->
+        <div class="service-card" (click)="navegarModulo('Ver Perfil')">
+          <div class="icon-circle">
+            <ion-icon name="person-outline"></ion-icon>
           </div>
-          <div class="news-content">
-            <span class="news-date">22 Ene 2026</span>
-            <h4>Nuevo Plan de Capacitación 2026</h4>
-            <p>Conoce el cronograma de capacitaciones para el primer trimestre del año.</p>
-            <a href="#">Leer más</a>
-          </div>
-        </div>
-        <!-- More news cards... -->
-        <div class="news-card">
-          <div class="news-image placeholder-green">
-            <ion-icon name="leaf-outline"></ion-icon>
-          </div>
-          <div class="news-content">
-            <span class="news-date">20 Ene 2026</span>
-            <h4>Descentralización Ambiental</h4>
-            <p>Avances en la transferencia de competencias ambientales a los GADs.</p>
-            <a href="#">Leer más</a>
+          <h4>Mi Perfil</h4>
+          <p>Gestiona tus datos personales.</p>
+          <div class="card-footer">
+            <span>Ver perfil</span>
+            <ion-icon name="arrow-forward"></ion-icon>
           </div>
         </div>
 
-        <div class="news-card">
-          <div class="news-image placeholder-orange">
-            <ion-icon name="people-outline"></ion-icon>
+        <!-- My Certificates -->
+        <div class="service-card" (click)="navegarModulo('Ver certificaciones')">
+          <div class="icon-circle">
+            <ion-icon name="document-text-outline"></ion-icon>
           </div>
-          <div class="news-content">
-            <span class="news-date">18 Ene 2026</span>
-            <h4>Encuentro Nacional de Prefectos</h4>
-            <p>Resultados del último encuentro para la equidad territorial.</p>
-            <a href="#">Leer más</a>
+          <h4>Mis Certificados</h4>
+          <p>Descarga tus diplomas.</p>
+          <div class="card-footer">
+            <span>Descargar</span>
+            <ion-icon name="arrow-forward"></ion-icon>
+          </div>
+        </div>
+
+        <!-- Trainings -->
+        <div class="service-card" (click)="navegarModulo('Ver conferencias')">
+          <div class="icon-circle">
+            <ion-icon name="school-outline"></ion-icon>
+          </div>
+          <h4>Capacitaciones</h4>
+          <p>Inscríbete en nuevos cursos.</p>
+          <div class="card-footer">
+            <span>Ver cursos</span>
+            <ion-icon name="arrow-forward"></ion-icon>
+          </div>
+        </div>
+
+        <!-- Services -->
+        <div class="service-card" (click)="navegarModulo('servi-progra')">
+          <div class="icon-circle">
+            <ion-icon name="briefcase-outline"></ion-icon>
+          </div>
+          <h4>Servicios</h4>
+          <p>Catálogo para GADs.</p>
+          <div class="card-footer">
+            <span>Ver catálogo</span>
+            <ion-icon name="arrow-forward"></ion-icon>
+          </div>
+        </div>
+
+        <!-- Validate Certificates -->
+        <div class="service-card" (click)="navegarModulo('Validar certificados')">
+          <div class="icon-circle">
+            <ion-icon name="qr-code-outline"></ion-icon>
+          </div>
+          <h4>Validar Certificados</h4>
+          <p>Verifica autenticidad.</p>
+          <div class="card-footer">
+            <span>Validar</span>
+            <ion-icon name="arrow-forward"></ion-icon>
           </div>
         </div>
       </div>
+
+      <!-- Available Conferences List -->
+      <br>
+      <div class="content-block" *ngIf="capacitacionesDisponibles.length > 0">
+        <div class="block-header">
+          <h3>Conferencias Disponibles</h3>
+          <a class="view-all" (click)="navegarModulo('Ver conferencias')">Ver todas</a>
+        </div>
+        <div class="horizontal-scroll-container">
+          <div class="conference-card-mini" *ngFor="let capacitacion of capacitacionesDisponibles">
+            <div class="card-status status-{{ capacitacion.estado === 'Activa' ? 'available' : 'closed' }}">
+              {{ capacitacion.estado === 'Activa' ? 'Disponible' : 'Cerrada' }}
+            </div>
+            <h4>{{ capacitacion.nombre }}</h4>
+            <div class="card-meta">
+              <span><ion-icon name="calendar-outline"></ion-icon> {{ capacitacion.fechaInicio | date:'dd MMM' }}</span>
+              <span><ion-icon name="location-outline"></ion-icon> {{ capacitacion.lugar }}</span>
+            </div>
+            <button class="action-btn" *ngIf="puedeInscribirse(capacitacion)" (click)="inscribirse(capacitacion.id)">
+              Inscribirse
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </ng-container>
+
+
+  <!-- ========================================== -->
+  <!-- PUBLIC / GUEST VIEW (LANDING PAGE)         -->
+  <!-- ========================================== -->
+  <ng-container *ngIf="!userName()">
+    <div class="dashboard-section container section-padding pb-0" style="margin-top: 0;">
+      <div class="section-header ion-text-center">
+        <h3>Explora Nuestros Servicios</h3>
+        <p>Herramientas públicas del CNC.</p>
+        <div class="separator"></div>
+      </div>
+
+      <div class="services-grid">
+        <!-- Card 1: Oferta Académica -->
+        <div class="service-card" (click)="navegarModulo('Ver conferencias')">
+          <div class="icon-circle">
+            <ion-icon name="school-outline"></ion-icon>
+          </div>
+          <h4>Oferta Académica</h4>
+          <p>Cursos disponibles.</p>
+          <div class="card-footer">
+            <span>Ver cursos</span>
+            <ion-icon name="arrow-forward"></ion-icon>
+          </div>
+        </div>
+
+        <!-- Card 2: Validar Certificados -->
+        <div class="service-card" (click)="navegarModulo('Validar certificados')">
+          <div class="icon-circle">
+            <ion-icon name="qr-code-outline"></ion-icon>
+          </div>
+          <h4>Validar Diplomas</h4>
+          <p>Verificar autenticidad.</p>
+          <div class="card-footer">
+            <span>Validar</span>
+            <ion-icon name="arrow-forward"></ion-icon>
+          </div>
+        </div>
+
+        <!-- Card 3: Servicios GADs -->
+        <div class="service-card" (click)="navegarModulo('servi-progra')">
+          <div class="icon-circle">
+            <ion-icon name="briefcase-outline"></ion-icon>
+          </div>
+          <h4>Servicios GADs</h4>
+          <p>Catálogo técnico.</p>
+          <div class="card-footer">
+            <span>Explorar</span>
+            <ion-icon name="arrow-forward"></ion-icon>
+          </div>
+        </div>
+
+        <!-- Card 4: Login -->
+        <div class="service-card login-card" (click)="iraLogin()"
+          style="border-bottom-color: var(--ion-color-secondary);">
+          <div class="icon-circle" style="background: var(--ion-color-primary); color: white;">
+            <ion-icon name="log-in-outline"></ion-icon>
+          </div>
+          <h4>Iniciar Sesión</h4>
+          <p>Accede a tu cuenta.</p>
+          <div class="card-footer">
+            <span>Ingresar</span>
+            <ion-icon name="arrow-forward"></ion-icon>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+
+
+  <!-- ========================================== -->
+  <!-- INSTITUTIONAL INFO (Available for All)     -->
+  <!-- ========================================== -->
+  <div class="container section-padding pb-0">
+    <div class="section-header ion-text-center">
+      <h3>Institucional</h3>
+      <div class="separator"></div>
+    </div>
+
+    <!-- Horizontal Scroll for Info (App Feel) -->
+    <div class="horizontal-scroll-container">
+
+      <!-- Historia -->
+      <div class="conference-card-mini" style="flex: 0 0 200px;" (click)="navegarModulo('historia')">
+        <div class="card-status status-available">CNC</div>
+        <h4>Historia</h4>
+        <div class="card-meta">
+          <span><ion-icon name="time-outline"></ion-icon> Trayectoria</span>
+        </div>
+        <button class="action-btn">Ver</button>
+      </div>
+
+      <!-- Normativa -->
+      <div class="conference-card-mini" style="flex: 0 0 200px;" (click)="navegarModulo('norma-regul')">
+        <div class="card-status status-available">Legal</div>
+        <h4>Normativa</h4>
+        <div class="card-meta">
+          <span><ion-icon name="book-outline"></ion-icon> Base Legal</span>
+        </div>
+        <button class="action-btn">Leer</button>
+      </div>
+
+      <!-- Información -->
+      <div class="conference-card-mini" style="flex: 0 0 200px;" (click)="navegarModulo('informacion')">
+        <div class="card-status status-available">Info</div>
+        <h4>Misión y Visión</h4>
+        <div class="card-meta">
+          <span><ion-icon name="information-circle-outline"></ion-icon> Quiénes somos</span>
+        </div>
+        <button class="action-btn">Leer</button>
+      </div>
+
+      <!-- Dirección -->
+      <div class="conference-card-mini" style="flex: 0 0 200px;" (click)="navegarModulo('direccion')">
+        <div class="card-status status-available">Ubicación</div>
+        <h4>Dirección</h4>
+        <div class="card-meta">
+          <span><ion-icon name="location-outline"></ion-icon> Mapa</span>
+        </div>
+        <button class="action-btn">Ir</button>
+      </div>
+
     </div>
   </div>
 
-  <!-- Footer -->
-  <footer class="main-footer">
-    <div class="container">
-      <div class="footer-grid">
-        <div class="footer-col">
-          <h4>Contacto</h4>
-          <p><ion-icon name="location-outline"></ion-icon> Amazonas N38-42 y Villalengua, Quito-Ecuador</p>
-          <p><ion-icon name="call-outline"></ion-icon> (593) 2 393 72 00</p>
-          <p><ion-icon name="mail-outline"></ion-icon> info&#64;competencias.gob.ec</p>
-        </div>
-        <div class="footer-col">
-          <h4>Enlaces Rápidos</h4>
-          <ul>
-            <li><a href="#">Transparencia</a></li>
-            <li><a href="#">Servicios en Línea</a></li>
-            <li><a href="#">Biblioteca Digital</a></li>
-            <li><a href="#">Contáctenos</a></li>
-          </ul>
-        </div>
-        <div class="footer-col">
-          <h4>Síguenos</h4>
-          <div class="social-links">
-            <a href="#"><ion-icon name="logo-facebook"></ion-icon></a>
-            <a href="#"><ion-icon name="logo-twitter"></ion-icon></a>
-            <a href="#"><ion-icon name="logo-youtube"></ion-icon></a>
-            <a href="#"><ion-icon name="logo-instagram"></ion-icon></a>
-          </div>
-        </div>
-      </div>
-      <div class="footer-bottom ion-text-center">
-        <p>&copy; 2026 Consejo Nacional de Competencias. Todos los derechos reservados.</p>
-      </div>
-    </div>
-  </footer>
+
+  <!-- ========================================== -->
+  <!-- APP FOOTER                                 -->
+  <!-- ========================================== -->
+  <div class="app-footer ion-text-center ion-padding"
+    style="margin-top: 20px; color: var(--ion-color-medium); font-size: 0.8rem;">
+    <p>&copy; 2026 Consejo Nacional de Competencias</p>
+    <p>v2.0.0 • Mobile First</p>
+  </div>
 
 </ion-content>

@@ -36,6 +36,7 @@ export interface RefreshResponse {
         accessToken: string;
         refreshToken: string;
     };
+    message?: string;
 }
 
 @Injectable({

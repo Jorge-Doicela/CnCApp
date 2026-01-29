@@ -11,5 +11,10 @@ export const USER_ROUTES: Routes = [
         path: 'ver-conferencias',
         loadComponent: () => import('./conferencias/conferencias.page').then(m => m.ConferenciasPage),
         canActivate: [AuthGuard]
+    },
+    {
+        path: 'ver-certificaciones',
+        loadComponent: () => import('./certificaciones/certificaciones.page').then(m => m.CertificacionesPage),
+        canActivate: [AuthGuard]
     }
 ];
