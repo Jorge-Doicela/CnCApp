@@ -166,5 +166,20 @@ export const ADMIN_ROUTES: Routes = [
         path: 'gestionar-cargos-instituciones/editar/:id',
         loadComponent: () => import('./cargos-instituciones/editar/editar.page').then(m => m.EditarPage),
         canActivate: [adminGuard]
+    },
+    {
+        path: 'gestionar-plantillas',
+        loadComponent: () => import('./plantillas/plantillas.page').then(m => m.PlantillasPage),
+        canActivate: [adminGuard]
+    },
+    {
+        path: 'gestionar-plantillas/crear',
+        loadComponent: () => import('./plantillas/crear/crear.page').then(m => m.CrearPage),
+        canActivate: [adminGuard]
+    },
+    {
+        path: 'gestionar-plantillas/editar/:id',
+        loadComponent: () => import('./plantillas/crear/crear.page').then(m => m.CrearPage), // Reusing CrearPage for Edit
+        canActivate: [adminGuard]
     }
 ];
