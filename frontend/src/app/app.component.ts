@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, effect, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, effect, inject, ViewChild, ElementRef, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import {
@@ -29,7 +29,8 @@ import { firstValueFrom } from 'rxjs';
     CommonModule, RouterModule,
     IonApp, IonMenu, IonHeader, IonToolbar, IonTitle, IonContent,
     IonList, IonItem, IonIcon, IonLabel, IonItemDivider, IonRouterOutlet
-  ]
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AppComponent implements OnInit, OnDestroy {
   // Use AuthService signals
@@ -42,6 +43,9 @@ export class AppComponent implements OnInit, OnDestroy {
   lastUrl: string = '';
 
   private usuarioService = inject(UsuarioService);
+
+  @ViewChild('menuFocusTarget', { read: ElementRef }) menuFocusTarget!: ElementRef;
+  @ViewChild('mainContent', { read: ElementRef }) mainContent!: ElementRef;
 
   constructor(
     private router: Router,
@@ -143,6 +147,33 @@ export class AppComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     // No need for destroy$ with signals, but keep for router subscription cleanup
+  }
+
+  handleMenuWillOpen() {
+    // Quitar el foco del elemento activador (como el botón hamburguesa) ANTES de que
+    // el contenido principal se oculte con aria-hidden.
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+  }
+
+  handleMenuOpen() {
+    // requestAnimationFrame asegura que el foco se mueva en el siguiente frame de renderizado,
+    // lo cual es más performante y seguro que setTimeout para evitar conflictos con aria-hidden.
+    requestAnimationFrame(() => {
+      if (this.menuFocusTarget?.nativeElement) {
+        this.menuFocusTarget.nativeElement.focus();
+      }
+    });
+  }
+
+  handleMenuClose() {
+    // Devolver el foco al contenido principal al cerrar para evitar "aria-hidden" bloqueado
+    requestAnimationFrame(() => {
+      if (this.mainContent?.nativeElement) {
+        this.mainContent.nativeElement.focus();
+      }
+    });
   }
 
   openMenu() {

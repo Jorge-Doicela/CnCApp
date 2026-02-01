@@ -4,7 +4,9 @@
       <!-- Logo Section -->
       <div class="logo-section">
         <ion-buttons slot="start" class="menu-btn-container">
-          <ion-menu-button color="primary"></ion-menu-button>
+          <ion-button (click)="toggleMenu()" color="primary">
+            <ion-icon slot="icon-only" name="menu-outline"></ion-icon>
+          </ion-button>
         </ion-buttons>
         <img src="assets/cnc.png" alt="CNC Logo" class="header-logo">
         <div class="header-text" *ngIf="userName()">
@@ -46,7 +48,7 @@
   <!-- ========================================== -->
   <div class="hero-section" *ngIf="userName()">
     <div class="hero-content">
-      <div class="hero-text animate__animated animate__fadeInLeft">
+      <div class="hero-text">
         <h2>Bienvenido, {{ userName() }}</h2>
         <p>Panel de gestión y servicios del Consejo Nacional de Competencias.</p>
 
@@ -56,7 +58,7 @@
           <button>Buscar</button>
         </div>
       </div>
-      <div class="hero-image animate__animated animate__fadeInRight">
+      <div class="hero-image">
         <ion-icon name="map-outline" class="hero-icon"></ion-icon>
       </div>
     </div>
@@ -73,7 +75,7 @@
   <!-- ========================================== -->
   <!-- GUEST WELCOME SECTION                    -->
   <!-- ========================================== -->
-  <div class="guest-welcome animate__animated animate__fadeIn" *ngIf="!userName()">
+  <div class="guest-welcome" *ngIf="!userName()">
     <div class="welcome-banner">
       <div class="welcome-text">
         <h2>Impulsando el Fortalecimiento Institucional</h2>

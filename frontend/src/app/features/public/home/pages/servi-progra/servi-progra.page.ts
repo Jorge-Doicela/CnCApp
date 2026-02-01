@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { AlertController, ToastController } from '@ionic/angular';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
@@ -7,10 +7,9 @@ import { FormsModule } from '@angular/forms';
 import {
   IonHeader, IonToolbar, IonButtons, IonBackButton,
   IonTitle, IonContent, IonSegment, IonSegmentButton,
-  IonLabel, IonSearchbar, IonCard, IonCardHeader,
-  IonCardTitle, IonCardContent, IonGrid, IonRow,
-  IonCol, IonIcon, IonButton, IonList, IonItem,
-  IonBadge, IonSelect, IonSelectOption
+  IonLabel, IonCard, IonCardHeader,
+  IonCardTitle, IonCardContent, IonIcon, IonButton, IonItem,
+  IonSelect, IonSelectOption
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -32,11 +31,11 @@ import {
     CommonModule, FormsModule,
     IonHeader, IonToolbar, IonButtons, IonBackButton,
     IonTitle, IonContent, IonSegment, IonSegmentButton,
-    IonLabel, IonSearchbar, IonCard, IonCardHeader,
-    IonCardTitle, IonCardContent, IonGrid, IonRow,
-    IonCol, IonIcon, IonButton, IonList, IonItem,
-    IonBadge, IonSelect, IonSelectOption
-  ]
+    IonLabel, IonCard, IonCardHeader,
+    IonCardTitle, IonCardContent, IonIcon, IonButton, IonItem,
+    IonSelect, IonSelectOption
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ServiPrograPage implements OnInit {
   selectedSegment: string = 'servicios';
