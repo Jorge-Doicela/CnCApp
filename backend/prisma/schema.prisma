@@ -137,7 +137,9 @@ model Capacitacion {
   modalidad         String?   @db.VarChar(50)
   estado            String    @default("Activa") @db.VarChar(50)
   createdAt         DateTime  @default(now()) @map("created_at")
+  plantillaId       Int?      @map("Id_Plantilla")
   
+  plantilla         Plantilla? @relation(fields: [plantillaId], references: [id])
   inscripciones     UsuarioCapacitacion[]
   certificados      Certificado[]
 
@@ -242,4 +244,22 @@ model Mancomunidad {
   nombre String @map("Nombre_Mancomunidad") @db.VarChar(300)
 
   @@map("mancomunidades")
+}
+
+// ============================================
+// TABLAS DE GESTIÓN (NUEVAS)
+// ============================================
+
+model Plantilla {
+  id             Int      @id @default(autoincrement()) @map("Id_Plantilla")
+  nombre         String   @map("Nombre_Plantilla") @db.VarChar(200)
+  imagenUrl      String?  @map("Imagen_URL") @db.Text
+  configuracion  Json?    @default("{}") @map("Configuracion")
+  activa         Boolean  @default(true) @map("Activa")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  capacitaciones Capacitacion[]
+
+  @@map("Plantillas")
 }
