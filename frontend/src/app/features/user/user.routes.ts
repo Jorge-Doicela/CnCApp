@@ -8,6 +8,16 @@ export const USER_ROUTES: Routes = [
         canActivate: [AuthGuard]
     },
     {
+        path: 'ver-perfil/editar',
+        loadComponent: () => import('./perfil/editar/editar.page').then(m => m.EditarPage),
+        canActivate: [AuthGuard]
+    },
+    {
+        path: 'ver-perfil/firma',
+        loadComponent: () => import('./perfil/firma/firma.page').then(m => m.FirmaPage),
+        canActivate: [AuthGuard]
+    },
+    {
         path: 'ver-conferencias',
         loadComponent: () => import('./conferencias/conferencias.page').then(m => m.ConferenciasPage),
         canActivate: [AuthGuard]

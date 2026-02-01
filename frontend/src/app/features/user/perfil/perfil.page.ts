@@ -118,8 +118,8 @@ export class PerfilPage implements OnInit {
 
   obtenerRolTexto(rolId: number): string {
     switch (rolId) {
-      case 1: return 'Usuario';
-      case 2: return 'Administrador';
+      case 1: return 'Administrador';
+      case 2: return 'Usuario';
       default: return 'Rol desconocido';
     }
   }
