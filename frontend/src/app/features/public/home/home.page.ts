@@ -5,11 +5,27 @@ import {
   IonHeader, IonToolbar, IonButtons,
   IonContent, IonIcon, IonButton,
   IonAccordionGroup, IonAccordion, IonItem, IonLabel,
-  IonAvatar, IonList, IonItemDivider,
   ToastController, LoadingController, MenuController
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-// ...
+import {
+  logInOutline, personCircle, logOutOutline, searchOutline, mapOutline,
+  peopleOutline, calendarOutline, documentTextOutline, personOutline,
+  schoolOutline, briefcaseOutline, qrCodeOutline, arrowForward,
+  createOutline, timeOutline, bookOutline, informationCircleOutline,
+  locationOutline, personAddOutline, businessOutline, pinOutline,
+  ribbonOutline, idCardOutline, listOutline, appsOutline, homeOutline,
+  rocketOutline, timerOutline, notificationsOffOutline, menuOutline,
+  statsChartOutline
+} from 'ionicons/icons';
+import { Router } from '@angular/router';
+
+import { CapacitacionesService } from '../../admin/capacitaciones/services/capacitaciones.service';
+import { UsuarioService } from '../../user/services/usuario.service';
+import { AuthService } from '../../auth/services/auth.service';
+import { Capacitacion } from '../../../core/models/capacitacion.interface';
+import { firstValueFrom } from 'rxjs';
+
 @Component({
   selector: 'app-home',
   templateUrl: 'home.page.html',
@@ -19,12 +35,9 @@ import { addIcons } from 'ionicons';
     CommonModule, FormsModule,
     IonHeader, IonToolbar, IonButtons,
     IonContent, IonIcon, IonButton,
-    IonAccordionGroup, IonAccordion, IonItem, IonLabel,
-    IonAvatar, IonList, IonItemDivider
+    IonAccordionGroup, IonAccordion, IonItem, IonLabel
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
-})
-changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class HomePage implements OnInit {
   // Use AuthService signals directly
@@ -38,7 +51,7 @@ export class HomePage implements OnInit {
   // Datos de conferencias
   Capacitaciones: Capacitacion[] = [];
   capacitacionesDisponibles: Capacitacion[] = [];
-  ConferenciasInscritas: Capacitacion[] = []; // Actually implies mixed type or just Capacitacion? Based on logic, it filters from Capacitaciones
+  ConferenciasInscritas: Capacitacion[] = [];
   cargandoCapacitaciones: boolean = false;
 
   // Estadísticas
@@ -47,8 +60,6 @@ export class HomePage implements OnInit {
   usuariosCount: number = 0;
   conferenciasCount: number = 0;
   certificadosCount: number = 0;
-
-
 
   // Título de la página
   pageTitle: string = 'Inicio';
@@ -93,6 +104,7 @@ export class HomePage implements OnInit {
       'rocket-outline': rocketOutline,
       'timer-outline': timerOutline,
       'notifications-off-outline': notificationsOffOutline,
+      'stats-chart-outline': statsChartOutline,
       'menu-outline': menuOutline
     });
 
@@ -116,8 +128,6 @@ export class HomePage implements OnInit {
 
     this.actualizarTitulo();
   }
-
-
 
   actualizarTitulo() {
     // Unwraps signals
@@ -160,8 +170,6 @@ export class HomePage implements OnInit {
       if (role === 'Administrador' || role?.toLowerCase() === 'administrador') {
         await this.cargarEstadisticasAdmin();
       } else if (role?.toLowerCase().includes('creador') || role?.toLowerCase().includes('conferencia')) {
-        // Re-use Admin stats for now as creators likely need similar stats (or subset)
-        // Or implement specific creator stats method if needed.
         await this.cargarEstadisticasAdmin();
       }
     }
@@ -192,21 +200,9 @@ export class HomePage implements OnInit {
       const inscripciones = await firstValueFrom(this.capacitacionesService.getInscripcionesUsuario(idUsuario)) as any[];
 
       if (inscripciones?.length) {
-        // The service might just return junction table rows or full details.
-        // If junction table rows, we need to fetch capacitaciones details.
-        // Assuming service returns array with join or I need to fetch them.
-        // Let's assume it returns { Id_Capacitacion, ... } and we need to fetch details if not joined.
-        // Optimization: `getInscripcionesUsuario` could return partial capacitacion data.
-        // If not, we fetch them.
-
-        const capacitacionIds = inscripciones.map((item: any) => item.capacitacionId || item.Id_Capacitacion); // Handle potential casing mismatch from junction
+        const capacitacionIds = inscripciones.map((item: any) => item.capacitacionId || item.Id_Capacitacion);
 
         if (capacitacionIds.length > 0) {
-          // Since we don't have "getByIds" in service, and `Capacitaciones` are already loaded in `RecuperarCapacitaciones` likely,
-          // we can filter from `this.Capacitaciones` if loaded.
-          // But strictly, we should ensure we have them.
-
-          // If `this.Capacitaciones` is empty, load them first or use getCapacitacion in loop (bad)
           if (this.Capacitaciones.length === 0) {
             await this.RecuperarCapacitaciones();
           }
