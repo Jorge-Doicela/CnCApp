@@ -61,29 +61,29 @@ interface DraggableField {
                 <ion-list-header>Configuración de Campos</ion-list-header>
                 <p class="hint">Ajusta las coordenadas (X, Y) o arrastra en la vista previa (Desktop).</p>
 
-                <ion-collapse-group>
+                <div>
                     <ion-item-group *ngFor="let field of fields">
                         <ion-item-divider color="light">
                             <ion-label>{{ field.label }}</ion-label>
                         </ion-item-divider>
-                        <ion-item lines="none">
+                        <ion-item lines="none" *ngIf="plantilla.configuracion[field.key]">
                             <ion-label>X (px)</ion-label>
-                             <ion-input type="number" [(ngModel)]="plantilla.configuracion[field.key].x" (ionChange)="updateField(field.key)"></ion-input>
+                             <ion-input type="number" [(ngModel)]="plantilla.configuracion[field.key]!.x" (ionChange)="updateField(field.key)"></ion-input>
                         </ion-item>
-                        <ion-item lines="none">
+                        <ion-item lines="none" *ngIf="plantilla.configuracion[field.key]">
                             <ion-label>Y (px)</ion-label>
-                             <ion-input type="number" [(ngModel)]="plantilla.configuracion[field.key].y" (ionChange)="updateField(field.key)"></ion-input>
+                             <ion-input type="number" [(ngModel)]="plantilla.configuracion[field.key]!.y" (ionChange)="updateField(field.key)"></ion-input>
                         </ion-item>
-                        <ion-item lines="none">
+                        <ion-item lines="none" *ngIf="plantilla.configuracion[field.key]">
                             <ion-label>Tamaño</ion-label>
-                             <ion-input type="number" [(ngModel)]="plantilla.configuracion[field.key].fontSize" (ionChange)="updateField(field.key)"></ion-input>
+                             <ion-input type="number" [(ngModel)]="plantilla.configuracion[field.key]!.fontSize" (ionChange)="updateField(field.key)"></ion-input>
                         </ion-item>
-                         <ion-item lines="none">
+                         <ion-item lines="none" *ngIf="plantilla.configuracion[field.key]">
                             <ion-label>Color</ion-label>
-                             <ion-input type="color" [(ngModel)]="plantilla.configuracion[field.key].color" (ionChange)="updateField(field.key)"></ion-input>
+                             <ion-input type="color" [(ngModel)]="plantilla.configuracion[field.key]!.color" (ionChange)="updateField(field.key)"></ion-input>
                         </ion-item>
                     </ion-item-group>
-                </ion-collapse-group>
+                </div>
 
             </ion-list>
         </div>
@@ -96,10 +96,10 @@ interface DraggableField {
                 <ng-container *ngIf="plantilla.imagenUrl">
                     <div *ngFor="let field of fields" 
                         class="field-marker"
-                        [style.left.px]="plantilla.configuracion[field.key].x || 0"
-                        [style.top.px]="plantilla.configuracion[field.key].y || 0"
-                        [style.font-size.px]="plantilla.configuracion[field.key].fontSize || 14"
-                        [style.color]="plantilla.configuracion[field.key].color || '#000'"
+                        [style.left.px]="plantilla.configuracion[field.key]?.x || 0"
+                        [style.top.px]="plantilla.configuracion[field.key]?.y || 0"
+                        [style.font-size.px]="plantilla.configuracion[field.key]?.fontSize || 14"
+                        [style.color]="plantilla.configuracion[field.key]?.color || '#000'"
                         cdkDragBoundary=".canvas-container"
                         (mousedown)="startDrag($event, field.key)"
                         (touchstart)="startDrag($event, field.key)"

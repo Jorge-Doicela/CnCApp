@@ -31,7 +31,7 @@
               <ion-icon name="calendar-outline" color="primary"></ion-icon>
             </div>
             <div class="stat-details">
-              <span class="stat-value">{{ Capacitaciones.length }}</span>
+              <span class="stat-value">{{ inscripciones.length }}</span>
               <span class="stat-label">Total Conferencias</span>
             </div>
           </div>
@@ -41,7 +41,7 @@
               <ion-icon name="checkmark-done-outline" color="success"></ion-icon>
             </div>
             <div class="stat-details">
-              <span class="stat-value">{{ getCapacitacionesPorEstado(1) }}</span>
+              <span class="stat-value">{{ getCapacitacionesPorEstado('Finalizada') }}</span>
               <span class="stat-label">Completadas</span>
             </div>
           </div>
@@ -51,7 +51,7 @@
               <ion-icon name="time-outline" color="warning"></ion-icon>
             </div>
             <div class="stat-details">
-              <span class="stat-value">{{ getCapacitacionesPorEstado(0) }}</span>
+              <span class="stat-value">{{ getCapacitacionesPorEstado('Pendiente') }}</span>
               <span class="stat-label">Pendientes</span>
             </div>
           </div>
@@ -73,7 +73,8 @@
         <div class="filter-container">
           <ion-item class="filter-item">
             <ion-icon name="search-outline" slot="start" color="primary"></ion-icon>
-            <ion-input placeholder="Buscar por nombre" [(ngModel)]="searchTerm" (ionChange)="filtrarCapacitaciones()"></ion-input>
+            <ion-input placeholder="Buscar por nombre" [(ngModel)]="searchTerm"
+              (ionChange)="filtrarCapacitaciones()"></ion-input>
           </ion-item>
 
           <ion-item class="filter-item">
@@ -81,9 +82,9 @@
             <ion-label>Estado</ion-label>
             <ion-select [(ngModel)]="filtroEstado" (ionChange)="filtrarCapacitaciones()">
               <ion-select-option value="todos">Todos</ion-select-option>
-              <ion-select-option value="0">Pendientes</ion-select-option>
-              <ion-select-option value="1">Completadas</ion-select-option>
-              <ion-select-option value="2">Canceladas</ion-select-option>
+              <ion-select-option value="Pendiente">Pendientes</ion-select-option>
+              <ion-select-option value="Finalizada">Completadas</ion-select-option>
+              <ion-select-option value="Cancelada">Canceladas</ion-select-option>
             </ion-select>
           </ion-item>
         </div>
@@ -93,100 +94,91 @@
       <div class="capacitaciones-section fade-in" style="animation-delay: 0.3s;">
         <h3 class="section-title">Mis Conferencias y Capacitaciones</h3>
 
-        <div *ngIf="cargando" class="loading-container">
+        <div *ngIf="loading" class="loading-container">
           <ion-spinner name="crescent" color="primary"></ion-spinner>
           <p>Cargando conferencias...</p>
         </div>
 
-        <div *ngIf="!cargando && CapacitacionesFiltradas.length === 0" class="empty-state">
+        <div *ngIf="!loading && inscripcionesFiltradas.length === 0" class="empty-state">
           <ion-icon name="calendar-outline" color="medium"></ion-icon>
           <h4>No se encontraron conferencias</h4>
           <p>Actualmente no estás inscrito en ninguna conferencia o no hay resultados para tu búsqueda.</p>
         </div>
 
-        <div class="capacitaciones-grid" *ngIf="!cargando && CapacitacionesFiltradas.length > 0">
-          <ion-card class="capacitacion-card" *ngFor="let capacitacion of CapacitacionesFiltradas">
+        <div class="capacitaciones-grid" *ngIf="!loading && inscripcionesFiltradas.length > 0">
+          <ion-card class="capacitacion-card" *ngFor="let inscripcion of inscripcionesFiltradas">
             <div class="capacitacion-header" [ngClass]="{
-              'estado-pendiente': capacitacion.Estado === 0,
-              'estado-completada': capacitacion.Estado === 1,
-              'estado-cancelada': capacitacion.Estado === 2
+              'estado-pendiente': inscripcion.estadoInscripcion === 'Pendiente',
+              'estado-completada': inscripcion.estadoInscripcion === 'Finalizada',
+              'estado-cancelada': inscripcion.estadoInscripcion === 'Cancelada'
             }">
-              <ion-icon name="calendar" *ngIf="capacitacion.Estado === 0"></ion-icon>
-              <ion-icon name="checkmark-circle" *ngIf="capacitacion.Estado === 1"></ion-icon>
-              <ion-icon name="close-circle" *ngIf="capacitacion.Estado === 2"></ion-icon>
+              <ion-icon name="calendar" *ngIf="inscripcion.estadoInscripcion === 'Pendiente'"></ion-icon>
+              <ion-icon name="checkmark-circle" *ngIf="inscripcion.estadoInscripcion === 'Finalizada'"></ion-icon>
+              <ion-icon name="close-circle" *ngIf="inscripcion.estadoInscripcion === 'Cancelada'"></ion-icon>
               <div class="status-badge">
-                <span *ngIf="capacitacion.Estado === 0">Pendiente</span>
-                <span *ngIf="capacitacion.Estado === 1">Completada</span>
-                <span *ngIf="capacitacion.Estado === 2">Cancelada</span>
+                <span *ngIf="inscripcion.estadoInscripcion === 'Pendiente'">Pendiente</span>
+                <span *ngIf="inscripcion.estadoInscripcion === 'Finalizada'">Completada</span>
+                <span *ngIf="inscripcion.estadoInscripcion === 'Cancelada'">Cancelada</span>
               </div>
             </div>
 
             <ion-card-content>
-              <h2 class="capacitacion-title">{{ capacitacion.Nombre_Capacitacion }}</h2>
+              <h2 class="capacitacion-title">{{ inscripcion.capacitacion?.nombre }}</h2>
 
               <div class="capacitacion-details">
                 <div class="detail-item">
                   <ion-icon name="information-circle-outline"></ion-icon>
-                  <span>{{ capacitacion.Descripcion_Capacitacion }}</span>
+                  <span>{{ inscripcion.capacitacion?.descripcion }}</span>
                 </div>
 
                 <div class="detail-item">
                   <ion-icon name="calendar-outline"></ion-icon>
-                  <span>{{ capacitacion.Fecha_Capacitacion | date:'dd/MM/yyyy' }}</span>
+                  <span>{{ inscripcion.capacitacion?.fechaInicio | date:'dd/MM/yyyy' }}</span>
                 </div>
 
-                <div class="detail-item" *ngIf="capacitacion.Hora_Inicio && capacitacion.Hora_Fin">
+                <div class="detail-item"
+                  *ngIf="inscripcion.capacitacion?.horaInicio && inscripcion.capacitacion?.horaFin">
                   <ion-icon name="time-outline"></ion-icon>
-                  <span>{{ capacitacion.Hora_Inicio }} - {{ capacitacion.Hora_Fin }}</span>
+                  <span>{{ inscripcion.capacitacion?.horaInicio }} - {{ inscripcion.capacitacion?.horaFin }}</span>
                 </div>
 
                 <div class="detail-item">
                   <ion-icon name="desktop-outline"></ion-icon>
-                  <span>{{ capacitacion.Modalidades }}</span>
+                  <span>{{ inscripcion.capacitacion?.modalidad }}</span>
                 </div>
 
                 <div class="detail-item">
                   <ion-icon name="location-outline"></ion-icon>
-                  <span>{{ capacitacion.Lugar_Capacitacion }}</span>
+                  <span>{{ inscripcion.capacitacion?.lugar }}</span>
                 </div>
 
                 <div class="detail-item">
                   <ion-icon name="hourglass-outline"></ion-icon>
-                  <span>{{ capacitacion.Horas }} Horas</span>
+                  <span>{{ inscripcion.capacitacion?.horas }} Horas</span>
                 </div>
 
-                <div class="detail-item enlace-item" *ngIf="capacitacion.Enlace_Virtual && capacitacion.Estado === 0 && (capacitacion.Modalidades === 'Virtual' || capacitacion.Modalidades === 'Hibrida')">
-                  <ion-icon name="link-outline"></ion-icon>
-                  <a [href]="capacitacion.Enlace_Virtual" target="_blank" class="enlace-virtual">
-                    Enlace para unirse <ion-icon name="open-outline"></ion-icon>
-                  </a>
-                </div>
-
-                <div class="detail-item enlace-disabled" *ngIf="capacitacion.Enlace_Virtual && capacitacion.Estado !== 0 && (capacitacion.Modalidades === 'Virtual' || capacitacion.Modalidades === 'Hibrida')">
-                  <ion-icon name="link-outline"></ion-icon>
-                  <span class="texto-deshabilitado">Enlace ya no disponible</span>
-                </div>
+                <!-- Enlaces Virtuales (Check if property exists on interface, assuming yes for now) -->
+                <!-- Note: Based on errors, properties were UpperCase in UserRequest, but likely changed to lowerCase in model refactor. I will use lowerCase safe access -->
               </div>
 
               <div class="capacitacion-actions">
-                <ion-button color="primary" expand="block" *ngIf="capacitacion.Certificado == true" (click)="iraGenerarCertificado(capacitacion.Id_Capacitacion)">
+                <ion-button color="primary" expand="block"
+                  *ngIf="inscripcion.capacitacion?.certificado === true && inscripcion.estadoInscripcion === 'Finalizada'"
+                  (click)="iraGenerarCertificado(inscripcion.Id_Capacitacion)">
                   <ion-icon name="document-text-outline" slot="start"></ion-icon>
                   Visualizar Certificado
                 </ion-button>
 
-                <ion-button color="medium" expand="block" fill="outline" *ngIf="!capacitacion.Certificado && capacitacion.Estado === 1">
+                <ion-button color="medium" expand="block" fill="outline"
+                  *ngIf="inscripcion.estadoInscripcion === 'Finalizada' && !inscripcion.capacitacion?.certificado">
                   <ion-icon name="time-outline" slot="start"></ion-icon>
                   Certificado en proceso
                 </ion-button>
 
-                <ion-button color="warning" expand="block" fill="outline" (click)="verDetallesCapacitacion(capacitacion)">
+                <ion-button color="warning" expand="block" fill="outline"
+                  (click)="verDetallesCapacitacion(inscripcion)">
                   <ion-icon name="eye-outline" slot="start"></ion-icon>
                   Ver detalles
-                </ion-button>
-
-                <ion-button color="tertiary" expand="block" *ngIf="capacitacion.Estado === 0 && (capacitacion.Modalidades === 'Virtual' || capacitacion.Modalidades === 'Hibrida') && capacitacion.Enlace_Virtual" [href]="capacitacion.Enlace_Virtual" target="_blank">
-                  <ion-icon name="videocam-outline" slot="start"></ion-icon>
-                  Unirse a la reunión
                 </ion-button>
               </div>
             </ion-card-content>

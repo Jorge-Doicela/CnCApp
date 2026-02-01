@@ -9,11 +9,13 @@ import { addIcons } from 'ionicons';
 import { cloudDownloadOutline, eyeOutline, arrowBackOutline } from 'ionicons/icons';
 
 // PDFMake imports
+// @ts-ignore
 import * as pdfMake from 'pdfmake/build/pdfmake';
+// @ts-ignore
 import * as pdfFonts from 'pdfmake/build/vfs_fonts';
 
 // Fix for pdfMake vfs
-(pdfMake as any).vfs = pdfFonts.pdfMake.vfs;
+(pdfMake as any).vfs = (pdfFonts as any).pdfMake ? (pdfFonts as any).pdfMake.vfs : (pdfFonts as any).vfs;
 
 @Component({
     selector: 'app-certificaciones',

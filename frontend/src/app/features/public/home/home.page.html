@@ -230,7 +230,7 @@
   <!-- CREATOR DASHBOARD (Creador de Conferencias) -->
   <!-- ========================================== -->
   <ng-container
-    *ngIf="userName() && (roleName()?.toLowerCase().includes('creador') || roleName()?.toLowerCase().includes('conferencia'))">
+    *ngIf="userName() && (roleName()?.toLowerCase()?.includes('creador') || roleName()?.toLowerCase()?.includes('conferencia'))">
     <div class="dashboard-section container section-padding pb-0">
 
       <!-- Creator Stats -->
