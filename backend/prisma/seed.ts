@@ -93,7 +93,7 @@ async function main() {
             update: { password: hashedPassword },
             create: {
                 ci: '0987654321',
-                nombre: 'Conferencista María',
+                nombre: 'María López',
                 email: 'coord@cnc.gob.ec',
                 telefono: '0988888888',
                 password: hashedPassword,

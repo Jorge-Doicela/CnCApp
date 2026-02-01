@@ -1,13 +1,56 @@
 <ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>crudcargosinstituciones</ion-title>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title class="ion-text-center">Gestión de Cargos</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">crudcargosinstituciones</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content [fullscreen]="true" class="ion-padding">
+  <ion-card class="main-card">
+    <ion-card-header>
+      <ion-card-title>Administración de Cargos Instituciones</ion-card-title>
+      <ion-card-subtitle>Gestione el catálogo de cargos disponibles</ion-card-subtitle>
+    </ion-card-header>
+
+    <ion-card-content>
+      <!-- Buscador -->
+      <ion-item class="search-item">
+        <ion-icon name="search-outline" slot="start" color="primary"></ion-icon>
+        <ion-input placeholder="Buscar cargo..." [(ngModel)]="searchTerm" (ionInput)="filterCargos()"></ion-input>
+      </ion-item>
+
+      <!-- Botón Crear -->
+      <ion-button expand="block" color="primary" (click)="iraCrearCargo()" class="create-button ion-margin-top">
+        <ion-icon name="add-circle-outline" slot="start"></ion-icon>
+        Crear Nuevo Cargo
+      </ion-button>
+
+      <!-- Lista -->
+      <div class="list-container ion-margin-top">
+        <ion-list *ngIf="filteredCargos.length > 0">
+          <ion-item *ngFor="let cargo of filteredCargos">
+            <ion-icon name="briefcase-outline" slot="start" color="secondary"></ion-icon>
+            <ion-label>
+              <h2>{{ cargo.nombre }}</h2>
+            </ion-label>
+            <ion-buttons slot="end">
+              <ion-button color="primary" (click)="iraEditarCargo(cargo.id)">
+                <ion-icon name="create-outline" slot="icon-only"></ion-icon>
+              </ion-button>
+              <ion-button color="danger" (click)="confirmarEliminar(cargo.id)">
+                <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+              </ion-button>
+            </ion-buttons>
+          </ion-item>
+        </ion-list>
+
+        <!-- Empty State -->
+        <div *ngIf="filteredCargos.length === 0" class="ion-text-center ion-padding">
+          <p>No se encontraron cargos.</p>
+        </div>
+      </div>
+    </ion-card-content>
+  </ion-card>
 </ion-content>

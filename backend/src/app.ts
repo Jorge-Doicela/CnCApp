@@ -14,6 +14,7 @@ import authRoutes from './infrastructure/web/routes/auth.routes';
 import userRoutes from './infrastructure/web/routes/user.routes';
 import capacitacionRoutes from './infrastructure/web/routes/capacitacion.routes';
 import certificadoRoutes from './infrastructure/web/routes/certificado.routes';
+import reportesRoutes from './infrastructure/web/routes/reportes.routes';
 
 // Importar middleware
 import { errorHandler } from './infrastructure/web/middleware/error.middleware';
@@ -80,6 +81,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/capacitaciones', capacitacionRoutes);
 app.use('/api/certificados', certificadoRoutes);
+app.use('/api/reportes', reportesRoutes);
 
 // ============================================
 // MANEJO DE ERRORES

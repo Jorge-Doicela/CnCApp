@@ -1,13 +1,32 @@
 <ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>editar</ion-title>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/gestionar-cargos-instituciones"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Editar Cargo</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">editar</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content [fullscreen]="true" class="ion-padding">
+  <ion-card class="form-card">
+    <ion-card-header>
+      <ion-card-title>Editar Cargo</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <form [formGroup]="cargoForm" (ngSubmit)="actualizarCargo()">
+        <ion-item>
+          <ion-label position="stacked">Nombre del Cargo</ion-label>
+          <ion-input formControlName="nombre" placeholder="Ej: Director Administrativo"></ion-input>
+        </ion-item>
+        <div *ngIf="cargoForm.get('nombre')?.touched && cargoForm.get('nombre')?.invalid" class="error-msg">
+          <small class="ion-color-danger">El nombre es requerido y debe tener al menos 3 caracteres.</small>
+        </div>
+
+        <ion-button expand="block" type="submit" [disabled]="cargoForm.invalid" class="ion-margin-top">
+          <ion-icon name="save-outline" slot="start"></ion-icon>
+          Actualizar
+        </ion-button>
+      </form>
+    </ion-card-content>
+  </ion-card>
 </ion-content>

@@ -1,0 +1,200 @@
+<ion-header>
+    <ion-toolbar color="primary">
+        <ion-buttons slot="start">
+            <ion-menu-button></ion-menu-button>
+        </ion-buttons>
+        <ion-title>Reportes y Estadísticas</ion-title>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+    <!-- Loading State -->
+    <div *ngIf="loading()" class="loading-container">
+        <ion-spinner name="crescent"></ion-spinner>
+        <ion-text>
+            <p>Cargando estadísticas...</p>
+        </ion-text>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error()" class="error-container">
+        <ion-text color="danger">
+            <h2>{{ error() }}</h2>
+        </ion-text>
+    </div>
+
+    <!-- Stats Content -->
+    <div *ngIf="!loading() && !error() && stats()" class="stats-container">
+        <!-- Header -->
+        <div class="page-header">
+            <h1>Dashboard del Sistema</h1>
+            <p>Estadísticas generales del sistema CNC</p>
+        </div>
+
+        <!-- Main Stats Grid -->
+        <ion-grid>
+            <ion-row>
+                <!-- Total Usuarios -->
+                <ion-col size="12" sizeMd="6" sizeLg="3">
+                    <ion-card class="stat-card stat-card-primary">
+                        <ion-card-content>
+                            <div class="stat-icon">
+                                <ion-icon name="people-outline"></ion-icon>
+                            </div>
+                            <div class="stat-info">
+                                <h2>{{ stats()!.totalUsuarios }}</h2>
+                                <p>Total Usuarios</p>
+                            </div>
+                        </ion-card-content>
+                    </ion-card>
+                </ion-col>
+
+                <!-- Total Capacitaciones -->
+                <ion-col size="12" sizeMd="6" sizeLg="3">
+                    <ion-card class="stat-card stat-card-success">
+                        <ion-card-content>
+                            <div class="stat-icon">
+                                <ion-icon name="calendar-outline"></ion-icon>
+                            </div>
+                            <div class="stat-info">
+                                <h2>{{ stats()!.totalCapacitaciones }}</h2>
+                                <p>Total Capacitaciones</p>
+                            </div>
+                        </ion-card-content>
+                    </ion-card>
+                </ion-col>
+
+                <!-- Total Certificados -->
+                <ion-col size="12" sizeMd="6" sizeLg="3">
+                    <ion-card class="stat-card stat-card-warning">
+                        <ion-card-content>
+                            <div class="stat-icon">
+                                <ion-icon name="document-text-outline"></ion-icon>
+                            </div>
+                            <div class="stat-info">
+                                <h2>{{ stats()!.totalCertificados }}</h2>
+                                <p>Total Certificados</p>
+                            </div>
+                        </ion-card-content>
+                    </ion-card>
+                </ion-col>
+
+                <!-- Usuarios Este Mes -->
+                <ion-col size="12" sizeMd="6" sizeLg="3">
+                    <ion-card class="stat-card stat-card-info">
+                        <ion-card-content>
+                            <div class="stat-icon">
+                                <ion-icon name="trending-up-outline"></ion-icon>
+                            </div>
+                            <div class="stat-info">
+                                <h2>{{ stats()!.usuariosRegistradosEsteMes }}</h2>
+                                <p>Nuevos Este Mes</p>
+                            </div>
+                        </ion-card-content>
+                    </ion-card>
+                </ion-col>
+            </ion-row>
+
+            <!-- Secondary Stats -->
+            <ion-row>
+                <!-- Capacitaciones Activas -->
+                <ion-col size="12" sizeMd="4">
+                    <ion-card class="detail-card">
+                        <ion-card-header>
+                            <ion-card-title>
+                                <ion-icon name="checkmark-circle-outline"></ion-icon>
+                                Capacitaciones Activas
+                            </ion-card-title>
+                        </ion-card-header>
+                        <ion-card-content>
+                            <h3>{{ stats()!.capacitacionesActivas }}</h3>
+                            <p>En curso actualmente</p>
+                        </ion-card-content>
+                    </ion-card>
+                </ion-col>
+
+                <!-- Capacitaciones Finalizadas -->
+                <ion-col size="12" sizeMd="4">
+                    <ion-card class="detail-card">
+                        <ion-card-header>
+                            <ion-card-title>
+                                <ion-icon name="time-outline"></ion-icon>
+                                Capacitaciones Finalizadas
+                            </ion-card-title>
+                        </ion-card-header>
+                        <ion-card-content>
+                            <h3>{{ stats()!.capacitacionesFinalizadas }}</h3>
+                            <p>Completadas</p>
+                        </ion-card-content>
+                    </ion-card>
+                </ion-col>
+
+                <!-- Certificados Este Mes -->
+                <ion-col size="12" sizeMd="4">
+                    <ion-card class="detail-card">
+                        <ion-card-header>
+                            <ion-card-title>
+                                <ion-icon name="document-text-outline"></ion-icon>
+                                Certificados Este Mes
+                            </ion-card-title>
+                        </ion-card-header>
+                        <ion-card-content>
+                            <h3>{{ stats()!.certificadosEsteMes }}</h3>
+                            <p>Emitidos este mes</p>
+                        </ion-card-content>
+                    </ion-card>
+                </ion-col>
+            </ion-row>
+
+            <!-- Usuarios por Rol -->
+            <ion-row>
+                <ion-col size="12">
+                    <ion-card class="roles-card">
+                        <ion-card-header>
+                            <ion-card-title>Usuarios por Rol</ion-card-title>
+                        </ion-card-header>
+                        <ion-card-content>
+                            <ion-grid>
+                                <ion-row>
+                                    <ion-col size="12" sizeMd="4">
+                                        <div class="role-stat">
+                                            <div class="role-icon admin">
+                                                <ion-icon name="people-outline"></ion-icon>
+                                            </div>
+                                            <div class="role-info">
+                                                <h4>{{ stats()!.usuariosPorRol.administrador }}</h4>
+                                                <p>Administradores</p>
+                                            </div>
+                                        </div>
+                                    </ion-col>
+                                    <ion-col size="12" sizeMd="4">
+                                        <div class="role-stat">
+                                            <div class="role-icon conferencista">
+                                                <ion-icon name="people-outline"></ion-icon>
+                                            </div>
+                                            <div class="role-info">
+                                                <h4>{{ stats()!.usuariosPorRol.conferencista }}</h4>
+                                                <p>Conferencistas</p>
+                                            </div>
+                                        </div>
+                                    </ion-col>
+                                    <ion-col size="12" sizeMd="4">
+                                        <div class="role-stat">
+                                            <div class="role-icon usuario">
+                                                <ion-icon name="people-outline"></ion-icon>
+                                            </div>
+                                            <div class="role-info">
+                                                <h4>{{ stats()!.usuariosPorRol.usuario }}</h4>
+                                                <p>Usuarios</p>
+                                            </div>
+                                        </div>
+                                    </ion-col>
+                                </ion-row>
+                            </ion-grid>
+                        </ion-card-content>
+                    </ion-card>
+                </ion-col>
+            </ion-row>
+        </ion-grid>
+    </div>
+</ion-content>
