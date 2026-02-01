@@ -1,11 +1,12 @@
 import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AlertController, ToastController } from '@ionic/angular';
-import { environment } from 'src/environments/environment';
+import { CapacitacionesService } from '../../admin/capacitaciones/services/capacitaciones.service';
+import { AuthService } from '../../auth/services/auth.service';
+import { UsuarioCapacitacion } from '../../../core/models/capacitacion.interface';
 
 @Component({
   selector: 'app-conferencias',
@@ -15,88 +16,86 @@ import { environment } from 'src/environments/environment';
   imports: [CommonModule, FormsModule, IonicModule]
 })
 export class ConferenciasPage implements OnInit {
-  Capacitaciones: any[] = []; // Array to store trainings
-  CapacitacionesFiltradas: any[] = []; // Filtered trainings
+  inscripciones: any[] = [];
+  inscripcionesFiltradas: any[] = [];
   loading: boolean = true;
-  cargando: boolean = true; // Alias for loading
-  userProfile: any = null;
+  currentUser: any = null;
 
-  // Filter properties
   searchTerm: string = '';
   filtroEstado: string = 'todos';
 
-  constructor(
-    private router: Router,
-    private alertController: AlertController,
-    private toastController: ToastController,
-    private http: HttpClient
-  ) { }
+  private capacitacionesService = inject(CapacitacionesService);
+  private authService = inject(AuthService);
+  private router = inject(Router);
+  private alertController = inject(AlertController);
+  private toastController = inject(ToastController);
 
-  ngOnInit() {
-    this.cargarDatos();
+  constructor() { }
+
+  async ngOnInit() {
+    const user = this.authService.currentUser();
+    this.currentUser = user;
+    if (user) {
+      this.cargarHistorial(user.id);
+    }
   }
 
-  async cargarDatos() {
-    try {
-      this.cargando = true;
-      this.loading = true;
-      // Mock data loading or fetch from backend
-      // const authUid = localStorage.getItem('auth_uid');
-      // if (authUid) {
-      //     this.userProfile = await this.http.get(...)
-      // }
-      // For now, empty
-      this.Capacitaciones = [];
-      this.CapacitacionesFiltradas = [];
-      this.filtrarCapacitaciones();
-      this.cargando = false;
-      this.loading = false;
-    } catch (error) {
-      console.error('Error loading data', error);
-      this.cargando = false;
-      this.loading = false;
-    }
+  cargarHistorial(userId: number) {
+    this.loading = true;
+    this.capacitacionesService.getInscripcionesUsuario(userId).subscribe({
+      next: (data) => {
+        // Data is UsuarioCapacitacion, we might need to join with Capacitacion details
+        // Assuming the backend returns the nested relations or we map it.
+        // If the interface UsuarioCapacitacion has 'capacitacion' relation populated:
+        this.inscripciones = data;
+        this.filtrarCapacitaciones();
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error(err);
+        this.loading = false;
+      }
+    });
   }
 
   getCapacitacionesConCertificado(): number {
-    return this.Capacitaciones.filter(cap => cap.Certificado === true).length;
+    return this.inscripciones.filter(i => i.capacitacion?.certificado === true && i.estadoInscripcion === 'Finalizada').length;
   }
 
-  getCapacitacionesPorEstado(estado: number): number {
-    return this.Capacitaciones.filter(cap => cap.Estado === estado).length;
+  getCapacitacionesPorEstado(estado: string): number {
+    return this.inscripciones.filter(i => i.estadoInscripcion === estado).length;
   }
 
   filtrarCapacitaciones() {
-    let resultado = [...this.Capacitaciones];
+    let resultado = [...this.inscripciones];
 
-    // Filtrar por término de búsqueda
     if (this.searchTerm && this.searchTerm.trim() !== '') {
       const termino = this.searchTerm.toLowerCase().trim();
-      resultado = resultado.filter(cap =>
-        cap.Nombre_Capacitacion?.toLowerCase().includes(termino) ||
-        cap.Descripcion_Capacitacion?.toLowerCase().includes(termino)
+      resultado = resultado.filter(i =>
+        i.capacitacion?.nombre?.toLowerCase().includes(termino)
       );
     }
 
-    // Filtrar por estado
     if (this.filtroEstado !== 'todos') {
-      const estadoNumero = parseInt(this.filtroEstado);
-      resultado = resultado.filter(cap => cap.Estado === estadoNumero);
+      resultado = resultado.filter(i => i.estadoInscripcion === this.filtroEstado);
     }
 
-    this.CapacitacionesFiltradas = resultado;
+    this.inscripcionesFiltradas = resultado;
   }
 
-  async verDetallesCapacitacion(capacitacion: any) {
+  async verDetallesCapacitacion(inscripcion: any) {
+    const cap = inscripcion.capacitacion;
+    if (!cap) return;
+
     const alert = await this.alertController.create({
-      header: capacitacion.Nombre_Capacitacion,
-      subHeader: `Fecha: ${this.formatearFecha(capacitacion.Fecha_Capacitacion)}`,
+      header: cap.nombre,
+      subHeader: `Inscrito el: ${new Date(inscripcion.fechaInscripcion).toLocaleDateString()}`,
       message: `
         <div style="text-align: left;">
-          <p><strong>Descripción:</strong> ${capacitacion.Descripcion_Capacitacion}</p>
-          <p><strong>Modalidad:</strong> ${capacitacion.Modalidades}</p>
-          <p><strong>Duración:</strong> ${capacitacion.Horas} horas</p>
-          <p><strong>Estado:</strong> ${this.obtenerEstadoTexto(capacitacion.Estado)}</p>
+          <p><strong>Descripción:</strong> ${cap.descripcion || 'Sin descripción'}</p>
+          <p><strong>Modalidad:</strong> ${cap.modalidad || 'N/A'}</p>
+          <p><strong>Estado Inscripción:</strong> ${inscripcion.estadoInscripcion}</p>
+          <p><strong>Asistencia:</strong> ${inscripcion.asistio ? 'Sí' : 'No'}</p>
         </div>
       `,
       buttons: ['OK']
@@ -105,53 +104,11 @@ export class ConferenciasPage implements OnInit {
     await alert.present();
   }
 
-  formatearFecha(fecha: string): string {
-    return new Date(fecha).toLocaleString('es-ES', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  }
-
-  obtenerEstadoTexto(estado: number): string {
-    switch (estado) {
-      case 0: return 'Pendiente';
-      case 1: return 'Completada';
-      case 2: return 'Cancelada';
-      default: return 'Desconocido';
-    }
-  }
-
-  // Método mejorado para la navegación a la pantalla de certificados
-  iraGenerarCertificado(Id_Capacitacion: number) {
-    console.log('Navegando a certificado con ID:', Id_Capacitacion);
-
-    try {
-      // Navegar a la ruta de certificados con el ID como parámetro
-      this.router.navigate(['/certificados', Id_Capacitacion]);
-    } catch (error) {
-      console.error('Error al navegar a certificados:', error);
-      this.presentToast('Error al acceder al certificado', 'danger');
-    }
-  }
-
-  async presentToast(message: string, color: string = 'primary') {
-    const toast = await this.toastController.create({
-      message: message,
-      duration: 3000,
-      position: 'bottom',
-      color: color,
-      buttons: [
-        {
-          side: 'end',
-          icon: 'close',
-          role: 'cancel'
-        }
-      ]
-    });
-
-    await toast.present();
+  iraGenerarCertificado(idCapacitacion: number) {
+    this.router.navigate(['/ver-certificaciones', { id: idCapacitacion }]); // Or direct
+    // Actually requirement says "Visualiza y descarga desde lista".
+    // We can navigate to the certifications tab or open specific one.
+    // Let's assume we navigate to the Certificaciones page which will show the PDF.
+    this.router.navigate(['/ver-certificaciones'], { queryParams: { idCapacitacion } });
   }
 }

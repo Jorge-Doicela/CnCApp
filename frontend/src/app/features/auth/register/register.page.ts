@@ -94,10 +94,13 @@ export class RegisterPage {
 
   validateStep2(): boolean {
     const data = this.userData();
-    if (!data.ci || data.ci.length < 10) {
-      this.presentToast('Cédula inválida', 'warning');
+
+    // Validar Cédula Ecuatoriana
+    if (!this.validarCedula(data.ci)) {
+      this.presentToast('Cédula inválida. Verifique el número.', 'warning');
       return false;
     }
+
     if (!data.email || !data.email.includes('@')) {
       this.presentToast('Email inválido', 'warning');
       return false;
@@ -111,6 +114,61 @@ export class RegisterPage {
       return false;
     }
     return true;
+  }
+
+  // Algoritmo de validación de Cédula Ecuatoriana
+  validarCedula(cedula: string): boolean {
+    if (!cedula || cedula.length !== 10) return false;
+
+    const digitoRegion = parseInt(cedula.substring(0, 2));
+
+    if (digitoRegion < 1 || digitoRegion > 24) return false;
+
+    const ultimoDigito = parseInt(cedula.substring(9, 10));
+    const pares = parseInt(cedula.substring(1, 2)) + parseInt(cedula.substring(3, 4)) + parseInt(cedula.substring(5, 6)) + parseInt(cedula.substring(7, 8));
+
+    let numero1 = parseInt(cedula.substring(0, 1));
+    numero1 = (numero1 * 2);
+    if (numero1 > 9) { numero1 = (numero1 - 9); }
+
+    let numero3 = parseInt(cedula.substring(2, 3));
+    numero3 = (numero3 * 2);
+    if (numero3 > 9) { numero3 = (numero3 - 9); }
+
+    let numero5 = parseInt(cedula.substring(4, 5));
+    numero5 = (numero5 * 2);
+    if (numero5 > 9) { numero5 = (numero5 - 9); }
+
+    let numero7 = parseInt(cedula.substring(6, 7));
+    numero7 = (numero7 * 2);
+    if (numero7 > 9) { numero7 = (numero7 - 9); }
+
+    let numero9 = parseInt(cedula.substring(8, 9));
+    numero9 = (numero9 * 2);
+    if (numero9 > 9) { numero9 = (numero9 - 9); }
+
+    const impares = numero1 + numero3 + numero5 + numero7 + numero9;
+    const sumaTotal = pares + impares;
+    const primerDigitoSuma = parseInt(String(sumaTotal).substring(0, 1));
+    const decena = (primerDigitoSuma + 1) * 10;
+
+    let digitoValidador = decena - sumaTotal;
+    if (digitoValidador === 10) digitoValidador = 0;
+
+    // Fix: If validation logic is slightly off or simple sum check
+    // Using standard alg:
+    let check = 0;
+    // ... Actually, simplifying with standard compact loop
+    let sum = 0;
+    const coeficients = [2, 1, 2, 1, 2, 1, 2, 1, 2];
+    for (let i = 0; i < 9; i++) {
+      let val = parseInt(cedula[i]) * coeficients[i];
+      if (val >= 10) val -= 9;
+      sum += val;
+    }
+    const verifier = (sum % 10 === 0) ? 0 : 10 - (sum % 10);
+
+    return verifier === ultimoDigito;
   }
 
   validateStep3(): boolean {
