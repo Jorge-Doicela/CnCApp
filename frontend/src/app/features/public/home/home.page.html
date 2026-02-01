@@ -152,159 +152,159 @@
         </div>
       </div>
 
-    </div>
 
-    <!-- System Configuration (Manual Access to ensure no orphans) -->
-    <div class="section-header ion-text-center mt-4">
-      <h3>Configuración del Sistema</h3>
-      <div class="separator"></div>
-    </div>
 
-    <ion-accordion-group>
-      <ion-accordion value="geo">
-        <ion-item slot="header" color="light">
-          <ion-icon name="map-outline" slot="start"></ion-icon>
-          <ion-label>Geografía y Territorio</ion-label>
-        </ion-item>
-        <div class="ion-padding" slot="content">
-          <div class="services-grid">
-            <div class="service-card mini" (click)="navegarModulo('gestionar-provincias')">
-              <ion-icon name="map-outline"></ion-icon>
-              <p>Provincias</p>
-            </div>
-            <div class="service-card mini" (click)="navegarModulo('gestionar-cantones')">
-              <ion-icon name="location-outline"></ion-icon>
-              <p>Cantones</p>
-            </div>
-            <div class="service-card mini" (click)="navegarModulo('gestionar-parroquias')">
-              <ion-icon name="pin-outline"></ion-icon>
-              <p>Parroquias</p>
+      <!-- System Configuration (Manual Access to ensure no orphans) -->
+      <div class="section-header ion-text-center mt-4">
+        <h3>Configuración del Sistema</h3>
+        <div class="separator"></div>
+      </div>
+
+      <ion-accordion-group>
+        <ion-accordion value="geo">
+          <ion-item slot="header" color="light">
+            <ion-icon name="map-outline" slot="start"></ion-icon>
+            <ion-label>Geografía y Territorio</ion-label>
+          </ion-item>
+          <div class="ion-padding" slot="content">
+            <div class="services-grid">
+              <div class="service-card mini" (click)="navegarModulo('gestionar-provincias')">
+                <ion-icon name="map-outline"></ion-icon>
+                <p>Provincias</p>
+              </div>
+              <div class="service-card mini" (click)="navegarModulo('gestionar-cantones')">
+                <ion-icon name="location-outline"></ion-icon>
+                <p>Cantones</p>
+              </div>
+              <div class="service-card mini" (click)="navegarModulo('gestionar-parroquias')">
+                <ion-icon name="pin-outline"></ion-icon>
+                <p>Parroquias</p>
+              </div>
             </div>
           </div>
-        </div>
-      </ion-accordion>
+        </ion-accordion>
 
-      <ion-accordion value="inst">
-        <ion-item slot="header" color="light">
-          <ion-icon name="business-outline" slot="start"></ion-icon>
-          <ion-label>Instituciones y Entidades</ion-label>
-        </ion-item>
-        <div class="ion-padding" slot="content">
-          <div class="services-grid">
-            <div class="service-card mini" (click)="navegarModulo('gestionar-entidades')">
-              <ion-icon name="business-outline"></ion-icon>
-              <p>Entidades</p>
-            </div>
-            <div class="service-card mini" (click)="navegarModulo('gestionar-instituciones')">
-              <ion-icon name="briefcase-outline"></ion-icon>
-              <p>Instituciones</p>
-            </div>
-            <div class="service-card mini" (click)="navegarModulo('gestionar-cargos-instituciones')">
-              <ion-icon name="id-card-outline"></ion-icon>
-              <p>Cargos</p>
-            </div>
-            <div class="service-card mini" (click)="navegarModulo('gestionar-competencias')">
-              <ion-icon name="ribbon-outline"></ion-icon>
-              <p>Competencias</p>
+        <ion-accordion value="inst">
+          <ion-item slot="header" color="light">
+            <ion-icon name="business-outline" slot="start"></ion-icon>
+            <ion-label>Instituciones y Entidades</ion-label>
+          </ion-item>
+          <div class="ion-padding" slot="content">
+            <div class="services-grid">
+              <div class="service-card mini" (click)="navegarModulo('gestionar-entidades')">
+                <ion-icon name="business-outline"></ion-icon>
+                <p>Entidades</p>
+              </div>
+              <div class="service-card mini" (click)="navegarModulo('gestionar-instituciones')">
+                <ion-icon name="briefcase-outline"></ion-icon>
+                <p>Instituciones</p>
+              </div>
+              <div class="service-card mini" (click)="navegarModulo('gestionar-cargos-instituciones')">
+                <ion-icon name="id-card-outline"></ion-icon>
+                <p>Cargos</p>
+              </div>
+              <div class="service-card mini" (click)="navegarModulo('gestionar-competencias')">
+                <ion-icon name="ribbon-outline"></ion-icon>
+                <p>Competencias</p>
+              </div>
             </div>
           </div>
-        </div>
-      </ion-accordion>
+        </ion-accordion>
 
-      <ion-accordion value="sys">
-        <ion-item slot="header" color="light">
-          <ion-icon name="settings-outline" slot="start"></ion-icon>
-          <ion-label>Sistema y Plantillas</ion-label>
-        </ion-item>
-        <div class="ion-padding" slot="content">
-          <div class="services-grid">
-            <div class="service-card mini" (click)="navegarModulo('gestionar-usuarios')">
-              <ion-icon name="person-add-outline"></ion-icon>
-              <p>Usuarios</p>
-            </div>
-            <div class="service-card mini" (click)="navegarModulo('gestionar-roles')">
-              <ion-icon name="people-outline"></ion-icon>
-              <p>Roles</p>
-            </div>
-            <div class="service-card mini" (click)="navegarModulo('gestionar-plantillas')">
-              <ion-icon name="image-outline"></ion-icon>
-              <p>Plantillas Cert.</p>
+        <ion-accordion value="sys">
+          <ion-item slot="header" color="light">
+            <ion-icon name="settings-outline" slot="start"></ion-icon>
+            <ion-label>Sistema y Plantillas</ion-label>
+          </ion-item>
+          <div class="ion-padding" slot="content">
+            <div class="services-grid">
+              <div class="service-card mini" (click)="navegarModulo('gestionar-usuarios')">
+                <ion-icon name="person-add-outline"></ion-icon>
+                <p>Usuarios</p>
+              </div>
+              <div class="service-card mini" (click)="navegarModulo('gestionar-roles')">
+                <ion-icon name="people-outline"></ion-icon>
+                <p>Roles</p>
+              </div>
+              <div class="service-card mini" (click)="navegarModulo('gestionar-plantillas')">
+                <ion-icon name="image-outline"></ion-icon>
+                <p>Plantillas Cert.</p>
+              </div>
             </div>
           </div>
-        </div>
-      </ion-accordion>
-    </ion-accordion-group>
+        </ion-accordion>
+      </ion-accordion-group>
 
-    <!-- Public Tools for Admins (So they are not hidden) -->
-    <div class="section-header ion-text-center mt-4">
-      <h3>Herramientas Públicas</h3>
-      <div class="separator"></div>
-    </div>
-    <div class="services-grid">
-      <!-- Validar Certificados -->
-      <div class="service-card" (click)="navegarModulo('Validar certificados')">
-        <div class="icon-circle">
-          <ion-icon name="qr-code-outline"></ion-icon>
+      <!-- Public Tools for Admins (So they are not hidden) -->
+      <div class="section-header ion-text-center mt-4">
+        <h3>Herramientas Públicas</h3>
+        <div class="separator"></div>
+      </div>
+      <div class="services-grid">
+        <!-- Validar Certificados -->
+        <div class="service-card" (click)="navegarModulo('Validar certificados')">
+          <div class="icon-circle">
+            <ion-icon name="qr-code-outline"></ion-icon>
+          </div>
+          <h4>Validar Diplomas</h4>
+          <p>Verificar autenticidad.</p>
+          <div class="card-footer">
+            <span>Validar</span>
+            <ion-icon name="arrow-forward"></ion-icon>
+          </div>
         </div>
-        <h4>Validar Diplomas</h4>
-        <p>Verificar autenticidad.</p>
-        <div class="card-footer">
-          <span>Validar</span>
-          <ion-icon name="arrow-forward"></ion-icon>
+
+        <!-- Oferta Académica (Scroll/Link) -->
+        <div class="service-card" (click)="navegarModulo('Ver conferencias')">
+          <div class="icon-circle">
+            <ion-icon name="school-outline"></ion-icon>
+          </div>
+          <h4>Oferta Académica</h4>
+          <p>Ver lista completa.</p>
+          <div class="card-footer">
+            <span>Ver</span>
+            <ion-icon name="arrow-forward"></ion-icon>
+          </div>
+        </div>
+
+        <!-- Servicios GADs (Added to ensure visibility) -->
+        <div class="service-card" (click)="navegarModulo('servi-progra')">
+          <div class="icon-circle">
+            <ion-icon name="briefcase-outline"></ion-icon>
+          </div>
+          <h4>Servicios GADs</h4>
+          <p>Catálogo técnico.</p>
+          <div class="card-footer">
+            <span>Explorar</span>
+            <ion-icon name="arrow-forward"></ion-icon>
+          </div>
         </div>
       </div>
 
-      <!-- Oferta Académica (Scroll/Link) -->
-      <div class="service-card" (click)="navegarModulo('Ver conferencias')">
-        <div class="icon-circle">
-          <ion-icon name="school-outline"></ion-icon>
+      <!-- Recent Management -->
+      <br>
+      <div class="content-block">
+        <div class="block-header">
+          <h3>Gestión Reciente</h3>
+          <a class="view-all" (click)="navegarModulo('Gestionar capacitaciones')">Ir al módulo</a>
         </div>
-        <h4>Oferta Académica</h4>
-        <p>Ver lista completa.</p>
-        <div class="card-footer">
-          <span>Ver</span>
-          <ion-icon name="arrow-forward"></ion-icon>
-        </div>
-      </div>
-
-      <!-- Servicios GADs (Added to ensure visibility) -->
-      <div class="service-card" (click)="navegarModulo('servi-progra')">
-        <div class="icon-circle">
-          <ion-icon name="briefcase-outline"></ion-icon>
-        </div>
-        <h4>Servicios GADs</h4>
-        <p>Catálogo técnico.</p>
-        <div class="card-footer">
-          <span>Explorar</span>
-          <ion-icon name="arrow-forward"></ion-icon>
-        </div>
-      </div>
-    </div>
-
-    <!-- Recent Management -->
-    <br>
-    <div class="content-block">
-      <div class="block-header">
-        <h3>Gestión Reciente</h3>
-        <a class="view-all" (click)="navegarModulo('Gestionar capacitaciones')">Ir al módulo</a>
-      </div>
-      <div class="list-container">
-        <div class="list-item" *ngFor="let capacitacion of capacitacionesDisponibles.slice(0, 5)">
-          <div class="item-icon admin">
-            <ion-icon name="create-outline"></ion-icon>
-          </div>
-          <div class="item-details">
-            <h4>{{ capacitacion.nombre }}</h4>
-            <p>{{ capacitacion.fechaInicio | date:'dd/MM/yyyy' }} • {{ capacitacion.lugar }}</p>
-          </div>
-          <div class="item-action">
-            <ion-button fill="clear" size="small" (click)="editarCapacitacion(capacitacion.id)">
-              Editar
-            </ion-button>
+        <div class="list-container">
+          <div class="list-item" *ngFor="let capacitacion of capacitacionesDisponibles.slice(0, 5)">
+            <div class="item-icon admin">
+              <ion-icon name="create-outline"></ion-icon>
+            </div>
+            <div class="item-details">
+              <h4>{{ capacitacion.nombre }}</h4>
+              <p>{{ capacitacion.fechaInicio | date:'dd/MM/yyyy' }} • {{ capacitacion.lugar }}</p>
+            </div>
+            <div class="item-action">
+              <ion-button fill="clear" size="small" (click)="editarCapacitacion(capacitacion.id)">
+                Editar
+              </ion-button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
     </div>
   </ng-container>
 

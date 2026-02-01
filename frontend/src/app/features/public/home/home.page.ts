@@ -4,26 +4,12 @@ import { FormsModule } from '@angular/forms';
 import {
   IonHeader, IonToolbar, IonButtons,
   IonContent, IonIcon, IonButton,
+  IonAccordionGroup, IonAccordion, IonItem, IonLabel,
+  IonAvatar, IonList, IonItemDivider,
   ToastController, LoadingController, MenuController
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import {
-  logInOutline, personCircle, logOutOutline, searchOutline, mapOutline,
-  peopleOutline, calendarOutline, documentTextOutline, personOutline,
-  schoolOutline, briefcaseOutline, qrCodeOutline, arrowForward,
-  createOutline, timeOutline, bookOutline, informationCircleOutline,
-  locationOutline, personAddOutline, businessOutline, pinOutline,
-  ribbonOutline, idCardOutline, listOutline, appsOutline, homeOutline,
-  rocketOutline, timerOutline, notificationsOffOutline, menuOutline
-} from 'ionicons/icons';
-import { Router } from '@angular/router';
-
-import { CapacitacionesService } from '../../admin/capacitaciones/services/capacitaciones.service';
-import { UsuarioService } from '../../user/services/usuario.service';
-import { AuthService } from '../../auth/services/auth.service';
-import { Capacitacion } from '../../../core/models/capacitacion.interface';
-import { firstValueFrom } from 'rxjs';
-
+// ...
 @Component({
   selector: 'app-home',
   templateUrl: 'home.page.html',
@@ -31,11 +17,14 @@ import { firstValueFrom } from 'rxjs';
   standalone: true,
   imports: [
     CommonModule, FormsModule,
-    CommonModule, FormsModule,
     IonHeader, IonToolbar, IonButtons,
-    IonContent, IonIcon, IonButton
+    IonContent, IonIcon, IonButton,
+    IonAccordionGroup, IonAccordion, IonItem, IonLabel,
+    IonAvatar, IonList, IonItemDivider
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
+})
+changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class HomePage implements OnInit {
   // Use AuthService signals directly
