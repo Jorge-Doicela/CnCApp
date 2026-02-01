@@ -22,23 +22,23 @@ async function main() {
             },
         });
 
-        const coordinadorRole = await prisma.rol.upsert({
-            where: { nombre: 'Coordinador' },
+        const conferencistaRole = await prisma.rol.upsert({
+            where: { nombre: 'Conferencista' },
             update: {},
             create: {
-                nombre: 'Coordinador',
-                descripcion: 'Coordinador de capacitaciones',
-                modulos: ['capacitaciones', 'certificados'],
+                nombre: 'Conferencista',
+                descripcion: 'Creador de conferencias con capacidad de gestionar capacitaciones y generar certificados',
+                modulos: ['capacitaciones', 'certificados', 'inscripciones'],
             },
         });
 
-        const participanteRole = await prisma.rol.upsert({
-            where: { nombre: 'Participante' },
+        const usuarioRole = await prisma.rol.upsert({
+            where: { nombre: 'Usuario' },
             update: {},
             create: {
-                nombre: 'Participante',
-                descripcion: 'Participante de capacitaciones',
-                modulos: ['certificados'],
+                nombre: 'Usuario',
+                descripcion: 'Usuario del sistema que puede crear cuenta, editar datos, visualizar capacitaciones y descargar certificados',
+                modulos: ['perfil', 'capacitaciones-lectura', 'certificados-propios'],
             },
         });
 
@@ -87,23 +87,23 @@ async function main() {
             },
         });
 
-        // Coordinador
+        // Conferencista
         const coordUser = await prisma.usuario.upsert({
             where: { ci: '0987654321' },
             update: { password: hashedPassword },
             create: {
                 ci: '0987654321',
-                nombre: 'Coordinadora María',
+                nombre: 'Conferencista María',
                 email: 'coord@cnc.gob.ec',
                 telefono: '0988888888',
                 password: hashedPassword,
-                rolId: coordinadorRole.id,
+                rolId: conferencistaRole.id,
                 entidadId: cncEntity.id,
                 tipoParticipante: 0,
             },
         });
 
-        // Participantes
+        // Usuarios
         const user1 = await prisma.usuario.upsert({
             where: { ci: '1122334455' },
             update: { password: hashedPassword },
@@ -113,7 +113,7 @@ async function main() {
                 email: 'juan.perez@example.com',
                 telefono: '0977777777',
                 password: hashedPassword,
-                rolId: participanteRole.id,
+                rolId: usuarioRole.id,
                 entidadId: gadEntity.id,
                 tipoParticipante: 2, // Funcionario GAD
             },
@@ -128,7 +128,7 @@ async function main() {
                 email: 'maria.rod@example.com',
                 telefono: '0966666666',
                 password: hashedPassword,
-                rolId: participanteRole.id,
+                rolId: usuarioRole.id,
                 entidadId: gadEntity.id,
                 tipoParticipante: 2,
             },
@@ -138,12 +138,12 @@ async function main() {
 
         // 4. Create Capacitaciones (only if they don't exist)
         console.log('Creating capacitaciones...');
-        
+
         // Check if capacitaciones already exist
         const existingCapCount = await prisma.capacitacion.count();
-        
+
         let capActiva, capFinalizada;
-        
+
         if (existingCapCount === 0) {
             capActiva = await prisma.capacitacion.create({
                 data: {
@@ -217,10 +217,10 @@ async function main() {
 
         console.log('\n✅ Seed completed successfully!');
         console.log('\n📋 Test Credentials (Password: ' + plainPassword + '):');
-        console.log('1. Admin: ' + adminUser.ci);
-        console.log('2. Coordinador: ' + coordUser.ci);
-        console.log('3. Participante 1: ' + user1.ci);
-        console.log('4. Participante 2: ' + user2.ci);
+        console.log('1. Administrador: ' + adminUser.ci);
+        console.log('2. Conferencista: ' + coordUser.ci);
+        console.log('3. Usuario 1: ' + user1.ci);
+        console.log('4. Usuario 2: ' + user2.ci);
     } catch (error) {
         console.error('❌ Error during seed:', error);
         throw error;
