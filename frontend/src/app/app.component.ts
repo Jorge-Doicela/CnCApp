@@ -215,11 +215,30 @@ export class AppComponent implements OnInit, OnDestroy {
       'direccion': 'direccion',
       'historia': 'historia',
       'norma-regul': 'norma-regul',
-      'servi-progra': 'servi-progra'
+      'servi-progra': 'servi-progra',
+      'Gestionar plantillas': 'gestionar-plantillas',
+      'Plantillas': 'gestionar-plantillas'
     };
 
     // Obtener la ruta del mapeo o convertir el nombre del módulo a formato kebab-case
-    const ruta = rutasModulos[modulo] || modulo.toLowerCase().replace(/\s+/g, '-');
+    let ruta = rutasModulos[modulo] || modulo.toLowerCase().replace(/\s+/g, '-');
+
+    // Lógica específica para Creadores: Redirigir a rutas /creator/ para módulos compartidos
+    const roleName = this.authService.roleName()?.toLowerCase();
+    const isCreator = roleName?.includes('creador') || roleName?.includes('conferencia');
+
+    if (isCreator) {
+      // Lista de rutas que tienen versión específica para creadores
+      const creatorRoutes = [
+        'gestionar-capacitaciones',
+        'gestionar-plantillas',
+        'certificados' // Si aplica
+      ];
+
+      if (creatorRoutes.some(r => ruta.includes(r))) {
+        ruta = `creator/${ruta}`;
+      }
+    }
 
     console.log(`Navegando a: /${ruta}`);
     this.router.navigate([`/${ruta}`]);
@@ -260,7 +279,10 @@ export class AppComponent implements OnInit, OnDestroy {
       'Ver conferencias': 'list-outline',
       'Ver certificaciones': 'document-text-outline',
       'Ver certificados': 'document-text-outline',
-      'Validar certificados': 'qr-code-outline'
+      'Validar certificados': 'qr-code-outline',
+      'gestionar-plantillas': 'image-outline',
+      'gestionar-roles': 'people-outline',
+      'gestionar-usuarios': 'person-add-outline'
     };
 
     return iconMap[modulo] || 'apps-outline';
