@@ -1,10 +1,10 @@
-import { Component, OnInit, inject, effect } from '@angular/core';
+import { Component, OnInit, inject, effect, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
-  IonHeader, IonToolbar, IonButtons, IonMenuButton,
+  IonHeader, IonToolbar, IonButtons,
   IonContent, IonIcon, IonButton,
-  ToastController, LoadingController
+  ToastController, LoadingController, MenuController
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -14,7 +14,7 @@ import {
   createOutline, timeOutline, bookOutline, informationCircleOutline,
   locationOutline, personAddOutline, businessOutline, pinOutline,
   ribbonOutline, idCardOutline, listOutline, appsOutline, homeOutline,
-  rocketOutline, timerOutline, notificationsOffOutline
+  rocketOutline, timerOutline, notificationsOffOutline, menuOutline
 } from 'ionicons/icons';
 import { Router } from '@angular/router';
 
@@ -31,9 +31,11 @@ import { firstValueFrom } from 'rxjs';
   standalone: true,
   imports: [
     CommonModule, FormsModule,
-    IonHeader, IonToolbar, IonButtons, IonMenuButton,
+    CommonModule, FormsModule,
+    IonHeader, IonToolbar, IonButtons,
     IonContent, IonIcon, IonButton
-  ]
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class HomePage implements OnInit {
   // Use AuthService signals directly
@@ -64,6 +66,7 @@ export class HomePage implements OnInit {
 
   private capacitacionesService = inject(CapacitacionesService);
   private usuarioService = inject(UsuarioService);
+  private menuCtrl = inject(MenuController);
 
   constructor(
     private toastController: ToastController,
@@ -100,7 +103,8 @@ export class HomePage implements OnInit {
       'home-outline': homeOutline,
       'rocket-outline': rocketOutline,
       'timer-outline': timerOutline,
-      'notifications-off-outline': notificationsOffOutline
+      'notifications-off-outline': notificationsOffOutline,
+      'menu-outline': menuOutline
     });
 
     // Use effect for reactive title updates (must be in injection context)
@@ -141,6 +145,15 @@ export class HomePage implements OnInit {
     } else {
       this.pageTitle = 'Bienvenido';
     }
+  }
+
+  toggleMenu() {
+    // Rendimiento Máximo: Blur inmediato para evitar chequeos de accesibilidad costosos
+    // y conflictos con aria-hidden antes de que Ionic reaccione.
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+    this.menuCtrl.toggle();
   }
 
   async cargarDatos() {

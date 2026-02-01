@@ -1,9 +1,10 @@
 <ion-app>
   <!-- Menú lateral -->
-  <ion-menu side="start" content-id="main-content">
+  <ion-menu side="start" content-id="main-content" (ionWillOpen)="handleMenuWillOpen()" (ionDidOpen)="handleMenuOpen()"
+    (ionDidClose)="handleMenuClose()">
     <ion-header>
       <ion-toolbar color="primary">
-        <ion-title>
+        <ion-title #menuFocusTarget tabindex="-1" style="outline: none;">
           <div class="menu-header">
             <img src="assets/certificados/cnc.png" alt="Logo" class="menu-logo">
             <span>CNC Portal</span>
@@ -91,5 +92,5 @@
   </ion-menu>
 
   <!-- Contenido principal -->
-  <ion-router-outlet id="main-content"></ion-router-outlet>
+  <ion-router-outlet id="main-content" #mainContent tabindex="-1" style="outline: none;"></ion-router-outlet>
 </ion-app>

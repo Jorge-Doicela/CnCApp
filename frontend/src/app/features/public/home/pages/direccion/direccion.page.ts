@@ -1,5 +1,5 @@
 // direccion.page.ts
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
 import { AlertController, ToastController, LoadingController } from '@ionic/angular';
 import { HttpClient } from '@angular/common/http';
@@ -12,8 +12,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {
   IonHeader, IonToolbar, IonButtons, IonBackButton,
   IonTitle, IonContent, IonCard, IonCardHeader,
-  IonCardTitle, IonCardContent, IonIcon, IonItem,
-  IonLabel, IonInput, IonTextarea, IonButton
+  IonCardTitle, IonCardContent, IonIcon
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -31,9 +30,9 @@ import {
     CommonModule, FormsModule, ReactiveFormsModule,
     IonHeader, IonToolbar, IonButtons, IonBackButton,
     IonTitle, IonContent, IonCard, IonCardHeader,
-    IonCardTitle, IonCardContent, IonIcon, IonItem,
-    IonLabel, IonInput, IonTextarea, IonButton
-  ]
+    IonCardTitle, IonCardContent, IonIcon
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DireccionPage implements OnInit, AfterViewInit {
   // Inicializar contactForm aquí para resolver error TS2564

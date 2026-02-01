@@ -1,5 +1,5 @@
 // norma-regul.page.ts
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { AlertController, ToastController, ModalController } from '@ionic/angular';
 import { SafeResourceUrl, DomSanitizer } from '@angular/platform-browser';
 
@@ -7,10 +7,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
   IonHeader, IonToolbar, IonButtons, IonBackButton,
-  IonTitle, IonContent, IonCard, IonCardHeader,
-  IonCardTitle, IonCardContent, IonSearchbar,
-  IonList, IonItem, IonLabel, IonBadge, IonIcon,
-  IonButton, IonFab, IonFabButton, IonInput,
+  IonTitle, IonContent, IonCard, IonCardContent,
+  IonItem, IonLabel, IonIcon,
+  IonButton, IonInput,
   IonSelect, IonSelectOption
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
@@ -33,12 +32,12 @@ import {
   imports: [
     CommonModule, FormsModule,
     IonHeader, IonToolbar, IonButtons, IonBackButton,
-    IonTitle, IonContent, IonCard, IonCardHeader,
-    IonCardTitle, IonCardContent, IonSearchbar,
-    IonList, IonItem, IonLabel, IonBadge, IonIcon,
-    IonButton, IonFab, IonFabButton, IonInput,
+    IonTitle, IonContent, IonCard, IonCardContent,
+    IonItem, IonLabel, IonIcon,
+    IonButton, IonInput,
     IonSelect, IonSelectOption
-  ]
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class NormaRegulPage implements OnInit {
   searchTerm: string = '';

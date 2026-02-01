@@ -1,11 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
   IonHeader, IonToolbar, IonButtons, IonBackButton,
   IonTitle, IonContent, IonCard, IonCardHeader,
-  IonCardTitle, IonCardContent, IonIcon, IonLabel
+  IonCardTitle, IonCardContent, IonIcon
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -22,8 +22,9 @@ import {
     CommonModule, FormsModule,
     IonHeader, IonToolbar, IonButtons, IonBackButton,
     IonTitle, IonContent, IonCard, IonCardHeader,
-    IonCardTitle, IonCardContent, IonIcon, IonLabel
-  ]
+    IonCardTitle, IonCardContent, IonIcon
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class HistoriaPage implements OnInit {
 
