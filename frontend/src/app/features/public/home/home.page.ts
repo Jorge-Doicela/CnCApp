@@ -157,9 +157,11 @@ export class HomePage implements OnInit {
   }
 
   async cargarDatos() {
+    // Cargar capacitaciones disponibles (Público)
+    await this.RecuperarCapacitaciones();
+
     if (this.userName()) {
-      // Usuario autenticado - cargar datos relevantes
-      await this.RecuperarCapacitaciones();
+      // Usuario autenticado - cargar datos personales
       await this.RecuperarConferenciasInscrito();
 
       // Calcular estadísticas
@@ -167,6 +169,10 @@ export class HomePage implements OnInit {
 
       const role = this.roleName();
       if (role === 'Administrador' || role?.toLowerCase() === 'administrador') {
+        await this.cargarEstadisticasAdmin();
+      } else if (role?.toLowerCase().includes('creador') || role?.toLowerCase().includes('conferencia')) {
+        // Re-use Admin stats for now as creators likely need similar stats (or subset)
+        // Or implement specific creator stats method if needed.
         await this.cargarEstadisticasAdmin();
       }
     }
@@ -393,6 +399,28 @@ export class HomePage implements OnInit {
 
     // Verificar si es una ruta protegida y el usuario no está logueado
     const isPublicRoute = ruta.startsWith('home/') || ruta === 'validar-certificados';
+
+    // Verify Role for specific adjustments
+    const roleName = this.authService.roleName()?.toLowerCase() || '';
+    const isCreator = roleName.includes('creador') || roleName.includes('conferencia');
+
+    // Special handling for "Gestionar capacitaciones" if user is Creator
+    if (isCreator && (modulo === 'Gestionar capacitaciones' || ruta === 'gestionar-capacitaciones')) {
+      console.log('Redireccionando Creador a su módulo específico...');
+      this.router.navigate(['/creator/gestionar-capacitaciones']);
+      return;
+    }
+
+    // Manejo especial para "Ver conferencias" (Oferta Académica)
+    if (ruta === 'ver-conferencias') {
+      const conferencesSection = document.getElementById('oferta-academica');
+      if (conferencesSection) {
+        conferencesSection.scrollIntoView({ behavior: 'smooth' });
+        return; // Detener navegación, solo scrollear
+      } else if (!this.authService.userName()) {
+        // Guest logic
+      }
+    }
 
     if (!isPublicRoute && !this.authService.userName()) {
       this.showAuthWarning();

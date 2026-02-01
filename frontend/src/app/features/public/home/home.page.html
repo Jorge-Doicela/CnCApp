@@ -152,6 +152,52 @@
         </div>
       </div>
 
+      <!-- Public Tools for Admins (So they are not hidden) -->
+      <div class="section-header ion-text-center mt-4">
+        <h3>Herramientas Públicas</h3>
+        <div class="separator"></div>
+      </div>
+      <div class="services-grid">
+        <!-- Validar Certificados -->
+        <div class="service-card" (click)="navegarModulo('Validar certificados')">
+          <div class="icon-circle">
+            <ion-icon name="qr-code-outline"></ion-icon>
+          </div>
+          <h4>Validar Diplomas</h4>
+          <p>Verificar autenticidad.</p>
+          <div class="card-footer">
+            <span>Validar</span>
+            <ion-icon name="arrow-forward"></ion-icon>
+          </div>
+        </div>
+
+        <!-- Oferta Académica (Scroll/Link) -->
+        <div class="service-card" (click)="navegarModulo('Ver conferencias')">
+          <div class="icon-circle">
+            <ion-icon name="school-outline"></ion-icon>
+          </div>
+          <h4>Oferta Académica</h4>
+          <p>Ver lista completa.</p>
+          <div class="card-footer">
+            <span>Ver</span>
+            <ion-icon name="arrow-forward"></ion-icon>
+          </div>
+        </div>
+
+        <!-- Servicios GADs (Added to ensure visibility) -->
+        <div class="service-card" (click)="navegarModulo('servi-progra')">
+          <div class="icon-circle">
+            <ion-icon name="briefcase-outline"></ion-icon>
+          </div>
+          <h4>Servicios GADs</h4>
+          <p>Catálogo técnico.</p>
+          <div class="card-footer">
+            <span>Explorar</span>
+            <ion-icon name="arrow-forward"></ion-icon>
+          </div>
+        </div>
+      </div>
+
       <!-- Recent Management -->
       <br>
       <div class="content-block">
@@ -176,6 +222,106 @@
           </div>
         </div>
       </div>
+    </div>
+  </ng-container>
+
+
+  <!-- ========================================== -->
+  <!-- CREATOR DASHBOARD (Creador de Conferencias) -->
+  <!-- ========================================== -->
+  <ng-container
+    *ngIf="userName() && (roleName()?.toLowerCase().includes('creador') || roleName()?.toLowerCase().includes('conferencia'))">
+    <div class="dashboard-section container section-padding pb-0">
+
+      <!-- Creator Stats -->
+      <div class="stats-row">
+        <div class="stat-card-modern">
+          <div class="stat-icon-wrapper blue">
+            <ion-icon name="calendar-outline"></ion-icon>
+          </div>
+          <div class="stat-info">
+            <h3>{{ conferenciasCount }}</h3>
+            <p>Mis Conferencias</p>
+          </div>
+        </div>
+        <div class="stat-card-modern">
+          <div class="stat-icon-wrapper green">
+            <ion-icon name="people-outline"></ion-icon>
+          </div>
+          <div class="stat-info">
+            <h3>{{ usuariosCount }}</h3>
+            <p>Inscritos</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Creator Modules Grid -->
+      <div class="section-header ion-text-center mt-4">
+        <h3>Gestión de Conferencias</h3>
+        <div class="separator"></div>
+      </div>
+
+      <div class="services-grid">
+        <!-- Manage Conferences -->
+        <div class="service-card" (click)="navegarModulo('Gestionar capacitaciones')">
+          <div class="icon-circle">
+            <ion-icon name="easel-outline"></ion-icon>
+          </div>
+          <h4>Conferencias</h4>
+          <p>Crear y editar eventos.</p>
+          <div class="card-footer">
+            <span>Gestionar</span>
+            <ion-icon name="arrow-forward"></ion-icon>
+          </div>
+        </div>
+
+        <!-- View Enrolled -->
+        <div class="service-card" (click)="navegarModulo('Ver conferencias')">
+          <div class="icon-circle">
+            <ion-icon name="list-outline"></ion-icon>
+          </div>
+          <h4>Listado General</h4>
+          <p>Ver todas las conferencias.</p>
+          <div class="card-footer">
+            <span>Ver</span>
+            <ion-icon name="arrow-forward"></ion-icon>
+          </div>
+        </div>
+      </div>
+
+      <!-- Public/Shared Tools for Creators (Visibility Safety) -->
+      <div class="section-header ion-text-center mt-4">
+        <h3>Herramientas Generales</h3>
+        <div class="separator"></div>
+      </div>
+      <div class="services-grid">
+        <!-- Validar -->
+        <div class="service-card" (click)="navegarModulo('Validar certificados')">
+          <div class="icon-circle">
+            <ion-icon name="qr-code-outline"></ion-icon>
+          </div>
+          <h4>Validar Diplomas</h4>
+          <p>Verificar autenticidad.</p>
+          <div class="card-footer">
+            <span>Validar</span>
+            <ion-icon name="arrow-forward"></ion-icon>
+          </div>
+        </div>
+
+        <!-- Servicios GADs -->
+        <div class="service-card" (click)="navegarModulo('servi-progra')">
+          <div class="icon-circle">
+            <ion-icon name="briefcase-outline"></ion-icon>
+          </div>
+          <h4>Servicios GADs</h4>
+          <p>Catálogo técnico.</p>
+          <div class="card-footer">
+            <span>Explorar</span>
+            <ion-icon name="arrow-forward"></ion-icon>
+          </div>
+        </div>
+      </div>
+
     </div>
   </ng-container>
 
@@ -390,6 +536,33 @@
           </div>
         </div>
       </div>
+
+      <!-- PUBLIC AVAILABLE CONFERENCES SECTION -->
+      <br id="oferta-academica">
+      <div class="content-block" *ngIf="capacitacionesDisponibles.length > 0">
+        <div class="block-header">
+          <h3>Conferencias Disponibles</h3>
+          <p class="section-subtitle">Inicia sesión para inscribirte</p>
+        </div>
+
+        <div class="horizontal-scroll-container">
+          <div class="conference-card-mini" *ngFor="let capacitacion of capacitacionesDisponibles">
+            <div class="card-status status-{{ capacitacion.estado === 'Activa' ? 'available' : 'closed' }}">
+              {{ capacitacion.estado === 'Activa' ? 'Disponible' : 'Cerrada' }}
+            </div>
+            <h4>{{ capacitacion.nombre }}</h4>
+            <div class="card-meta">
+              <span><ion-icon name="calendar-outline"></ion-icon> {{ capacitacion.fechaInicio | date:'dd MMM' }}</span>
+              <span><ion-icon name="location-outline"></ion-icon> {{ capacitacion.lugar }}</span>
+            </div>
+            <!-- Guest Action: Redirect to Login/Inscribirse logic handles it -->
+            <button class="action-btn" (click)="inscribirse(capacitacion.id)">
+              Inscribirse
+            </button>
+          </div>
+        </div>
+      </div>
+
     </div>
   </ng-container>
 
