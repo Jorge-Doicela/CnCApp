@@ -29,11 +29,23 @@ import { CreateCertificadoUseCase } from '../application/certificado/use-cases/c
 import { GetCertificadoByQRUseCase } from '../application/certificado/use-cases/get-certificado-by-qr.use-case';
 import { GetUserCertificadosUseCase } from '../application/certificado/use-cases/get-user-certificados.use-case';
 
+// Import Reportes Use Cases
+import { GetDashboardStatsUseCase } from '../application/reportes/use-cases/get-dashboard-stats.use-case';
+
 // Import Controllers
 import { AuthController } from '../infrastructure/web/controllers/auth.controller';
 import { UserController } from '../infrastructure/web/controllers/user.controller';
 import { CapacitacionController } from '../infrastructure/web/controllers/capacitacion.controller';
 import { CertificadoController } from '../infrastructure/web/controllers/certificado.controller';
+import { ReportesController } from '../infrastructure/web/controllers/reportes.controller';
+
+// Import Database
+import prisma from './database';
+
+// ============================================
+// REGISTER EXTERNAL DEPENDENCIES
+// ============================================
+container.register('PrismaClient', { useValue: prisma });
 
 // ============================================
 // REGISTER REPOSITORIES
@@ -76,6 +88,9 @@ container.registerSingleton(CreateCertificadoUseCase);
 container.registerSingleton(GetCertificadoByQRUseCase);
 container.registerSingleton(GetUserCertificadosUseCase);
 
+// Reportes Use Cases
+container.registerSingleton(GetDashboardStatsUseCase);
+
 // ============================================
 // REGISTER CONTROLLERS
 // ============================================
@@ -83,5 +98,6 @@ container.registerSingleton(AuthController);
 container.registerSingleton(UserController);
 container.registerSingleton(CapacitacionController);
 container.registerSingleton(CertificadoController);
+container.registerSingleton(ReportesController);
 
 export { container };
