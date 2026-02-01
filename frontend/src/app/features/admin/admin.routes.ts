@@ -3,6 +3,11 @@ import { adminGuard } from '../../core/guards/admin.guard';
 
 export const ADMIN_ROUTES: Routes = [
     {
+        path: 'gestionar-reportes',
+        loadComponent: () => import('./reportes/reportes.page').then(m => m.ReportesPage),
+        canActivate: [adminGuard]
+    },
+    {
         path: 'gestionar-usuarios',
         loadComponent: () => import('./users/crudusuarios.page').then(m => m.CRUDUsuariosPage),
         canActivate: [adminGuard]

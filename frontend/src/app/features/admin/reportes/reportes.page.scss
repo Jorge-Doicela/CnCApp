@@ -1,0 +1,210 @@
+.loading-container,
+.error-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+    gap: 1rem;
+}
+
+.stats-container {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.page-header {
+    margin-bottom: 2rem;
+
+    h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--ion-color-primary);
+        margin-bottom: 0.5rem;
+    }
+
+    p {
+        color: var(--ion-color-medium);
+        font-size: 1rem;
+    }
+}
+
+// Main Stat Cards
+.stat-card {
+    margin: 0;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+
+    &:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    ion-card-content {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        padding: 1.5rem;
+    }
+
+    .stat-icon {
+        font-size: 3rem;
+        opacity: 0.9;
+
+        ion-icon {
+            font-size: 3rem;
+        }
+    }
+
+    .stat-info {
+        h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0;
+            line-height: 1;
+        }
+
+        p {
+            margin: 0.5rem 0 0 0;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+    }
+}
+
+.stat-card-primary {
+    background: linear-gradient(135deg, var(--ion-color-primary) 0%, var(--ion-color-primary-shade) 100%);
+    color: white;
+}
+
+.stat-card-success {
+    background: linear-gradient(135deg, var(--ion-color-success) 0%, var(--ion-color-success-shade) 100%);
+    color: white;
+}
+
+.stat-card-warning {
+    background: linear-gradient(135deg, var(--ion-color-warning) 0%, var(--ion-color-warning-shade) 100%);
+    color: white;
+}
+
+.stat-card-info {
+    background: linear-gradient(135deg, #3880ff 0%, #2563eb 100%);
+    color: white;
+}
+
+// Detail Cards
+.detail-card {
+    margin: 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+    ion-card-header {
+        padding-bottom: 0.5rem;
+
+        ion-card-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1rem;
+            color: var(--ion-color-medium);
+
+            ion-icon {
+                font-size: 1.2rem;
+            }
+        }
+    }
+
+    ion-card-content {
+        h3 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--ion-color-primary);
+            margin: 0;
+        }
+
+        p {
+            margin: 0.5rem 0 0 0;
+            color: var(--ion-color-medium);
+            font-size: 0.9rem;
+        }
+    }
+}
+
+// Roles Card
+.roles-card {
+    margin: 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+    ion-card-header {
+        ion-card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--ion-color-dark);
+        }
+    }
+}
+
+.role-stat {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--ion-color-light);
+    border-radius: 8px;
+
+    .role-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+
+        ion-icon {
+            font-size: 1.5rem;
+        }
+
+        &.admin {
+            background: linear-gradient(135deg, var(--ion-color-danger) 0%, var(--ion-color-danger-shade) 100%);
+        }
+
+        &.conferencista {
+            background: linear-gradient(135deg, var(--ion-color-tertiary) 0%, var(--ion-color-tertiary-shade) 100%);
+        }
+
+        &.usuario {
+            background: linear-gradient(135deg, var(--ion-color-secondary) 0%, var(--ion-color-secondary-shade) 100%);
+        }
+    }
+
+    .role-info {
+        h4 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin: 0;
+            color: var(--ion-color-dark);
+        }
+
+        p {
+            margin: 0.25rem 0 0 0;
+            color: var(--ion-color-medium);
+            font-size: 0.9rem;
+        }
+    }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+    .stat-card {
+        ion-card-content {
+            flex-direction: column;
+            text-align: center;
+        }
+    }
+
+    .page-header {
+        h1 {
+            font-size: 1.5rem;
+        }
+    }
+}

@@ -74,7 +74,7 @@ export class RegisterUserUseCase {
             fechaNacimiento: data.fechaNacimiento ? new Date(data.fechaNacimiento) : undefined,
             provinciaId: data.provinciaId,
             cantonId: data.cantonId,
-            rolId: 3, // Participante
+            rolId: 3, // Usuario (rol por defecto para nuevos registros)
             entidadId: 1 // CNC
         };
 
