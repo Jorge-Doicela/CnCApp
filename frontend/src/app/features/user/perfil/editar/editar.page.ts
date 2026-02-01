@@ -1,5 +1,5 @@
 import { IonicModule } from '@ionic/angular';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 // editar.page.ts - Fixed version with correct navigation state handling
 import { Component, OnInit } from '@angular/core';
@@ -17,7 +17,7 @@ import { firstValueFrom } from 'rxjs';
   templateUrl: './editar.page.html',
   styleUrls: ['./editar.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule]
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, IonicModule]
 })
 export class EditarPage implements OnInit {
   perfilForm!: FormGroup;

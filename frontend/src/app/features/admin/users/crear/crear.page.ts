@@ -584,6 +584,25 @@ export class CrearPage implements OnInit {
     });
   }
 
+  // Obtener parroquias por cantón
+  obtenerParroquias(cantonId: string) {
+    if (!cantonId) return;
+    this.catalogoService.getItems('parroquias').subscribe({
+      next: (data) => {
+        this.datosrecuperados.parroquiasSeleccionadas = data.filter((p: any) => p.codigo_canton == cantonId && p.estado);
+        this.cdr.detectChanges();
+      },
+      error: (err) => console.error(err)
+    });
+  }
+
+  // Manejar cambio en nivel de gobierno
+  onNivelGobiernoChange(nivelGobierno: string) {
+    // Este método se llama cuando cambia el nivel de gobierno
+    // Aquí puedes agregar lógica adicional si es necesario
+    console.log('Nivel de gobierno seleccionado:', nivelGobierno);
+  }
+
   recuperarCompetencias() { }
   recuperarMacrocumunidades() { }
   generacionMunicipios() { }

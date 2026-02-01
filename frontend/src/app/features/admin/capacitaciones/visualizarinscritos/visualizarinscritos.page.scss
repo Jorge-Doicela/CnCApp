@@ -166,260 +166,258 @@ ion-content {
 .participants-section {
   margin-bottom: 30px;
 
-/* Entidades section */
-.entidades-section {
-  margin-bottom: var(--section-spacing);
-}
-
-.entidades-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 16px;
-}
-
-.entidad-card {
-  background: var(--ion-card-background);
-  border-radius: var(--card-border-radius);
-  padding: 16px;
-  box-shadow: var(--card-shadow);
-  transition: transform var(--transition-duration);
-
-  &:hover {
-    transform: translateY(-3px);
-  }
-}
-
-.entidad-header {
-  display: flex;
-  align-items: center;
-  margin-bottom: 8px;
-
-  ion-icon {
-    font-size: 24px;
-    margin-right: 12px;
-    color: var(--ion-color-primary);
+  /* Entidades section */
+  .entidades-section {
+    margin-bottom: var(--section-spacing);
   }
 
-  h4 {
-    margin: 0;
-    font-size: 16px;
-    font-weight: 500;
+  .entidades-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
   }
-}
 
-.entidad-description {
-  margin: 0;
-  color: var(--ion-color-medium);
-  font-size: 14px;
-}
-
-// Expositores section
-.expositores-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 16px;
-  margin-bottom: 24px;
-
-  .expositor-card {
-    background: white;
-    border-radius: 8px;
+  .entidad-card {
+    background: var(--ion-card-background);
+    border-radius: var(--card-border-radius);
     padding: 16px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--card-shadow);
+    transition: transform var(--transition-duration);
 
-    .expositor-header {
-      display: flex;
-      align-items: center;
-      margin-bottom: 12px;
-
-      .expositor-avatar {
-        width: 40px;
-        height: 40px;
-        background: var(--ion-color-secondary);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-right: 12px;
-
-        ion-icon {
-          font-size: 24px;
-          color: white;
-        }
-      }
-
-      .expositor-info {
-        h4 {
-          margin: 0 0 4px;
-          font-size: 16px;
-          font-weight: 600;
-        }
-
-        .expositor-badge {
-          font-size: 12px;
-          background: var(--ion-color-secondary);
-          color: white;
-          padding: 2px 6px;
-          border-radius: 4px;
-        }
-      }
-    }
-
-    .expositor-content {
-      .expositor-detail {
-        display: flex;
-        align-items: center;
-        font-size: 14px;
-        margin-bottom: 8px;
-
-        ion-icon {
-          margin-right: 8px;
-          font-size: 16px;
-        }
-      }
+    &:hover {
+      transform: translateY(-3px);
     }
   }
-}
 
-// Estilo para el enlace virtual
-.virtual-link {
-  color: var(--ion-color-primary);
-  text-decoration: none;
-  display: flex;
-  align-items: center;
+  .entidad-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
 
-  ion-icon {
-    margin-left: 5px;
-  }
-
-  &:hover {
-    text-decoration: underline;
-  }
-}
-
-// Estilos para la sección de certificados
-.certificate-section {
-  margin-bottom: 30px;
-
-  .certificate-card {
-    background: white;
-    border-radius: 16px;
-    overflow: hidden;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-
-    &.generated {
-      border: 2px solid var(--ion-color-warning);
+    ion-icon {
+      font-size: 24px;
+      margin-right: 12px;
+      color: var(--ion-color-primary);
     }
 
-    .certificate-content {
-      padding: 20px;
-
-      p {
-        font-size: 16px;
-        color: #555;
-        margin-bottom: 20px;
-        line-height: 1.5;
-      }
-
-      .certificate-alert {
-        display: flex;
-        align-items: flex-start;
-        background-color: rgba(var(--ion-color-warning-rgb), 0.1);
-        border-left: 4px solid var(--ion-color-warning);
-        padding: 15px;
-        border-radius: 8px;
-        margin-bottom: 20px;
-
-        ion-icon {
-          font-size: 24px;
-          margin-right: 10px;
-          flex-shrink: 0;
-        }
-
-        p {
-          margin: 0;
-          font-size: 14px;
-          line-height: 1.4;
-        }
-      }
-
-      .action-button {
-        --border-radius: 12px;
-        height: 50px;
-        font-weight: 600;
-        margin-top: 10px;
-      }
+    h4 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 500;
     }
+  }
 
-    .certificate-preview {
-      padding: 20px;
-      border: 1px dashed #ccc;
-      margin: 15px;
+  .entidad-description {
+    margin: 0;
+    color: var(--ion-color-medium);
+    font-size: 14px;
+  }
+
+  // Expositores section
+  .expositores-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+
+    .expositor-card {
+      background: white;
       border-radius: 8px;
-      background-color: #fffdf5;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
+      padding: 16px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 
-      .certificate-header {
-        margin-bottom: 20px;
+      .expositor-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 12px;
 
-        ion-icon {
-          font-size: 40px;
-          color: var(--ion-color-warning);
-          margin-bottom: 10px;
+        .expositor-avatar {
+          width: 40px;
+          height: 40px;
+          background: var(--ion-color-secondary);
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-right: 12px;
+
+          ion-icon {
+            font-size: 24px;
+            color: white;
+          }
         }
 
-        h4 {
-          font-size: 20px;
-          color: var(--ion-color-warning);
-          margin: 0;
-          font-weight: 600;
+        .expositor-info {
+          h4 {
+            margin: 0 0 4px;
+            font-size: 16px;
+            font-weight: 600;
+          }
+
+          .expositor-badge {
+            font-size: 12px;
+            background: var(--ion-color-secondary);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+          }
         }
       }
 
-      .certificate-body {
-        margin-bottom: 20px;
-
-        p {
-          margin: 5px 0;
-        }
-
-        h5 {
-          font-size: 18px;
-          color: var(--ion-color-primary);
-          margin: 10px 0;
-          font-weight: 600;
-        }
-      }
-
-      .certificate-footer {
-        margin-top: 10px;
-        padding-top: 10px;
-        border-top: 1px solid #eee;
-        width: 100%;
-
-        p {
+      .expositor-content {
+        .expositor-detail {
+          display: flex;
+          align-items: center;
           font-size: 14px;
-          color: #666;
-          margin: 0;
+          margin-bottom: 8px;
+
+          ion-icon {
+            margin-right: 8px;
+            font-size: 16px;
+          }
         }
       }
     }
   }
-}
 
-// Estilo para el loading
+  // Estilo para el enlace virtual
+  .virtual-link {
+    color: var(--ion-color-primary);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
 
-// Estilo para el botón flotante
-ion-fab-button {
-  --box-shadow: 0 4px 12px rgba(var(--ion-color-primary-rgb), 0.4);
-  transition: transform 0.3s ease;
+    ion-icon {
+      margin-left: 5px;
+    }
 
-  &:hover {
-    transform: scale(1.1);
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  // Estilos para la sección de certificados
+  .certificate-section {
+    margin-bottom: 30px;
+
+    .certificate-card {
+      background: white;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+
+      &.generated {
+        border: 2px solid var(--ion-color-warning);
+      }
+
+      .certificate-content {
+        padding: 20px;
+
+        p {
+          font-size: 16px;
+          color: #555;
+          margin-bottom: 20px;
+          line-height: 1.5;
+        }
+
+        .certificate-alert {
+          display: flex;
+          align-items: flex-start;
+          background-color: rgba(var(--ion-color-warning-rgb), 0.1);
+          border-left: 4px solid var(--ion-color-warning);
+          padding: 15px;
+          border-radius: 8px;
+          margin-bottom: 20px;
+
+          ion-icon {
+            font-size: 24px;
+            margin-right: 10px;
+            flex-shrink: 0;
+          }
+
+          p {
+            margin: 0;
+            font-size: 14px;
+            line-height: 1.4;
+          }
+        }
+
+        .action-button {
+          --border-radius: 12px;
+          height: 50px;
+          font-weight: 600;
+          margin-top: 10px;
+        }
+      }
+
+      .certificate-preview {
+        padding: 20px;
+        border: 1px dashed #ccc;
+        margin: 15px;
+        border-radius: 8px;
+        background-color: #fffdf5;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+
+        .certificate-header {
+          margin-bottom: 20px;
+
+          ion-icon {
+            font-size: 40px;
+            color: var(--ion-color-warning);
+            margin-bottom: 10px;
+          }
+
+          h4 {
+            font-size: 20px;
+            color: var(--ion-color-warning);
+            margin: 0;
+            font-weight: 600;
+          }
+        }
+
+        .certificate-body {
+          margin-bottom: 20px;
+
+          p {
+            margin: 5px 0;
+          }
+
+          h5 {
+            font-size: 18px;
+            color: var(--ion-color-primary);
+            margin: 10px 0;
+            font-weight: 600;
+          }
+        }
+
+        .certificate-footer {
+          margin-top: 10px;
+          padding-top: 10px;
+          border-top: 1px solid #eee;
+          width: 100%;
+
+          p {
+            font-size: 14px;
+            color: #666;
+            margin: 0;
+          }
+        }
+      }
+    }
+  }
+
+  // Estilo para el loading
+
+  // Estilo para el botón flotante
+  ion-fab-button {
+    --box-shadow: 0 4px 12px rgba(var(--ion-color-primary-rgb), 0.4);
+    transition: transform 0.3s ease;
+
+    &:hover {
+      transform: scale(1.1);
+    }
   }
 }
-
-// Animación para elementos
-

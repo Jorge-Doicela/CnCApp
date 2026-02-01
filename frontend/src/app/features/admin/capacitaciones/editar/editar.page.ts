@@ -21,18 +21,18 @@ export class EditarPage implements OnInit {
 
   cargando: boolean = true;
   capacitacion = {
-    Id_Capacitacion: null as number | null,
-    Nombre_Capacitacion: '',
-    Descripcion_Capacitacion: '',
-    Fecha_Capacitacion: '',
-    Lugar_Capacitacion: '',
-    Estado: 0,
-    Modalidades: '',
-    Horas: 0,
-    Limite_Participantes: 0,
-    entidades_encargadas: [] as number[],
-    ids_usuarios: [] as number[],
-    Certificado: false
+    id: null as number | null,
+    nombre: '',
+    descripcion: '',
+    fechaInicio: '',
+    lugar: '',
+    estado: 0,
+    modalidad: '',
+    horas: 0,
+    limiteParticipantes: 0,
+    entidadesEncargadas: [] as number[],
+    idsUsuarios: [] as number[],
+    certificado: false
   };
 
   capacitacionOriginal: any = {};
@@ -52,9 +52,9 @@ export class EditarPage implements OnInit {
   ) { }
 
   ngOnInit() {
-    const idCapacitacion = this.activatedRoute.snapshot.paramMap.get('Id_Capacitacion');
+    const idCapacitacion = this.activatedRoute.snapshot.paramMap.get('id');
     if (idCapacitacion) {
-      this.capacitacion.Id_Capacitacion = +idCapacitacion;
+      this.capacitacion.id = +idCapacitacion;
       this.cargarDatos();
     } else {
       this.mostrarToast('ID de capacitación no válido', 'danger');
@@ -88,11 +88,11 @@ export class EditarPage implements OnInit {
 
   cargarCapacitacion() {
     return new Promise<void>((resolve, reject) => {
-      if (!this.capacitacion.Id_Capacitacion) {
+      if (!this.capacitacion.id) {
         reject('No ID');
         return;
       }
-      this.capacitacionesService.getCapacitacion(this.capacitacion.Id_Capacitacion).subscribe({
+      this.capacitacionesService.getCapacitacion(this.capacitacion.id).subscribe({
         next: (data) => {
           if (!data) {
             this.mostrarToast('No se encontró la capacitación', 'warning');
@@ -100,7 +100,8 @@ export class EditarPage implements OnInit {
             reject();
             return;
           }
-          this.capacitacion = { ...data };
+          // Direct assignment - no mapping needed anymore
+          this.capacitacion = { ...data } as any;
           resolve();
         },
         error: (err) => reject(err)
@@ -138,7 +139,7 @@ export class EditarPage implements OnInit {
       return;
     }
 
-    if (this.capacitacion.Certificado && this.hayBioCambiosCriticos()) {
+    if (this.capacitacion.certificado && this.hayBioCambiosCriticos()) {
       const alert = await this.alertController.create({
         header: 'Advertencia',
         message: 'Esta capacitación tiene certificados emitidos. Cambiar información básica puede afectar la validez de los certificados. ¿Desea continuar?',
@@ -164,10 +165,10 @@ export class EditarPage implements OnInit {
 
   hayBioCambiosCriticos(): boolean {
     return (
-      this.capacitacion.Nombre_Capacitacion !== this.capacitacionOriginal.Nombre_Capacitacion ||
-      this.capacitacion.Fecha_Capacitacion !== this.capacitacionOriginal.Fecha_Capacitacion ||
-      this.capacitacion.Lugar_Capacitacion !== this.capacitacionOriginal.Lugar_Capacitacion ||
-      this.capacitacion.Horas !== this.capacitacionOriginal.Horas
+      this.capacitacion.nombre !== this.capacitacionOriginal.nombre ||
+      this.capacitacion.fechaInicio !== this.capacitacionOriginal.fechaInicio ||
+      this.capacitacion.lugar !== this.capacitacionOriginal.lugar ||
+      this.capacitacion.horas !== this.capacitacionOriginal.horas
     );
   }
 
@@ -178,17 +179,18 @@ export class EditarPage implements OnInit {
     });
     await loading.present();
 
-    if (!this.capacitacion.Id_Capacitacion) {
+    if (!this.capacitacion.id) {
       loading.dismiss();
       return;
     }
 
-    this.capacitacionesService.updateCapacitacion(this.capacitacion.Id_Capacitacion, this.capacitacion).subscribe({
+    // Direct use - no mapping needed anymore
+    this.capacitacionesService.updateCapacitacion(this.capacitacion.id!, this.capacitacion as any).subscribe({
       next: () => {
         this.capacitacionOriginal = JSON.parse(JSON.stringify(this.capacitacion));
         this.mostrarToast('Capacitación actualizada correctamente', 'success');
 
-        if (this.capacitacion.Estado === 1 && !this.capacitacion.Certificado) {
+        if (this.capacitacion.estado === 1 && !this.capacitacion.certificado) {
           loading.dismiss();
           this.preguntarEmitirCertificados();
         } else {
@@ -242,7 +244,7 @@ export class EditarPage implements OnInit {
         {
           text: 'Finalizar',
           handler: async () => {
-            this.capacitacion.Estado = 1;
+            this.capacitacion.estado = 1;
             await this.guardarCambios();
           }
         }
@@ -279,12 +281,12 @@ export class EditarPage implements OnInit {
     });
     await loading.present();
 
-    if (!this.capacitacion.Id_Capacitacion) {
+    if (!this.capacitacion.id) {
       loading.dismiss();
       return;
     }
 
-    this.capacitacionesService.deleteCapacitacion(this.capacitacion.Id_Capacitacion).subscribe({
+    this.capacitacionesService.deleteCapacitacion(this.capacitacion.id).subscribe({
       next: () => {
         this.mostrarToast('Capacitación eliminada correctamente', 'success');
         setTimeout(() => {
@@ -323,7 +325,7 @@ export class EditarPage implements OnInit {
   }
 
   irAEmitirCertificados() {
-    this.navController.navigateForward(`/gestionar-capacitaciones/visualizarinscritos/${this.capacitacion.Id_Capacitacion}`);
+    this.navController.navigateForward(`/gestionar-capacitaciones/visualizarinscritos/${this.capacitacion.id}`);
   }
 
   async mostrarToast(mensaje: string, color: string = 'primary') {

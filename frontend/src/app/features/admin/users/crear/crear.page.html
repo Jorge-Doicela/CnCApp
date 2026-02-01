@@ -148,14 +148,15 @@
 
         </div>
         <div class="field-group">
-        </div <ion-button *ngIf="!nombresEdited" expand="block" color="secondary" class="confirm-names-button"
-          (click)="confirmarNombres()" [disabled]="!usuarioGeneral.nombre1 || !usuarioGeneral.apellido1">
-        <ion-icon name="lock-closed" slot="start"></ion-icon>
-        Confirmar nombres
-        </ion-button>
-        <div *ngIf="nombresEdited" class="nombres-confirmados">
-          <ion-icon name="checkmark-circle"></ion-icon>
-          <span>Nombres confirmados.</span>
+          <ion-button *ngIf="!nombresEdited" expand="block" color="secondary" class="confirm-names-button"
+            (click)="confirmarNombres()" [disabled]="!usuarioGeneral.nombre1 || !usuarioGeneral.apellido1">
+            <ion-icon name="lock-closed" slot="start"></ion-icon>
+            Confirmar nombres
+          </ion-button>
+          <div *ngIf="nombresEdited" class="nombres-confirmados">
+            <ion-icon name="checkmark-circle"></ion-icon>
+            <span>Nombres confirmados.</span>
+          </div>
         </div>
         <div class="form-legend">
           <p><ion-text color="medium">* Campos obligatorios</ion-text></p>
@@ -464,7 +465,6 @@
           <ion-icon name="person-add-outline" slot="start"></ion-icon>
           Crear Usuario
         </ion-button>
-      </div>
       </div>
     </ion-card-content>
   </ion-card>
