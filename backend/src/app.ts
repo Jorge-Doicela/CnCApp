@@ -42,12 +42,16 @@ app.use(cors({
 }));
 
 // Rate Limiting - Prevenir ataques de fuerza bruta
-const limiter = rateLimit({
-    windowMs: env.RATE_LIMIT_WINDOW_MS,
-    max: env.RATE_LIMIT_MAX_REQUESTS,
-    message: 'Demasiadas peticiones desde esta IP, intenta de nuevo más tarde'
-});
-app.use('/api/', limiter);
+if (env.RATE_LIMIT_MAX_REQUESTS > 0) {
+    const limiter = rateLimit({
+        windowMs: env.RATE_LIMIT_WINDOW_MS,
+        max: env.RATE_LIMIT_MAX_REQUESTS,
+        message: 'Demasiadas peticiones desde esta IP, intenta de nuevo más tarde'
+    });
+    app.use('/api/', limiter);
+} else {
+    logger.info('⚠️ Rate limiting esta desactivado (RATE_LIMIT_MAX_REQUESTS = 0)');
+}
 
 // ============================================
 // MIDDLEWARE GENERAL
@@ -83,12 +87,7 @@ app.use((req, res, next) => {
 
 // Ruta de health check
 app.get('/health', (_req, res) => {
-    res.json({
-        status: 'ok',
-        timestamp: new Date().toISOString(),
-        uptime: process.uptime(),
-        environment: env.NODE_ENV
-    });
+    res.status(200).json({ status: 'ok', message: 'Servidor funcionando correctamente' });
 });
 
 // Rutas de la API
