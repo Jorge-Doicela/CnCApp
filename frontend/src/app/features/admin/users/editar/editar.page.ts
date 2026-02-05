@@ -84,7 +84,7 @@ export class EditarPage implements OnInit {
     this.recuperarRoles();
     this.recuperarEntidades();
 
-    const userId = +this.activatedRoute.snapshot.params['idUsuario'];
+    const userId = +this.activatedRoute.snapshot.params['id'];
     if (isNaN(userId)) {
       this.ocultarCargando();
       this.presentToast('ID de usuario inválido', 'danger');

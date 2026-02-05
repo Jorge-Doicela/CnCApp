@@ -58,7 +58,7 @@ export class EditarPage implements OnInit {
   ) { }
 
   async ngOnInit() {
-    this.idRol = Number(this.route.snapshot.paramMap.get('idRol'));
+    this.idRol = Number(this.route.snapshot.paramMap.get('id'));
     if (!this.idRol) {
       await this.presentToast('ID de rol no válido.', 'danger');
       this.errorCarga = true;
