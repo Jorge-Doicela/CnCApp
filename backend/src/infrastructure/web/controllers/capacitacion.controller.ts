@@ -45,6 +45,15 @@ export class CapacitacionController {
         }
     };
 
+    count = async (_req: Request, res: Response, next: NextFunction) => {
+        try {
+            const capacitaciones = await this.getAllUseCase.execute();
+            res.json({ count: capacitaciones.length });
+        } catch (error) {
+            next(error);
+        }
+    };
+
     update = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const id = parseInt(req.params.id as string);

@@ -1,9 +1,17 @@
-import { IonicModule } from '@ionic/angular';
-import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { IonicModule } from '@ionic/angular';
 import { Component, OnInit, inject } from '@angular/core';
 import { ToastController, AlertController, LoadingController } from '@ionic/angular';
 import { ActivatedRoute, Router } from '@angular/router';
+import { addIcons } from 'ionicons';
+import {
+  personOutline, idCardOutline, callOutline, calendarOutline, maleFemaleOutline,
+  peopleOutline, flagOutline, globeOutline, locationOutline, shieldCheckmarkOutline,
+  keyOutline, businessOutline, powerOutline, createOutline, trashOutline,
+  cloudUploadOutline, saveOutline, arrowBackOutline, homeOutline,
+  cardOutline, shieldOutline
+} from 'ionicons/icons';
 import { UsuarioService } from 'src/app/features/user/services/usuario.service';
 import { CatalogoService } from 'src/app/shared/services/catalogo.service';
 
@@ -45,7 +53,31 @@ export class EditarPage implements OnInit {
     private loadingController: LoadingController,
     private activatedRoute: ActivatedRoute,
     private router: Router
-  ) { }
+  ) {
+    addIcons({
+      'person-outline': personOutline,
+      'id-card-outline': idCardOutline,
+      'call-outline': callOutline,
+      'calendar-outline': calendarOutline,
+      'male-female-outline': maleFemaleOutline,
+      'people-outline': peopleOutline,
+      'flag-outline': flagOutline,
+      'globe-outline': globeOutline,
+      'location-outline': locationOutline,
+      'shield-checkmark-outline': shieldCheckmarkOutline,
+      'key-outline': keyOutline,
+      'business-outline': businessOutline,
+      'power-outline': powerOutline,
+      'create-outline': createOutline,
+      'trash-outline': trashOutline,
+      'cloud-upload-outline': cloudUploadOutline,
+      'save-outline': saveOutline,
+      'arrow-back-outline': arrowBackOutline,
+      'home-outline': homeOutline,
+      'card-outline': cardOutline,
+      'shield-outline': shieldOutline
+    });
+  }
 
   async ngOnInit() {
     await this.mostrarCargando('Cargando información...');
@@ -174,7 +206,7 @@ export class EditarPage implements OnInit {
       next: async () => {
         this.ocultarCargando();
         await this.mostrarAlertaExito('Usuario actualizado correctamente');
-        this.router.navigate(['/gestionar usuarios']);
+        this.router.navigate(['/gestionar-usuarios']);
         // Correction: Route seems to be '/admin/usuarios' or similar based on CrearPage. 
         // Original code said '/gestionar usuarios' which looks like a typo pending fix, or a real route.
       },

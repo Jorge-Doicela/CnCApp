@@ -75,4 +75,33 @@ export class UserController {
             next(error);
         }
     };
+
+    count = async (_req: Request, res: Response, next: NextFunction) => {
+        try {
+            const users = await this.getAllUsersUseCase.execute();
+            res.json({ count: users.length });
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    getByAuthId = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const authId = req.params.authId as string;
+            if (!authId) {
+                res.status(400).json({ error: 'Auth ID inválido' });
+                return;
+            }
+            // Convert authId to number since it's stored as id in the database
+            const id = parseInt(authId);
+            if (isNaN(id)) {
+                res.status(400).json({ error: 'Auth ID debe ser un número' });
+                return;
+            }
+            const user = await this.getUserByIdUseCase.execute(id);
+            res.json(user);
+        } catch (error) {
+            next(error);
+        }
+    };
 }

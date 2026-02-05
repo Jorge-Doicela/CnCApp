@@ -1,12 +1,16 @@
 import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
-import { Router } from '@angular/router';
-import { AlertController, ToastController } from '@ionic/angular';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import { Router, RouterModule } from '@angular/router';
+import { AlertController, ToastController, LoadingController } from '@ionic/angular';
+import { addIcons } from 'ionicons';
+import {
+  personAddOutline, searchOutline, search, idCardOutline,
+  businessOutline, shieldOutline, fingerPrintOutline,
+  callOutline, peopleOutline, createOutline, trashOutline, mailOutline
+} from 'ionicons/icons';
 import { UsuarioService } from 'src/app/features/user/services/usuario.service';
-
-import { RouterModule } from '@angular/router';
 import { Usuario } from '../../../core/models/usuario.interface';
 
 @Component({
@@ -23,12 +27,30 @@ export class CRUDUsuariosPage implements OnInit {
   cargando: boolean = true;
 
   private usuarioService = inject(UsuarioService);
+  private router = inject(Router);
+  private alertController = inject(AlertController);
+  private toastController = inject(ToastController);
+  private loadingCtrl = inject(LoadingController);
 
-  constructor(
-    private router: Router,
-    private alertController: AlertController,
-    private toastController: ToastController
-  ) { }
+  private cd = inject(ChangeDetectorRef);
+
+  constructor() {
+    // Registrar iconos
+    addIcons({
+      'mail-outline': mailOutline,
+      'person-add-outline': personAddOutline,
+      'search-outline': searchOutline,
+      'search': search,
+      'id-card-outline': idCardOutline,
+      'business-outline': businessOutline,
+      'shield-outline': shieldOutline,
+      'finger-print-outline': fingerPrintOutline,
+      'call-outline': callOutline,
+      'people-outline': peopleOutline,
+      'create-outline': createOutline,
+      'trash-outline': trashOutline
+    });
+  }
 
   ngOnInit() {
     this.RecuperarUsuarios();
@@ -36,7 +58,7 @@ export class CRUDUsuariosPage implements OnInit {
 
   getTipoParticipante(tipo: number): string {
     const tipos = ["Ciudadano", "Autoridad", "Funcionario GAD", "Institución"];
-    return tipos[tipo] ?? "Desconocido";
+    return tipos[tipo] || "Desconocido";
   }
 
   async RecuperarUsuarios() {
@@ -44,26 +66,19 @@ export class CRUDUsuariosPage implements OnInit {
     try {
       this.usuarioService.getUsuarios().subscribe({
         next: (data) => {
-          this.usuarios = data?.map((usuario: any) => ({
-            ...usuario,
-            Nombre_Rol: usuario.Rol_Usuario?.nombre_rol ?? 'Rol no asignado',
-            Entidad_Usario: usuario.Entidad_Usuario?.Nombre_Entidad ?? 'Entidad no asignada',
-          })) ?? [];
-
+          console.log('Usuarios cargados:', data);
+          this.usuarios = data || [];
           this.filteredUsuarios = [...this.usuarios];
           this.cargando = false;
-
-          if (this.usuarios.length > 0) {
-            this.presentToast(`Se cargaron ${this.usuarios.length} usuarios correctamente`, 'success');
-          }
+          this.cd.detectChanges(); // Force update
         },
         error: (error) => {
           console.error('Error al obtener los usuarios:', error);
-          this.presentToast('Error al cargar los usuarios (API no implementada)', 'warning');
+          this.presentToast('Error al cargar la lista de usuarios', 'danger');
           this.cargando = false;
-          // Fallback or empty state
           this.usuarios = [];
           this.filteredUsuarios = [];
+          this.cd.detectChanges(); // Force update
         }
       });
 
@@ -79,6 +94,7 @@ export class CRUDUsuariosPage implements OnInit {
   }
 
   iraEditarUsuario(Id_Usuario: number) {
+    if (!Id_Usuario) return;
     this.router.navigate(['/gestionar-usuarios/editar', Id_Usuario]);
   }
 
@@ -90,11 +106,10 @@ export class CRUDUsuariosPage implements OnInit {
 
     const term = this.searchTerm.toLowerCase().trim();
     this.filteredUsuarios = this.usuarios.filter((usuario: any) =>
-      (usuario.Nombre_Usuario || '').toLowerCase().includes(term) ||
-      (usuario.CI_Usuario || '').toLowerCase().includes(term)
+      (usuario.nombre || '').toLowerCase().includes(term) ||
+      (usuario.ci || '').toLowerCase().includes(term) ||
+      (usuario.email || '').toLowerCase().includes(term)
     );
-
-    this.presentToast(`Se encontraron ${this.filteredUsuarios.length} resultados`, 'primary');
   }
 
   async confirmarEliminar(usuario: any) {
@@ -121,22 +136,30 @@ export class CRUDUsuariosPage implements OnInit {
   }
 
   async eliminarUsuario(idUsuario: number) {
+    const loading = await this.loadingCtrl.create({
+      message: 'Eliminando usuario...',
+    });
+    await loading.present();
+
     try {
       this.usuarioService.deleteUsuario(idUsuario).subscribe({
         next: () => {
-          // Actualizar la lista de usuarios
+          loading.dismiss();
+          // Actualizar la lista
           this.usuarios = this.usuarios.filter(u => u.id !== idUsuario);
           this.filteredUsuarios = this.filteredUsuarios.filter(u => u.id !== idUsuario);
           this.presentToast('Usuario eliminado correctamente', 'success');
         },
         error: (error) => {
+          loading.dismiss();
           console.error('Error al eliminar usuario:', error);
-          this.presentToast('Error al eliminar el usuario (API no implementada)', 'warning');
+          this.presentToast('No se pudo eliminar el usuario', 'danger');
         }
       });
     } catch (error) {
+      loading.dismiss();
       console.error('Error inesperado:', error);
-      this.presentToast('Error inesperado al eliminar usuario', 'danger');
+      this.presentToast('Error inesperado', 'danger');
     }
   }
 
@@ -146,12 +169,7 @@ export class CRUDUsuariosPage implements OnInit {
       duration: 3000,
       position: 'top',
       color: color,
-      buttons: [
-        {
-          text: 'Cerrar',
-          role: 'cancel'
-        }
-      ]
+      buttons: [{ text: 'Cerrar', role: 'cancel' }]
     });
 
     await toast.present();

@@ -5,4 +5,5 @@ export interface CertificadoRepository {
     findById(id: number): Promise<Certificado | null>;
     findByQR(qr: string): Promise<Certificado | null>;
     findByUser(userId: number): Promise<Certificado[]>;
+    count(): Promise<number>;
 }

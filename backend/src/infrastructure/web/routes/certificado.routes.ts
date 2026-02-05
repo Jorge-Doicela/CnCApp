@@ -6,7 +6,10 @@ import { authenticate } from '../middleware/auth.middleware';
 const router = Router();
 const controller = container.resolve(CertificadoController);
 
+// Public routes
+router.get('/count', controller.count);
 router.get('/qr/:qr', controller.getByQR);
+
 router.get('/my', authenticate, controller.getMyCertificados);
 router.post('/', authenticate, controller.create); // Should ideally restrict to admin
 

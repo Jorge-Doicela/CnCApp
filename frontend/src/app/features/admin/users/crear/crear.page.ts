@@ -4,6 +4,14 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { ToastController, LoadingController, AlertController } from '@ionic/angular';
+import { addIcons } from 'ionicons';
+import {
+  shieldCheckmarkOutline, keyOutline, saveOutline, checkmarkDoneOutline, checkmarkDoneCircleOutline,
+  personAddOutline, searchOutline, idCardOutline, businessOutline, shieldOutline, fingerPrintOutline,
+  callOutline, peopleOutline, createOutline, trashOutline, mailOutline, lockClosedOutline,
+  calendarOutline, maleFemaleOutline, globeOutline, peopleCircleOutline, briefcaseOutline,
+  ribbonOutline, constructOutline, analyticsOutline
+} from 'ionicons/icons';
 import { UsuarioService } from 'src/app/features/user/services/usuario.service';
 import { CatalogoService } from 'src/app/shared/services/catalogo.service';
 import { map } from 'rxjs/operators';
@@ -137,7 +145,36 @@ export class CrearPage implements OnInit {
     private toastController: ToastController,
     private loadingController: LoadingController,
     private alertController: AlertController
-  ) { }
+  ) {
+    addIcons({
+      'shield-checkmark-outline': shieldCheckmarkOutline,
+      'key-outline': keyOutline,
+      'save-outline': saveOutline,
+      'checkmark-done-outline': checkmarkDoneOutline,
+      'checkmark-done-circle-outline': checkmarkDoneCircleOutline,
+      // Existing
+      'person-add-outline': personAddOutline,
+      'search-outline': searchOutline,
+      'id-card-outline': idCardOutline,
+      'business-outline': businessOutline,
+      'shield-outline': shieldOutline,
+      'finger-print-outline': fingerPrintOutline,
+      'call-outline': callOutline,
+      'people-outline': peopleOutline,
+      'create-outline': createOutline,
+      'trash-outline': trashOutline,
+      'mail-outline': mailOutline,
+      'lock-closed-outline': lockClosedOutline,
+      'calendar-outline': calendarOutline,
+      'male-female-outline': maleFemaleOutline,
+      'globe-outline': globeOutline,
+      'people-circle-outline': peopleCircleOutline,
+      'briefcase-outline': briefcaseOutline,
+      'ribbon-outline': ribbonOutline,
+      'construct-outline': constructOutline,
+      'analytics-outline': analyticsOutline,
+    });
+  }
 
   ngOnInit() {
     this.obtenerRoles();

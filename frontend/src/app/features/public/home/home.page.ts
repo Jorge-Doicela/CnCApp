@@ -16,7 +16,7 @@ import {
   locationOutline, personAddOutline, businessOutline, pinOutline,
   ribbonOutline, idCardOutline, listOutline, appsOutline, homeOutline,
   rocketOutline, timerOutline, notificationsOffOutline, menuOutline,
-  statsChartOutline
+  statsChartOutline, settingsOutline, imageOutline
 } from 'ionicons/icons';
 import { Router } from '@angular/router';
 
@@ -105,7 +105,9 @@ export class HomePage implements OnInit {
       'timer-outline': timerOutline,
       'notifications-off-outline': notificationsOffOutline,
       'stats-chart-outline': statsChartOutline,
-      'menu-outline': menuOutline
+      'menu-outline': menuOutline,
+      'settings-outline': settingsOutline,
+      'image-outline': imageOutline
     });
 
     // Use effect for reactive title updates (must be in injection context)
@@ -372,6 +374,11 @@ export class HomePage implements OnInit {
       'Validar certificados': 'validar-certificados',
       'Servicios y programas': 'home/servi-progra',
       'servi-progra': 'home/servi-progra',
+      // Mappings from DB Keys (matches seed data)
+      'usuarios': 'gestionar-usuarios',
+      'capacitaciones': 'gestionar-capacitaciones',
+      'reportes': 'gestionar-reportes',
+      'certificados': 'gestionar-plantillas', // Assuming gestión de plantillas for admin
       // Institutional pages
       'historia': 'home/historia',
       'norma-regul': 'home/norma-regul',

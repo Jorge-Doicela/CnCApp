@@ -40,4 +40,8 @@ export class PrismaCertificadoRepository implements CertificadoRepository {
         });
         return certificados.map(c => CertificadoMapper.toDomain(c));
     }
+
+    async count(): Promise<number> {
+        return await prisma.certificado.count();
+    }
 }

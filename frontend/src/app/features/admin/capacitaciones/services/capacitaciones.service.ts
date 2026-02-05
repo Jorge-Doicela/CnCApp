@@ -106,7 +106,7 @@ export class CapacitacionesService {
     }
 
     countCertificados(): Observable<{ count: number }> {
-        return this.http.get<{ count: number }>(`${this.apiUrl}/count/certificados`);
+        return this.http.get<{ count: number }>(`${environment.apiUrl}/certificados/count`);
     }
 }
 
