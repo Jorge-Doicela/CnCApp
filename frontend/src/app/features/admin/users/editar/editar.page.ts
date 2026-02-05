@@ -23,25 +23,53 @@ import { CatalogoService } from 'src/app/shared/services/catalogo.service';
   imports: [CommonModule, FormsModule, IonicModule]
 })
 export class EditarPage implements OnInit {
-  roles: any[] = [];
-  entidades: any[] = [];
-  usuario: any = {
+  segmentoActual: string = 'personal';
+
+  usuario = {
     id: '',
+    email: '',
+    password: '', // Usually not changed here but kept for structure
+    nombre1: '',
+    nombre2: '',
+    apellido1: '',
+    apellido2: '',
     nombre: '',
     ci: '',
-    rolId: '',
-    entidadId: '',
-    estado: 1, // Optional in interface
+    rolId: undefined as number | undefined,
+    entidadId: undefined as number | undefined,
+    estado: 1,
     firmaUrl: '',
-    Firma_Usuario_Imagen: null, // Local use
-    telefono: '',
-    convencional: '', // Not in interface, keeping local
+    celular: '',
+    convencional: '',
     genero: '',
     etnia: '',
     nacionalidad: '',
+    tipoParticipante: 0,
     fechaNacimiento: '',
-    canton: '',
+    cantonReside: '',
+    parroquiaReside: '',
+    // Auxiliar para UI
+    Firma_Usuario_Imagen: null as any
   };
+
+  // Objetos para tipos específicos
+  autoridad = { cargo: '', nivelgobierno: '', gadAutoridad: '' };
+  funcionarioGad = { cargo: '', competencias: '', nivelgobierno: '', gadFuncionarioGad: '' };
+  institucion = { institucion: '', gradoOcupacional: '', cargo: '' };
+
+  datosrecuperados = {
+    roles: [] as any[],
+    cargos: [] as any[],
+    instituciones: [] as any[],
+    provincias: [] as any[],
+    cantones: [] as any[],
+    parroquias: [] as any[],
+  };
+
+  datosbusqueda = {
+    selectedProvincia: 0
+  };
+
   cargando: boolean = false;
 
   private usuarioService = inject(UsuarioService);
@@ -81,8 +109,10 @@ export class EditarPage implements OnInit {
 
   async ngOnInit() {
     await this.mostrarCargando('Cargando información...');
-    this.recuperarRoles();
-    this.recuperarEntidades();
+    this.obtenerRoles();
+    this.obtenerProvincias();
+    this.obtenerCargos();
+    this.obtenerInstituciones();
 
     const userId = +this.activatedRoute.snapshot.params['id'];
     if (isNaN(userId)) {
@@ -91,7 +121,7 @@ export class EditarPage implements OnInit {
       return;
     }
 
-    this.usuario.id = userId;
+    this.usuario.id = userId.toString();
     this.cargarUsuario(userId);
   }
 
@@ -103,23 +133,43 @@ export class EditarPage implements OnInit {
           this.presentToast('No se encontró el usuario', 'warning');
           return;
         }
+
+        // Mapeo detallado similar a CrearPage
         this.usuario = {
-          id: data.id,
-          nombre: data.nombre,
-          ci: data.ci,
+          ...this.usuario,
+          id: data.id.toString(),
+          email: data.email || '',
+          nombre1: data.nombre1 || '',
+          nombre2: data.nombre2 || '',
+          apellido1: data.apellido1 || '',
+          apellido2: data.apellido2 || '',
+          nombre: data.nombre || '',
+          ci: data.ci || '',
           rolId: data.rolId,
           entidadId: data.entidadId,
-          estado: (data as any).estado ?? 1, // Type casting if missing
-          firmaUrl: data.firmaUrl,
-          telefono: data.telefono,
-          // Legacy/Extra fields mapping if backend returns them
-          convencional: (data as any).convencional,
-          genero: (data as any).genero,
-          etnia: (data as any).etnia,
-          nacionalidad: (data as any).nacionalidad,
-          fechaNacimiento: (data as any).fechaNacimiento,
-          canton: (data as any).canton
+          estado: (data as any).estado ?? 1,
+          firmaUrl: data.firmaUrl || '',
+          celular: data.celular || '',
+          convencional: data.convencional || '',
+          genero: data.genero || '',
+          etnia: data.etnia || '',
+          nacionalidad: data.nacionalidad || '',
+          tipoParticipante: Number(data.tipoParticipante) || 0,
+          fechaNacimiento: data.fechaNacimiento || '',
+          cantonReside: data.cantonReside || '',
+          parroquiaReside: data.parroquiaReside || '',
         };
+
+        // Cargar ubicación si existe
+        if (this.usuario.cantonReside) {
+          this.detectarProvinciaDesdeCanton();
+        }
+
+        // Cargar datos específicos si existen
+        if (data.autoridad) this.autoridad = { ...data.autoridad };
+        if (data.funcionarioGad) this.funcionarioGad = { ...data.funcionarioGad };
+        if (data.institucion) this.institucion = { ...data.institucion };
+
         this.ocultarCargando();
       },
       error: (error) => {
@@ -130,19 +180,82 @@ export class EditarPage implements OnInit {
     });
   }
 
-  recuperarRoles() {
+  obtenerRoles() {
     this.catalogoService.getItems('rol').subscribe({
-      next: (data) => this.roles = data || [],
-      error: (err) => console.error(err)
+      next: (data) => this.datosrecuperados.roles = data || [],
+      error: (error) => console.error('Error al obtener roles:', error)
     });
   }
 
-  recuperarEntidades() {
-    this.catalogoService.getItems('entidades').subscribe({
-      next: (data) => this.entidades = data || [],
-      error: (err) => console.error(err)
+  obtenerProvincias() {
+    this.catalogoService.getItems('provincias').subscribe({
+      next: (data) => this.datosrecuperados.provincias = data || [],
+      error: (error) => console.error('Error provincias:', error)
     });
   }
+
+  cambioProvincia() {
+    this.usuario.cantonReside = '';
+    this.usuario.parroquiaReside = '';
+    this.datosrecuperados.cantones = [];
+    this.datosrecuperados.parroquias = [];
+
+    if (this.datosbusqueda.selectedProvincia) {
+      this.cargarCantones(this.datosbusqueda.selectedProvincia);
+    }
+  }
+
+  cargarCantones(provinciaId: number) {
+    this.catalogoService.getItems(`cantones/provincia/${provinciaId}`).subscribe({
+      next: (data) => {
+        this.datosrecuperados.cantones = data || [];
+        // Si ya teníamos un cantón (al cargar el usuario), cargamos sus parroquias
+        if (this.usuario.cantonReside) {
+          this.cargarParroquias(this.usuario.cantonReside);
+        }
+      },
+      error: (error) => console.error('Error cantones:', error)
+    });
+  }
+
+  cambioCanton() {
+    this.usuario.parroquiaReside = '';
+    this.datosrecuperados.parroquias = [];
+    if (this.usuario.cantonReside) {
+      this.cargarParroquias(this.usuario.cantonReside);
+    }
+  }
+
+  cargarParroquias(cantonId: string) {
+    this.catalogoService.getItems(`parroquias/canton/${cantonId}`).subscribe({
+      next: (data) => this.datosrecuperados.parroquias = data || [],
+      error: (error) => console.error('Error parroquias:', error)
+    });
+  }
+
+  private detectarProvinciaDesdeCanton() {
+    // Intentamos cargar la provincia basada en el primer dígito o consulta si el backend lo permite
+    // Por ahora, si tenemos el cantón, buscaremos cargarlo. 
+    // Opción simplificada: El backend debería retornar la provinciaId en el perfil.
+    // Si no, podríamos necesitar un endpoint para obtener provincia por cantón.
+    // Asumiremos que el usuario tiene 'cantonReside' y que eso permite cargar parroquias.
+    this.cargarParroquias(this.usuario.cantonReside);
+  }
+
+  obtenerCargos() {
+    this.catalogoService.getItems('cargos').subscribe({
+      next: (data) => this.datosrecuperados.cargos = data || [],
+      error: (error) => console.error('Error cargos:', error)
+    });
+  }
+
+  obtenerInstituciones() {
+    this.catalogoService.getItems('instituciones_sistema').subscribe({
+      next: (data) => this.datosrecuperados.instituciones = data || [],
+      error: (error) => console.error('Error instituciones:', error)
+    });
+  }
+
 
   seleccionarFirma(event: any) {
     const file = event.target.files[0];
@@ -171,7 +284,7 @@ export class EditarPage implements OnInit {
   }
 
   eliminarFirma() {
-    this.usuario.firmaUrl = null;
+    this.usuario.firmaUrl = '';
     this.usuario.Firma_Usuario_Imagen = null;
   }
 
@@ -182,33 +295,18 @@ export class EditarPage implements OnInit {
 
     await this.mostrarCargando('Guardando cambios...');
 
-    // NOTE: Image upload logic should be handled by service or separate endpoint
-    // For now we assume the service handles data. If image validation is needed, backend should handle multipart or standard upload.
-    // Creating a proper DTO.
-
     const datosAEnviar = {
-      rolId: this.usuario.rolId,
-      nombre: this.usuario.nombre,
-      ci: this.usuario.ci,
-      // estado: this.usuario.estado, // Backend might not accept it in update?
-      entidadId: this.usuario.entidadId,
-      // firmaUrl: this.usuario.firmaUrl
-      telefono: this.usuario.telefono,
-      // Extra fields
-      // convencional: this.usuario.convencional, ...
+      ...this.usuario,
+      autoridad: this.usuario.tipoParticipante == 1 ? this.autoridad : null,
+      funcionarioGad: this.usuario.tipoParticipante == 2 ? this.funcionarioGad : null,
+      institucion: this.usuario.tipoParticipante == 3 ? this.institucion : null
     };
 
-    // If there is an image to upload, we might need a separate service call for upload, or use FormData.
-    // UsuarioService.updateUsuario uses JSON currently.
-    // We will skip image upload implementation for now to clear Supabase.
-
-    this.usuarioService.updateUsuario(this.usuario.id, datosAEnviar).subscribe({
+    this.usuarioService.updateUsuario(Number(this.usuario.id), datosAEnviar as any).subscribe({
       next: async () => {
         this.ocultarCargando();
         await this.mostrarAlertaExito('Usuario actualizado correctamente');
         this.router.navigate(['/gestionar-usuarios']);
-        // Correction: Route seems to be '/admin/usuarios' or similar based on CrearPage. 
-        // Original code said '/gestionar usuarios' which looks like a typo pending fix, or a real route.
       },
       error: (error) => {
         this.ocultarCargando();
