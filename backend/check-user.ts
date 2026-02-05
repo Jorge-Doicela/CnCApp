@@ -11,14 +11,14 @@ async function main() {
     if (!user) {
         console.log('❌ User NOT found in DB.');
     } else {
-        console.log('✅ User FOUND in DB.');
+        console.log(' User FOUND in DB.');
         console.log('ID:', user.id);
         console.log('CI:', user.ci);
         console.log('Hash:', user.password);
 
         // Verify Check
         const valid = await bcrypt.compare('CncSecure2025!', user.password);
-        console.log('Password verification result:', valid ? '✅ VALID' : '❌ INVALID');
+        console.log('Password verification result:', valid ? ' VALID' : '❌ INVALID');
     }
 }
 

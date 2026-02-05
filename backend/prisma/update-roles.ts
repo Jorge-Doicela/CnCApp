@@ -15,7 +15,7 @@ async function updateRoleNames() {
                 modulos: ['capacitaciones', 'certificados', 'inscripciones'],
             },
         });
-        console.log(`✅ Updated role ID 2 to 'Conferencista'`);
+        console.log(` Updated role ID 2 to 'Conferencista'`);
 
         // Update role ID 3 (Participante -> Usuario)
         const usuarioUpdate = await prisma.rol.update({
@@ -26,7 +26,7 @@ async function updateRoleNames() {
                 modulos: ['perfil', 'capacitaciones-lectura', 'certificados-propios'],
             },
         });
-        console.log(`✅ Updated role ID 3 to 'Usuario'`);
+        console.log(` Updated role ID 3 to 'Usuario'`);
 
         // Verify changes
         const roles = await prisma.rol.findMany({
@@ -39,7 +39,7 @@ async function updateRoleNames() {
             console.log(`     Módulos: ${role.modulos.join(', ')}`);
         });
 
-        console.log('\n✅ Role names updated successfully!');
+        console.log('\n Role names updated successfully!');
     } catch (error) {
         console.error('❌ Error updating roles:', error);
         throw error;

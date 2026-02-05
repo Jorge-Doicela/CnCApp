@@ -40,7 +40,8 @@
 
       <!-- Users Grid -->
       <div class="users-grid" *ngIf="filteredUsuarios.length > 0">
-        <div class="user-card" *ngFor="let usuario of filteredUsuarios">
+        <div class="user-card clickable" *ngFor="let usuario of filteredUsuarios"
+          (click)="iraDetallesUsuario(usuario.id)">
 
           <div class="card-header">
             <div class="user-avatar">

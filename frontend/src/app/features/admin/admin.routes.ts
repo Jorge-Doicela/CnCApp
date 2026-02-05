@@ -23,6 +23,11 @@ export const ADMIN_ROUTES: Routes = [
         canActivate: [adminGuard]
     },
     {
+        path: 'gestionar-usuarios/detalles/:id',
+        loadComponent: () => import('./users/detalles/detalles.page').then(m => m.DetallesPage),
+        canActivate: [adminGuard]
+    },
+    {
         path: 'gestionar-roles',
         loadComponent: () => import('./roles/crudroles.page').then(m => m.CRUDRolesPage),
         canActivate: [adminGuard]

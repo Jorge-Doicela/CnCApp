@@ -61,7 +61,7 @@ export const adminGuard: CanActivateFn = async (route, state) => {
         return false;
     }
 
-    console.log('[ADMIN_GUARD] ✅ Acceso permitido');
+    console.log('[ADMIN_GUARD]  Acceso permitido');
     return true;
 };
 

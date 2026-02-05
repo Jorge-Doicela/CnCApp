@@ -1,0 +1,197 @@
+<ion-header class="ion-no-border">
+    <ion-toolbar color="primary">
+        <ion-buttons slot="start">
+            <ion-button (click)="regresar()">
+                <ion-icon name="arrow-back-outline" slot="icon-only"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+        <ion-title>Perfil de Usuario</ion-title>
+        <ion-buttons slot="end">
+            <ion-button [routerLink]="['/gestionar-usuarios/editar', usuario.id]" *ngIf="usuario">
+                <ion-icon name="create-outline" slot="icon-only"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+    <div class="main-container" *ngIf="!cargando && usuario">
+
+        <!-- Profile Header Card -->
+        <div class="profile-hero fade-in">
+            <div class="avatar-container">
+                <div class="avatar">
+                    {{ getInicial(usuario.nombre) }}
+                </div>
+                <div class="status-indicator" [ngClass]="usuario.estado === 1 ? 'active' : 'inactive'"></div>
+            </div>
+
+            <div class="profile-info">
+                <h1>{{ usuario.nombre }}</h1>
+                <p class="subtitle">{{ usuario.ci }}</p>
+                <div class="badges">
+                    <span class="badge role">{{ usuario.rol?.nombre || 'Sin Rol' }}</span>
+                    <span class="badge type">{{ getTipoParticipanteLabel(usuario.tipoParticipante) }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Details Grid -->
+        <div class="details-grid fade-in" style="animation-delay: 0.1s;">
+
+            <!-- Personal Info Card -->
+            <div class="info-card">
+                <h3 class="card-title">
+                    <ion-icon name="person-outline"></ion-icon>
+                    Datos Personales
+                </h3>
+                <div class="data-list">
+                    <div class="data-item">
+                        <span class="label">Nombres completos</span>
+                        <span class="value">{{ usuario.nombre1 || '-' }} {{ usuario.nombre2 }}</span>
+                    </div>
+                    <div class="data-item">
+                        <span class="label">Apellidos completos</span>
+                        <span class="value">{{ usuario.apellido1 || '-' }} {{ usuario.apellido2 }}</span>
+                    </div>
+                    <div class="data-item">
+                        <span class="label">Correo Electrónico</span>
+                        <span class="value mail">{{ usuario.email || 'Sin correo' }}</span>
+                    </div>
+                    <div class="data-item">
+                        <span class="label">Género / Etnia</span>
+                        <span class="value">{{ usuario.genero || '-' }} • {{ usuario.etnia || '-' }}</span>
+                    </div>
+                    <div class="data-item">
+                        <span class="label">Nacionalidad</span>
+                        <span class="value">{{ usuario.nacionalidad || 'Ecuatoriana' }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact & Location Card -->
+            <div class="info-card">
+                <h3 class="card-title">
+                    <ion-icon name="location-outline"></ion-icon>
+                    Contacto y Ubicación
+                </h3>
+                <div class="data-list">
+                    <div class="data-item">
+                        <span class="label">Teléfono Celular</span>
+                        <span class="value">{{ usuario.celular || '-' }}</span>
+                    </div>
+                    <div class="data-item">
+                        <span class="label">Teléfono Convencional</span>
+                        <span class="value">{{ usuario.convencional || '-' }}</span>
+                    </div>
+                    <div class="data-item">
+                        <span class="label">Cantón de Residencia</span>
+                        <span class="value">{{ usuario.cantonReside || 'No especificado' }}</span>
+                    </div>
+                    <div class="data-item">
+                        <span class="label">Parroquia</span>
+                        <span class="value">{{ usuario.parroquiaReside || '-' }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Data Card -->
+            <div class="info-card full-width">
+                <h3 class="card-title">
+                    <ion-icon name="shield-checkmark-outline"></ion-icon>
+                    Información del Sistema
+                </h3>
+                <div class="system-stats">
+                    <div class="stat-item">
+                        <ion-icon name="business-outline"></ion-icon>
+                        <div class="stat-content">
+                            <span class="stat-label">Entidad / Institución</span>
+                            <span class="stat-value">{{ usuario.entidad?.nombre || 'Particular' }}</span>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <ion-icon name="time-outline"></ion-icon>
+                        <div class="stat-content">
+                            <span class="stat-label">Miembro desde</span>
+                            <span class="stat-value">{{ usuario.createdAt | date:'mediumDate' }}</span>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <ion-icon name="finger-print-outline"></ion-icon>
+                        <div class="stat-content">
+                            <span class="stat-label">Estado de Cuenta</span>
+                            <span class="stat-value"
+                                [style.color]="usuario.estado === 1 ? 'var(--ion-color-success)' : 'var(--ion-color-danger)'">
+                                {{ usuario.estado === 1 ? 'Habilitado' : 'Deshabilitado' }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Professional Data (Contextual) -->
+            <div class="info-card full-width" *ngIf="usuario.tipoParticipante !== 0">
+                <h3 class="card-title">
+                    <ion-icon name="briefcase-outline"></ion-icon>
+                    Perfil Profesional
+                </h3>
+
+                <!-- Autoridad -->
+                <div class="data-list" *ngIf="usuario.tipoParticipante === 1 && usuario.autoridad">
+                    <div class="data-item">
+                        <span class="label">Cargo de Autoridad</span>
+                        <span class="value">{{ usuario.autoridad.cargo }}</span>
+                    </div>
+                    <div class="data-item">
+                        <span class="label">Nivel de Gobierno</span>
+                        <span class="value">{{ usuario.autoridad.nivelgobierno }}</span>
+                    </div>
+                </div>
+
+                <!-- Funcionario -->
+                <div class="data-list" *ngIf="usuario.tipoParticipante === 2 && usuario.funcionarioGad">
+                    <div class="data-item">
+                        <span class="label">Cargo Funcional</span>
+                        <span class="value">{{ usuario.funcionarioGad.cargo }}</span>
+                    </div>
+                    <div class="data-item">
+                        <span class="label">Entidad GAD</span>
+                        <span class="value">{{ usuario.funcionarioGad.gadFuncionarioGad }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Signature Section -->
+            <div class="info-card signature-card full-width">
+                <h3 class="card-title">
+                    <ion-icon name="create-outline"></ion-icon>
+                    Firma Digital Registrada
+                </h3>
+                <div class="signature-display">
+                    <img [src]="usuario.firmaUrl" alt="Firma Digital" *ngIf="usuario.firmaUrl" class="signature-img">
+                    <div class="no-signature" *ngIf="!usuario.firmaUrl">
+                        <ion-icon name="alert-circle-outline"></ion-icon>
+                        <span>No se ha registrado una firma digital para este usuario.</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Actions -->
+        <div class="actions-section fade-in">
+            <ion-button color="primary" fill="outline" class="edit-btn"
+                [routerLink]="['/gestionar-usuarios/editar', usuario.id]">
+                <ion-icon name="create-outline" slot="start"></ion-icon>
+                Editar Todo el Perfil
+            </ion-button>
+        </div>
+
+    </div>
+
+    <!-- Loading State -->
+    <div class="loading-state" *ngIf="cargando">
+        <ion-spinner name="crescent"></ion-spinner>
+        <p>Cargando perfil...</p>
+    </div>
+</ion-content>

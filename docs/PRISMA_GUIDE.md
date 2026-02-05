@@ -290,7 +290,7 @@ npx tsx prisma/seed.ts
 
 ## Mejores Prácticas
 
-### ✅ DO (Hacer)
+###  DO (Hacer)
 
 - Usa `migrate dev` en desarrollo local
 - Usa `migrate deploy` en producción/Docker
