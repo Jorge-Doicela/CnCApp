@@ -6,6 +6,8 @@ import { authenticate } from '../middleware/auth.middleware';
 const router = Router();
 const controller = container.resolve(CapacitacionController);
 
+// Public routes
+router.get('/count', controller.count);
 router.get('/', controller.getAll);
 
 // Protected routes

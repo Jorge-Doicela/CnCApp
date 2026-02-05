@@ -1,173 +1,173 @@
-<ion-header>
+<ion-header class="ion-no-border">
   <ion-toolbar color="primary">
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/gestionar usuarios"></ion-back-button>
+      <ion-back-button defaultHref="/gestionar-usuarios"></ion-back-button>
     </ion-buttons>
-    <ion-title class="ion-text-center">Editar Usuario</ion-title>
+    <ion-title>Editar Usuario</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
-  <ion-card class="main-card">
-    <ion-card-content>
-      <div class="form-header fade-in">
-        <h2 class="section-title">Actualizar información de usuario</h2>
-        <p class="section-description">Modifique los datos del usuario y guarde los cambios</p>
-      </div>
+  <div class="main-container">
 
-      <!-- Formulario de edición -->
-      <div class="form-container fade-in" style="animation-delay: 0.2s;">
-        <div class="form-section">
-          <h3 class="subsection-title">Información Personal</h3>
+    <!-- Header Section -->
+    <div class="header-section fade-in">
+      <h1>
+        Actualizar Usuario
+        <span>Modifique la información del usuario en el sistema</span>
+      </h1>
+    </div>
 
-          <div class="field-group">
-            <ion-item class="form-field">
-              <ion-icon name="person-outline" slot="start" color="primary"></ion-icon>
-              <ion-label position="floating">Nombre Completo</ion-label>
-              <ion-input [(ngModel)]="usuario.nombre" required></ion-input>
-            </ion-item>
+    <!-- Form Card -->
+    <div class="form-card fade-in" style="animation-delay: 0.1s;">
 
-            <ion-item class="form-field">
-              <ion-icon name="card-outline" slot="start" color="primary"></ion-icon>
-              <ion-label position="floating">Cédula</ion-label>
-              <ion-input [(ngModel)]="usuario.ci" required></ion-input>
-            </ion-item>
-          </div>
+      <!-- Seccion 1: Identificación y Contacto -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <ion-icon name="person-outline"></ion-icon>
+          Información Personal
+        </h3>
 
-          <div class="field-group">
-            <ion-item class="form-field">
-              <ion-icon name="call-outline" slot="start" color="primary"></ion-icon>
-              <ion-label position="floating">Teléfono Celular</ion-label>
-              <ion-input type="tel" [(ngModel)]="usuario.telefono"></ion-input>
-            </ion-item>
-
-            <ion-item class="form-field">
-              <ion-icon name="home-outline" slot="start" color="primary"></ion-icon>
-              <ion-label position="floating">Teléfono Convencional</ion-label>
-              <ion-input type="tel" [(ngModel)]="usuario.convencional"></ion-input>
-            </ion-item>
-          </div>
-
-          <div class="field-group">
-            <ion-item class="form-field">
-              <ion-icon name="male-female-outline" slot="start" color="primary"></ion-icon>
-              <ion-label position="floating">Género</ion-label>
-              <ion-select [(ngModel)]="usuario.genero" interface="action-sheet">
-                <ion-select-option value="Masculino">Masculino</ion-select-option>
-                <ion-select-option value="Femenino">Femenino</ion-select-option>
-                <ion-select-option value="Otro">Otro</ion-select-option>
-              </ion-select>
-            </ion-item>
-
-            <ion-item class="form-field">
-              <ion-icon name="people-outline" slot="start" color="primary"></ion-icon>
-              <ion-label position="floating">Autodefinición Étnica</ion-label>
-              <ion-select [(ngModel)]="usuario.etnia">
-                <ion-select-option value="AFROECUATORIANO">Afroecuatoriano</ion-select-option>
-                <ion-select-option value="BLANCO">Blanco</ion-select-option>
-                <ion-select-option value="INDÍGENA">Indígena</ion-select-option>
-                <ion-select-option value="MESTIZO">Mestizo</ion-select-option>
-                <ion-select-option value="MONTUBIO">Montubio</ion-select-option>
-                <ion-select-option value="OTRO">Otro</ion-select-option>
-              </ion-select>
-            </ion-item>
-          </div>
-
-          <div class="field-group">
-            <ion-item class="form-field">
-              <ion-icon name="flag-outline" slot="start" color="primary"></ion-icon>
-              <ion-label position="floating">Nacionalidad</ion-label>
-              <ion-select [(ngModel)]="usuario.nacionalidad">
-                <ion-select-option value="Ecuatoriana">Ecuatoriana</ion-select-option>
-                <ion-select-option value="Otra">Otra</ion-select-option>
-              </ion-select>
-            </ion-item>
-
-            <ion-item class="form-field">
-              <ion-icon name="calendar-outline" slot="start" color="primary"></ion-icon>
-              <ion-label position="floating">Fecha de Nacimiento</ion-label>
-              <ion-datetime displayFormat="YYYY-MM-DD" [(ngModel)]="usuario.fechaNacimiento"></ion-datetime>
-            </ion-item>
-          </div>
+        <div class="field-group">
+          <ion-item class="form-field">
+            <ion-icon name="person-outline" slot="start"></ion-icon>
+            <ion-label position="floating">Nombre Completo *</ion-label>
+            <ion-input [(ngModel)]="usuario.nombre" required></ion-input>
+          </ion-item>
 
           <ion-item class="form-field">
-            <ion-icon name="location-outline" slot="start" color="primary"></ion-icon>
-            <ion-label position="floating">Código de Cantón</ion-label>
-            <ion-input [(ngModel)]="usuario.canton"></ion-input>
+            <ion-icon name="id-card-outline" slot="start"></ion-icon>
+            <ion-label position="floating">Cédula *</ion-label>
+            <ion-input [(ngModel)]="usuario.ci" required readonly></ion-input>
           </ion-item>
         </div>
 
-        <div class="form-section">
-          <h3 class="subsection-title">Información del Sistema</h3>
-
-          <div class="field-group">
-            <ion-item class="form-field">
-              <ion-icon name="shield-outline" slot="start" color="primary"></ion-icon>
-              <ion-label position="floating">Rol</ion-label>
-              <ion-select [(ngModel)]="usuario.rolId" interface="action-sheet">
-                <ion-select-option *ngFor="let rol of roles" [value]="rol.id">
-                  {{ rol.nombre_rol === 'admin' ? 'Administrador (activo)' :
-                  rol.nombre_rol === 'user' ? 'Usuario (activo)' :
-                  rol.nombre_rol }}
-                </ion-select-option>
-              </ion-select>
-            </ion-item>
-
-            <ion-item class="form-field">
-              <ion-icon name="business-outline" slot="start" color="primary"></ion-icon>
-              <ion-label position="floating">Entidad</ion-label>
-              <ion-select [(ngModel)]="usuario.entidadId" interface="action-sheet">
-                <ion-select-option *ngFor="let entidad of entidades" [value]="entidad.id">
-                  {{ entidad.Nombre_Entidad }}
-                </ion-select-option>
-              </ion-select>
-            </ion-item>
-          </div>
+        <div class="field-group triple">
+          <ion-item class="form-field">
+            <ion-icon name="call-outline" slot="start"></ion-icon>
+            <ion-label position="floating">Celular</ion-label>
+            <ion-input type="tel" [(ngModel)]="usuario.telefono"></ion-input>
+          </ion-item>
 
           <ion-item class="form-field">
-            <ion-icon name="power-outline" slot="start" color="primary"></ion-icon>
-            <ion-label position="floating">Estado</ion-label>
-            <ion-select [(ngModel)]="usuario.estado" interface="action-sheet">
-              <ion-select-option [value]="1">Usuario Habilitado</ion-select-option>
-              <ion-select-option [value]="0">Usuario no Habilitado</ion-select-option>
+            <ion-icon name="call-outline" slot="start"></ion-icon>
+            <ion-label position="floating">Convencional</ion-label>
+            <ion-input type="tel" [(ngModel)]="usuario.convencional"></ion-input>
+          </ion-item>
+
+          <ion-item class="form-field">
+            <ion-icon name="calendar-outline" slot="start"></ion-icon>
+            <ion-label>Fecha Nacimiento</ion-label>
+            <ion-input type="date" [(ngModel)]="usuario.fechaNacimiento"></ion-input>
+          </ion-item>
+        </div>
+
+        <div class="field-group">
+          <ion-item class="form-field">
+            <ion-icon name="male-female-outline" slot="start"></ion-icon>
+            <ion-label>Género</ion-label>
+            <ion-select [(ngModel)]="usuario.genero" placeholder="Seleccione" interface="popover">
+              <ion-select-option value="Masculino">Masculino</ion-select-option>
+              <ion-select-option value="Femenino">Femenino</ion-select-option>
+              <ion-select-option value="Otro">Otro</ion-select-option>
             </ion-select>
           </ion-item>
 
-          <div class="firma-section">
-            <h4 class="subsection-title">Firma Digital</h4>
+          <ion-item class="form-field">
+            <ion-icon name="people-outline" slot="start"></ion-icon>
+            <ion-label>Etnia</ion-label>
+            <ion-select [(ngModel)]="usuario.etnia" placeholder="Seleccione" interface="popover">
+              <ion-select-option value="AFROECUATORIANO">Afroecuatoriano</ion-select-option>
+              <ion-select-option value="BLANCO">Blanco</ion-select-option>
+              <ion-select-option value="INDÍGENA">Indígena</ion-select-option>
+              <ion-select-option value="MESTIZO">Mestizo</ion-select-option>
+              <ion-select-option value="MONTUBIO">Montubio</ion-select-option>
+              <ion-select-option value="OTRO">Otro</ion-select-option>
+            </ion-select>
+          </ion-item>
+        </div>
+      </div>
 
-            <div class="firma-container">
-              <div class="firma-preview" *ngIf="usuario.firmaUrl">
-                <img [src]="usuario.firmaUrl" alt="Firma actual" class="firma-image">
-                <ion-button size="small" color="danger" fill="outline" (click)="eliminarFirma()">
-                  <ion-icon slot="start" name="trash-outline"></ion-icon>
-                  Eliminar firma
-                </ion-button>
-              </div>
+      <!-- Seccion 2: Roles y Sistema -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <ion-icon name="shield-checkmark-outline"></ion-icon>
+          Permisos y Sistema
+        </h3>
 
-              <div class="firma-upload">
-                <ion-item class="firma-item">
-                  <ion-icon name="create-outline" slot="start" color="primary"></ion-icon>
-                  <ion-label>Seleccionar nueva firma</ion-label>
-                  <input type="file" class="firma-input" (change)="seleccionarFirma($event)" />
-                </ion-item>
-                <p class="firma-hint">Formatos aceptados: JPG, PNG (máx. 2MB)</p>
-              </div>
+        <div class="field-group">
+          <ion-item class="form-field">
+            <ion-icon name="key-outline" slot="start"></ion-icon>
+            <ion-label>Rol de Acceso *</ion-label>
+            <ion-select [(ngModel)]="usuario.rolId" placeholder="Seleccione Rol" interface="popover">
+              <ion-select-option *ngFor="let rol of roles" [value]="rol.id">
+                {{ rol.nombre_rol }}
+              </ion-select-option>
+            </ion-select>
+          </ion-item>
+
+          <ion-item class="form-field">
+            <ion-icon name="business-outline" slot="start"></ion-icon>
+            <ion-label>Entidad Asociada</ion-label>
+            <ion-select [(ngModel)]="usuario.entidadId" placeholder="Seleccione Entidad" interface="popover">
+              <ion-select-option *ngFor="let entidad of entidades" [value]="entidad.id">
+                {{ entidad.Nombre_Entidad }}
+              </ion-select-option>
+            </ion-select>
+          </ion-item>
+        </div>
+
+        <ion-item class="form-field">
+          <ion-icon name="power-outline" slot="start"></ion-icon>
+          <ion-label>Estado de Cuenta</ion-label>
+          <ion-select [(ngModel)]="usuario.estado" placeholder="Seleccione Estado" interface="popover">
+            <ion-select-option [value]="1">Habilitado</ion-select-option>
+            <ion-select-option [value]="0">Deshabilitado (Bloqueado)</ion-select-option>
+          </ion-select>
+        </ion-item>
+      </div>
+
+      <!-- Seccion 3: Firma (Opcional) -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <ion-icon name="create-outline"></ion-icon>
+          Firma Digital
+        </h3>
+
+        <div class="firma-container">
+          <div class="firma-preview" *ngIf="usuario.firmaUrl">
+            <img [src]="usuario.firmaUrl" alt="Firma actual" class="firma-image">
+            <ion-button size="small" color="danger" fill="outline" (click)="eliminarFirma()">
+              <ion-icon slot="start" name="trash-outline"></ion-icon>
+              Eliminar Firma
+            </ion-button>
+          </div>
+
+          <div class="firma-upload">
+            <ion-item class="firma-item" lines="none">
+              <ion-icon name="cloud-upload-outline" slot="start"></ion-icon>
+              <ion-label>Subir nueva firma</ion-label>
+              <input type="file" class="firma-input" (change)="seleccionarFirma($event)"
+                accept="image/png, image/jpeg" />
+            </ion-item>
+            <div class="firma-hint">
+              Formatos: PNG, JPG (Máx 2MB).<br>Fondo transparente recomendado.
             </div>
           </div>
         </div>
-
-        <div class="form-actions">
-          <ion-button fill="outline" color="medium" routerLink="/gestionar usuarios">
-            <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
-            Cancelar
-          </ion-button>
-          <ion-button color="primary" (click)="actualizarUsuario()">
-            <ion-icon name="save-outline" slot="start"></ion-icon>
-            Guardar Cambios
-          </ion-button>
-        </div>
       </div>
-    </ion-card-content>
-  </ion-card>
+
+      <!-- Actions -->
+      <div class="form-actions">
+        <ion-button class="cancel-btn" fill="clear" routerLink="/gestionar-usuarios">
+          Cancelar
+        </ion-button>
+        <ion-button color="primary" (click)="actualizarUsuario()">
+          <ion-icon name="save-outline" slot="start"></ion-icon>
+          Guardar Cambios
+        </ion-button>
+      </div>
+
+    </div>
+  </div>
 </ion-content>

@@ -2,6 +2,8 @@ import { container } from 'tsyringe';
 import { PrismaUserRepository } from '../infrastructure/database/repositories/user/prisma-user.repository';
 import { PrismaCapacitacionRepository } from '../infrastructure/database/repositories/capacitacion/prisma-capacitacion.repository';
 import { PrismaCertificadoRepository } from '../infrastructure/database/repositories/certificado/prisma-certificado.repository';
+import { PrismaProvinciaRepository } from '../infrastructure/database/repositories/ubicacion/prisma-provincia.repository';
+import { PrismaCantonRepository } from '../infrastructure/database/repositories/ubicacion/prisma-canton.repository';
 import { BcryptPasswordHasher } from '../infrastructure/security/bcrypt-password-hasher';
 import { JwtTokenProvider } from '../infrastructure/security/jwt-token-provider';
 
@@ -28,6 +30,11 @@ import { DeleteCapacitacionUseCase } from '../application/capacitacion/use-cases
 import { CreateCertificadoUseCase } from '../application/certificado/use-cases/create-certificado.use-case';
 import { GetCertificadoByQRUseCase } from '../application/certificado/use-cases/get-certificado-by-qr.use-case';
 import { GetUserCertificadosUseCase } from '../application/certificado/use-cases/get-user-certificados.use-case';
+import { CountCertificadosUseCase } from '../application/certificado/use-cases/count-certificados.use-case';
+
+// Import Ubicacion Use Cases
+import { GetProvinciasUseCase } from '../application/ubicacion/use-cases/get-provincias.use-case';
+import { GetCantonesUseCase } from '../application/ubicacion/use-cases/get-cantones.use-case';
 
 // Import Reportes Use Cases
 import { GetDashboardStatsUseCase } from '../application/reportes/use-cases/get-dashboard-stats.use-case';
@@ -38,6 +45,9 @@ import { UserController } from '../infrastructure/web/controllers/user.controlle
 import { CapacitacionController } from '../infrastructure/web/controllers/capacitacion.controller';
 import { CertificadoController } from '../infrastructure/web/controllers/certificado.controller';
 import { ReportesController } from '../infrastructure/web/controllers/reportes.controller';
+import { UbicacionController } from '../infrastructure/web/controllers/ubicacion.controller';
+import { RolController } from '../infrastructure/web/controllers/rol.controller';
+import { EntidadController } from '../infrastructure/web/controllers/entidad.controller';
 
 // Import Database
 import prisma from './database';
@@ -50,13 +60,28 @@ container.register('PrismaClient', { useValue: prisma });
 // ============================================
 // REGISTER REPOSITORIES
 // ============================================
+// Import Rol and Entidad Repositories
+import { PrismaRolRepository } from '../infrastructure/database/prisma-rol.repository';
+import { PrismaEntidadRepository } from '../infrastructure/database/prisma-entidad.repository';
+
+// Import Rol and Entidad Use Cases
+import { GetAllRolesUseCase } from '../application/user/use-cases/get-all-roles.use-case';
+import { GetAllEntidadesUseCase } from '../application/user/use-cases/get-all-entidades.use-case';
+
+// ============================================
+// REGISTER REPOSITORIES
+// ============================================
 container.register('UserRepository', { useClass: PrismaUserRepository });
+container.register('RolRepository', { useClass: PrismaRolRepository });
+container.register('EntidadRepository', { useClass: PrismaEntidadRepository });
 container.register('CapacitacionRepository', { useClass: PrismaCapacitacionRepository });
 container.register('CertificadoRepository', { useClass: PrismaCertificadoRepository });
 
-// ============================================
-// REGISTER SECURITY SERVICES
-// ============================================
+// Ubicacion
+container.register('ProvinciaRepository', { useClass: PrismaProvinciaRepository });
+container.register('CantonRepository', { useClass: PrismaCantonRepository });
+
+// Register Security Services
 container.register('PasswordEncoder', { useClass: BcryptPasswordHasher });
 container.register('TokenProvider', { useClass: JwtTokenProvider });
 
@@ -64,7 +89,7 @@ container.register('TokenProvider', { useClass: JwtTokenProvider });
 // REGISTER USE CASES
 // ============================================
 
-// Auth Use Cases
+// Auth Use Cases...
 container.registerSingleton(RegisterUserUseCase);
 container.registerSingleton(LoginUserUseCase);
 container.registerSingleton(RefreshTokenUseCase);
@@ -76,6 +101,8 @@ container.registerSingleton(GetUserProfileUseCase);
 container.registerSingleton(GetAllUsersUseCase);
 container.registerSingleton(UpdateUserUseCase);
 container.registerSingleton(DeleteUserUseCase);
+container.registerSingleton(GetAllRolesUseCase);
+container.registerSingleton(GetAllEntidadesUseCase);
 
 // Capacitacion Use Cases
 container.registerSingleton(CreateCapacitacionUseCase);
@@ -87,6 +114,11 @@ container.registerSingleton(DeleteCapacitacionUseCase);
 container.registerSingleton(CreateCertificadoUseCase);
 container.registerSingleton(GetCertificadoByQRUseCase);
 container.registerSingleton(GetUserCertificadosUseCase);
+container.registerSingleton(CountCertificadosUseCase);
+
+// Ubicacion Use Cases
+container.registerSingleton(GetProvinciasUseCase);
+container.registerSingleton(GetCantonesUseCase);
 
 // Reportes Use Cases
 container.registerSingleton(GetDashboardStatsUseCase);
@@ -96,8 +128,11 @@ container.registerSingleton(GetDashboardStatsUseCase);
 // ============================================
 container.registerSingleton(AuthController);
 container.registerSingleton(UserController);
+container.registerSingleton(RolController);
+container.registerSingleton(EntidadController);
 container.registerSingleton(CapacitacionController);
 container.registerSingleton(CertificadoController);
 container.registerSingleton(ReportesController);
+container.registerSingleton(UbicacionController);
 
 export { container };

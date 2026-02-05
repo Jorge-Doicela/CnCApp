@@ -9,6 +9,8 @@ const userController = container.resolve(UserController);
 router.use(authenticate); // Protect all user routes
 
 router.get('/', userController.getAll);
+router.get('/count', userController.count);
+router.get('/auth/:authId', userController.getByAuthId);
 router.get('/:id', userController.getById);
 router.put('/:id', userController.update);
 router.delete('/:id', userController.delete);

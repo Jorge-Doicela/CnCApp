@@ -3,6 +3,7 @@ import { injectable, inject } from 'tsyringe';
 import { CreateCertificadoUseCase } from '../../../application/certificado/use-cases/create-certificado.use-case';
 import { GetCertificadoByQRUseCase } from '../../../application/certificado/use-cases/get-certificado-by-qr.use-case';
 import { GetUserCertificadosUseCase } from '../../../application/certificado/use-cases/get-user-certificados.use-case';
+import { CountCertificadosUseCase } from '../../../application/certificado/use-cases/count-certificados.use-case';
 import { AuthRequest } from '../middleware/auth.middleware';
 import { z } from 'zod';
 
@@ -18,7 +19,8 @@ export class CertificadoController {
     constructor(
         @inject(CreateCertificadoUseCase) private createUseCase: CreateCertificadoUseCase,
         @inject(GetCertificadoByQRUseCase) private getByQRUseCase: GetCertificadoByQRUseCase,
-        @inject(GetUserCertificadosUseCase) private getByUserUseCase: GetUserCertificadosUseCase
+        @inject(GetUserCertificadosUseCase) private getByUserUseCase: GetUserCertificadosUseCase,
+        @inject(CountCertificadosUseCase) private countCertificadosUseCase: CountCertificadosUseCase
     ) { }
 
     create = async (req: Request, res: Response, next: NextFunction) => {
@@ -53,6 +55,15 @@ export class CertificadoController {
             }
             const certificados = await this.getByUserUseCase.execute(req.userId);
             res.json(certificados);
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    count = async (_req: Request, res: Response, next: NextFunction) => {
+        try {
+            const count = await this.countCertificadosUseCase.execute();
+            res.json({ count });
         } catch (error) {
             next(error);
         }

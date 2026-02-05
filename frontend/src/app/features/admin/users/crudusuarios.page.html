@@ -1,97 +1,100 @@
-<ion-header>
+<ion-header class="ion-no-border">
   <ion-toolbar color="primary">
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
-    <ion-title class="ion-text-center">Gestión de Usuarios</ion-title>
+    <ion-title>Gestión de Usuarios</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
-  <ion-card class="main-card">
-    <ion-card-content>
-      <div class="logo-container ion-text-center">
-        <img src="../../../../assets/cnc.png" alt="Logo" class="app-logo">
-      </div>
+  <div class="main-container">
 
-      <div class="section-header fade-in">
-        <h2 class="section-title">Administración de Usuarios</h2>
-        <p class="section-description">Gestione los usuarios del sistema, sus roles y permisos</p>
-      </div>
+    <!-- Header & Title -->
+    <div class="header-section fade-in">
+      <h1>
+        Usuarios
+        <span>Administre el acceso y roles del sistema</span>
+      </h1>
+      <ion-button class="add-btn" color="primary" (click)="iraCrearUsuario()">
+        <ion-icon name="person-add-outline" slot="start"></ion-icon>
+        Nuevo Usuario
+      </ion-button>
+    </div>
 
-      <div class="action-section fade-in" style="animation-delay: 0.1s;">
-        <ion-button expand="block" class="add-button" color="primary" (click)="iraCrearUsuario()">
-          <ion-icon name="person-add-outline" slot="start"></ion-icon>
-          Crear nuevo usuario
-        </ion-button>
+    <!-- Search Bar -->
+    <div class="search-wrapper fade-in" style="animation-delay: 0.1s;">
+      <ion-icon name="search-outline"></ion-icon>
+      <input type="text" placeholder="Buscar por nombre, cédula o email..." [(ngModel)]="searchTerm"
+        (keyup)="filtrarUsuarios()">
+    </div>
 
-        <!-- Buscador de usuarios -->
-        <div class="search-container">
-          <ion-item class="search-item">
-            <ion-icon name="search-outline" slot="start" color="primary"></ion-icon>
-            <ion-input placeholder="Buscar usuario por nombre o cédula" [(ngModel)]="searchTerm"></ion-input>
-            <ion-button slot="end" fill="clear" (click)="filtrarUsuarios()">
-              <ion-icon name="search"></ion-icon>
-            </ion-button>
-          </ion-item>
-        </div>
-      </div>
+    <!-- Loading State -->
+    <div class="loading-container" *ngIf="cargando">
+      <ion-spinner name="crescent" color="primary"></ion-spinner>
+      <p>Cargando usuarios...</p>
+    </div>
 
-      <div class="users-section fade-in" style="animation-delay: 0.2s;">
-        <div class="list-header">
-          <h3 class="section-title">Lista de usuarios registrados</h3>
-          <span class="user-count" *ngIf="usuarios.length > 0">{{ usuarios.length }} usuarios</span>
-        </div>
+    <!-- Content State -->
+    <div *ngIf="!cargando" class="fade-in" style="animation-delay: 0.2s;">
 
-        <!-- Lista de usuarios -->
-        <div class="users-list" *ngIf="usuarios.length > 0">
-          <div class="user-card" *ngFor="let usuario of filteredUsuarios || usuarios">
-            <div class="user-info">
-              <h2 class="user-name">{{ usuario.nombre }}</h2>
-              <p><ion-icon name="id-card-outline"></ion-icon> <strong>Cédula:</strong> {{ usuario.ci }}</p>
-              <p><ion-icon name="business-outline"></ion-icon> <strong>Entidad:</strong> {{
-                usuario.entidad?.nombre || 'No asignada' }}</p>
-              <p><ion-icon name="shield-outline"></ion-icon> <strong>Rol:</strong>
-                <span
-                  [ngClass]="{'admin-role': usuario.rol?.nombre === 'Administrador', 'user-role': usuario.rol?.nombre === 'Usuario'}">
-                  {{ usuario.rol?.nombre || 'No asignado' }}
-                </span>
-              </p>
-              <p><ion-icon name="finger-print-outline"></ion-icon> <strong>Firma:</strong>
-                <span [ngClass]="{'firma-disponible': usuario.firmaUrl, 'firma-no-disponible': !usuario.firmaUrl}">
-                  {{ usuario.firmaUrl ? 'Firma disponible' : 'Dato no asignado' }}
-                </span>
-              </p>
-              <p><ion-icon name="call-outline"></ion-icon> <strong>Teléfono:</strong> {{ usuario.telefono || 'No
-                registrado' }}</p>
+      <!-- Users Grid -->
+      <div class="users-grid" *ngIf="filteredUsuarios.length > 0">
+        <div class="user-card" *ngFor="let usuario of filteredUsuarios">
 
-              <p><ion-icon name="people-outline"></ion-icon> <strong>Tipo de Participante:</strong> {{
-                getTipoParticipante(usuario.tipoParticipante) }}</p>
+          <div class="card-header">
+            <div class="user-avatar">
+              {{ usuario.nombre.charAt(0).toUpperCase() }}
+            </div>
+            <span class="role-badge" [ngClass]="{
+              'admin': usuario.rol?.nombre === 'Administrador',
+              'user': usuario.rol?.nombre === 'Usuario',
+              'unknown': !usuario.rol?.nombre
+            }">
+              {{ usuario.rol?.nombre || 'S/R' }}
+            </span>
+          </div>
 
-              <!-- Estado logic might need update if field missing, hiding for now or assuming OK -->
-              <div class="estado-usuario activo">
-                Usuario Activo
-              </div>
+          <div class="card-body">
+            <h3>{{ usuario.nombre }}</h3>
+            <span class="user-ci">{{ usuario.ci }}</span>
+
+            <div class="info-row">
+              <ion-icon name="business-outline"></ion-icon>
+              <span>{{ usuario.entidad?.nombre || 'Sin Entidad' }}</span>
             </div>
 
-            <div class="user-actions">
-              <ion-button fill="clear" color="primary" (click)="iraEditarUsuario(usuario.id)">
-                <ion-icon name="create-outline" slot="icon-only"></ion-icon>
-              </ion-button>
-              <ion-button fill="clear" color="danger" (click)="confirmarEliminar(usuario)">
-                <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
-              </ion-button>
+            <div class="info-row">
+              <ion-icon name="people-outline"></ion-icon>
+              <span>{{ getTipoParticipante(usuario.tipoParticipante) }}</span>
+            </div>
+            <div class="info-row" *ngIf="usuario.email">
+              <ion-icon name="mail-outline"></ion-icon>
+              <span>{{ usuario.email }}</span>
             </div>
           </div>
-        </div>
 
-        <!-- Mensaje cuando no hay usuarios -->
-        <div class="empty-state" *ngIf="usuarios.length === 0">
-          <ion-icon name="people-outline"></ion-icon>
-          <h3>No hay usuarios registrados</h3>
-          <p>Comience creando un nuevo usuario con el botón superior</p>
+          <div class="card-actions">
+            <ion-button fill="clear" size="small" color="dark" (click)="iraEditarUsuario(usuario.id)">
+              <ion-icon name="create-outline" slot="start"></ion-icon>
+              Editar
+            </ion-button>
+            <ion-button fill="clear" size="small" color="danger" (click)="confirmarEliminar(usuario)">
+              <ion-icon name="trash-outline" slot="start"></ion-icon>
+              Eliminar
+            </ion-button>
+          </div>
+
         </div>
       </div>
-    </ion-card-content>
-  </ion-card>
+
+      <!-- Empty State -->
+      <div class="empty-state" *ngIf="filteredUsuarios.length === 0">
+        <ion-icon name="search-outline"></ion-icon>
+        <h3>No se encontraron usuarios</h3>
+        <p>Intente con otra búsqueda o cree un nuevo usuario</p>
+      </div>
+
+    </div>
+  </div>
 </ion-content>

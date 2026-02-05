@@ -1,196 +1,158 @@
-<ion-header>
+<ion-header class="ion-no-border">
   <ion-toolbar color="primary">
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/gestionar-usuarios"></ion-back-button>
     </ion-buttons>
-    <ion-title class="ion-text-center">Crear Usuario</ion-title>
+    <ion-title>Crear Nuevo Usuario</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
-  <ion-card class="main-card">
-    <ion-card-content>
-      <div class="form-header fade-in">
-        <h2 class="section-title">Información de usuario</h2>
-        <p class="section-description">Complete los datos del nuevo usuario para el sistema.</p>
-      </div>
+  <div class="main-container">
 
-      <!-- Formulario de creación -->
-      <div class="form-container fade-in" style="animation-delay: 0.2s;">
-        <div class="form-section">
-          <h3 class="subsection-title">Información del Usuario</h3>
+    <!-- Header Section -->
+    <div class="header-section fade-in">
+      <h1>
+        Registro de Usuario
+        <span>Complete la información para dar de alta un usuario</span>
+      </h1>
+    </div>
 
+    <!-- Form Card -->
+    <div class="form-card fade-in" style="animation-delay: 0.1s;">
+
+      <!-- Seccion 1: Identificación y Credenciales -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <ion-icon name="shield-checkmark-outline"></ion-icon>
+          Credenciales y Acceso
+        </h3>
+        <p class="section-description">Datos para el inicio de sesión y rol del usuario en la plataforma.</p>
+
+        <div class="field-group triple">
+          <!-- Cédula -->
+          <div>
+            <ion-item class="form-field">
+              <ion-icon name="id-card-outline" slot="start"></ion-icon>
+              <ion-label position="floating">Cédula (CI) *</ion-label>
+              <ion-input [(ngModel)]="usuarioGeneral.ci" type="text" maxlength="10" required></ion-input>
+              <ion-button slot="end" fill="clear" (click)="validarCedula()">
+                <ion-icon name="checkmark-done-circle-outline" slot="icon-only"></ion-icon>
+              </ion-button>
+            </ion-item>
+            <div *ngIf="mensajeValidacionCedula"
+              [ngClass]="{'validacion-error': !cedulaValidada, 'validacion-success': cedulaValidada}"
+              class="mensaje-validacion">
+              <ion-icon [name]="cedulaValidada ? 'checkmark-circle' : 'alert-circle'"></ion-icon>
+              {{ mensajeValidacionCedula }}
+            </div>
+          </div>
+
+          <!-- Email -->
           <ion-item class="form-field">
-            <ion-icon name="card-outline" slot="start" color="primary"></ion-icon>
-            <ion-label position="floating">Cédula de Identidad (CI) *</ion-label>
-            <ion-input [(ngModel)]="usuarioGeneral.ci" type="text" required></ion-input>
-            <ion-button slot="end" size="small" class="validate-button" (click)="validarCedula()">
-              <ion-icon name="checkmark-circle" slot="start"></ion-icon>
-              Validar
-            </ion-button>
+            <ion-icon name="mail-outline" slot="start"></ion-icon>
+            <ion-label position="floating">Correo Electrónico *</ion-label>
+            <ion-input [(ngModel)]="usuarioGeneral.email" type="email" required></ion-input>
           </ion-item>
-          <div *ngIf="mensajeValidacionCedula"
-            [ngClass]="{'validacion-error': !cedulaValidada, 'validacion-success': cedulaValidada}"
-            class="mensaje-validacion">
-            <ion-icon [name]="cedulaValidada ? 'checkmark-circle' : 'alert-circle'"></ion-icon>
-            {{ mensajeValidacionCedula }}
-          </div>
 
-          <div class="field-group">
-            <ion-item class="form-field">
-              <ion-icon name="mail-outline" slot="start" color="primary"></ion-icon>
-              <ion-label position="floating">Correo Electrónico *</ion-label>
-              <ion-input [(ngModel)]="usuarioGeneral.email" type="email" required></ion-input>
-            </ion-item>
+          <!-- Password -->
+          <ion-item class="form-field">
+            <ion-icon name="lock-closed-outline" slot="start"></ion-icon>
+            <ion-label position="floating">Contraseña *</ion-label>
+            <ion-input [(ngModel)]="usuarioGeneral.password" type="password" required></ion-input>
+          </ion-item>
+        </div>
 
-            <ion-item class="form-field">
-              <ion-icon name="lock-closed-outline" slot="start" color="primary"></ion-icon>
-              <ion-label position="floating">Contraseña *</ion-label>
-              <ion-input [(ngModel)]="usuarioGeneral.password" type="password" required></ion-input>
-            </ion-item>
-          </div>
-
-          <div class="field-group">
-            <ion-item class="form-field">
-              <ion-icon name="call-outline" slot="start" color="primary"></ion-icon>
-              <ion-label position="floating">Teléfono celular *</ion-label>
-              <ion-input [(ngModel)]="usuarioGeneral.celular" type="tel" required></ion-input>
-            </ion-item>
-
-            <ion-item class="form-field">
-              <ion-icon name="home-outline" slot="start" color="primary"></ion-icon>
-              <ion-label position="floating">Teléfono convencional</ion-label>
-              <ion-input [(ngModel)]="usuarioGeneral.convencional" type="tel"></ion-input>
-            </ion-item>
-          </div>
-
-          <h3 class="subsection-title">Información de ubicación</h3>
-
-          <div class="field-group">
-            <ion-item class="form-field">
-              <ion-icon name="map-outline" slot="start" color="primary"></ion-icon>
-              <ion-label>Provincia *</ion-label>
-              <ion-select [(ngModel)]="datosbusqueda.selectedProvincia"
-                (ionChange)="obtenerCantones(datosbusqueda.selectedProvincia)" interface="action-sheet"
-                placeholder="Seleccione">
-                <ion-select-option *ngFor="let provincia of datosrecuperados.provincias"
-                  [value]="provincia.Codigo_Provincia">
-                  {{ provincia.Nombre_Provincia }}
-                </ion-select-option>
-              </ion-select>
-            </ion-item>
-
-            <ion-item *ngIf="datosrecuperados.cantones.length > 0" class="form-field">
-              <ion-icon name="location-outline" slot="start" color="primary"></ion-icon>
-              <ion-label>Cantón *</ion-label>
-              <ion-select [(ngModel)]="usuarioGeneral.cantonReside"
-                (ionChange)="obtenerParroquias(usuarioGeneral.cantonReside)" interface="action-sheet"
-                placeholder="Seleccione">
-                <ion-select-option *ngFor="let canton of datosrecuperados.cantones" [value]="canton.codigo_canton">
-                  {{ canton.nombre_canton }}
-                </ion-select-option>
-              </ion-select>
-            </ion-item>
-          </div>
-
-          <ion-item
-            *ngIf="datosrecuperados.parroquiasSeleccionadas && datosrecuperados.parroquiasSeleccionadas.length > 0"
-            class="form-field">
-            <ion-icon name="pin-outline" slot="start" color="primary"></ion-icon>
-            <ion-label>Parroquia</ion-label>
-            <ion-select [(ngModel)]="usuarioGeneral.parroquiaReside" interface="action-sheet" placeholder="Seleccione">
-              <ion-select-option *ngFor="let parroquia of datosrecuperados.parroquiasSeleccionadas"
-                [value]="parroquia.codigo_parroquia">
-                {{ parroquia.nombre_parroquia }}
+        <div class="field-group">
+          <!-- Rol -->
+          <ion-item class="form-field">
+            <ion-icon name="key-outline" slot="start"></ion-icon>
+            <ion-label>Rol de Usuario *</ion-label>
+            <ion-select [(ngModel)]="usuarioGeneral.rolId" placeholder="Seleccione Rol" interface="popover">
+              <ion-select-option *ngFor="let rol of datosrecuperados.roles" [value]="rol.id">
+                {{ rol.nombre_rol }}
               </ion-select-option>
             </ion-select>
           </ion-item>
 
-          <div class="form-legend">
-            <p><ion-text color="medium">* Campos obligatorios</ion-text></p>
-          </div>
-        </div>
-
-        <div class="form-section">
-          <h3 class="subsection-title">Datos Personales</h3>
-          <p class="subsection-description">Cabe aclarar que si da en confirmar nombres ya no podrá modificarlos.</p>
-
-          <div class="field-group">
-            <ion-item class="form-field">
-              <ion-icon name="person-outline" slot="start" color="primary"></ion-icon>
-              <ion-label position="floating">Primer nombre *</ion-label>
-              <ion-input [(ngModel)]="usuarioGeneral.nombre1" type="text" required
-                [readonly]="camposNombreReadonly"></ion-input>
-            </ion-item>
-
-            <ion-item class="form-field">
-              <ion-icon name="person-outline" slot="start" color="primary"></ion-icon>
-              <ion-label position="floating">Segundo nombre</ion-label>
-              <ion-input [(ngModel)]="usuarioGeneral.nombre2" type="text" [readonly]="camposNombreReadonly"></ion-input>
-            </ion-item>
-          </div>
-
-          <div class="field-group">
-            <ion-item class="form-field">
-              <ion-icon name="people-outline" slot="start" color="primary"></ion-icon>
-              <ion-label position="floating">Primer apellido *</ion-label>
-              <ion-input [(ngModel)]="usuarioGeneral.apellido1" type="text" required
-                [readonly]="camposNombreReadonly"></ion-input>
-            </ion-item>
-
-            <ion-item class="form-field">
-              <ion-icon name="people-outline" slot="start" color="primary"></ion-icon>
-              <ion-label position="floating">Segundo apellido</ion-label>
-              <ion-input [(ngModel)]="usuarioGeneral.apellido2" type="text"
-                [readonly]="camposNombreReadonly"></ion-input>
-            </ion-item>
-          </div>
-
-        </div>
-        <div class="field-group">
-          <ion-button *ngIf="!nombresEdited" expand="block" color="secondary" class="confirm-names-button"
-            (click)="confirmarNombres()" [disabled]="!usuarioGeneral.nombre1 || !usuarioGeneral.apellido1">
-            <ion-icon name="lock-closed" slot="start"></ion-icon>
-            Confirmar nombres
-          </ion-button>
-          <div *ngIf="nombresEdited" class="nombres-confirmados">
-            <ion-icon name="checkmark-circle"></ion-icon>
-            <span>Nombres confirmados.</span>
-          </div>
-        </div>
-        <div class="form-legend">
-          <p><ion-text color="medium">* Campos obligatorios</ion-text></p>
+          <!-- Tipo Participante -->
+          <ion-item class="form-field">
+            <ion-icon name="people-outline" slot="start"></ion-icon>
+            <ion-label>Tipo Participante *</ion-label>
+            <ion-select [(ngModel)]="usuarioGeneral.tipoParticipante" (ionChange)="onTipoParticipanteChange()"
+              placeholder="Seleccione Tipo" interface="popover">
+              <ion-select-option value="0">Ciudadano</ion-select-option>
+              <ion-select-option value="1">Autoridad</ion-select-option>
+              <ion-select-option value="2">Funcionario GAD</ion-select-option>
+              <ion-select-option value="3">Institución</ion-select-option>
+            </ion-select>
+          </ion-item>
         </div>
       </div>
 
+      <!-- Seccion 2: Datos Personales -->
       <div class="form-section">
-        <h3 class="subsection-title">Datos Extras</h3>
+        <h3 class="section-title">
+          <ion-icon name="person-outline"></ion-icon>
+          Información Personal
+        </h3>
+
         <div class="field-group">
           <ion-item class="form-field">
-            <ion-icon name="male-female-outline" slot="start" color="primary"></ion-icon>
+            <ion-label position="floating">Primer Nombre *</ion-label>
+            <ion-input [(ngModel)]="usuarioGeneral.nombre1" [readonly]="camposNombreReadonly"></ion-input>
+          </ion-item>
+          <ion-item class="form-field">
+            <ion-label position="floating">Segundo Nombre</ion-label>
+            <ion-input [(ngModel)]="usuarioGeneral.nombre2" [readonly]="camposNombreReadonly"></ion-input>
+          </ion-item>
+        </div>
+        <div class="field-group">
+          <ion-item class="form-field">
+            <ion-label position="floating">Primer Apellido *</ion-label>
+            <ion-input [(ngModel)]="usuarioGeneral.apellido1" [readonly]="camposNombreReadonly"></ion-input>
+          </ion-item>
+          <ion-item class="form-field">
+            <ion-label position="floating">Segundo Apellido</ion-label>
+            <ion-input [(ngModel)]="usuarioGeneral.apellido2" [readonly]="camposNombreReadonly"></ion-input>
+          </ion-item>
+        </div>
+
+        <div class="field-group" *ngIf="!nombresEdited">
+          <ion-button expand="block" shape="round" fill="outline" color="secondary" (click)="confirmarNombres()"
+            [disabled]="!usuarioGeneral.nombre1 || !usuarioGeneral.apellido1">
+            <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
+            Confirmar Nombres
+          </ion-button>
+        </div>
+
+        <div class="field-group triple">
+          <ion-item class="form-field">
+            <ion-label position="floating">Celular *</ion-label>
+            <ion-input [(ngModel)]="usuarioGeneral.celular" type="tel"></ion-input>
+          </ion-item>
+          <ion-item class="form-field">
+            <ion-label position="floating">Convencional</ion-label>
+            <ion-input [(ngModel)]="usuarioGeneral.convencional" type="tel"></ion-input>
+          </ion-item>
+          <ion-item class="form-field">
+            <ion-label>Fecha Nacimiento *</ion-label>
+            <ion-input [(ngModel)]="usuarioGeneral.fechaNacimiento" type="date"></ion-input>
+          </ion-item>
+        </div>
+
+        <div class="field-group">
+          <ion-item class="form-field">
             <ion-label>Género *</ion-label>
-            <ion-select [(ngModel)]="usuarioGeneral.genero" placeholder="Seleccione" interface="action-sheet">
+            <ion-select [(ngModel)]="usuarioGeneral.genero" placeholder="Seleccione" interface="popover">
               <ion-select-option value="Masculino">Masculino</ion-select-option>
               <ion-select-option value="Femenino">Femenino</ion-select-option>
               <ion-select-option value="Otro">Otro</ion-select-option>
             </ion-select>
           </ion-item>
-
           <ion-item class="form-field">
-            <ion-icon name="globe-outline" slot="start" color="primary"></ion-icon>
-            <ion-label>Nacionalidad *</ion-label>
-            <ion-select [(ngModel)]="usuarioGeneral.nacionalidad" placeholder="Seleccione" interface="action-sheet">
-              <ion-select-option value="Ecuatoriana">Ecuatoriana</ion-select-option>
-              <ion-select-option value="Otra">Otra</ion-select-option>
-            </ion-select>
-          </ion-item>
-        </div>
-
-        <div class="field-group">
-          <ion-item class="form-field">
-            <ion-icon name="people-circle-outline" slot="start" color="primary"></ion-icon>
-            <ion-label>Autodefinición Étnica *</ion-label>
-            <ion-select [(ngModel)]="usuarioGeneral.etnia" placeholder="Seleccione" interface="action-sheet">
+            <ion-label>Etnia *</ion-label>
+            <ion-select [(ngModel)]="usuarioGeneral.etnia" placeholder="Seleccione" interface="popover">
               <ion-select-option value="AFROECUATORIANO">Afroecuatoriano</ion-select-option>
               <ion-select-option value="BLANCO">Blanco</ion-select-option>
               <ion-select-option value="INDÍGENA">Indígena</ion-select-option>
@@ -199,58 +161,59 @@
               <ion-select-option value="OTRO">Otro</ion-select-option>
             </ion-select>
           </ion-item>
-
-          <ion-item class="form-field">
-            <ion-icon name="calendar-outline" slot="start" color="primary"></ion-icon>
-            <ion-label position="floating">Fecha de nacimiento *</ion-label>
-            <ion-input [(ngModel)]="usuarioGeneral.fechaNacimiento" type="date" required></ion-input>
-          </ion-item>
-        </div>
-        <div class="form-legend">
-          <p><ion-text color="medium">* Campos obligatorios</ion-text></p>
         </div>
       </div>
 
+      <!-- Seccion 3: Ubicación -->
       <div class="form-section">
-        <h3 class="subsection-title">Tipo de Rol y Participante</h3>
+        <h3 class="section-title">
+          <ion-icon name="map-outline"></ion-icon>
+          Ubicación
+        </h3>
 
-        <div class="field-group">
+        <div class="field-group triple">
           <ion-item class="form-field">
-            <ion-icon name="shield-outline" slot="start" color="primary"></ion-icon>
-            <ion-label>Rol *</ion-label>
-            <ion-select [(ngModel)]="usuarioGeneral.rolId" interface="action-sheet" placeholder="Seleccione">
-              <ion-select-option *ngFor="let rol of datosrecuperados.roles" [value]="rol.id">
-                {{ rol.nombre_rol }}
+            <ion-label>Provincia *</ion-label>
+            <ion-select [(ngModel)]="datosbusqueda.selectedProvincia"
+              (ionChange)="obtenerCantones(datosbusqueda.selectedProvincia)" placeholder="Seleccione"
+              interface="popover">
+              <ion-select-option *ngFor="let provincia of datosrecuperados.provincias"
+                [value]="provincia.Codigo_Provincia">
+                {{ provincia.Nombre_Provincia }}
               </ion-select-option>
             </ion-select>
           </ion-item>
-
           <ion-item class="form-field">
-            <ion-icon name="briefcase-outline" slot="start" color="primary"></ion-icon>
-            <ion-label>Tipo de Participante *</ion-label>
-            <ion-select [(ngModel)]="usuarioGeneral.tipoParticipante" (ionChange)="onTipoParticipanteChange()"
-              interface="action-sheet" placeholder="Seleccione">
-              <ion-select-option value="0">Ciudadano</ion-select-option>
-              <ion-select-option value="1">Autoridad</ion-select-option>
-              <ion-select-option value="2">Funcionario de GAD</ion-select-option>
-              <ion-select-option value="3">Institución</ion-select-option>
+            <ion-label>Cantón *</ion-label>
+            <ion-select [(ngModel)]="usuarioGeneral.cantonReside"
+              (ionChange)="obtenerParroquias(usuarioGeneral.cantonReside)" placeholder="Seleccione" interface="popover"
+              [disabled]="!datosrecuperados.cantones.length">
+              <ion-select-option *ngFor="let canton of datosrecuperados.cantones" [value]="canton.codigo_canton">
+                {{ canton.nombre_canton }}
+              </ion-select-option>
+            </ion-select>
+          </ion-item>
+          <ion-item class="form-field">
+            <ion-label>Parroquia</ion-label>
+            <ion-select [(ngModel)]="usuarioGeneral.parroquiaReside" placeholder="Seleccione" interface="popover"
+              [disabled]="!datosrecuperados.parroquiasSeleccionadas.length">
+              <ion-select-option *ngFor="let parroquia of datosrecuperados.parroquiasSeleccionadas"
+                [value]="parroquia.codigo_parroquia">
+                {{ parroquia.nombre_parroquia }}
+              </ion-select-option>
             </ion-select>
           </ion-item>
         </div>
-        <div class="form-legend">
-          <p><ion-text color="medium">* Campos obligatorios</ion-text></p>
-        </div>
       </div>
 
-      <!-- Submenú: Autoridad -->
+      <!-- Seccion 4: Datos Específicos (Dinámicos) -->
+      <!-- Autoridad -->
       <div class="form-section" *ngIf="usuarioGeneral.tipoParticipante == 1">
-        <h3 class="subsection-title">Información de autoridad</h3>
-
+        <h3 class="section-title">Datos Autoridad</h3>
         <div class="field-group">
           <ion-item class="form-field">
-            <ion-icon name="ribbon-outline" slot="start" color="primary"></ion-icon>
-            <ion-label>Cargo de la autoridad *</ion-label>
-            <ion-select [(ngModel)]="autoridad.cargo" interface="action-sheet" placeholder="Seleccione">
+            <ion-label>Cargo *</ion-label>
+            <ion-select [(ngModel)]="autoridad.cargo" placeholder="Seleccione" interface="popover">
               <ion-select-option value="alcalde">Alcalde(sa)</ion-select-option>
               <ion-select-option value="vicealcalde">Vicealcalde(sa)</ion-select-option>
               <ion-select-option value="consejal">Consejal(a)</ion-select-option>
@@ -261,13 +224,9 @@
               <ion-select-option value="otro">Otro</ion-select-option>
             </ion-select>
           </ion-item>
-
           <ion-item class="form-field">
-            <ion-icon name="business-outline" slot="start" color="primary"></ion-icon>
-            <ion-label>Nivel de gobierno *</ion-label>
-            <ion-select [(ngModel)]="autoridad.nivelgobierno"
-              (ionChange)="onNivelGobiernoChange(autoridad.nivelgobierno)" interface="action-sheet"
-              placeholder="Seleccione">
+            <ion-label>Nivel Gobierno *</ion-label>
+            <ion-select [(ngModel)]="autoridad.nivelgobierno" placeholder="Seleccione" interface="popover">
               <ion-select-option value="mancomunidad">Mancomunidad y Consorcios</ion-select-option>
               <ion-select-option value="municipal">Municipal</ion-select-option>
               <ion-select-option value="parroquial">Parroquial Rural</ion-select-option>
@@ -276,179 +235,49 @@
             </ion-select>
           </ion-item>
         </div>
-
-        <ion-item class="form-field">
-          <ion-icon name="location-outline" slot="start" color="primary"></ion-icon>
-          <ion-label>Seleccione su opción *</ion-label>
-          <ion-select *ngIf="datosrecuperados.macrocomunidades.length > 0 && autoridad.nivelgobierno==='mancomunidad'"
-            [(ngModel)]="autoridad.gadAutoridad" interface="action-sheet" placeholder="Seleccione">
-            <ion-select-option *ngFor="let mancomunidad of datosrecuperados.macrocomunidades"
-              [value]="mancomunidad.id_mancomunidad">
-              {{ mancomunidad.nombre_mancomunidad }}
-            </ion-select-option>
-          </ion-select>
-          <ion-select *ngIf="datosrecuperados.provincias.length > 0 && autoridad.nivelgobierno==='provincial'"
-            [(ngModel)]="autoridad.gadAutoridad" interface="action-sheet" placeholder="Seleccione">
-            <ion-select-option *ngFor="let provincia of datosrecuperados.provincias"
-              [value]="provincia.Codigo_Provincia">
-              {{ provincia.Nombre_Provincia }}
-            </ion-select-option>
-          </ion-select>
-          <ion-select *ngIf="datosrecuperados.municipios.length > 0 && autoridad.nivelgobierno === 'municipal'"
-            [(ngModel)]="autoridad.gadAutoridad" interface="action-sheet" placeholder="Seleccione">
-            <ion-select-option *ngFor="let municipio of datosrecuperados.municipios" [value]="municipio.idCanton">
-              {{ municipio.value }}
-            </ion-select-option>
-          </ion-select>
-          <ion-select *ngIf="datosrecuperados.parroquias.length > 0 && autoridad.nivelgobierno === 'parroquial'"
-            [(ngModel)]="autoridad.gadAutoridad" interface="action-sheet" placeholder="Seleccione">
-            <ion-select-option *ngFor="let parroquia of datosrecuperados.parroquias" [value]="parroquia.idParroquia">
-              {{ parroquia.value }}
-            </ion-select-option>
-          </ion-select>
-          <ion-select *ngIf="datosrecuperados.parroquias.length > 0 && autoridad.nivelgobierno === 'otro'"
-            [(ngModel)]="autoridad.gadAutoridad" interface="action-sheet" placeholder="Seleccione">
-            <ion-select-option *ngFor="let parroquia of datosrecuperados.parroquias" [value]="parroquia.idParroquia">
-              {{ parroquia.value }}
-            </ion-select-option>
-          </ion-select>
-        </ion-item>
       </div>
 
-      <!-- Submenú: Funcionario de GAD -->
+      <!-- Funcionario GAD -->
       <div class="form-section" *ngIf="usuarioGeneral.tipoParticipante == 2">
-        <h3 class="subsection-title">Información de funcionario GAD</h3>
-
+        <h3 class="section-title">Datos Funcionario GAD</h3>
         <div class="field-group">
           <ion-item class="form-field">
-            <ion-icon name="briefcase-outline" slot="start" color="primary"></ion-icon>
             <ion-label>Cargo *</ion-label>
-            <ion-select [(ngModel)]="funcionarioGad.cargo" interface="action-sheet" placeholder="Seleccione">
+            <ion-select [(ngModel)]="funcionarioGad.cargo" placeholder="Seleccione" interface="popover">
               <ion-select-option value="asesor">Asesor(a)</ion-select-option>
-              <ion-select-option value="director">Director(a) Dirección/Dpto/Unidad</ion-select-option>
-              <ion-select-option value="jefe_dpto_unidad">Jefe Dpto/Unidad</ion-select-option>
+              <ion-select-option value="director">Director(a)</ion-select-option>
+              <ion-select-option value="jefe_dpto_unidad">Jefe Dpto</ion-select-option>
               <ion-select-option value="tecnico">Técnico</ion-select-option>
               <ion-select-option value="otro">Otro</ion-select-option>
             </ion-select>
           </ion-item>
-
           <ion-item class="form-field">
-            <ion-icon name="business-outline" slot="start" color="primary"></ion-icon>
-            <ion-label>Nivel de gobierno *</ion-label>
-            <ion-select [(ngModel)]="funcionarioGad.nivelgobierno"
-              (ionChange)="onNivelGobiernoChange(funcionarioGad.nivelgobierno)" interface="action-sheet"
-              placeholder="Seleccione">
-              <ion-select-option value="mancomunidad">Mancomunidad y Consorcios</ion-select-option>
+            <ion-label>Nivel Gobierno *</ion-label>
+            <ion-select [(ngModel)]="funcionarioGad.nivelgobierno" placeholder="Seleccione" interface="popover">
+              <ion-select-option value="mancomunidad">Mancomunidad</ion-select-option>
               <ion-select-option value="municipal">Municipal</ion-select-option>
-              <ion-select-option value="parroquial">Parroquial Rural</ion-select-option>
+              <ion-select-option value="parroquial">Parroquial</ion-select-option>
               <ion-select-option value="provincial">Provincial</ion-select-option>
-              <ion-select-option value="otro">Otro</ion-select-option>
             </ion-select>
           </ion-item>
         </div>
-
-        <ion-item class="form-field">
-          <ion-icon name="construct-outline" slot="start" color="primary"></ion-icon>
-          <ion-label>Seleccione su competencia *</ion-label>
-          <ion-select *ngIf="datosrecuperados.competencias.length > 0" [(ngModel)]="funcionarioGad.competencias"
-            interface="action-sheet" placeholder="Seleccione">
-            <ion-select-option *ngFor="let competencia of datosrecuperados.competencias"
-              [value]="competencia.nombre_competencias">
-              {{ competencia.nombre_competencias }}
-            </ion-select-option>
-          </ion-select>
-        </ion-item>
-
-        <ion-item class="form-field">
-          <ion-icon name="location-outline" slot="start" color="primary"></ion-icon>
-          <ion-label>Seleccione su opción *</ion-label>
-          <ion-select
-            *ngIf="datosrecuperados.macrocomunidades.length > 0 && funcionarioGad.nivelgobierno==='mancomunidad'"
-            [(ngModel)]="funcionarioGad.gadFuncionarioGad" interface="action-sheet" placeholder="Seleccione">
-            <ion-select-option *ngFor="let mancomunidad of datosrecuperados.macrocomunidades"
-              [value]="mancomunidad.id_mancomunidad">
-              {{ mancomunidad.nombre_mancomunidad }}
-            </ion-select-option>
-          </ion-select>
-          <ion-select *ngIf="datosrecuperados.provincias.length > 0 && funcionarioGad.nivelgobierno==='provincial'"
-            [(ngModel)]="funcionarioGad.gadFuncionarioGad" interface="action-sheet" placeholder="Seleccione">
-            <ion-select-option *ngFor="let provincia of datosrecuperados.provincias"
-              [value]="provincia.Codigo_Provincia">
-              {{ provincia.Nombre_Provincia }}
-            </ion-select-option>
-          </ion-select>
-          <ion-select *ngIf="datosrecuperados.municipios.length > 0 && funcionarioGad.nivelgobierno === 'municipal'"
-            [(ngModel)]="funcionarioGad.gadFuncionarioGad" interface="action-sheet" placeholder="Seleccione">
-            <ion-select-option *ngFor="let municipio of datosrecuperados.municipios" [value]="municipio.idCanton">
-              {{ municipio.value }}
-            </ion-select-option>
-          </ion-select>
-          <ion-select *ngIf="datosrecuperados.parroquias.length > 0 && funcionarioGad.nivelgobierno === 'parroquial'"
-            [(ngModel)]="funcionarioGad.gadFuncionarioGad" interface="action-sheet" placeholder="Seleccione">
-            <ion-select-option *ngFor="let parroquia of datosrecuperados.parroquias" [value]="parroquia.idParroquia">
-              {{ parroquia.value }}
-            </ion-select-option>
-          </ion-select>
-          <ion-select *ngIf="datosrecuperados.parroquias.length > 0 && funcionarioGad.nivelgobierno === 'otro'"
-            [(ngModel)]="funcionarioGad.gadFuncionarioGad" interface="action-sheet" placeholder="Seleccione">
-            <ion-select-option *ngFor="let parroquia of datosrecuperados.parroquias" [value]="parroquia.idParroquia">
-              {{ parroquia.value }}
-            </ion-select-option>
-          </ion-select>
-        </ion-item>
       </div>
 
-      <!-- Submenú: Institución -->
+      <!-- Institución -->
       <div class="form-section" *ngIf="usuarioGeneral.tipoParticipante == 3">
-        <h3 class="subsection-title">Información de institución</h3>
-
-        <ion-item class="form-field">
-          <ion-icon name="business-outline" slot="start" color="primary"></ion-icon>
-          <ion-label>Seleccione su institución *</ion-label>
-          <ion-select *ngIf="datosrecuperados.instituciones.length > 0" [(ngModel)]="institucion.institucion"
-            interface="action-sheet" placeholder="Seleccione">
-            <ion-select-option *ngFor="let institucion of datosrecuperados.instituciones"
-              [value]="institucion.id_institucion">
-              {{ institucion.nombre_institucion }}
-            </ion-select-option>
-          </ion-select>
-        </ion-item>
-
+        <h3 class="section-title">Datos Institucionales</h3>
         <div class="field-group">
           <ion-item class="form-field">
-            <ion-icon name="analytics-outline" slot="start" color="primary"></ion-icon>
-            <ion-label>Grado ocupacional *</ion-label>
-            <ion-select [(ngModel)]="institucion.gradoOcupacional" interface="action-sheet" placeholder="Seleccione">
-              <ion-select-option value="Servidor Publico de Servicios 1">Servidor Público de Servicios
-                1</ion-select-option>
-              <ion-select-option value="Servidor Publico de Servicios 2">Servidor Público de Servicios
-                2</ion-select-option>
-              <ion-select-option value="Servidor Publico de Apoyo 1">Servidor Público de Apoyo 1</ion-select-option>
-              <ion-select-option value="Servidor Publico de Apoyo 2">Servidor Público de Apoyo 2</ion-select-option>
-              <ion-select-option value="Servidor Publico de Apoyo 3">Servidor Público de Apoyo 3</ion-select-option>
-              <ion-select-option value="Servidor Publico 1">Servidor Público 1</ion-select-option>
-              <ion-select-option value="Servidor Publico 2">Servidor Público 2</ion-select-option>
-              <ion-select-option value="Servidor Publico 3">Servidor Público 3</ion-select-option>
-              <ion-select-option value="Servidor Publico 4">Servidor Público 4</ion-select-option>
-              <ion-select-option value="Servidor Publico 5">Servidor Público 5</ion-select-option>
-              <ion-select-option value="Servidor Publico 6">Servidor Público 6</ion-select-option>
-              <ion-select-option value="Servidor Publico 7">Servidor Público 7</ion-select-option>
-              <ion-select-option value="Servidor Publico 8">Servidor Público 8</ion-select-option>
-              <ion-select-option value="Servidor Publico 9">Servidor Público 9</ion-select-option>
-              <ion-select-option value="Servidor Publico 10">Servidor Público 10</ion-select-option>
-              <ion-select-option value="Servidor Publico 11">Servidor Público 11</ion-select-option>
-              <ion-select-option value="Servidor Publico 12">Servidor Público 12</ion-select-option>
-              <ion-select-option value="Servidor Publico 13">Servidor Público 13</ion-select-option>
-              <ion-select-option value="Servidor Publico 14">Servidor Público 14</ion-select-option>
-              <ion-select-option value="other">Otro</ion-select-option>
+            <ion-label>Institución *</ion-label>
+            <ion-select [(ngModel)]="institucion.institucion" placeholder="Seleccione" interface="popover">
+              <ion-select-option *ngFor="let inst of datosrecuperados.instituciones" [value]="inst.id_institucion">
+                {{ inst.nombre_institucion }}
+              </ion-select-option>
             </ion-select>
           </ion-item>
-
           <ion-item class="form-field">
-            <ion-icon name="id-card-outline" slot="start" color="primary"></ion-icon>
-            <ion-label>Seleccione su cargo *</ion-label>
-            <ion-select *ngIf="datosrecuperados.cargos.length > 0" [(ngModel)]="institucion.cargo"
-              interface="action-sheet" placeholder="Seleccione">
+            <ion-label>Cargo *</ion-label>
+            <ion-select [(ngModel)]="institucion.cargo" placeholder="Seleccione" interface="popover">
               <ion-select-option *ngFor="let cargo of datosrecuperados.cargos" [value]="cargo.id_cargo">
                 {{ cargo.nombre_cargo }}
               </ion-select-option>
@@ -456,16 +285,19 @@
           </ion-item>
         </div>
       </div>
+
+
+      <!-- Actions -->
       <div class="form-actions">
-        <ion-button fill="outline" color="medium" routerLink="/gestionar usuarios">
-          <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
+        <ion-button class="cancel-btn" fill="clear" color="medium" routerLink="/gestionar-usuarios">
           Cancelar
         </ion-button>
-        <ion-button color="success" (click)="crearUsuario()">
-          <ion-icon name="person-add-outline" slot="start"></ion-icon>
-          Crear Usuario
+        <ion-button color="primary" (click)="crearUsuario()">
+          <ion-icon name="save-outline" slot="start"></ion-icon>
+          Guardar Usuario
         </ion-button>
       </div>
-    </ion-card-content>
-  </ion-card>
+
+    </div>
+  </div>
 </ion-content>

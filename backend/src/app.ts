@@ -12,8 +12,11 @@ import logger from './config/logger';
 // Importar rutas
 import authRoutes from './infrastructure/web/routes/auth.routes';
 import userRoutes from './infrastructure/web/routes/user.routes';
+import rolRoutes from './infrastructure/web/routes/rol.routes';
+import entidadRoutes from './infrastructure/web/routes/entidad.routes';
 import capacitacionRoutes from './infrastructure/web/routes/capacitacion.routes';
 import certificadoRoutes from './infrastructure/web/routes/certificado.routes';
+import ubicacionRoutes from './infrastructure/web/routes/ubicacion.routes';
 import reportesRoutes from './infrastructure/web/routes/reportes.routes';
 
 // Importar middleware
@@ -62,6 +65,16 @@ if (env.NODE_ENV === 'development') {
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
+// Debug Middleware
+app.use((req, res, next) => {
+    console.log(`[DEBUG_API] ${new Date().toISOString()} - ${req.method} ${req.url}`);
+    console.log('[DEBUG_API] Headers:', {
+        authorization: req.get('Authorization') ? 'Bearer [HIDDEN]' : 'None',
+        origin: req.get('Origin')
+    });
+    next();
+});
+
 // ============================================
 // RUTAS
 // ============================================
@@ -79,8 +92,11 @@ app.get('/health', (_req, res) => {
 // Rutas de la API
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/rol', rolRoutes); // Singular to match frontend service
+app.use('/api/entidades', entidadRoutes); // Plural to match frontend service
 app.use('/api/capacitaciones', capacitacionRoutes);
 app.use('/api/certificados', certificadoRoutes);
+app.use('/api', ubicacionRoutes); // Provincias y Cantones
 app.use('/api/reportes', reportesRoutes);
 
 // ============================================
@@ -104,4 +120,4 @@ app.listen(PORT, () => {
 
 export default app;
 
-// Force Restart: Server update applied at 2026-01-29 03:42
+// Force Restart: Server update applied at 2026-02-04 23:42

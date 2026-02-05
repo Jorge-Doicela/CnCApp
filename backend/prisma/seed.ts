@@ -136,6 +136,41 @@ async function main() {
 
         console.log('✅ Users created');
 
+        // 3.5 Create geographical data
+        console.log('Creating geographical data...');
+        const pichincha = await prisma.provincia.upsert({
+            where: { nombre: 'PICHINCHA' },
+            update: {},
+            create: { nombre: 'PICHINCHA' }
+        });
+
+        const guayas = await prisma.provincia.upsert({
+            where: { nombre: 'GUAYAS' },
+            update: {},
+            create: { nombre: 'GUAYAS' }
+        });
+
+        const azuay = await prisma.provincia.upsert({
+            where: { nombre: 'AZUAY' },
+            update: {},
+            create: { nombre: 'AZUAY' }
+        });
+
+        if (await prisma.canton.count() === 0) {
+            await prisma.canton.create({
+                data: { nombre: 'QUITO', provinciaId: pichincha.id }
+            });
+
+            await prisma.canton.create({
+                data: { nombre: 'GUAYAQUIL', provinciaId: guayas.id }
+            });
+
+            await prisma.canton.create({
+                data: { nombre: 'CUENCA', provinciaId: azuay.id }
+            });
+        }
+        console.log('✅ Geographical data created');
+
         // 4. Create Capacitaciones (only if they don't exist)
         console.log('Creating capacitaciones...');
 
