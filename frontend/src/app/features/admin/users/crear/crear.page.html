@@ -13,30 +13,50 @@
     <!-- Header Section -->
     <div class="header-section fade-in">
       <h1>
-        Registro de Usuario
-        <span>Complete la información para dar de alta un usuario</span>
+        Registro
+        <span>Paso {{ passoActual }} de 5: {{ [
+          '',
+          'Acceso',
+          'Personal',
+          'Ubicación',
+          'Cargo',
+          'Revisión'
+          ][passoActual] }}</span>
       </h1>
     </div>
 
-    <!-- Form Card -->
-    <div class="form-card fade-in" style="animation-delay: 0.1s;">
+    <!-- Progress Stepper -->
+    <div class="stepper-container fade-in">
+      <div class="step" *ngFor="let s of [1,2,3,4,5]" [class.active]="passoActual === s"
+        [class.completed]="passoActual > s" (click)="irAPasso(s)">
+        <div class="step-icon">
+          <ion-icon [name]="passoActual > s ? 'checkmark-outline' : ''"></ion-icon>
+          <span *ngIf="passoActual <= s">{{ s }}</span>
+        </div>
+      </div>
+      <div class="progress-line">
+        <div class="fill" [style.width]="((passoActual - 1) / 4 * 100) + '%'"></div>
+      </div>
+    </div>
 
-      <!-- Seccion 1: Identificación y Credenciales -->
-      <div class="form-section">
+    <!-- Form Card -->
+    <div class="form-card fade-in">
+
+      <!-- Paso 1: Identificación y Credenciales -->
+      <div class="form-section transition-step" *ngIf="passoActual === 1">
         <h3 class="section-title">
           <ion-icon name="shield-checkmark-outline"></ion-icon>
           Credenciales y Acceso
         </h3>
-        <p class="section-description">Datos para el inicio de sesión y rol del usuario en la plataforma.</p>
+        <p class="section-description">Configure los datos de acceso y el rol del nuevo usuario.</p>
 
         <div class="field-group triple">
-          <!-- Cédula -->
-          <div>
+          <div class="ci-field-container">
             <ion-item class="form-field">
               <ion-icon name="id-card-outline" slot="start"></ion-icon>
               <ion-label position="floating">Cédula (CI) *</ion-label>
               <ion-input [(ngModel)]="usuarioGeneral.ci" type="text" maxlength="10" required></ion-input>
-              <ion-button slot="end" fill="clear" (click)="validarCedula()">
+              <ion-button slot="end" fill="clear" (click)="validarCedula()" title="Validar Cédula">
                 <ion-icon name="checkmark-done-circle-outline" slot="icon-only"></ion-icon>
               </ion-button>
             </ion-item>
@@ -44,18 +64,16 @@
               [ngClass]="{'validacion-error': !cedulaValidada, 'validacion-success': cedulaValidada}"
               class="mensaje-validacion">
               <ion-icon [name]="cedulaValidada ? 'checkmark-circle' : 'alert-circle'"></ion-icon>
-              {{ mensajeValidacionCedula }}
+              <span>{{ mensajeValidacionCedula }}</span>
             </div>
           </div>
 
-          <!-- Email -->
           <ion-item class="form-field">
             <ion-icon name="mail-outline" slot="start"></ion-icon>
             <ion-label position="floating">Correo Electrónico *</ion-label>
             <ion-input [(ngModel)]="usuarioGeneral.email" type="email" required></ion-input>
           </ion-item>
 
-          <!-- Password -->
           <ion-item class="form-field">
             <ion-icon name="lock-closed-outline" slot="start"></ion-icon>
             <ion-label position="floating">Contraseña *</ion-label>
@@ -64,7 +82,6 @@
         </div>
 
         <div class="field-group">
-          <!-- Rol -->
           <ion-item class="form-field">
             <ion-icon name="key-outline" slot="start"></ion-icon>
             <ion-label>Rol de Usuario *</ion-label>
@@ -75,7 +92,6 @@
             </ion-select>
           </ion-item>
 
-          <!-- Tipo Participante -->
           <ion-item class="form-field">
             <ion-icon name="people-outline" slot="start"></ion-icon>
             <ion-label>Tipo Participante *</ion-label>
@@ -90,8 +106,8 @@
         </div>
       </div>
 
-      <!-- Seccion 2: Datos Personales -->
-      <div class="form-section">
+      <!-- Paso 2: Datos Personales -->
+      <div class="form-section transition-step" *ngIf="passoActual === 2">
         <h3 class="section-title">
           <ion-icon name="person-outline"></ion-icon>
           Información Personal
@@ -99,26 +115,30 @@
 
         <div class="field-group">
           <ion-item class="form-field">
+            <ion-icon name="person-outline" slot="start"></ion-icon>
             <ion-label position="floating">Primer Nombre *</ion-label>
             <ion-input [(ngModel)]="usuarioGeneral.nombre1" [readonly]="camposNombreReadonly"></ion-input>
           </ion-item>
           <ion-item class="form-field">
+            <ion-icon name="person-outline" slot="start"></ion-icon>
             <ion-label position="floating">Segundo Nombre</ion-label>
             <ion-input [(ngModel)]="usuarioGeneral.nombre2" [readonly]="camposNombreReadonly"></ion-input>
           </ion-item>
         </div>
         <div class="field-group">
           <ion-item class="form-field">
+            <ion-icon name="person-outline" slot="start"></ion-icon>
             <ion-label position="floating">Primer Apellido *</ion-label>
             <ion-input [(ngModel)]="usuarioGeneral.apellido1" [readonly]="camposNombreReadonly"></ion-input>
           </ion-item>
           <ion-item class="form-field">
+            <ion-icon name="person-outline" slot="start"></ion-icon>
             <ion-label position="floating">Segundo Apellido</ion-label>
             <ion-input [(ngModel)]="usuarioGeneral.apellido2" [readonly]="camposNombreReadonly"></ion-input>
           </ion-item>
         </div>
 
-        <div class="field-group" *ngIf="!nombresEdited">
+        <div class="field-group confirm-btn-container" *ngIf="!nombresEdited">
           <ion-button expand="block" shape="round" fill="outline" color="secondary" (click)="confirmarNombres()"
             [disabled]="!usuarioGeneral.nombre1 || !usuarioGeneral.apellido1">
             <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
@@ -128,14 +148,17 @@
 
         <div class="field-group triple">
           <ion-item class="form-field">
+            <ion-icon name="call-outline" slot="start"></ion-icon>
             <ion-label position="floating">Celular *</ion-label>
             <ion-input [(ngModel)]="usuarioGeneral.celular" type="tel"></ion-input>
           </ion-item>
           <ion-item class="form-field">
+            <ion-icon name="call-outline" slot="start"></ion-icon>
             <ion-label position="floating">Convencional</ion-label>
             <ion-input [(ngModel)]="usuarioGeneral.convencional" type="tel"></ion-input>
           </ion-item>
           <ion-item class="form-field">
+            <ion-icon name="calendar-outline" slot="start"></ion-icon>
             <ion-label>Fecha Nacimiento *</ion-label>
             <ion-input [(ngModel)]="usuarioGeneral.fechaNacimiento" type="date"></ion-input>
           </ion-item>
@@ -143,6 +166,7 @@
 
         <div class="field-group">
           <ion-item class="form-field">
+            <ion-icon name="male-female-outline" slot="start"></ion-icon>
             <ion-label>Género *</ion-label>
             <ion-select [(ngModel)]="usuarioGeneral.genero" placeholder="Seleccione" interface="popover">
               <ion-select-option value="Masculino">Masculino</ion-select-option>
@@ -151,6 +175,7 @@
             </ion-select>
           </ion-item>
           <ion-item class="form-field">
+            <ion-icon name="people-outline" slot="start"></ion-icon>
             <ion-label>Etnia *</ion-label>
             <ion-select [(ngModel)]="usuarioGeneral.etnia" placeholder="Seleccione" interface="popover">
               <ion-select-option value="AFROECUATORIANO">Afroecuatoriano</ion-select-option>
@@ -164,8 +189,8 @@
         </div>
       </div>
 
-      <!-- Seccion 3: Ubicación -->
-      <div class="form-section">
+      <!-- Paso 3: Ubicación -->
+      <div class="form-section transition-step" *ngIf="passoActual === 3">
         <h3 class="section-title">
           <ion-icon name="map-outline"></ion-icon>
           Ubicación
@@ -173,6 +198,7 @@
 
         <div class="field-group triple">
           <ion-item class="form-field">
+            <ion-icon name="globe-outline" slot="start"></ion-icon>
             <ion-label>Provincia *</ion-label>
             <ion-select [(ngModel)]="datosbusqueda.selectedProvincia"
               (ionChange)="obtenerCantones(datosbusqueda.selectedProvincia)" placeholder="Seleccione"
@@ -184,6 +210,7 @@
             </ion-select>
           </ion-item>
           <ion-item class="form-field">
+            <ion-icon name="location-outline" slot="start"></ion-icon>
             <ion-label>Cantón *</ion-label>
             <ion-select [(ngModel)]="usuarioGeneral.cantonReside"
               (ionChange)="obtenerParroquias(usuarioGeneral.cantonReside)" placeholder="Seleccione" interface="popover"
@@ -194,6 +221,7 @@
             </ion-select>
           </ion-item>
           <ion-item class="form-field">
+            <ion-icon name="map-outline" slot="start"></ion-icon>
             <ion-label>Parroquia</ion-label>
             <ion-select [(ngModel)]="usuarioGeneral.parroquiaReside" placeholder="Seleccione" interface="popover"
               [disabled]="!datosrecuperados.parroquiasSeleccionadas.length">
@@ -206,95 +234,161 @@
         </div>
       </div>
 
-      <!-- Seccion 4: Datos Específicos (Dinámicos) -->
-      <!-- Autoridad -->
-      <div class="form-section" *ngIf="usuarioGeneral.tipoParticipante == 1">
-        <h3 class="section-title">Datos Autoridad</h3>
-        <div class="field-group">
-          <ion-item class="form-field">
-            <ion-label>Cargo *</ion-label>
-            <ion-select [(ngModel)]="autoridad.cargo" placeholder="Seleccione" interface="popover">
-              <ion-select-option value="alcalde">Alcalde(sa)</ion-select-option>
-              <ion-select-option value="vicealcalde">Vicealcalde(sa)</ion-select-option>
-              <ion-select-option value="consejal">Consejal(a)</ion-select-option>
-              <ion-select-option value="prefecto">Prefecto(a)</ion-select-option>
-              <ion-select-option value="viceprefecto">Viceprefecto(a)</ion-select-option>
-              <ion-select-option value="presidenteparroquial">Presidente(a) Junta Parroquial</ion-select-option>
-              <ion-select-option value="vocalparroquial">Vocal Junta Parroquial</ion-select-option>
-              <ion-select-option value="otro">Otro</ion-select-option>
-            </ion-select>
-          </ion-item>
-          <ion-item class="form-field">
-            <ion-label>Nivel Gobierno *</ion-label>
-            <ion-select [(ngModel)]="autoridad.nivelgobierno" placeholder="Seleccione" interface="popover">
-              <ion-select-option value="mancomunidad">Mancomunidad y Consorcios</ion-select-option>
-              <ion-select-option value="municipal">Municipal</ion-select-option>
-              <ion-select-option value="parroquial">Parroquial Rural</ion-select-option>
-              <ion-select-option value="provincial">Provincial</ion-select-option>
-              <ion-select-option value="otro">Otro</ion-select-option>
-            </ion-select>
+      <!-- Paso 4: Datos Específicos -->
+      <div class="form-section transition-step" *ngIf="passoActual === 4">
+        <!-- Autoridad -->
+        <div *ngIf="usuarioGeneral.tipoParticipante == 1">
+          <h3 class="section-title">Datos Autoridad</h3>
+          <div class="field-group">
+            <ion-item class="form-field">
+              <ion-label>Cargo *</ion-label>
+              <ion-select [(ngModel)]="autoridad.cargo" placeholder="Seleccione" interface="popover">
+                <ion-select-option value="alcalde">Alcalde(sa)</ion-select-option>
+                <ion-select-option value="vicealcalde">Vicealcalde(sa)</ion-select-option>
+                <ion-select-option value="consejal">Consejal(a)</ion-select-option>
+                <ion-select-option value="prefecto">Prefecto(a)</ion-select-option>
+                <ion-select-option value="viceprefecto">Viceprefecto(a)</ion-select-option>
+                <ion-select-option value="presidenteparroquial">Presidente(a) Junta Parroquial</ion-select-option>
+                <ion-select-option value="vocalparroquial">Vocal Junta Parroquial</ion-select-option>
+                <ion-select-option value="otro">Otro</ion-select-option>
+              </ion-select>
+            </ion-item>
+            <ion-item class="form-field">
+              <ion-label>Nivel Gobierno *</ion-label>
+              <ion-select [(ngModel)]="autoridad.nivelgobierno" placeholder="Seleccione" interface="popover">
+                <ion-select-option value="mancomunidad">Mancomunidad y Consorcios</ion-select-option>
+                <ion-select-option value="municipal">Municipal</ion-select-option>
+                <ion-select-option value="parroquial">Parroquial Rural</ion-select-option>
+                <ion-select-option value="provincial">Provincial</ion-select-option>
+                <ion-select-option value="otro">Otro</ion-select-option>
+              </ion-select>
+            </ion-item>
+          </div>
+        </div>
+
+        <!-- Funcionario GAD -->
+        <div *ngIf="usuarioGeneral.tipoParticipante == 2">
+          <h3 class="section-title">Datos Funcionario GAD</h3>
+          <div class="field-group">
+            <ion-item class="form-field">
+              <ion-label>Cargo *</ion-label>
+              <ion-select [(ngModel)]="funcionarioGad.cargo" placeholder="Seleccione" interface="popover">
+                <ion-select-option value="asesor">Asesor(a)</ion-select-option>
+                <ion-select-option value="director">Director(a)</ion-select-option>
+                <ion-select-option value="jefe_dpto_unidad">Jefe Dpto</ion-select-option>
+                <ion-select-option value="tecnico">Técnico</ion-select-option>
+                <ion-select-option value="otro">Otro</ion-select-option>
+              </ion-select>
+            </ion-item>
+            <ion-item class="form-field">
+              <ion-label>Nivel Gobierno *</ion-label>
+              <ion-select [(ngModel)]="funcionarioGad.nivelgobierno" placeholder="Seleccione" interface="popover">
+                <ion-select-option value="mancomunidad">Mancomunidad</ion-select-option>
+                <ion-select-option value="municipal">Municipal</ion-select-option>
+                <ion-select-option value="parroquial">Parroquial</ion-select-option>
+                <ion-select-option value="provincial">Provincial</ion-select-option>
+              </ion-select>
+            </ion-item>
+          </div>
+        </div>
+
+        <!-- Institución -->
+        <div *ngIf="usuarioGeneral.tipoParticipante == 3">
+          <h3 class="section-title">Datos Institucionales</h3>
+          <div class="field-group">
+            <ion-item class="form-field">
+              <ion-label>Institución *</ion-label>
+              <ion-select [(ngModel)]="institucion.institucion" placeholder="Seleccione" interface="popover">
+                <ion-select-option *ngFor="let inst of datosrecuperados.instituciones" [value]="inst.id_institucion">
+                  {{ inst.nombre_institucion }}
+                </ion-select-option>
+              </ion-select>
+            </ion-item>
+            <ion-item class="form-field">
+              <ion-label>Cargo *</ion-label>
+              <ion-select [(ngModel)]="institucion.cargo" placeholder="Seleccione" interface="popover">
+                <ion-select-option *ngFor="let cargo of datosrecuperados.cargos" [value]="cargo.id_cargo">
+                  {{ cargo.nombre_cargo }}
+                </ion-select-option>
+              </ion-select>
+            </ion-item>
+          </div>
+        </div>
+
+        <div *ngIf="usuarioGeneral.tipoParticipante == 0" class="empty-state">
+          <ion-icon name="people-outline"></ion-icon>
+          <p>No se requieren datos específicos adicionales para Ciudadanos.</p>
+        </div>
+      </div>
+
+      <!-- Paso 5: Revisión -->
+      <div class="form-section transition-step" *ngIf="passoActual === 5">
+        <h3 class="section-title">
+          <ion-icon name="analytics-outline"></ion-icon>
+          Resumen de Registro
+        </h3>
+
+        <div class="review-grid">
+          <div class="review-item">
+            <span class="label">Nombre Completo:</span>
+            <span class="value">{{ concatenarNombreCompleto() }}</span>
+          </div>
+          <div class="review-item">
+            <span class="label">Cédula:</span>
+            <span class="value">{{ usuarioGeneral.ci }}</span>
+          </div>
+          <div class="review-item">
+            <span class="label">Email:</span>
+            <span class="value">{{ usuarioGeneral.email }}</span>
+          </div>
+          <div class="review-item">
+            <span class="label">Rol en Plataforma:</span>
+            <span class="value">{{ getNombreRolSeleccionado() }}</span>
+          </div>
+          <div class="review-item">
+            <span class="label">Ubicación:</span>
+            <span class="value">{{ getNombreProvincia() }} - {{ getNombreCanton() }}</span>
+          </div>
+          <div class="review-item">
+            <span class="label">Tipo Participante:</span>
+            <span class="value">{{ [
+              'Ciudadano',
+              'Autoridad',
+              'Funcionario GAD',
+              'Institución'
+              ][usuarioGeneral.tipoParticipante] }}</span>
+          </div>
+        </div>
+
+        <div class="confirmation-check">
+          <ion-item lines="none">
+            <ion-checkbox slot="start" color="primary"></ion-checkbox>
+            <ion-label>Confirmo que toda la información ingresada es verídica.</ion-label>
           </ion-item>
         </div>
       </div>
 
-      <!-- Funcionario GAD -->
-      <div class="form-section" *ngIf="usuarioGeneral.tipoParticipante == 2">
-        <h3 class="section-title">Datos Funcionario GAD</h3>
-        <div class="field-group">
-          <ion-item class="form-field">
-            <ion-label>Cargo *</ion-label>
-            <ion-select [(ngModel)]="funcionarioGad.cargo" placeholder="Seleccione" interface="popover">
-              <ion-select-option value="asesor">Asesor(a)</ion-select-option>
-              <ion-select-option value="director">Director(a)</ion-select-option>
-              <ion-select-option value="jefe_dpto_unidad">Jefe Dpto</ion-select-option>
-              <ion-select-option value="tecnico">Técnico</ion-select-option>
-              <ion-select-option value="otro">Otro</ion-select-option>
-            </ion-select>
-          </ion-item>
-          <ion-item class="form-field">
-            <ion-label>Nivel Gobierno *</ion-label>
-            <ion-select [(ngModel)]="funcionarioGad.nivelgobierno" placeholder="Seleccione" interface="popover">
-              <ion-select-option value="mancomunidad">Mancomunidad</ion-select-option>
-              <ion-select-option value="municipal">Municipal</ion-select-option>
-              <ion-select-option value="parroquial">Parroquial</ion-select-option>
-              <ion-select-option value="provincial">Provincial</ion-select-option>
-            </ion-select>
-          </ion-item>
-        </div>
-      </div>
 
-      <!-- Institución -->
-      <div class="form-section" *ngIf="usuarioGeneral.tipoParticipante == 3">
-        <h3 class="section-title">Datos Institucionales</h3>
-        <div class="field-group">
-          <ion-item class="form-field">
-            <ion-label>Institución *</ion-label>
-            <ion-select [(ngModel)]="institucion.institucion" placeholder="Seleccione" interface="popover">
-              <ion-select-option *ngFor="let inst of datosrecuperados.instituciones" [value]="inst.id_institucion">
-                {{ inst.nombre_institucion }}
-              </ion-select-option>
-            </ion-select>
-          </ion-item>
-          <ion-item class="form-field">
-            <ion-label>Cargo *</ion-label>
-            <ion-select [(ngModel)]="institucion.cargo" placeholder="Seleccione" interface="popover">
-              <ion-select-option *ngFor="let cargo of datosrecuperados.cargos" [value]="cargo.id_cargo">
-                {{ cargo.nombre_cargo }}
-              </ion-select-option>
-            </ion-select>
-          </ion-item>
-        </div>
-      </div>
-
-
-      <!-- Actions -->
+      <!-- Wizard Actions -->
       <div class="form-actions">
-        <ion-button class="cancel-btn" fill="clear" color="medium" routerLink="/gestionar-usuarios">
+        <ion-button class="cancel-btn" fill="clear" color="medium" *ngIf="passoActual === 1"
+          routerLink="/gestionar-usuarios">
           Cancelar
         </ion-button>
-        <ion-button color="primary" (click)="crearUsuario()">
+
+        <ion-button class="back-btn" fill="outline" color="primary" *ngIf="passoActual > 1" (click)="passoAnterior()">
+          <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
+          Anterior
+        </ion-button>
+
+        <ion-button color="primary" *ngIf="passoActual < 5" (click)="proximoPasso()">
+          Siguiente
+          <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
+        </ion-button>
+
+        <ion-button color="success" *ngIf="passoActual === 5" (click)="crearUsuario()">
           <ion-icon name="save-outline" slot="start"></ion-icon>
-          Guardar Usuario
+          Finalizar y Guardar
         </ion-button>
       </div>
 

@@ -10,7 +10,7 @@ import {
   personAddOutline, searchOutline, idCardOutline, businessOutline, shieldOutline, fingerPrintOutline,
   callOutline, peopleOutline, createOutline, trashOutline, mailOutline, lockClosedOutline,
   calendarOutline, maleFemaleOutline, globeOutline, peopleCircleOutline, briefcaseOutline,
-  ribbonOutline, constructOutline, analyticsOutline
+  ribbonOutline, constructOutline, analyticsOutline, close as closeIcon, chevronBackOutline, chevronForwardOutline
 } from 'ionicons/icons';
 import { UsuarioService } from 'src/app/features/user/services/usuario.service';
 import { CatalogoService } from 'src/app/shared/services/catalogo.service';
@@ -136,6 +136,9 @@ export class CrearPage implements OnInit {
   cedulaValidada: boolean = false;
   nombresEdited: boolean = false;
 
+  // Wizard State
+  passoActual: number = 1;
+
   private usuarioService = inject(UsuarioService);
   private catalogoService = inject(CatalogoService);
 
@@ -152,7 +155,6 @@ export class CrearPage implements OnInit {
       'save-outline': saveOutline,
       'checkmark-done-outline': checkmarkDoneOutline,
       'checkmark-done-circle-outline': checkmarkDoneCircleOutline,
-      // Existing
       'person-add-outline': personAddOutline,
       'search-outline': searchOutline,
       'id-card-outline': idCardOutline,
@@ -173,7 +175,137 @@ export class CrearPage implements OnInit {
       'ribbon-outline': ribbonOutline,
       'construct-outline': constructOutline,
       'analytics-outline': analyticsOutline,
+      'close': closeIcon,
+      'chevron-back-outline': chevronBackOutline,
+      'chevron-forward-outline': chevronForwardOutline
     });
+  }
+
+  // Wizard Navigation
+  proximoPasso() {
+    if (this.validarPassoActual()) {
+      if (this.passoActual < 5) {
+        this.passoActual++;
+        this.scrollToTop();
+      }
+    }
+  }
+
+  passoAnterior() {
+    if (this.passoActual > 1) {
+      this.passoActual--;
+      this.scrollToTop();
+    }
+  }
+
+  irAPasso(passo: number) {
+    // Solo permitir ir a pasos anteriores o al siguiente si el actual es válido
+    if (passo < this.passoActual) {
+      this.passoActual = passo;
+    } else if (passo === this.passoActual + 1 && this.validarPassoActual()) {
+      this.passoActual = passo;
+    }
+  }
+
+  private scrollToTop() {
+    const content = document.querySelector('ion-content');
+    if (content) {
+      (content as any).scrollToTop(500);
+    }
+  }
+
+  validarPassoActual(): boolean {
+    switch (this.passoActual) {
+      case 1: // Credenciales y Acceso
+        if (!this.usuarioGeneral.ci || !this.cedulaValidada) {
+          this.showToast('Por favor ingrese y valide su cédula');
+          return false;
+        }
+        if (!this.usuarioGeneral.email || !this.validateEmail(this.usuarioGeneral.email)) {
+          return false;
+        }
+        if (!this.usuarioGeneral.password || this.usuarioGeneral.password.length < 6) {
+          this.showToast('La contraseña debe tener al menos 6 caracteres');
+          return false;
+        }
+        if (!this.usuarioGeneral.rolId) {
+          this.showToast('Seleccione un rol de usuario');
+          return false;
+        }
+        return true;
+
+      case 2: // Información Personal
+        if (!this.usuarioGeneral.nombre1 || !this.usuarioGeneral.apellido1) {
+          this.showToast('Nombre y primer apellido son obligatorios');
+          return false;
+        }
+        if (!this.nombresEdited) {
+          this.showToast('Por favor confirme los nombres');
+          return false;
+        }
+        if (!this.usuarioGeneral.celular) {
+          this.showToast('El número celular es obligatorio');
+          return false;
+        }
+        if (!this.usuarioGeneral.fechaNacimiento) {
+          this.showToast('La fecha de nacimiento es obligatoria');
+          return false;
+        }
+        if (!this.usuarioGeneral.genero || !this.usuarioGeneral.etnia) {
+          this.showToast('Género y etnia son obligatorios');
+          return false;
+        }
+        return true;
+
+      case 3: // Ubicación
+        if (!this.datosbusqueda.selectedProvincia) {
+          this.showToast('Seleccione una provincia');
+          return false;
+        }
+        if (!this.usuarioGeneral.cantonReside && this.datosrecuperados.cantones.length > 0) {
+          this.showToast('Seleccione un cantón');
+          return false;
+        }
+        return true;
+
+      case 4: // Datos Específicos
+        if (this.usuarioGeneral.tipoParticipante == 1) { // Autoridad
+          if (!this.autoridad.cargo || !this.autoridad.nivelgobierno) {
+            this.showToast('Complete los datos de autoridad');
+            return false;
+          }
+        } else if (this.usuarioGeneral.tipoParticipante == 2) { // Funcionario
+          if (!this.funcionarioGad.cargo || !this.funcionarioGad.nivelgobierno) {
+            this.showToast('Complete los datos de funcionario');
+            return false;
+          }
+        } else if (this.usuarioGeneral.tipoParticipante == 3) { // Institución
+          if (!this.institucion.institucion || !this.institucion.cargo) {
+            this.showToast('Complete los datos institucionales');
+            return false;
+          }
+        }
+        return true;
+
+      default:
+        return true;
+    }
+  }
+
+  // Getters para el resumen
+  getNombreRolSeleccionado(): string {
+    const rol = this.datosrecuperados.roles.find(r => r.id === this.usuarioGeneral.rolId);
+    return rol ? rol.nombre_rol : 'No seleccionado';
+  }
+
+  getNombreProvincia(): string {
+    const p = this.datosrecuperados.provincias.find(prov => prov.Codigo_Provincia === this.datosbusqueda.selectedProvincia);
+    return p ? p.Nombre_Provincia : 'No seleccionada';
+  }
+
+  getNombreCanton(): string {
+    const c = this.datosrecuperados.cantones.find(cant => cant.codigo_canton === this.usuarioGeneral.cantonReside);
+    return c ? c.nombre_canton : 'No seleccionado';
   }
 
   ngOnInit() {
@@ -581,6 +713,7 @@ export class CrearPage implements OnInit {
     this.nombresEdited = false;
     this.camposNombreReadonly = false;
     this.mensajeValidacionCedula = '';
+    this.passoActual = 1;
   }
 
   // Obtener cargos
