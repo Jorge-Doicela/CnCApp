@@ -171,6 +171,34 @@ async function main() {
         }
         console.log('✅ Geographical data created');
 
+        // 3.6 Create Cargos
+        console.log('Creating cargos...');
+        if (await prisma.cargo.count() === 0) {
+            await prisma.cargo.createMany({
+                data: [
+                    { nombre: 'ANALISTA' },
+                    { nombre: 'COORDINADOR' },
+                    { nombre: 'DIRECTOR' },
+                    { nombre: 'GERENTE' },
+                    { nombre: 'TECNICO' }
+                ]
+            });
+            console.log('✅ Cargos created');
+        }
+
+        // 3.7 Create Instituciones del Sistema
+        console.log('Creating instituciones del sistema...');
+        if (await prisma.institucionSistema.count() === 0) {
+            await prisma.institucionSistema.createMany({
+                data: [
+                    { nombre: 'CONSEJO NACIONAL DE COMPETENCIAS', tipo: 'NACIONAL' },
+                    { nombre: 'ASOCIACION DE MUNICIPALIDADES DEL ECUADOR', tipo: 'ASOCIACION' },
+                    { nombre: 'CONSORCIO DE GOBIERNOS AUTONOMOS PROVINCIALES DEL ECUADOR', tipo: 'CONSORCIO' }
+                ]
+            });
+            console.log('✅ Instituciones created');
+        }
+
         // 4. Create Capacitaciones (only if they don't exist)
         console.log('Creating capacitaciones...');
 

@@ -18,6 +18,8 @@ import capacitacionRoutes from './infrastructure/web/routes/capacitacion.routes'
 import certificadoRoutes from './infrastructure/web/routes/certificado.routes';
 import ubicacionRoutes from './infrastructure/web/routes/ubicacion.routes';
 import reportesRoutes from './infrastructure/web/routes/reportes.routes';
+import cargoRoutes from './infrastructure/web/routes/cargo.routes';
+import institucionRoutes from './infrastructure/web/routes/institucion.routes';
 
 // Importar middleware
 import { errorHandler } from './infrastructure/web/middleware/error.middleware';
@@ -97,6 +99,8 @@ app.use('/api/entidades', entidadRoutes); // Plural to match frontend service
 app.use('/api/capacitaciones', capacitacionRoutes);
 app.use('/api/certificados', certificadoRoutes);
 app.use('/api', ubicacionRoutes); // Provincias y Cantones
+app.use('/api/cargos', cargoRoutes);
+app.use('/api/instituciones_sistema', institucionRoutes);
 app.use('/api/reportes', reportesRoutes);
 
 // ============================================
