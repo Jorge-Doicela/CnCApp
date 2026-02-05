@@ -98,6 +98,11 @@ export class CRUDUsuariosPage implements OnInit {
     this.router.navigate(['/gestionar-usuarios/editar', Id_Usuario]);
   }
 
+  iraDetallesUsuario(Id_Usuario: number) {
+    if (!Id_Usuario) return;
+    this.router.navigate(['/gestionar-usuarios/detalles', Id_Usuario]);
+  }
+
   filtrarUsuarios() {
     if (!this.searchTerm.trim()) {
       this.filteredUsuarios = [...this.usuarios];

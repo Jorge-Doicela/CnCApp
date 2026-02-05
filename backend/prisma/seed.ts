@@ -42,7 +42,7 @@ async function main() {
             },
         });
 
-        console.log('✅ Roles created');
+        console.log(' Roles created');
 
         // 2. Create entities
         console.log('Creating entities...');
@@ -64,7 +64,7 @@ async function main() {
             },
         });
 
-        console.log('✅ Entities created');
+        console.log(' Entities created');
 
         // 3. Create users
         console.log('Creating users...');
@@ -134,7 +134,7 @@ async function main() {
             },
         });
 
-        console.log('✅ Users created');
+        console.log(' Users created');
 
         // 3.5 Create geographical data
         console.log('Creating geographical data...');
@@ -169,7 +169,7 @@ async function main() {
                 data: { nombre: 'CUENCA', provinciaId: azuay.id }
             });
         }
-        console.log('✅ Geographical data created');
+        console.log(' Geographical data created');
 
         // 3.6 Create Cargos
         console.log('Creating cargos...');
@@ -183,7 +183,7 @@ async function main() {
                     { nombre: 'TECNICO' }
                 ]
             });
-            console.log('✅ Cargos created');
+            console.log(' Cargos created');
         }
 
         // 3.7 Create Instituciones del Sistema
@@ -196,7 +196,7 @@ async function main() {
                     { nombre: 'CONSORCIO DE GOBIERNOS AUTONOMOS PROVINCIALES DEL ECUADOR', tipo: 'CONSORCIO' }
                 ]
             });
-            console.log('✅ Instituciones created');
+            console.log(' Instituciones created');
         }
 
         // 4. Create Capacitaciones (only if they don't exist)
@@ -233,13 +233,13 @@ async function main() {
                     estado: 'Finalizada',
                 }
             });
-            console.log('✅ Capacitaciones created');
+            console.log(' Capacitaciones created');
         } else {
             // Get existing capacitaciones
             const caps = await prisma.capacitacion.findMany({ take: 2 });
             capActiva = caps[0];
             capFinalizada = caps[1] || caps[0];
-            console.log('✅ Capacitaciones already exist, skipping creation');
+            console.log(' Capacitaciones already exist, skipping creation');
         }
 
         // 5. Create Enrollments (Inscripciones)
@@ -253,7 +253,7 @@ async function main() {
             skipDuplicates: true
         });
 
-        console.log('✅ Enrollments created');
+        console.log(' Enrollments created');
 
         // 6. Create Certificates (only if they don't exist)
         console.log('Creating certificates...');
@@ -273,12 +273,12 @@ async function main() {
                     fechaEmision: new Date(),
                 }
             });
-            console.log('✅ Certificates created');
+            console.log(' Certificates created');
         } else {
-            console.log('✅ Certificates already exist, skipping creation');
+            console.log(' Certificates already exist, skipping creation');
         }
 
-        console.log('\n✅ Seed completed successfully!');
+        console.log('\n Seed completed successfully!');
         console.log('\n📋 Test Credentials (Password: ' + plainPassword + '):');
         console.log('1. Administrador: ' + adminUser.ci);
         console.log('2. Conferencista: ' + coordUser.ci);

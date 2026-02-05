@@ -1,0 +1,299 @@
+:host {
+    --page-bg: #f8fafc;
+    --card-bg: #ffffff;
+    --text-primary: #1e293b;
+    --text-secondary: #64748b;
+    --primary-color: #3b82f6;
+    --success-color: #10b981;
+    --danger-color: #ef4444;
+    --border-radius: 20px;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+ion-content {
+    --background: var(--page-bg);
+}
+
+.main-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 16px 16px 40px 16px;
+}
+
+// Hero Profile Section
+.profile-hero {
+    background: white;
+    border-radius: var(--border-radius);
+    padding: 32px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    box-shadow: var(--shadow-md);
+    margin-bottom: 24px;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+
+    .avatar-container {
+        position: relative;
+        margin-bottom: 16px;
+
+        .avatar {
+            width: 80px;
+            height: 80px;
+            background: #eff6ff;
+            color: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: 800;
+            border: 3px solid #ffffff;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .status-indicator {
+            position: absolute;
+            bottom: 4px;
+            right: 4px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 3px solid #ffffff;
+
+            &.active {
+                background: var(--success-color);
+            }
+
+            &.inactive {
+                background: var(--danger-color);
+            }
+        }
+    }
+
+    .profile-info {
+        h1 {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin: 0 0 4px 0;
+            letter-spacing: -0.025em;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .badges {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+
+            .badge {
+                padding: 4px 12px;
+                border-radius: 100px;
+                font-size: 11px;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+
+                &.role {
+                    background: #eff6ff;
+                    color: var(--primary-color);
+                }
+
+                &.type {
+                    background: #f1f5f9;
+                    color: var(--text-secondary);
+                }
+            }
+        }
+    }
+}
+
+// Details Grid
+.details-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+
+    @media (min-width: 768px) {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+.info-card {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+
+    &.full-width {
+        grid-column: 1 / -1;
+    }
+
+    .card-title {
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin: 0 0 20px 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+
+        ion-icon {
+            font-size: 20px;
+            color: var(--primary-color);
+        }
+    }
+}
+
+// Data Lists
+.data-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    .data-item {
+        display: flex;
+        flex-direction: column;
+
+        .label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 2px;
+        }
+
+        .value {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+
+            &.mail {
+                color: var(--primary-color);
+            }
+        }
+    }
+}
+
+// System Stats Section
+.system-stats {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 24px;
+
+    @media (min-width: 768px) {
+        grid-template-columns: 1fr 1fr 1fr;
+    }
+
+    .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+
+        ion-icon {
+            font-size: 24px;
+            color: var(--text-secondary);
+            opacity: 0.5;
+        }
+
+        .stat-content {
+            display: flex;
+            flex-direction: column;
+
+            .stat-label {
+                font-size: 12px;
+                color: var(--text-secondary);
+                font-weight: 500;
+            }
+
+            .stat-value {
+                font-size: 15px;
+                font-weight: 700;
+                color: var(--text-primary);
+            }
+        }
+    }
+}
+
+// Signature Display
+.signature-display {
+    background: #f8fafc;
+    border: 2px dashed #e2e8f0;
+    border-radius: 12px;
+    padding: 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .signature-img {
+        max-height: 120px;
+        mix-blend-mode: multiply;
+    }
+
+    .no-signature {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        color: var(--text-secondary);
+        font-size: 14px;
+        text-align: center;
+
+        ion-icon {
+            font-size: 32px;
+            opacity: 0.3;
+        }
+    }
+}
+
+// Actions Section
+.actions-section {
+    margin-top: 32px;
+    display: flex;
+    justify-content: center;
+
+    .edit-btn {
+        --border-radius: 12px;
+        height: 54px;
+        font-weight: 700;
+        width: 100%;
+        max-width: 300px;
+    }
+}
+
+// Loading & Transitions
+.loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 60vh;
+    gap: 16px;
+    color: var(--text-secondary);
+}
+
+.fade-in {
+    animation: fadeIn 0.4s ease-out forwards;
+    opacity: 0;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

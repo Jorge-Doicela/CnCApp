@@ -32,4 +32,5 @@ export interface Usuario {
     autoridad?: any;
     funcionarioGad?: any;
     institucion?: any;
+    estado?: number;
 }

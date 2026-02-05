@@ -11,7 +11,7 @@ async function updateUserName() {
             data: { nombre: 'María López' }
         });
 
-        console.log('✅ User updated successfully:');
+        console.log(' User updated successfully:');
         console.log(`   CI: ${updated.ci}`);
         console.log(`   Nombre: ${updated.nombre}`);
         console.log(`   Email: ${updated.email}`);

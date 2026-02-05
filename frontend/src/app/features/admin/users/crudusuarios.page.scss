@@ -113,6 +113,10 @@ ion-content {
   overflow: hidden;
   border: 1px solid #e2e8f0;
 
+  &.clickable {
+    cursor: pointer;
+  }
+
   &:hover {
     transform: translateY(-4px);
     box-shadow: var(--shadow-md);
