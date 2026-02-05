@@ -11,10 +11,25 @@ export interface Usuario {
     rolId?: number;
     entidadId?: number;
     tipoParticipante: number;
-    fotoPerfilUrl?: string;
+    nombre1?: string;
+    nombre2?: string;
+    apellido1?: string;
+    apellido2?: string;
+    celular?: string;
+    convencional?: string;
+    genero?: string;
+    etnia?: string;
+    nacionalidad?: string;
+    fechaNacimiento?: string;
+    cantonReside?: string;
+    parroquiaReside?: string;
     firmaUrl?: string;
+    fotoPerfilUrl?: string;
     createdAt?: string;
     updatedAt?: string;
     rol?: Rol;
     entidad?: Entidad;
+    autoridad?: any;
+    funcionarioGad?: any;
+    institucion?: any;
 }

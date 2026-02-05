@@ -4,170 +4,315 @@
       <ion-back-button defaultHref="/gestionar-usuarios"></ion-back-button>
     </ion-buttons>
     <ion-title>Editar Usuario</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="actualizarUsuario()" [disabled]="cargando">
+        <ion-icon name="save-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
   <div class="main-container">
 
-    <!-- Header Section -->
     <div class="header-section fade-in">
       <h1>
-        Actualizar Usuario
-        <span>Modifique la información del usuario en el sistema</span>
+        {{ usuario.nombre || 'Perfil de Usuario' }}
+        <span>Última actualización: {{ usuario.ci }}</span>
       </h1>
     </div>
 
-    <!-- Form Card -->
-    <div class="form-card fade-in" style="animation-delay: 0.1s;">
+    <!-- Navigation Segments -->
+    <ion-segment [(ngModel)]="segmentoActual" mode="md" class="custom-segment fade-in">
+      <ion-segment-button value="personal">
+        <ion-icon name="person-outline"></ion-icon>
+        <ion-label>Personal</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="ubicacion">
+        <ion-icon name="location-outline"></ion-icon>
+        <ion-label>Ubicación</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="sistema">
+        <ion-icon name="shield-checkmark-outline"></ion-icon>
+        <ion-label>Sistema</ion-label>
+      </ion-segment-button>
+    </ion-segment>
 
-      <!-- Seccion 1: Identificación y Contacto -->
-      <div class="form-section">
-        <h3 class="section-title">
-          <ion-icon name="person-outline"></ion-icon>
-          Información Personal
-        </h3>
+    <div class="form-content fade-in" [ngSwitch]="segmentoActual">
 
-        <div class="field-group">
-          <ion-item class="form-field">
-            <ion-icon name="person-outline" slot="start"></ion-icon>
-            <ion-label position="floating">Nombre Completo *</ion-label>
-            <ion-input [(ngModel)]="usuario.nombre" required></ion-input>
-          </ion-item>
+      <!-- Pestaña Personal -->
+      <div *ngSwitchCase="'personal'" class="tab-content">
+        <div class="form-card">
+          <h3 class="section-title">
+            <ion-icon name="id-card-outline"></ion-icon>
+            Identificación y Nombres
+          </h3>
 
-          <ion-item class="form-field">
-            <ion-icon name="id-card-outline" slot="start"></ion-icon>
-            <ion-label position="floating">Cédula *</ion-label>
-            <ion-input [(ngModel)]="usuario.ci" required readonly></ion-input>
-          </ion-item>
-        </div>
+          <div class="field-group">
+            <ion-item class="form-field ion-margin-bottom">
+              <ion-label position="stacked">Cédula (No editable)</ion-label>
+              <ion-input [(ngModel)]="usuario.ci" readonly placeholder="Cédula"></ion-input>
+              <ion-icon name="lock-closed-outline" slot="end" size="small"></ion-icon>
+            </ion-item>
 
-        <div class="field-group triple">
-          <ion-item class="form-field">
-            <ion-icon name="call-outline" slot="start"></ion-icon>
-            <ion-label position="floating">Celular</ion-label>
-            <ion-input type="tel" [(ngModel)]="usuario.telefono"></ion-input>
-          </ion-item>
-
-          <ion-item class="form-field">
-            <ion-icon name="call-outline" slot="start"></ion-icon>
-            <ion-label position="floating">Convencional</ion-label>
-            <ion-input type="tel" [(ngModel)]="usuario.convencional"></ion-input>
-          </ion-item>
-
-          <ion-item class="form-field">
-            <ion-icon name="calendar-outline" slot="start"></ion-icon>
-            <ion-label>Fecha Nacimiento</ion-label>
-            <ion-input type="date" [(ngModel)]="usuario.fechaNacimiento"></ion-input>
-          </ion-item>
-        </div>
-
-        <div class="field-group">
-          <ion-item class="form-field">
-            <ion-icon name="male-female-outline" slot="start"></ion-icon>
-            <ion-label>Género</ion-label>
-            <ion-select [(ngModel)]="usuario.genero" placeholder="Seleccione" interface="popover">
-              <ion-select-option value="Masculino">Masculino</ion-select-option>
-              <ion-select-option value="Femenino">Femenino</ion-select-option>
-              <ion-select-option value="Otro">Otro</ion-select-option>
-            </ion-select>
-          </ion-item>
-
-          <ion-item class="form-field">
-            <ion-icon name="people-outline" slot="start"></ion-icon>
-            <ion-label>Etnia</ion-label>
-            <ion-select [(ngModel)]="usuario.etnia" placeholder="Seleccione" interface="popover">
-              <ion-select-option value="AFROECUATORIANO">Afroecuatoriano</ion-select-option>
-              <ion-select-option value="BLANCO">Blanco</ion-select-option>
-              <ion-select-option value="INDÍGENA">Indígena</ion-select-option>
-              <ion-select-option value="MESTIZO">Mestizo</ion-select-option>
-              <ion-select-option value="MONTUBIO">Montubio</ion-select-option>
-              <ion-select-option value="OTRO">Otro</ion-select-option>
-            </ion-select>
-          </ion-item>
-        </div>
-      </div>
-
-      <!-- Seccion 2: Roles y Sistema -->
-      <div class="form-section">
-        <h3 class="section-title">
-          <ion-icon name="shield-checkmark-outline"></ion-icon>
-          Permisos y Sistema
-        </h3>
-
-        <div class="field-group">
-          <ion-item class="form-field">
-            <ion-icon name="key-outline" slot="start"></ion-icon>
-            <ion-label>Rol de Acceso *</ion-label>
-            <ion-select [(ngModel)]="usuario.rolId" placeholder="Seleccione Rol" interface="popover">
-              <ion-select-option *ngFor="let rol of roles" [value]="rol.id">
-                {{ rol.nombre_rol }}
-              </ion-select-option>
-            </ion-select>
-          </ion-item>
-
-          <ion-item class="form-field">
-            <ion-icon name="business-outline" slot="start"></ion-icon>
-            <ion-label>Entidad Asociada</ion-label>
-            <ion-select [(ngModel)]="usuario.entidadId" placeholder="Seleccione Entidad" interface="popover">
-              <ion-select-option *ngFor="let entidad of entidades" [value]="entidad.id">
-                {{ entidad.Nombre_Entidad }}
-              </ion-select-option>
-            </ion-select>
-          </ion-item>
-        </div>
-
-        <ion-item class="form-field">
-          <ion-icon name="power-outline" slot="start"></ion-icon>
-          <ion-label>Estado de Cuenta</ion-label>
-          <ion-select [(ngModel)]="usuario.estado" placeholder="Seleccione Estado" interface="popover">
-            <ion-select-option [value]="1">Habilitado</ion-select-option>
-            <ion-select-option [value]="0">Deshabilitado (Bloqueado)</ion-select-option>
-          </ion-select>
-        </ion-item>
-      </div>
-
-      <!-- Seccion 3: Firma (Opcional) -->
-      <div class="form-section">
-        <h3 class="section-title">
-          <ion-icon name="create-outline"></ion-icon>
-          Firma Digital
-        </h3>
-
-        <div class="firma-container">
-          <div class="firma-preview" *ngIf="usuario.firmaUrl">
-            <img [src]="usuario.firmaUrl" alt="Firma actual" class="firma-image">
-            <ion-button size="small" color="danger" fill="outline" (click)="eliminarFirma()">
-              <ion-icon slot="start" name="trash-outline"></ion-icon>
-              Eliminar Firma
-            </ion-button>
+            <ion-item class="form-field ion-margin-bottom">
+              <ion-label position="stacked">Correo Electrónico</ion-label>
+              <ion-input [(ngModel)]="usuario.email" type="email" placeholder="email@ejemplo.com"></ion-input>
+              <ion-icon name="mail-outline" slot="start"></ion-icon>
+            </ion-item>
           </div>
 
-          <div class="firma-upload">
-            <ion-item class="firma-item" lines="none">
-              <ion-icon name="cloud-upload-outline" slot="start"></ion-icon>
-              <ion-label>Subir nueva firma</ion-label>
-              <input type="file" class="firma-input" (change)="seleccionarFirma($event)"
-                accept="image/png, image/jpeg" />
+          <div class="field-group">
+            <ion-item class="form-field">
+              <ion-label position="stacked">Primer Nombre *</ion-label>
+              <ion-input [(ngModel)]="usuario.nombre1" placeholder="Ej: Juan"></ion-input>
             </ion-item>
-            <div class="firma-hint">
-              Formatos: PNG, JPG (Máx 2MB).<br>Fondo transparente recomendado.
+            <ion-item class="form-field">
+              <ion-label position="stacked">Segundo Nombre</ion-label>
+              <ion-input [(ngModel)]="usuario.nombre2" placeholder="Ej: Antonio"></ion-input>
+            </ion-item>
+          </div>
+
+          <div class="field-group">
+            <ion-item class="form-field">
+              <ion-label position="stacked">Primer Apellido *</ion-label>
+              <ion-input [(ngModel)]="usuario.apellido1" placeholder="Ej: Pérez"></ion-input>
+            </ion-item>
+            <ion-item class="form-field">
+              <ion-label position="stacked">Segundo Apellido</ion-label>
+              <ion-input [(ngModel)]="usuario.apellido2" placeholder="Ej: Castro"></ion-input>
+            </ion-item>
+          </div>
+
+          <h3 class="section-title ion-margin-top">
+            <ion-icon name="call-outline"></ion-icon>
+            Contacto y Adicionales
+          </h3>
+
+          <div class="field-group triple">
+            <ion-item class="form-field">
+              <ion-label position="stacked">Celular</ion-label>
+              <ion-input [(ngModel)]="usuario.celular" type="tel" placeholder="099..."></ion-input>
+            </ion-item>
+            <ion-item class="form-field">
+              <ion-label position="stacked">Convencional</ion-label>
+              <ion-input [(ngModel)]="usuario.convencional" type="tel" placeholder="02..."></ion-input>
+            </ion-item>
+            <ion-item class="form-field">
+              <ion-label position="stacked">Género</ion-label>
+              <ion-select [(ngModel)]="usuario.genero" interface="popover">
+                <ion-select-option value="Masculino">Masculino</ion-select-option>
+                <ion-select-option value="Femenino">Femenino</ion-select-option>
+                <ion-select-option value="Otro">Otro</ion-select-option>
+              </ion-select>
+            </ion-item>
+          </div>
+
+          <div class="field-group">
+            <ion-item class="form-field">
+              <ion-label position="stacked">Fecha de Nacimiento</ion-label>
+              <ion-input type="date" [(ngModel)]="usuario.fechaNacimiento"></ion-input>
+            </ion-item>
+            <ion-item class="form-field">
+              <ion-label position="stacked">Etnia</ion-label>
+              <ion-select [(ngModel)]="usuario.etnia" interface="popover">
+                <ion-select-option value="MESTIZO">Mestizo</ion-select-option>
+                <ion-select-option value="AFROECUATORIANO">Afroecuatoriano</ion-select-option>
+                <ion-select-option value="INDÍGENA">Indígena</ion-select-option>
+                <ion-select-option value="MONTUBIO">Montubio</ion-select-option>
+                <ion-select-option value="OTRO">Otro</ion-select-option>
+              </ion-select>
+            </ion-item>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Pestaña Ubicación -->
+      <div *ngSwitchCase="'ubicacion'" class="tab-content">
+        <div class="form-card">
+          <h3 class="section-title">
+            <ion-icon name="globe-outline"></ion-icon>
+            Residencia Geográfica
+          </h3>
+          <p class="section-description">Actualice la ubicación donde reside actualmente el usuario.</p>
+
+          <div class="field-group">
+            <ion-item class="form-field">
+              <ion-label position="stacked">Provincia</ion-label>
+              <ion-select [(ngModel)]="datosbusqueda.selectedProvincia" (ionChange)="cambioProvincia()"
+                placeholder="Seleccione Provincia">
+                <ion-select-option *ngFor="let prov of datosrecuperados.provincias" [value]="prov.Codigo_Provincia">
+                  {{ prov.Nombre_Provincia }}
+                </ion-select-option>
+              </ion-select>
+            </ion-item>
+
+            <ion-item class="form-field">
+              <ion-label position="stacked">Cantón</ion-label>
+              <ion-select [(ngModel)]="usuario.cantonReside" (ionChange)="cambioCanton()"
+                placeholder="Seleccione Cantón" [disabled]="!datosbusqueda.selectedProvincia">
+                <ion-select-option *ngFor="let cant of datosrecuperados.cantones" [value]="cant.codigo_canton">
+                  {{ cant.nombre_canton }}
+                </ion-select-option>
+              </ion-select>
+            </ion-item>
+          </div>
+
+          <ion-item class="form-field ion-margin-top">
+            <ion-label position="stacked">Parroquia</ion-label>
+            <ion-select [(ngModel)]="usuario.parroquiaReside" placeholder="Seleccione Parroquia"
+              [disabled]="!usuario.cantonReside">
+              <ion-select-option *ngFor="let parr of datosrecuperados.parroquias" [value]="parr.codigo_parroquia">
+                {{ parr.nombre_parroquia }}
+              </ion-select-option>
+            </ion-select>
+          </ion-item>
+        </div>
+      </div>
+
+      <!-- Pestaña Sistema -->
+      <div *ngSwitchCase="'sistema'" class="tab-content">
+        <div class="form-card">
+          <h3 class="section-title">
+            <ion-icon name="settings-outline"></ion-icon>
+            Configuración de Cuenta y Rol
+          </h3>
+
+          <div class="field-group">
+            <ion-item class="form-field">
+              <ion-label position="stacked">Rol de Sistema *</ion-label>
+              <ion-select [(ngModel)]="usuario.rolId" interface="popover">
+                <ion-select-option *ngFor="let r of datosrecuperados.roles" [value]="r.id">
+                  {{ r.nombre_rol }}
+                </ion-select-option>
+              </ion-select>
+            </ion-item>
+
+            <ion-item class="form-field">
+              <ion-label position="stacked">Estado de Cuenta</ion-label>
+              <ion-select [(ngModel)]="usuario.estado" interface="popover">
+                <ion-select-option [value]="1">Activo / Habilitado</ion-select-option>
+                <ion-select-option [value]="0">Inactivo / Bloqueado</ion-select-option>
+              </ion-select>
+            </ion-item>
+          </div>
+
+          <h3 class="section-title ion-margin-top">
+            <ion-icon name="briefcase-outline"></ion-icon>
+            Tipo de Participante
+          </h3>
+
+          <ion-item class="form-field ion-margin-bottom">
+            <ion-label position="stacked">Categoría de Usuario</ion-label>
+            <ion-select [(ngModel)]="usuario.tipoParticipante" interface="popover">
+              <ion-select-option [value]="0">Ciudadano / Particular</ion-select-option>
+              <ion-select-option [value]="1">Autoridad</ion-select-option>
+              <ion-select-option [value]="2">Funcionario GAD</ion-select-option>
+              <ion-select-option [value]="3">Institución del Sistema</ion-select-option>
+            </ion-select>
+          </ion-item>
+
+          <!-- Dynamic Fields Based on Participant Type -->
+          <div [ngSwitch]="usuario.tipoParticipante" class="animate-in">
+            <!-- Autoridad -->
+            <div *ngSwitchCase="1" class="specific-fields card-inner">
+              <div class="field-group">
+                <ion-item class="form-field">
+                  <ion-label position="stacked">Cargo Autoridad</ion-label>
+                  <ion-select [(ngModel)]="autoridad.cargo">
+                    <ion-select-option *ngFor="let c of datosrecuperados.cargos" [value]="c.nombre_cargo">
+                      {{ c.nombre_cargo }}
+                    </ion-select-option>
+                  </ion-select>
+                </ion-item>
+                <ion-item class="form-field">
+                  <ion-label position="stacked">Nivel Gobierno</ion-label>
+                  <ion-select [(ngModel)]="autoridad.nivelgobierno">
+                    <ion-select-option value="PROVINCIAL">Provincial</ion-select-option>
+                    <ion-select-option value="CANTONAL">Cantonal</ion-select-option>
+                    <ion-select-option value="PARROQUIAL">Parroquial</ion-select-option>
+                  </ion-select>
+                </ion-item>
+              </div>
+            </div>
+
+            <!-- Funcionario -->
+            <div *ngSwitchCase="2" class="specific-fields card-inner">
+              <div class="field-group">
+                <ion-item class="form-field">
+                  <ion-label position="stacked">Cargo Funcionario</ion-label>
+                  <ion-select [(ngModel)]="funcionarioGad.cargo">
+                    <ion-select-option *ngFor="let c of datosrecuperados.cargos" [value]="c.nombre_cargo">
+                      {{ c.nombre_cargo }}
+                    </ion-select-option>
+                  </ion-select>
+                </ion-item>
+                <ion-item class="form-field">
+                  <ion-label position="stacked">Nivel Gobierno</ion-label>
+                  <ion-select [(ngModel)]="funcionarioGad.nivelgobierno">
+                    <ion-select-option value="PROVINCIAL">Provincial</ion-select-option>
+                    <ion-select-option value="CANTONAL">Cantonal</ion-select-option>
+                    <ion-select-option value="PARROQUIAL">Parroquial</ion-select-option>
+                  </ion-select>
+                </ion-item>
+              </div>
+            </div>
+
+            <!-- Institucion -->
+            <div *ngSwitchCase="3" class="specific-fields card-inner">
+              <div class="field-group">
+                <ion-item class="form-field">
+                  <ion-label position="stacked">Institución</ion-label>
+                  <ion-select [(ngModel)]="institucion.institucion">
+                    <ion-select-option *ngFor="let inst of datosrecuperados.instituciones"
+                      [value]="inst.nombre_institucion">
+                      {{ inst.nombre_institucion }}
+                    </ion-select-option>
+                  </ion-select>
+                </ion-item>
+                <ion-item class="form-field">
+                  <ion-label position="stacked">Cargo Institucional</ion-label>
+                  <ion-input [(ngModel)]="institucion.cargo" placeholder="Ej: Especialista"></ion-input>
+                </ion-item>
+              </div>
+            </div>
+          </div>
+
+          <h3 class="section-title ion-margin-top">
+            <ion-icon name="create-outline"></ion-icon>
+            Firma Digital
+          </h3>
+          <div class="firma-container">
+            <div class="firma-preview" *ngIf="usuario.firmaUrl">
+              <img [src]="usuario.firmaUrl" alt="Firma" class="firma-image">
+              <ion-button size="small" color="danger" fill="clear" (click)="eliminarFirma()">
+                <ion-icon name="trash-outline" slot="start"></ion-icon>Eliminar
+              </ion-button>
+            </div>
+            <div class="firma-upload" *ngIf="!usuario.firmaUrl">
+              <ion-item class="firma-dropzone" lines="none">
+                <ion-icon name="cloud-upload-outline" slot="start"></ion-icon>
+                <ion-label>Cargar Archivo de Firma</ion-label>
+                <input type="file" (change)="seleccionarFirma($event)" accept="image/*" class='file-input'>
+              </ion-item>
             </div>
           </div>
         </div>
       </div>
-
-      <!-- Actions -->
-      <div class="form-actions">
-        <ion-button class="cancel-btn" fill="clear" routerLink="/gestionar-usuarios">
-          Cancelar
-        </ion-button>
-        <ion-button color="primary" (click)="actualizarUsuario()">
-          <ion-icon name="save-outline" slot="start"></ion-icon>
-          Guardar Cambios
-        </ion-button>
-      </div>
-
     </div>
+
+    <!-- Final Actions -->
+    <div class="form-actions fade-in">
+      <ion-button fill="clear" color="medium" (click)="segmentoActual = 'personal'"
+        *ngIf="segmentoActual !== 'personal'">
+        Atrás
+      </ion-button>
+      <ion-button color="primary" (click)="actualizarUsuario()" [disabled]="cargando">
+        <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
+        Actualizar Usuario
+      </ion-button>
+    </div>
+
   </div>
 </ion-content>
