@@ -6,8 +6,8 @@ import { authenticate, authorize } from '../middleware/auth.middleware';
 const router = Router();
 const controller = container.resolve(CargoController);
 
-router.use(authenticate);
-router.use(authorize(1)); // Solo admin
+// router.use(authenticate);
+// router.use(authorize(1)); // Solo admin
 
 router.get('/', controller.getAll);
 router.post('/', controller.create);

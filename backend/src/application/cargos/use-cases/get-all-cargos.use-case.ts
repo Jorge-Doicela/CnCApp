@@ -1,15 +1,13 @@
 import { injectable, inject } from 'tsyringe';
-import { PrismaClient } from '@prisma/client';
+import { CargoRepository } from '../../../domain/user/repositories/cargo.repository';
 
 @injectable()
 export class GetAllCargosUseCase {
     constructor(
-        @inject('PrismaClient') private readonly prisma: PrismaClient
+        @inject('CargoRepository') private readonly cargoRepository: CargoRepository
     ) { }
 
     async execute() {
-        return this.prisma.cargo.findMany({
-            orderBy: { nombre: 'asc' }
-        });
+        return this.cargoRepository.findAll();
     }
 }

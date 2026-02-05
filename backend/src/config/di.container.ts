@@ -4,6 +4,8 @@ import { PrismaCapacitacionRepository } from '../infrastructure/database/reposit
 import { PrismaCertificadoRepository } from '../infrastructure/database/repositories/certificado/prisma-certificado.repository';
 import { PrismaProvinciaRepository } from '../infrastructure/database/repositories/ubicacion/prisma-provincia.repository';
 import { PrismaCantonRepository } from '../infrastructure/database/repositories/ubicacion/prisma-canton.repository';
+import { PrismaCargoRepository } from '../infrastructure/database/repositories/prisma-cargo.repository';
+import { PrismaInstitucionRepository } from '../infrastructure/database/repositories/prisma-institucion.repository';
 import { BcryptPasswordHasher } from '../infrastructure/security/bcrypt-password-hasher';
 import { JwtTokenProvider } from '../infrastructure/security/jwt-token-provider';
 
@@ -36,6 +38,15 @@ import { CountCertificadosUseCase } from '../application/certificado/use-cases/c
 import { GetProvinciasUseCase } from '../application/ubicacion/use-cases/get-provincias.use-case';
 import { GetCantonesUseCase } from '../application/ubicacion/use-cases/get-cantones.use-case';
 
+// Import Cargos Use Cases
+import { GetAllCargosUseCase } from '../application/cargos/use-cases/get-all-cargos.use-case';
+import { CreateCargoUseCase } from '../application/cargos/use-cases/create-cargo.use-case';
+import { UpdateCargoUseCase } from '../application/cargos/use-cases/update-cargo.use-case';
+import { DeleteCargoUseCase } from '../application/cargos/use-cases/delete-cargo.use-case';
+
+// Import Institucion Use Cases
+import { GetAllInstitucionesUseCase } from '../application/institucion/use-cases/get-all-instituciones.use-case';
+
 // Import Reportes Use Cases
 import { GetDashboardStatsUseCase } from '../application/reportes/use-cases/get-dashboard-stats.use-case';
 
@@ -48,6 +59,8 @@ import { ReportesController } from '../infrastructure/web/controllers/reportes.c
 import { UbicacionController } from '../infrastructure/web/controllers/ubicacion.controller';
 import { RolController } from '../infrastructure/web/controllers/rol.controller';
 import { EntidadController } from '../infrastructure/web/controllers/entidad.controller';
+import { CargoController } from '../infrastructure/web/controllers/cargo.controller';
+import { InstitucionController } from '../infrastructure/web/controllers/institucion.controller';
 
 // Import Database
 import prisma from './database';
@@ -60,22 +73,18 @@ container.register('PrismaClient', { useValue: prisma });
 // ============================================
 // REGISTER REPOSITORIES
 // ============================================
-// Import Rol and Entidad Repositories
 import { PrismaRolRepository } from '../infrastructure/database/prisma-rol.repository';
 import { PrismaEntidadRepository } from '../infrastructure/database/prisma-entidad.repository';
-
-// Import Rol and Entidad Use Cases
 import { GetAllRolesUseCase } from '../application/user/use-cases/get-all-roles.use-case';
 import { GetAllEntidadesUseCase } from '../application/user/use-cases/get-all-entidades.use-case';
 
-// ============================================
-// REGISTER REPOSITORIES
-// ============================================
 container.register('UserRepository', { useClass: PrismaUserRepository });
 container.register('RolRepository', { useClass: PrismaRolRepository });
 container.register('EntidadRepository', { useClass: PrismaEntidadRepository });
 container.register('CapacitacionRepository', { useClass: PrismaCapacitacionRepository });
 container.register('CertificadoRepository', { useClass: PrismaCertificadoRepository });
+container.register('CargoRepository', { useClass: PrismaCargoRepository });
+container.register('InstitucionRepository', { useClass: PrismaInstitucionRepository });
 
 // Ubicacion
 container.register('ProvinciaRepository', { useClass: PrismaProvinciaRepository });
@@ -120,6 +129,15 @@ container.registerSingleton(CountCertificadosUseCase);
 container.registerSingleton(GetProvinciasUseCase);
 container.registerSingleton(GetCantonesUseCase);
 
+// Cargo Use Cases
+container.registerSingleton(GetAllCargosUseCase);
+container.registerSingleton(CreateCargoUseCase);
+container.registerSingleton(UpdateCargoUseCase);
+container.registerSingleton(DeleteCargoUseCase);
+
+// Institucion Use Cases
+container.registerSingleton(GetAllInstitucionesUseCase);
+
 // Reportes Use Cases
 container.registerSingleton(GetDashboardStatsUseCase);
 
@@ -134,5 +152,7 @@ container.registerSingleton(CapacitacionController);
 container.registerSingleton(CertificadoController);
 container.registerSingleton(ReportesController);
 container.registerSingleton(UbicacionController);
+container.registerSingleton(CargoController);
+container.registerSingleton(InstitucionController);
 
 export { container };
