@@ -9,6 +9,7 @@
 </ion-header>
 
 <ion-content [fullscreen]="true" class="ion-padding">
+
   <ion-card class="main-card">
     <div *ngIf="cargando" class="loading-container">
       <ion-spinner name="crescent" color="primary"></ion-spinner>
@@ -65,14 +66,16 @@
               <ion-icon name="person-outline" color="primary"></ion-icon>
               <div class="info-content">
                 <span class="info-label">Nombre Completo</span>
-                <span class="info-value">{{ datosUsuario.Nombre_Usuario || '' }} {{ datosUsuario.apellido || '' }}</span>
+                <span class="info-value">{{ datosUsuario.Nombre_Usuario || '' }} {{ datosUsuario.apellido || ''
+                  }}</span>
               </div>
             </div>
             <div class="info-item">
               <ion-icon name="id-card-outline" color="primary"></ion-icon>
               <div class="info-content">
                 <span class="info-label">Cédula</span>
-                <span class="info-value">{{ datosUsuario.CI_Usuario || datosUsuario.cedula || 'No especificado' }}</span>
+                <span class="info-value">{{ datosUsuario.CI_Usuario || datosUsuario.cedula || 'No especificado'
+                  }}</span>
               </div>
             </div>
             <div class="info-item">
@@ -86,7 +89,8 @@
               <ion-icon name="call-outline" color="primary"></ion-icon>
               <div class="info-content">
                 <span class="info-label">Teléfono</span>
-                <span class="info-value">{{ datosUsuario.Celular_Usuario || datosUsuario.telefono || 'No especificado' }}</span>
+                <span class="info-value">{{ datosUsuario.Celular_Usuario || datosUsuario.telefono || 'No especificado'
+                  }}</span>
               </div>
             </div>
             <div class="info-item" *ngIf="datosUsuario.Genero_Usuario">
@@ -107,7 +111,8 @@
         </div>
 
         <!-- Dirección y ubicación -->
-        <div class="profile-section fade-in" style="animation-delay: 0.15s;" *ngIf="datosUsuario.Canton_Nombre || datosUsuario.Parroquia_Nombre || provinciaUsuario">
+        <div class="profile-section fade-in" style="animation-delay: 0.15s;"
+          *ngIf="datosUsuario.Canton_Nombre || datosUsuario.Parroquia_Nombre || provinciaUsuario">
           <h3 class="section-title">Ubicación y Dirección</h3>
           <div class="info-grid">
             <div class="info-item" *ngIf="provinciaUsuario">

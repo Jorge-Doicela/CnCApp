@@ -2,14 +2,14 @@ import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 // perfil.page.ts - Updated version with HttpClient and no Supabase
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { AlertController, LoadingController, ToastController, ActionSheetController, NavController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { v4 as uuidv4 } from 'uuid';
 import { environment } from 'src/environments/environment';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, timeout, finalize } from 'rxjs';
 import { AuthService } from 'src/app/features/auth/services/auth.service';
 
 @Component({
@@ -37,73 +37,76 @@ export class PerfilPage implements OnInit {
     private router: Router,
     private navController: NavController,
     private http: HttpClient,
-    private authService: AuthService
+    private authService: AuthService,
+    private cdr: ChangeDetectorRef
   ) { }
 
   ngOnInit() {
-    this.cargarPerfil();
+    // Removed to avoid double loading with ionViewWillEnter
   }
 
   ionViewWillEnter() {
     this.cargarPerfil();
   }
 
-  async cargarPerfil() {
+
+  cargarPerfil() {
     this.cargando = true;
 
-    try {
-      // Obtener usuario autenticado actual desde AuthService o localStorage
-      const authUid = localStorage.getItem('auth_uid');
+    const authUid = localStorage.getItem('auth_uid');
 
-      if (!authUid) {
-        this.presentToast('No hay sesión activa', 'danger');
-        this.cargando = false;
-        return;
-      }
-
-      // Obtener datos del usuario desde el Backend
-      const usuarioData = await firstValueFrom(
-        this.http.get<any>(`${environment.apiUrl}/users/profile/${authUid}`)
-      );
-
-      if (!usuarioData) {
-        this.presentToast('Error al obtener datos del usuario', 'danger');
-        this.cargando = false;
-        return;
-      }
-
-      // Obtener capacitaciones inscritas (TODO: Implementar endpoint real)
-      // const inscripciones = await firstValueFrom(this.http.get<any[]>(`${environment.apiUrl}/users/${usuarioData.Id_Usuario}/inscripciones`));
-      const inscripciones: any[] = []; // Placeholder
-
-      if (inscripciones) {
-        this.capacitacionesInscritas = inscripciones.length;
-
-        // Actualización para contar correctamente los certificados
-        const certificadosCount = inscripciones.filter(
-          (inscripcion: any) => inscripcion.Certificado === true
-        ).length;
-
-        this.certificadosObtenidos = certificadosCount;
-      }
-
-      // Obtener nombres de ubicación (cantón y parroquia)
-      await this.obtenerNombresUbicacion(usuarioData);
-
-      this.datosUsuario = {
-        ...usuarioData,
-        email: 'email@placeholder.com', // El email debería venir del endpoint de profile también
-        nombreCompleto: `${usuarioData.Nombre_Usuario || ''} ${usuarioData.apellido || ''}`,
-        Provincia_Nombre: this.provinciaUsuario,
-        Canton_Nombre: this.cantonUsuario,
-        Parroquia_Nombre: this.parroquiaUsuario
-      };
-
-    } catch (error: any) {
-      this.presentToast('Error al cargar el perfil: ' + (error.message || 'Error desconocido'), 'danger');
-    } finally {
+    if (!authUid) {
+      this.presentToast('No hay sesión activa', 'danger');
       this.cargando = false;
+      return;
     }
+
+    const url = `${environment.apiUrl}/users/${authUid}`;
+
+    this.http.get<any>(url).pipe(
+      timeout(10000),
+      finalize(() => {
+        this.cargando = false;
+        this.cdr.detectChanges();
+      })
+    ).subscribe({
+      next: (usuarioData: any) => {
+        if (!usuarioData) {
+          this.presentToast('No se encontraron datos del usuario', 'warning');
+          return;
+        }
+
+        // Mapeo de datos para compatibilidad con la vista
+        this.datosUsuario = {
+          ...usuarioData,
+          // Mapear campos que la vista espera con nombres específicos
+          Nombre_Usuario: usuarioData.nombre || usuarioData.Nombre_Usuario,
+          apellido: usuarioData.apellido || usuarioData.primerApellido || '', // Backend actual parece no devolver apellido en User entity
+          email: usuarioData.email,
+          Rol_Usuario: usuarioData.rolId || (usuarioData.rol ? usuarioData.rol.id : 0),
+          Imagen_Perfil: usuarioData.fotoPerfilUrl,
+          Firma_Usuario: usuarioData.firmaUrl,
+          // Ubicación (si el backend los devuelve anidados o planos, ajustar aquí)
+          Canton_Nombre: usuarioData.canton ? usuarioData.canton.nombre : '',
+          Parroquia_Nombre: usuarioData.parroquia ? usuarioData.parroquia.nombre : '' // Si existiera
+        };
+
+        // Manejo de ubicación plano si aplica
+        this.provinciaUsuario = usuarioData.provincia ? usuarioData.provincia.nombre : '';
+        this.cantonUsuario = usuarioData.canton ? usuarioData.canton.nombre : '';
+
+
+        // Placeholder para capacitaciones
+        this.capacitacionesInscritas = 0;
+        this.certificadosObtenidos = 0;
+      },
+      error: (err) => {
+        console.error('Error loading profile:', err);
+        this.presentToast('Error al cargar perfil: ' + (err.message || 'Error de conexión'), 'danger');
+      }
+    });
+
+    // TODO: Recuperar capacitaciones en otra subscripción separada si es necesario
   }
 
   async obtenerNombresUbicacion(userData: any) {

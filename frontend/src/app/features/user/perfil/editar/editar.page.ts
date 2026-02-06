@@ -2,7 +2,7 @@ import { IonicModule } from '@ionic/angular';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 // editar.page.ts - Fixed version with correct navigation state handling
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AlertController, LoadingController, ToastController, ActionSheetController, NavController } from '@ionic/angular';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -11,6 +11,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { firstValueFrom } from 'rxjs';
+import { UsuarioService } from '../../services/usuario.service';
 
 @Component({
   selector: 'app-editar',
@@ -47,17 +48,21 @@ export class EditarPage implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private navController: NavController,
-    private http: HttpClient
+    private http: HttpClient,
+    private usuarioService: UsuarioService
   ) {
     // Obtener datos del estado de navegación
+    console.log('[EDITAR_DEBUG] Constructor iniciado');
     const navigation = this.router.getCurrentNavigation();
+    console.log('[EDITAR_DEBUG] Navigation object:', navigation);
     if (navigation && navigation.extras && navigation.extras.state) {
       const state = navigation.extras.state as any;
       this.usuario = state.usuario;
       this.modoFirma = state.modoFirma || false;
-      console.log('Usuario recibido en constructor:', this.usuario);
+      console.log('[EDITAR_DEBUG] Usuario recibido en constructor:', this.usuario);
+      console.log('[EDITAR_DEBUG] modoFirma en constructor:', this.modoFirma);
     } else {
-      console.log('No se recibieron datos de usuario en el constructor');
+      console.log('[EDITAR_DEBUG] No se recibieron datos de usuario en el constructor');
     }
   }
 
@@ -65,11 +70,21 @@ export class EditarPage implements OnInit {
     this.inicializarFormulario();
     this.cargarUbicaciones();
 
-    // Si no se recibieron los datos en el constructor, intentar obtenerlos de history.state
+    // Si no se recibieron los datos en el constructor, intentar vaciarlo
     if (!this.usuario && history.state && history.state.usuario) {
       this.usuario = history.state.usuario;
       this.modoFirma = history.state.modoFirma || false;
       console.log('Usuario recuperado de history.state:', this.usuario);
+    }
+
+    // Si aun no tenemos usuario, revisar los params de la ruta (caso Admin)
+    if (!this.usuario) {
+      const idParam = this.route.snapshot.paramMap.get('id');
+      if (idParam) {
+        console.log('[EDITAR_DEBUG] ID encontrado en URL:', idParam);
+        // Flag para indicar que estamos en modo edición por ID (Admin suele usar esto)
+        // La carga real sucederá en cargarDatosUsuario
+      }
     }
   }
 
@@ -152,13 +167,31 @@ export class EditarPage implements OnInit {
   async cargarDatosUsuario() {
     try {
       // Si no tenemos usuario, intentar obtenerlo del parámetro de ruta o navegación al perfil
+      // Si no tenemos usuario, intentar obtenerlo del parámetro de ruta o navegación al perfil
       if (!this.usuario) {
-        const authUid = localStorage.getItem('auth_uid');
-        if (authUid) {
-          // TODO: Fetch from backend
-          console.warn('Fetch user from backend unimplemented in editar page');
-          // Mock empty
-          this.usuario = {};
+
+        // 1. Intentar obtener ID de la URL (Caso Admin)
+        const idParam = this.route.snapshot.paramMap.get('id');
+        if (idParam) {
+          console.log('[EDITAR_DEBUG] Cargando usuario por ID de URL:', idParam);
+          try {
+            this.usuario = await firstValueFrom(this.usuarioService.getUsuario(+idParam));
+            console.log('[EDITAR_DEBUG] Usuario cargado por ID:', this.usuario);
+          } catch (err) {
+            console.error('[EDITAR_DEBUG] Error loading user by ID:', err);
+            throw err; // Re-throw to be caught by outer catch
+          }
+        }
+
+        // 2. Si falló lo anterior, intentar obtener auth_uid (Caso Perfil Propio)
+        if (!this.usuario || Object.keys(this.usuario).length === 0) {
+          const authUid = localStorage.getItem('auth_uid');
+          if (authUid && !idParam) { // Solo si NO hay ID param, para no sobreescribir admin view
+            // TODO: Fetch from backend
+            console.warn('Fetch user from backend unimplemented in editar page');
+            // Mock empty
+            this.usuario = {};
+          }
         }
       }
 
@@ -183,21 +216,39 @@ export class EditarPage implements OnInit {
         console.log('Formulario inicializado con datos de usuario');
       }
     } catch (error: any) {
-      console.error('Error al cargar datos de usuario:', error);
+      console.error('[EDITAR_DEBUG] Error al cargar datos de usuario:', error);
+      // Mostrar alerta visible para el usuario para debug
+      const alert = await this.alertController.create({
+        header: 'Error de Depuración',
+        subHeader: 'Ocurrió un error al cargar los datos',
+        message: error.message || JSON.stringify(error),
+        buttons: ['OK']
+      });
+      await alert.present();
+
       this.presentToast('Error al cargar datos del usuario: ' + error.message, 'danger');
-      setTimeout(() => {
-        this.volver();
-      }, 3000);
+      // COMENTADO PARA DEBUG: No redirigir automáticamente
+      // setTimeout(() => {
+      //   console.log('[EDITAR_DEBUG] Redirigiendo por error catch');
+      //   this.volver();
+      // }, 3000);
     } finally {
       this.cargando = false;
+      console.log('[EDITAR_DEBUG] Finally block reached.');
+      console.log('[EDITAR_DEBUG] ModoFirma:', this.modoFirma);
+      console.log('[EDITAR_DEBUG] Usuario:', this.usuario);
+      console.log('[EDITAR_DEBUG] Usuario keys:', this.usuario ? Object.keys(this.usuario) : 'null');
 
       // Si estamos en modo firma, redirigir a la página de firma
       if (this.modoFirma && this.usuario) {
+        console.log('[EDITAR_DEBUG] REDIRECT TRIGGERED: Redirecting to Firma');
         this.navController.navigateForward('/firma', {
           state: {
             usuario: this.usuario
           }
         });
+      } else {
+        console.log('[EDITAR_DEBUG] NO REDIRECT: modoFirma=', this.modoFirma, ', usuario=', !!this.usuario);
       }
     }
   }
@@ -269,7 +320,14 @@ export class EditarPage implements OnInit {
   }
 
   volver() {
-    this.navController.navigateBack('/ver-perfil');
+    // Si estamos editando un usuario específico (URL tiene ID), volver a detalles o lista
+    const idParam = this.route.snapshot.paramMap.get('id');
+    if (idParam) {
+      this.navController.navigateBack(['/gestionar-usuarios/detalles', idParam]);
+    } else {
+      // Caso por defecto: volver al perfil propio
+      this.navController.navigateBack('/ver-perfil');
+    }
   }
 
   async presentToast(message: string, color: string = 'primary') {

@@ -82,6 +82,7 @@ export class EditarPage implements OnInit {
     private activatedRoute: ActivatedRoute,
     private router: Router
   ) {
+    console.log('[ADMIN_EDITAR_DEBUG] Constructor iniciado');
     addIcons({
       'person-outline': personOutline,
       'id-card-outline': idCardOutline,
@@ -108,27 +109,48 @@ export class EditarPage implements OnInit {
   }
 
   async ngOnInit() {
-    await this.mostrarCargando('Cargando información...');
+    console.log('[ADMIN_EDITAR_DEBUG] ngOnInit iniciado');
+
+    // Don't await - let it run in background
+    this.mostrarCargando('Cargando información...').then(() => {
+      console.log('[ADMIN_EDITAR_DEBUG] Loading dialog shown');
+    }).catch(err => {
+      console.error('[ADMIN_EDITAR_DEBUG] Error showing loading:', err);
+    });
+
+    console.log('[ADMIN_EDITAR_DEBUG] After mostrarCargando call');
+
     this.obtenerRoles();
+    console.log('[ADMIN_EDITAR_DEBUG] After obtenerRoles');
     this.obtenerProvincias();
+    console.log('[ADMIN_EDITAR_DEBUG] After obtenerProvincias');
     this.obtenerCargos();
+    console.log('[ADMIN_EDITAR_DEBUG] After obtenerCargos');
     this.obtenerInstituciones();
+    console.log('[ADMIN_EDITAR_DEBUG] After obtenerInstituciones');
 
     const userId = +this.activatedRoute.snapshot.params['id'];
+    console.log('[ADMIN_EDITAR_DEBUG] userId from route:', userId);
     if (isNaN(userId)) {
+      console.log('[ADMIN_EDITAR_DEBUG] userId is NaN - showing error');
       this.ocultarCargando();
       this.presentToast('ID de usuario inválido', 'danger');
       return;
     }
 
     this.usuario.id = userId.toString();
+    console.log('[ADMIN_EDITAR_DEBUG] Calling cargarUsuario with ID:', userId);
     this.cargarUsuario(userId);
+    console.log('[ADMIN_EDITAR_DEBUG] ngOnInit completed');
   }
 
   cargarUsuario(id: number) {
+    console.log('[ADMIN_EDITAR_DEBUG] cargarUsuario called with ID:', id);
     this.usuarioService.getUsuario(id).subscribe({
       next: (data) => {
+        console.log('[ADMIN_EDITAR_DEBUG] Usuario data received:', data);
         if (!data) {
+          console.log('[ADMIN_EDITAR_DEBUG] No data received');
           this.ocultarCargando();
           this.presentToast('No se encontró el usuario', 'warning');
           return;
@@ -170,9 +192,11 @@ export class EditarPage implements OnInit {
         if (data.funcionarioGad) this.funcionarioGad = { ...data.funcionarioGad };
         if (data.institucion) this.institucion = { ...data.institucion };
 
+        console.log('[ADMIN_EDITAR_DEBUG] Usuario loaded successfully, hiding loading');
         this.ocultarCargando();
       },
       error: (error) => {
+        console.error('[ADMIN_EDITAR_DEBUG] Error al cargar usuario:', error);
         this.ocultarCargando();
         console.error('Error al cargar usuario:', error);
         this.presentToast('Error al cargar los datos del usuario', 'danger');
