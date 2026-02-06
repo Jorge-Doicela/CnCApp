@@ -12,7 +12,10 @@ import {
   informationCircleOutline, logInOutline, logOutOutline, personAddOutline,
   personOutline, personCircleOutline, peopleOutline, calendarOutline,
   documentTextOutline, businessOutline, mapOutline, pinOutline,
-  ribbonOutline, idCardOutline, listOutline, qrCodeOutline, appsOutline
+  ribbonOutline, idCardOutline, listOutline, qrCodeOutline, appsOutline,
+  searchOutline, checkmarkCircleOutline, closeCircleOutline, addCircleOutline,
+  schoolOutline, trophyOutline, medalOutline, add, refreshOutline, arrowForwardOutline,
+  checkmarkDoneOutline, lockClosedOutline, location, calendar, laptopOutline, time, people
 } from 'ionicons/icons';
 
 import { AuthService } from './features/auth/services/auth.service';
@@ -74,7 +77,24 @@ export class AppComponent implements OnInit, OnDestroy {
       'id-card-outline': idCardOutline,
       'list-outline': listOutline,
       'qr-code-outline': qrCodeOutline,
-      'apps-outline': appsOutline
+      'apps-outline': appsOutline,
+      'search-outline': searchOutline,
+      'checkmark-circle-outline': checkmarkCircleOutline,
+      'close-circle-outline': closeCircleOutline,
+      'add-circle-outline': addCircleOutline,
+      'school-outline': schoolOutline,
+      'trophy-outline': trophyOutline,
+      'medal-outline': medalOutline,
+      'add': add,
+      'refresh-outline': refreshOutline,
+      'arrow-forward-outline': arrowForwardOutline,
+      'checkmark-done-outline': checkmarkDoneOutline,
+      'lock-closed-outline': lockClosedOutline,
+      'location': location,
+      'calendar': calendar,
+      'laptop-outline': laptopOutline,
+      'time': time,
+      'people': people
     });
 
     // Effect to log user changes
