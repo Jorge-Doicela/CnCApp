@@ -1,14 +1,15 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule, NavController } from '@ionic/angular';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { timeout, finalize } from 'rxjs';
 import { addIcons } from 'ionicons';
 import {
     personOutline, locationOutline, shieldCheckmarkOutline, mailOutline,
     callOutline, calendarOutline, globeOutline, idCardOutline,
     businessOutline, createOutline, arrowBackOutline, personCircleOutline,
-    fingerPrintOutline, timeOutline
+    fingerPrintOutline, timeOutline, alertCircleOutline
 } from 'ionicons/icons';
 import { UsuarioService } from 'src/app/features/user/services/usuario.service';
 import { Usuario } from 'src/app/core/models/usuario.interface';
@@ -24,6 +25,7 @@ export class DetallesPage implements OnInit {
     private activatedRoute = inject(ActivatedRoute);
     private usuarioService = inject(UsuarioService);
     private navCtrl = inject(NavController);
+    private cdr = inject(ChangeDetectorRef);
 
     usuario: Usuario | null = null;
     cargando = true;
@@ -43,7 +45,8 @@ export class DetallesPage implements OnInit {
             'arrow-back-outline': arrowBackOutline,
             'person-circle-outline': personCircleOutline,
             'finger-print-outline': fingerPrintOutline,
-            'time-outline': timeOutline
+            'time-outline': timeOutline,
+            'alert-circle-outline': alertCircleOutline
         });
     }
 
@@ -58,17 +61,23 @@ export class DetallesPage implements OnInit {
 
     cargarUsuario(id: number) {
         this.cargando = true;
-        this.usuarioService.getUsuario(id).subscribe({
+
+        this.usuarioService.getUsuario(id).pipe(
+            timeout(10000),
+            finalize(() => {
+                this.cargando = false;
+                this.cdr.detectChanges();
+            })
+        ).subscribe({
             next: (data) => {
                 this.usuario = data;
-                this.cargando = false;
             },
             error: (error) => {
                 console.error('Error al cargar usuario:', error);
-                this.cargando = false;
             }
         });
     }
+
 
     getTipoParticipanteLabel(tipo: number): string {
         const labels: { [key: number]: string } = {
