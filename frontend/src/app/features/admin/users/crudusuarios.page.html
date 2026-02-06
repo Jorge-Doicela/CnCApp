@@ -16,10 +16,6 @@
         Usuarios
         <span>Administre el acceso y roles del sistema</span>
       </h1>
-      <ion-button class="add-btn" color="primary" (click)="iraCrearUsuario()">
-        <ion-icon name="person-add-outline" slot="start"></ion-icon>
-        Nuevo Usuario
-      </ion-button>
     </div>
 
     <!-- Search Bar -->
@@ -100,4 +96,11 @@
 
     </div>
   </div>
+
+  <!-- Floating Action Button -->
+  <ion-fab slot="fixed" vertical="bottom" horizontal="end">
+    <ion-fab-button color="primary" (click)="iraCrearUsuario()">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
 </ion-content>
