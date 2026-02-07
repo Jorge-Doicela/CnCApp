@@ -1,0 +1,161 @@
+<ion-header [translucent]="true">
+    <ion-toolbar color="primary">
+        <ion-buttons slot="start">
+            <ion-back-button defaultHref="/gestionar-plantillas"></ion-back-button>
+        </ion-buttons>
+        <ion-title>{{ isEdit ? 'Editar' : 'Nueva' }} Plantilla</ion-title>
+        <ion-buttons slot="end">
+            <ion-button (click)="guardar()" [disabled]="guardando">
+                <ion-icon name="save-outline" slot="start"></ion-icon>
+                {{ guardando ? 'Guardando...' : 'Guardar' }}
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+
+    <!-- Loading State -->
+    <div *ngIf="cargando" class="loading-container">
+        <ion-spinner name="crescent" color="primary"></ion-spinner>
+        <p>Cargando plantilla...</p>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container" *ngIf="!cargando">
+
+        <!-- EDITOR PANEL -->
+        <div class="editor-panel">
+            <ion-card class="editor-card">
+                <ion-card-header>
+                    <ion-card-title>Configuración</ion-card-title>
+                </ion-card-header>
+                <ion-card-content>
+                    <ion-list lines="none">
+                        <!-- Nombre -->
+                        <ion-item class="form-item">
+                            <ion-label position="stacked">Nombre de la Plantilla *</ion-label>
+                            <ion-input [(ngModel)]="plantilla.nombre" placeholder="Ej: Plantilla Estándar 2026"
+                                required>
+                            </ion-input>
+                        </ion-item>
+
+                        <!-- Upload Image -->
+                        <ion-item class="form-item" *ngIf="!plantilla.imagenUrl">
+                            <ion-label position="stacked">Imagen de Fondo *</ion-label>
+                            <div class="upload-area" (click)="fileInput.click()">
+                                <ion-icon name="cloud-upload-outline"></ion-icon>
+                                <p>Haz clic para subir imagen</p>
+                                <span>PNG, JPG (máx. 5MB)</span>
+                            </div>
+                            <input #fileInput type="file" (change)="onFileSelected($event)" accept="image/*" hidden>
+                        </ion-item>
+
+                        <!-- Image Preview -->
+                        <ion-item class="form-item" *ngIf="plantilla.imagenUrl">
+                            <ion-label position="stacked">Imagen Cargada</ion-label>
+                            <div class="image-preview">
+                                <img [src]="plantilla.imagenUrl" alt="Preview">
+                                <ion-button fill="clear" color="danger" size="small" (click)="eliminarImagen()">
+                                    <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+                                </ion-button>
+                            </div>
+                        </ion-item>
+
+                        <!-- Fields Configuration -->
+                        <div class="fields-section" *ngIf="plantilla.imagenUrl">
+                            <div class="section-header">
+                                <h3>Campos del Certificado</h3>
+                                <p>Ajusta la posición, tamaño y color de cada campo</p>
+                            </div>
+
+                            <div *ngFor="let field of fields" class="field-config">
+                                <div class="field-header">
+                                    <ion-icon name="layers-outline"></ion-icon>
+                                    <span>{{ field.label }}</span>
+                                    <ion-toggle [(ngModel)]="field.enabled" (ionChange)="toggleField(field)">
+                                    </ion-toggle>
+                                </div>
+
+                                <div class="field-controls" *ngIf="field.enabled && plantilla.configuracion[field.key]">
+                                    <div class="control-row">
+                                        <div class="control-group">
+                                            <label>Posición X</label>
+                                            <ion-input type="number" [(ngModel)]="plantilla.configuracion[field.key]!.x"
+                                                (ionChange)="updateField(field.key)">
+                                            </ion-input>
+                                        </div>
+                                        <div class="control-group">
+                                            <label>Posición Y</label>
+                                            <ion-input type="number" [(ngModel)]="plantilla.configuracion[field.key]!.y"
+                                                (ionChange)="updateField(field.key)">
+                                            </ion-input>
+                                        </div>
+                                    </div>
+
+                                    <div class="control-row">
+                                        <div class="control-group">
+                                            <label>Tamaño</label>
+                                            <ion-input type="number"
+                                                [(ngModel)]="plantilla.configuracion[field.key]!.fontSize"
+                                                (ionChange)="updateField(field.key)">
+                                            </ion-input>
+                                        </div>
+                                        <div class="control-group">
+                                            <label>Color</label>
+                                            <input type="color" [(ngModel)]="plantilla.configuracion[field.key]!.color"
+                                                (change)="updateField(field.key)" class="color-picker">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </ion-list>
+                </ion-card-content>
+            </ion-card>
+        </div>
+
+        <!-- PREVIEW PANEL -->
+        <div class="preview-panel">
+            <ion-card class="preview-card">
+                <ion-card-header>
+                    <ion-card-title>Vista Previa</ion-card-title>
+                </ion-card-header>
+                <ion-card-content>
+                    <div class="canvas-container" #canvasContainer>
+                        <!-- Background Image -->
+                        <img *ngIf="plantilla.imagenUrl" [src]="plantilla.imagenUrl" class="bg-image" draggable="false"
+                            (load)="onImageLoad($event)">
+
+                        <!-- Field Markers -->
+                        <ng-container *ngIf="plantilla.imagenUrl">
+                            <div *ngFor="let field of fields" class="field-marker"
+                                [class.active]="activeDragKey === field.key"
+                                [style.display]="field.enabled ? 'block' : 'none'"
+                                [style.left.px]="plantilla.configuracion[field.key]?.x || 0"
+                                [style.top.px]="plantilla.configuracion[field.key]?.y || 0"
+                                [style.font-size.px]="plantilla.configuracion[field.key]?.fontSize || 14"
+                                [style.color]="plantilla.configuracion[field.key]?.color || '#000'"
+                                (mousedown)="startDrag($event, field.key)" (touchstart)="startDrag($event, field.key)">
+                                {{ getPlaceholder(field.key) }}
+                            </div>
+                        </ng-container>
+
+                        <!-- Empty State -->
+                        <div class="empty-preview" *ngIf="!plantilla.imagenUrl">
+                            <ion-icon name="image-outline"></ion-icon>
+                            <p>Sube una imagen para ver la vista previa</p>
+                        </div>
+                    </div>
+
+                    <div class="preview-info" *ngIf="plantilla.imagenUrl">
+                        <ion-icon name="information-circle-outline"></ion-icon>
+                        <p>Arrastra los campos en la vista previa o ajusta las coordenadas manualmente</p>
+                    </div>
+                </ion-card-content>
+            </ion-card>
+        </div>
+
+    </div>
+
+</ion-content>

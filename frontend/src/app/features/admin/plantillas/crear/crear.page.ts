@@ -1,300 +1,294 @@
-import { Component, OnInit, ElementRef, ViewChild, inject } from '@angular/core';
+import { Component, OnInit, ElementRef, ViewChild, inject, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule, NavController, LoadingController, ToastController } from '@ionic/angular';
 import { ActivatedRoute } from '@angular/router';
 import { PlantillasService, PlantillaCertificado } from '../services/plantillas.service';
 import { addIcons } from 'ionicons';
-import { saveOutline, cloudUploadOutline, arrowBackOutline, moveOutline } from 'ionicons/icons';
+import {
+    saveOutline,
+    cloudUploadOutline,
+    arrowBackOutline,
+    moveOutline,
+    layersOutline,
+    imageOutline,
+    informationCircleOutline,
+    trashOutline
+} from 'ionicons/icons';
 
 interface DraggableField {
     key: keyof PlantillaCertificado['configuracion'];
     label: string;
-    x: number;
-    y: number;
-    color: string;
-    fontSize: number;
+    enabled: boolean;
 }
 
 @Component({
     selector: 'app-crear-plantilla',
-    template: `
-    <ion-header [translucent]="true">
-      <ion-toolbar color="primary">
-        <ion-buttons slot="start">
-          <ion-back-button defaultHref="/gestionar-plantillas"></ion-back-button>
-        </ion-buttons>
-        <ion-title>{{ isEdit ? 'Editar' : 'Nueva' }} Plantilla</ion-title>
-        <ion-buttons slot="end">
-          <ion-button (click)="guardar()">
-            <ion-icon name="save-outline" slot="start"></ion-icon>
-            Guardar
-          </ion-button>
-        </ion-buttons>
-      </ion-toolbar>
-    </ion-header>
-
-    <ion-content [fullscreen]="true" class="ion-padding">
-      
-      <div class="container">
-        
-        <!-- EDITOR PANEL -->
-        <div class="editor-panel">
-            <ion-list>
-                <ion-item>
-                    <ion-label position="floating">Nombre de la Plantilla</ion-label>
-                    <ion-input [(ngModel)]="plantilla.nombre"></ion-input>
-                </ion-item>
-
-                <ion-item button (click)="fileInput.click()" *ngIf="!plantilla.imagenUrl">
-                    <ion-icon name="cloud-upload-outline" slot="start"></ion-icon>
-                    <ion-label>Subir Imagen de Fondo</ion-label>
-                </ion-item>
-                
-                <input #fileInput type="file" (change)="onFileSelected($event)" accept="image/*" hidden>
-
-                <ion-item *ngIf="plantilla.imagenUrl">
-                    <ion-label>Imagen cargada</ion-label>
-                    <ion-button slot="end" size="small" color="warning" (click)="plantilla.imagenUrl = ''; fileInput.value = ''">Cambiar</ion-button>
-                </ion-item>
-
-                <ion-list-header>Configuración de Campos</ion-list-header>
-                <p class="hint">Ajusta las coordenadas (X, Y) o arrastra en la vista previa (Desktop).</p>
-
-                <div>
-                    <ion-item-group *ngFor="let field of fields">
-                        <ion-item-divider color="light">
-                            <ion-label>{{ field.label }}</ion-label>
-                        </ion-item-divider>
-                        <ion-item lines="none" *ngIf="plantilla.configuracion[field.key]">
-                            <ion-label>X (px)</ion-label>
-                             <ion-input type="number" [(ngModel)]="plantilla.configuracion[field.key]!.x" (ionChange)="updateField(field.key)"></ion-input>
-                        </ion-item>
-                        <ion-item lines="none" *ngIf="plantilla.configuracion[field.key]">
-                            <ion-label>Y (px)</ion-label>
-                             <ion-input type="number" [(ngModel)]="plantilla.configuracion[field.key]!.y" (ionChange)="updateField(field.key)"></ion-input>
-                        </ion-item>
-                        <ion-item lines="none" *ngIf="plantilla.configuracion[field.key]">
-                            <ion-label>Tamaño</ion-label>
-                             <ion-input type="number" [(ngModel)]="plantilla.configuracion[field.key]!.fontSize" (ionChange)="updateField(field.key)"></ion-input>
-                        </ion-item>
-                         <ion-item lines="none" *ngIf="plantilla.configuracion[field.key]">
-                            <ion-label>Color</ion-label>
-                             <ion-input type="color" [(ngModel)]="plantilla.configuracion[field.key]!.color" (ionChange)="updateField(field.key)"></ion-input>
-                        </ion-item>
-                    </ion-item-group>
-                </div>
-
-            </ion-list>
-        </div>
-
-        <!-- PREVIEW PANEL -->
-        <div class="preview-panel">
-            <div class="canvas-container" #canvasContainer>
-                <img [src]="plantilla.imagenUrl || 'assets/certificados/placeholder-cert.png'" class="bg-image" draggable="false" (load)="onImageLoad($event)">
-                
-                <ng-container *ngIf="plantilla.imagenUrl">
-                    <div *ngFor="let field of fields" 
-                        class="field-marker"
-                        [style.left.px]="plantilla.configuracion[field.key]?.x || 0"
-                        [style.top.px]="plantilla.configuracion[field.key]?.y || 0"
-                        [style.font-size.px]="plantilla.configuracion[field.key]?.fontSize || 14"
-                        [style.color]="plantilla.configuracion[field.key]?.color || '#000'"
-                        cdkDragBoundary=".canvas-container"
-                        (mousedown)="startDrag($event, field.key)"
-                        (touchstart)="startDrag($event, field.key)"
-                        >
-                        {{ getPlaceholder(field.key) }}
-                    </div>
-                </ng-container>
-
-                <div class="empty-msg" *ngIf="!plantilla.imagenUrl">
-                    <p>Sube una imagen para previsualizar</p>
-                </div>
-            </div>
-            
-            <div class="zoom-controls">
-               <p class="info-text">Resolución original de la imagen será usada para el PDF.</p>
-            </div>
-        </div>
-
-      </div>
-
-    </ion-content>
-  `,
-    styles: [`
-    .container {
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-    }
-    @media (min-width: 768px) {
-        .container {
-            flex-direction: row;
-            align-items: flex-start;
-        }
-        .editor-panel {
-            width: 350px;
-            flex-shrink: 0;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-        .preview-panel {
-            flex-grow: 1;
-            position: sticky;
-            top: 20px;
-        }
-    }
-    
-    .canvas-container {
-        position: relative;
-        width: 100%;
-        border: 1px solid #ccc;
-        background: #fff;
-        overflow: hidden;
-        min-height: 400px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-
-    .bg-image {
-        max-width: 100%;
-        display: block;
-    }
-
-    .field-marker {
-        position: absolute;
-        border: 1px dashed rgba(0,0,0,0.5);
-        background: rgba(255, 255, 255, 0.4);
-        padding: 2px 5px;
-        white-space: nowrap;
-        cursor: grab;
-        transform: translate(-50%, -50%); /* Centers the point */
-        user-select: none;
-    }
-    .field-marker:active {
-        cursor: grabbing;
-        border-color: blue;
-    }
-    
-    .hint {
-        font-size: 0.8rem;
-        color: gray;
-        margin: 5px 15px;
-    }
-    .empty-msg {
-        position: absolute;
-        color: gray;
-    }
-  `],
+    templateUrl: './crear.page.html',
+    styleUrls: ['./crear.page.scss'],
     standalone: true,
     imports: [CommonModule, FormsModule, IonicModule]
 })
 export class CrearPage implements OnInit {
+    @ViewChild('canvasContainer') canvasContainer!: ElementRef;
 
     isEdit = false;
+    cargando = false;
+    guardando = false;
+
     plantilla: PlantillaCertificado = {
         id: 0,
         nombre: '',
         imagenUrl: '',
         configuracion: {
-            nombreUsuario: { x: 100, y: 100, fontSize: 24, color: '#000000' },
-            curso: { x: 100, y: 150, fontSize: 18, color: '#000000' },
-            fecha: { x: 100, y: 200, fontSize: 14, color: '#000000' }
+            nombreUsuario: { x: 420, y: 300, fontSize: 32, color: '#1a1a1a' },
+            curso: { x: 420, y: 370, fontSize: 18, color: '#333333' },
+            fecha: { x: 420, y: 450, fontSize: 14, color: '#666666' }
         },
-        activa: true
+        activa: false
     };
 
     fields: DraggableField[] = [
-        { key: 'nombreUsuario', label: 'Nombre Participante', x: 0, y: 0, color: '#000', fontSize: 24 },
-        { key: 'curso', label: 'Nombre Curso', x: 0, y: 0, color: '#000', fontSize: 18 },
-        { key: 'fecha', label: 'Fecha Emisión', x: 0, y: 0, color: '#000', fontSize: 14 },
-        // Optional
-        //{ key: 'cedula', label: 'Cédula', x: 0, y: 0, color: '#000', fontSize: 12 },
+        { key: 'nombreUsuario', label: 'Nombre Participante', enabled: true },
+        { key: 'curso', label: 'Nombre Curso', enabled: true },
+        { key: 'fecha', label: 'Fecha Emisión', enabled: true },
+        { key: 'cedula', label: 'Cédula', enabled: false },
+        { key: 'rol', label: 'Rol', enabled: false },
+        { key: 'horas', label: 'Horas', enabled: false },
     ];
 
-    naturalWidth = 0;
-    naturalHeight = 0;
-    displayScale = 1;
+    // Drag state
+    activeDragKey: string | null = null;
+    dragStartX = 0;
+    dragStartY = 0;
+    fieldStartX = 0;
+    fieldStartY = 0;
 
     private plantillasService = inject(PlantillasService);
     private route = inject(ActivatedRoute);
     private navCtrl = inject(NavController);
     private toastCtrl = inject(ToastController);
+    private loadingCtrl = inject(LoadingController);
 
     constructor() {
-        addIcons({ saveOutline, cloudUploadOutline, arrowBackOutline, moveOutline });
+        addIcons({
+            saveOutline,
+            cloudUploadOutline,
+            arrowBackOutline,
+            moveOutline,
+            layersOutline,
+            imageOutline,
+            informationCircleOutline,
+            trashOutline
+        });
     }
 
     ngOnInit() {
         const id = this.route.snapshot.paramMap.get('id');
         if (id) {
             this.isEdit = true;
-            this.plantillasService.getPlantilla(Number(id)).subscribe(p => {
-                if (p) this.plantilla = JSON.parse(JSON.stringify(p)); // Clone
-            });
+            this.cargarPlantilla(Number(id));
         }
     }
 
-    getPlaceholder(key: string) {
-        switch (key) {
-            case 'nombreUsuario': return 'JUAN PEREZ';
-            case 'curso': return 'CURSO DE EJEMPLO';
-            case 'fecha': return '01/01/2026';
-            case 'cedula': return '1700000000';
-            default: return 'TEXTO';
+    async cargarPlantilla(id: number) {
+        this.cargando = true;
+        try {
+            this.plantillasService.getPlantilla(id).subscribe({
+                next: (plantilla) => {
+                    if (plantilla) {
+                        this.plantilla = JSON.parse(JSON.stringify(plantilla));
+                        this.sincronizarCampos();
+                    }
+                    this.cargando = false;
+                },
+                error: (error) => {
+                    console.error('Error al cargar plantilla:', error);
+                    this.mostrarToast('Error al cargar plantilla', 'danger');
+                    this.cargando = false;
+                    this.navCtrl.navigateBack('/gestionar-plantillas');
+                }
+            });
+        } catch (error) {
+            console.error('Error inesperado:', error);
+            this.cargando = false;
         }
+    }
+
+    sincronizarCampos() {
+        // Enable fields that exist in configuration
+        this.fields.forEach(field => {
+            field.enabled = !!this.plantilla.configuracion[field.key];
+        });
+    }
+
+    toggleField(field: DraggableField) {
+        if (field.enabled) {
+            // Add field to configuration
+            if (!this.plantilla.configuracion[field.key]) {
+                this.plantilla.configuracion[field.key] = {
+                    x: 420,
+                    y: 300,
+                    fontSize: 16,
+                    color: '#000000'
+                };
+            }
+        } else {
+            // Remove field from configuration
+            delete this.plantilla.configuracion[field.key];
+        }
+    }
+
+    getPlaceholder(key: string): string {
+        const placeholders: Record<string, string> = {
+            nombreUsuario: 'JUAN PÉREZ GARCÍA',
+            curso: 'GESTIÓN DE COMPETENCIAS',
+            fecha: '07/02/2026',
+            cedula: '1234567890',
+            rol: 'PARTICIPANTE',
+            horas: '40 HORAS'
+        };
+        return placeholders[key] || 'TEXTO';
     }
 
     onFileSelected(event: any) {
         const file = event.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (e: any) => {
-                this.plantilla.imagenUrl = e.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
-    }
+        if (!file) return;
 
-    onImageLoad(event: any) {
-        this.naturalWidth = event.target.naturalWidth;
-        this.naturalHeight = event.target.naturalHeight;
-        // Calculate active scale if needed to map coordinates from display to original
-        // For MVP we can assume user edits in current Viewport coordinates, 
-        // OR we strictly use original coordinates (better for PDF generation).
-        // Let's assume input maps to pixels relative to the image top-left.
-        // If image is responsive, we need complex logic.
-        // For MVP, we'll try to keep it simple: Image natural size or fixed canvas.
-    }
-
-    // Basic Drag Simulation (Touch/Mouse)
-    activeDragKey: string | null = null;
-
-    startDrag(event: any, key: string) {
-        this.activeDragKey = key;
-        // Implementation of drag is complex without Angular CDK DragDrop or similar.
-        // For brevity in this agent turn, I'm providing input fields editing primarily.
-        // Mouse/Touch move logic would go here if required.
-    }
-
-    updateField(key: string) {
-        // Trigger update
-    }
-
-    async guardar() {
-        if (!this.plantilla.nombre || !this.plantilla.imagenUrl) {
-            const toast = await this.toastCtrl.create({ message: 'Completa nombre e imagen', duration: 2000, color: 'warning' });
-            toast.present();
+        // Validate file size (5MB max)
+        if (file.size > 5 * 1024 * 1024) {
+            this.mostrarToast('La imagen no debe superar 5MB', 'warning');
             return;
         }
 
-        this.plantillasService.savePlantilla(this.plantilla).subscribe(async () => {
-            const toast = await this.toastCtrl.create({ message: 'Plantilla guardada', duration: 2000, color: 'success' });
-            toast.present();
-            this.navCtrl.navigateBack('/gestionar-plantillas');
-        });
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+            this.mostrarToast('Solo se permiten archivos de imagen', 'warning');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e: any) => {
+            this.plantilla.imagenUrl = e.target.result;
+        };
+        reader.readAsDataURL(file);
     }
 
+    eliminarImagen() {
+        this.plantilla.imagenUrl = '';
+    }
+
+    onImageLoad(event: any) {
+        // Image loaded successfully
+        console.log('Image loaded:', event.target.naturalWidth, 'x', event.target.naturalHeight);
+    }
+
+    // Drag and Drop functionality
+    startDrag(event: MouseEvent | TouchEvent, key: string) {
+        event.preventDefault();
+        this.activeDragKey = key;
+
+        const clientX = event instanceof MouseEvent ? event.clientX : event.touches[0].clientX;
+        const clientY = event instanceof MouseEvent ? event.clientY : event.touches[0].clientY;
+
+        this.dragStartX = clientX;
+        this.dragStartY = clientY;
+
+        const config = this.plantilla.configuracion[key as keyof typeof this.plantilla.configuracion];
+        if (config) {
+            this.fieldStartX = config.x;
+            this.fieldStartY = config.y;
+        }
+    }
+
+    @HostListener('document:mousemove', ['$event'])
+    @HostListener('document:touchmove', ['$event'])
+    onDragMove(event: MouseEvent | TouchEvent) {
+        if (!this.activeDragKey) return;
+
+        const clientX = event instanceof MouseEvent ? event.clientX : event.touches[0].clientX;
+        const clientY = event instanceof MouseEvent ? event.clientY : event.touches[0].clientY;
+
+        const deltaX = clientX - this.dragStartX;
+        const deltaY = clientY - this.dragStartY;
+
+        const config = this.plantilla.configuracion[this.activeDragKey as keyof typeof this.plantilla.configuracion];
+        if (config) {
+            config.x = Math.max(0, this.fieldStartX + deltaX);
+            config.y = Math.max(0, this.fieldStartY + deltaY);
+        }
+    }
+
+    @HostListener('document:mouseup')
+    @HostListener('document:touchend')
+    onDragEnd() {
+        this.activeDragKey = null;
+    }
+
+    updateField(key: string) {
+        // Trigger change detection
+    }
+
+    async guardar() {
+        // Validation
+        if (!this.plantilla.nombre || !this.plantilla.nombre.trim()) {
+            this.mostrarToast('El nombre de la plantilla es requerido', 'warning');
+            return;
+        }
+
+        if (!this.plantilla.imagenUrl) {
+            this.mostrarToast('Debes subir una imagen de fondo', 'warning');
+            return;
+        }
+
+        // Check if at least one field is enabled
+        const enabledFields = this.fields.filter(f => f.enabled);
+        if (enabledFields.length === 0) {
+            this.mostrarToast('Debes habilitar al menos un campo', 'warning');
+            return;
+        }
+
+        this.guardando = true;
+        const loading = await this.loadingCtrl.create({
+            message: 'Guardando plantilla...'
+        });
+        await loading.present();
+
+        try {
+            this.plantillasService.savePlantilla(this.plantilla).subscribe({
+                next: async () => {
+                    await loading.dismiss();
+                    this.guardando = false;
+                    await this.mostrarToast('Plantilla guardada correctamente', 'success');
+                    this.navCtrl.navigateBack('/gestionar-plantillas');
+                },
+                error: async (error) => {
+                    console.error('Error al guardar plantilla:', error);
+                    await loading.dismiss();
+                    this.guardando = false;
+                    await this.mostrarToast('Error al guardar plantilla', 'danger');
+                }
+            });
+        } catch (error) {
+            console.error('Error inesperado:', error);
+            await loading.dismiss();
+            this.guardando = false;
+        }
+    }
+
+    async mostrarToast(mensaje: string, color: string = 'primary') {
+        const toast = await this.toastCtrl.create({
+            message: mensaje,
+            duration: 3000,
+            position: 'top',
+            color: color,
+            buttons: [
+                {
+                    text: 'Cerrar',
+                    role: 'cancel'
+                }
+            ]
+        });
+        await toast.present();
+    }
 }

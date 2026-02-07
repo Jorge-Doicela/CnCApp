@@ -1,5 +1,8 @@
-import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import { environment } from 'src/environments/environment';
 
 export interface PlantillaCertificado {
     id: number;
@@ -11,56 +14,57 @@ export interface PlantillaCertificado {
         fecha: { x: number, y: number, fontSize: number, color: string };
         cedula?: { x: number, y: number, fontSize: number, color: string };
         rol?: { x: number, y: number, fontSize: number, color: string };
+        horas?: { x: number, y: number, fontSize: number, color: string };
     };
     activa: boolean;
+    createdAt?: string;
+    updatedAt?: string;
 }
 
 @Injectable({
     providedIn: 'root'
 })
 export class PlantillasService {
-
-    // Mock data for now
-    private plantillas: PlantillaCertificado[] = [
-        {
-            id: 1,
-            nombre: 'Plantilla Estándar CNC 2024',
-            imagenUrl: 'assets/certificados/plantilla.png',
-            configuracion: {
-                nombreUsuario: { x: 420, y: 300, fontSize: 28, color: '#000000' },
-                curso: { x: 420, y: 370, fontSize: 14, color: '#000000' },
-                fecha: { x: 420, y: 450, fontSize: 12, color: '#000000' }
-            },
-            activa: true
-        }
-    ];
+    private apiUrl = `${environment.apiUrl}/plantillas`;
+    private http = inject(HttpClient);
 
     constructor() { }
 
     getPlantillas(): Observable<PlantillaCertificado[]> {
-        return of(this.plantillas);
+        return this.http.get<PlantillaCertificado[]>(this.apiUrl);
     }
 
-    getPlantilla(id: number): Observable<PlantillaCertificado | undefined> {
-        const plantilla = this.plantillas.find(p => p.id === id);
-        return of(plantilla);
+    getPlantilla(id: number): Observable<PlantillaCertificado> {
+        return this.http.get<PlantillaCertificado>(`${this.apiUrl}/${id}`);
+    }
+
+    createPlantilla(plantilla: Partial<PlantillaCertificado>): Observable<PlantillaCertificado> {
+        return this.http.post<PlantillaCertificado>(this.apiUrl, plantilla);
+    }
+
+    updatePlantilla(id: number, plantilla: Partial<PlantillaCertificado>): Observable<PlantillaCertificado> {
+        return this.http.put<PlantillaCertificado>(`${this.apiUrl}/${id}`, plantilla);
     }
 
     savePlantilla(plantilla: PlantillaCertificado): Observable<PlantillaCertificado> {
-        if (plantilla.id) {
-            const index = this.plantillas.findIndex(p => p.id === plantilla.id);
-            if (index !== -1) {
-                this.plantillas[index] = plantilla;
-            }
+        if (plantilla.id && plantilla.id > 0) {
+            return this.updatePlantilla(plantilla.id, plantilla);
         } else {
-            plantilla.id = this.plantillas.length + 1;
-            this.plantillas.push(plantilla);
+            return this.createPlantilla(plantilla);
         }
-        return of(plantilla);
     }
 
-    deletePlantilla(id: number): Observable<boolean> {
-        this.plantillas = this.plantillas.filter(p => p.id !== id);
-        return of(true);
+    deletePlantilla(id: number): Observable<void> {
+        return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    }
+
+    activarPlantilla(id: number): Observable<PlantillaCertificado> {
+        return this.http.patch<PlantillaCertificado>(`${this.apiUrl}/${id}/activar`, {});
+    }
+
+    uploadImage(file: File): Observable<{ url: string }> {
+        const formData = new FormData();
+        formData.append('image', file);
+        return this.http.post<{ url: string }>(`${this.apiUrl}/upload`, formData);
     }
 }

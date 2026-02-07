@@ -55,6 +55,7 @@ export class EditarPage implements OnInit {
     const idCapacitacion = this.activatedRoute.snapshot.paramMap.get('id');
     if (idCapacitacion) {
       this.capacitacion.id = +idCapacitacion;
+      // Non-blocking call
       this.cargarDatos();
     } else {
       this.mostrarToast('ID de capacitación no válido', 'danger');
@@ -64,25 +65,39 @@ export class EditarPage implements OnInit {
 
   async cargarDatos() {
     const loading = await this.loadingController.create({
-      message: 'Cargando datos...',
+      message: 'Cargando datos de la capacitación...',
       spinner: 'crescent'
     });
     await loading.present();
 
     try {
-      await Promise.all([
+      // Load in parallel
+      const [capacitacionData] = await Promise.all([
         this.cargarCapacitacion(),
         this.cargarEntidades(),
         this.cargarUsuarios()
       ]);
+
       this.capacitacionOriginal = JSON.parse(JSON.stringify(this.capacitacion));
       this.cargando = false;
-      loading.dismiss();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error al cargar datos:', error);
-      this.mostrarToast('Error al cargar los datos', 'danger');
+
+      // Check if it's a 404 error
+      if (error?.status === 404) {
+        this.mostrarToast('No se encontró la capacitación solicitada', 'warning');
+      } else {
+        this.mostrarToast('Error al cargar los datos de la capacitación', 'danger');
+      }
+
       this.cargando = false;
-      loading.dismiss();
+
+      // Navigate back after a short delay
+      setTimeout(() => {
+        this.navController.navigateBack('/gestionar-capacitaciones');
+      }, 2000);
+    } finally {
+      await loading.dismiss();
     }
   }
 
