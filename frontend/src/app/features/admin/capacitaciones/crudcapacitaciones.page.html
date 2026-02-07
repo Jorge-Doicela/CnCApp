@@ -23,15 +23,17 @@
         <ion-icon name="apps-outline"></ion-icon>
         Todas
       </div>
-      <div class="chip" [class.active]="filtroEstado === '0'" (click)="filtroEstado = '0'; aplicarFiltros()">
+      <div class="chip" [class.active]="filtroEstado === 'Activa'" (click)="filtroEstado = 'Activa'; aplicarFiltros()">
         <ion-icon name="time-outline"></ion-icon>
         Pendientes
       </div>
-      <div class="chip" [class.active]="filtroEstado === '1'" (click)="filtroEstado = '1'; aplicarFiltros()">
+      <div class="chip" [class.active]="filtroEstado === 'Finalizada'"
+        (click)="filtroEstado = 'Finalizada'; aplicarFiltros()">
         <ion-icon name="checkmark-circle-outline"></ion-icon>
         Realizadas
       </div>
-      <div class="chip" [class.active]="filtroEstado === '2'" (click)="filtroEstado = '2'; aplicarFiltros()">
+      <div class="chip" [class.active]="filtroEstado === 'Cancelada'"
+        (click)="filtroEstado = 'Cancelada'; aplicarFiltros()">
         <ion-icon name="close-circle-outline"></ion-icon>
         Canceladas
       </div>

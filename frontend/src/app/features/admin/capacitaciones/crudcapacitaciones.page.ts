@@ -1,7 +1,7 @@
 import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { AlertController, LoadingController, ToastController } from '@ionic/angular';
 import { CapacitacionesService } from './services/capacitaciones.service';
@@ -25,6 +25,7 @@ export class CrudcapacitacionesPage implements OnInit {
   cargando: boolean = false;
 
   private capacitacionesService = inject(CapacitacionesService);
+  private cdr = inject(ChangeDetectorRef);
 
   constructor(
     private router: Router,
@@ -50,6 +51,10 @@ export class CrudcapacitacionesPage implements OnInit {
       next: (data) => {
         this.Capacitaciones = data || [];
         this.aplicarFiltros();
+
+        // Forzar detección de cambios
+        this.cdr.detectChanges();
+
         this.cargando = false;
         loading.dismiss();
       },
@@ -133,7 +138,7 @@ export class CrudcapacitacionesPage implements OnInit {
   }
 
   iraVisualizarinscritos(Id_Capacitacion: number) {
-    this.router.navigate(['/gestionar-capacitaciones/visualizarinscritos', Id_Capacitacion]);
+    this.router.navigate(['/gestionar-capacitaciones/visualizar-inscritos', Id_Capacitacion]);
   }
 
   // Finalizar capacitación (nueva funcionalidad)

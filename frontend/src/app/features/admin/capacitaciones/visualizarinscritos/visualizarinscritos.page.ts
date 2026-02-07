@@ -45,10 +45,10 @@ export class VisualizarinscritosPage implements OnInit {
   ) { }
 
   ngOnInit() {
-    const idCapacitacion = +this.activatedRoute.snapshot.params['Id_Capacitacion'];
+    const idCapacitacion = +this.activatedRoute.snapshot.params['id'];
     this.idCapacitacion = idCapacitacion;
 
-    if (!isNaN(this.idCapacitacion)) {
+    if (!isNaN(this.idCapacitacion) && this.idCapacitacion > 0) {
       this.cargarDatos();
     } else {
       this.mostrarToast('ID de capacitación no válido', 'danger');

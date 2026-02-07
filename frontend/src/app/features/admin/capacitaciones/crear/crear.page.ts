@@ -1,9 +1,9 @@
 import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ViewChild, inject } from '@angular/core';
+import { Component, OnInit, ViewChild, inject, ChangeDetectorRef } from '@angular/core';
 import { NgForm } from '@angular/forms';
-import { ToastController, AlertController, NavController, LoadingController } from '@ionic/angular';
+import { ToastController, AlertController, NavController } from '@ionic/angular';
 import { CapacitacionesService } from 'src/app/features/admin/capacitaciones/services/capacitaciones.service';
 import { CatalogoService } from 'src/app/shared/services/catalogo.service';
 import { UsuarioService } from 'src/app/features/user/services/usuario.service';
@@ -24,12 +24,12 @@ export class CrearPage implements OnInit {
     Fecha_Capacitacion: '',
     Lugar_Capacitacion: '',
     Estado: 0,
-    Modalidades: 'Virtual',
+    Modalidades: 'Presencial',
     Enlace_Virtual: '',
     Hora_Inicio: '',
     Hora_Fin: '',
     Horas: 0,
-    Limite_Participantes: 0,
+    Limite_Participantes: 30,
     entidades_encargadas: [] as number[],
     ids_usuarios: [] as number[],
     expositores: [] as number[]
@@ -37,7 +37,15 @@ export class CrearPage implements OnInit {
 
   entidades: any[] = [];
   usuarios: any[] = [];
-  usuariosDisponibles: any[] = []; // Lista filtrada para participantes (sin expositores)
+  usuariosDisponibles: any[] = [];
+
+  cargandoDatos = true;
+  guardando = false;
+  fechaMinima: string = '';
+
+  // Wizard steps
+  currentStep = 1;
+  totalSteps = 4;
 
   private capacitacionesService = inject(CapacitacionesService);
   private catalogoService = inject(CatalogoService);
@@ -47,205 +55,264 @@ export class CrearPage implements OnInit {
     private toastController: ToastController,
     private alertController: AlertController,
     private navController: NavController,
-    private loadingController: LoadingController
+    private cdr: ChangeDetectorRef
   ) { }
 
   ngOnInit() {
-    this.cargarEntidadesYUsuarios();
-
-    // Establecer horas por defecto
-    const now = new Date();
-    now.setHours(now.getHours() + 1, 0, 0); // Próxima hora en punto
-
-    const horaInicio = now.toTimeString().substr(0, 5);
-    now.setHours(now.getHours() + 1);
-    const horaFin = now.toTimeString().substr(0, 5);
-
-    this.capacitacion.Hora_Inicio = horaInicio;
-    this.capacitacion.Hora_Fin = horaFin;
-
-    // Establecer fecha por defecto (hoy)
-    this.capacitacion.Fecha_Capacitacion = new Date().toISOString().split('T')[0];
+    this.inicializarFormulario();
+    this.cargarDatos();
   }
 
-  // Función para detectar cambios en la selección de modalidad
+  inicializarFormulario() {
+    // Establecer fecha mínima (hoy)
+    const hoy = new Date();
+    this.fechaMinima = hoy.toISOString().split('T')[0];
+    this.capacitacion.Fecha_Capacitacion = this.fechaMinima;
+
+    // Establecer horas por defecto
+    const horaInicio = new Date();
+    horaInicio.setHours(horaInicio.getHours() + 1, 0, 0, 0);
+    this.capacitacion.Hora_Inicio = horaInicio.toTimeString().substring(0, 5);
+
+    const horaFin = new Date(horaInicio);
+    horaFin.setHours(horaFin.getHours() + 2);
+    this.capacitacion.Hora_Fin = horaFin.toTimeString().substring(0, 5);
+
+    this.capacitacion.Horas = 2;
+  }
+
+  cargarDatos() {
+    console.log('🔄 Iniciando carga de datos...');
+    this.cargandoDatos = true;
+    let entidadesCargadas = false;
+    let usuariosCargados = false;
+
+    // Timeout de seguridad: ocultar loading después de 5 segundos máximo
+    setTimeout(() => {
+      console.log('⏰ Timeout alcanzado. cargandoDatos:', this.cargandoDatos);
+      if (this.cargandoDatos) {
+        console.warn('⚠️ Forzando fin de carga por timeout');
+        this.cargandoDatos = false;
+      }
+    }, 5000);
+
+    const verificarCarga = () => {
+      console.log('🔍 Verificando carga:', { entidadesCargadas, usuariosCargados });
+      if (entidadesCargadas && usuariosCargados) {
+        console.log('✅ Ambos recursos cargados, ocultando loading');
+        this.cargandoDatos = false;
+        this.cdr.detectChanges();
+        console.log('🔄 Change detection forzada');
+      }
+    };
+
+    // Cargar entidades
+    this.catalogoService.getItems('entidades').subscribe({
+      next: (data) => {
+        console.log('Entidades cargadas:', data);
+        this.entidades = data || [];
+        // Pre-seleccionar CNC si existe
+        const cnc = this.entidades.find(e =>
+          e.Nombre_Entidad?.toLowerCase().includes('cnc') ||
+          e.Nombre_Entidad?.toLowerCase().includes('consejo nacional')
+        );
+        if (cnc) {
+          this.capacitacion.entidades_encargadas = [cnc.Id_Entidad];
+        }
+        entidadesCargadas = true;
+        verificarCarga();
+      },
+      error: (err) => {
+        console.error('Error cargando entidades:', err);
+        this.mostrarToast('Error al cargar entidades', 'danger');
+        entidadesCargadas = true;
+        verificarCarga();
+      }
+    });
+
+    // Cargar usuarios
+    this.usuarioService.getUsuarios().subscribe({
+      next: (data) => {
+        console.log('Usuarios cargados:', data);
+        this.usuarios = data || [];
+        this.usuariosDisponibles = [...this.usuarios];
+        usuariosCargados = true;
+        verificarCarga();
+      },
+      error: (err) => {
+        console.error('Error cargando usuarios:', err);
+        this.mostrarToast('Error al cargar usuarios', 'danger');
+        usuariosCargados = true;
+        verificarCarga();
+      }
+    });
+  }
+
   onModalidadChange() {
-    // Si cambia de modalidad y no es virtual o híbrida, limpiamos el enlace
-    if (this.capacitacion.Modalidades !== 'Virtual' && this.capacitacion.Modalidades !== 'Hibrida') {
+    // Limpiar enlace virtual si no es necesario
+    if (this.capacitacion.Modalidades === 'Presencial') {
       this.capacitacion.Enlace_Virtual = '';
     }
   }
 
-  // Función para abrir enlace virtual
-  abrirEnlace(enlace: string) {
-    if (enlace && (enlace.startsWith('http://') || enlace.startsWith('https://'))) {
-      window.open(enlace, '_blank');
-    } else if (enlace) {
-      window.open('https://' + enlace, '_blank');
-    }
-  }
-
-  // Función para cargar las entidades y usuarios
-  async cargarEntidadesYUsuarios() {
-    const loading = await this.loadingController.create({
-      message: 'Cargando datos...',
-      spinner: 'crescent'
-    });
-    await loading.present();
-
-    this.catalogoService.getItems('entidades').subscribe({
-      next: (entidadesData) => {
-        this.entidades = entidadesData || [];
-        // Buscar el CNC
-        const cncEntidad = this.entidades.find(e => e.Nombre_Entidad.toLowerCase().includes('cnc') ||
-          e.Nombre_Entidad.toLowerCase().includes('consejo nacional'));
-        if (cncEntidad) {
-          this.capacitacion.entidades_encargadas = [cncEntidad.Id_Entidad];
-        }
-      },
-      error: (err) => {
-        console.error(err);
-        this.mostrarToast('Error al cargar las entidades', 'danger');
-      }
-    });
-
-    this.usuarioService.getUsuarios().subscribe({
-      next: (usuariosData) => {
-        this.usuarios = usuariosData || [];
-        this.usuariosDisponibles = [...this.usuarios];
-        loading.dismiss();
-      },
-      error: (err) => {
-        console.error(err);
-        this.mostrarToast('Error al cargar los usuarios', 'danger');
-        loading.dismiss();
-      }
-    });
-  }
-
-  // Validar horarios
   validarHorarios(): boolean {
     if (!this.capacitacion.Hora_Inicio || !this.capacitacion.Hora_Fin) {
-      this.mostrarToast('Debe especificar hora de inicio y fin', 'warning');
-      return false;
+      return true; // No validar si están vacíos
     }
 
-    const horaInicio = this.capacitacion.Hora_Inicio.split(':').map(Number);
-    const horaFin = this.capacitacion.Hora_Fin.split(':').map(Number);
+    const [horaI, minI] = this.capacitacion.Hora_Inicio.split(':').map(Number);
+    const [horaF, minF] = this.capacitacion.Hora_Fin.split(':').map(Number);
 
-    // Validar formato correcto
-    if (horaInicio.length !== 2 || horaFin.length !== 2) {
-      this.mostrarToast('Formato de hora incorrecto', 'warning');
-      return false;
-    }
+    const minutosInicio = horaI * 60 + minI;
+    const minutosFin = horaF * 60 + minF;
 
-    // Convertir a minutos para comparar más fácilmente
-    const minutosInicio = horaInicio[0] * 60 + horaInicio[1];
-    const minutosFin = horaFin[0] * 60 + horaFin[1];
-
-    if (minutosFin <= minutosInicio) {
-      this.mostrarToast('La hora de finalización debe ser posterior a la hora de inicio', 'warning');
-      return false;
-    }
-
-    return true;
+    return minutosFin > minutosInicio;
   }
 
-  // Función para crear una nueva capacitación
-  async crearCapacitacion() {
+  calcularProgreso(): number {
+    let completados = 0;
+    let total = 10;
+
+    if (this.capacitacion.Nombre_Capacitacion) completados++;
+    if (this.capacitacion.Descripcion_Capacitacion) completados++;
+    if (this.capacitacion.Fecha_Capacitacion) completados++;
+    if (this.capacitacion.Hora_Inicio) completados++;
+    if (this.capacitacion.Hora_Fin) completados++;
+    if (this.capacitacion.Horas > 0) completados++;
+    if (this.capacitacion.Lugar_Capacitacion) completados++;
+    if (this.capacitacion.Limite_Participantes > 0) completados++;
+    if (this.capacitacion.expositores?.length > 0) completados++;
+    if (this.capacitacion.entidades_encargadas?.length > 0) completados++;
+
+    // Agregar enlace virtual si es necesario
+    if (this.capacitacion.Modalidades === 'Virtual') {
+      total = 11;
+      if (this.capacitacion.Enlace_Virtual) completados++;
+    }
+
+    return Math.round((completados / total) * 100);
+  }
+
+  async guardarCapacitacion() {
+    // Validación de formulario
     if (!this.capacitacionForm.valid) {
-      this.mostrarToast('Por favor complete todos los campos obligatorios', 'warning');
+      this.mostrarToast('Complete todos los campos obligatorios', 'warning');
+      this.marcarCamposComoTocados();
       return;
     }
 
-    // Validar enlace virtual si la modalidad es virtual
-    if (this.capacitacion.Modalidades === 'Virtual' && !this.capacitacion.Enlace_Virtual) {
-      this.mostrarToast('Debe proporcionar un enlace para la reunión virtual', 'warning');
-      return;
-    }
-
-    // Validar horarios
+    // Validación de horarios
     if (!this.validarHorarios()) {
+      this.mostrarToast('La hora de fin debe ser posterior a la hora de inicio', 'warning');
       return;
     }
 
-    const loading = await this.loadingController.create({
-      message: 'Guardando capacitación...',
-      spinner: 'crescent'
-    });
-    await loading.present();
+    // Validación de enlace virtual
+    if (this.capacitacion.Modalidades === 'Virtual' && !this.capacitacion.Enlace_Virtual) {
+      this.mostrarToast('El enlace virtual es obligatorio para modalidad virtual', 'warning');
+      return;
+    }
 
-    // Verificar que hay al menos un expositor/responsable
+    // Validación de expositores
     if (!this.capacitacion.expositores || this.capacitacion.expositores.length === 0) {
       this.mostrarToast('Debe seleccionar al menos un responsable/expositor', 'warning');
-      loading.dismiss();
       return;
     }
 
-    // Asegurar que el enlace tenga el formato correcto
+    // Validación de entidades
+    if (!this.capacitacion.entidades_encargadas || this.capacitacion.entidades_encargadas.length === 0) {
+      this.mostrarToast('Debe seleccionar al menos una entidad organizadora', 'warning');
+      return;
+    }
+
+    this.guardando = true;
+
+    // Formatear enlace virtual
     if (this.capacitacion.Enlace_Virtual &&
       !this.capacitacion.Enlace_Virtual.startsWith('http://') &&
       !this.capacitacion.Enlace_Virtual.startsWith('https://')) {
       this.capacitacion.Enlace_Virtual = 'https://' + this.capacitacion.Enlace_Virtual;
     }
 
+    // Crear capacitación
     this.capacitacionesService.createCapacitacion(this.capacitacion).subscribe({
-      next: async (data: any) => {
-        // Data returns created object usually inside array or object depending on backend
-        // Assuming data is the object or { data: object }
-        const created = Array.isArray(data) ? data[0] : (data.data ? data.data : data);
+      next: async (response: any) => {
+        const created = Array.isArray(response) ? response[0] : (response.data || response);
         const capacitacionId = created?.Id_Capacitacion;
 
-        if (capacitacionId) {
-          // Assign Expositores
-          for (const expositorId of this.capacitacion.expositores) {
-            await this.registrarUsuarioCapacitacion(capacitacionId, expositorId, 'Expositor');
-          }
-          // Assign Participantes
-          if (this.capacitacion.ids_usuarios && this.capacitacion.ids_usuarios.length > 0) {
-            for (const usuarioId of this.capacitacion.ids_usuarios) {
-              if (!this.capacitacion.expositores.includes(usuarioId)) {
-                await this.registrarUsuarioCapacitacion(capacitacionId, usuarioId, 'Participante');
-              }
-            }
-          }
-          loading.dismiss();
-          this.mostrarToast('Capacitación creada exitosamente', 'success');
-          await this.mostrarAlertaExito('Capacitación creada exitosamente', '¿Desea crear otra capacitación?');
-        } else {
-          loading.dismiss();
-          this.mostrarToast('Error: No se recibió confirmación de la base de datos', 'danger');
+        if (!capacitacionId) {
+          this.guardando = false;
+          this.mostrarToast('Error: No se recibió confirmación del servidor', 'danger');
+          return;
         }
+
+        // Asignar expositores
+        await this.asignarUsuarios(capacitacionId, this.capacitacion.expositores, 'Expositor');
+
+        // Asignar participantes
+        if (this.capacitacion.ids_usuarios?.length > 0) {
+          const participantes = this.capacitacion.ids_usuarios.filter(
+            id => !this.capacitacion.expositores.includes(id)
+          );
+          await this.asignarUsuarios(capacitacionId, participantes, 'Participante');
+        }
+
+        this.guardando = false;
+        this.mostrarExito();
       },
       error: (error) => {
-        loading.dismiss();
+        this.guardando = false;
         console.error('Error al crear capacitación:', error);
-        this.mostrarToast('Error al crear la capacitación: ' + (error.error?.message || error.message), 'danger');
+        const mensaje = error.error?.message || error.message || 'Error desconocido';
+        this.mostrarToast(`Error al crear la capacitación: ${mensaje}`, 'danger');
       }
     });
-
   }
 
-  // Función para registrar la relación entre usuario y capacitación con un rol específico
-  async registrarUsuarioCapacitacion(capacitacionId: number, usuarioId: number, rol: string) {
-    return new Promise<void>((resolve) => {
-      this.capacitacionesService.assignUser(capacitacionId, usuarioId, rol).subscribe({
-        next: () => resolve(),
-        error: (err) => {
-          console.error(`Error assigning ${rol}:`, err);
-          resolve(); // Continue anyway
+  async asignarUsuarios(capacitacionId: number, usuarioIds: number[], rol: string): Promise<void> {
+    const promesas = usuarioIds.map(usuarioId =>
+      new Promise<void>((resolve) => {
+        this.capacitacionesService.assignUser(capacitacionId, usuarioId, rol).subscribe({
+          next: () => resolve(),
+          error: (err) => {
+            console.error(`Error asignando ${rol}:`, err);
+            resolve(); // Continuar aunque falle
+          }
+        });
+      })
+    );
+
+    await Promise.all(promesas);
+  }
+
+  async mostrarExito() {
+    const alert = await this.alertController.create({
+      header: '¡Éxito!',
+      message: 'La capacitación se ha creado correctamente.',
+      buttons: [
+        {
+          text: 'Ver lista',
+          handler: () => {
+            this.navController.navigateBack('/gestionar-capacitaciones');
+          }
+        },
+        {
+          text: 'Crear otra',
+          handler: () => {
+            this.reiniciarFormulario();
+          }
         }
-      });
+      ]
     });
+
+    await alert.present();
   }
 
-  // Función para cancelar la creación
-  async cancelarCreacion() {
-    // Verificar si hay datos ingresados
+  async cancelar() {
     if (this.hayDatosIngresados()) {
       const alert = await this.alertController.create({
         header: 'Cancelar creación',
-        message: '¿Está seguro que desea cancelar? Todos los datos ingresados se perderán.',
+        message: '¿Está seguro? Se perderán todos los datos ingresados.',
         buttons: [
           {
             text: 'No',
@@ -266,6 +333,58 @@ export class CrearPage implements OnInit {
     }
   }
 
+  reiniciarFormulario() {
+    const entidadesSeleccionadas = [...this.capacitacion.entidades_encargadas];
+
+    this.capacitacion = {
+      Nombre_Capacitacion: '',
+      Descripcion_Capacitacion: '',
+      Fecha_Capacitacion: this.fechaMinima,
+      Lugar_Capacitacion: '',
+      Estado: 0,
+      Modalidades: 'Presencial',
+      Enlace_Virtual: '',
+      Hora_Inicio: '',
+      Hora_Fin: '',
+      Horas: 0,
+      Limite_Participantes: 30,
+      entidades_encargadas: entidadesSeleccionadas,
+      ids_usuarios: [],
+      expositores: []
+    };
+
+    this.inicializarFormulario();
+
+    if (this.capacitacionForm) {
+      this.capacitacionForm.resetForm(this.capacitacion);
+    }
+  }
+
+  hayDatosIngresados(): boolean {
+    return !!(
+      this.capacitacion.Nombre_Capacitacion ||
+      this.capacitacion.Descripcion_Capacitacion ||
+      this.capacitacion.Lugar_Capacitacion ||
+      this.capacitacion.Enlace_Virtual ||
+      this.capacitacion.Horas > 0 ||
+      this.capacitacion.expositores?.length > 0 ||
+      this.capacitacion.ids_usuarios?.length > 0
+    );
+  }
+
+  marcarCamposComoTocados() {
+    Object.keys(this.capacitacionForm.controls).forEach(key => {
+      this.capacitacionForm.controls[key].markAsTouched();
+    });
+  }
+
+  abrirEnlace(enlace: string) {
+    if (!enlace) return;
+
+    const url = enlace.startsWith('http') ? enlace : 'https://' + enlace;
+    window.open(url, '_blank');
+  }
+
   async mostrarToast(mensaje: string, color: string = 'primary') {
     const toast = await this.toastController.create({
       message: mensaje,
@@ -283,96 +402,86 @@ export class CrearPage implements OnInit {
     await toast.present();
   }
 
-  async mostrarAlertaExito(mensaje: string, pregunta: string) {
-    const alert = await this.alertController.create({
-      header: '¡Éxito!',
-      message: `${mensaje}. ${pregunta}`,
-      buttons: [
-        {
-          text: 'Volver a la lista',
-          handler: () => {
-            this.navController.navigateBack('/gestionar-capacitaciones');
-          }
-        },
-        {
-          text: 'Crear otra',
-          handler: () => {
-            this.reiniciarFormulario();
-          }
+  // Wizard Navigation Methods
+  nextStep() {
+    if (this.validateCurrentStep()) {
+      if (this.currentStep < this.totalSteps) {
+        this.currentStep++;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+  }
+
+  previousStep() {
+    if (this.currentStep > 1) {
+      this.currentStep--;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+
+  goToStep(step: number) {
+    if (step >= 1 && step <= this.totalSteps) {
+      this.currentStep = step;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+
+  validateCurrentStep(): boolean {
+    switch (this.currentStep) {
+      case 1: // Información Básica
+        if (!this.capacitacion.Nombre_Capacitacion || !this.capacitacion.Descripcion_Capacitacion) {
+          this.mostrarToast('Complete el nombre y descripción', 'warning');
+          return false;
         }
-      ]
-    });
+        return true;
 
-    await alert.present();
-  }
+      case 2: // Fecha y Horario
+        if (!this.capacitacion.Fecha_Capacitacion || !this.capacitacion.Hora_Inicio ||
+          !this.capacitacion.Hora_Fin || !this.capacitacion.Horas) {
+          this.mostrarToast('Complete todos los campos de fecha y horario', 'warning');
+          return false;
+        }
+        if (!this.validarHorarios()) {
+          this.mostrarToast('La hora de fin debe ser posterior a la hora de inicio', 'warning');
+          return false;
+        }
+        return true;
 
-  reiniciarFormulario() {
-    const defaultEntidades = [...this.capacitacion.entidades_encargadas];
+      case 3: // Modalidad y Ubicación
+        if (!this.capacitacion.Lugar_Capacitacion || !this.capacitacion.Limite_Participantes) {
+          this.mostrarToast('Complete el lugar y límite de participantes', 'warning');
+          return false;
+        }
+        if (this.capacitacion.Modalidades === 'Virtual' && !this.capacitacion.Enlace_Virtual) {
+          this.mostrarToast('El enlace virtual es obligatorio para modalidad virtual', 'warning');
+          return false;
+        }
+        return true;
 
-    const now = new Date();
-    now.setHours(now.getHours() + 1, 0, 0);
-    const horaInicio = now.toTimeString().substr(0, 5);
-    now.setHours(now.getHours() + 1);
-    const horaFin = now.toTimeString().substr(0, 5);
+      case 4: // Responsables
+        if (!this.capacitacion.expositores || this.capacitacion.expositores.length === 0) {
+          this.mostrarToast('Debe seleccionar al menos un responsable', 'warning');
+          return false;
+        }
+        if (!this.capacitacion.entidades_encargadas || this.capacitacion.entidades_encargadas.length === 0) {
+          this.mostrarToast('Debe seleccionar al menos una entidad', 'warning');
+          return false;
+        }
+        return true;
 
-    this.capacitacion = {
-      Nombre_Capacitacion: '',
-      Descripcion_Capacitacion: '',
-      Fecha_Capacitacion: new Date().toISOString().split('T')[0],
-      Lugar_Capacitacion: '',
-      Estado: 0,
-      Modalidades: 'Virtual',
-      Enlace_Virtual: '',
-      Hora_Inicio: horaInicio,
-      Hora_Fin: horaFin,
-      Horas: 0,
-      Limite_Participantes: 0,
-      entidades_encargadas: defaultEntidades,
-      ids_usuarios: [],
-      expositores: []
-    };
-
-    if (this.capacitacionForm) {
-      this.capacitacionForm.resetForm(this.capacitacion);
+      default:
+        return true;
     }
   }
 
-  hayDatosIngresados(): boolean {
-    return !!(
-      this.capacitacion.Nombre_Capacitacion ||
-      this.capacitacion.Descripcion_Capacitacion ||
-      this.capacitacion.Lugar_Capacitacion ||
-      // this.capacitacion.Fecha_Capacitacion || // Always has value
-      this.capacitacion.Enlace_Virtual ||
-      this.capacitacion.Horas > 0 ||
-      this.capacitacion.Limite_Participantes > 0 ||
-      this.capacitacion.entidades_encargadas.length > 0 ||
-      this.capacitacion.ids_usuarios.length > 0 ||
-      this.capacitacion.expositores.length > 0
-    );
-  }
-
-  calcularProgresoFormulario(): number {
-    let camposCompletados = 0;
-    let totalCampos = 10;
-
-    if (this.capacitacion.Modalidades === 'Virtual') {
-      totalCampos = 11;
-    }
-
-    if (this.capacitacion.Nombre_Capacitacion) camposCompletados++;
-    if (this.capacitacion.Descripcion_Capacitacion) camposCompletados++;
-    if (this.capacitacion.Fecha_Capacitacion) camposCompletados++;
-    if (this.capacitacion.Hora_Inicio) camposCompletados++;
-    if (this.capacitacion.Hora_Fin) camposCompletados++;
-    if (this.capacitacion.Lugar_Capacitacion) camposCompletados++;
-    if (this.capacitacion.Modalidades) camposCompletados++;
-    if (this.capacitacion.Modalidades === 'Virtual' && this.capacitacion.Enlace_Virtual) camposCompletados++;
-    if (this.capacitacion.Horas > 0) camposCompletados++;
-    if (this.capacitacion.Limite_Participantes > 0) camposCompletados++;
-    if (this.capacitacion.entidades_encargadas.length > 0 && this.capacitacion.expositores.length > 0)
-      camposCompletados++;
-
-    return Math.round((camposCompletados / totalCampos) * 100);
+  getStepTitle(step: number): string {
+    const titles = [
+      'Información Básica',
+      'Fecha y Horario',
+      'Modalidad y Ubicación',
+      'Responsables y Participantes'
+    ];
+    return titles[step - 1] || '';
   }
 }
+

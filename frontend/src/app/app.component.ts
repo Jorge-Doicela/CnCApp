@@ -15,7 +15,9 @@ import {
   ribbonOutline, idCardOutline, listOutline, qrCodeOutline, appsOutline,
   searchOutline, checkmarkCircleOutline, closeCircleOutline, addCircleOutline,
   schoolOutline, trophyOutline, medalOutline, add, refreshOutline, arrowForwardOutline,
-  checkmarkDoneOutline, lockClosedOutline, location, calendar, laptopOutline, time, people
+  checkmarkDoneOutline, lockClosedOutline, location, calendar, laptopOutline, time, people,
+  createOutline, trashOutline, saveOutline, closeOutline, textOutline, alarmOutline,
+  hourglassOutline, linkOutline, openOutline
 } from 'ionicons/icons';
 
 import { AuthService } from './features/auth/services/auth.service';
@@ -94,7 +96,16 @@ export class AppComponent implements OnInit, OnDestroy {
       'calendar': calendar,
       'laptop-outline': laptopOutline,
       'time': time,
-      'people': people
+      'people': people,
+      'create-outline': createOutline,
+      'trash-outline': trashOutline,
+      'save-outline': saveOutline,
+      'close-outline': closeOutline,
+      'text-outline': textOutline,
+      'alarm-outline': alarmOutline,
+      'hourglass-outline': hourglassOutline,
+      'link-outline': linkOutline,
+      'open-outline': openOutline
     });
 
     // Effect to log user changes

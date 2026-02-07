@@ -20,6 +20,7 @@ import ubicacionRoutes from './infrastructure/web/routes/ubicacion.routes';
 import reportesRoutes from './infrastructure/web/routes/reportes.routes';
 import cargoRoutes from './infrastructure/web/routes/cargo.routes';
 import institucionRoutes from './infrastructure/web/routes/institucion.routes';
+import plantillaRoutes from './infrastructure/web/routes/plantilla.routes';
 
 // Importar middleware
 import { errorHandler } from './infrastructure/web/middleware/error.middleware';
@@ -101,6 +102,7 @@ app.use('/api', ubicacionRoutes); // Provincias y Cantones
 app.use('/api/cargos', cargoRoutes);
 app.use('/api/instituciones_sistema', institucionRoutes);
 app.use('/api/reportes', reportesRoutes);
+app.use('/api/plantillas', plantillaRoutes);
 
 // ============================================
 // MANEJO DE ERRORES

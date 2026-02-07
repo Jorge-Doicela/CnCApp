@@ -3,270 +3,392 @@
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/gestionar-capacitaciones"></ion-back-button>
     </ion-buttons>
-    <ion-title class="ion-text-center">Crear Nueva Capacitación</ion-title>
+    <ion-title>Nueva Capacitación - Paso {{ currentStep }} de {{ totalSteps }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true" class="ion-padding">
-  <ion-card class="main-card">
-    <div class="logo-container ion-text-center">
-      <img src="../../../../assets/cnc.png" alt="Logo Capacitaciones" class="logo">
+<ion-content [fullscreen]="true">
+  <div class="content-wrapper">
+    <!-- Header Section -->
+    <div class="page-header">
+      <div class="header-icon">
+        <ion-icon name="school-outline"></ion-icon>
+      </div>
+      <h1>{{ getStepTitle(currentStep) }}</h1>
+      <p *ngIf="currentStep === 1">Información general de la capacitación</p>
+      <p *ngIf="currentStep === 2">Cuándo se realizará la capacitación</p>
+      <p *ngIf="currentStep === 3">Dónde y cómo se realizará</p>
+      <p *ngIf="currentStep === 4">Quiénes participarán y organizarán</p>
     </div>
 
-    <ion-card-content>
-      <div class="form-header fade-in">
-        <ion-icon name="calendar-outline" color="primary"></ion-icon>
-        <h2>Nueva Capacitación</h2>
-        <p>Complete todos los campos para crear una nueva capacitación</p>
-      </div>
-
-      <div class="progress-section fade-in">
-        <div class="progress-container">
-          <div class="progress-bar" [style.width]="calcularProgresoFormulario() + '%'"></div>
-        </div>
-        <div class="progress-label">
-          Progreso: {{ calcularProgresoFormulario() }}%
+    <!-- Step Indicator -->
+    <div class="step-indicator" *ngIf="!cargandoDatos">
+      <div class="steps">
+        <div class="step" *ngFor="let step of [1,2,3,4]" [class.active]="currentStep === step"
+          [class.completed]="currentStep > step" (click)="goToStep(step)">
+          <div class="step-number">
+            <ion-icon *ngIf="currentStep > step" name="checkmark"></ion-icon>
+            <span *ngIf="currentStep <= step">{{ step }}</span>
+          </div>
+          <div class="step-label">{{ getStepTitle(step) }}</div>
         </div>
       </div>
+      <div class="step-progress">
+        <div class="step-progress-bar" [style.width.%]="(currentStep / totalSteps) * 100"></div>
+      </div>
+    </div>
 
-      <form (ngSubmit)="crearCapacitacion()" #capacitacionForm="ngForm" class="fade-in" style="animation-delay: 0.1s;">
-        <!-- Sección de Información Básica -->
-        <div class="form-section">
-          <h3 class="section-title">
-            <ion-icon name="information-circle-outline"></ion-icon>
-            Información Básica
-          </h3>
+    <!-- Loading State -->
+    <div class="loading-state" *ngIf="cargandoDatos">
+      <ion-spinner name="crescent" color="primary"></ion-spinner>
+      <p>Cargando datos del formulario...</p>
+    </div>
 
-          <div class="form-group">
-            <ion-item class="form-item">
-              <ion-icon name="text-outline" slot="start" color="primary"></ion-icon>
-              <ion-label position="floating">Nombre de la Capacitación <ion-text color="danger">*</ion-text></ion-label>
-              <ion-input [(ngModel)]="capacitacion.Nombre_Capacitacion" name="Nombre_Capacitacion" required #nombre="ngModel"></ion-input>
-            </ion-item>
-            <ion-note color="danger" *ngIf="nombre.invalid && (nombre.dirty || nombre.touched)">
-              <ion-icon name="alert-circle-outline"></ion-icon>
-              El nombre es obligatorio
-            </ion-note>
-          </div>
+    <!-- Form -->
+    <form #capacitacionForm="ngForm" *ngIf="!cargandoDatos">
 
-          <div class="form-group">
-            <ion-item class="form-item">
-              <ion-icon name="document-text-outline" slot="start" color="primary"></ion-icon>
-              <ion-label position="floating">Descripción <ion-text color="danger">*</ion-text></ion-label>
-              <ion-textarea [(ngModel)]="capacitacion.Descripcion_Capacitacion" name="Descripcion_Capacitacion" required rows="4" #descripcion="ngModel"></ion-textarea>
-            </ion-item>
-            <ion-note color="danger" *ngIf="descripcion.invalid && (descripcion.dirty || descripcion.touched)">
-              <ion-icon name="alert-circle-outline"></ion-icon>
-              La descripción es obligatoria
-            </ion-note>
-          </div>
-        </div>
-
-        <!-- Sección de Logística -->
-        <div class="form-section">
-          <h3 class="section-title">
-            <ion-icon name="calendar-outline"></ion-icon>
-            Logística
-          </h3>
-
-          <div class="form-group">
-            <ion-item class="form-item">
-              <ion-icon name="calendar-outline" slot="start" color="primary"></ion-icon>
-              <ion-label position="floating">Fecha <ion-text color="danger">*</ion-text></ion-label>
-              <ion-datetime displayFormat="DD/MM/YYYY" presentation="date" [(ngModel)]="capacitacion.Fecha_Capacitacion" name="Fecha_Capacitacion" required #fecha="ngModel"></ion-datetime>
-            </ion-item>
-            <ion-note color="danger" *ngIf="fecha.invalid && (fecha.dirty || fecha.touched)">
-              <ion-icon name="alert-circle-outline"></ion-icon>
-              La fecha es obligatoria
-            </ion-note>
-          </div>
-
-          <div class="form-row">
-            <div class="form-col">
-              <ion-item class="form-item time-picker">
-                <ion-icon name="time-outline" slot="start" color="primary"></ion-icon>
-                <ion-label position="floating">Hora de inicio <ion-text color="danger">*</ion-text></ion-label>
-                <ion-input type="time" [(ngModel)]="capacitacion.Hora_Inicio" name="Hora_Inicio" required #horaInicio="ngModel"></ion-input>
-                <ion-icon name="alarm-outline" slot="end" color="medium" class="time-icon"></ion-icon>
-              </ion-item>
-              <ion-note color="danger" *ngIf="horaInicio.invalid && (horaInicio.dirty || horaInicio.touched)">
-                <ion-icon name="alert-circle-outline"></ion-icon>
-                La hora de inicio es obligatoria
-              </ion-note>
+      <!-- PASO 1: Información Básica -->
+      <div class="form-card" *ngIf="currentStep === 1">
+        <div class="form-fields">
+          <!-- Nombre -->
+          <div class="field-group" [class.has-error]="nombre.invalid && nombre.touched">
+            <label class="field-label">
+              Nombre de la Capacitación
+              <span class="required">*</span>
+            </label>
+            <div class="input-wrapper">
+              <ion-icon name="text-outline" class="field-icon"></ion-icon>
+              <input type="text" class="field-input" [(ngModel)]="capacitacion.Nombre_Capacitacion"
+                name="Nombre_Capacitacion" #nombre="ngModel" required minlength="5" maxlength="200"
+                placeholder="Ej: Taller de Liderazgo y Gestión" />
+              <ion-icon *ngIf="nombre.valid && nombre.touched" name="checkmark-circle"
+                class="validation-icon success"></ion-icon>
             </div>
-
-            <div class="form-col">
-              <ion-item class="form-item time-picker">
-                <ion-icon name="time-outline" slot="start" color="primary"></ion-icon>
-                <ion-label position="floating">Hora de fin <ion-text color="danger">*</ion-text></ion-label>
-                <ion-input type="time" [(ngModel)]="capacitacion.Hora_Fin" name="Hora_Fin" required #horaFin="ngModel"></ion-input>
-                <ion-icon name="alarm-outline" slot="end" color="medium" class="time-icon"></ion-icon>
-              </ion-item>
-              <ion-note color="danger" *ngIf="horaFin.invalid && (horaFin.dirty || horaFin.touched)">
-                <ion-icon name="alert-circle-outline"></ion-icon>
-                La hora de fin es obligatoria
-              </ion-note>
+            <div class="field-hint" *ngIf="!nombre.touched || nombre.valid">
+              Ingrese un nombre descriptivo (mínimo 5 caracteres)
+            </div>
+            <div class="field-error" *ngIf="nombre.invalid && nombre.touched">
+              <ion-icon name="alert-circle"></ion-icon>
+              <span *ngIf="nombre.errors?.['required']">El nombre es obligatorio</span>
+              <span *ngIf="nombre.errors?.['minlength']">Mínimo 5 caracteres</span>
             </div>
           </div>
 
-          <div class="form-group">
-            <ion-item class="form-item">
-              <ion-icon name="location-outline" slot="start" color="primary"></ion-icon>
-              <ion-label position="floating">Lugar <ion-text color="danger">*</ion-text></ion-label>
-              <ion-input [(ngModel)]="capacitacion.Lugar_Capacitacion" name="Lugar_Capacitacion" required #lugar="ngModel"></ion-input>
-            </ion-item>
-            <ion-note color="danger" *ngIf="lugar.invalid && (lugar.dirty || lugar.touched)">
-              <ion-icon name="alert-circle-outline"></ion-icon>
+          <!-- Descripción -->
+          <div class="field-group" [class.has-error]="descripcion.invalid && descripcion.touched">
+            <label class="field-label">
+              Descripción
+              <span class="required">*</span>
+            </label>
+            <div class="input-wrapper">
+              <ion-icon name="document-text-outline" class="field-icon"></ion-icon>
+              <textarea class="field-textarea" [(ngModel)]="capacitacion.Descripcion_Capacitacion"
+                name="Descripcion_Capacitacion" #descripcion="ngModel" required minlength="20" maxlength="500" rows="5"
+                placeholder="Describa los objetivos, contenido y beneficios de la capacitación..."></textarea>
+            </div>
+            <div class="field-hint" *ngIf="!descripcion.touched || descripcion.valid">
+              {{ capacitacion.Descripcion_Capacitacion.length || 0 }}/500 caracteres
+            </div>
+            <div class="field-error" *ngIf="descripcion.invalid && descripcion.touched">
+              <ion-icon name="alert-circle"></ion-icon>
+              <span *ngIf="descripcion.errors?.['required']">La descripción es obligatoria</span>
+              <span *ngIf="descripcion.errors?.['minlength']">Mínimo 20 caracteres</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PASO 2: Fecha y Horario -->
+      <div class="form-card" *ngIf="currentStep === 2">
+        <div class="form-fields">
+          <div class="field-row">
+            <!-- Fecha -->
+            <div class="field-group" [class.has-error]="fecha.invalid && fecha.touched">
+              <label class="field-label">
+                Fecha
+                <span class="required">*</span>
+              </label>
+              <div class="input-wrapper">
+                <ion-icon name="calendar-outline" class="field-icon"></ion-icon>
+                <input type="date" class="field-input" [(ngModel)]="capacitacion.Fecha_Capacitacion"
+                  name="Fecha_Capacitacion" #fecha="ngModel" required [min]="fechaMinima" />
+              </div>
+              <div class="field-error" *ngIf="fecha.invalid && fecha.touched">
+                <ion-icon name="alert-circle"></ion-icon>
+                La fecha es obligatoria
+              </div>
+            </div>
+
+            <!-- Duración -->
+            <div class="field-group" [class.has-error]="horas.invalid && horas.touched">
+              <label class="field-label">
+                Duración (horas)
+                <span class="required">*</span>
+              </label>
+              <div class="input-wrapper">
+                <ion-icon name="time" class="field-icon"></ion-icon>
+                <input type="number" class="field-input" [(ngModel)]="capacitacion.Horas" name="Horas" #horas="ngModel"
+                  required min="1" max="40" placeholder="8" />
+              </div>
+              <div class="field-error" *ngIf="horas.invalid && horas.touched">
+                <ion-icon name="alert-circle"></ion-icon>
+                Ingrese las horas (1-40)
+              </div>
+            </div>
+          </div>
+
+          <div class="field-row">
+            <!-- Hora Inicio -->
+            <div class="field-group" [class.has-error]="horaInicio.invalid && horaInicio.touched">
+              <label class="field-label">
+                Hora de Inicio
+                <span class="required">*</span>
+              </label>
+              <div class="input-wrapper">
+                <ion-icon name="time-outline" class="field-icon"></ion-icon>
+                <input type="time" class="field-input" [(ngModel)]="capacitacion.Hora_Inicio" name="Hora_Inicio"
+                  #horaInicio="ngModel" required />
+              </div>
+              <div class="field-error" *ngIf="horaInicio.invalid && horaInicio.touched">
+                <ion-icon name="alert-circle"></ion-icon>
+                Hora de inicio requerida
+              </div>
+            </div>
+
+            <!-- Hora Fin -->
+            <div class="field-group" [class.has-error]="horaFin.invalid && horaFin.touched">
+              <label class="field-label">
+                Hora de Fin
+                <span class="required">*</span>
+              </label>
+              <div class="input-wrapper">
+                <ion-icon name="time-outline" class="field-icon"></ion-icon>
+                <input type="time" class="field-input" [(ngModel)]="capacitacion.Hora_Fin" name="Hora_Fin"
+                  #horaFin="ngModel" required />
+              </div>
+              <div class="field-error" *ngIf="horaFin.invalid && horaFin.touched">
+                <ion-icon name="alert-circle"></ion-icon>
+                Hora de fin requerida
+              </div>
+            </div>
+          </div>
+
+          <div class="info-message" *ngIf="validarHorarios() === false">
+            <ion-icon name="alert-circle-outline"></ion-icon>
+            La hora de fin debe ser posterior a la hora de inicio
+          </div>
+        </div>
+      </div>
+
+      <!-- PASO 3: Modalidad y Ubicación -->
+      <div class="form-card" *ngIf="currentStep === 3">
+        <div class="form-fields">
+          <!-- Modalidad -->
+          <div class="field-group">
+            <label class="field-label">
+              Modalidad
+              <span class="required">*</span>
+            </label>
+            <div class="radio-group">
+              <label class="radio-option" [class.selected]="capacitacion.Modalidades === 'Presencial'">
+                <input type="radio" name="Modalidades" value="Presencial" [(ngModel)]="capacitacion.Modalidades"
+                  (change)="onModalidadChange()" />
+                <div class="radio-content">
+                  <ion-icon name="people"></ion-icon>
+                  <span>Presencial</span>
+                </div>
+              </label>
+              <label class="radio-option" [class.selected]="capacitacion.Modalidades === 'Virtual'">
+                <input type="radio" name="Modalidades" value="Virtual" [(ngModel)]="capacitacion.Modalidades"
+                  (change)="onModalidadChange()" />
+                <div class="radio-content">
+                  <ion-icon name="laptop-outline"></ion-icon>
+                  <span>Virtual</span>
+                </div>
+              </label>
+              <label class="radio-option" [class.selected]="capacitacion.Modalidades === 'Hibrida'">
+                <input type="radio" name="Modalidades" value="Hibrida" [(ngModel)]="capacitacion.Modalidades"
+                  (change)="onModalidadChange()" />
+                <div class="radio-content">
+                  <ion-icon name="git-merge-outline"></ion-icon>
+                  <span>Híbrida</span>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Lugar -->
+          <div class="field-group" [class.has-error]="lugar.invalid && lugar.touched">
+            <label class="field-label">
+              Lugar
+              <span class="required">*</span>
+            </label>
+            <div class="input-wrapper">
+              <ion-icon name="location-outline" class="field-icon"></ion-icon>
+              <input type="text" class="field-input" [(ngModel)]="capacitacion.Lugar_Capacitacion"
+                name="Lugar_Capacitacion" #lugar="ngModel" required
+                placeholder="Ej: Auditorio Principal, Sala de Conferencias A" />
+            </div>
+            <div class="field-error" *ngIf="lugar.invalid && lugar.touched">
+              <ion-icon name="alert-circle"></ion-icon>
               El lugar es obligatorio
-            </ion-note>
-          </div>
-
-          <div class="form-group">
-            <ion-item class="form-item">
-              <ion-icon name="laptop-outline" slot="start" color="primary"></ion-icon>
-              <ion-label>Modalidad <ion-text color="danger">*</ion-text></ion-label>
-              <ion-select [(ngModel)]="capacitacion.Modalidades" name="Modalidades" required interface="action-sheet" #modalidad="ngModel" (ionChange)="onModalidadChange()">
-                <ion-select-option value="Virtual">Virtual</ion-select-option>
-                <ion-select-option value="Hibrida">Híbrida</ion-select-option>
-                <ion-select-option value="Presencial">Presencial</ion-select-option>
-              </ion-select>
-            </ion-item>
-            <ion-note color="danger" *ngIf="modalidad.invalid && (modalidad.dirty || modalidad.touched)">
-              <ion-icon name="alert-circle-outline"></ion-icon>
-              La modalidad es obligatoria
-            </ion-note>
-          </div>
-
-          <!-- Campo para enlace de reunión virtual -->
-          <div class="form-group virtual-link-group" *ngIf="capacitacion.Modalidades === 'Virtual' || capacitacion.Modalidades === 'Hibrida'">
-            <ion-item class="form-item">
-              <ion-icon name="link-outline" slot="start" color="primary"></ion-icon>
-              <ion-label position="floating">Enlace de Reunión Virtual <ion-text color="danger" *ngIf="capacitacion.Modalidades === 'Virtual'">*</ion-text></ion-label>
-              <ion-input [(ngModel)]="capacitacion.Enlace_Virtual" name="Enlace_Virtual" [required]="capacitacion.Modalidades === 'Virtual'" #enlaceVirtual="ngModel" placeholder="https://zoom.us/j/..."></ion-input>
-              <ion-icon name="open-outline" slot="end" color="tertiary" class="link-icon" *ngIf="capacitacion.Enlace_Virtual" (click)="abrirEnlace(capacitacion.Enlace_Virtual)"></ion-icon>
-            </ion-item>
-            <ion-note color="danger" *ngIf="enlaceVirtual.invalid && (enlaceVirtual.dirty || enlaceVirtual.touched) && capacitacion.Modalidades === 'Virtual'">
-              <ion-icon name="alert-circle-outline"></ion-icon>
-              El enlace de reunión es obligatorio para modalidad virtual
-            </ion-note>
-            <ion-note color="medium" *ngIf="capacitacion.Modalidades === 'Virtual' || capacitacion.Modalidades === 'Hibrida'">
-              <ion-icon name="information-circle-outline"></ion-icon>
-              Añada un enlace a Zoom, Teams, Google Meet u otra plataforma
-            </ion-note>
-          </div>
-
-          <div class="form-row">
-            <div class="form-col">
-              <ion-item class="form-item">
-                <ion-icon name="hourglass-outline" slot="start" color="primary"></ion-icon>
-                <ion-label position="floating">Duración (horas) <ion-text color="danger">*</ion-text></ion-label>
-                <ion-input type="number" [(ngModel)]="capacitacion.Horas" name="Horas" required min="1" #horas="ngModel"></ion-input>
-              </ion-item>
-              <ion-note color="danger" *ngIf="horas.invalid && (horas.dirty || horas.touched)">
-                <ion-icon name="alert-circle-outline"></ion-icon>
-                El número de horas es obligatorio
-              </ion-note>
             </div>
+          </div>
 
-            <div class="form-col">
-              <ion-item class="form-item">
-                <ion-icon name="people-outline" slot="start" color="primary"></ion-icon>
-                <ion-label position="floating">Límite de Participantes <ion-text color="danger">*</ion-text></ion-label>
-                <ion-input type="number" [(ngModel)]="capacitacion.Limite_Participantes" name="Limite_Participantes" required min="1" #limiteParticipantes="ngModel"></ion-input>
-              </ion-item>
-              <ion-note color="danger" *ngIf="limiteParticipantes.invalid && (limiteParticipantes.dirty || limiteParticipantes.touched)">
-                <ion-icon name="alert-circle-outline"></ion-icon>
-                El límite de participantes es obligatorio
-              </ion-note>
+          <!-- Enlace Virtual (condicional) -->
+          <div class="field-group"
+            *ngIf="capacitacion.Modalidades === 'Virtual' || capacitacion.Modalidades === 'Hibrida'">
+            <label class="field-label">
+              Enlace de Reunión Virtual
+              <span class="required" *ngIf="capacitacion.Modalidades === 'Virtual'">*</span>
+            </label>
+            <div class="input-wrapper">
+              <ion-icon name="link-outline" class="field-icon"></ion-icon>
+              <input type="url" class="field-input" [(ngModel)]="capacitacion.Enlace_Virtual" name="Enlace_Virtual"
+                #enlaceVirtual="ngModel" [required]="capacitacion.Modalidades === 'Virtual'"
+                placeholder="https://zoom.us/j/... o https://meet.google.com/..." />
+              <button type="button" class="link-button" *ngIf="capacitacion.Enlace_Virtual"
+                (click)="abrirEnlace(capacitacion.Enlace_Virtual)">
+                <ion-icon name="open-outline"></ion-icon>
+              </button>
+            </div>
+            <div class="field-hint">
+              Ingrese el enlace completo de Zoom, Teams, Google Meet, etc.
+            </div>
+            <div class="field-error" *ngIf="enlaceVirtual.invalid && enlaceVirtual.touched">
+              <ion-icon name="alert-circle"></ion-icon>
+              El enlace es obligatorio para modalidad virtual
+            </div>
+          </div>
+
+          <!-- Límite de Participantes -->
+          <div class="field-group" [class.has-error]="limiteParticipantes.invalid && limiteParticipantes.touched">
+            <label class="field-label">
+              Límite de Participantes
+              <span class="required">*</span>
+            </label>
+            <div class="input-wrapper">
+              <ion-icon name="people-outline" class="field-icon"></ion-icon>
+              <input type="number" class="field-input" [(ngModel)]="capacitacion.Limite_Participantes"
+                name="Limite_Participantes" #limiteParticipantes="ngModel" required min="1" max="500"
+                placeholder="50" />
+            </div>
+            <div class="field-hint">
+              Número máximo de participantes permitidos
+            </div>
+            <div class="field-error" *ngIf="limiteParticipantes.invalid && limiteParticipantes.touched">
+              <ion-icon name="alert-circle"></ion-icon>
+              Ingrese un límite válido (1-500)
             </div>
           </div>
         </div>
+      </div>
 
-        <!-- Sección de Responsables y Entidades -->
-        <div class="form-section">
-          <h3 class="section-title">
-            <ion-icon name="people-outline"></ion-icon>
-            Responsables y Entidades
-          </h3>
-
-          <div class="form-group">
-            <ion-item class="form-item">
-              <ion-icon name="person-outline" slot="start" color="primary"></ion-icon>
-              <ion-label>Responsables/Expositores <ion-text color="danger">*</ion-text></ion-label>
-              <ion-select [(ngModel)]="capacitacion.expositores" name="expositores" multiple="true" required #expositoresModel="ngModel" interface="action-sheet">
-                <ion-select-option *ngFor="let usuario of usuarios" [value]="usuario.Id_Usuario">
-                  {{ usuario.Nombre_Usuario }} {{ usuario.Firma_Usuario ? '(con firma)' : '(sin firma)' }}
-                </ion-select-option>
-              </ion-select>
-            </ion-item>
-            <ion-note color="danger" *ngIf="expositoresModel.invalid && (expositoresModel.dirty || expositoresModel.touched)">
-              <ion-icon name="alert-circle-outline"></ion-icon>
-              Debe seleccionar al menos un responsable/expositor
-            </ion-note>
-            <ion-note color="medium">
-              <ion-icon name="information-circle-outline"></ion-icon>
-              Los responsables seleccionados aparecerán en el certificado con sus firmas (si las tienen)
-            </ion-note>
+      <!-- PASO 4: Responsables y Participantes -->
+      <div class="form-card" *ngIf="currentStep === 4">
+        <div class="form-fields">
+          <!-- Expositores -->
+          <div class="field-group" [class.has-error]="expositoresModel.invalid && expositoresModel.touched">
+            <label class="field-label">
+              Responsables/Expositores
+              <span class="required">*</span>
+            </label>
+            <div class="select-wrapper">
+              <ion-icon name="person-outline" class="field-icon"></ion-icon>
+              <select class="field-select" [(ngModel)]="capacitacion.expositores" name="expositores"
+                #expositoresModel="ngModel" required multiple size="5">
+                <option *ngFor="let usuario of usuarios" [value]="usuario.Id_Usuario">
+                  {{ usuario.Nombre_Usuario }} {{ usuario.Firma_Usuario ? '✓ Con firma' : '' }}
+                </option>
+              </select>
+            </div>
+            <div class="field-hint">
+              Seleccione uno o más responsables (aparecerán en certificados)
+            </div>
+            <div class="field-error" *ngIf="expositoresModel.invalid && expositoresModel.touched">
+              <ion-icon name="alert-circle"></ion-icon>
+              Debe seleccionar al menos un responsable
+            </div>
+            <div class="selected-items" *ngIf="(capacitacion.expositores?.length ?? 0) > 0">
+              <span class="selected-count">{{ capacitacion.expositores.length }} seleccionado(s)</span>
+            </div>
           </div>
 
-          <div class="form-group">
-            <ion-item class="form-item">
-              <ion-icon name="business-outline" slot="start" color="primary"></ion-icon>
-              <ion-label>Entidades Organizadoras <ion-text color="danger">*</ion-text></ion-label>
-              <ion-select [(ngModel)]="capacitacion.entidades_encargadas" name="entidades_encargadas" multiple="true" required #entidadesModel="ngModel" interface="action-sheet">
-                <ion-select-option *ngFor="let entidad of entidades" [value]="entidad.Id_Entidad">
-                  {{ entidad.Nombre_Entidad }} {{ entidad.Imagen_Entidad ? '(con logo)' : '(sin logo)' }}
-                </ion-select-option>
-              </ion-select>
-            </ion-item>
-            <ion-note color="danger" *ngIf="entidadesModel.invalid && (entidadesModel.dirty || entidadesModel.touched)">
-              <ion-icon name="alert-circle-outline"></ion-icon>
-              Este campo es requerido
-            </ion-note>
-            <ion-note color="medium">
-              <ion-icon name="information-circle-outline"></ion-icon>
-              Los logos de las entidades seleccionadas aparecerán en el certificado
-            </ion-note>
+          <!-- Entidades -->
+          <div class="field-group" [class.has-error]="entidadesModel.invalid && entidadesModel.touched">
+            <label class="field-label">
+              Entidades Organizadoras
+              <span class="required">*</span>
+            </label>
+            <div class="select-wrapper">
+              <ion-icon name="business-outline" class="field-icon"></ion-icon>
+              <select class="field-select" [(ngModel)]="capacitacion.entidades_encargadas" name="entidades_encargadas"
+                #entidadesModel="ngModel" required multiple size="5">
+                <option *ngFor="let entidad of entidades" [value]="entidad.Id_Entidad">
+                  {{ entidad.Nombre_Entidad }} {{ entidad.Imagen_Entidad ? '✓ Con logo' : '' }}
+                </option>
+              </select>
+            </div>
+            <div class="field-hint">
+              Logos de entidades aparecerán en certificados
+            </div>
+            <div class="field-error" *ngIf="entidadesModel.invalid && entidadesModel.touched">
+              <ion-icon name="alert-circle"></ion-icon>
+              Debe seleccionar al menos una entidad
+            </div>
+            <div class="selected-items" *ngIf="(capacitacion.entidades_encargadas?.length ?? 0) > 0">
+              <span class="selected-count">{{ capacitacion.entidades_encargadas.length }} seleccionada(s)</span>
+            </div>
           </div>
-        </div>
 
-        <!-- Sección de Participantes (Opcional) -->
-        <div class="form-section">
-          <h3 class="section-title">
-            <ion-icon name="people-outline"></ion-icon>
-            Participantes (Opcional)
-          </h3>
-
-          <div class="form-group">
-            <ion-item class="form-item">
-              <ion-icon name="people-outline" slot="start" color="primary"></ion-icon>
-              <ion-label>Usuarios Participantes</ion-label>
-              <ion-select [(ngModel)]="capacitacion.ids_usuarios" name="ids_usuarios" multiple="true" #usuariosModel="ngModel" interface="action-sheet">
-                <ion-select-option *ngFor="let usuario of usuariosDisponibles" [value]="usuario.Id_Usuario">
+          <!-- Participantes (Opcional) -->
+          <div class="field-group">
+            <label class="field-label">
+              Pre-inscribir Participantes <span class="optional-text">(Opcional)</span>
+            </label>
+            <div class="select-wrapper">
+              <ion-icon name="person-add-outline" class="field-icon"></ion-icon>
+              <select class="field-select" [(ngModel)]="capacitacion.ids_usuarios" name="ids_usuarios" multiple
+                size="5">
+                <option *ngFor="let usuario of usuariosDisponibles" [value]="usuario.Id_Usuario">
                   {{ usuario.Nombre_Usuario }}
-                </ion-select-option>
-              </ion-select>
-            </ion-item>
-            <ion-note color="medium">
-              <ion-icon name="information-circle-outline"></ion-icon>
-              Los participantes seleccionados serán automáticamente añadidos a la capacitación
-            </ion-note>
+                </option>
+              </select>
+            </div>
+            <div class="field-hint">
+              Puede añadir participantes ahora o después
+            </div>
+            <div class="selected-items" *ngIf="(capacitacion.ids_usuarios?.length ?? 0) > 0">
+              <span class="selected-count">{{ capacitacion.ids_usuarios.length }} participante(s)</span>
+            </div>
           </div>
         </div>
+      </div>
 
-        <!-- Botones de acción -->
-        <div class="form-actions">
-          <ion-button type="button" color="medium" (click)="cancelarCreacion()" fill="outline">
-            <ion-icon name="close-outline" slot="start"></ion-icon>
-            Cancelar
-          </ion-button>
+      <!-- Navigation Buttons -->
+      <div class="wizard-navigation">
+        <button type="button" class="btn btn-secondary" (click)="previousStep()" *ngIf="currentStep > 1">
+          <ion-icon name="arrow-back-outline"></ion-icon>
+          Anterior
+        </button>
 
-          <ion-button type="submit" color="primary" [disabled]="!capacitacionForm.valid">
-            <ion-icon name="save-outline" slot="start"></ion-icon>
-            Guardar Capacitación
-          </ion-button>
-        </div>
-      </form>
-    </ion-card-content>
-  </ion-card>
+        <button type="button" class="btn btn-secondary" (click)="cancelar()">
+          <ion-icon name="close-outline"></ion-icon>
+          Cancelar
+        </button>
+
+        <button type="button" class="btn btn-primary" (click)="nextStep()" *ngIf="currentStep < totalSteps">
+          Siguiente
+          <ion-icon name="arrow-forward-outline"></ion-icon>
+        </button>
+
+        <button type="button" class="btn btn-primary" (click)="guardarCapacitacion()" [disabled]="guardando"
+          *ngIf="currentStep === totalSteps">
+          <ion-spinner name="crescent" *ngIf="guardando"></ion-spinner>
+          <ion-icon name="checkmark-outline" *ngIf="!guardando"></ion-icon>
+          {{ guardando ? 'Guardando...' : 'Crear Capacitación' }}
+        </button>
+      </div>
+    </form>
+  </div>
 </ion-content>
