@@ -1,7 +1,7 @@
 import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ViewChild, inject } from '@angular/core';
+import { Component, OnInit, ViewChild, inject, ChangeDetectorRef } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { ToastController, AlertController, NavController, LoadingController } from '@ionic/angular';
@@ -48,7 +48,8 @@ export class EditarPage implements OnInit {
     private toastController: ToastController,
     private alertController: AlertController,
     private navController: NavController,
-    private loadingController: LoadingController
+    private loadingController: LoadingController,
+    private cd: ChangeDetectorRef
   ) { }
 
   ngOnInit() {
@@ -64,40 +65,52 @@ export class EditarPage implements OnInit {
   }
 
   async cargarDatos() {
-    const loading = await this.loadingController.create({
-      message: 'Cargando datos de la capacitación...',
-      spinner: 'crescent'
-    });
-    await loading.present();
-
+    let loading: HTMLIonLoadingElement | null = null;
     try {
+      loading = await this.loadingController.create({
+        message: 'Cargando datos de la capacitación...',
+        spinner: 'crescent'
+      });
+      await loading.present();
+
       // Load in parallel
-      const [capacitacionData] = await Promise.all([
+      await Promise.all([
         this.cargarCapacitacion(),
         this.cargarEntidades(),
         this.cargarUsuarios()
       ]);
 
+      // Populate idsUsuarios / entidadesEncargadas if they are missing from backend response (Expected behavior for now)
+      // This ensures the form doesn't crash on undefined properties
+      if (!this.capacitacion.idsUsuarios) this.capacitacion.idsUsuarios = [];
+      if (!this.capacitacion.entidadesEncargadas) this.capacitacion.entidadesEncargadas = [];
+
       this.capacitacionOriginal = JSON.parse(JSON.stringify(this.capacitacion));
-      this.cargando = false;
     } catch (error: any) {
       console.error('Error al cargar datos:', error);
 
       // Check if it's a 404 error
-      if (error?.status === 404) {
+      if (error?.status === 404 || error === 'No ID') {
         this.mostrarToast('No se encontró la capacitación solicitada', 'warning');
       } else {
         this.mostrarToast('Error al cargar los datos de la capacitación', 'danger');
       }
-
-      this.cargando = false;
 
       // Navigate back after a short delay
       setTimeout(() => {
         this.navController.navigateBack('/gestionar-capacitaciones');
       }, 2000);
     } finally {
-      await loading.dismiss();
+      this.cargando = false;
+      this.cd.detectChanges(); // Forzar actualización de la vista
+      if (loading) {
+        await loading.dismiss();
+      } else {
+        const topLoading = await this.loadingController.getTop();
+        if (topLoading) {
+          await topLoading.dismiss();
+        }
+      }
     }
   }
 

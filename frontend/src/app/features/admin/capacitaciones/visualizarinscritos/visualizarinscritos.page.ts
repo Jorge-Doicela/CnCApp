@@ -1,7 +1,7 @@
 import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AlertController, ToastController, NavController, LoadingController } from '@ionic/angular';
 import { CapacitacionesService } from 'src/app/features/admin/capacitaciones/services/capacitaciones.service';
@@ -41,7 +41,8 @@ export class VisualizarinscritosPage implements OnInit {
     private alertController: AlertController,
     private toastController: ToastController,
     private navController: NavController,
-    private loadingController: LoadingController
+    private loadingController: LoadingController,
+    private cd: ChangeDetectorRef
   ) { }
 
   ngOnInit() {
@@ -84,6 +85,7 @@ export class VisualizarinscritosPage implements OnInit {
       this.mostrarToast('Error al cargar los datos. Por favor intente nuevamente.', 'danger');
     } finally {
       this.cargando = false;
+      this.cd.detectChanges(); // Forzar actualización de la vista
       if (loading) {
         await loading.dismiss();
       } else {

@@ -9,4 +9,6 @@ export interface Capacitacion {
     modalidad?: string | null;
     estado: string;
     createdAt: Date;
+    idsUsuarios?: number[];
+    entidadesEncargadas?: number[];
 }

@@ -1,284 +1,243 @@
-<ion-header [translucent]="true">
-  <ion-toolbar color="primary">
+<ion-header [translucent]="true" class="ion-no-border">
+  <ion-toolbar style="--background: transparent;">
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/gestionar-capacitaciones"></ion-back-button>
+      <ion-back-button defaultHref="/gestionar-capacitaciones" color="dark"></ion-back-button>
     </ion-buttons>
-    <ion-title class="ion-text-center">Editar Capacitación</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true" class="ion-padding">
-  <div *ngIf="cargando" class="loading-container">
+  <div *ngIf="cargando" class="loading-container fade-in">
     <ion-spinner name="crescent" color="primary"></ion-spinner>
-    <p>Cargando datos de la capacitación...</p>
+    <p>Sincronizando información...</p>
   </div>
 
-  <ion-card *ngIf="!cargando" class="main-card">
+  <div *ngIf="!cargando" class="main-card fade-in">
     <div class="logo-container ion-text-center">
       <img src="../../../../assets/cnc.png" alt="Logo Capacitaciones" class="logo">
     </div>
 
-    <ion-card-content>
-      <div class="form-header fade-in">
-        <ion-icon name="school-outline" color="primary"></ion-icon>
-        <h2>Editar Capacitación</h2>
-        <p>Modifique los datos de la capacitación</p>
+    <div class="form-header">
+      <ion-icon name="school-outline"></ion-icon>
+      <h2>Editar Capacitación</h2>
+      <p>Gestione los detalles del evento y sus participantes</p>
 
-        <div class="status-badge"
-          [ngClass]="{'badge-active': capacitacion.estado === 1, 'badge-pending': capacitacion.estado === 0, 'badge-canceled': capacitacion.estado === 2}">
-          <ion-icon
-            name="{{ capacitacion.estado === 1 ? 'checkmark-circle' : (capacitacion.estado === 0 ? 'time' : 'close-circle') }}"></ion-icon>
-          {{ capacitacion.estado === 1 ? 'Realizada' : (capacitacion.estado === 0 ? 'Pendiente' : 'Cancelada') }}
+      <div class="status-badge"
+        [ngClass]="{'badge-active': capacitacion.estado === 1, 'badge-pending': capacitacion.estado === 0, 'badge-canceled': capacitacion.estado === 2}">
+        <ion-icon
+          name="{{ capacitacion.estado === 1 ? 'checkmark-circle' : (capacitacion.estado === 0 ? 'time' : 'close-circle') }}"></ion-icon>
+        {{ capacitacion.estado === 1 ? 'Realizada' : (capacitacion.estado === 0 ? 'Pendiente' : 'Cancelada') }}
+      </div>
+    </div>
+
+    <form (ngSubmit)="actualizarCapacitacion()" #capacitacionForm="ngForm">
+      <!-- Sección de Información Básica -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <ion-icon name="information-circle-outline"></ion-icon>
+          Información General
+        </h3>
+
+        <div class="form-group">
+          <ion-item class="form-item item-label-floating" lines="none">
+            <ion-icon name="text-outline" slot="start"></ion-icon>
+            <ion-label position="floating">Título del Evento</ion-label>
+            <ion-input [(ngModel)]="capacitacion.nombre" name="nombre" required #nombre="ngModel"></ion-input>
+          </ion-item>
+          <ion-note color="danger" *ngIf="nombre.invalid && (nombre.dirty || nombre.touched)">
+            El nombre es obligatorio
+          </ion-note>
         </div>
 
-        <div class="status-badge badge-certificate" *ngIf="capacitacion.certificado">
-          <ion-icon name="ribbon"></ion-icon>
-          Certificado Emitido
+        <div class="form-group">
+          <ion-item class="form-item item-label-floating" lines="none">
+            <ion-icon name="document-text-outline" slot="start"></ion-icon>
+            <ion-label position="floating">Descripción Detallada</ion-label>
+            <ion-textarea [(ngModel)]="capacitacion.descripcion" name="descripcion" required rows="4"
+              #descripcion="ngModel"></ion-textarea>
+          </ion-item>
+          <ion-note color="danger" *ngIf="descripcion.invalid && (descripcion.dirty || descripcion.touched)">
+            La descripción es obligatoria
+          </ion-note>
         </div>
       </div>
 
-      <form (ngSubmit)="actualizarCapacitacion()" #capacitacionForm="ngForm" class="fade-in"
-        style="animation-delay: 0.1s;">
-        <!-- Sección de Información Básica -->
-        <div class="form-section">
-          <h3 class="section-title">
-            <ion-icon name="information-circle-outline"></ion-icon>
-            Información Básica
-          </h3>
+      <!-- Sección de Logística -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <ion-icon name="calendar-outline"></ion-icon>
+          Logística y Horarios
+        </h3>
 
+        <div class="form-row">
           <div class="form-group">
-            <ion-item class="form-item">
-              <ion-icon name="text-outline" slot="start" color="primary"></ion-icon>
-              <ion-label position="floating">Nombre de la Capacitación <ion-text color="danger">*</ion-text></ion-label>
-              <ion-input [(ngModel)]="capacitacion.nombre" name="nombre" required #nombre="ngModel"></ion-input>
-            </ion-item>
-            <ion-note color="danger" *ngIf="nombre.invalid && (nombre.dirty || nombre.touched)">
-              <ion-icon name="alert-circle-outline"></ion-icon>
-              El nombre es obligatorio
-            </ion-note>
-          </div>
-
-          <div class="form-group">
-            <ion-item class="form-item">
-              <ion-icon name="document-text-outline" slot="start" color="primary"></ion-icon>
-              <ion-label position="floating">Descripción <ion-text color="danger">*</ion-text></ion-label>
-              <ion-textarea [(ngModel)]="capacitacion.descripcion" name="descripcion" required rows="4"
-                #descripcion="ngModel"></ion-textarea>
-            </ion-item>
-            <ion-note color="danger" *ngIf="descripcion.invalid && (descripcion.dirty || descripcion.touched)">
-              <ion-icon name="alert-circle-outline"></ion-icon>
-              La descripción es obligatoria
-            </ion-note>
-          </div>
-        </div>
-
-        <!-- Sección de Logística -->
-        <div class="form-section">
-          <h3 class="section-title">
-            <ion-icon name="calendar-outline"></ion-icon>
-            Logística
-          </h3>
-
-          <div class="form-group">
-            <ion-item class="form-item">
-              <ion-icon name="time-outline" slot="start" color="primary"></ion-icon>
-              <ion-label position="floating">Fecha y Hora <ion-text color="danger">*</ion-text></ion-label>
-              <ion-datetime displayFormat="DD/MM/YYYY HH:mm" [(ngModel)]="capacitacion.fechaInicio" name="fechaInicio"
-                required #fecha="ngModel"></ion-datetime>
+            <ion-item class="form-item item-label-floating" lines="none">
+              <ion-icon name="time-outline" slot="start"></ion-icon>
+              <ion-label position="floating">Fecha y Hora de Inicio</ion-label>
+              <ion-datetime displayFormat="DD MMM YYYY, HH:mm" pickerFormat="DD MMM YYYY HH:mm"
+                [(ngModel)]="capacitacion.fechaInicio" name="fechaInicio" required #fecha="ngModel">
+              </ion-datetime>
             </ion-item>
             <ion-note color="danger" *ngIf="fecha.invalid && (fecha.dirty || fecha.touched)">
-              <ion-icon name="alert-circle-outline"></ion-icon>
-              La fecha es obligatoria
+              Requerido
             </ion-note>
           </div>
 
           <div class="form-group">
-            <ion-item class="form-item">
-              <ion-icon name="location-outline" slot="start" color="primary"></ion-icon>
-              <ion-label position="floating">Lugar <ion-text color="danger">*</ion-text></ion-label>
-              <ion-input [(ngModel)]="capacitacion.lugar" name="lugar" required #lugar="ngModel"></ion-input>
+            <ion-item class="form-item item-label-floating" lines="none">
+              <ion-icon name="hourglass-outline" slot="start"></ion-icon>
+              <ion-label position="floating">Duración (Horas)</ion-label>
+              <ion-input type="number" [(ngModel)]="capacitacion.horas" name="horas" required min="1"
+                #horas="ngModel"></ion-input>
             </ion-item>
-            <ion-note color="danger" *ngIf="lugar.invalid && (lugar.dirty || lugar.touched)">
-              <ion-icon name="alert-circle-outline"></ion-icon>
-              El lugar es obligatorio
-            </ion-note>
-          </div>
-
-          <div class="form-row">
-            <div class="form-col">
-              <ion-item class="form-item">
-                <ion-icon name="checkmark-circle-outline" slot="start" color="primary"></ion-icon>
-                <ion-label>Estado <ion-text color="danger">*</ion-text></ion-label>
-                <ion-select [(ngModel)]="capacitacion.estado" name="estado" interface="action-sheet" required
-                  #estado="ngModel">
-                  <ion-select-option [value]="0">Pendiente</ion-select-option>
-                  <ion-select-option [value]="1">Realizada</ion-select-option>
-                  <ion-select-option [value]="2">Cancelada</ion-select-option>
-                </ion-select>
-              </ion-item>
-              <ion-note color="danger" *ngIf="estado.invalid && (estado.dirty || estado.touched)">
-                <ion-icon name="alert-circle-outline"></ion-icon>
-                El estado es obligatorio
-              </ion-note>
-            </div>
-
-            <div class="form-col">
-              <ion-item class="form-item">
-                <ion-icon name="laptop-outline" slot="start" color="primary"></ion-icon>
-                <ion-label>Modalidad <ion-text color="danger">*</ion-text></ion-label>
-                <ion-select [(ngModel)]="capacitacion.modalidad" name="modalidad" required interface="action-sheet"
-                  #modalidad="ngModel">
-                  <ion-select-option value="Virtual">Virtual</ion-select-option>
-                  <ion-select-option value="Hibrida">Híbrida</ion-select-option>
-                  <ion-select-option value="Presencial">Presencial</ion-select-option>
-                </ion-select>
-              </ion-item>
-              <ion-note color="danger" *ngIf="modalidad.invalid && (modalidad.dirty || modalidad.touched)">
-                <ion-icon name="alert-circle-outline"></ion-icon>
-                La modalidad es obligatoria
-              </ion-note>
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="form-col">
-              <ion-item class="form-item">
-                <ion-icon name="time-outline" slot="start" color="primary"></ion-icon>
-                <ion-label position="floating">Horas <ion-text color="danger">*</ion-text></ion-label>
-                <ion-input type="number" [(ngModel)]="capacitacion.horas" name="horas" required min="1"
-                  #horas="ngModel"></ion-input>
-              </ion-item>
-              <ion-note color="danger" *ngIf="horas.invalid && (horas.dirty || horas.touched)">
-                <ion-icon name="alert-circle-outline"></ion-icon>
-                El número de horas es obligatorio
-              </ion-note>
-            </div>
-
-            <div class="form-col">
-              <ion-item class="form-item">
-                <ion-icon name="people-outline" slot="start" color="primary"></ion-icon>
-                <ion-label position="floating">Límite de Participantes <ion-text color="danger">*</ion-text></ion-label>
-                <ion-input type="number" [(ngModel)]="capacitacion.limiteParticipantes" name="limiteParticipantes"
-                  required min="1" #limiteParticipantes="ngModel"></ion-input>
-              </ion-item>
-              <ion-note color="danger"
-                *ngIf="limiteParticipantes.invalid && (limiteParticipantes.dirty || limiteParticipantes.touched)">
-                <ion-icon name="alert-circle-outline"></ion-icon>
-                El límite de participantes es obligatorio
-              </ion-note>
-            </div>
           </div>
         </div>
 
-        <!-- Sección de Participantes -->
-        <div class="form-section">
-          <h3 class="section-title">
-            <ion-icon name="people-outline"></ion-icon>
-            Participantes
-          </h3>
+        <div class="form-group">
+          <ion-item class="form-item item-label-floating" lines="none">
+            <ion-icon name="location-outline" slot="start"></ion-icon>
+            <ion-label position="floating">Ubicación / Enlace</ion-label>
+            <ion-input [(ngModel)]="capacitacion.lugar" name="lugar" required #lugar="ngModel"></ion-input>
+          </ion-item>
+          <ion-note color="danger" *ngIf="lugar.invalid && (lugar.dirty || lugar.touched)">
+            La ubicación es obligatoria
+          </ion-note>
+        </div>
 
-          <div class="form-group">
-            <ion-item class="form-item">
-              <ion-icon name="business-outline" slot="start" color="primary"></ion-icon>
-              <ion-label>Entidades Encargadas <ion-text color="danger">*</ion-text></ion-label>
-              <ion-select [(ngModel)]="capacitacion.entidadesEncargadas" name="entidadesEncargadas" multiple="true"
-                required #entidadesModel="ngModel" interface="action-sheet">
-                <ion-select-option *ngFor="let entidad of entidadesList" [value]="entidad.Id_Entidad">
-                  {{ entidad.Nombre_Entidad }}
-                </ion-select-option>
+        <div class="form-row">
+          <div class="form-col">
+            <ion-item class="form-item" lines="none">
+              <ion-icon name="toggle-outline" slot="start"></ion-icon>
+              <ion-label position="stacked">Estado Actual</ion-label>
+              <ion-select [(ngModel)]="capacitacion.estado" name="estado" interface="popover" required
+                #estado="ngModel">
+                <ion-select-option [value]="0">Pendiente</ion-select-option>
+                <ion-select-option [value]="1">Realizada</ion-select-option>
+                <ion-select-option [value]="2">Cancelada</ion-select-option>
               </ion-select>
             </ion-item>
-            <ion-note color="danger" *ngIf="entidadesModel.invalid && (entidadesModel.dirty || entidadesModel.touched)">
-              <ion-icon name="alert-circle-outline"></ion-icon>
-              Seleccione al menos una entidad
-            </ion-note>
           </div>
 
-          <div class="form-group">
-            <ion-item class="form-item">
-              <ion-icon name="people-outline" slot="start" color="primary"></ion-icon>
-              <ion-label>Usuarios <ion-text color="danger">*</ion-text></ion-label>
-              <ion-select [(ngModel)]="capacitacion.idsUsuarios" name="idsUsuarios" multiple="true" required
-                #usuariosModel="ngModel" interface="action-sheet">
-                <ion-select-option *ngFor="let usuario of usuariosList" [value]="usuario.Id_Usuario">
-                  {{ usuario.Nombre_Usuario }}
-                </ion-select-option>
+          <div class="form-col">
+            <ion-item class="form-item" lines="none">
+              <ion-icon name="wifi-outline" slot="start"></ion-icon>
+              <ion-label position="stacked">Modalidad</ion-label>
+              <ion-select [(ngModel)]="capacitacion.modalidad" name="modalidad" required interface="popover"
+                #modalidad="ngModel">
+                <ion-select-option value="Virtual">Virtual</ion-select-option>
+                <ion-select-option value="Hibrida">Híbrida</ion-select-option>
+                <ion-select-option value="Presencial">Presencial</ion-select-option>
               </ion-select>
             </ion-item>
-            <ion-note color="danger" *ngIf="usuariosModel.invalid && (usuariosModel.dirty || usuariosModel.touched)">
-              <ion-icon name="alert-circle-outline"></ion-icon>
-              Seleccione al menos un usuario
-            </ion-note>
           </div>
         </div>
 
-        <!-- Información de Certificado -->
-        <div class="form-section certificate-section" *ngIf="capacitacion.certificado">
-          <h3 class="section-title">
-            <ion-icon name="ribbon-outline"></ion-icon>
-            Información del Certificado
-          </h3>
+        <div class="form-group">
+          <ion-item class="form-item item-label-floating" lines="none">
+            <ion-icon name="people-outline" slot="start"></ion-icon>
+            <ion-label position="floating">Cupo Máximo</ion-label>
+            <ion-input type="number" [(ngModel)]="capacitacion.limiteParticipantes" name="limiteParticipantes" required
+              min="1" #limiteParticipantes="ngModel"></ion-input>
+          </ion-item>
+        </div>
+      </div>
 
-          <div class="certificate-info">
-            <p>Esta capacitación ya tiene certificados emitidos. Algunos cambios pueden afectar la validez de los
-              certificados.</p>
+      <!-- Sección de Participantes -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <ion-icon name="people-circle-outline"></ion-icon>
+          Involucrados
+        </h3>
 
-            <div class="certificate-preview">
-              <div class="certificate-header">
-                <ion-icon name="ribbon"></ion-icon>
-                <h4>Certificado de Participación</h4>
-              </div>
-              <div class="certificate-body">
-                <p>Se certifica que los participantes asistieron a la capacitación:</p>
-                <h5>{{ capacitacion.nombre }}</h5>
-                <p class="certificate-details">
-                  <span><ion-icon name="calendar-outline"></ion-icon> {{ capacitacion.fechaInicio | date:'dd/MM/yyyy'
-                    }}</span>
-                  <span><ion-icon name="location-outline"></ion-icon> {{ capacitacion.lugar }}</span>
-                  <span><ion-icon name="time-outline"></ion-icon> {{ capacitacion.horas }} horas</span>
-                </p>
-              </div>
+        <div class="form-group">
+          <ion-item class="form-item" lines="none">
+            <ion-icon name="briefcase-outline" slot="start"></ion-icon>
+            <ion-label position="stacked">Entidades Organizadoras</ion-label>
+            <ion-select [(ngModel)]="capacitacion.entidadesEncargadas" name="entidadesEncargadas" multiple="true"
+              #entidadesModel="ngModel" interface="action-sheet" placeholder="Seleccionar entidades">
+              <ion-select-option *ngFor="let entidad of entidadesList" [value]="entidad.Id_Entidad">
+                {{ entidad.Nombre_Entidad }}
+              </ion-select-option>
+            </ion-select>
+          </ion-item>
+        </div>
+
+        <div class="form-group">
+          <ion-item class="form-item" lines="none">
+            <ion-icon name="person-add-outline" slot="start"></ion-icon>
+            <ion-label position="stacked">Lista de Participantes</ion-label>
+            <ion-select [(ngModel)]="capacitacion.idsUsuarios" name="idsUsuarios" multiple="true" required
+              #usuariosModel="ngModel" interface="action-sheet" placeholder="Seleccionar usuarios">
+              <ion-select-option *ngFor="let usuario of usuariosList" [value]="usuario.Id_Usuario">
+                {{ usuario.Nombre_Usuario }}
+              </ion-select-option>
+            </ion-select>
+          </ion-item>
+          <ion-note color="danger" *ngIf="usuariosModel.invalid && (usuariosModel.dirty || usuariosModel.touched)">
+            Debe seleccionar al menos un participante
+          </ion-note>
+        </div>
+      </div>
+
+      <!-- Información de Certificado -->
+      <div class="form-section certificate-section fade-in" *ngIf="capacitacion.certificado">
+        <div class="certificate-info">
+          <p><strong><ion-icon name="lock-closed-outline"></ion-icon> Emisión Bloqueada:</strong> Ya se han generado
+            certificados para este evento.</p>
+        </div>
+
+        <div class="certificate-preview">
+          <div class="certificate-header">
+            <ion-icon name="ribbon"></ion-icon>
+          </div>
+          <h4>Certificado de Aprobación</h4>
+
+          <div class="certificate-body">
+            <p>Otorgado por la participación en:</p>
+            <h5>{{ capacitacion.nombre }}</h5>
+
+            <div class="certificate-details">
+              <span>{{ capacitacion.fechaInicio | date:'MMM yyyy' | uppercase }}</span>
+              <span>{{ capacitacion.horas }} HORAS ACADÉMICAS</span>
             </div>
           </div>
         </div>
+      </div>
 
-        <!-- Botones de acción -->
-        <div class="form-actions">
-          <div class="action-buttons">
-            <ion-button type="button" color="medium" (click)="cancelarEdicion()" fill="outline">
-              <ion-icon name="close-outline" slot="start"></ion-icon>
-              Cancelar
-            </ion-button>
+      <!-- Botones de acción -->
+      <div class="form-actions">
+        <div class="action-buttons">
+          <ion-button type="button" (click)="cancelarEdicion()" fill="outline">
+            Cancelar
+          </ion-button>
 
-            <ion-button type="submit" color="primary" [disabled]="!capacitacionForm.valid || capacitacionForm.pristine">
-              <ion-icon name="save-outline" slot="start"></ion-icon>
-              Guardar Cambios
-            </ion-button>
-          </div>
-
-          <div class="action-extension">
-            <ion-button *ngIf="capacitacion.estado === 1 && !capacitacion.certificado" color="success"
-              (click)="irAEmitirCertificados()" expand="block">
-              <ion-icon name="ribbon-outline" slot="start"></ion-icon>
-              Emitir Certificados
-            </ion-button>
-
-            <ion-button *ngIf="capacitacion.estado === 0" color="success" (click)="finalizarCapacitacion()"
-              expand="block">
-              <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
-              Finalizar Capacitación
-            </ion-button>
-          </div>
-
-          <div class="danger-zone" *ngIf="!capacitacion.certificado">
-            <h4><ion-icon name="warning-outline"></ion-icon> Zona de Peligro</h4>
-            <ion-button color="danger" (click)="confirmarEliminar()" fill="outline" expand="block">
-              <ion-icon name="trash-outline" slot="start"></ion-icon>
-              Eliminar Capacitación
-            </ion-button>
-          </div>
+          <ion-button type="submit" color="primary" [disabled]="!capacitacionForm.valid || capacitacionForm.pristine">
+            Guardar Cambios
+          </ion-button>
         </div>
-      </form>
-    </ion-card-content>
-  </ion-card>
+
+        <div class="action-extension" *ngIf="capacitacion.estado === 1 && !capacitacion.certificado">
+          <ion-button color="success" (click)="irAEmitirCertificados()" expand="block"
+            style="--box-shadow: 0 8px 20px rgba(46, 204, 113, 0.25);">
+            <ion-icon name="ribbon-outline" slot="start"></ion-icon>
+            Emitir Certificados Digitales
+          </ion-button>
+        </div>
+
+        <div class="action-extension" *ngIf="capacitacion.estado === 0">
+          <ion-button color="success" (click)="irAEmitirCertificados()" expand="block">
+            <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
+            Marcar como Realizada
+          </ion-button>
+        </div>
+
+        <div class="danger-zone" *ngIf="!capacitacion.certificado">
+          <ion-button color="danger" (click)="confirmarEliminar()" fill="clear">
+            <ion-icon name="trash-outline" slot="start"></ion-icon>
+            Eliminar permanentemente este evento
+          </ion-button>
+        </div>
+      </div>
+    </form>
+  </div>
 </ion-content>
