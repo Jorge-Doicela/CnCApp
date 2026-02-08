@@ -13,7 +13,8 @@ export class CapacitacionMapper {
             cuposDisponibles: prismaCapacitacion.cuposDisponibles,
             modalidad: prismaCapacitacion.modalidad,
             estado: prismaCapacitacion.estado,
-            createdAt: prismaCapacitacion.createdAt
+            createdAt: prismaCapacitacion.createdAt,
+            idsUsuarios: (prismaCapacitacion as any).inscripciones?.map((i: any) => i.usuarioId) || []
         };
     }
 }
