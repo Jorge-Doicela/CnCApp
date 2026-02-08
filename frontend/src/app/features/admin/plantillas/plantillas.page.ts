@@ -1,8 +1,9 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule, AlertController, ToastController, NavController, LoadingController, ModalController } from '@ionic/angular';
-import { PlantillasService, PlantillaCertificado } from './services/plantillas.service';
+import { PlantillasService } from './services/plantillas.service';
+import { PlantillaCertificado } from '../../../core/models/plantilla.interface';
 import { addIcons } from 'ionicons';
 import {
     addOutline,
@@ -37,6 +38,8 @@ export class PlantillasPage implements OnInit {
     private toastController = inject(ToastController);
     private loadingController = inject(LoadingController);
 
+    private cd = inject(ChangeDetectorRef);
+
     constructor() {
         addIcons({
             addOutline,
@@ -63,22 +66,26 @@ export class PlantillasPage implements OnInit {
 
     async cargarPlantillas() {
         this.cargando = true;
+        this.cd.detectChanges(); // Ensure loading spinner shows specifically
         try {
             this.plantillasService.getPlantillas().subscribe({
                 next: (plantillas) => {
                     this.plantillas = plantillas;
                     this.plantillasFiltradas = plantillas;
                     this.cargando = false;
+                    this.cd.detectChanges(); // Force view update
                 },
                 error: (error) => {
                     console.error('Error al cargar plantillas:', error);
                     this.mostrarToast('Error al cargar plantillas', 'danger');
                     this.cargando = false;
+                    this.cd.detectChanges(); // Force view update
                 }
             });
         } catch (error) {
             console.error('Error inesperado:', error);
             this.cargando = false;
+            this.cd.detectChanges();
         }
     }
 

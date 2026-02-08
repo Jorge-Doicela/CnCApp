@@ -3,23 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
-
-export interface PlantillaCertificado {
-    id: number;
-    nombre: string;
-    imagenUrl: string;
-    configuracion: {
-        nombreUsuario: { x: number, y: number, fontSize: number, color: string };
-        curso: { x: number, y: number, fontSize: number, color: string };
-        fecha: { x: number, y: number, fontSize: number, color: string };
-        cedula?: { x: number, y: number, fontSize: number, color: string };
-        rol?: { x: number, y: number, fontSize: number, color: string };
-        horas?: { x: number, y: number, fontSize: number, color: string };
-    };
-    activa: boolean;
-    createdAt?: string;
-    updatedAt?: string;
-}
+import { PlantillaCertificado } from '../../../../core/models/plantilla.interface';
 
 @Injectable({
     providedIn: 'root'
