@@ -4,6 +4,7 @@ import { CreateCertificadoUseCase } from '../../../application/certificado/use-c
 import { GetCertificadoByQRUseCase } from '../../../application/certificado/use-cases/get-certificado-by-qr.use-case';
 import { GetUserCertificadosUseCase } from '../../../application/certificado/use-cases/get-user-certificados.use-case';
 import { CountCertificadosUseCase } from '../../../application/certificado/use-cases/count-certificados.use-case';
+import { GenerateCertificadoUseCase } from '../../../application/certificado/use-cases/generate-certificado.use-case';
 import { AuthRequest } from '../middleware/auth.middleware';
 import { z } from 'zod';
 
@@ -20,8 +21,23 @@ export class CertificadoController {
         @inject(CreateCertificadoUseCase) private createUseCase: CreateCertificadoUseCase,
         @inject(GetCertificadoByQRUseCase) private getByQRUseCase: GetCertificadoByQRUseCase,
         @inject(GetUserCertificadosUseCase) private getByUserUseCase: GetUserCertificadosUseCase,
-        @inject(CountCertificadosUseCase) private countCertificadosUseCase: CountCertificadosUseCase
+        @inject(CountCertificadosUseCase) private countCertificadosUseCase: CountCertificadosUseCase,
+        @inject(GenerateCertificadoUseCase) private generateUseCase: GenerateCertificadoUseCase
     ) { }
+
+    generate = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const { usuarioId, capacitacionId } = req.body;
+            if (!usuarioId || !capacitacionId) {
+                res.status(400).json({ error: 'usuarioId y capacitacionId son requeridos' });
+                return;
+            }
+            const certificado = await this.generateUseCase.execute(Number(usuarioId), Number(capacitacionId));
+            res.status(201).json(certificado);
+        } catch (error) {
+            next(error);
+        }
+    };
 
     create = async (req: Request, res: Response, next: NextFunction) => {
         try {
