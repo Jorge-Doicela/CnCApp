@@ -186,4 +186,29 @@ container.registerSingleton(ActualizarAsistenciaUseCase);
 // Register Controller
 container.registerSingleton(UsuarioCapacitacionController);
 
+import { PrismaPlantillaRepository } from '../infrastructure/database/prisma-plantilla.repository';
+import { CreatePlantillaUseCase } from '../application/plantilla/use-cases/create-plantilla.use-case';
+import { GetAllPlantillasUseCase } from '../application/plantilla/use-cases/get-all-plantillas.use-case';
+import { GetPlantillaByIdUseCase } from '../application/plantilla/use-cases/get-plantilla-by-id.use-case';
+import { UpdatePlantillaUseCase } from '../application/plantilla/use-cases/update-plantilla.use-case';
+import { DeletePlantillaUseCase } from '../application/plantilla/use-cases/delete-plantilla.use-case';
+import { ActivarPlantillaUseCase } from '../application/plantilla/use-cases/activar-plantilla.use-case';
+import { PlantillaController } from '../infrastructure/web/controllers/plantilla.controller';
+
+// ... (existing code)
+
+// Register Plantilla Repository
+container.register('PlantillaRepository', { useClass: PrismaPlantillaRepository });
+
+// Register Plantilla Use Cases
+container.registerSingleton(CreatePlantillaUseCase);
+container.registerSingleton(GetAllPlantillasUseCase);
+container.registerSingleton(GetPlantillaByIdUseCase);
+container.registerSingleton(UpdatePlantillaUseCase);
+container.registerSingleton(DeletePlantillaUseCase);
+container.registerSingleton(ActivarPlantillaUseCase);
+
+// Register Plantilla Controller
+container.registerSingleton(PlantillaController);
+
 export { container };

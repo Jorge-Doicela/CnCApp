@@ -1,9 +1,10 @@
-import { Component, OnInit, ElementRef, ViewChild, inject, HostListener } from '@angular/core';
+import { Component, OnInit, ElementRef, ViewChild, inject, HostListener, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule, NavController, LoadingController, ToastController } from '@ionic/angular';
 import { ActivatedRoute } from '@angular/router';
-import { PlantillasService, PlantillaCertificado } from '../services/plantillas.service';
+import { PlantillasService } from '../services/plantillas.service';
+import { PlantillaCertificado } from '../../../../core/models/plantilla.interface';
 import { addIcons } from 'ionicons';
 import {
     saveOutline,
@@ -17,7 +18,7 @@ import {
 } from 'ionicons/icons';
 
 interface DraggableField {
-    key: keyof PlantillaCertificado['configuracion'];
+    key: Extract<keyof PlantillaCertificado['configuracion'], string>;
     label: string;
     enabled: boolean;
 }
@@ -35,6 +36,8 @@ export class CrearPage implements OnInit {
     isEdit = false;
     cargando = false;
     guardando = false;
+
+    // ... (keep existing properties)
 
     plantilla: PlantillaCertificado = {
         id: 0,
@@ -69,6 +72,7 @@ export class CrearPage implements OnInit {
     private navCtrl = inject(NavController);
     private toastCtrl = inject(ToastController);
     private loadingCtrl = inject(LoadingController);
+    private cdr = inject(ChangeDetectorRef);
 
     constructor() {
         addIcons({
@@ -101,6 +105,7 @@ export class CrearPage implements OnInit {
                         this.sincronizarCampos();
                     }
                     this.cargando = false;
+                    this.cdr.detectChanges();
                 },
                 error: (error) => {
                     console.error('Error al cargar plantilla:', error);
@@ -118,15 +123,17 @@ export class CrearPage implements OnInit {
     sincronizarCampos() {
         // Enable fields that exist in configuration
         this.fields.forEach(field => {
-            field.enabled = !!this.plantilla.configuracion[field.key];
+            field.enabled = !!this.plantilla.configuracion[field.key as keyof typeof this.plantilla.configuracion];
         });
     }
 
     toggleField(field: DraggableField) {
+        const key = field.key as keyof typeof this.plantilla.configuracion;
         if (field.enabled) {
             // Add field to configuration
-            if (!this.plantilla.configuracion[field.key]) {
-                this.plantilla.configuracion[field.key] = {
+            if (!this.plantilla.configuracion[key]) {
+                const config: any = this.plantilla.configuracion;
+                config[key] = {
                     x: 420,
                     y: 300,
                     fontSize: 16,
@@ -135,11 +142,11 @@ export class CrearPage implements OnInit {
             }
         } else {
             // Remove field from configuration
-            delete this.plantilla.configuracion[field.key];
+            delete this.plantilla.configuracion[key];
         }
     }
 
-    getPlaceholder(key: string): string {
+    getPlaceholder(key: string | any): string {
         const placeholders: Record<string, string> = {
             nombreUsuario: 'JUAN PÉREZ GARCÍA',
             curso: 'GESTIÓN DE COMPETENCIAS',
@@ -148,7 +155,7 @@ export class CrearPage implements OnInit {
             rol: 'PARTICIPANTE',
             horas: '40 HORAS'
         };
-        return placeholders[key] || 'TEXTO';
+        return placeholders[key as string] || 'TEXTO';
     }
 
     onFileSelected(event: any) {
@@ -170,6 +177,7 @@ export class CrearPage implements OnInit {
         const reader = new FileReader();
         reader.onload = (e: any) => {
             this.plantilla.imagenUrl = e.target.result;
+            this.cdr.detectChanges();
         };
         reader.readAsDataURL(file);
     }
@@ -184,9 +192,9 @@ export class CrearPage implements OnInit {
     }
 
     // Drag and Drop functionality
-    startDrag(event: MouseEvent | TouchEvent, key: string) {
+    startDrag(event: MouseEvent | TouchEvent, key: string | any) {
         event.preventDefault();
-        this.activeDragKey = key;
+        this.activeDragKey = key as string;
 
         const clientX = event instanceof MouseEvent ? event.clientX : event.touches[0].clientX;
         const clientY = event instanceof MouseEvent ? event.clientY : event.touches[0].clientY;
@@ -206,6 +214,8 @@ export class CrearPage implements OnInit {
     onDragMove(event: MouseEvent | TouchEvent) {
         if (!this.activeDragKey) return;
 
+        event.preventDefault(); // Prevent scrolling on touch
+
         const clientX = event instanceof MouseEvent ? event.clientX : event.touches[0].clientX;
         const clientY = event instanceof MouseEvent ? event.clientY : event.touches[0].clientY;
 
@@ -216,6 +226,12 @@ export class CrearPage implements OnInit {
         if (config) {
             config.x = Math.max(0, this.fieldStartX + deltaX);
             config.y = Math.max(0, this.fieldStartY + deltaY);
+
+            // Limit to canvas bounds (approximate)
+            if (this.canvasContainer) {
+                const rect = this.canvasContainer.nativeElement.getBoundingClientRect();
+                // Optional: Add boundary content checks here
+            }
         }
     }
 
@@ -225,8 +241,9 @@ export class CrearPage implements OnInit {
         this.activeDragKey = null;
     }
 
-    updateField(key: string) {
+    updateField(key: string | any) {
         // Trigger change detection
+        this.cdr.detectChanges();
     }
 
     async guardar() {

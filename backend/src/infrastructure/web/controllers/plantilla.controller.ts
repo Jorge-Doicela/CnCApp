@@ -1,29 +1,18 @@
 import { Request, Response, NextFunction } from 'express';
-import prisma from '../../../config/database';
+import { container } from 'tsyringe';
+import { CreatePlantillaUseCase } from '../../../application/plantilla/use-cases/create-plantilla.use-case';
+import { GetAllPlantillasUseCase } from '../../../application/plantilla/use-cases/get-all-plantillas.use-case';
+import { GetPlantillaByIdUseCase } from '../../../application/plantilla/use-cases/get-plantilla-by-id.use-case';
+import { UpdatePlantillaUseCase } from '../../../application/plantilla/use-cases/update-plantilla.use-case';
+import { DeletePlantillaUseCase } from '../../../application/plantilla/use-cases/delete-plantilla.use-case';
+import { ActivarPlantillaUseCase } from '../../../application/plantilla/use-cases/activar-plantilla.use-case';
 
 export class PlantillaController {
 
     async create(req: Request, res: Response, next: NextFunction) {
         try {
-            const { nombre, imagenUrl, configuracion, activa } = req.body;
-
-            // Si se activa esta, desactivar las demas
-            if (activa) {
-                await prisma.plantilla.updateMany({
-                    where: { activa: true },
-                    data: { activa: false }
-                });
-            }
-
-            const plantilla = await prisma.plantilla.create({
-                data: {
-                    nombre,
-                    imagenUrl,
-                    configuracion: configuracion || {},
-                    activa: activa || false
-                }
-            });
-
+            const useCase = container.resolve(CreatePlantillaUseCase);
+            const plantilla = await useCase.execute(req.body);
             res.status(201).json(plantilla);
         } catch (error) {
             next(error);
@@ -32,9 +21,8 @@ export class PlantillaController {
 
     async getAll(_req: Request, res: Response, next: NextFunction) {
         try {
-            const plantillas = await prisma.plantilla.findMany({
-                orderBy: { createdAt: 'desc' }
-            });
+            const useCase = container.resolve(GetAllPlantillasUseCase);
+            const plantillas = await useCase.execute();
             res.json(plantillas);
         } catch (error) {
             next(error);
@@ -49,9 +37,8 @@ export class PlantillaController {
                 return;
             }
 
-            const plantilla = await prisma.plantilla.findUnique({
-                where: { id }
-            });
+            const useCase = container.resolve(GetPlantillaByIdUseCase);
+            const plantilla = await useCase.execute(id);
 
             if (!plantilla) {
                 res.status(404).json({ message: 'Plantilla no encontrada' });
@@ -72,29 +59,8 @@ export class PlantillaController {
                 return;
             }
 
-            const { nombre, imagenUrl, configuracion, activa } = req.body;
-
-            // Si se activa esta, desactivar las demas
-            if (activa) {
-                await prisma.plantilla.updateMany({
-                    where: {
-                        activa: true,
-                        id: { not: id }
-                    },
-                    data: { activa: false }
-                });
-            }
-
-            const plantilla = await prisma.plantilla.update({
-                where: { id },
-                data: {
-                    nombre,
-                    imagenUrl,
-                    configuracion,
-                    activa
-                }
-            });
-
+            const useCase = container.resolve(UpdatePlantillaUseCase);
+            const plantilla = await useCase.execute(id, req.body);
             res.json(plantilla);
         } catch (error) {
             next(error);
@@ -109,17 +75,8 @@ export class PlantillaController {
                 return;
             }
 
-            // Verificar si es la activa
-            const plantilla = await prisma.plantilla.findUnique({ where: { id } });
-            if (plantilla?.activa) {
-                res.status(400).json({ message: 'No se puede eliminar la plantilla activa' });
-                return;
-            }
-
-            await prisma.plantilla.delete({
-                where: { id }
-            });
-
+            const useCase = container.resolve(DeletePlantillaUseCase);
+            await useCase.execute(id);
             res.status(204).send();
         } catch (error) {
             next(error);
@@ -134,18 +91,8 @@ export class PlantillaController {
                 return;
             }
 
-            // Desactivar todas
-            await prisma.plantilla.updateMany({
-                where: { activa: true },
-                data: { activa: false }
-            });
-
-            // Activar la seleccionada
-            const plantilla = await prisma.plantilla.update({
-                where: { id },
-                data: { activa: true }
-            });
-
+            const useCase = container.resolve(ActivarPlantillaUseCase);
+            const plantilla = await useCase.execute(id);
             res.json(plantilla);
         } catch (error) {
             next(error);
