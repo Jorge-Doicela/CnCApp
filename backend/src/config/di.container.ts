@@ -25,6 +25,7 @@ import { DeleteUserUseCase } from '../application/user/use-cases/delete-user.use
 // Import Capacitacion Use Cases
 import { CreateCapacitacionUseCase } from '../application/capacitacion/use-cases/create-capacitacion.use-case';
 import { GetAllCapacitacionesUseCase } from '../application/capacitacion/use-cases/get-all-capacitaciones.use-case';
+import { GetCapacitacionByIdUseCase } from '../application/capacitacion/use-cases/get-capacitacion-by-id.use-case';
 import { UpdateCapacitacionUseCase } from '../application/capacitacion/use-cases/update-capacitacion.use-case';
 import { DeleteCapacitacionUseCase } from '../application/capacitacion/use-cases/delete-capacitacion.use-case';
 
@@ -116,6 +117,7 @@ container.registerSingleton(GetAllEntidadesUseCase);
 // Capacitacion Use Cases
 container.registerSingleton(CreateCapacitacionUseCase);
 container.registerSingleton(GetAllCapacitacionesUseCase);
+container.registerSingleton(GetCapacitacionByIdUseCase);
 container.registerSingleton(UpdateCapacitacionUseCase);
 container.registerSingleton(DeleteCapacitacionUseCase);
 
@@ -154,5 +156,34 @@ container.registerSingleton(ReportesController);
 container.registerSingleton(UbicacionController);
 container.registerSingleton(CargoController);
 container.registerSingleton(InstitucionController);
+
+// Import UsuarioCapacitacion Use Cases
+import { GetInscritosUseCase } from '../application/usuario-capacitacion/use-cases/get-inscritos.use-case';
+import { InscribirUsuarioUseCase } from '../application/usuario-capacitacion/use-cases/inscribir-usuario.use-case';
+import { EliminarInscripcionUseCase } from '../application/usuario-capacitacion/use-cases/eliminar-inscripcion.use-case';
+import { ActualizarAsistenciaUseCase } from '../application/usuario-capacitacion/use-cases/actualizar-asistencia.use-case';
+
+// Import Controllers
+// ... (existing imports)
+import { UsuarioCapacitacionController } from '../infrastructure/web/controllers/usuario-capacitacion.controller';
+import { PrismaUsuarioCapacitacionRepository } from '../infrastructure/repositories/usuario-capacitacion.repository.impl';
+
+// ... (existing code)
+
+// Register Repositories
+container.register('UsuarioCapacitacionRepository', { useClass: PrismaUsuarioCapacitacionRepository });
+
+// ... (existing code)
+
+// Register Use Cases
+container.registerSingleton(GetInscritosUseCase);
+container.registerSingleton(InscribirUsuarioUseCase);
+container.registerSingleton(EliminarInscripcionUseCase);
+container.registerSingleton(ActualizarAsistenciaUseCase);
+
+// ... (existing code)
+
+// Register Controller
+container.registerSingleton(UsuarioCapacitacionController);
 
 export { container };

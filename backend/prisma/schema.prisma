@@ -150,6 +150,7 @@ model UsuarioCapacitacion {
   id                Int       @id @default(autoincrement()) @map("Id_Inscripcion")
   usuarioId         Int       @map("Id_Usuario")
   capacitacionId    Int       @map("Id_Capacitacion")
+  rolCapacitacion   String    @default("Participante") @map("Rol_Capacitacion") @db.VarChar(50)
   fechaInscripcion  DateTime  @default(now()) @map("Fecha_Inscripcion")
   estadoInscripcion String    @default("Activa") @map("Estado_Inscripcion") @db.VarChar(50)
   asistio           Boolean   @default(false)
