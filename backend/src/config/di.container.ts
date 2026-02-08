@@ -125,7 +125,12 @@ container.registerSingleton(DeleteCapacitacionUseCase);
 container.registerSingleton(CreateCertificadoUseCase);
 container.registerSingleton(GetCertificadoByQRUseCase);
 container.registerSingleton(GetUserCertificadosUseCase);
+container.registerSingleton(GetUserCertificadosUseCase);
 container.registerSingleton(CountCertificadosUseCase);
+import { CertificateGeneratorService } from '../infrastructure/services/certificate-generator.service';
+import { GenerateCertificadoUseCase } from '../application/certificado/use-cases/generate-certificado.use-case';
+container.registerSingleton(CertificateGeneratorService);
+container.registerSingleton(GenerateCertificadoUseCase);
 
 // Ubicacion Use Cases
 container.registerSingleton(GetProvinciasUseCase);

@@ -85,7 +85,8 @@ export class PrismaCapacitacionRepository implements CapacitacionRepository {
         const capacitacion = await prisma.capacitacion.findUnique({
             where: { id },
             include: {
-                inscripciones: true // Incluir inscripciones para mapear idsUsuarios
+                inscripciones: true,
+                plantilla: true
             }
         });
         return capacitacion ? CapacitacionMapper.toDomain(capacitacion) : null;

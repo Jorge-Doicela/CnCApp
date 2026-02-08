@@ -1,7 +1,6 @@
-
-import prisma from '../../../config/database';
-import { Plantilla } from '../../../domain/plantilla/plantilla.entity';
-import { PlantillaRepository } from '../../../domain/plantilla/plantilla.repository';
+import prisma from '../../config/database';
+import { Plantilla } from '../../domain/plantilla/plantilla.entity';
+import { PlantillaRepository } from '../../domain/plantilla/plantilla.repository';
 
 export class PrismaPlantillaRepository implements PlantillaRepository {
     async create(plantilla: Partial<Plantilla>): Promise<Plantilla> {
