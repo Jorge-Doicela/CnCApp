@@ -3,6 +3,7 @@ import { injectable, inject } from 'tsyringe';
 import { CreateCapacitacionUseCase } from '../../../application/capacitacion/use-cases/create-capacitacion.use-case';
 import { GetAllCapacitacionesUseCase } from '../../../application/capacitacion/use-cases/get-all-capacitaciones.use-case';
 import { UpdateCapacitacionUseCase } from '../../../application/capacitacion/use-cases/update-capacitacion.use-case';
+import { GetCapacitacionByIdUseCase } from '../../../application/capacitacion/use-cases/get-capacitacion-by-id.use-case';
 import { DeleteCapacitacionUseCase } from '../../../application/capacitacion/use-cases/delete-capacitacion.use-case';
 import { z } from 'zod';
 
@@ -22,6 +23,7 @@ export class CapacitacionController {
     constructor(
         @inject(CreateCapacitacionUseCase) private createUseCase: CreateCapacitacionUseCase,
         @inject(GetAllCapacitacionesUseCase) private getAllUseCase: GetAllCapacitacionesUseCase,
+        @inject(GetCapacitacionByIdUseCase) private getByIdUseCase: GetCapacitacionByIdUseCase,
         @inject(UpdateCapacitacionUseCase) private updateUseCase: UpdateCapacitacionUseCase,
         @inject(DeleteCapacitacionUseCase) private deleteUseCase: DeleteCapacitacionUseCase
     ) { }
@@ -40,6 +42,24 @@ export class CapacitacionController {
         try {
             const capacitaciones = await this.getAllUseCase.execute();
             res.json(capacitaciones);
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    getById = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const id = parseInt(req.params.id as string);
+            if (isNaN(id)) {
+                res.status(400).json({ error: 'ID inválido' });
+                return;
+            }
+            const capacitacion = await this.getByIdUseCase.execute(id);
+            if (!capacitacion) {
+                res.status(404).json({ error: 'Capacitación no encontrada' });
+                return;
+            }
+            res.json(capacitacion);
         } catch (error) {
             next(error);
         }

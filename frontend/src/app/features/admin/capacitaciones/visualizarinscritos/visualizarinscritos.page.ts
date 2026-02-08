@@ -58,33 +58,40 @@ export class VisualizarinscritosPage implements OnInit {
 
   // Función para cargar todos los datos necesarios
   async cargarDatos() {
+    let loading: HTMLIonLoadingElement | null = null;
     try {
-      const loading = await this.loadingController.create({
+      loading = await this.loadingController.create({
         message: 'Cargando datos...',
         spinner: 'crescent'
       });
       await loading.present();
 
-      // Cargar información de la capacitación primero
+      // 1. Cargar información de la capacitación primero (Fundamental)
       await this.cargarInfoCapacitacion();
 
-      // Luego cargar entidades encargadas y usuarios en paralelo
+      // 2. Cargar usuarios inscritos (Necesario para filtrar disponibles)
+      await this.cargarUsuariosInscritos();
+
+      // 3. Cargar el resto en paralelo (Entidades y Disponibles - este ultimo usa inscritos)
       await Promise.all([
         this.cargarEntidadesEncargadas(),
-        this.cargarUsuariosInscritos(),
         this.cargarUsuariosDisponibles()
       ]);
 
       this.filtrarParticipantes();
-      this.cargando = false;
-      loading.dismiss();
     } catch (error) {
       console.error('Error al cargar datos:', error);
-      this.mostrarToast('Error al cargar los datos', 'danger');
+      this.mostrarToast('Error al cargar los datos. Por favor intente nuevamente.', 'danger');
+    } finally {
       this.cargando = false;
-      const loading = await this.loadingController.getTop();
       if (loading) {
-        loading.dismiss();
+        await loading.dismiss();
+      } else {
+        // Fallback incase loading wasn't assigned but created
+        const topLoading = await this.loadingController.getTop();
+        if (topLoading) {
+          await topLoading.dismiss();
+        }
       }
     }
   }
@@ -125,13 +132,25 @@ export class VisualizarinscritosPage implements OnInit {
   async cargarUsuariosInscritos() {
     if (!this.idCapacitacion) return;
     try {
-      // This endpoint should return joined data with user info ideally.
-      // If the service returns just junction table data, we need to fetch user details.
-      // Assuming backend service implementation will join 'Usuario' table.
       const todosUsuarios = await firstValueFrom(this.capacitacionesService.getInscritos(this.idCapacitacion));
 
-      this.expositores = todosUsuarios.filter((u: any) => u.rolCapacitacion === 'Expositor');
-      this.usuariosInscritos = todosUsuarios.filter((u: any) => u.rolCapacitacion !== 'Expositor');
+      // Mapear respuesta del backend a la estructura que espera la vista
+      const mappedUsuarios = todosUsuarios.map((u: any) => ({
+        id: u.id, // ID de la inscripción (Relación)
+        usuarioId: u.usuarioId, // ID del Usuario
+        nombre: u.usuario?.nombre, // Para lógica interna
+        Nombre_Usuario: u.usuario?.nombre, // Para el template (PascalCase)
+        rolCapacitacion: u.rolCapacitacion,
+        Rol_Capacitacion: u.rolCapacitacion, // Para el template
+        asistio: u.asistio,
+        Asistencia: u.asistio, // Para el template
+        Email: u.usuario?.email,
+        Cargo: u.usuario?.cargo, // Si existe en el objeto usuario
+        Entidad: u.usuario?.entidad?.nombre
+      }));
+
+      this.expositores = mappedUsuarios.filter((u: any) => u.rolCapacitacion === 'Expositor');
+      this.usuariosInscritos = mappedUsuarios.filter((u: any) => u.rolCapacitacion !== 'Expositor');
 
     } catch (error) {
       console.error('Error al cargar usuarios inscritos:', error);
@@ -146,9 +165,9 @@ export class VisualizarinscritosPage implements OnInit {
       // Obtener IDs de los usuarios ya inscritos (tanto participantes como expositores)
       const idsInscritos: number[] = [];
 
-      // Add already loaded identifiers
-      this.expositores.forEach(u => idsInscritos.push(u.id));
-      this.usuariosInscritos.forEach(u => idsInscritos.push(u.id));
+      // Add already loaded identifiers (User IDs)
+      this.expositores.forEach(u => idsInscritos.push(u.usuarioId));
+      this.usuariosInscritos.forEach(u => idsInscritos.push(u.usuarioId));
 
       // Filtrar los usuarios que NO están en la lista de inscritos
       this.usuariosDisponibles = todosUsuarios.filter((u: any) => !idsInscritos.includes(u.id));

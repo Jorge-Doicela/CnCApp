@@ -9,6 +9,7 @@ const controller = container.resolve(CapacitacionController);
 // Public routes
 router.get('/count', controller.count);
 router.get('/', controller.getAll);
+router.get('/:id', controller.getById);
 
 // Protected routes
 router.post('/', authenticate, controller.create);
