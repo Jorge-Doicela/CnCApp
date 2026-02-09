@@ -132,8 +132,11 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   async verificarRolEnCambioRuta() {
+    // Si no hay usuario en el estado reactivo, no verificamos roles (es guest)
+    if (!this.userName()) return;
+
     const authUid = localStorage.getItem('auth_uid');
-    if (!authUid) return; // No hay usuario autenticado
+    if (!authUid) return;
 
     // Verificar si el rol ha cambiado
     try {
@@ -278,6 +281,11 @@ export class AppComponent implements OnInit, OnDestroy {
 
   iraLogin() {
     this.router.navigate(['/login']);
+    this.closeMenu();
+  }
+
+  iraRegistro() {
+    this.router.navigate(['/register']);
     this.closeMenu();
   }
 

@@ -324,6 +324,12 @@ export class HomePage implements OnInit {
       'Ver certificaciones': 'ver-certificaciones',
       'Validar certificados': 'validar-certificados',
       'Ver capacitaciones': 'ver-conferencias',
+      // Public Pages
+      'historia': 'home/historia',
+      'direccion': 'home/direccion',
+      'norma-regul': 'home/norma-regul',
+      'informacion': 'home/informacion',
+      'servi-progra': 'home/servi-progra',
       // Admin shortcuts
       'Usuarios': 'gestionar-usuarios',
       'Conferencias': 'gestionar-capacitaciones',
