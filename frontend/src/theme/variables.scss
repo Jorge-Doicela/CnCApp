@@ -1,4 +1,4 @@
-/** Ionic CSS variables **/
+/** Ionic CSS Variables **/
 @import "@ionic/angular/css/core.css";
 
 /* Basic CSS for apps built with Ionic */
@@ -7,83 +7,108 @@
 @import "@ionic/angular/css/typography.css";
 @import "@ionic/angular/css/display.css";
 
-/* Optional CSS utils that can be commented out */
+/* Optional CSS utils */
 @import "@ionic/angular/css/padding.css";
 @import "@ionic/angular/css/float-elements.css";
 @import "@ionic/angular/css/text-alignment.css";
 @import "@ionic/angular/css/text-transformation.css";
 @import "@ionic/angular/css/flex-utils.css";
 
+/**
+ * CLEAN MODERN STANDARD PALETTE (v2)
+ * Philosophy: Content-first, high contrast, clean surfaces.
+ */
+
 :root {
-    /** primary - Institutional Blue **/
-    --ion-color-primary: #174a84;
-    --ion-color-primary-rgb: 23, 74, 132;
+    /* Fonts */
+    --ion-font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --font-heading: 'Montserrat', sans-serif; // Revert to Montserrat for Headings (Internal logic: Official look)
+
+    /** primary - CNC Official Deep Blue **/
+    --ion-color-primary: #1e3a8a; // Matches the deep blue logo background
+    --ion-color-primary-rgb: 30, 58, 138;
     --ion-color-primary-contrast: #ffffff;
     --ion-color-primary-contrast-rgb: 255, 255, 255;
-    --ion-color-primary-shade: #144174;
-    --ion-color-primary-tint: #2e5c90;
+    --ion-color-primary-shade: #1a337a;
+    --ion-color-primary-tint: #354e96;
 
-    /** secondary **/
-    --ion-color-secondary: #3dc2ff;
-    --ion-color-secondary-rgb: 61, 194, 255;
+    /** secondary - Action Blue **/
+    --ion-color-secondary: #2563eb;
+    --ion-color-secondary-rgb: 37, 99, 235;
     --ion-color-secondary-contrast: #ffffff;
     --ion-color-secondary-contrast-rgb: 255, 255, 255;
-    --ion-color-secondary-shade: #36abe0;
-    --ion-color-secondary-tint: #50c8ff;
+    --ion-color-secondary-shade: #2057ce;
+    --ion-color-secondary-tint: #3b72ed;
 
-    /** tertiary **/
-    --ion-color-tertiary: #5260ff;
-    --ion-color-tertiary-rgb: 82, 96, 255;
-    --ion-color-tertiary-contrast: #ffffff;
-    --ion-color-tertiary-contrast-rgb: 255, 255, 255;
-    --ion-color-tertiary-shade: #4854e0;
-    --ion-color-tertiary-tint: #6370ff;
+    /** tertiary - Slate **/
+    --ion-color-tertiary: #64748b;
 
-    /** success **/
-    --ion-color-success: #2dd36f;
-    --ion-color-success-rgb: 45, 211, 111;
+    /** success - Emerald **/
+    --ion-color-success: #10b981;
+    --ion-color-success-rgb: 16, 185, 129;
     --ion-color-success-contrast: #ffffff;
     --ion-color-success-contrast-rgb: 255, 255, 255;
-    --ion-color-success-shade: #28ba62;
-    --ion-color-success-tint: #42d77d;
+    --ion-color-success-shade: #059669;
+    --ion-color-success-tint: #34d399;
 
-    /** warning **/
-    --ion-color-warning: #ffc409;
-    --ion-color-warning-rgb: 255, 196, 9;
+    /** warning - Amber **/
+    --ion-color-warning: #f59e0b;
+    --ion-color-warning-rgb: 245, 158, 11;
     --ion-color-warning-contrast: #000000;
     --ion-color-warning-contrast-rgb: 0, 0, 0;
-    --ion-color-warning-shade: #e0ad08;
-    --ion-color-warning-tint: #ffca22;
+    --ion-color-warning-shade: #d97706;
+    --ion-color-warning-tint: #fbbf24;
 
-    /** danger **/
-    --ion-color-danger: #eb445a;
-    --ion-color-danger-rgb: 235, 68, 90;
+    /** danger - Rose **/
+    --ion-color-danger: #ef4444;
+    --ion-color-danger-rgb: 239, 68, 68;
     --ion-color-danger-contrast: #ffffff;
     --ion-color-danger-contrast-rgb: 255, 255, 255;
-    --ion-color-danger-shade: #cf3c4f;
-    --ion-color-danger-tint: #ed576b;
+    --ion-color-danger-shade: #dc2626;
+    --ion-color-danger-tint: #f87171;
 
-    /** dark **/
-    --ion-color-dark: #222428;
-    --ion-color-dark-rgb: 34, 36, 40;
+    /** dark - Slate 800 **/
+    --ion-color-dark: #1e293b;
+    --ion-color-dark-rgb: 30, 41, 59;
     --ion-color-dark-contrast: #ffffff;
     --ion-color-dark-contrast-rgb: 255, 255, 255;
-    --ion-color-dark-shade: #1e2023;
-    --ion-color-dark-tint: #383a3e;
+    --ion-color-dark-shade: #0f172a;
+    --ion-color-dark-tint: #334155;
 
-    /** medium **/
-    --ion-color-medium: #92949c;
-    --ion-color-medium-rgb: 146, 148, 156;
+    /** medium - Slate 500 **/
+    --ion-color-medium: #64748b;
+    --ion-color-medium-rgb: 100, 116, 139;
     --ion-color-medium-contrast: #ffffff;
     --ion-color-medium-contrast-rgb: 255, 255, 255;
-    --ion-color-medium-shade: #808289;
-    --ion-color-medium-tint: #9d9fa6;
+    --ion-color-medium-shade: #475569;
+    --ion-color-medium-tint: #94a3b8;
 
-    /** light **/
-    --ion-color-light: #f4f5f8;
-    --ion-color-light-rgb: 244, 245, 248;
-    --ion-color-light-contrast: #000000;
-    --ion-color-light-contrast-rgb: 0, 0, 0;
-    --ion-color-light-shade: #d7d8da;
-    --ion-color-light-tint: #f5f6f9;
+    /** light - Gray 100 **/
+    --ion-color-light: #f1f5f9;
+    --ion-color-light-rgb: 241, 245, 249;
+    --ion-color-light-contrast: #0f172a;
+    --ion-color-light-contrast-rgb: 15, 23, 42;
+    --ion-color-light-shade: #e2e8f0;
+    --ion-color-light-tint: #f8fafc;
+
+    /* Clean Surfaces */
+    --surface-0: #ffffff;
+    /* Main App BG */
+    --surface-1: #ffffff;
+    /* Cards */
+    --surface-border: #e2e8f0;
+    /* Slate 200 - crisp borders */
+    --surface-hover: #f8fafc;
+    /* Slate 50 */
+
+    /* Modern Shadows (Stripe-ish) */
+    --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.06);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+
+    /* Interaction */
+    --radius-sm: 6px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
 }
