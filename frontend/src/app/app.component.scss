@@ -53,15 +53,15 @@ ion-list {
   color: #94a3b8; // Slate 400
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  margin: 24px 0 12px 12px;
+  margin: 24px 0 12px 20px; // Adjusted margin
   border-bottom: 1px solid #f1f5f9;
   padding-bottom: 8px;
 }
 
 .menu-section-group {
   background: #f8fafc;
-  border-radius: 12px;
-  padding: 4px;
+  border-radius: 32px; // More rounded container
+  padding: 6px;
   margin: 16px 0;
   border: 1px solid #e2e8f0;
 }
@@ -69,41 +69,53 @@ ion-list {
 // ITEMS
 .menu-item {
   --background: transparent;
-  --min-height: 44px;
-  --padding-start: 12px;
-  --padding-end: 12px;
+  --min-height: 48px; // Taller touch target
+  --padding-start: 16px;
+  --padding-end: 16px;
   --inner-padding-end: 0;
-  border-radius: 8px;
+  border-radius: 99px; // Pill Shape (User Request)
   margin-bottom: 4px;
   --color: #334155; // Slate 700
   font-size: 0.95rem;
-  font-weight: 500;
+  font-weight: 600;
 
   ion-icon {
-    font-size: 1.2rem;
+    font-size: 1.3rem;
     color: #64748b; // Slate 500
     margin-right: 12px;
   }
 
   &.item-pressed,
   &:hover {
-    --background: #f1f5f9;
+    --background: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 
     ion-icon {
-      color: #0f172a;
+      color: var(--ion-color-primary);
     }
   }
 }
 
 // HIGHLIGHT BUTTONS (Login / Validate)
 .highlight-btn {
-  --background: #e2e8f0; // Slate 200/Gray
-  --color: #0f172a;
-  font-weight: 600;
-  margin: 0; // Reset margin if in group
+  --background: white;
+  --color: var(--ion-color-primary);
+  font-weight: 700;
+  margin: 2px 0;
+  border: 1px solid rgba(0, 0, 0, 0.05); // Subtle border
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
+
+  &:hover {
+    --background: var(--ion-color-primary);
+    --color: white;
+
+    ion-icon {
+      color: white;
+    }
+  }
 
   ion-icon {
-    color: #0f172a;
+    color: var(--ion-color-primary);
   }
 }
 
@@ -117,5 +129,6 @@ ion-list {
 
   &:hover {
     --background: #fef2f2;
+    box-shadow: none;
   }
 }
