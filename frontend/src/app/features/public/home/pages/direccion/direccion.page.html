@@ -1,67 +1,114 @@
-<ion-header>
-  <ion-toolbar color="primary">
+<ion-header class="ion-no-border" [translucent]="true">
+  <ion-toolbar class="glass-header">
     <ion-buttons slot="start">
-      <ion-back-button default-href="/home"></ion-back-button>
+      <ion-button routerLink="/home" color="primary">
+        <ion-icon name="arrow-back-outline" slot="icon-only"></ion-icon>
+      </ion-button>
     </ion-buttons>
-    <ion-title class="ion-text-center">Dirección CNC</ion-title>
+    <ion-title class="header-title">
+      <img src="assets/certificados/cnc.png" alt="Logo CNC" class="header-logo">
+      <span>Dirección y Contacto</span>
+    </ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
-  <ion-card class="main-card">
-    <ion-card-header>
-      <ion-card-title class="ion-text-center">Ubicación del Consejo Nacional de Competencias</ion-card-title>
-    </ion-card-header>
-    <ion-card-content>
-      <div class="logo-container ion-text-center">
-        <img src="../../../../assets/cnc.png" alt="Logo CNC" class="cnc-logo">
-      </div>
+<ion-content [fullscreen]="true" class="main-content">
+  <div class="background-decor-1"></div>
+  <div class="background-decor-2"></div>
 
-      <div class="direction-details">
-        <div class="info-item">
-          <ion-icon name="location-outline" color="primary"></ion-icon>
-          <span>Plataforma Gubernamental Financiera, bloque rojo, tercer piso, ala sur. Av. Amazonas entre Juan José Villalengua y Unión Nacional de Periodistas.</span>
-        </div>
-        <div class="info-item">
-          <ion-icon name="call-outline" color="primary"></ion-icon>
-          <span>02 3834 004</span>
-        </div>
-        <div class="info-item">
-          <ion-icon name="mail-outline" color="primary"></ion-icon>
-          <span>info&#64;competencias.gob.ec</span>
-        </div>
-        <div class="info-item">
-          <ion-icon name="time-outline" color="primary"></ion-icon>
-          <span>Lunes a Viernes de 8:30 a 17:30</span>
-        </div>
-      </div>
+  <div class="content-wrapper ion-padding">
 
-      <div class="map-container">
-        <h3 class="section-title">Mapa de ubicación</h3>
-        <div class="map-interactive" id="map"></div>
-      </div>
+    <div class="page-header animate-fade-up">
+      <h1>Ubicación y Contacto CNC</h1>
+      <p class="subtitle">Estamos ubicados en la Plataforma Gubernamental Financiera para brindarte la mejor atención.
+      </p>
+    </div>
 
-      <div class="transport-info">
-        <h3 class="section-title">Cómo llegar</h3>
-        <div class="transport-options">
-          <div class="transport-item">
-            <ion-icon name="bus-outline" color="primary"></ion-icon>
-            <div class="transport-details">
-              <h4>Transporte público</h4>
-              <p>Líneas de bus: C1, C2, Central Norte Metrobús, NO44, NO3.</p>
-              <p>Metro de Quito: Línea 1, estación Iñaquito.</p>
-            </div>
+    <div class="grid-layout">
+
+      <!-- Columna Izquierda: Información de contacto -->
+      <div class="info-column animate-fade-up" style="animation-delay: 0.1s;">
+
+        <div class="modern-card contact-card">
+          <div class="card-icon-wrapper blue">
+            <ion-icon name="location-outline"></ion-icon>
           </div>
-          <div class="transport-item">
-            <ion-icon name="car-outline" color="primary"></ion-icon>
-            <div class="transport-details">
-              <h4>En vehículo particular</h4>
-              <p>La Plataforma Gubernamental Financiera dispone de 536 plazas en tres niveles.</p>
-              <p>También hay parqueaderos públicos cercanos en La Carolina.</p>
-            </div>
+          <div class="card-content">
+            <h3>Dirección Principal</h3>
+            <p>Plataforma Gubernamental Financiera, bloque rojo, tercer piso, ala sur.</p>
+            <p class="detail">Av. Amazonas entre Juan José Villalengua y Unión Nacional de Periodistas.</p>
           </div>
         </div>
+
+        <div class="modern-card contact-card">
+          <div class="card-icon-wrapper blue">
+            <ion-icon name="time-outline"></ion-icon>
+          </div>
+          <div class="card-content">
+            <h3>Horario de Atención</h3>
+            <p>Lunes a Viernes</p>
+            <p class="detail">08:30 a 17:30 (Atención al público)</p>
+          </div>
+        </div>
+
+        <div class="modern-card quick-contacts">
+          <div class="contact-item">
+            <ion-icon name="call-outline" color="primary"></ion-icon>
+            <div class="text">
+              <span class="label">Teléfono</span>
+              <span class="value">02 3834 004</span>
+            </div>
+          </div>
+          <div class="contact-item">
+            <ion-icon name="mail-outline" color="primary"></ion-icon>
+            <div class="text">
+              <span class="label">Correo Electrónico</span>
+              <span class="value">info&#64;competencias.gob.ec</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="modern-card transport-card">
+          <h3>¿Cómo llegar?</h3>
+          <div class="transport-list">
+            <div class="transport-option">
+              <ion-icon name="bus-outline" color="primary"></ion-icon>
+              <div class="text">
+                <h4>Transporte Público</h4>
+                <p>Líneas C1, C2, Central Norte Metrobús. Metro: Estación Iñaquito.</p>
+              </div>
+            </div>
+            <div class="transport-option">
+              <ion-icon name="car-outline" color="primary"></ion-icon>
+              <div class="text">
+                <h4>En Vehículo</h4>
+                <p>La Plataforma dispone de 536 plazas de parqueo en tres niveles.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
-    </ion-card-content>
-  </ion-card>
+
+      <!-- Columna Derecha: Mapa -->
+      <div class="map-column animate-fade-up" style="animation-delay: 0.2s;">
+
+        <div class="modern-card map-card">
+          <div class="map-container">
+            <div id="map" class="map-interactive"></div>
+          </div>
+          <div class="map-footer">
+            <ion-button fill="clear" color="primary" href="https://maps.google.com/maps?daddr=-0.1772439,-78.4891122"
+              target="_blank">
+              <ion-icon name="navigate-outline" slot="start"></ion-icon>
+              Abrir en Google Maps
+            </ion-button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
 </ion-content>

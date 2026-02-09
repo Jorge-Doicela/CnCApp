@@ -1,24 +1,21 @@
 // direccion.page.ts
 import { Component, OnInit, AfterViewInit, ChangeDetectionStrategy } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
-import { AlertController, ToastController, LoadingController } from '@ionic/angular';
+import { AlertController, LoadingController } from '@ionic/angular';
 import { HttpClient } from '@angular/common/http';
-import { environment } from 'src/environments/environment.prod';
+import { RouterModule } from '@angular/router';
 
 declare var google: any;
 
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {
-  IonHeader, IonToolbar, IonButtons, IonBackButton,
-  IonTitle, IonContent, IonCard, IonCardHeader,
-  IonCardTitle, IonCardContent, IonIcon
+  IonHeader, IonToolbar, IonButtons,
+  IonTitle, IonContent, IonIcon, IonButton
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
   locationOutline, callOutline, timeOutline,
   mailOutline, personOutline, chatbubbleOutline,
-  sendOutline, busOutline, carOutline
+  sendOutline, busOutline, carOutline, arrowBackOutline, navigateOutline
 } from 'ionicons/icons';
 
 @Component({
@@ -27,26 +24,22 @@ import {
   styleUrls: ['./direccion.page.scss'],
   standalone: true,
   imports: [
-    CommonModule, FormsModule, ReactiveFormsModule,
-    IonHeader, IonToolbar, IonButtons, IonBackButton,
-    IonTitle, IonContent, IonCard, IonCardHeader,
-    IonCardTitle, IonCardContent, IonIcon
+    CommonModule,
+    IonHeader, IonToolbar, IonButtons,
+    IonTitle, IonContent, IonIcon, RouterModule,
+    IonButton
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DireccionPage implements OnInit, AfterViewInit {
-  // Inicializar contactForm aquí para resolver error TS2564
-  contactForm: FormGroup = this.createForm();
   map: any;
 
-  // Coordenadas de la ubicación del CNC
-  private readonly CNC_LATITUDE = -0.1733095;
-  private readonly CNC_LONGITUDE = -80.4867844;
+  // Coordenadas de la ubicación del CNC (Plataforma Gubernamental Financiera)
+  private readonly CNC_LATITUDE = -0.1772439;
+  private readonly CNC_LONGITUDE = -78.4891122;
 
   constructor(
-    private formBuilder: FormBuilder,
     private alertController: AlertController,
-    private toastController: ToastController,
     private loadingController: LoadingController,
     private http: HttpClient
   ) {
@@ -59,7 +52,9 @@ export class DireccionPage implements OnInit, AfterViewInit {
       'chatbubble-outline': chatbubbleOutline,
       'send-outline': sendOutline,
       'bus-outline': busOutline,
-      'car-outline': carOutline
+      'car-outline': carOutline,
+      'arrow-back-outline': arrowBackOutline,
+      'navigate-outline': navigateOutline
     });
   }
 
@@ -71,63 +66,12 @@ export class DireccionPage implements OnInit, AfterViewInit {
     // El mapa se inicializará después de cargar la API de Google Maps
   }
 
-  // Getters para acceder a los controles del formulario fácilmente
-  get nombreControl(): FormControl {
-    return this.contactForm.get('nombre') as FormControl;
-  }
-
-  get emailControl(): FormControl {
-    return this.contactForm.get('email') as FormControl;
-  }
-
-  get mensajeControl(): FormControl {
-    return this.contactForm.get('mensaje') as FormControl;
-  }
-
-  createForm(): FormGroup {
-    return this.formBuilder.group({
-      nombre: ['', [Validators.required, Validators.minLength(3)]],
-      email: ['', [Validators.required, Validators.email]],
-      telefono: [''],
-      mensaje: ['', [Validators.required, Validators.minLength(10)]],
-    });
-  }
-
-  // Método para validar el email con reglas estrictas
-  validateEmail(email: string): boolean {
-    // Primero validar formato básico del email con dominios comunes
-    const basicEmailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|net|org|edu|gov|mil|biz|info|io|me|tv|co|us|uk|ca|de|jp|fr|au|ru|ch|it|nl|se|no|es|mx)$/i;
-    if (!basicEmailRegex.test(email)) {
-      this.presentToast('Por favor, ingrese un correo electrónico válido con un dominio conocido (.com, .net, .org, etc.)');
-      return false;
-    }
-
-    // Luego validar que use un proveedor de correo conocido
-    const knownProviderRegex = /^[a-zA-Z0-9._%+-]+@(gmail|outlook|hotmail|yahoo|icloud|aol|protonmail|zoho|mail|gmx|yandex|live|msn|inbox)\.(com|net|org)$/i;
-    if (!knownProviderRegex.test(email)) {
-      this.presentToast('Por favor, utilice un proveedor de correo conocido como Gmail, Outlook, Hotmail, Yahoo, etc.');
-      return false;
-    }
-
-    return true;
-  }
-
-  // Método para mostrar mensajes toast
-  async presentToast(message: string) {
-    const toast = await this.toastController.create({
-      message: message,
-      duration: 3000,
-      position: 'bottom',
-      color: 'warning'
-    });
-    toast.present();
-  }
-
   loadGoogleMapsScript() {
     // Verificar si el script ya está cargado
     if (typeof google === 'undefined' || typeof google.maps === 'undefined') {
       const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyA3zMPBIcMhZuEsusECycFEYkPWxVlDK04&callback=initMap`;
+      // Versión más moderna de la URL de carga con async y bibliotecas necesarias
+      script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyA3zMPBIcMhZuEsusECycFEYkPWxVlDK04&callback=initMap&libraries=marker&v=beta&loading=async`;
       script.async = true;
       script.defer = true;
 
@@ -143,166 +87,76 @@ export class DireccionPage implements OnInit, AfterViewInit {
     }
   }
 
-  initializeMap() {
+  async initializeMap() {
+    // Importar librerías necesarias de forma asíncrona (patrón recomendado)
+    const { Map } = await (google.maps as any).importLibrary("maps");
+    const { AdvancedMarkerElement } = await (google.maps.marker as any).AdvancedMarkerElement ? { AdvancedMarkerElement: (google.maps.marker as any).AdvancedMarkerElement } : await (google.maps as any).importLibrary("marker");
+
     const mapOptions = {
       center: { lat: this.CNC_LATITUDE, lng: this.CNC_LONGITUDE },
       zoom: 16,
+      mapId: 'DEMO_MAP_ID', // Requerido para AdvancedMarkerElement
       mapTypeControl: true,
       fullscreenControl: true,
-      streetViewControl: true,
-      mapTypeId: google.maps.MapTypeId.ROADMAP,
-      styles: [
-        {
-          featureType: 'poi',
-          elementType: 'labels.text',
-          stylers: [{ visibility: 'on' }]
-        },
-        {
-          featureType: 'administrative',
-          elementType: 'labels.text',
-          stylers: [{ weight: 0.8 }]
-        },
-        {
-          featureType: 'road',
-          elementType: 'geometry',
-          stylers: [{ color: '#ffffff' }]
-        },
-        {
-          featureType: 'water',
-          elementType: 'geometry',
-          stylers: [{ color: '#E3F2FD' }]
-        }
-      ]
+      streetViewControl: true
     };
 
     const mapElement = document.getElementById('map');
 
     if (mapElement) {
-      this.map = new google.maps.Map(mapElement, mapOptions);
+      this.map = new Map(mapElement, mapOptions);
 
-      // Añadir marcador para el CNC
-      const marker = new google.maps.Marker({
-        position: { lat: this.CNC_LATITUDE, lng: this.CNC_LONGITUDE },
+      // Crear un elemento de imagen para el marcador personalizado
+      const markerImage = document.createElement('img');
+      markerImage.src = 'assets/marker.png';
+      markerImage.style.width = '40px';
+      markerImage.style.height = '40px';
+
+      // Añadir marcador para el CNC usando AdvancedMarkerElement
+      const marker = new AdvancedMarkerElement({
         map: this.map,
+        position: { lat: this.CNC_LATITUDE, lng: this.CNC_LONGITUDE },
         title: 'Consejo Nacional de Competencias',
-        animation: google.maps.Animation.DROP,
-        icon: {
-          url: 'assets/marker.png',
-          scaledSize: new google.maps.Size(40, 40)
-        }
+        content: markerImage
       });
 
       // Añadir información cuando se hace clic en el marcador
       const infoWindow = new google.maps.InfoWindow({
         content: `
-          <div style="padding: 10px; max-width: 280px;">
-            <h3 style="color: #0066cc; margin-top: 0; margin-bottom: 5px;">Consejo Nacional de Competencias</h3>
-            <p style="margin-top: 5px; margin-bottom: 5px;">
+          <div style="padding: 10px; max-width: 280px; font-family: 'Inter', sans-serif;">
+            <h3 style="color: #0066cc; margin-top: 0; margin-bottom: 8px; font-weight: 700;">Consejo Nacional de Competencias</h3>
+            <p style="margin-top: 5px; margin-bottom: 5px; color: #4b5563; font-size: 0.9rem;">
               <strong>Dirección:</strong> Plataforma Gubernamental Financiera, bloque rojo, tercer piso, ala sur.<br>
               Av. Amazonas entre Juan José Villalengua y Unión Nacional de Periodistas.
             </p>
-            <p style="margin-top: 5px; margin-bottom: 5px;">
+            <p style="margin-top: 5px; margin-bottom: 5px; color: #4b5563; font-size: 0.9rem;">
               <strong>Teléfono:</strong> 02 3834 004
             </p>
-            <p style="margin-top: 5px; margin-bottom: 5px;">
+            <p style="margin-top: 5px; margin-bottom: 5px; color: #4b5563; font-size: 0.9rem;">
               <strong>Horario:</strong> Lunes a Viernes de 8:30 a 17:30
             </p>
-            <a href="https://maps.google.com/maps?daddr=${this.CNC_LATITUDE},${this.CNC_LONGITUDE}" target="_blank" style="color: #0066cc; text-decoration: none; font-weight: bold;">
-              Cómo llegar ↗
-            </a>
+            <div style="margin-top: 12px; border-top: 1px solid #e5e7eb; padding-top: 10px;">
+              <a href="https://maps.google.com/maps?daddr=${this.CNC_LATITUDE},${this.CNC_LONGITUDE}" target="_blank" style="color: #0066cc; text-decoration: none; font-weight: bold; display: flex; align-items: center; gap: 4px;">
+                <span>Cómo llegar</span>
+                <span style="font-size: 1.1rem;">↗</span>
+              </a>
+            </div>
           </div>
         `
       });
 
-      marker.addListener('click', () => {
-        infoWindow.open(this.map, marker);
+      marker.addListener('gmp-click', () => {
+        infoWindow.open({
+          anchor: marker,
+          map: this.map
+        });
       });
 
       // Abrir el infoWindow por defecto
-      infoWindow.open(this.map, marker);
-    }
-  }
-
-  async enviarContacto() {
-    if (this.contactForm.invalid) {
-      // Verificar qué campo específico está inválido
-      if (this.nombreControl.invalid) {
-        this.presentToast('Por favor ingrese un nombre válido');
-        return;
-      }
-      if (this.mensajeControl.invalid) {
-        this.presentToast('El mensaje debe tener al menos 10 caracteres');
-        return;
-      }
-      return;
-    }
-
-    // Validación adicional para el email
-    if (!this.validateEmail(this.emailControl.value)) {
-      // No necesitamos mostrar toast aquí porque validateEmail ya lo hace
-      return;
-    }
-
-    const loading = await this.loadingController.create({
-      message: 'Enviando mensaje...',
-      spinner: 'circles'
-    });
-
-    await loading.present();
-
-    const formData = this.contactForm.value;
-
-    // Cuerpo del email
-    const emailData = {
-      to: 'info@competencias.gob.ec',
-      subject: `Mensaje de contacto - ${formData.nombre}`,
-      body: `
-        <h3>Mensaje de contacto desde el sitio web</h3>
-        <p><strong>Nombre:</strong> ${formData.nombre}</p>
-        <p><strong>Correo electrónico:</strong> ${formData.email}</p>
-        <p><strong>Teléfono:</strong> ${formData.telefono || 'No proporcionado'}</p>
-        <h4>Mensaje:</h4>
-        <p>${formData.mensaje}</p>
-      `,
-      replyTo: formData.email
-    };
-
-    try {
-      // Enviar email usando un servicio backend
-      // Esto es un ejemplo y debe adaptarse a tu API real
-      await this.http.post(`${environment.apiUrl}/api/send-email`, emailData).toPromise();
-
-      await loading.dismiss();
-
-      const toast = await this.toastController.create({
-        message: '¡Mensaje enviado con éxito! Nos pondremos en contacto contigo pronto.',
-        duration: 3000,
-        position: 'bottom',
-        color: 'success',
-        buttons: [
-          {
-            text: 'Cerrar',
-            role: 'cancel'
-          }
-        ]
+      infoWindow.open({
+        anchor: marker,
+        map: this.map
       });
-
-      await toast.present();
-
-      // Limpiar formulario después de enviar
-      this.contactForm.reset();
-
-    } catch (error) {
-      await loading.dismiss();
-
-      const alert = await this.alertController.create({
-        header: 'Error al enviar mensaje',
-        message: 'Ha ocurrido un error al enviar tu mensaje. Por favor intenta nuevamente o contáctanos directamente por teléfono.',
-        buttons: ['Aceptar']
-      });
-
-      await alert.present();
-      console.error('Error al enviar email:', error);
     }
   }
 }
