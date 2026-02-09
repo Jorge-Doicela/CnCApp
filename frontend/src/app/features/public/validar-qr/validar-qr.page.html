@@ -1,118 +1,156 @@
-<ion-header [translucent]="true">
-  <ion-toolbar color="primary">
+<ion-header class="ion-no-border" [translucent]="true">
+  <ion-toolbar class="glass-header">
     <ion-buttons slot="start">
-      <ion-menu-button></ion-menu-button>
+      <ion-button routerLink="/home" color="primary">
+        <ion-icon name="arrow-back-outline" slot="icon-only"></ion-icon>
+      </ion-button>
     </ion-buttons>
-    <ion-title>Validación de Certificados</ion-title>
+    <ion-title class="header-title">
+      <img src="assets/certificados/cnc.png" alt="Logo CNC" class="header-logo">
+      <span>Validación de Certificados</span>
+    </ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true" class="ion-padding">
-  <ion-card class="validation-card">
-    <div class="validation-header">
-      <img src="../../../../assets/certificados/cnc.png" alt="Logo CNC" class="logo">
+<ion-content [fullscreen]="true" class="main-content">
+  <div class="background-decor-1"></div>
+  <div class="background-decor-2"></div>
+
+  <div class="content-wrapper ion-padding">
+
+    <div class="page-header animate-fade-up">
+
       <h1>Verificación de Certificados Oficiales</h1>
-      <p>Bienvenido a la página oficial de validación de certificados del Consejo Nacional de Competencias (CNC)</p>
+      <p class="subtitle">Bienvenido a la página oficial de validación de certificados del Consejo Nacional de
+        Competencias (CNC)</p>
     </div>
 
-    <ion-card-content>
-      <div class="info-section fade-in">
-        <ion-icon name="shield-checkmark-outline" color="primary"></ion-icon>
-        <div class="info-text">
-          <h3>Certificados Digitales Oficiales</h3>
-          <p>Este certificado fue generado digitalmente y es completamente válido. Contiene información autenticada por el sistema del CNC. Si ha llegado aquí escaneando un código QR, puede considerar este documento como oficial y verificable.</p>
+    <div class="grid-layout">
+
+      <!-- Columna Izquierda: Información y Pasos -->
+      <div class="info-column animate-fade-up" style="animation-delay: 0.1s;">
+
+        <div class="modern-card info-card">
+          <div class="card-icon-wrapper blue">
+            <ion-icon name="shield-checkmark-outline"></ion-icon>
+          </div>
+          <div class="card-content">
+            <h3>Certificados Digitales Oficiales</h3>
+            <p>Este certificado fue generado digitalmente y es completamente válido. Contiene información autenticada
+              por el sistema del CNC. Si ha llegado aquí escaneando un código QR, puede considerar este documento como
+              oficial y verificable.</p>
+          </div>
         </div>
+
+        <div class="modern-card steps-card">
+          <h3>¿Cómo verificar un certificado?</h3>
+
+          <div class="steps-list">
+            <div class="step-item">
+              <div class="step-badge">1</div>
+              <div class="step-text">
+                <h4>Localice el código QR</h4>
+                <p>Cada certificado incluye un código QR en la esquina superior derecha.</p>
+              </div>
+            </div>
+
+            <div class="step-item">
+              <div class="step-badge">2</div>
+              <div class="step-text">
+                <h4>Escanee el código</h4>
+                <p>Utilice la cámara de su dispositivo para escanear el código QR.</p>
+              </div>
+            </div>
+
+            <div class="step-item">
+              <div class="step-badge">3</div>
+              <div class="step-text">
+                <h4>Verifique la autenticidad</h4>
+                <p>El sistema verificará automáticamente la validez del certificado.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
 
-      <!-- Formulario de validación manual -->
-      <div class="validation-form fade-in" style="animation-delay: 0.2s;">
-        <h3 class="section-title">Validar certificado manualmente</h3>
+      <!-- Columna Derecha: Formulario y Resultados -->
+      <div class="validation-column animate-fade-up" style="animation-delay: 0.2s;">
 
-        <div class="form-container">
-          <ion-item class="validation-input">
-            <ion-icon name="key-outline" slot="start" color="primary"></ion-icon>
-            <ion-label position="floating">Código de verificación</ion-label>
-            <ion-input [(ngModel)]="hashCode" placeholder="Ingrese el código de verificación del certificado"></ion-input>
-          </ion-item>
+        <!-- Formulario -->
+        <div class="modern-card validation-form-card">
+          <div class="form-header">
+            <h3>Validar certificado manualmente</h3>
+            <p>Ingrese el código único del documento</p>
+          </div>
 
-          <ion-button expand="block" color="primary" (click)="validarCertificado()" [disabled]="isLoading || !hashCode" class="validation-button">
-            <ion-icon name="search-outline" slot="start"></ion-icon>
-            {{ isLoading ? 'Validando...' : 'Verificar Certificado' }}
+          <div class="input-group">
+            <ion-item lines="none" class="custom-input">
+              <ion-icon name="key-outline" slot="start" color="primary"></ion-icon>
+              <ion-label position="stacked">Código de verificación</ion-label>
+              <ion-input [(ngModel)]="hashCode" placeholder="Ej: A1B2-C3D4-E5F6"></ion-input>
+            </ion-item>
+          </div>
+
+          <ion-button expand="block" shape="round" class="validate-btn" (click)="validarCertificado()"
+            [disabled]="isLoading || !hashCode">
+            <span *ngIf="!isLoading">Verificar Certificado</span>
             <ion-spinner name="crescent" *ngIf="isLoading"></ion-spinner>
           </ion-button>
         </div>
-      </div>
 
-      <!-- Resultado de la validación -->
-      <div class="result-section fade-in" *ngIf="resultadoValidacion" style="animation-delay: 0.3s;">
-        <h3 class="section-title">Resultado de la validación</h3>
+        <!-- Resultados -->
+        <div class="modern-card result-card" *ngIf="resultadoValidacion"
+          [ngClass]="{'valid': esValido, 'invalid': !esValido}">
 
-        <div class="result-container" [ngClass]="{'valid-result': esValido, 'invalid-result': !esValido}">
-          <div class="result-icon">
-            <ion-icon [name]="esValido ? 'checkmark-circle-outline' : 'close-circle-outline'"
-                      [color]="esValido ? 'success' : 'danger'"></ion-icon>
-          </div>
-
-          <div class="result-content">
-            <h4>{{ esValido ? 'Certificado Válido' : 'Certificado No Válido' }}</h4>
-            <p>{{ mensajeValidacion }}</p>
-
-            <!-- Detalles del certificado si es válido -->
-            <div class="certificate-details" *ngIf="esValido && certificadoData">
-              <div class="detail-item">
-                <ion-icon name="person-outline" color="primary"></ion-icon>
-                <span><strong>Expedido a:</strong> {{ certificadoData.Usuario?.Nombre_Usuario }}</span>
-              </div>
-
-              <div class="detail-item">
-                <ion-icon name="calendar-outline" color="primary"></ion-icon>
-                <span><strong>Fecha de emisión:</strong> {{ formatearFecha(certificadoData.Fecha_generado) }}</span>
-              </div>
-
-              <div class="detail-item">
-                <ion-icon name="school-outline" color="primary"></ion-icon>
-                <span><strong>Capacitación:</strong> {{ capacitacionData?.Nombre_Capacitacion || 'No disponible' }}</span>
-              </div>
-
-              <div class="detail-item">
-                <ion-icon name="time-outline" color="primary"></ion-icon>
-                <span><strong>Duración:</strong> {{ capacitacionData?.Horas || 'No disponible' }} horas</span>
-              </div>
+          <div class="result-header">
+            <div class="result-icon-wrapper">
+              <ion-icon [name]="esValido ? 'checkmark-circle' : 'alert-circle'"></ion-icon>
+            </div>
+            <div class="result-title">
+              <h4>{{ esValido ? 'Certificado Válido' : 'Certificado No Válido' }}</h4>
+              <p>{{ mensajeValidacion }}</p>
             </div>
           </div>
+
+          <div class="certificate-details" *ngIf="esValido && certificadoData">
+            <div class="detail-row">
+              <span class="label">Expedido a:</span>
+              <span class="value person-name">{{ certificadoData.Usuario?.Nombre_Usuario }}</span>
+            </div>
+
+            <div class="separator"></div>
+
+            <div class="detail-grid">
+              <div class="detail-item">
+                <ion-icon name="calendar-outline"></ion-icon>
+                <div class="detail-text">
+                  <span class="label">Fecha</span>
+                  <span class="value">{{ formatearFecha(certificadoData.Fecha_generado) }}</span>
+                </div>
+              </div>
+
+              <div class="detail-item">
+                <ion-icon name="time-outline"></ion-icon>
+                <div class="detail-text">
+                  <span class="label">Duración</span>
+                  <span class="value">{{ capacitacionData?.Horas || 'N/A' }} horas</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="detail-row full-width">
+              <span class="label">Capacitación:</span>
+              <span class="value course-name">{{ capacitacionData?.Nombre_Capacitacion || 'No disponible' }}</span>
+            </div>
+
+          </div>
+
         </div>
+
       </div>
 
-      <!-- Instrucciones de uso -->
-      <div class="help-section fade-in" style="animation-delay: 0.4s;">
-        <h3 class="section-title">¿Cómo verificar un certificado?</h3>
+    </div>
 
-        <div class="steps-container">
-          <div class="step-item">
-            <div class="step-number">1</div>
-            <div class="step-content">
-              <h4>Localice el código QR</h4>
-              <p>Cada certificado incluye un código QR en la esquina superior derecha.</p>
-            </div>
-          </div>
-
-          <div class="step-item">
-            <div class="step-number">2</div>
-            <div class="step-content">
-              <h4>Escanee el código</h4>
-              <p>Utilice la cámara de su dispositivo para escanear el código QR.</p>
-            </div>
-          </div>
-
-          <div class="step-item">
-            <div class="step-number">3</div>
-            <div class="step-content">
-              <h4>Verifique la autenticidad</h4>
-              <p>El sistema verificará automáticamente la validez del certificado.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </ion-card-content>
-  </ion-card>
+  </div>
 </ion-content>
