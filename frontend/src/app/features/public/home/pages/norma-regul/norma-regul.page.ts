@@ -217,7 +217,7 @@ export class NormaRegulPage implements OnInit {
   constructor(
     private alertController: AlertController,
     private toastController: ToastController,
-    private modalController: ModalController,
+    // private modalController: ModalController, // Removed unused injection causing error
     private sanitizer: DomSanitizer
   ) {
     addIcons({
