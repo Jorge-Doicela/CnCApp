@@ -245,11 +245,11 @@ export class AppComponent implements OnInit, OnDestroy {
       'Ver certificaciones': 'ver-certificaciones',
       'Ver certificados': 'ver-certificaciones',
       'Validar certificados': 'validar-certificados',
-      'informacion': 'informacion',
-      'direccion': 'direccion',
-      'historia': 'historia',
-      'norma-regul': 'norma-regul',
-      'servi-progra': 'servi-progra',
+      'informacion': 'home/informacion',
+      'direccion': 'home/direccion',
+      'historia': 'home/historia',
+      'norma-regul': 'home/norma-regul',
+      'servi-progra': 'home/servi-progra',
       'Gestionar plantillas': 'gestionar-plantillas',
       'Plantillas': 'gestionar-plantillas'
     };
