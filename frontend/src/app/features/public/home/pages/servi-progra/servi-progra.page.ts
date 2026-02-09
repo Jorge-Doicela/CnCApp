@@ -438,6 +438,7 @@ export class ServiPrograPage implements OnInit {
   ];
 
   constructor(
+    private router: Router,
     private alertController: AlertController,
     private toastController: ToastController,
     private sanitizer: DomSanitizer
@@ -465,6 +466,26 @@ export class ServiPrograPage implements OnInit {
       'filter-outline': filterOutline,
       'calendar': calendar
     });
+  }
+
+  navegarModulo(modulo: string) {
+    if (modulo === '/') {
+      this.router.navigate(['/home']);
+      return;
+    }
+
+    // Mismo mapa que en HomePage
+    const rutasModulos: { [key: string]: string } = {
+      'historia': 'home/historia',
+      'direccion': 'home/direccion',
+      'norma-regul': 'home/norma-regul',
+      'informacion': 'home/informacion',
+      'servi-progra': 'home/servi-progra',
+      'validar-certificados': 'home/validar-certificados'
+    };
+
+    let ruta = rutasModulos[modulo] || modulo;
+    this.router.navigate([`/${ruta}`]);
   }
 
   ngOnInit() {
