@@ -223,3 +223,61 @@
     color: var(--ion-color-medium);
   }
 }
+
+/* PILL TABS COMPONENT (Global) */
+/* Generates a segmented control looking like a "pill" */
+.pill-tabs {
+  background: #f1f5f9;
+  /* Slate 100 */
+  padding: 4px;
+  border-radius: 100px;
+  display: inline-flex;
+  position: relative;
+  align-items: center;
+
+  .pill-item {
+    padding: 8px 24px;
+    border-radius: 100px;
+    color: var(--ion-color-medium);
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+    position: relative;
+    border: none;
+    background: transparent;
+
+    &.active {
+      background: white;
+      color: var(--ion-color-primary);
+      /* Deep Blue */
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    /* Separator between items */
+    &:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      height: 16px;
+      width: 1px;
+      background: rgba(0, 0, 0, 0.1);
+      display: block; // Default visible
+    }
+
+    /* Hide separator if current or next item is active/hovered to look clean */
+    &.active::after,
+    &:hover::after {
+      display: none;
+    }
+
+    /* Simple separator hiding via sibling selector (modern browsers) */
+    &:has(+ .active)::after,
+    &:has(+ :hover)::after {
+      display: none;
+    }
+  }
+}

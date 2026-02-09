@@ -2,18 +2,28 @@ import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { ToastController, LoadingController } from '@ionic/angular';
 import { CertificadosService } from 'src/app/features/admin/certificados/services/certificados.service';
 import { CapacitacionesService } from 'src/app/features/admin/capacitaciones/services/capacitaciones.service';
 import { firstValueFrom } from 'rxjs';
+import { addIcons } from 'ionicons';
+import {
+  shieldCheckmarkOutline,
+  keyOutline,
+  checkmarkCircle,
+  alertCircle,
+  calendarOutline,
+  timeOutline,
+  arrowBackOutline
+} from 'ionicons/icons';
 
 @Component({
   selector: 'app-validar-qr',
   templateUrl: './validar-qr.page.html',
   styleUrls: ['./validar-qr.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule]
+  imports: [CommonModule, FormsModule, IonicModule, RouterModule]
 })
 export class ValidarQrPage implements OnInit {
 
@@ -32,7 +42,17 @@ export class ValidarQrPage implements OnInit {
     private route: ActivatedRoute,
     private toastController: ToastController,
     private loadingController: LoadingController
-  ) { }
+  ) {
+    addIcons({
+      shieldCheckmarkOutline,
+      keyOutline,
+      checkmarkCircle,
+      alertCircle,
+      calendarOutline,
+      timeOutline,
+      arrowBackOutline
+    });
+  }
 
   ngOnInit() {
     // Verificar si hay un hash en los parámetros de URL (para QR escaneados)
