@@ -32,8 +32,8 @@ import { firstValueFrom } from 'rxjs';
   standalone: true,
   imports: [
     CommonModule, RouterModule,
-    IonApp, IonMenu, IonHeader, IonToolbar, IonTitle, IonContent,
-    IonList, IonItem, IonIcon, IonLabel, IonItemDivider, IonRouterOutlet
+    IonApp, IonMenu, IonHeader, IonToolbar, IonContent,
+    IonList, IonItem, IonIcon, IonLabel, IonRouterOutlet
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })

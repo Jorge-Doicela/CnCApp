@@ -164,4 +164,79 @@
     </div>
 
   </div>
+  <!-- Detail Modal -->
+  <ion-modal [isOpen]="isModalOpen" (didDismiss)="closeModal()" [initialBreakpoint]="0.85"
+    [breakpoints]="[0, 0.5, 0.85, 1]">
+    <ng-template>
+      <div class="modal-content" *ngIf="selectedDetail">
+
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <div class="modal-drag-indicator"></div>
+          <div class="header-actions">
+            <!-- Optional close button if needed, but swipe down works -->
+          </div>
+        </div>
+
+        <!-- Scrollable Content -->
+        <div class="modal-body">
+
+          <!-- Icon/Hero -->
+          <div class="detail-icon-wrapper">
+            <ion-icon [name]="selectedDetail.icono || 'information-circle-outline'"></ion-icon>
+          </div>
+
+          <!-- Title & Meta -->
+          <h2 class="detail-title">{{ selectedDetail.titulo }}</h2>
+          <p class="detail-subtitle" *ngIf="detailType === 'servicio'">Servicio Institucional</p>
+          <p class="detail-subtitle" *ngIf="detailType === 'programa'">Programa de Fortalecimiento</p>
+          <p class="detail-subtitle" *ngIf="detailType === 'evento'">{{ selectedDetail.fecha }} • {{
+            selectedDetail.lugar }}</p>
+
+          <div class="detail-divider"></div>
+
+          <!-- Description -->
+          <div class="detail-section">
+            <h3 class="section-title">Descripción</h3>
+            <p class="section-text">{{ selectedDetail.detalle || selectedDetail.descripcion }}</p>
+          </div>
+
+          <!-- Dynamic Lists (Beneficios/Requisitos/Agenda) -->
+          <div class="detail-section" *ngIf="selectedDetail.beneficios">
+            <h3 class="section-title">Beneficios</h3>
+            <ul class="detail-list">
+              <li *ngFor="let ben of selectedDetail.beneficios">{{ ben }}</li>
+            </ul>
+          </div>
+
+          <div class="detail-section" *ngIf="selectedDetail.requisitos">
+            <h3 class="section-title">Requisitos</h3>
+            <ul class="detail-list">
+              <li *ngFor="let req of selectedDetail.requisitos">{{ req }}</li>
+            </ul>
+          </div>
+
+          <div class="detail-section" *ngIf="selectedDetail.agenda">
+            <h3 class="section-title">Agenda</h3>
+            <ul class="detail-list time-list">
+              <li *ngFor="let item of selectedDetail.agenda">{{ item }}</li>
+            </ul>
+          </div>
+
+        </div>
+
+        <!-- Sticky Footer -->
+        <div class="modal-footer">
+          <ion-button expand="block" (click)="closeModal()" fill="outline" color="medium" class="action-btn">
+            Cerrar
+          </ion-button>
+          <ion-button expand="block" (click)="solicitarInformacion()" color="primary" class="action-btn">
+            {{ detailType === 'evento' ? 'Inscribirse' : 'Solicitar Información' }}
+          </ion-button>
+        </div>
+
+      </div>
+    </ng-template>
+  </ion-modal>
+
 </ion-content>

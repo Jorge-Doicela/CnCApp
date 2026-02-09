@@ -9,12 +9,12 @@ import {
   IonTitle, IonContent, IonSegment, IonSegmentButton,
   IonLabel, IonCard, IonCardHeader,
   IonCardTitle, IonCardContent, IonIcon, IonButton, IonItem,
-  IonSelect, IonSelectOption
+  IonSelect, IonSelectOption, IonModal
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
   peopleOutline, fitnessOutline, analyticsOutline,
-  shieldOutline, schoolOutline, buildOutline,
+  shieldCheckmarkOutline, schoolOutline, buildOutline,
   swapHorizontalOutline, bookOutline, bulbOutline,
   mapOutline, calendarOutline, timeOutline,
   locationOutline, arrowForward, briefcaseOutline,
@@ -31,9 +31,7 @@ import {
     CommonModule, FormsModule,
     IonHeader, IonToolbar, IonButtons, IonBackButton,
     IonTitle, IonContent, IonSegment, IonSegmentButton,
-    IonLabel, IonCard, IonCardHeader,
-    IonCardTitle, IonCardContent, IonIcon, IonButton, IonItem,
-    IonSelect, IonSelectOption
+    IonLabel, IonIcon, IonButton, IonModal
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -42,6 +40,11 @@ export class ServiPrograPage implements OnInit {
   filtroEvento: string = 'todos';
   showAllPrograms: boolean = false;
   filteredEventos: any[] = [];
+
+  // Modal State
+  selectedDetail: any = null;
+  detailType: 'servicio' | 'programa' | 'evento' = 'servicio';
+  isModalOpen: boolean = false;
 
   // Eventos
   eventos: any[] = [
@@ -241,7 +244,7 @@ export class ServiPrograPage implements OnInit {
     {
       id: 'conflictos',
       titulo: 'Resolución de Conflictos',
-      icono: 'shield-outline',
+      icono: 'shield-checkmark-outline',
       descripcion: 'Mediación y resolución de conflictos de competencias entre diferentes niveles de gobierno.',
       detalle: 'El servicio de resolución de conflictos de competencias actúa como un mecanismo efectivo para dirimir controversias entre los diferentes niveles de gobierno respecto al ejercicio de sus competencias. El CNC, como ente técnico del proceso de descentralización, facilita espacios de diálogo y aplica procedimientos para la resolución consensuada de conflictos.',
       beneficios: [
@@ -446,7 +449,7 @@ export class ServiPrograPage implements OnInit {
       'people-outline': peopleOutline,
       'fitness-outline': fitnessOutline,
       'analytics-outline': analyticsOutline,
-      'shield-outline': shieldOutline,
+      'shield-checkmark-outline': shieldCheckmarkOutline,
       'school-outline': schoolOutline,
       'build-outline': buildOutline,
       'swap-horizontal-outline': swapHorizontalOutline,
@@ -502,521 +505,41 @@ export class ServiPrograPage implements OnInit {
     });
   }
 
-  async verDetalleServicio(id: string) {
+  verDetalleServicio(id: string) {
     const servicio = this.servicios.find(s => s.id === id);
+    if (!servicio) return;
 
-    if (!servicio) {
-      this.presentToast('Servicio no encontrado');
-      return;
-    }
-
-    // Crear un componente personalizado para evitar el escape de HTML
-    const componentProps = {
-      servicio: servicio,
-      sanitizedHtml: this.sanitizer.bypassSecurityTrustHtml(this.createServiceDetailHTML(servicio))
-    };
-
-    const alert = await this.alertController.create({
-      header: servicio.titulo,
-      subHeader: 'Servicio del CNC',
-      message: this.createServiceDetailHTML(servicio),
-      cssClass: ['servicio-alert', 'custom-alert-with-html'],
-      buttons: [
-        {
-          text: 'Solicitar',
-          handler: () => {
-            this.solicitarServicio(servicio.titulo);
-          }
-        },
-        {
-          text: 'Cerrar',
-          role: 'cancel'
-        }
-      ]
-    });
-
-    await alert.present();
-
-    // Una vez presentada la alerta, intentar hacer el innerHTML manualmente
-    const alertElement = document.querySelector('.custom-alert-with-html .alert-message');
-    if (alertElement) {
-      alertElement.innerHTML = this.createServiceDetailHTML(servicio);
-    }
+    this.selectedDetail = servicio;
+    this.detailType = 'servicio';
+    this.isModalOpen = true;
   }
 
-  // Función auxiliar para crear HTML para los detalles del servicio
-  createServiceDetailHTML(servicio: any): string {
-    return `
-      <div class="servicio-detalle">
-        <p>${servicio.detalle}</p>
-        <h4>Beneficios:</h4>
-        <ul>
-          ${servicio.beneficios.map((b: string) => `<li>${b}</li>`).join('')}
-        </ul>
-        ${servicio.requisitos ? `
-          <h4>Requisitos:</h4>
-          <ul>
-            ${servicio.requisitos.map((r: string) => `<li>${r}</li>`).join('')}
-          </ul>
-        ` : ''}
-        ${servicio.metodologia ? `
-          <h4>Metodología:</h4>
-          <ul>
-            ${servicio.metodologia.map((m: string) => `<li>${m}</li>`).join('')}
-          </ul>
-        ` : ''}
-        ${servicio.procedimiento ? `
-          <h4>Procedimiento:</h4>
-          <ul>
-            ${servicio.procedimiento.map((p: string) => `<li>${p}</li>`).join('')}
-          </ul>
-        ` : ''}
-      </div>
-    `;
-  }
-
-  async verDetallePrograma(id: string) {
-    // Buscar en ambos arrays de programas
+  verDetallePrograma(id: string) {
     const programa = [...this.programas, ...this.programasAdicionales].find(p => p.id === id);
+    if (!programa) return;
 
-    if (!programa) {
-      this.presentToast('Programa no encontrado');
-      return;
-    }
-
-    const alert = await this.alertController.create({
-      header: programa.titulo,
-      subHeader: 'Programa del CNC',
-      message: this.createProgramDetailHTML(programa),
-      cssClass: ['programa-alert', 'custom-alert-with-html'],
-      buttons: [
-        {
-          text: 'Participar',
-          handler: () => {
-            this.solicitarParticipacionPrograma(programa.titulo);
-          }
-        },
-        {
-          text: 'Cerrar',
-          role: 'cancel'
-        }
-      ]
-    });
-
-    await alert.present();
-
-    // Una vez presentada la alerta, intentar hacer el innerHTML manualmente
-    const alertElement = document.querySelector('.custom-alert-with-html .alert-message');
-    if (alertElement) {
-      alertElement.innerHTML = this.createProgramDetailHTML(programa);
-    }
+    this.selectedDetail = programa;
+    this.detailType = 'programa';
+    this.isModalOpen = true;
   }
 
-  // Función auxiliar para crear HTML para los detalles del programa
-  createProgramDetailHTML(programa: any): string {
-    return `
-      <div class="programa-detalle">
-        <p>${programa.detalle}</p>
-        ${programa.modalidades ? `
-          <h4>Modalidades:</h4>
-          <p>${programa.modalidades.join(', ')}</p>
-        ` : ''}
-        ${programa.areas ? `
-          <h4>Áreas temáticas:</h4>
-          <ul>
-            ${programa.areas.map((a: string) => `<li>${a}</li>`).join('')}
-          </ul>
-        ` : ''}
-        ${programa.componentes ? `
-          <h4>Componentes:</h4>
-          <ul>
-            ${programa.componentes.map((c: string) => `<li>${c}</li>`).join('')}
-          </ul>
-        ` : ''}
-        ${programa.actividades ? `
-          <h4>Actividades:</h4>
-          <ul>
-            ${programa.actividades.map((a: string) => `<li>${a}</li>`).join('')}
-          </ul>
-        ` : ''}
-        ${programa.metodologia ? `
-          <h4>Metodología:</h4>
-          <p>${programa.metodologia}</p>
-        ` : ''}
-        ${programa.cursos ? `
-          <h4>Cursos disponibles:</h4>
-          <ul>
-            ${programa.cursos.map((c: any) =>
-      `<li><strong>${c.nombre}</strong> - ${c.duracion}, ${c.modalidad}, Inicio: ${c.fechaInicio}</li>`
-    ).join('')}
-          </ul>
-        ` : ''}
-      </div>
-    `;
-  }
-
-  async verDetalleEvento(id: number) {
+  verDetalleEvento(id: number) {
     const evento = this.eventos.find(e => e.id === id);
+    if (!evento) return;
 
-    if (!evento) {
-      this.presentToast('Evento no encontrado');
-      return;
-    }
-
-    const fechaEvento = new Date(evento.fecha);
-    const hoy = new Date();
-    const esExpirado = fechaEvento < hoy;
-
-    const buttons = [
-      {
-        text: 'Cerrar',
-        role: 'cancel'
-      }
-    ];
-
-    if (!esExpirado) {
-      buttons.unshift({
-        text: 'Inscribirse',
-        handler: () => {
-          this.inscribirseEvento(evento.titulo);
-        }
-      } as any);
-    }
-
-    const alert = await this.alertController.create({
-      header: evento.titulo,
-      subHeader: evento.tipo.charAt(0).toUpperCase() + evento.tipo.slice(1),
-      message: this.createEventDetailHTML(evento, esExpirado),
-      cssClass: ['evento-alert', 'custom-alert-with-html'],
-      buttons: buttons
-    });
-
-    await alert.present();
-
-    // Una vez presentada la alerta, intentar hacer el innerHTML manualmente
-    const alertElement = document.querySelector('.custom-alert-with-html .alert-message');
-    if (alertElement) {
-      alertElement.innerHTML = this.createEventDetailHTML(evento, esExpirado);
-    }
+    this.selectedDetail = evento;
+    this.detailType = 'evento';
+    this.isModalOpen = true;
   }
 
-  // Función auxiliar para crear HTML para los detalles del evento
-  createEventDetailHTML(evento: any, esExpirado: boolean): string {
-    return `
-      <div class="evento-detalle">
-        <p class="evento-estado ${esExpirado ? 'expirado' : 'activo'}">
-          Estado: ${esExpirado ? 'Expirado' : 'Programado'}
-        </p>
-        <p>${evento.descripcion}</p>
-
-        <div class="evento-info">
-          <p><ion-icon name="calendar-outline"></ion-icon> <strong>Fecha:</strong> ${this.formatearFecha(evento.fecha)}</p>
-          <p><ion-icon name="time-outline"></ion-icon> <strong>Hora:</strong> ${evento.hora}</p>
-          <p><ion-icon name="location-outline"></ion-icon> <strong>Lugar:</strong> ${evento.lugar}</p>
-          <p><ion-icon name="people-outline"></ion-icon> <strong>Dirigido a:</strong> ${evento.dirigido}</p>
-        </div>
-
-        <h4>Agenda:</h4>
-        <ul>
-          ${evento.agenda.map((a: string) => `<li>${a}</li>`).join('')}
-        </ul>
-
-        <h4>Ponentes:</h4>
-        <ul>
-          ${evento.ponentes.map((p: string) => `<li>${p}</li>`).join('')}
-        </ul>
-      </div>
-    `;
+  closeModal() {
+    this.isModalOpen = false;
+    this.selectedDetail = null;
   }
 
-  formatearFecha(fechaStr: string): string {
-    const fecha = new Date(fechaStr);
-    const opciones: Intl.DateTimeFormatOptions = {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    };
-    return fecha.toLocaleDateString('es-ES', opciones);
-  }
-
-  async solicitarServicio(servicio: string = '') {
-    const alert = await this.alertController.create({
-      header: 'Solicitud de Servicio',
-      message: `Complete el formulario para solicitar ${servicio ? 'el servicio de ' + servicio : 'un servicio del CNC'}`,
-      inputs: [
-        {
-          name: 'nombre',
-          type: 'text',
-          placeholder: 'Nombre completo',
-          attributes: {
-            required: 'true'
-          }
-        },
-        {
-          name: 'institucion',
-          type: 'text',
-          placeholder: 'Institución',
-          attributes: {
-            required: 'true'
-          }
-        },
-        {
-          name: 'cargo',
-          type: 'text',
-          placeholder: 'Cargo'
-        },
-        {
-          name: 'email',
-          type: 'email',
-          placeholder: 'Correo electrónico',
-          attributes: {
-            required: 'true'
-          }
-        },
-        {
-          name: 'telefono',
-          type: 'tel',
-          placeholder: 'Teléfono'
-        },
-        {
-          name: 'servicio',
-          type: 'text',
-          placeholder: 'Servicio requerido',
-          value: servicio
-        },
-        {
-          name: 'descripcion',
-          type: 'textarea',
-          placeholder: 'Describa brevemente su requerimiento'
-        }
-      ],
-      buttons: [
-        {
-          text: 'Cancelar',
-          role: 'cancel'
-        },
-        {
-          text: 'Enviar',
-          handler: (data) => {
-            if (!data.nombre || !data.institucion || !data.email) {
-              this.presentToast('Por favor complete los campos obligatorios');
-              return false;
-            }
-            console.log('Solicitud enviada:', data);
-            this.presentSuccessAlert('Su solicitud ha sido enviada con éxito. Un representante del CNC se pondrá en contacto con usted próximamente.');
-            return true;
-          }
-        }
-      ]
-    });
-
-    await alert.present();
-  }
-
-  async solicitarParticipacionPrograma(programa: string) {
-    const alert = await this.alertController.create({
-      header: 'Participación en Programa',
-      message: `Complete el formulario para participar en el programa de ${programa}`,
-      inputs: [
-        {
-          name: 'nombre',
-          type: 'text',
-          placeholder: 'Nombre completo',
-          attributes: {
-            required: 'true'
-          }
-        },
-        {
-          name: 'institucion',
-          type: 'text',
-          placeholder: 'Institución',
-          attributes: {
-            required: 'true'
-          }
-        },
-        {
-          name: 'cargo',
-          type: 'text',
-          placeholder: 'Cargo'
-        },
-        {
-          name: 'email',
-          type: 'email',
-          placeholder: 'Correo electrónico',
-          attributes: {
-            required: 'true'
-          }
-        },
-        {
-          name: 'telefono',
-          type: 'tel',
-          placeholder: 'Teléfono'
-        },
-        {
-          name: 'motivo',
-          type: 'textarea',
-          placeholder: 'Motivo de interés en el programa'
-        }
-      ],
-      buttons: [
-        {
-          text: 'Cancelar',
-          role: 'cancel'
-        },
-        {
-          text: 'Enviar',
-          handler: (data) => {
-            if (!data.nombre || !data.institucion || !data.email) {
-              this.presentToast('Por favor complete los campos obligatorios');
-              return false;
-            }
-            console.log('Solicitud enviada:', data);
-            this.presentSuccessAlert('Su solicitud de participación ha sido registrada. Recibirá información detallada sobre el programa en su correo electrónico.');
-            return true;
-          }
-        }
-      ]
-    });
-
-    await alert.present();
-  }
-
-  async inscribirseEvento(evento: string) {
-    const alert = await this.alertController.create({
-      header: 'Inscripción al Evento',
-      message: `Complete el formulario para inscribirse en: ${evento}`,
-      inputs: [
-        {
-          name: 'nombre',
-          type: 'text',
-          placeholder: 'Nombre completo',
-          attributes: {
-            required: 'true'
-          }
-        },
-        {
-          name: 'institucion',
-          type: 'text',
-          placeholder: 'Institución',
-          attributes: {
-            required: 'true'
-          }
-        },
-        {
-          name: 'cargo',
-          type: 'text',
-          placeholder: 'Cargo'
-        },
-        {
-          name: 'email',
-          type: 'email',
-          placeholder: 'Correo electrónico',
-          attributes: {
-            required: 'true'
-          }
-        },
-        {
-          name: 'telefono',
-          type: 'tel',
-          placeholder: 'Teléfono'
-        }
-      ],
-      buttons: [
-        {
-          text: 'Cancelar',
-          role: 'cancel'
-        },
-        {
-          text: 'Inscribirse',
-          handler: (data) => {
-            if (!data.nombre || !data.institucion || !data.email) {
-              this.presentToast('Por favor complete los campos obligatorios');
-              return false;
-            }
-            console.log('Inscripción enviada:', data);
-            this.presentSuccessAlert('Su inscripción ha sido registrada correctamente. Recibirá un correo de confirmación con los detalles del evento.');
-            return true;
-          }
-        }
-      ]
-    });
-
-    await alert.present();
-  }
-
-  async presentSuccessAlert(message: string) {
-    const alert = await this.alertController.create({
-      header: 'Operación Exitosa',
-      message: message,
-      buttons: ['Aceptar']
-    });
-
-    await alert.present();
-  }
-
-  async presentToast(message: string) {
-    const toast = await this.toastController.create({
-      message: message,
-      duration: 2500,
-      position: 'bottom',
-      color: 'primary',
-      buttons: [
-        {
-          text: 'Cerrar',
-          role: 'cancel'
-        }
-      ]
-    });
-
-    await toast.present();
-  }
-
-  async verTodosEventos() {
-    // Separar eventos por estado
-    const hoy = new Date();
-    const eventosExpirados = this.eventos
-      .filter(e => new Date(e.fecha) < hoy)
-      .sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
-
-    const eventosFuturos = this.eventos
-      .filter(e => new Date(e.fecha) >= hoy)
-      .sort((a, b) => new Date(a.fecha).getTime() - new Date(b.fecha).getTime());
-
-    const htmlContent = this.createAllEventsHTML(eventosFuturos, eventosExpirados);
-
-    // Create the sanitized content
-    const sanitizedContent = this.sanitizer.bypassSecurityTrustHtml(htmlContent);
-
-    const alert = await this.alertController.create({
-      header: 'Calendario de Eventos',
-      subHeader: 'Eventos programados y realizados',
-      message: htmlContent,
-      cssClass: ['eventos-calendario-alert', 'custom-alert-with-html'],
-      buttons: ['Cerrar']
-    });
-
-    await alert.present();
-
-    // Manually set inner HTML after alert is presented
-    setTimeout(() => {
-      const alertElement = document.querySelector('.eventos-calendario-alert .alert-message');
-      if (alertElement) {
-        alertElement.innerHTML = htmlContent;
-
-        // Add event listeners after setting innerHTML
-        const eventosItems = alertElement.querySelectorAll('.evento-item');
-        eventosItems.forEach(item => {
-          item.addEventListener('click', () => {
-            const id = parseInt(item.getAttribute('data-id') || '0');
-            alert.dismiss();
-            setTimeout(() => {
-              this.verDetalleEvento(id);
-            }, 300);
-          });
-        });
-      }
-    }, 300);
+  solicitarInformacion() {
+    this.closeModal();
+    this.presentToast('Solicitud iniciada. Pronto nos contactaremos.');
   }
 
   // Función auxiliar para crear HTML para todos los eventos
@@ -1064,5 +587,21 @@ export class ServiPrograPage implements OnInit {
 
   toggleShowAllPrograms() {
     this.showAllPrograms = !this.showAllPrograms;
+  }
+
+  async presentToast(message: string) {
+    const toast = await this.toastController.create({
+      message: message,
+      duration: 2500,
+      position: 'bottom',
+      color: 'primary',
+      buttons: [
+        {
+          text: 'Cerrar',
+          role: 'cancel'
+        }
+      ]
+    });
+    await toast.present();
   }
 }
