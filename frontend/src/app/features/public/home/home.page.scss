@@ -36,6 +36,12 @@ ion-header {
     --border-width: 0;
     --min-height: 64px;
     height: 64px; // Force slim height
+
+    ion-menu-button {
+      --background: rgba(0, 0, 0, 0.03);
+      --border-radius: 50%; // Circle
+      color: var(--ion-color-dark);
+    }
   }
 }
 
@@ -130,10 +136,10 @@ ion-header {
 .btn-login,
 .btn-register {
   height: 36px;
-  padding: 0 16px;
+  padding: 0 20px;
   font-size: 0.85rem;
   font-weight: 600;
-  border-radius: 8px;
+  border-radius: 99px; // Pill Shape (User Request)
   cursor: pointer;
   transition: all 0.2s;
 }
@@ -236,7 +242,7 @@ ion-header {
     button {
       height: 52px;
       padding: 0 32px;
-      border-radius: 8px; // Professional Rectangular (Not Pill)
+      border-radius: 99px; // Pill Shape (User Request)
       font-size: 1.05rem;
       font-weight: 600;
       cursor: pointer;
@@ -266,6 +272,7 @@ ion-header {
           background: #f8fafc;
           border-color: #e2e8f0;
           text-decoration: none;
+          border-radius: 99px; // Ensure hover maintains shape
         }
       }
     }
@@ -469,29 +476,33 @@ ion-header {
 }
 
 // ------------------------------------------
-// DESKTOP NAVIGATION (Added Fix)
+// DESKTOP NAVIGATION (Pill Segment Style)
 // ------------------------------------------
 .desktop-nav {
   display: none; // Hidden by default (Mobile First)
-  gap: 32px;
-  align-items: center;
+  background: #f1f5f9; // Light gray pill container
+  padding: 4px;
+  border-radius: 99px; // Fully rounded pill
+  border: 1px solid rgba(0, 0, 0, 0.04);
 
   .nav-link {
-    font-size: 0.95rem;
-    font-weight: 500;
-    color: var(--ion-color-medium);
+    padding: 8px 20px;
+    border-radius: 99px; // Rounded items
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #64748b; // Gray inactive
     text-decoration: none;
     cursor: pointer;
-    transition: color 0.2s;
-    position: relative;
+    transition: all 0.2s ease;
 
     &:hover {
-      color: var(--ion-color-primary);
+      color: var(--ion-color-dark);
     }
 
     &.active {
-      color: var(--ion-color-primary);
-      font-weight: 600;
+      background: white;
+      color: var(--ion-color-primary); // Blue active text
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); // Soft shadow
     }
   }
 }
