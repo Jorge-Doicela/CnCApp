@@ -7,12 +7,15 @@ import {
   IonTitle, IonContent, IonCard, IonCardHeader,
   IonCardTitle, IonCardContent, IonAvatar,
   IonAccordionGroup, IonAccordion, IonItem,
-  IonIcon, IonLabel
+  IonIcon, IonLabel,
+  IonSegment, IonSegmentButton
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
   earthOutline, checkmarkCircleOutline, peopleOutline,
-  documentTextOutline, swapHorizontalOutline, businessOutline
+  documentTextOutline, swapHorizontalOutline, businessOutline,
+  ribbonOutline, barChartOutline, peopleCircleOutline, informationCircleOutline,
+  gitNetworkOutline
 } from 'ionicons/icons';
 
 @Component({
@@ -26,10 +29,12 @@ import {
     IonTitle, IonContent, IonCard, IonCardHeader,
     IonCardTitle, IonCardContent, IonAvatar,
     IonAccordionGroup, IonAccordion, IonItem,
-    IonIcon, IonLabel
+    IonIcon, IonLabel,
+    IonSegment, IonSegmentButton
   ]
 })
 export class InformacionPage implements OnInit {
+  selectedSegment = 'general';
 
   constructor() {
     addIcons({
@@ -38,7 +43,12 @@ export class InformacionPage implements OnInit {
       'people-outline': peopleOutline,
       'document-text-outline': documentTextOutline,
       'swap-horizontal-outline': swapHorizontalOutline,
-      'business-outline': businessOutline
+      'business-outline': businessOutline,
+      'ribbon-outline': ribbonOutline,
+      'bar-chart-outline': barChartOutline,
+      'people-circle-outline': peopleCircleOutline,
+      'information-circle-outline': informationCircleOutline,
+      'git-network-outline': gitNetworkOutline
     });
   }
 
