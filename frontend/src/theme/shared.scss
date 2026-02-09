@@ -1,243 +1,225 @@
+// Estilos compartidos Modernizados
+// Focus: Clean, Mobile-First, Accessible
 
-// Estilos compartidos para toda la aplicación
-// Extraídos para reducir bundle size y evitar duplicación
+// UTILITIES
+.glass-effect {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
 
-// Contenedores Principales
-.main-card, .program-card, .service-card, .ver-mas-card, .intro-card {
-  border-radius: 16px;
-  background-color: #ffffff;
+.text-gradient {
+  background: linear-gradient(135deg, var(--ion-color-primary) 0%, var(--ion-color-secondary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+// CARDS SYSTEM
+.modern-card {
+  background: var(--surface-1);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  box-shadow: var(--shadow-md);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(0, 0, 0, 0.03);
   overflow: hidden;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  margin-bottom: 20px;
+  position: relative;
 
   &:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-xl);
+    border-color: rgba(var(--ion-color-primary-rgb), 0.1);
+  }
+
+  &.clickable {
+    cursor: pointer;
   }
 }
 
-// Cards simplificadas (sin hover ni margen extra)
-.simple-card {
-  background: #f9fafc;
-  border-radius: 16px;
-  padding: 16px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+// Previously used classes mapped to new system
+.main-card,
+.program-card,
+.service-card,
+.ver-mas-card,
+.intro-card {
+  @extend .modern-card;
+  margin-bottom: 20px;
 }
 
-// Logos
-.logo-container {
-  padding: 20px 0;
-  margin-bottom: 10px;
+.simple-card {
+  background: var(--surface-1);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid rgba(0, 0, 0, 0.03);
+}
 
-  img, .logo, .cnc-logo {
-    max-width: 200px;
-    height: auto;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
-    transition: transform 0.3s ease;
+// SECTIONS & HEADERS
+.section-header {
+  margin-bottom: 24px;
+
+  h3 {
+    font-size: 1.5rem;
+    /* 24px */
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--ion-color-dark);
+    margin-bottom: 8px;
+  }
+
+  p {
+    color: var(--ion-color-medium);
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+
+  .separator {
+    width: 40px;
+    height: 4px;
+    background: linear-gradient(90deg, var(--ion-color-secondary), var(--ion-color-tertiary));
+    border-radius: 10px;
+    margin-top: 12px;
+  }
+
+  &.ion-text-center .separator {
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+// BUTTONS & ACTIONS
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border: none;
+  gap: 8px;
+
+  &.primary {
+    background: var(--ion-color-secondary);
+    color: white;
+    box-shadow: 0 4px 10px rgba(var(--ion-color-secondary-rgb), 0.3);
 
     &:hover {
-      transform: scale(1.05);
+      background: var(--ion-color-secondary-shade);
+      transform: translateY(-1px);
+    }
+  }
+
+  &.ghost {
+    background: transparent;
+    color: var(--ion-color-primary);
+
+    &:hover {
+      background: rgba(var(--ion-color-primary-rgb), 0.05);
     }
   }
 }
 
-// Títulos y Encabezados
-.section-title {
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--ion-color-primary);
-  margin: 25px 0 15px;
-  padding-bottom: 10px;
-  border-bottom: 2px solid #eaeef5;
-  position: relative;
 
-  &:after {
-    content: '';
-    position: absolute;
-    bottom: -2px;
-    left: 0;
-    width: 60px;
-    height: 2px;
-    background-color: var(--ion-color-primary);
-  }
-}
-
-.section-header {
+// STATS CARDS (Updated)
+.stat-card-modern {
+  @extend .modern-card;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  /* Center vertically specifically */
+  gap: 20px;
+  padding: 24px;
 
-  .results-count {
-    font-size: 14px;
-    color: #666;
-    font-weight: 500;
+  .stat-icon-wrapper {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+    flex-shrink: 0;
+
+    &.blue {
+      background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+      color: var(--ion-color-secondary);
+    }
+
+    &.green {
+      background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+      color: var(--ion-color-success);
+    }
+
+    &.orange {
+      background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+      color: var(--ion-color-warning);
+    }
+
+    &.purple {
+      background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+      color: var(--ion-color-tertiary);
+    }
+  }
+
+  .stat-info {
+    h3 {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--ion-color-dark);
+      margin: 0;
+      line-height: 1;
+      letter-spacing: -0.03em;
+    }
+
+    p {
+      color: var(--ion-color-medium);
+      font-weight: 600;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin: 4px 0 0;
+    }
   }
 }
 
-// Contenedores de Carga y Vacíos
-.loading-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 40px 20px;
-  text-align: center;
-
-  ion-spinner {
-    margin-bottom: 15px;
-  }
-
-  p {
-    color: #666;
-    font-size: 16px;
-  }
-}
-
-.empty-state {
-  text-align: center;
-  padding: 40px 20px;
-  background: #f9fafc;
-  border-radius: 16px;
-  border: 1px dashed #ddd;
-  margin-bottom: 20px;
-
-  ion-icon {
-    font-size: 48px;
-    color: #999;
-    margin-bottom: 15px;
-  }
-
-  h4 {
-    font-size: 18px;
-    color: #333;
-    margin-bottom: 10px;
-  }
-
-  p {
-    color: #666;
-    font-size: 14px;
-  }
-}
-
-// Animaciones
-.fade-in {
-  animation: fadeInUp 0.5s ease forwards;
-  opacity: 0;
-}
-
+// ANIMATIONS
 @keyframes fadeInUp {
   from {
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
-// Estadísticas
-.stats-section {
-  margin-bottom: 30px;
-
-  .stats-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: 16px;
-    margin-top: 20px;
-
-    .stat-card {
-      @extend .simple-card;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      transition: transform 0.3s ease;
-      background: #f9fafc;
-
-      &:hover {
-        transform: translateY(-5px);
-      }
-
-      .stat-icon {
-        margin-bottom: 10px;
-
-        ion-icon {
-          font-size: 32px;
-        }
-      }
-
-      .stat-details {
-        .stat-value {
-          display: block;
-          font-size: 28px;
-          font-weight: 700;
-          color: var(--ion-color-primary);
-        }
-
-        .stat-label {
-          display: block;
-          font-size: 14px;
-          color: #666;
-          margin-top: 5px;
-        }
-      }
-    }
-  }
+.animate-fade-up {
+  animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-// Formularios CRUD (Estilo estándar)
-.form-header {
+// EMPTY STATES
+.empty-state {
   text-align: center;
-  padding: 20px;
-  border-bottom: 1px solid #eaeef5;
+  padding: 40px;
 
   ion-icon {
-    font-size: 48px;
-    margin-bottom: 10px;
+    font-size: 3rem;
+    color: var(--ion-color-medium-tint);
+    margin-bottom: 16px;
   }
 
-  h2 {
-    font-size: 24px;
+  h4 {
+    color: var(--ion-color-dark);
     font-weight: 600;
-    margin: 0 0 8px;
-    color: var(--ion-color-primary);
   }
 
   p {
-    font-size: 16px;
-    color: #666;
-    margin: 0;
+    color: var(--ion-color-medium);
   }
-}
-
-.form-group {
-    margin-bottom: 16px;
-
-    .form-item {
-      --background: #f9fafc;
-      --border-radius: 12px;
-      --highlight-height: 0;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
-      margin-bottom: 4px;
-
-      ion-icon {
-        font-size: 22px;
-        margin-right: 10px;
-      }
-    }
-
-    ion-note {
-      margin-left: 10px;
-      font-size: 12px;
-      display: flex;
-      align-items: center;
-
-      ion-icon {
-        margin-right: 5px;
-        font-size: 16px;
-      }
-    }
 }
