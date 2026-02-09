@@ -1,11 +1,958 @@
-<ion-header>
-  <ion-toolbar color="primary">
+<ion-header class="ion-no-border">
+  <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button default-href="/home"></ion-back-button>
+      <ion-back-button defaultHref="/home" color="primary"></ion-back-button>
     </ion-buttons>
-    <ion-title class="ion-text-center">Información del CNC</ion-title>
+    <ion-title color="primary" class="ion-text-center">Información Institucional</ion-title>
   </ion-toolbar>
 </ion-header>
+
+<ion-content>
+  <div class="container">
+
+    <!-- HEADER HERO -->
+    <div class="page-hero">
+      <h1>Consejo Nacional de <span>Competencias</span></h1>
+      <p>El Consejo Nacional de Competencias es el organismo técnico del Sistema Nacional de Competencias, encargado de
+        organizar e implementar el proceso de descentralización en el Ecuador.</p>
+    </div>
+
+    <!-- SEGMENTED CONTROL -->
+    <div class="ion-padding-bottom" style="max-width: 600px; margin: 0 auto 30px;">
+      <ion-segment [(ngModel)]="selectedSegment" mode="ios">
+        <ion-segment-button value="general">
+          <ion-label>General</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="estructura">
+          <ion-label>Estructura</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="competencias">
+          <ion-label>Competencias</ion-label>
+        </ion-segment-button>
+      </ion-segment>
+    </div>
+
+    <!-- VIEW: GENERAL -->
+    <div class="bento-grid" *ngIf="selectedSegment === 'general'">
+
+      <!-- INTRO (Large) -->
+      <div class="bento-card intro-card">
+        <h2>
+          <ion-icon name="information-circle-outline"></ion-icon>
+          ¿Qué es el CNC?
+        </h2>
+        <div class="intro-text">
+          <p>El Consejo Nacional de Competencias es el organismo técnico del Sistema Nacional de Competencias, encargado
+            de organizar e implementar el proceso de descentralización en el Ecuador, regulando la transferencia de
+            competencias a los Gobiernos Autónomos Descentralizados.</p>
+        </div>
+      </div>
+
+      <!-- STATS SUMMARY -->
+      <div class="bento-card stats-summary-card">
+        <div class="mini-stats-grid">
+          <div class="mini-stat">
+            <div class="icon-box"><ion-icon name="document-text-outline"></ion-icon></div>
+            <div class="content">
+              <span class="number">221</span>
+              <span class="label">Resoluciones emitidas</span>
+            </div>
+          </div>
+          <div class="mini-stat">
+            <div class="icon-box"><ion-icon name="swap-horizontal-outline"></ion-icon></div>
+            <div class="content">
+              <span class="number">15</span>
+              <span class="label">Competencias transferidas</span>
+            </div>
+          </div>
+          <div class="mini-stat">
+            <div class="icon-box"><ion-icon name="people-outline"></ion-icon></div>
+            <div class="content">
+              <span class="number">15,340</span>
+              <span class="label">Funcionarios capacitados</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bento-card intro-card" style="margin-top: 10px;">
+        <div class="intro-image">
+          <img src="assets/informacion/que-es-cnc.jpg" alt="Consejo Nacional de Competencias"
+            style="width: 100%; border-radius: 12px; display: block;">
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW: ESTRUCTURA -->
+    <div class="bento-grid" *ngIf="selectedSegment === 'estructura'">
+      <!-- MEMBERS -->
+      <div class="bento-card members-section-card">
+        <h2>
+          <ion-icon name="people-circle-outline"></ion-icon>
+          Estructura del Consejo
+        </h2>
+
+        <h3 style="text-align: center; color: #64748b; margin-bottom: 30px; font-weight: 500;">Pleno del Consejo</h3>
+
+        <div class="members-list">
+          <div class="member-item">
+            <ion-avatar>
+              <img src="assets/informacion/avatar-default.jpg" alt="Presidencia">
+            </ion-avatar>
+            <div class="info">
+              <h4>Representante de la Presidencia de la República</h4>
+              <p>Función: Presidir el Consejo Nacional de Competencias</p>
+            </div>
+          </div>
+
+          <div class="member-item">
+            <ion-avatar>
+              <img src="assets/informacion/avatar-default.jpg" alt="Prefecturas">
+            </ion-avatar>
+            <div class="info">
+              <h4>Representante de los Gobiernos Provinciales</h4>
+              <p>Función: Representación de los GAD Provinciales</p>
+            </div>
+          </div>
+
+          <div class="member-item">
+            <ion-avatar>
+              <img src="assets/informacion/avatar-default.jpg" alt="Alcaldías">
+            </ion-avatar>
+            <div class="info">
+              <h4>Representante de los Gobiernos Municipales</h4>
+              <p>Función: Representación de los GAD Municipales</p>
+            </div>
+          </div>
+
+          <div class="member-item">
+            <ion-avatar>
+              <img src="assets/informacion/avatar-default.jpg" alt="Parroquias">
+            </ion-avatar>
+            <div class="info">
+              <h4>Representante de los Gobiernos Parroquiales Rurales</h4>
+              <p>Función: Representación de los GAD Parroquiales Rurales</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- INTEGRATED ORGANIGRAM -->
+        <div class="intro-image"
+          style="margin-top: 50px; text-align: center; background: #f8fafc; padding: 30px; border-radius: 24px; border: 1px dashed #cbd5e1;">
+          <h3 style="margin-bottom: 20px; color: #334155; font-size: 1.2rem; font-weight: 600;">
+            <ion-icon name="git-network-outline" style="vertical-align: middle; margin-right: 8px;"></ion-icon>
+            Organigrama Institucional
+          </h3>
+          <img src="assets/informacion/organigrama.png" alt="Organigrama del CNC" loading="lazy" decoding="async"
+            style="max-height: 600px; width: auto; max-width: 100%; border-radius: 12px; mix-blend-mode: multiply;">
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW: COMPETENCIAS -->
+    <div class="bento-grid" *ngIf="selectedSegment === 'competencias'">
+
+      <!-- COMPETENCIES (Left) -->
+      <div class="bento-card competencies-card"
+        style="grid-column: span 12; @media(min-width: 900px) { grid-column: span 6; }">
+        <h2>
+          <ion-icon name="ribbon-outline"></ion-icon>
+          Competencias y Funciones
+        </h2>
+        <ion-accordion-group>
+          <ion-accordion value="cons">
+            <ion-item slot="header">
+              <ion-label>Competencias Constitucionales</ion-label>
+            </ion-item>
+            <div slot="content">
+              <p>El CNC es responsable de la transferencia de las competencias exclusivas establecidas en la
+                Constitución para cada nivel de gobierno, garantizando que se cumplan los principios de subsidiariedad,
+                solidaridad, equidad territorial e interterritorial.</p>
+              <ul>
+                <li>Competencias de GAD Provinciales</li>
+                <li>Competencias de GAD Municipales</li>
+                <li>Competencias de GAD Parroquiales Rurales</li>
+              </ul>
+            </div>
+          </ion-accordion>
+          <ion-accordion value="func">
+            <ion-item slot="header">
+              <ion-label>Funciones Principales</ion-label>
+            </ion-item>
+            <div slot="content">
+              <ul>
+                <li>Regular el procedimiento de transferencia de competencias</li>
+                <li>Determinar las competencias residuales</li>
+                <li>Asignar competencias adicionales</li>
+                <li>Resolver conflictos de competencias entre niveles de gobierno</li>
+                <li>Emitir resoluciones para evitar o eliminar la superposición de funciones</li>
+                <li>Monitorear y evaluar el ejercicio de las competencias transferidas</li>
+              </ul>
+            </div>
+          </ion-accordion>
+          <ion-accordion value="fort">
+            <ion-item slot="header">
+              <ion-label>Fortalecimiento Institucional</ion-label>
+            </ion-item>
+            <div slot="content">
+              <p>El CNC implementa planes y programas de fortalecimiento institucional para los GAD en el ejercicio de
+                sus competencias, mediante:</p>
+              <ul>
+                <li>Capacitación a servidores públicos</li>
+                <li>Asistencia técnica</li>
+                <li>Desarrollo de modelos de gestión</li>
+                <li>Formación en competencias específicas</li>
+                <li>Intercambio de experiencias y buenas prácticas</li>
+              </ul>
+            </div>
+          </ion-accordion>
+        </ion-accordion-group>
+      </div>
+
+      <!-- CHART (Right) -->
+      <div class="bento-card chart-card"
+        style="grid-column: span 12; @media(min-width: 900px) { grid-column: span 6; }">
+        <h2>
+          <ion-icon name="bar-chart-outline"></ion-icon>
+          Estadísticas de Gestión
+        </h2>
+        <div class="chart-container">
+          <h3>Avance en Transferencia de Competencias</h3>
+          <img src="assets/informacion/grafico-competencias.png"
+            style="width: 100%; border-radius: 12px; display: block;" alt="Gráfico Estadístico">
+        </div>
+      </div>
+
+    </div>
+  </div>
+</ion-content>
+
+<ion-content>
+  <div class="container">
+
+    <!-- HEADER HERO -->
+    <div class="page-hero">
+      <h1>Consejo Nacional de <span>Competencias</span></h1>
+      <p>El Consejo Nacional de Competencias es el organismo técnico del Sistema Nacional de Competencias, encargado de
+        organizar e implementar el proceso de descentralización en el Ecuador.</p>
+    </div>
+
+    <!-- SEGMENTED CONTROL -->
+    <div class="ion-padding-bottom" style="max-width: 600px; margin: 0 auto 30px;">
+      <ion-segment [(ngModel)]="selectedSegment" mode="ios">
+        <ion-segment-button value="general">
+          <ion-label>General</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="estructura">
+          <ion-label>Estructura</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="competencias">
+          <ion-label>Competencias</ion-label>
+        </ion-segment-button>
+      </ion-segment>
+    </div>
+
+    <!-- VIEW: GENERAL -->
+    <div class="bento-grid" *ngIf="selectedSegment === 'general'">
+
+      <!-- INTRO (Large) -->
+      <div class="bento-card intro-card">
+        <h2>
+          <ion-icon name="information-circle-outline"></ion-icon>
+          ¿Qué es el CNC?
+        </h2>
+        <div class="intro-text">
+          <p>El Consejo Nacional de Competencias es el organismo técnico del Sistema Nacional de Competencias, encargado
+            de organizar e implementar el proceso de descentralización en el Ecuador, regulando la transferencia de
+            competencias a los Gobiernos Autónomos Descentralizados.</p>
+        </div>
+      </div>
+
+      <!-- STATS SUMMARY -->
+      <div class="bento-card stats-summary-card">
+        <div class="mini-stats-grid">
+          <div class="mini-stat">
+            <div class="icon-box"><ion-icon name="document-text-outline"></ion-icon></div>
+            <div class="content">
+              <span class="number">221</span>
+              <span class="label">Resoluciones emitidas</span>
+            </div>
+          </div>
+          <div class="mini-stat">
+            <div class="icon-box"><ion-icon name="swap-horizontal-outline"></ion-icon></div>
+            <div class="content">
+              <span class="number">15</span>
+              <span class="label">Competencias transferidas</span>
+            </div>
+          </div>
+          <div class="mini-stat">
+            <div class="icon-box"><ion-icon name="people-outline"></ion-icon></div>
+            <div class="content">
+              <span class="number">15,340</span>
+              <span class="label">Funcionarios capacitados</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bento-card intro-card" style="margin-top: 10px;">
+        <div class="intro-image">
+          <img src="assets/informacion/que-es-cnc.jpg" alt="Consejo Nacional de Competencias"
+            style="width: 100%; border-radius: 12px; display: block;">
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW: ESTRUCTURA -->
+    <div class="bento-grid" *ngIf="selectedSegment === 'estructura'">
+      <!-- MEMBERS -->
+      <div class="bento-card members-section-card">
+        <h2>
+          <ion-icon name="people-circle-outline"></ion-icon>
+          Estructura del Consejo
+        </h2>
+
+        <h3 style="text-align: center; color: #64748b; margin-bottom: 24px;">Pleno del Consejo</h3>
+
+        <div class="members-list">
+          <div class="member-item">
+            <ion-avatar>
+              <img src="assets/informacion/avatar-default.jpg" alt="Presidencia">
+            </ion-avatar>
+            <div class="info">
+              <h4>Representante de la Presidencia de la República</h4>
+              <p>Función: Presidir el Consejo Nacional de Competencias</p>
+            </div>
+          </div>
+
+          <div class="member-item">
+            <ion-avatar>
+              <img src="assets/informacion/avatar-default.jpg" alt="Prefecturas">
+            </ion-avatar>
+            <div class="info">
+              <h4>Representante de los Gobiernos Provinciales</h4>
+              <p>Función: Representación de los GAD Provinciales</p>
+            </div>
+          </div>
+
+          <div class="member-item">
+            <ion-avatar>
+              <img src="assets/informacion/avatar-default.jpg" alt="Alcaldías">
+            </ion-avatar>
+            <div class="info">
+              <h4>Representante de los Gobiernos Municipales</h4>
+              <p>Función: Representación de los GAD Municipales</p>
+            </div>
+          </div>
+
+          <div class="member-item">
+            <ion-avatar>
+              <img src="assets/informacion/avatar-default.jpg" alt="Parroquias">
+            </ion-avatar>
+            <div class="info">
+              <h4>Representante de los Gobiernos Parroquiales Rurales</h4>
+              <p>Función: Representación de los GAD Parroquiales Rurales</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ORGANIGRAMA -->
+      <div class="bento-card" style="grid-column: span 12;">
+        <h2>
+          <ion-icon name="git-network-outline"></ion-icon>
+          Organigrama Institucional
+        </h2>
+        <div class="intro-image" style="text-align: center;">
+          <img src="assets/informacion/organigrama.png" alt="Organigrama del CNC" loading="lazy"
+            style="max-height: 500px; width: auto; max-width: 100%; border-radius: 12px;">
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW: COMPETENCIAS -->
+    <div class="bento-grid" *ngIf="selectedSegment === 'competencias'">
+
+      <!-- COMPETENCIES (Left) -->
+      <div class="bento-card competencies-card"
+        style="grid-column: span 12; @media(min-width: 900px) { grid-column: span 6; }">
+        <h2>
+          <ion-icon name="ribbon-outline"></ion-icon>
+          Competencias y Funciones
+        </h2>
+        <ion-accordion-group>
+          <ion-accordion value="cons">
+            <ion-item slot="header">
+              <ion-label>Competencias Constitucionales</ion-label>
+            </ion-item>
+            <div slot="content">
+              <p>El CNC es responsable de la transferencia de las competencias exclusivas establecidas en la
+                Constitución para cada nivel de gobierno, garantizando que se cumplan los principios de subsidiariedad,
+                solidaridad, equidad territorial e interterritorial.</p>
+              <ul>
+                <li>Competencias de GAD Provinciales</li>
+                <li>Competencias de GAD Municipales</li>
+                <li>Competencias de GAD Parroquiales Rurales</li>
+              </ul>
+            </div>
+          </ion-accordion>
+          <ion-accordion value="func">
+            <ion-item slot="header">
+              <ion-label>Funciones Principales</ion-label>
+            </ion-item>
+            <div slot="content">
+              <ul>
+                <li>Regular el procedimiento de transferencia de competencias</li>
+                <li>Determinar las competencias residuales</li>
+                <li>Asignar competencias adicionales</li>
+                <li>Resolver conflictos de competencias entre niveles de gobierno</li>
+                <li>Emitir resoluciones para evitar o eliminar la superposición de funciones</li>
+                <li>Monitorear y evaluar el ejercicio de las competencias transferidas</li>
+              </ul>
+            </div>
+          </ion-accordion>
+          <ion-accordion value="fort">
+            <ion-item slot="header">
+              <ion-label>Fortalecimiento Institucional</ion-label>
+            </ion-item>
+            <div slot="content">
+              <p>El CNC implementa planes y programas de fortalecimiento institucional para los GAD en el ejercicio de
+                sus competencias, mediante:</p>
+              <ul>
+                <li>Capacitación a servidores públicos</li>
+                <li>Asistencia técnica</li>
+                <li>Desarrollo de modelos de gestión</li>
+                <li>Formación en competencias específicas</li>
+                <li>Intercambio de experiencias y buenas prácticas</li>
+              </ul>
+            </div>
+          </ion-accordion>
+        </ion-accordion-group>
+      </div>
+
+      <!-- CHART (Right) -->
+      <div class="bento-card chart-card"
+        style="grid-column: span 12; @media(min-width: 900px) { grid-column: span 6; }">
+        <h2>
+          <ion-icon name="bar-chart-outline"></ion-icon>
+          Estadísticas de Gestión
+        </h2>
+        <div class="chart-container">
+          <h3>Avance en Transferencia de Competencias</h3>
+          <img src="assets/informacion/grafico-competencias.png"
+            style="width: 100%; border-radius: 12px; display: block;" alt="Gráfico Estadístico">
+        </div>
+      </div>
+
+    </div>
+  </div>
+</ion-content>
+
+<ion-content>
+  <div class="container">
+
+    <!-- HEADER HERO -->
+    <div class="page-hero">
+      <h1>Consejo Nacional de <span>Competencias</span></h1>
+      <p>El Consejo Nacional de Competencias es el organismo técnico del Sistema Nacional de Competencias, encargado de
+        organizar e implementar el proceso de descentralización en el Ecuador.</p>
+    </div>
+
+    <!-- BENTO GRID -->
+    <div class="bento-grid">
+
+      <!-- 1. INTRO (Large) -->
+      <div class="bento-card intro-card">
+        <h2>
+          <ion-icon name="information-circle-outline"></ion-icon>
+          ¿Qué es el CNC?
+        </h2>
+        <div class="intro-text">
+          <p>El Consejo Nacional de Competencias es el organismo técnico del Sistema Nacional de Competencias, encargado
+            de organizar e implementar el proceso de descentralización en el Ecuador, regulando la transferencia de
+            competencias a los Gobiernos Autónomos Descentralizados.</p>
+        </div>
+      </div>
+
+      <!-- 2. STATS SUMMARY (Vertical Stack) -->
+      <div class="bento-card stats-summary-card">
+        <div class="mini-stats-grid">
+          <div class="mini-stat">
+            <div class="icon-box"><ion-icon name="document-text-outline"></ion-icon></div>
+            <div class="content">
+              <span class="number">221</span>
+              <span class="label">Resoluciones emitidas</span>
+            </div>
+          </div>
+          <div class="mini-stat">
+            <div class="icon-box"><ion-icon name="swap-horizontal-outline"></ion-icon></div>
+            <div class="content">
+              <span class="number">15</span>
+              <span class="label">Competencias transferidas</span>
+            </div>
+          </div>
+          <div class="mini-stat">
+            <div class="icon-box"><ion-icon name="people-outline"></ion-icon></div>
+            <div class="content">
+              <span class="number">15,340</span>
+              <span class="label">Funcionarios capacitados</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. ORGANIZATIONAL STRUCTURE (Full Width) -->
+      <div class="bento-card members-section-card">
+        <h2>
+          <ion-icon name="people-circle-outline"></ion-icon>
+          Estructura del Consejo
+        </h2>
+
+        <h3 style="text-align: center; color: #64748b; margin-bottom: 24px;">Pleno del Consejo</h3>
+
+        <div class="members-list">
+          <div class="member-item">
+            <ion-avatar>
+              <img src="assets/informacion/avatar-default.jpg" alt="Presidencia">
+            </ion-avatar>
+            <div class="info">
+              <h4>Representante de la Presidencia de la República</h4>
+              <p>Función: Presidir el Consejo Nacional de Competencias</p>
+            </div>
+          </div>
+
+          <div class="member-item">
+            <ion-avatar>
+              <img src="assets/informacion/avatar-default.jpg" alt="Prefecturas">
+            </ion-avatar>
+            <div class="info">
+              <h4>Representante de los Gobiernos Provinciales</h4>
+              <p>Función: Representación de los GAD Provinciales</p>
+            </div>
+          </div>
+
+          <div class="member-item">
+            <ion-avatar>
+              <img src="assets/informacion/avatar-default.jpg" alt="Alcaldías">
+            </ion-avatar>
+            <div class="info">
+              <h4>Representante de los Gobiernos Municipales</h4>
+              <p>Función: Representación de los GAD Municipales</p>
+            </div>
+          </div>
+
+          <div class="member-item">
+            <ion-avatar>
+              <img src="assets/informacion/avatar-default.jpg" alt="Parroquias">
+            </ion-avatar>
+            <div class="info">
+              <h4>Representante de los Gobiernos Parroquiales Rurales</h4>
+              <p>Función: Representación de los GAD Parroquiales Rurales</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="intro-image" style="margin-top: 30px; text-align: center;">
+          <img src="assets/informacion/organigrama.png" alt="Organigrama del CNC" loading="lazy"
+            style="max-height: 500px; width: auto; max-width: 100%; border-radius: 12px;">
+        </div>
+      </div>
+
+      <!-- 4. COMPETENCIES (Left) -->
+      <div class="bento-card competencies-card">
+        <h2>
+          <ion-icon name="ribbon-outline"></ion-icon>
+          Competencias y Funciones
+        </h2>
+        <ion-accordion-group>
+          <ion-accordion value="cons">
+            <ion-item slot="header">
+              <ion-label>Competencias Constitucionales</ion-label>
+            </ion-item>
+            <div slot="content">
+              <p>El CNC es responsable de la transferencia de las competencias exclusivas establecidas en la
+                Constitución para cada nivel de gobierno, garantizando que se cumplan los principios de subsidiariedad,
+                solidaridad, equidad territorial e interterritorial.</p>
+              <ul>
+                <li>Competencias de GAD Provinciales</li>
+                <li>Competencias de GAD Municipales</li>
+                <li>Competencias de GAD Parroquiales Rurales</li>
+              </ul>
+            </div>
+          </ion-accordion>
+          <ion-accordion value="func">
+            <ion-item slot="header">
+              <ion-label>Funciones Principales</ion-label>
+            </ion-item>
+            <div slot="content">
+              <ul>
+                <li>Regular el procedimiento de transferencia de competencias</li>
+                <li>Determinar las competencias residuales</li>
+                <li>Asignar competencias adicionales</li>
+                <li>Resolver conflictos de competencias entre niveles de gobierno</li>
+                <li>Emitir resoluciones para evitar o eliminar la superposición de funciones</li>
+                <li>Monitorear y evaluar el ejercicio de las competencias transferidas</li>
+              </ul>
+            </div>
+          </ion-accordion>
+          <ion-accordion value="fort">
+            <ion-item slot="header">
+              <ion-label>Fortalecimiento Institucional</ion-label>
+            </ion-item>
+            <div slot="content">
+              <p>El CNC implementa planes y programas de fortalecimiento institucional para los GAD en el ejercicio de
+                sus competencias, mediante:</p>
+              <ul>
+                <li>Capacitación a servidores públicos</li>
+                <li>Asistencia técnica</li>
+                <li>Desarrollo de modelos de gestión</li>
+                <li>Formación en competencias específicas</li>
+                <li>Intercambio de experiencias y buenas prácticas</li>
+              </ul>
+            </div>
+          </ion-accordion>
+        </ion-accordion-group>
+      </div>
+
+      <!-- 5. CHART (Right) -->
+      <div class="bento-card chart-card">
+        <h2>
+          <ion-icon name="bar-chart-outline"></ion-icon>
+          Estadísticas de Gestión
+        </h2>
+        <div class="chart-container">
+          <h3>Avance en Transferencia de Competencias</h3>
+          <img src="assets/informacion/grafico-competencias.png"
+            style="width: 100%; border-radius: 12px; display: block;" alt="Gráfico Estadístico">
+        </div>
+      </div>
+
+    </div>
+  </div>
+</ion-content>
+
+<ion-content>
+  <div class="container">
+
+    <!-- HEADER HERO -->
+    <div class="page-hero">
+      <h1>Consejo Nacional de <span>Competencias</span></h1>
+      <p>Articulamos la descentralización para un desarrollo territorial equitativo.</p>
+    </div>
+
+    <!-- BENTO GRID -->
+    <div class="bento-grid">
+
+      <!-- 1. INTRO (Large) -->
+      <div class="bento-card intro-card">
+        <h2>
+          <ion-icon name="information-circle-outline"></ion-icon>
+          ¿Qué es el CNC?
+        </h2>
+        <div class="intro-text">
+          <p>El Consejo Nacional de Competencias es el organismo técnico del Sistema Nacional de Competencias. Nos
+            encargamos de regular la transferencia de recursos y responsabilidades a los Gobiernos Autónomos
+            Descentralizados (GAD), asegurando autonomía y eficiencia en la gestión pública.</p>
+        </div>
+      </div>
+
+      <!-- 2. STATS SUMMARY (Vertical Stack) -->
+      <div class="bento-card stats-summary-card">
+        <div class="mini-stats-grid">
+          <div class="mini-stat">
+            <div class="icon-box"><ion-icon name="document-text-outline"></ion-icon></div>
+            <div class="content">
+              <span class="number">221</span>
+              <span class="label">Resoluciones</span>
+            </div>
+          </div>
+          <div class="mini-stat">
+            <div class="icon-box"><ion-icon name="swap-horizontal-outline"></ion-icon></div>
+            <div class="content">
+              <span class="number">15</span>
+              <span class="label">Competencias</span>
+            </div>
+          </div>
+          <div class="mini-stat">
+            <div class="icon-box"><ion-icon name="people-outline"></ion-icon></div>
+            <div class="content">
+              <span class="number">15k+</span>
+              <span class="label">Capacitados</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. ORGANIZATIONAL STRUCTURE (Full Width) -->
+      <div class="bento-card members-section-card">
+        <h2>
+          <ion-icon name="people-circle-outline"></ion-icon>
+          Estructura del Consejo
+        </h2>
+
+        <div class="members-list">
+          <div class="member-item">
+            <ion-avatar>
+              <img src="assets/informacion/avatar-default.jpg" alt="Presidencia">
+            </ion-avatar>
+            <div class="info">
+              <h4>Presidencia de la República</h4>
+              <p>Preside el Consejo</p>
+            </div>
+          </div>
+
+          <div class="member-item">
+            <ion-avatar>
+              <img src="assets/informacion/avatar-default.jpg" alt="Prefecturas">
+            </ion-avatar>
+            <div class="info">
+              <h4>Prefecturas</h4>
+              <p>Representante Provincial</p>
+            </div>
+          </div>
+
+          <div class="member-item">
+            <ion-avatar>
+              <img src="assets/informacion/avatar-default.jpg" alt="Alcaldías">
+            </ion-avatar>
+            <div class="info">
+              <h4>Alcaldías</h4>
+              <p>Representante Municipal</p>
+            </div>
+          </div>
+
+          <div class="member-item">
+            <ion-avatar>
+              <img src="assets/informacion/avatar-default.jpg" alt="Parroquias">
+            </ion-avatar>
+            <div class="info">
+              <h4>Parroquias</h4>
+              <p>Representante Rural</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. COMPETENCIES (Left) -->
+      <div class="bento-card competencies-card">
+        <h2>
+          <ion-icon name="ribbon-outline"></ion-icon>
+          Competencias Clave
+        </h2>
+        <ion-accordion-group>
+          <ion-accordion value="cons">
+            <ion-item slot="header">
+              <ion-label>Competencias Constitucionales</ion-label>
+            </ion-item>
+            <div slot="content">
+              Responsabilidad exclusiva de transferencia a GAD Provinciales, Municipales y Parroquiales según la
+              Constitución.
+            </div>
+          </ion-accordion>
+          <ion-accordion value="func">
+            <ion-item slot="header">
+              <ion-label>Funciones del CNC</ion-label>
+            </ion-item>
+            <div slot="content">
+              Regular transferencias, dirimir conflictos de competencias y monitorear la gestión descentralizada.
+            </div>
+          </ion-accordion>
+          <ion-accordion value="fort">
+            <ion-item slot="header">
+              <ion-label>Fortalecimiento</ion-label>
+            </ion-item>
+            <div slot="content">
+              Programas de capacitación y asistencia técnica para mejorar la gestión local.
+            </div>
+          </ion-accordion>
+        </ion-accordion-group>
+      </div>
+
+      <!-- 5. CHART (Right) -->
+      <div class="bento-card chart-card">
+        <h2>
+          <ion-icon name="bar-chart-outline"></ion-icon>
+          Progreso
+        </h2>
+        <div class="chart-container">
+          <img src="assets/informacion/grafico-competencias.png"
+            style="width: 100%; border-radius: 12px; display: block;" alt="Chart">
+        </div>
+      </div>
+
+    </div>
+  </div>
+</ion-content>
+
+<ion-content>
+  <div class="container">
+
+    <!-- HERO SECTION -->
+    <div class="page-hero">
+      <h1>Consejo Nacional de Competencias</h1>
+      <p>Organismo técnico encargado de organizar e implementar el proceso de descentralización en el Ecuador.</p>
+    </div>
+
+    <!-- INTRO CARD -->
+    <div class="clean-card intro-section">
+      <div class="logo-container">
+        <img src="assets/cnc.png" alt="Logo CNC" class="cnc-logo">
+      </div>
+
+      <div class="intro-text">
+        <p>El Consejo Nacional de Competencias (CNC) regula la transferencia de competencias a los Gobiernos Autónomos
+          Descentralizados (GAD), garantizando principios de subsidiariedad, solidaridad y equidad territorial.</p>
+      </div>
+
+      <div class="intro-image">
+        <img src="assets/informacion/que-es-cnc.jpg" alt="Consejo Nacional de Competencias">
+      </div>
+    </div>
+
+    <!-- ESTRUCTURA ORGANIZACIONAL -->
+    <div class="clean-card">
+      <h2>
+        <ion-icon name="people-outline"></ion-icon>
+        Estructura Organizacional
+      </h2>
+
+      <div class="intro-image" style="margin-bottom: 30px;">
+        <img src="assets/informacion/organigrama.png" alt="Organigrama del CNC">
+      </div>
+
+      <h3 style="text-align: center; color: #64748b; margin-bottom: 24px;">Pleno del Consejo</h3>
+
+      <div class="members-grid">
+        <div class="member-card">
+          <ion-avatar>
+            <img src="assets/informacion/avatar-default.jpg" alt="Miembro">
+          </ion-avatar>
+          <h4>Presidencia de la República</h4>
+          <p>Preside el Consejo Nacional</p>
+        </div>
+
+        <div class="member-card">
+          <ion-avatar>
+            <img src="assets/informacion/avatar-default.jpg" alt="Miembro">
+          </ion-avatar>
+          <h4>Gobiernos Provinciales</h4>
+          <p>Representación de Prefecturas</p>
+        </div>
+
+        <div class="member-card">
+          <ion-avatar>
+            <img src="assets/informacion/avatar-default.jpg" alt="Miembro">
+          </ion-avatar>
+          <h4>Gobiernos Municipales</h4>
+          <p>Representación de Alcaldías</p>
+        </div>
+
+        <div class="member-card">
+          <ion-avatar>
+            <img src="assets/informacion/avatar-default.jpg" alt="Miembro">
+          </ion-avatar>
+          <h4>Gobiernos Parroquiales</h4>
+          <p>Representación Rural</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- COMPETENCIAS -->
+    <div class="clean-card">
+      <h2>
+        <ion-icon name="ribbon-outline"></ion-icon>
+        Competencias y Funciones
+      </h2>
+
+      <ion-accordion-group>
+        <ion-accordion value="first">
+          <ion-item slot="header">
+            <ion-icon name="earth-outline" slot="start"></ion-icon>
+            <ion-label>Competencias Constitucionales</ion-label>
+          </ion-item>
+          <div slot="content">
+            <p>Responsable de la transferencia de competencias exclusivas a cada nivel de gobierno:</p>
+            <ul>
+              <li>GAD Provinciales (Fomento productivo, vialidad, etc.)</li>
+              <li>GAD Municipales (Tránsito, servicios básicos, patrimonio)</li>
+              <li>GAD Parroquiales (Mantenimiento rural, incentivo productivo)</li>
+            </ul>
+          </div>
+        </ion-accordion>
+
+        <ion-accordion value="second">
+          <ion-item slot="header">
+            <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
+            <ion-label>Funciones Principales</ion-label>
+          </ion-item>
+          <div slot="content">
+            <ul>
+              <li>Regular el procedimiento de transferencia de competencias.</li>
+              <li>Determinar competencias residuales y adicionales.</li>
+              <li>Resolver conflictos de competencias.</li>
+              <li>Monitorear y evaluar la gestión descentralizada.</li>
+            </ul>
+          </div>
+        </ion-accordion>
+
+        <ion-accordion value="third">
+          <ion-item slot="header">
+            <ion-icon name="business-outline" slot="start"></ion-icon>
+            <ion-label>Fortalecimiento Institucional</ion-label>
+          </ion-item>
+          <div slot="content">
+            <p>Implementación de planes para mejorar la capacidad de gestión de los GAD mediante:</p>
+            <ul>
+              <li>Capacitación continua a servidores públicos.</li>
+              <li>Asistencia técnica en territorio.</li>
+              <li>Intercambio de buenas prácticas de gestión.</li>
+            </ul>
+          </div>
+        </ion-accordion>
+      </ion-accordion-group>
+    </div>
+
+    <!-- ESTADISTICAS -->
+    <div class="clean-card">
+      <h2>
+        <ion-icon name="bar-chart-outline"></ion-icon>
+        Estadísticas de Gestión
+      </h2>
+
+      <div class="stats-grid">
+        <div class="stat-box">
+          <ion-icon name="document-text-outline"></ion-icon>
+          <span class="stat-number">221</span>
+          <span class="stat-label">Resoluciones</span>
+        </div>
+
+        <div class="stat-box">
+          <ion-icon name="swap-horizontal-outline"></ion-icon>
+          <span class="stat-number">15</span>
+          <span class="stat-label">Competencias</span>
+        </div>
+
+        <div class="stat-box">
+          <ion-icon name="people-outline"></ion-icon>
+          <span class="stat-number">15k+</span>
+          <span class="stat-label">Capacitados</span>
+        </div>
+
+        <div class="stat-box">
+          <ion-icon name="business-outline"></ion-icon>
+          <span class="stat-number">1,066</span>
+          <span class="stat-label">GAD Fortalecidos</span>
+        </div>
+      </div>
+
+      <div class="chart-section">
+        <h3>Avance en Transferencia de Competencias</h3>
+        <img src="assets/informacion/grafico-competencias.png" alt="Gráfico Estadístico">
+      </div>
+    </div>
+
+  </div>
+</ion-content>
 
 <ion-content class="ion-padding">
   <div class="logo-container ion-text-center">
@@ -19,9 +966,12 @@
     <ion-card-content>
       <div class="info-section">
         <h3>¿Qué es el CNC?</h3>
-        <p>El Consejo Nacional de Competencias es el organismo técnico del Sistema Nacional de Competencias, encargado de organizar e implementar el proceso de descentralización en el Ecuador, regulando la transferencia de competencias a los Gobiernos Autónomos Descentralizados.</p>
+        <p>El Consejo Nacional de Competencias es el organismo técnico del Sistema Nacional de Competencias, encargado
+          de organizar e implementar el proceso de descentralización en el Ecuador, regulando la transferencia de
+          competencias a los Gobiernos Autónomos Descentralizados.</p>
         <div class="info-image">
-          <img style="max-width: 100%; max-height: 600px; width: auto; height: auto; display: block; margin: auto;" src="../../../../assets/informacion/que-es-cnc.jpg" alt="Consejo Nacional de Competencias">
+          <img style="max-width: 100%; max-height: 600px; width: auto; height: auto; display: block; margin: auto;"
+            src="../../../../assets/informacion/que-es-cnc.jpg" alt="Consejo Nacional de Competencias">
         </div>
       </div>
     </ion-card-content>
@@ -34,7 +984,9 @@
     <ion-card-content>
       <div class="organigrama">
         <div class="organigrama-image">
-          <img style="max-width: 50%; max-height: 500px; width: auto; height: auto; display: block; margin: auto; box-shadow: 0 0 15px rgba(0, 0, 0, 0.3); padding-bottom: 20px;" src="../../../../assets/informacion/organigrama.png" alt="Organigrama del CNC">
+          <img
+            style="max-width: 50%; max-height: 500px; width: auto; height: auto; display: block; margin: auto; box-shadow: 0 0 15px rgba(0, 0, 0, 0.3); padding-bottom: 20px;"
+            src="../../../../assets/informacion/organigrama.png" alt="Organigrama del CNC">
         </div>
       </div>
 
@@ -104,7 +1056,9 @@
               <ion-label>Competencias Constitucionales</ion-label>
             </ion-item>
             <div class="ion-padding" slot="content">
-              <p>El CNC es responsable de la transferencia de las competencias exclusivas establecidas en la Constitución para cada nivel de gobierno, garantizando que se cumplan los principios de subsidiariedad, solidaridad, equidad territorial e interterritorial.</p>
+              <p>El CNC es responsable de la transferencia de las competencias exclusivas establecidas en la
+                Constitución para cada nivel de gobierno, garantizando que se cumplan los principios de subsidiariedad,
+                solidaridad, equidad territorial e interterritorial.</p>
               <ul>
                 <li>Competencias de GAD Provinciales</li>
                 <li>Competencias de GAD Municipales</li>
@@ -136,7 +1090,8 @@
               <ion-label>Fortalecimiento Institucional</ion-label>
             </ion-item>
             <div class="ion-padding" slot="content">
-              <p>El CNC implementa planes y programas de fortalecimiento institucional para los GAD en el ejercicio de sus competencias, mediante:</p>
+              <p>El CNC implementa planes y programas de fortalecimiento institucional para los GAD en el ejercicio de
+                sus competencias, mediante:</p>
               <ul>
                 <li>Capacitación a servidores públicos</li>
                 <li>Asistencia técnica</li>
@@ -193,7 +1148,9 @@
       <div class="chart-container">
         <h3>Avance en transferencia de competencias</h3>
         <div class="chart-placeholder">
-          <img style="max-width: 70%; max-height: 500px; width: auto; height: auto; display: block; margin: auto; box-shadow: 0 0 15px rgba(0, 0, 0, 0.3); padding-bottom: 20px;" src="../../../../assets/informacion/grafico-competencias.png" alt="Gráfico de competencias">
+          <img
+            style="max-width: 70%; max-height: 500px; width: auto; height: auto; display: block; margin: auto; box-shadow: 0 0 15px rgba(0, 0, 0, 0.3); padding-bottom: 20px;"
+            src="../../../../assets/informacion/grafico-competencias.png" alt="Gráfico de competencias">
         </div>
       </div>
     </ion-card-content>
