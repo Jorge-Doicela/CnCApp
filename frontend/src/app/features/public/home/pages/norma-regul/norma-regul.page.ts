@@ -21,7 +21,9 @@ import {
   chevronForwardOutline, closeOutline, documentOutline,
   listOutline, calculatorOutline, settingsOutline,
   statsChartOutline, fileTrayFullOutline, barChartOutline,
-  libraryOutline
+  libraryOutline, scaleOutline, walletOutline, carSportOutline,
+  waterOutline, leafOutline, airplaneOutline, optionsOutline,
+  arrowForwardOutline
 } from 'ionicons/icons';
 
 @Component({
@@ -243,7 +245,15 @@ export class NormaRegulPage implements OnInit {
       'stats-chart-outline': statsChartOutline,
       'file-tray-full-outline': fileTrayFullOutline,
       'bar-chart-outline': barChartOutline,
-      'library-outline': libraryOutline
+      'library-outline': libraryOutline,
+      'scale-outline': scaleOutline,
+      'wallet-outline': walletOutline,
+      'car-sport-outline': carSportOutline,
+      'water-outline': waterOutline,
+      'leaf-outline': leafOutline,
+      'airplane-outline': airplaneOutline,
+      'options-outline': optionsOutline,
+      'arrow-forward-outline': arrowForwardOutline
     });
   }
 
