@@ -1,53 +1,49 @@
+// Login Page Redesign
+
+:host {
+  display: block;
+}
+
 ion-content {
   --background: #ffffff;
 }
 
-.login-layout {
+.login-split-layout {
   display: flex;
   min-height: 100vh;
   width: 100%;
+  background: white;
 }
 
-// Branding Side (Left)
-.branding-side {
-  display: none; // Hidden on mobile
-  flex: 1.2;
-  background: linear-gradient(135deg, var(--ion-color-primary) 0%, var(--ion-color-primary-shade) 100%);
+// ------------------------------------------------
+// LEFT SIDE: BRANDING
+// ------------------------------------------------
+.branding-section {
+  flex: 1.1; // Slightly larger
+  background: linear-gradient(135deg, var(--ion-color-primary) 0%, #0f172a 100%);
   position: relative;
   overflow: hidden;
+  display: flex;
   align-items: center;
   justify-content: center;
   color: white;
 
-  @media (min-width: 992px) {
-    display: flex;
-  }
-
-  .branding-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-  }
-
   .branding-content {
+    position: relative;
     z-index: 2;
     text-align: center;
-    padding: 40px;
-    max-width: 600px;
+    padding: 60px;
 
     .logo-wrapper {
       background: white;
       width: 120px;
       height: 120px;
-      border-radius: 50%;
+      border-radius: 50%; // Circular
       display: flex;
       align-items: center;
       justify-content: center;
       margin: 0 auto 30px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
 
       .brand-logo {
         width: 80px;
@@ -56,144 +52,272 @@ ion-content {
     }
 
     h1 {
-      font-size: 2.5rem;
+      font-size: 3rem;
       font-weight: 800;
-      margin-bottom: 15px;
-      line-height: 1.2;
+      line-height: 1.1;
+      margin-bottom: 16px;
+      letter-spacing: -0.02em;
+      color: #ffffff; // Ensure white text
+
+      span {
+        color: var(--ion-color-secondary);
+      }
     }
 
     p {
-      font-size: 1.2rem;
-      opacity: 0.9;
-      font-weight: 300;
+      font-size: 1.1rem;
+      color: rgba(255, 255, 255, 0.9);
+      margin-bottom: 0;
+      max-width: 80%;
+      margin: 0 auto;
     }
   }
 
-  .glass-decoration {
+  // Floating Glass Pill
+  .glass-pill {
+    margin-top: 30px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 10px 24px;
+    border-radius: 99px;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #ffffff;
+
+    ion-icon {
+      font-size: 1.2rem;
+      color: var(--ion-color-secondary); // Yellow/Secondary icon
+    }
+  }
+
+  // Background Blobs
+  .shape-blob {
     position: absolute;
-    bottom: -50px;
-    left: -50px;
+    border-radius: 50%;
+    filter: blur(60px);
+    opacity: 0.6;
+    z-index: 1;
+  }
+
+  .blob-1 {
     width: 300px;
     height: 300px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 50%;
-    filter: blur(40px);
+    background: var(--ion-color-secondary);
+    top: -50px;
+    right: -50px;
+    animation: blobFloat 10s infinite alternate;
+  }
+
+  .blob-2 {
+    width: 400px;
+    height: 400px;
+    background: var(--ion-color-tertiary);
+    bottom: -100px;
+    left: -100px;
+    animation: blobFloat 15s infinite alternate-reverse;
+  }
+
+  .glass-overlay {
+    position: absolute;
+    inset: 0;
+    backdrop-filter: blur(0px); // Just for future layers
+    z-index: 0;
+    background: radial-gradient(circle at center, transparent 0%, rgba(0, 0, 0, 0.2) 100%);
   }
 }
 
-// Form Side (Right)
-.form-side {
+@keyframes blobFloat {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  100% {
+    transform: translate(30px, 50px) scale(1.1);
+  }
+}
+
+// ------------------------------------------------
+// RIGHT SIDE: FORM
+// ------------------------------------------------
+.form-section {
   flex: 1;
   display: flex;
-  align-items: center;
+  flex-direction: column;
   justify-content: center;
-  padding: 20px;
-  background: #ffffff;
+  align-items: center;
+  padding: 40px;
+  position: relative;
 
-  .form-wrapper {
+  .login-card-wrapper {
     width: 100%;
-    max-width: 450px;
+    max-width: 420px;
+  }
+
+  .mobile-logo {
+    width: 100px;
+    margin-bottom: 40px;
   }
 }
 
 .header-actions {
-  margin-bottom: 20px;
-  margin-left: -10px;
-}
+  margin-bottom: 40px;
 
-.back-btn {
-  --color: var(--ion-color-dark);
-  font-weight: 600;
-  text-transform: none;
+  .back-btn {
+    --padding-start: 0;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-transform: none;
+    letter-spacing: 0;
 
-  ion-icon {
-    margin: 0 !important;
+    ion-icon {
+      margin-right: 8px;
+      font-size: 1.2rem;
+    }
   }
 }
 
-// Mobile Logo
-.mobile-logo-container {
-  text-align: center;
-  margin-bottom: 30px;
-
-  .mobile-logo {
-    width: 100px;
-    height: auto;
-  }
-}
-
-// Typography
-.header-text {
+.form-header {
   margin-bottom: 40px;
 
   h2 {
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--ion-color-dark);
-    margin-bottom: 8px;
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: #1e293b;
+    margin: 0 0 10px 0;
+    letter-spacing: -0.03em;
   }
 
   p {
-    color: var(--ion-color-medium);
     font-size: 1rem;
+    color: #64748b;
     margin: 0;
   }
 }
 
-// Input Styles
+// ------------------------------------------------
+// INPUT STYLES
+// ------------------------------------------------
 .input-group {
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 
-  .custom-input {
-    --background: #f8f9fa;
-    --border-radius: 12px;
-    --padding-start: 16px;
-    border: 1px solid transparent;
+  ion-label {
+    color: #334155;
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  .custom-input-wrapper {
+    position: relative;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background: #f8fafc;
     transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
 
-    &.item-has-focus {
-      --background: white;
+    &:focus-within {
+      background: white;
       border-color: var(--ion-color-primary);
-      box-shadow: 0 0 0 4px rgba(var(--ion-color-primary-rgb), 0.1);
+      box-shadow: 0 0 0 3px rgba(var(--ion-color-primary-rgb), 0.1);
     }
 
-    ion-icon {
-      margin-top: 25px;
+    .input-icon {
+      color: #94a3b8;
+      font-size: 1.2rem;
       margin-right: 12px;
     }
 
-    .input-inner {
-      width: 100%;
-      padding: 8px 0;
+    ion-input {
+      --padding-start: 0;
+      --padding-end: 0;
+      --padding-top: 14px;
+      --padding-bottom: 14px;
+      font-size: 1rem;
+      color: #1e293b;
+      font-weight: 500;
+      flex: 1;
+      --placeholder-color: #94a3b8;
+      --placeholder-opacity: 1;
+    }
 
-      ion-label {
-        font-size: 0.8rem;
-        font-weight: 600;
-        color: var(--ion-color-medium);
-        margin-bottom: 2px !important;
-      }
+    .eye-btn {
+      margin: 0 -8px 0 0;
+      --padding-start: 8px;
+      --padding-end: 8px;
+      color: #94a3b8;
+    }
+  }
 
-      ion-input {
-        --padding-start: 0;
-        font-weight: 500;
-        --color: var(--ion-color-dark);
-        font-size: 1rem;
-        margin-top: 0;
+  .forgot-link {
+    text-align: right;
+    margin-top: 8px;
+
+    a {
+      font-size: 0.85rem;
+      color: var(--ion-color-primary);
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
       }
     }
   }
 }
 
-// Buttons
+// ------------------------------------------------
+// BUTTONS
+// ------------------------------------------------
 .submit-btn {
+  margin-top: 32px;
   height: 52px;
   --border-radius: 12px;
-  font-weight: 600;
+  font-weight: 700;
   font-size: 1rem;
-  margin-bottom: 25px;
   text-transform: none;
-  --box-shadow: 0 8px 20px rgba(var(--ion-color-primary-rgb), 0.3);
-  letter-spacing: 0.5px;
+  --box-shadow: 0 10px 20px rgba(var(--ion-color-primary-rgb), 0.25);
+  letter-spacing: 0.02em;
+  transition: transform 0.2s;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+}
+
+.divider {
+  margin: 30px 0;
+  text-align: center;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 100%;
+    height: 1px;
+    background: #e2e8f0;
+    z-index: 0;
+  }
+
+  span {
+    background: white;
+    padding: 0 16px;
+    color: #94a3b8;
+    font-size: 0.9rem;
+    font-weight: 500;
+    position: relative;
+    z-index: 1;
+  }
 }
 
 .register-btn {
@@ -201,71 +325,40 @@ ion-content {
   --border-radius: 12px;
   font-weight: 600;
   text-transform: none;
-  --border-width: 2px;
+  --border-color: #e2e8f0;
+  --color: #475569;
 
   &:hover {
-    --background: #f8f9fa;
+    --background: #f8fafc;
+    --border-color: #cbd5e1;
   }
 }
 
-.forgot-wrapper {
-  text-align: right;
-  margin-bottom: 30px;
-  margin-top: -10px;
-
-  .forgot-btn {
-    --color: var(--ion-color-primary);
-    font-weight: 500;
-    text-transform: none;
-    font-size: 0.9rem;
-    margin: 0;
-    --padding-end: 0;
-
-    &:hover {
-      text-decoration: underline;
-    }
-  }
-}
-
-.divider {
-  display: flex;
-  align-items: center;
-  text-align: center;
-  margin: 0 0 25px;
-
-  &::before,
-  &::after {
-    content: '';
-    flex: 1;
-    border-bottom: 1px solid #e0e0e0;
-  }
-
-  span {
-    padding: 0 15px;
-    font-size: 0.9rem;
-    color: var(--ion-color-medium);
-  }
-}
-
-.footer-copy {
-  margin-top: 50px;
+.footer-terms {
+  margin-top: 40px;
   text-align: center;
 
   p {
     font-size: 0.85rem;
-    color: #9aa0a6;
+    color: #94a3b8;
   }
 }
 
-// Responsive Adjustments
-@media (max-width: 576px) {
-  .form-side {
-    padding: 30px 20px;
+// ------------------------------------------------
+// RESPONSIVE
+// ------------------------------------------------
+@media (max-width: 992px) {
+  .login-split-layout {
+    flex-direction: column;
   }
 
-  .header-text {
-    h2 {
-      font-size: 1.75rem;
-    }
+  .branding-section {
+    display: none; // Hidden on mobile/tablet per requirement of simple login
+  }
+
+  .form-section {
+    padding: 24px;
+    justify-content: flex-start;
+    padding-top: 60px;
   }
 }

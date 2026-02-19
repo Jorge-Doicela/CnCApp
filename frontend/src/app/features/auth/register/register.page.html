@@ -1,73 +1,77 @@
-<ion-content class="login-content">
-  <div class="login-layout">
+<ion-content class="register-content" [fullscreen]="true">
+  <div class="register-split-layout">
 
-    <!-- Left Side: Branding/Image (Exact Copy from Login) -->
-    <div class="branding-side">
-      <div class="branding-content">
+    <!-- Left Side: Branding (Desktop) -->
+    <div class="branding-section ion-hide-lg-down">
+      <div class="branding-content animate-fade-up">
         <div class="logo-wrapper">
-          <img src="assets/cnc.png" alt="CNC Logo" class="brand-logo" onerror="this.src='assets/icon/favicon.png'">
+          <img src="assets/cnc.png" alt="CNC Logo" class="brand-logo">
         </div>
-        <h1>Consejo Nacional de Competencias</h1>
+        <h1>Consejo Nacional de<br><span>Competencias</span></h1>
         <p>Sistema de Gestión de Capacitaciones y Certificaciones</p>
-        <div class="glass-decoration"></div>
+        <div class="glass-pill">
+          <ion-icon name="shield-checkmark-outline"></ion-icon>
+          <span>Acceso Seguro</span>
+        </div>
       </div>
-      <div class="branding-overlay"></div>
+      <!-- Background Shapes -->
+      <div class="shape-blob blob-1"></div>
+      <div class="shape-blob blob-2"></div>
+      <div class="glass-overlay"></div>
     </div>
 
-    <!-- Right Side: Registration Form -->
-    <div class="form-side">
-      <div class="form-wrapper">
+    <!-- Right Side: Form Wizard -->
+    <div class="form-section">
+      <div class="form-card-wrapper animate-fade-up" style="animation-delay: 0.1s;">
 
         <!-- Header Actions -->
         <div class="header-actions">
-          <ion-button fill="clear" color="dark" routerLink="/home" class="back-btn">
+          <ion-button fill="clear" routerLink="/home" class="back-btn" color="medium">
             <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
-            <ion-label>Volver al Inicio</ion-label>
+            Volver al Inicio
           </ion-button>
         </div>
 
-        <div class="mobile-logo-container ion-hide-md-up">
-          <img src="assets/cnc.png" alt="CNC Logo" class="mobile-logo">
-        </div>
 
-        <!-- Wizard Header (Progress) -->
+
+        <!-- Wizard Header -->
         <div class="wizard-header">
-          <div class="wizard-progress">
-            <div class="wizard-step" [class.active]="step() >= 1" [class.completed]="step() > 1">1</div>
-            <div class="wizard-line" [class.filled]="step() > 1"></div>
-            <div class="wizard-step" [class.active]="step() >= 2" [class.completed]="step() > 2">2</div>
-            <div class="wizard-line" [class.filled]="step() > 2"></div>
-            <div class="wizard-step" [class.active]="step() >= 3" [class.completed]="step() > 3">3</div>
-            <div class="wizard-line" [class.filled]="step() > 3"></div>
-            <div class="wizard-step" [class.active]="step() >= 4" [class.completed]="step() > 4">4</div>
-            <div class="wizard-line" [class.filled]="step() > 4"></div>
-            <div class="wizard-step" [class.active]="step() >= 5" [class.completed]="step() > 5">5</div>
+          <div class="step-indicator">
+            <span class="current">{{ step() }}</span>
+            <span class="total">/ 5</span>
+          </div>
+          <div class="step-text">
+            @if(step() === 1) { <h3>Bienvenido</h3>
+            <p>Inicie su proceso de registro</p> }
+            @if(step() === 2) { <h3>Información de Cuenta</h3>
+            <p>Cree sus credenciales de acceso</p> }
+            @if(step() === 3) { <h3>Datos Personales</h3>
+            <p>Ingrese sus datos de identificación</p> }
+            @if(step() === 4) { <h3>Información Laboral</h3>
+            <p>Detalle su perfil profesional</p> }
+            @if(step() === 5) { <h3>Finalizar Registro</h3>
+            <p>Acepte los términos y condiciones</p> }
           </div>
         </div>
 
-        <div class="header-text">
-          @if(step() === 1) { <h2>Bienvenido</h2>
-          <p>Inicie su proceso de registro</p> }
-          @if(step() === 2) { <h2>Información de Cuenta</h2>
-          <p>Cree sus credenciales de acceso</p> }
-          @if(step() === 3) { <h2>Datos Personales</h2>
-          <p>Ingrese sus datos de identificación</p> }
-          @if(step() === 4) { <h2>Información Laboral</h2>
-          <p>Detalle su perfil profesional</p> }
-          @if(step() === 5) { <h2>Finalizar Registro</h2>
-          <p>Acepte los términos y condiciones</p> }
+        <!-- Progress Bar -->
+        <div class="progress-container">
+          <div class="progress-bar" [style.width.%]="(step() / 5) * 100"></div>
         </div>
 
         <!-- STEP 1: WELCOME -->
         @if (step() === 1) {
         <div class="step-content text-center">
-          <p style="color: #555; line-height: 1.6; margin-bottom: 20px;">
+          <div class="welcome-icon">
+            <ion-icon name="people-circle-outline"></ion-icon>
+          </div>
+          <p class="welcome-text">
             El Consejo Nacional de Competencias les da la bienvenida al módulo de registro de participantes.
             A través de este portal podrá acceder a diferentes cursos virtuales, presenciales y asistencias técnicas.
           </p>
-          <div
-            style="background: #e3f2fd; padding: 15px; border-radius: 8px; color: var(--ion-color-primary); margin-bottom: 20px;">
-            <strong>Con la descentralización consolidamos la democracia.</strong>
+          <div class="info-box">
+            <ion-icon name="information-circle-outline"></ion-icon>
+            <p>Con la descentralización consolidamos la democracia.</p>
           </div>
         </div>
         }
@@ -75,173 +79,162 @@
         <!-- STEP 2: ACCOUNT INFO -->
         @if (step() === 2) {
         <div class="step-content">
-
           <div class="input-group">
-            <ion-item lines="none" class="custom-input">
-              <ion-icon name="person-outline" slot="start" color="primary"></ion-icon>
-              <div class="input-inner">
-                <ion-label position="stacked">Cédula de Identidad *</ion-label>
-                <ion-input [value]="state.userData().ci"
-                  (ionInput)="state.updateUserData({ci: $any($event.target).value})" placeholder="Ingrese su cédula"
-                  type="tel" maxlength="10"></ion-input>
-              </div>
-            </ion-item>
-          </div>
-
-          <div class="input-group">
-            <ion-item lines="none" class="custom-input">
-              <ion-icon name="mail-outline" slot="start" color="primary"></ion-icon>
-              <div class="input-inner">
-                <ion-label position="stacked">Correo Electrónico *</ion-label>
-                <ion-input [value]="state.userData().email"
-                  (ionInput)="state.updateUserData({email: $any($event.target).value})" placeholder="ejemplo@correo.com"
-                  type="email"></ion-input>
-              </div>
-            </ion-item>
-          </div>
-
-          <div class="form-grid">
-            <div class="input-group">
-              <ion-item lines="none" class="custom-input">
-                <ion-icon name="lock-closed-outline" slot="start" color="primary"></ion-icon>
-                <div class="input-inner">
-                  <ion-label position="stacked">Contraseña *</ion-label>
-                  <ion-input [value]="state.userData().password" (ionInput)="updatePassword($event)"
-                    placeholder="Contraseña" [type]="showPassword() ? 'text' : 'password'"></ion-input>
-                </div>
-                <ion-icon [name]="showPassword() ? 'eye-off-outline' : 'eye-outline'" slot="end"
-                  (click)="togglePasswordVisibility()" style="margin-top:0; cursor: pointer; color: #999;"></ion-icon>
-              </ion-item>
+            <ion-label>Cédula de Identidad *</ion-label>
+            <div class="custom-input-wrapper">
+              <ion-icon name="person-outline" class="input-icon"></ion-icon>
+              <ion-input [value]="state.userData().ci"
+                (ionInput)="state.updateUserData({ci: $any($event.target).value})" placeholder="Ingrese su cédula"
+                type="tel" maxlength="10">
+              </ion-input>
             </div>
+          </div>
 
-            <div class="input-group">
-              <ion-item lines="none" class="custom-input">
-                <ion-icon name="lock-closed-outline" slot="start" color="primary"></ion-icon>
-                <div class="input-inner">
-                  <ion-label position="stacked">Confirmar *</ion-label>
-                  <ion-input [value]="state.userData().passwordConfirm"
-                    (ionInput)="state.updateUserData({passwordConfirm: $any($event.target).value})"
-                    placeholder="Repetir" [type]="showPasswordConfirm() ? 'text' : 'password'"></ion-input>
-                </div>
-                <ion-icon [name]="showPasswordConfirm() ? 'eye-off-outline' : 'eye-outline'" slot="end"
-                  (click)="togglePasswordConfirmVisibility()"
-                  style="margin-top:0; cursor: pointer; color: #999;"></ion-icon>
-              </ion-item>
+          <div class="input-group">
+            <ion-label>Correo Electrónico *</ion-label>
+            <div class="custom-input-wrapper">
+              <ion-icon name="mail-outline" class="input-icon"></ion-icon>
+              <ion-input [value]="state.userData().email"
+                (ionInput)="state.updateUserData({email: $any($event.target).value})" placeholder="ejemplo@correo.com"
+                type="email">
+              </ion-input>
             </div>
           </div>
 
           <div class="form-grid">
             <div class="input-group">
-              <ion-item lines="none" class="custom-input">
-                <ion-icon name="map-outline" slot="start" color="primary"></ion-icon>
-                <div class="input-inner">
-                  <ion-label position="stacked">Provincia *</ion-label>
-                  <ion-input value="PICHINCHA" readonly></ion-input>
-                </div>
-              </ion-item>
+              <ion-label>Contraseña *</ion-label>
+              <div class="custom-input-wrapper">
+                <ion-icon name="lock-closed-outline" class="input-icon"></ion-icon>
+                <ion-input [value]="state.userData().password" (ionInput)="updatePassword($event)"
+                  placeholder="Contraseña" [type]="showPassword() ? 'text' : 'password'">
+                </ion-input>
+                <ion-button fill="clear" (click)="togglePasswordVisibility()" class="eye-btn" slot="end">
+                  <ion-icon [name]="showPassword() ? 'eye-off-outline' : 'eye-outline'" slot="icon-only"></ion-icon>
+                </ion-button>
+              </div>
             </div>
+
             <div class="input-group">
-              <ion-item lines="none" class="custom-input">
-                <ion-icon name="location-outline" slot="start" color="primary"></ion-icon>
-                <div class="input-inner">
-                  <ion-label position="stacked">Cantón *</ion-label>
-                  <ion-input value="QUITO" readonly></ion-input>
-                </div>
-              </ion-item>
+              <ion-label>Confirmar *</ion-label>
+              <div class="custom-input-wrapper">
+                <ion-icon name="lock-closed-outline" class="input-icon"></ion-icon>
+                <ion-input [value]="state.userData().passwordConfirm"
+                  (ionInput)="state.updateUserData({passwordConfirm: $any($event.target).value})" placeholder="Repetir"
+                  [type]="showPasswordConfirm() ? 'text' : 'password'">
+                </ion-input>
+                <ion-button fill="clear" (click)="togglePasswordConfirmVisibility()" class="eye-btn" slot="end">
+                  <ion-icon [name]="showPasswordConfirm() ? 'eye-off-outline' : 'eye-outline'"
+                    slot="icon-only"></ion-icon>
+                </ion-button>
+              </div>
             </div>
           </div>
 
+          <!-- Password Strength Indicator (Enhancement kept as it's purely visual feedback) -->
+          @if(state.userData().password) {
+          <div class="password-strength">
+            <div class="strength-bar" [style.background-color]="'var(--ion-color-' + passwordStrength().color + ')'"
+              [style.width.%]="(passwordStrength().score * 20)"></div>
+            <span [style.color]="'var(--ion-color-' + passwordStrength().color + ')'">{{ passwordStrength().label
+              }}</span>
+          </div>
+          }
+
+          <div class="form-grid">
+            <div class="input-group">
+              <ion-label>Provincia *</ion-label>
+              <div class="custom-input-wrapper readonly">
+                <ion-icon name="map-outline" class="input-icon"></ion-icon>
+                <ion-input value="PICHINCHA" readonly></ion-input>
+              </div>
+            </div>
+            <div class="input-group">
+              <ion-label>Cantón *</ion-label>
+              <div class="custom-input-wrapper readonly">
+                <ion-icon name="location-outline" class="input-icon"></ion-icon>
+                <ion-input value="QUITO" readonly></ion-input>
+              </div>
+            </div>
+          </div>
         </div>
         }
 
         <!-- STEP 3: PERSONAL INFO -->
         @if (step() === 3) {
         <div class="step-content">
-
           <div class="form-grid">
             <div class="input-group">
-              <ion-item lines="none" class="custom-input">
-                <ion-icon name="person-outline" slot="start" color="primary"></ion-icon>
-                <div class="input-inner">
-                  <ion-label position="stacked">Primer Nombre *</ion-label>
-                  <ion-input [value]="state.personalData().primerNombre"
-                    (ionInput)="state.updateUserData({primerNombre: $any($event.target).value})"
-                    placeholder="Nombre"></ion-input>
-                </div>
-              </ion-item>
+              <ion-label>Primer Nombre *</ion-label>
+              <div class="custom-input-wrapper">
+                <ion-icon name="person-outline" class="input-icon"></ion-icon>
+                <ion-input [value]="state.personalData().primerNombre"
+                  (ionInput)="state.updateUserData({primerNombre: $any($event.target).value})" placeholder="Nombre">
+                </ion-input>
+              </div>
             </div>
             <div class="input-group">
-              <ion-item lines="none" class="custom-input">
-                <ion-icon name="person-outline" slot="start" color="primary"></ion-icon>
-                <div class="input-inner">
-                  <ion-label position="stacked">Segundo Nombre</ion-label>
-                  <ion-input [value]="state.personalData().segundoNombre"
-                    (ionInput)="state.updateUserData({segundoNombre: $any($event.target).value})"
-                    placeholder="Opcional"></ion-input>
-                </div>
-              </ion-item>
+              <ion-label>Segundo Nombre</ion-label>
+              <div class="custom-input-wrapper">
+                <ion-icon name="person-outline" class="input-icon"></ion-icon>
+                <ion-input [value]="state.personalData().segundoNombre"
+                  (ionInput)="state.updateUserData({segundoNombre: $any($event.target).value})" placeholder="Opcional">
+                </ion-input>
+              </div>
             </div>
           </div>
 
           <div class="form-grid">
             <div class="input-group">
-              <ion-item lines="none" class="custom-input">
-                <ion-icon name="person-outline" slot="start" color="primary"></ion-icon>
-                <div class="input-inner">
-                  <ion-label position="stacked">Primer Apellido *</ion-label>
-                  <ion-input [value]="state.personalData().primerApellido"
-                    (ionInput)="state.updateUserData({primerApellido: $any($event.target).value})"
-                    placeholder="Apellido"></ion-input>
-                </div>
-              </ion-item>
+              <ion-label>Primer Apellido *</ion-label>
+              <div class="custom-input-wrapper">
+                <ion-icon name="person-outline" class="input-icon"></ion-icon>
+                <ion-input [value]="state.personalData().primerApellido"
+                  (ionInput)="state.updateUserData({primerApellido: $any($event.target).value})" placeholder="Apellido">
+                </ion-input>
+              </div>
             </div>
             <div class="input-group">
-              <ion-item lines="none" class="custom-input">
-                <ion-icon name="person-outline" slot="start" color="primary"></ion-icon>
-                <div class="input-inner">
-                  <ion-label position="stacked">Segundo Apellido</ion-label>
-                  <ion-input [value]="state.personalData().segundoApellido"
-                    (ionInput)="state.updateUserData({segundoApellido: $any($event.target).value})"
-                    placeholder="Opcional"></ion-input>
-                </div>
-              </ion-item>
+              <ion-label>Segundo Apellido</ion-label>
+              <div class="custom-input-wrapper">
+                <ion-icon name="person-outline" class="input-icon"></ion-icon>
+                <ion-input [value]="state.personalData().segundoApellido"
+                  (ionInput)="state.updateUserData({segundoApellido: $any($event.target).value})"
+                  placeholder="Opcional">
+                </ion-input>
+              </div>
             </div>
           </div>
 
           <div class="form-grid">
             <div class="input-group">
-              <ion-item lines="none" class="custom-input">
-                <ion-icon name="male-female-outline" slot="start" color="primary"></ion-icon>
-                <div class="input-inner">
-                  <ion-label position="stacked">Género *</ion-label>
-                  <ion-input [value]="state.personalData().genero || 'Masculino'"
-                    (ionInput)="state.updateUserData({genero: $any($event.target).value})"
-                    placeholder="Género"></ion-input>
-                </div>
-              </ion-item>
+              <ion-label>Género *</ion-label>
+              <div class="custom-input-wrapper">
+                <ion-icon name="male-female-outline" class="input-icon"></ion-icon>
+                <ion-input [value]="state.personalData().genero || 'Masculino'"
+                  (ionInput)="state.updateUserData({genero: $any($event.target).value})" placeholder="Género">
+                </ion-input>
+              </div>
             </div>
             <div class="input-group">
-              <ion-item lines="none" class="custom-input">
-                <ion-icon name="people-circle-outline" slot="start" color="primary"></ion-icon>
-                <div class="input-inner">
-                  <ion-label position="stacked">Etnia *</ion-label>
-                  <ion-input [value]="state.personalData().etnia || 'Mestizo'"
-                    (ionInput)="state.updateUserData({etnia: $any($event.target).value})"
-                    placeholder="Autodefinición"></ion-input>
-                </div>
-              </ion-item>
+              <ion-label>Etnia *</ion-label>
+              <div class="custom-input-wrapper">
+                <ion-icon name="people-circle-outline" class="input-icon"></ion-icon>
+                <ion-input [value]="state.personalData().etnia || 'Mestizo'"
+                  (ionInput)="state.updateUserData({etnia: $any($event.target).value})" placeholder="Autodefinición">
+                </ion-input>
+              </div>
             </div>
           </div>
 
           <div class="input-group">
-            <ion-item lines="none" class="custom-input">
-              <ion-icon name="calendar-outline" slot="start" color="primary"></ion-icon>
-              <div class="input-inner">
-                <ion-label position="stacked">Fecha de Nacimiento *</ion-label>
-                <ion-input type="date" [value]="state.personalData().fechaNacimiento"
-                  (change)="state.updateUserData({fechaNacimiento: $any($event.target).value})"></ion-input>
-              </div>
-            </ion-item>
+            <ion-label>Fecha de Nacimiento *</ion-label>
+            <div class="custom-input-wrapper">
+              <ion-icon name="calendar-outline" class="input-icon"></ion-icon>
+              <ion-input type="date" [value]="state.personalData().fechaNacimiento"
+                (change)="state.updateUserData({fechaNacimiento: $any($event.target).value})">
+              </ion-input>
+            </div>
           </div>
         </div>
         }
@@ -250,16 +243,15 @@
         @if (step() === 4) {
         <div class="step-content">
           <div class="input-group">
-            <ion-item lines="none" class="custom-input">
-              <ion-icon name="briefcase-outline" slot="start" color="primary"></ion-icon>
-              <div class="input-inner">
-                <ion-label position="stacked">Tipo de Participante *</ion-label>
-                <ion-select interface="popover" [value]="'1'" (ionChange)="state.updateUserData({tipoParticipante: 1})">
-                  <ion-select-option value="1">Ciudadano</ion-select-option>
-                  <ion-select-option value="2">Funcionario Público</ion-select-option>
-                </ion-select>
-              </div>
-            </ion-item>
+            <ion-label>Tipo de Participante *</ion-label>
+            <div class="custom-input-wrapper">
+              <ion-icon name="briefcase-outline" class="input-icon"></ion-icon>
+              <ion-select interface="popover" [value]="'1'" (ionChange)="state.updateUserData({tipoParticipante: 1})"
+                label="Seleccione" label-placement="floating" class="custom-select">
+                <ion-select-option value="1">Ciudadano</ion-select-option>
+                <ion-select-option value="2">Funcionario Público</ion-select-option>
+              </ion-select>
+            </div>
           </div>
         </div>
         }
@@ -268,7 +260,8 @@
         @if (step() === 5) {
         <div class="step-content">
           <div class="terms-box">
-            {{ termsText }}
+            <h4>Términos y Condiciones</h4>
+            <p>{{ termsText }}</p>
           </div>
 
           <div class="terms-check">
@@ -277,17 +270,14 @@
             <ion-label>He leído y acepto los <strong>Términos y Condiciones</strong></ion-label>
           </div>
 
-          <!-- Mock Captcha centered -->
-          <div style="display: flex; justify-content: center; margin-bottom: 20px;">
-            <div
-              style="border: 1px solid #d3d3d3; background: #f9f9f9; padding: 15px 30px; border-radius: 4px; display: flex; align-items: center; gap: 15px; box-shadow: 0 1px 1px rgba(0,0,0,0.08);">
+          <!-- Mock Captcha -->
+          <div class="captcha-container">
+            <div class="captcha-box">
               <ion-checkbox></ion-checkbox>
-              <div style="text-align: left;">
-                <span style="font-size: 14px; font-weight: 500;">No soy un robot</span>
-              </div>
-              <div style="margin-left: 20px; text-align: center;">
-                <img src="https://www.gstatic.com/recaptcha/api2/logo_48.png" style="width: 24px; opacity: 0.7;">
-                <div style="font-size: 8px; color: #999;">reCAPTCHA</div>
+              <span>No soy un robot</span>
+              <div class="captcha-logo">
+                <img src="https://www.gstatic.com/recaptcha/api2/logo_48.png" alt="reCAPTCHA">
+                <small>reCAPTCHA</small>
               </div>
             </div>
           </div>
@@ -297,20 +287,20 @@
         <!-- Navigation Buttons -->
         <div class="wizard-actions">
           @if (step() > 1) {
-          <ion-button fill="outline" (click)="prev()" color="medium">
+          <ion-button fill="outline" (click)="prev()" class="nav-btn prev">
             Anterior
           </ion-button>
           } @else {
           <div></div>
           }
 
-          @if (step() < 5) { <ion-button (click)="next()" class="submit-btn"
+          @if (step() < 5) { <ion-button (click)="next()" class="nav-btn next"
             [disabled]="step() === 1 ? false : (step() === 2 ? !(state.userData().ci && state.userData().email && state.userData().password) : false)">
             Siguiente
             <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
             </ion-button>
             } @else {
-            <ion-button (click)="registerUser()" class="submit-btn"
+            <ion-button (click)="registerUser()" class="nav-btn submit"
               [disabled]="isLoading() || !state.termsData().termsAccepted">
               @if(isLoading()) { <ion-spinner name="crescent"></ion-spinner> }
               @else { Finalizar Registro }
@@ -324,5 +314,6 @@
 
       </div>
     </div>
+
   </div>
 </ion-content>

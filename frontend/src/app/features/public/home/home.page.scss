@@ -218,6 +218,7 @@ ion-header {
     span {
       background: none;
       -webkit-background-clip: border-box;
+      background-clip: border-box;
       -webkit-text-fill-color: initial;
       color: var(--ion-color-primary);
     }
@@ -330,6 +331,16 @@ ion-header {
     line-height: 1.6;
     font-size: 0.95rem;
   }
+}
+
+// Dashboard Section Titles
+.dash-section-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--ion-color-dark);
+  margin: 40px 0 20px;
+  padding-left: 8px;
+  border-left: 4px solid var(--ion-color-primary);
 }
 
 // Bento Dashboard Grid

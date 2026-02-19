@@ -131,47 +131,188 @@
 
       <!-- DASHBOARD GRIDS -->
 
-      <!-- ADMIN -->
-      <div class="dashboard-grid" *ngIf="isAdmin()">
-        <div class="dash-card card-wide" (click)="navegarModulo('gestionar-usuarios')">
-          <div class="icon-circle"><ion-icon name="people"></ion-icon></div>
-          <h4>Usuarios</h4>
-          <p>Cuentas y Accesos</p>
-          <ion-icon name="arrow-forward" class="arrow"></ion-icon>
+      <!-- ADMIN DASHBOARD SECTIONS -->
+      <div *ngIf="isAdmin()">
+
+        <!-- 1. ACCESO Y USUARIOS -->
+        <h3 class="dash-section-title">Control de Acceso</h3>
+        <div class="dashboard-grid">
+          <div class="dash-card card-wide" (click)="navegarModulo('gestionar-usuarios')">
+            <div class="icon-circle"><ion-icon name="people"></ion-icon></div>
+            <h4>Usuarios</h4>
+            <p>Cuentas y Accesos</p>
+            <ion-icon name="arrow-forward" class="arrow"></ion-icon>
+          </div>
+          <div class="dash-card" (click)="navegarModulo('gestionar-roles')">
+            <div class="icon-circle"><ion-icon name="key-outline"></ion-icon></div>
+            <h4>Roles</h4>
+            <p>Permisos y Perfiles</p>
+            <ion-icon name="arrow-forward" class="arrow"></ion-icon>
+          </div>
         </div>
-        <div class="dash-card" (click)="navegarModulo('gestionar-capacitaciones')">
-          <div class="icon-circle"><ion-icon name="easel"></ion-icon></div>
-          <h4>Conferencias</h4>
-          <p>Crear eventos</p>
-          <ion-icon name="arrow-forward" class="arrow"></ion-icon>
+
+        <!-- 2. GESTIÓN DE EVENTOS -->
+        <h3 class="dash-section-title">Gestión de Eventos</h3>
+        <div class="dashboard-grid">
+          <div class="dash-card" (click)="navegarModulo('gestionar-capacitaciones')">
+            <div class="icon-circle"><ion-icon name="easel"></ion-icon></div>
+            <h4>Conferencias</h4>
+            <p>Crear y editar</p>
+            <ion-icon name="arrow-forward" class="arrow"></ion-icon>
+          </div>
+          <div class="dash-card" (click)="navegarModulo('gestionar-plantillas')">
+            <div class="icon-circle"><ion-icon name="image"></ion-icon></div>
+            <h4>Plantillas</h4>
+            <p>Diseños de certif.</p>
+            <ion-icon name="arrow-forward" class="arrow"></ion-icon>
+          </div>
+          <div class="dash-card" (click)="navegarModulo('gestionar-reportes')">
+            <div class="icon-circle"><ion-icon name="stats-chart-outline"></ion-icon></div>
+            <h4>Reportes</h4>
+            <p>Estadísticas</p>
+            <ion-icon name="arrow-forward" class="arrow"></ion-icon>
+          </div>
         </div>
-        <div class="dash-card" (click)="navegarModulo('gestionar-plantillas')">
-          <div class="icon-circle"><ion-icon name="image"></ion-icon></div>
-          <h4>Plantillas</h4>
-          <p>Diseños</p>
-          <ion-icon name="arrow-forward" class="arrow"></ion-icon>
+
+        <!-- 3. ORGANIZACIÓN TERRITORIAL -->
+        <h3 class="dash-section-title">Organización Territorial</h3>
+        <div class="dashboard-grid">
+          <div class="dash-card" (click)="navegarModulo('gestionar-provincias')">
+            <div class="icon-circle"><ion-icon name="map-outline"></ion-icon></div>
+            <h4>Provincias</h4>
+            <p>Territorio</p>
+            <ion-icon name="arrow-forward" class="arrow"></ion-icon>
+          </div>
+          <div class="dash-card" (click)="navegarModulo('gestionar-cantones')">
+            <div class="icon-circle"><ion-icon name="location-outline"></ion-icon></div>
+            <h4>Cantones</h4>
+            <p>Ciudades</p>
+            <ion-icon name="arrow-forward" class="arrow"></ion-icon>
+          </div>
+          <div class="dash-card" (click)="navegarModulo('gestionar-parroquias')">
+            <div class="icon-circle"><ion-icon name="pin-outline"></ion-icon></div>
+            <h4>Parroquias</h4>
+            <p>Localidades</p>
+            <ion-icon name="arrow-forward" class="arrow"></ion-icon>
+          </div>
         </div>
-        <div class="dash-card" (click)="navegarModulo('gestionar-entidades')">
-          <div class="icon-circle"><ion-icon name="business"></ion-icon></div>
-          <h4>Entidades</h4>
-          <p>Instituciones</p>
-          <ion-icon name="arrow-forward" class="arrow"></ion-icon>
+
+        <!-- 4. INSTITUCIONAL -->
+        <h3 class="dash-section-title">Institucional</h3>
+        <div class="dashboard-grid">
+          <div class="dash-card" (click)="navegarModulo('gestionar-entidades')">
+            <div class="icon-circle"><ion-icon name="business"></ion-icon></div>
+            <h4>Entidades</h4>
+            <p>Organismos</p>
+            <ion-icon name="arrow-forward" class="arrow"></ion-icon>
+          </div>
+          <div class="dash-card" (click)="navegarModulo('gestionar-instituciones')">
+            <div class="icon-circle"><ion-icon name="business-outline"></ion-icon></div>
+            <h4>Instituciones</h4>
+            <p>Dependencias</p>
+            <ion-icon name="arrow-forward" class="arrow"></ion-icon>
+          </div>
+          <div class="dash-card" (click)="navegarModulo('gestionar-cargos-instituciones')">
+            <div class="icon-circle"><ion-icon name="id-card-outline"></ion-icon></div>
+            <h4>Cargos</h4>
+            <p>Puestos</p>
+            <ion-icon name="arrow-forward" class="arrow"></ion-icon>
+          </div>
+          <div class="dash-card" (click)="navegarModulo('gestionar-competencias')">
+            <div class="icon-circle"><ion-icon name="ribbon-outline"></ion-icon></div>
+            <h4>Competencias</h4>
+            <p>Facultades</p>
+            <ion-icon name="arrow-forward" class="arrow"></ion-icon>
+          </div>
         </div>
+
+        <!-- 5. PORTAL PÚBLICO -->
+        <h3 class="dash-section-title">Portal Público</h3>
+        <div class="dashboard-grid">
+          <div class="dash-card" (click)="navegarModulo('servi-progra')">
+            <div class="icon-circle"><ion-icon name="calendar-outline"></ion-icon></div>
+            <h4>Servicios</h4>
+            <p>Oferta pública</p>
+            <ion-icon name="arrow-forward" class="arrow"></ion-icon>
+          </div>
+          <div class="dash-card" (click)="navegarModulo('validar-certificados')">
+            <div class="icon-circle"><ion-icon name="qr-code-outline"></ion-icon></div>
+            <h4>Validar</h4>
+            <p>Verificar cert.</p>
+            <ion-icon name="arrow-forward" class="arrow"></ion-icon>
+          </div>
+          <div class="dash-card" (click)="navegarModulo('historia')">
+            <div class="icon-circle"><ion-icon name="book-outline"></ion-icon></div>
+            <h4>Historia</h4>
+            <p>Trayectoria</p>
+            <ion-icon name="arrow-forward" class="arrow"></ion-icon>
+          </div>
+          <div class="dash-card" (click)="navegarModulo('direccion')">
+            <div class="icon-circle"><ion-icon name="map-outline"></ion-icon></div>
+            <h4>Dirección</h4>
+            <p>Ubicación</p>
+            <ion-icon name="arrow-forward" class="arrow"></ion-icon>
+          </div>
+          <div class="dash-card" (click)="navegarModulo('norma-regul')">
+            <div class="icon-circle"><ion-icon name="document-text-outline"></ion-icon></div>
+            <h4>Normativa</h4>
+            <p>Regulaciones</p>
+            <ion-icon name="arrow-forward" class="arrow"></ion-icon>
+          </div>
+          <div class="dash-card" (click)="navegarModulo('informacion')">
+            <div class="icon-circle"><ion-icon name="information-circle-outline"></ion-icon></div>
+            <h4>Nosotros</h4>
+            <p>Información</p>
+            <ion-icon name="arrow-forward" class="arrow"></ion-icon>
+          </div>
+        </div>
+
       </div>
 
-      <!-- CREATOR -->
-      <div class="dashboard-grid" *ngIf="isCreator()">
-        <div class="dash-card card-wide" (click)="navegarModulo('gestionar-capacitaciones')">
-          <div class="icon-circle"><ion-icon name="create"></ion-icon></div>
-          <h4>Mis Eventos</h4>
-          <p>Crear y editar conferencias</p>
-          <ion-icon name="arrow-forward" class="arrow"></ion-icon>
+      <!-- CREATOR (CONFERENCISTA) -->
+      <div *ngIf="isCreator()">
+        <h3 class="dash-section-title">Gestión de Eventos</h3>
+        <div class="dashboard-grid">
+          <div class="dash-card card-wide" (click)="navegarModulo('gestionar-capacitaciones')">
+            <div class="icon-circle"><ion-icon name="easel"></ion-icon></div>
+            <h4>Mis Eventos</h4>
+            <p>Tus conferencias asignadas</p>
+            <ion-icon name="arrow-forward" class="arrow"></ion-icon>
+          </div>
+          <div class="dash-card" (click)="navegarModulo('gestionar-plantillas')">
+            <div class="icon-circle"><ion-icon name="image"></ion-icon></div>
+            <h4>Plantillas</h4>
+            <p>Diseños de certif.</p>
+            <ion-icon name="arrow-forward" class="arrow"></ion-icon>
+          </div>
+          <div class="dash-card" (click)="navegarModulo('validar-certificados')">
+            <div class="icon-circle"><ion-icon name="qr-code"></ion-icon></div>
+            <h4>Validar</h4>
+            <p>Scanner QR</p>
+            <ion-icon name="arrow-forward" class="arrow"></ion-icon>
+          </div>
         </div>
-        <div class="dash-card" (click)="navegarModulo('Validar certificados')">
-          <div class="icon-circle"><ion-icon name="qr-code"></ion-icon></div>
-          <h4>Validar</h4>
-          <p>Scanner QR</p>
-          <ion-icon name="arrow-forward" class="arrow"></ion-icon>
+
+        <h3 class="dash-section-title">Mi Espacio</h3>
+        <div class="dashboard-grid">
+          <div class="dash-card" (click)="navegarModulo('Ver conferencias')">
+            <div class="icon-circle"><ion-icon name="search"></ion-icon></div>
+            <h4>Explorar</h4>
+            <p>Oferta académica</p>
+            <ion-icon name="arrow-forward" class="arrow"></ion-icon>
+          </div>
+          <div class="dash-card" (click)="navegarModulo('Ver certificaciones')">
+            <div class="icon-circle"><ion-icon name="ribbon"></ion-icon></div>
+            <h4>Mis Títulos</h4>
+            <p>Certificados obtenidos</p>
+            <ion-icon name="arrow-forward" class="arrow"></ion-icon>
+          </div>
+          <div class="dash-card" (click)="navegarModulo('Ver Perfil')">
+            <div class="icon-circle"><ion-icon name="person"></ion-icon></div>
+            <h4>Mi Perfil</h4>
+            <p>Mis datos</p>
+            <ion-icon name="arrow-forward" class="arrow"></ion-icon>
+          </div>
         </div>
       </div>
 
