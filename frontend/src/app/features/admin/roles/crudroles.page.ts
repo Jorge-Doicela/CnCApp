@@ -41,7 +41,7 @@ export class CRUDRolesPage implements OnInit {
   }
 
   async RecuperarRoles() {
-    this.catalogoService.getItems('roles').subscribe({
+    this.catalogoService.getItems('rol').subscribe({
       next: (data) => {
         this.Roles = data ?? [];
         this.rolesFiltrados = [...this.Roles];
@@ -84,7 +84,7 @@ export class CRUDRolesPage implements OnInit {
     this.rolesFiltrados = this.Roles.filter(rol => {
       // Filtrar por término de búsqueda
       const cumpleBusqueda = !this.searchTerm ||
-        rol.nombre_rol.toLowerCase().includes(this.searchTerm.toLowerCase());
+        rol.nombre.toLowerCase().includes(this.searchTerm.toLowerCase());
 
       // Filtrar por estado
       const cumpleEstado = this.filtroEstado === 'todos' ||
@@ -97,8 +97,8 @@ export class CRUDRolesPage implements OnInit {
   async cambiarEstadoRol(rol: any) {
     const nuevoEstado = !rol.estado;
     const mensaje = nuevoEstado
-      ? `¿Estás seguro de que deseas activar el rol "${rol.nombre_rol}"?`
-      : `¿Estás seguro de que deseas desactivar el rol "${rol.nombre_rol}"?`;
+      ? `¿Estás seguro de que deseas activar el rol "${rol.nombre}"?`
+      : `¿Estás seguro de que deseas desactivar el rol "${rol.nombre}"?`;
 
     const alert = await this.alertController.create({
       header: nuevoEstado ? 'Activar Rol' : 'Desactivar Rol',
@@ -112,13 +112,13 @@ export class CRUDRolesPage implements OnInit {
           text: 'Confirmar',
           role: 'confirm',
           handler: () => {
-            this.catalogoService.updateItem('roles', rol.Id_Rol, { estado: nuevoEstado }).subscribe({
+            this.catalogoService.updateItem('rol', rol.id, { estado: nuevoEstado }).subscribe({
               next: () => {
                 // Actualizar el estado en la lista local
                 rol.estado = nuevoEstado;
                 this.calcularRolesActivos();
                 this.presentToast(
-                  `El rol "${rol.nombre_rol}" ha sido ${nuevoEstado ? 'activado' : 'desactivado'} exitosamente`,
+                  `El rol "${rol.nombre}" ha sido ${nuevoEstado ? 'activado' : 'desactivado'} exitosamente`,
                   'success'
                 );
               },
@@ -138,7 +138,7 @@ export class CRUDRolesPage implements OnInit {
   async confirmarEliminar(rol: any) {
     const alert = await this.alertController.create({
       header: 'Confirmar eliminación',
-      message: `¿Está seguro de que desea eliminar el rol "${rol.nombre_rol}"?`,
+      message: `¿Está seguro de que desea eliminar el rol "${rol.nombre}"?`,
       buttons: [
         {
           text: 'Cancelar',
@@ -158,13 +158,13 @@ export class CRUDRolesPage implements OnInit {
   }
 
   eliminarRol(rol: any) {
-    this.catalogoService.deleteItem('roles', rol.Id_Rol).subscribe({
+    this.catalogoService.deleteItem('rol', rol.id).subscribe({
       next: () => {
         // Actualizar lista local
-        this.Roles = this.Roles.filter(r => r.Id_Rol !== rol.Id_Rol);
+        this.Roles = this.Roles.filter(r => r.id !== rol.id);
         this.filtrarRoles();
         this.calcularRolesActivos();
-        this.presentToast(`Rol "${rol.nombre_rol}" eliminado con éxito`, 'success');
+        this.presentToast(`Rol "${rol.nombre}" eliminado con éxito`, 'success');
       },
       error: (error) => {
         console.error('Error al eliminar rol:', error);
@@ -182,7 +182,7 @@ export class CRUDRolesPage implements OnInit {
     const modulosLista = rol.modulos.map((modulo: string) => `• ${modulo}`).join('<br>');
 
     const alert = await this.alertController.create({
-      header: `Módulos de ${rol.nombre_rol}`,
+      header: `Módulos de ${rol.nombre}`,
       message: `<div class="modulos-lista">${modulosLista}</div>`,
       buttons: ['Cerrar']
     });

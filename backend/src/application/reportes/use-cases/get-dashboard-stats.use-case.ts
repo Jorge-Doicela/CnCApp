@@ -5,11 +5,10 @@ interface DashboardStats {
     totalUsuarios: number;
     totalCapacitaciones: number;
     totalCertificados: number;
-    usuariosPorRol: {
-        administrador: number;
-        conferencista: number;
-        usuario: number;
-    };
+    usuariosPorRol: Array<{
+        nombre: string;
+        cantidad: number;
+    }>;
     capacitacionesActivas: number;
     capacitacionesFinalizadas: number;
     certificadosEsteMes: number;
@@ -59,7 +58,7 @@ export class GetDashboardStatsUseCase {
             }),
             this.prisma.usuario.count({
                 where: {
-                    fechaRegistro: { gte: firstDayOfMonth }
+                    createdAt: { gte: firstDayOfMonth }
                 }
             })
         ]);
@@ -77,15 +76,20 @@ export class GetDashboardStatsUseCase {
     }
 
     private async getUsuariosPorRol() {
-        const usuarios = await this.prisma.usuario.groupBy({
-            by: ['rolId'],
-            _count: true
+        const roles = await this.prisma.rol.findMany({
+            include: {
+                _count: {
+                    select: { usuarios: true }
+                }
+            },
+            orderBy: {
+                nombre: 'asc'
+            }
         });
 
-        return {
-            administrador: usuarios.find(u => u.rolId === 1)?._count || 0,
-            conferencista: usuarios.find(u => u.rolId === 2)?._count || 0,
-            usuario: usuarios.find(u => u.rolId === 3)?._count || 0
-        };
+        return roles.map(rol => ({
+            nombre: rol.nombre,
+            cantidad: rol._count.usuarios
+        }));
     }
 }

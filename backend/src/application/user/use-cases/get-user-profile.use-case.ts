@@ -1,15 +1,14 @@
-import { injectable, inject } from 'tsyringe';
-import { UserRepository } from '../../../domain/user/repositories/user.repository';
+import { injectable } from 'tsyringe';
 import { NotFoundError } from '../../../domain/shared/errors';
 
 @injectable()
 export class GetUserProfileUseCase {
-    constructor(
-        @inject('UserRepository') private userRepository: UserRepository
-    ) { }
+    constructor() { }
 
     async execute(userId: number) {
-        const user = await this.userRepository.findById(userId);
+        const { container } = require('tsyringe');
+        const userRepository = container.resolve('UserRepository');
+        const user = await userRepository.findById(userId);
         if (!user) {
             throw new NotFoundError('Usuario no encontrado');
         }

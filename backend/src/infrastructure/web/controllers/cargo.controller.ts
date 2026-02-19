@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { injectable, inject } from 'tsyringe';
 import { GetAllCargosUseCase } from '../../../application/cargos/use-cases/get-all-cargos.use-case';
+import { GetCargoByIdUseCase } from '../../../application/cargos/use-cases/get-cargo-by-id.use-case';
 import { CreateCargoUseCase } from '../../../application/cargos/use-cases/create-cargo.use-case';
 import { UpdateCargoUseCase } from '../../../application/cargos/use-cases/update-cargo.use-case';
 import { DeleteCargoUseCase } from '../../../application/cargos/use-cases/delete-cargo.use-case';
@@ -9,6 +10,7 @@ import { DeleteCargoUseCase } from '../../../application/cargos/use-cases/delete
 export class CargoController {
     constructor(
         @inject(GetAllCargosUseCase) private readonly getAllUseCase: GetAllCargosUseCase,
+        @inject(GetCargoByIdUseCase) private readonly getByIdUseCase: GetCargoByIdUseCase,
         @inject(CreateCargoUseCase) private readonly createUseCase: CreateCargoUseCase,
         @inject(UpdateCargoUseCase) private readonly updateUseCase: UpdateCargoUseCase,
         @inject(DeleteCargoUseCase) private readonly deleteUseCase: DeleteCargoUseCase
@@ -20,6 +22,20 @@ export class CargoController {
             res.json(cargos);
         } catch (error) {
             res.status(500).json({ error: 'Error al obtener cargos' });
+        }
+    };
+
+    getById = async (req: Request, res: Response) => {
+        try {
+            const { id } = req.params;
+            const cargo = await this.getByIdUseCase.execute(Number(id));
+            if (!cargo) {
+                res.status(404).json({ error: 'Cargo no encontrado' });
+                return;
+            }
+            res.json(cargo);
+        } catch (error) {
+            res.status(500).json({ error: 'Error al obtener cargo' });
         }
     };
 

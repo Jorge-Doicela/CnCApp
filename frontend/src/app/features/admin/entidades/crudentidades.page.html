@@ -20,7 +20,8 @@
         <div class="search-container">
           <ion-item class="search-item">
             <ion-icon name="search-outline" slot="start" color="primary"></ion-icon>
-            <ion-input placeholder="Buscar entidad por nombre" [(ngModel)]="searchTerm" (ionChange)="filtrarEntidades()"></ion-input>
+            <ion-input placeholder="Buscar entidad por nombre" [(ngModel)]="searchTerm"
+              (ionChange)="filtrarEntidades()"></ion-input>
             <ion-button slot="end" fill="clear" (click)="filtrarEntidades()">
               <ion-icon name="search"></ion-icon>
             </ion-button>
@@ -30,7 +31,8 @@
             <ion-item class="filter-item">
               <ion-icon name="checkmark-circle-outline" slot="start" color="primary"></ion-icon>
               <ion-label>Estado</ion-label>
-              <ion-select [(ngModel)]="filtroEstado" interface="action-sheet" placeholder="Todos" (ionChange)="filtrarEntidades()">
+              <ion-select [(ngModel)]="filtroEstado" interface="action-sheet" placeholder="Todos"
+                (ionChange)="filtrarEntidades()">
                 <ion-select-option value="todos">Todos</ion-select-option>
                 <ion-select-option value="1">Válidas</ion-select-option>
                 <ion-select-option value="0">No Válidas</ion-select-option>
@@ -40,7 +42,8 @@
             <ion-item class="filter-item">
               <ion-icon name="funnel-outline" slot="start" color="primary"></ion-icon>
               <ion-label>Ordenar por</ion-label>
-              <ion-select [(ngModel)]="ordenPor" interface="action-sheet" placeholder="Nombre" (ionChange)="ordenarEntidades()">
+              <ion-select [(ngModel)]="ordenPor" interface="action-sheet" placeholder="Nombre"
+                (ionChange)="ordenarEntidades()">
                 <ion-select-option value="nombre">Nombre</ion-select-option>
                 <ion-select-option value="estado">Estado</ion-select-option>
                 <ion-select-option value="id">ID</ion-select-option>
@@ -111,26 +114,27 @@
         </div>
 
         <div class="entidades-grid" *ngIf="!isLoading && entidadesFiltradas.length > 0">
-          <div class="entidad-card" *ngFor="let entidad of entidadesFiltradas" [ngClass]="{'active-card': entidad.Estado_Entidad === 1, 'inactive-card': entidad.Estado_Entidad === 0}">
+          <div class="entidad-card" *ngFor="let entidad of entidadesFiltradas"
+            [ngClass]="{'active-card': entidad.estado, 'inactive-card': !entidad.estado}">
             <div class="entidad-header">
               <div class="entidad-title">
-                <h4>{{ entidad.Nombre_Entidad }}</h4>
-                <span class="entidad-badge" [ngClass]="{'active': entidad.Estado_Entidad === 1, 'inactive': entidad.Estado_Entidad === 0}">
-                  {{ entidad.Estado_Entidad === 1 ? 'Válida' : 'No Válida' }}
+                <h4>{{ entidad.nombre }}</h4>
+                <span class="entidad-badge" [ngClass]="{'active': entidad.estado, 'inactive': !entidad.estado}">
+                  {{ entidad.estado ? 'Válida' : 'No Válida' }}
                 </span>
               </div>
             </div>
             <div class="entidad-content">
               <div class="entidad-image">
-                <img [src]="entidad.Imagen_Entidad || '../../../../assets/no-image.png'" alt="Imagen de la entidad">
+                <img [src]="entidad.imagen || '../../../../assets/no-image.png'" alt="Imagen de la entidad">
               </div>
               <div class="entidad-detail">
                 <ion-icon name="key-outline" color="primary"></ion-icon>
-                <span>ID: {{ entidad.Id_Entidad }}</span>
+                <span>ID: {{ entidad.id }}</span>
               </div>
             </div>
             <div class="entidad-actions">
-              <ion-button fill="clear" color="primary" (click)="iraEditarEntidad(entidad.Id_Entidad)">
+              <ion-button fill="clear" color="primary" (click)="iraEditarEntidad(entidad.id)">
                 <ion-icon name="create-outline"></ion-icon>
                 Editar
               </ion-button>
@@ -138,9 +142,10 @@
                 <ion-icon name="trash-outline"></ion-icon>
                 Eliminar
               </ion-button>
-              <ion-button fill="clear" [color]="entidad.Estado_Entidad === 1 ? 'warning' : 'success'" (click)="cambiarEstado(entidad)">
+              <ion-button fill="clear" [color]="entidad.estado ? 'warning' : 'success'"
+                (click)="cambiarEstado(entidad)">
                 <ion-icon name="swap-vertical-outline"></ion-icon>
-                {{ entidad.Estado_Entidad === 1 ? 'Desactivar' : 'Activar' }}
+                {{ entidad.estado ? 'Desactivar' : 'Activar' }}
               </ion-button>
             </div>
           </div>

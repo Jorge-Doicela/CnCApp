@@ -107,9 +107,9 @@ export class CrearPage implements OnInit {
       // TODO: Handle image upload via backend service when available
 
       const nuevaEntidad = {
-        Nombre_Entidad: this.nombreEntidad,
-        Imagen_Entidad: imageUrl,
-        Estado_Entidad: this.estadoEntidad
+        nombre: this.nombreEntidad,
+        imagen: imageUrl,
+        estado: this.estadoEntidad === 1 // Convert number to boolean if backend expects boolean
       };
 
       this.catalogoService.createItem('entidades', nuevaEntidad).subscribe({

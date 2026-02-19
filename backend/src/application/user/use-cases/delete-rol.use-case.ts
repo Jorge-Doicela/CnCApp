@@ -1,12 +1,12 @@
 import { injectable } from 'tsyringe';
 
 @injectable()
-export class GetAllRolesUseCase {
+export class DeleteRolUseCase {
     constructor() { }
 
-    async execute(): Promise<any[]> {
+    async execute(id: number): Promise<void> {
         const { container } = require('tsyringe');
         const rolRepository = container.resolve('RolRepository');
-        return await rolRepository.findAll();
+        await rolRepository.delete(id);
     }
 }

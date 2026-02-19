@@ -20,7 +20,7 @@
         <ion-item class="form-item">
           <ion-icon name="text-outline" slot="start" color="primary"></ion-icon>
           <ion-label position="floating">Nombre del Rol <ion-text color="danger">*</ion-text></ion-label>
-          <ion-input [(ngModel)]="rol.nombre_rol" name="nombre_rol" required #nombre="ngModel"></ion-input>
+          <ion-input [(ngModel)]="rol.nombre" name="nombre" required #nombre="ngModel"></ion-input>
         </ion-item>
         <ion-note color="danger" *ngIf="nombre.invalid && (nombre.dirty || nombre.touched)">
           <ion-icon name="alert-circle-outline"></ion-icon>
@@ -80,7 +80,7 @@
         <div class="summary-content">
           <div class="summary-item">
             <span class="label">Nombre:</span>
-            <span class="value">{{ rol.nombre_rol || 'No definido' }}</span>
+            <span class="value">{{ rol.nombre || 'No definido' }}</span>
           </div>
           <div class="summary-item">
             <span class="label">Estado inicial:</span>

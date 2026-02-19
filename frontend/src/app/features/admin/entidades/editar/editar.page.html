@@ -30,7 +30,8 @@
           <ion-item class="form-item">
             <ion-icon name="business-outline" slot="start" color="primary"></ion-icon>
             <ion-label position="floating">Nombre de Entidad <ion-text color="danger">*</ion-text></ion-label>
-            <ion-input [(ngModel)]="entidad.Nombre_Entidad" name="nombreEntidad" required minlength="3" #nombre="ngModel"></ion-input>
+            <ion-input [(ngModel)]="entidad.nombre" name="nombreEntidad" required minlength="3"
+              #nombre="ngModel"></ion-input>
           </ion-item>
           <ion-note color="danger" *ngIf="nombre.invalid && (nombre.dirty || nombre.touched || formSubmitted)">
             <ion-icon name="alert-circle-outline"></ion-icon>
@@ -46,8 +47,8 @@
               <div class="current-image">
                 <h5>Imagen Actual</h5>
                 <div class="image-wrapper">
-                  <img *ngIf="entidad.Imagen_Entidad" [src]="entidad.Imagen_Entidad" alt="Imagen actual" />
-                  <div *ngIf="!entidad.Imagen_Entidad" class="no-image">
+                  <img *ngIf="entidad.imagen" [src]="entidad.imagen" alt="Imagen actual" />
+                  <div *ngIf="!entidad.imagen" class="no-image">
                     <ion-icon name="image-outline"></ion-icon>
                     <p>Sin imagen</p>
                   </div>
@@ -78,9 +79,9 @@
           <ion-item class="form-item toggle-item">
             <ion-icon name="checkmark-circle-outline" slot="start" color="primary"></ion-icon>
             <ion-label>Estado</ion-label>
-            <ion-select [(ngModel)]="entidad.Estado_Entidad" name="estadoEntidad" interface="action-sheet">
-              <ion-select-option [value]="1">Entidad Válida</ion-select-option>
-              <ion-select-option [value]="0">Entidad No Válida</ion-select-option>
+            <ion-select [(ngModel)]="entidad.estado" name="estadoEntidad" interface="action-sheet">
+              <ion-select-option [value]="true">Entidad Válida</ion-select-option>
+              <ion-select-option [value]="false">Entidad No Válida</ion-select-option>
             </ion-select>
           </ion-item>
           <ion-note>
@@ -94,7 +95,7 @@
             <ion-icon name="close-outline" slot="start"></ion-icon>
             Cancelar
           </ion-button>
-          <ion-button color="warning" type="submit" [disabled]="enviando || !entidad.Nombre_Entidad">
+          <ion-button color="warning" type="submit" [disabled]="enviando || !entidad.nombre">
             <ion-icon name="save-outline" slot="start"></ion-icon>
             {{ enviando ? 'Guardando...' : 'Guardar Cambios' }}
             <ion-spinner name="crescent" *ngIf="enviando"></ion-spinner>

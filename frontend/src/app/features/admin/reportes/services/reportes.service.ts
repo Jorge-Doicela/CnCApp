@@ -7,11 +7,10 @@ export interface DashboardStats {
     totalUsuarios: number;
     totalCapacitaciones: number;
     totalCertificados: number;
-    usuariosPorRol: {
-        administrador: number;
-        conferencista: number;
-        usuario: number;
-    };
+    usuariosPorRol: Array<{
+        nombre: string;
+        cantidad: number;
+    }>;
     capacitacionesActivas: number;
     capacitacionesFinalizadas: number;
     certificadosEsteMes: number;

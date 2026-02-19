@@ -16,9 +16,9 @@ import { CatalogoService } from 'src/app/shared/services/catalogo.service';
 export class EditarPage implements OnInit {
   idEntidad: string = '';
   entidad: any = {
-    Nombre_Entidad: '',
-    Imagen_Entidad: '',
-    Estado_Entidad: 1
+    nombre: '',
+    imagen: '',
+    estado: true
   };
   nuevaImagen: File | null = null;
   previsualizacionImagen: string = '';
@@ -140,7 +140,7 @@ export class EditarPage implements OnInit {
     await loading.present();
 
     try {
-      let updatedImageUrl = this.entidad.Imagen_Entidad;
+      let updatedImageUrl = this.entidad.imagen;
 
       // Si hay una nueva imagen, subirla primero
       if (this.nuevaImagen) {
@@ -149,9 +149,9 @@ export class EditarPage implements OnInit {
       }
 
       const dataToUpdate = {
-        Nombre_Entidad: this.entidad.Nombre_Entidad,
-        Imagen_Entidad: updatedImageUrl,
-        Estado_Entidad: this.entidad.Estado_Entidad,
+        nombre: this.entidad.nombre,
+        imagen: updatedImageUrl,
+        estado: this.entidad.estado,
       };
 
       this.catalogoService.updateItem('entidades', this.idEntidad, dataToUpdate).subscribe({
