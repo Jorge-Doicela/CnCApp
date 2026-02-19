@@ -1,91 +1,91 @@
-<ion-content class="login-content">
-  <div class="login-layout">
+<ion-content class="login-content" [fullscreen]="true">
+  <div class="login-split-layout">
 
-    <!-- Left Side: Branding/Image -->
-    <div class="branding-side">
-      <div class="branding-content">
+    <!-- Left Side: Branding (Desktop) -->
+    <div class="branding-section ion-hide-lg-down">
+      <div class="branding-content animate-fade-up">
         <div class="logo-wrapper">
           <img src="assets/cnc.png" alt="CNC Logo" class="brand-logo">
         </div>
-        <h1>Consejo Nacional de Competencias</h1>
+        <h1>Consejo Nacional de<br><span>Competencias</span></h1>
         <p>Sistema de Gestión de Capacitaciones y Certificaciones</p>
-        <div class="glass-decoration"></div>
+        <div class="glass-pill">
+          <ion-icon name="shield-checkmark-outline"></ion-icon>
+          <span>Acceso Seguro</span>
+        </div>
       </div>
-      <div class="branding-overlay"></div>
+      <!-- Background Shapes -->
+      <div class="shape-blob blob-1"></div>
+      <div class="shape-blob blob-2"></div>
+      <div class="glass-overlay"></div>
     </div>
 
-    <!-- Right Side: Login Form -->
-    <div class="form-side">
-      <div class="form-wrapper">
+    <!-- Right Side: Form -->
+    <div class="form-section">
+      <img src="assets/cnc.png" alt="CNC Logo" class="mobile-logo ion-hide-lg-up">
+
+      <div class="login-card-wrapper animate-fade-up" style="animation-delay: 0.1s;">
         <div class="header-actions">
-          <ion-button fill="clear" color="dark" routerLink="/home" class="back-btn">
+          <ion-button fill="clear" routerLink="/home" class="back-btn" color="medium">
             <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
-            <ion-label>Volver al Inicio</ion-label>
+            Volver al Inicio
           </ion-button>
         </div>
 
-        <div class="mobile-logo-container ion-hide-md-up">
-          <img src="assets/cnc.png" alt="CNC Logo" class="mobile-logo">
-        </div>
-
-        <div class="header-text">
+        <div class="form-header">
           <h2>Bienvenido</h2>
-          <p>Ingresa tus credenciales para acceder</p>
+          <p>Ingresa tus credenciales para continuar</p>
         </div>
 
         <form (ngSubmit)="loginUser()">
+
           <div class="input-group">
-            <ion-item lines="none" class="custom-input">
-              <ion-icon name="person-outline" slot="start" color="primary"></ion-icon>
-              <div class="input-inner">
-                <ion-label position="stacked">Cédula de Identidad</ion-label>
-                <ion-input [value]="ci()" (ionInput)="updateCi($event)" type="tel" maxlength="10"
-                  placeholder="Ingrese su cédula" mode="md">
-                </ion-input>
-              </div>
-            </ion-item>
+            <ion-label position="stacked">Cédula de Identidad</ion-label>
+            <div class="custom-input-wrapper">
+              <ion-icon name="person-outline" class="input-icon"></ion-icon>
+              <ion-input [value]="ci()" (ionInput)="updateCi($event)" type="tel" maxlength="10"
+                placeholder="Ingrese su cédula" mode="md">
+              </ion-input>
+            </div>
           </div>
 
           <div class="input-group">
-            <ion-item lines="none" class="custom-input">
-              <ion-icon name="lock-closed-outline" slot="start" color="primary"></ion-icon>
-              <div class="input-inner">
-                <ion-label position="stacked">Contraseña</ion-label>
-                <ion-input [value]="password()" (ionInput)="updatePassword($event)"
-                  [type]="showPassword() ? 'text' : 'password'" placeholder="Ingrese su contraseña" mode="md">
-                </ion-input>
-              </div>
-              <ion-button slot="end" fill="clear" (click)="togglePassword()" class="eye-btn">
-                <ion-icon [name]="showPassword() ? 'eye-off-outline' : 'eye-outline'" slot="icon-only"
-                  color="medium"></ion-icon>
+            <ion-label position="stacked">Contraseña</ion-label>
+            <div class="custom-input-wrapper">
+              <ion-icon name="lock-closed-outline" class="input-icon"></ion-icon>
+              <ion-input [value]="password()" (ionInput)="updatePassword($event)"
+                [type]="showPassword() ? 'text' : 'password'" placeholder="Ingrese su contraseña" mode="md">
+              </ion-input>
+              <ion-button fill="clear" (click)="togglePassword()" class="eye-btn" slot="end">
+                <ion-icon [name]="showPassword() ? 'eye-off-outline' : 'eye-outline'" slot="icon-only"></ion-icon>
               </ion-button>
-            </ion-item>
-          </div>
-
-          <div class="forgot-wrapper">
-            <ion-button fill="clear" size="small" (click)="solicitarRecuperacion()" class="forgot-btn">
-              ¿Olvidaste tu contraseña?
-            </ion-button>
+            </div>
+            <div class="forgot-link">
+              <a (click)="solicitarRecuperacion()">¿Olvidaste tu contraseña?</a>
+            </div>
           </div>
 
           <ion-button expand="block" type="submit" class="submit-btn" [disabled]="!ci() || !password()">
             Ingresar
             <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
           </ion-button>
+
         </form>
 
         <div class="divider">
-          <span>¿No tienes una cuenta?</span>
+          <span>O</span>
         </div>
 
         <ion-button expand="block" fill="outline" class="register-btn" (click)="iraRegister()">
-          Registrarse
+          Crear una cuenta nueva
         </ion-button>
 
-        <div class="footer-copy">
+        <div class="footer-terms">
           <p>&copy; 2026 Consejo Nacional de Competencias</p>
         </div>
+
       </div>
     </div>
+
   </div>
 </ion-content>

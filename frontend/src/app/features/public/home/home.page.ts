@@ -19,7 +19,7 @@ import {
   // Filled variants used in new design
   documentText, school, qrCode, logIn, calendarClearOutline,
   people, calendar, easel, image, ribbon, business, personAdd, person,
-  checkmarkCircle, star, shieldCheckmark, time
+  checkmarkCircle, star, shieldCheckmark, time, keyOutline
 } from 'ionicons/icons';
 import { Router } from '@angular/router';
 
@@ -58,7 +58,7 @@ export class HomePage implements OnInit {
   });
   isCreator = computed(() => {
     const r = this.roleName()?.toLowerCase();
-    return r?.includes('creador') || r?.includes('conferencia');
+    return r?.includes('creador') || r?.includes('conferencista') || r?.includes('conferencia');
   });
   isUser = computed(() => {
     return !this.isAdmin() && !this.isCreator() && !this.isGuest();
@@ -143,11 +143,14 @@ export class HomePage implements OnInit {
       'business': business,
       'person-add': personAdd,
       'person': person,
+      'search': searchOutline,
+      'create': createOutline,
       // Landing Page Icons
       'checkmark-circle': checkmarkCircle,
       'star': star,
       'shield-checkmark': shieldCheckmark,
-      'time': time
+      'time': time,
+      'key-outline': keyOutline
     });
 
     effect(() => {
@@ -311,7 +314,6 @@ export class HomePage implements OnInit {
 
   navegarModulo(modulo: string) {
     const rutasModulos: { [key: string]: string } = {
-      // ... same map ...
       'Gestionar roles': 'gestionar-roles',
       'Gestionar capacitación': 'gestionar-capacitaciones',
       'Gestionar capacitaciones': 'gestionar-capacitaciones',
@@ -330,17 +332,31 @@ export class HomePage implements OnInit {
       'norma-regul': 'home/norma-regul',
       'informacion': 'home/informacion',
       'servi-progra': 'home/servi-progra',
-      // Admin shortcuts
+      // Bento/Admin shortcuts
       'Usuarios': 'gestionar-usuarios',
       'Conferencias': 'gestionar-capacitaciones',
-      'Plantillas': 'gestionar-plantillas'
+      'Plantillas': 'gestionar-plantillas',
+      'Reportes': 'gestionar-reportes',
+      'Provincias': 'gestionar-provincias',
+      'Cantones': 'gestionar-cantones',
+      'Parroquias': 'gestionar-parroquias',
+      'Entidades': 'gestionar-entidades',
+      'Instituciones': 'gestionar-instituciones',
+      'Cargos': 'gestionar-cargos-instituciones',
+      'Competencias': 'gestionar-competencias'
     };
 
     let ruta = rutasModulos[modulo] || modulo.toLowerCase().replace(/\s+/g, '-');
 
-    // Special Redirects
-    if (this.isCreator() && ruta.includes('gestionar-capacitaciones')) {
-      // ruta = 'creator/conferencias'; // If separate module existed
+    // Rol Creator Redirection
+    if (this.isCreator()) {
+      const creatorAllowed = ['gestionar-capacitaciones', 'gestionar-plantillas', 'validar-certificados'];
+      if (creatorAllowed.some(ca => ruta.includes(ca))) {
+        // Normalize for creator routes
+        if (!ruta.startsWith('creator/')) {
+          ruta = `creator/${ruta.replace('gestionar-', '')}`;
+        }
+      }
     }
 
     if (ruta === 'ver-conferencias' && this.isGuest()) {
