@@ -74,7 +74,7 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Debug Middleware
-app.use((req, res, next) => {
+app.use((req, _res, next) => {
     console.log(`[DEBUG_API] ${new Date().toISOString()} - ${req.method} ${req.url}`);
     console.log('[DEBUG_API] Headers:', {
         authorization: req.get('Authorization') ? 'Bearer [HIDDEN]' : 'None',

@@ -68,7 +68,7 @@ export class EntidadController {
 
     delete = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const id = parseInt(req.params.id);
+            const id = parseInt(req.params['id'] as string);
             await this.deleteEntidadUseCase.execute(id);
             res.status(204).send();
         } catch (error) {

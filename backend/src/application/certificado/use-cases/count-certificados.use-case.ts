@@ -1,5 +1,5 @@
 import { injectable, inject } from 'tsyringe';
-import { CertificadoRepository } from '../../domain/certificado/repositories/certificado.repository';
+import { CertificadoRepository } from '../../../domain/certificado/repositories/certificado.repository';
 
 @injectable()
 export class CountCertificadosUseCase {

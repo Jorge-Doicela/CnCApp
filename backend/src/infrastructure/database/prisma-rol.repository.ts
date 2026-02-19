@@ -1,20 +1,14 @@
 import { injectable } from 'tsyringe';
+import prisma from '../../config/database';
 import { Rol, RolRepository } from '../../domain/user/rol.repository';
-import { PrismaClient } from '@prisma/client';
-import { container } from 'tsyringe';
 
 @injectable()
 export class PrismaRolRepository implements RolRepository {
-    private prisma: PrismaClient;
-
-    constructor() {
-        this.prisma = container.resolve(PrismaClient);
-    }
 
     async findAll(): Promise<Rol[]> {
         // Prisma return match schema, mapping might be needed if property names differ
         // but here schema.prisma maps to 'id', 'nombre' which matches our interface
-        const roles = await this.prisma.rol.findMany({
+        const roles = await prisma.rol.findMany({
             orderBy: { nombre: 'asc' }
         });
         return roles.map(r => ({
@@ -25,25 +19,23 @@ export class PrismaRolRepository implements RolRepository {
     }
 
     async findById(id: number): Promise<Rol | null> {
-        const rol = await this.prisma.rol.findUnique({ where: { id } });
+        const rol = await prisma.rol.findUnique({ where: { id } });
         return rol ? { ...rol, modulos: rol.modulos } : null;
     }
 
     async create(rol: Omit<Rol, 'id'>): Promise<Rol> {
-        const newRol = await this.prisma.rol.create({
+        const newRol = await prisma.rol.create({
             data: {
                 nombre: rol.nombre,
                 descripcion: rol.descripcion,
-                modulos: rol.modulos || [],
-                // backend schema doesn't seem to have 'estado' for Rol based on previous view?
-                // Let's double check schema.prisma
+                modulos: rol.modulos || []
             }
         });
         return { ...newRol, modulos: newRol.modulos };
     }
 
     async update(id: number, rol: Partial<Rol>): Promise<Rol> {
-        const updatedRol = await this.prisma.rol.update({
+        const updatedRol = await prisma.rol.update({
             where: { id },
             data: {
                 ...(rol.nombre && { nombre: rol.nombre }),
@@ -55,6 +47,6 @@ export class PrismaRolRepository implements RolRepository {
     }
 
     async delete(id: number): Promise<void> {
-        await this.prisma.rol.delete({ where: { id } });
+        await prisma.rol.delete({ where: { id } });
     }
 }

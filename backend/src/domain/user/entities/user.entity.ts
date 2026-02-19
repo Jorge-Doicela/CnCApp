@@ -13,13 +13,25 @@ export interface User {
     firmaUrl?: string | null;
     createdAt: Date;
     updatedAt: Date;
+    // Extended profile fields
+    primerNombre?: string | null;
+    segundoNombre?: string | null;
+    primerApellido?: string | null;
+    segundoApellido?: string | null;
+    celular?: string | null;
+    genero?: string | null;
+    etnia?: string | null;
+    nacionalidad?: string | null;
+    fechaNacimiento?: Date | null;
+    provinciaId?: number | null;
+    cantonId?: number | null;
     rol?: {
         id: number;
         nombre: string;
         modulos?: any;
     } | null;
     entidad?: {
-         id: number;
-         nombre: string;
+        id: number;
+        nombre: string;
     } | null;
 }

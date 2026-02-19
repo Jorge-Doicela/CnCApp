@@ -1,7 +1,7 @@
 import { injectable, inject } from 'tsyringe';
 import { UserRepository } from '../../../domain/user/user.repository';
 import { PasswordEncoder, TokenProvider } from '../../../domain/auth/auth.ports';
-import { User } from '../../../domain/user/user.entity';
+import { User } from '../../../domain/user/entities/user.entity';
 import { ValidationError } from '../../../domain/shared/errors';
 
 interface RegisterDto {
@@ -55,6 +55,7 @@ export class RegisterUserUseCase {
 
         // 3. Create User Entity
         const nombreCompleto = `${data.primerNombre} ${data.segundoNombre || ''} ${data.primerApellido} ${data.segundoApellido || ''}`.replace(/\s+/g, ' ').trim();
+        const now = new Date();
 
         const newUser: User = {
             id: 0,
@@ -74,8 +75,14 @@ export class RegisterUserUseCase {
             fechaNacimiento: data.fechaNacimiento ? new Date(data.fechaNacimiento) : undefined,
             provinciaId: data.provinciaId,
             cantonId: data.cantonId,
-            rolId: 3, // Usuario (rol por defecto para nuevos registros)
-            entidadId: 1 // CNC
+            rolId: 3, // Usuario (rol por defecto)
+            entidadId: 1, // CNC
+            tipoParticipante: data.tipoParticipante || 0,
+            createdAt: now,
+            updatedAt: now,
+            authUid: null,
+            fotoPerfilUrl: null,
+            firmaUrl: null
         };
 
         const savedUser = await this.userRepository.save(newUser);
@@ -84,7 +91,7 @@ export class RegisterUserUseCase {
         const tokens = this.tokenProvider.generateTokens({
             userId: savedUser.id,
             ci: savedUser.ci,
-            roleId: savedUser.rolId
+            roleId: savedUser.rolId ?? 3
         });
 
         return {

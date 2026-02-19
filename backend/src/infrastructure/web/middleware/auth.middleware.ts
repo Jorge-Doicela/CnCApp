@@ -25,12 +25,12 @@ export const authenticate = (
         // Verificar token
         const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
             userId: number;
-            userRole?: number;
+            roleId?: number;
         };
 
-        // Agregar userId al request
+        // Agregar userId y rol al request
         req.userId = decoded.userId;
-        req.userRole = decoded.userRole;
+        req.userRole = decoded.roleId;
 
         next();
     } catch (error) {

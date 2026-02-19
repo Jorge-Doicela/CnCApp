@@ -12,7 +12,7 @@ export class Plantilla {
     constructor(
         public id: number,
         public nombre: string,
-        public imagenUrl: string,
+        public imagenUrl: string | null,
         public configuracion: PlantillaConfig | any, // Using any for flexibility with JSON
         public activa: boolean,
         public createdAt?: Date,

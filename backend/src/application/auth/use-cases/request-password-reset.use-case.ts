@@ -20,7 +20,7 @@ export class RequestPasswordResetUseCase {
         const tokens = this.tokenProvider.generateTokens({
             userId: user.id,
             ci: user.ci,
-            roleId: user.rolId
+            roleId: user.rolId ?? 0
         });
 
         const resetToken = tokens.accessToken;

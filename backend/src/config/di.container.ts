@@ -164,7 +164,6 @@ container.registerSingleton(DeleteCapacitacionUseCase);
 container.registerSingleton(CreateCertificadoUseCase);
 container.registerSingleton(GetCertificadoByQRUseCase);
 container.registerSingleton(GetUserCertificadosUseCase);
-container.registerSingleton(GetUserCertificadosUseCase);
 container.registerSingleton(CountCertificadosUseCase);
 
 container.registerSingleton(CertificateGeneratorService);
