@@ -42,7 +42,7 @@
             <ion-item class="form-item">
               <ion-icon name="text-outline" slot="start" color="primary"></ion-icon>
               <ion-label position="floating">Nombre del rol <ion-text color="danger">*</ion-text></ion-label>
-              <ion-input [(ngModel)]="rol.nombre_rol" name="nombre_rol" required></ion-input>
+              <ion-input [(ngModel)]="rol.nombre" name="nombre" required></ion-input>
               <ion-note slot="helper">Ejemplo: Administrador, Editor, Supervisor</ion-note>
             </ion-item>
 
@@ -89,11 +89,12 @@
             </h4>
             <div class="detail-item">
               <ion-icon name="people-outline"></ion-icon>
-              <span>Nombre: {{ rol.nombre_rol || 'No definido' }}</span>
+              <span>Nombre: {{ rol.nombre || 'No definido' }}</span>
             </div>
             <div class="detail-item">
               <ion-icon name="checkmark-circle-outline"></ion-icon>
-              <span>Estado: <span [ngClass]="rolActivo ? 'status-active' : 'status-inactive'">{{ rolActivo ? 'Activo' : 'Inactivo' }}</span></span>
+              <span>Estado: <span [ngClass]="rolActivo ? 'status-active' : 'status-inactive'">{{ rolActivo ? 'Activo' :
+                  'Inactivo' }}</span></span>
             </div>
             <div class="detail-item">
               <ion-icon name="apps-outline"></ion-icon>

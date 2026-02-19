@@ -142,8 +142,8 @@
               <ion-label position="stacked">Provincia</ion-label>
               <ion-select [(ngModel)]="datosbusqueda.selectedProvincia" (ionChange)="cambioProvincia()"
                 placeholder="Seleccione Provincia">
-                <ion-select-option *ngFor="let prov of datosrecuperados.provincias" [value]="prov.Codigo_Provincia">
-                  {{ prov.Nombre_Provincia }}
+                <ion-select-option *ngFor="let prov of datosrecuperados.provincias" [value]="prov.id">
+                  {{ prov.nombre }}
                 </ion-select-option>
               </ion-select>
             </ion-item>
@@ -152,8 +152,8 @@
               <ion-label position="stacked">Cantón</ion-label>
               <ion-select [(ngModel)]="usuario.cantonReside" (ionChange)="cambioCanton()"
                 placeholder="Seleccione Cantón" [disabled]="!datosbusqueda.selectedProvincia">
-                <ion-select-option *ngFor="let cant of datosrecuperados.cantones" [value]="cant.codigo_canton">
-                  {{ cant.nombre_canton }}
+                <ion-select-option *ngFor="let cant of datosrecuperados.cantones" [value]="cant.id">
+                  {{ cant.nombre }}
                 </ion-select-option>
               </ion-select>
             </ion-item>
@@ -163,8 +163,8 @@
             <ion-label position="stacked">Parroquia</ion-label>
             <ion-select [(ngModel)]="usuario.parroquiaReside" placeholder="Seleccione Parroquia"
               [disabled]="!usuario.cantonReside">
-              <ion-select-option *ngFor="let parr of datosrecuperados.parroquias" [value]="parr.codigo_parroquia">
-                {{ parr.nombre_parroquia }}
+              <ion-select-option *ngFor="let parr of datosrecuperados.parroquias" [value]="parr.id">
+                {{ parr.nombre }}
               </ion-select-option>
             </ion-select>
           </ion-item>
@@ -184,7 +184,7 @@
               <ion-label position="stacked">Rol de Sistema *</ion-label>
               <ion-select [(ngModel)]="usuario.rolId" interface="popover">
                 <ion-select-option *ngFor="let r of datosrecuperados.roles" [value]="r.id">
-                  {{ r.nombre_rol }}
+                  {{ r.nombre }}
                 </ion-select-option>
               </ion-select>
             </ion-item>
@@ -221,8 +221,8 @@
                 <ion-item class="form-field">
                   <ion-label position="stacked">Cargo Autoridad</ion-label>
                   <ion-select [(ngModel)]="autoridad.cargo">
-                    <ion-select-option *ngFor="let c of datosrecuperados.cargos" [value]="c.nombre_cargo">
-                      {{ c.nombre_cargo }}
+                    <ion-select-option *ngFor="let c of datosrecuperados.cargos" [value]="c.nombre">
+                      {{ c.nombre }}
                     </ion-select-option>
                   </ion-select>
                 </ion-item>
@@ -243,8 +243,8 @@
                 <ion-item class="form-field">
                   <ion-label position="stacked">Cargo Funcionario</ion-label>
                   <ion-select [(ngModel)]="funcionarioGad.cargo">
-                    <ion-select-option *ngFor="let c of datosrecuperados.cargos" [value]="c.nombre_cargo">
-                      {{ c.nombre_cargo }}
+                    <ion-select-option *ngFor="let c of datosrecuperados.cargos" [value]="c.nombre">
+                      {{ c.nombre }}
                     </ion-select-option>
                   </ion-select>
                 </ion-item>
@@ -265,9 +265,8 @@
                 <ion-item class="form-field">
                   <ion-label position="stacked">Institución</ion-label>
                   <ion-select [(ngModel)]="institucion.institucion">
-                    <ion-select-option *ngFor="let inst of datosrecuperados.instituciones"
-                      [value]="inst.nombre_institucion">
-                      {{ inst.nombre_institucion }}
+                    <ion-select-option *ngFor="let inst of datosrecuperados.instituciones" [value]="inst.id">
+                      {{ inst.nombre }}
                     </ion-select-option>
                   </ion-select>
                 </ion-item>

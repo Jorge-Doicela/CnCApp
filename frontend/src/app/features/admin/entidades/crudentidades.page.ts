@@ -61,11 +61,12 @@ export class CrudentidadesPage implements OnInit {
     this.entidadesFiltradas = this.Entidades.filter(entidad => {
       // Filtro por término de búsqueda
       const matchesSearch = !this.searchTerm ||
-        entidad.Nombre_Entidad.toLowerCase().includes(this.searchTerm.toLowerCase());
+        entidad.nombre.toLowerCase().includes(this.searchTerm.toLowerCase());
 
       // Filtro por estado
+      // Backend returns boolean, select returns string '1'/'0' or 'todos'
       const matchesEstado = this.filtroEstado === 'todos' ||
-        entidad.Estado_Entidad.toString() === this.filtroEstado;
+        (this.filtroEstado === '1' ? entidad.estado : !entidad.estado);
 
       return matchesSearch && matchesEstado;
     });
@@ -77,40 +78,40 @@ export class CrudentidadesPage implements OnInit {
     switch (this.ordenPor) {
       case 'nombre':
         this.entidadesFiltradas.sort((a, b) =>
-          a.Nombre_Entidad.localeCompare(b.Nombre_Entidad));
+          a.nombre.localeCompare(b.nombre));
         break;
       case 'estado':
-        this.entidadesFiltradas.sort((a, b) => b.Estado_Entidad - a.Estado_Entidad);
+        this.entidadesFiltradas.sort((a, b) => (Number(b.estado) - Number(a.estado)));
         break;
       case 'id':
-        this.entidadesFiltradas.sort((a, b) => a.Id_Entidad - b.Id_Entidad);
+        this.entidadesFiltradas.sort((a, b) => a.id - b.id);
         break;
     }
   }
 
   getValidEntidades(): number {
-    return this.Entidades.filter(e => e.Estado_Entidad === 1).length;
+    return this.Entidades.filter(e => e.estado).length;
   }
 
   getInvalidEntidades(): number {
-    return this.Entidades.filter(e => e.Estado_Entidad === 0).length;
+    return this.Entidades.filter(e => !e.estado).length;
   }
 
   iraCrearEntidad() {
     this.router.navigate(['/gestionar-entidades/crear']);
   }
 
-  iraEditarEntidad(IdEntidad: string) {
-    this.router.navigate(['/gestionar-entidades/editar', IdEntidad]);
+  iraEditarEntidad(id: string) {
+    this.router.navigate(['/gestionar-entidades/editar', id]);
   }
 
   async cambiarEstado(entidad: any) {
-    const newState = entidad.Estado_Entidad === 1 ? 0 : 1;
-    const stateText = newState === 1 ? 'activar' : 'desactivar';
+    const newState = !entidad.estado;
+    const stateText = newState ? 'activar' : 'desactivar';
 
     const alert = await this.alertController.create({
       header: `Confirmar cambio de estado`,
-      message: `¿Estás seguro que deseas ${stateText} la entidad ${entidad.Nombre_Entidad}?`,
+      message: `¿Estás seguro que deseas ${stateText} la entidad ${entidad.nombre}?`,
       buttons: [
         {
           text: 'Cancelar',
@@ -118,11 +119,11 @@ export class CrudentidadesPage implements OnInit {
         }, {
           text: 'Confirmar',
           handler: () => {
-            this.catalogoService.updateItem('entidades', entidad.Id_Entidad, { Estado_Entidad: newState }).subscribe({
+            this.catalogoService.updateItem('entidades', entidad.id, { estado: newState }).subscribe({
               next: () => {
                 // Actualizar el estado en el arreglo local
-                entidad.Estado_Entidad = newState;
-                this.presentToast(`La entidad ha sido ${newState === 1 ? 'activada' : 'desactivada'} correctamente`, 'success');
+                entidad.estado = newState;
+                this.presentToast(`La entidad ha sido ${newState ? 'activada' : 'desactivada'} correctamente`, 'success');
               },
               error: (error) => {
                 this.presentToast(`Error al ${stateText} la entidad: ${error.message}`, 'danger');
@@ -139,7 +140,7 @@ export class CrudentidadesPage implements OnInit {
   async confirmarEliminar(entidad: any) {
     const alert = await this.alertController.create({
       header: 'Confirmar eliminación',
-      message: `¿Estás seguro que deseas eliminar la entidad ${entidad.Nombre_Entidad}? Esta acción no se puede deshacer.`,
+      message: `¿Estás seguro que deseas eliminar la entidad ${entidad.nombre}? Esta acción no se puede deshacer.`,
       buttons: [
         {
           text: 'Cancelar',
@@ -149,7 +150,7 @@ export class CrudentidadesPage implements OnInit {
           text: 'Eliminar',
           cssClass: 'danger',
           handler: () => {
-            this.eliminarEntidad(entidad.Id_Entidad);
+            this.eliminarEntidad(entidad.id);
           }
         }
       ]

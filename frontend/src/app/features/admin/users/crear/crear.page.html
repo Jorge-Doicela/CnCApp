@@ -87,7 +87,7 @@
             <ion-label>Rol de Usuario *</ion-label>
             <ion-select [(ngModel)]="usuarioGeneral.rolId" placeholder="Seleccione Rol" interface="popover">
               <ion-select-option *ngFor="let rol of datosrecuperados.roles" [value]="rol.id">
-                {{ rol.nombre_rol }}
+                {{ rol.nombre }}
               </ion-select-option>
             </ion-select>
           </ion-item>
@@ -203,9 +203,8 @@
             <ion-select [(ngModel)]="datosbusqueda.selectedProvincia"
               (ionChange)="obtenerCantones(datosbusqueda.selectedProvincia)" placeholder="Seleccione"
               interface="popover">
-              <ion-select-option *ngFor="let provincia of datosrecuperados.provincias"
-                [value]="provincia.Codigo_Provincia">
-                {{ provincia.Nombre_Provincia }}
+              <ion-select-option *ngFor="let provincia of datosrecuperados.provincias" [value]="provincia.id">
+                {{ provincia.nombre }}
               </ion-select-option>
             </ion-select>
           </ion-item>
@@ -215,8 +214,8 @@
             <ion-select [(ngModel)]="usuarioGeneral.cantonReside"
               (ionChange)="obtenerParroquias(usuarioGeneral.cantonReside)" placeholder="Seleccione" interface="popover"
               [disabled]="!datosrecuperados.cantones.length">
-              <ion-select-option *ngFor="let canton of datosrecuperados.cantones" [value]="canton.codigo_canton">
-                {{ canton.nombre_canton }}
+              <ion-select-option *ngFor="let canton of datosrecuperados.cantones" [value]="canton.id">
+                {{ canton.nombre }}
               </ion-select-option>
             </ion-select>
           </ion-item>
@@ -226,8 +225,8 @@
             <ion-select [(ngModel)]="usuarioGeneral.parroquiaReside" placeholder="Seleccione" interface="popover"
               [disabled]="!datosrecuperados.parroquiasSeleccionadas.length">
               <ion-select-option *ngFor="let parroquia of datosrecuperados.parroquiasSeleccionadas"
-                [value]="parroquia.codigo_parroquia">
-                {{ parroquia.nombre_parroquia }}
+                [value]="parroquia.id">
+                {{ parroquia.nombre }}
               </ion-select-option>
             </ion-select>
           </ion-item>
@@ -299,16 +298,16 @@
             <ion-item class="form-field">
               <ion-label>Institución *</ion-label>
               <ion-select [(ngModel)]="institucion.institucion" placeholder="Seleccione" interface="popover">
-                <ion-select-option *ngFor="let inst of datosrecuperados.instituciones" [value]="inst.id_institucion">
-                  {{ inst.nombre_institucion }}
+                <ion-select-option *ngFor="let inst of datosrecuperados.instituciones" [value]="inst.id">
+                  {{ inst.nombre }}
                 </ion-select-option>
               </ion-select>
             </ion-item>
             <ion-item class="form-field">
               <ion-label>Cargo *</ion-label>
               <ion-select [(ngModel)]="institucion.cargo" placeholder="Seleccione" interface="popover">
-                <ion-select-option *ngFor="let cargo of datosrecuperados.cargos" [value]="cargo.id_cargo">
-                  {{ cargo.nombre_cargo }}
+                <ion-select-option *ngFor="let cargo of datosrecuperados.cargos" [value]="cargo.id">
+                  {{ cargo.nombre }}
                 </ion-select-option>
               </ion-select>
             </ion-item>

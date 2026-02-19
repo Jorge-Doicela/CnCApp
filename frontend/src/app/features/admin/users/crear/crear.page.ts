@@ -295,17 +295,17 @@ export class CrearPage implements OnInit {
   // Getters para el resumen
   getNombreRolSeleccionado(): string {
     const rol = this.datosrecuperados.roles.find(r => r.id === this.usuarioGeneral.rolId);
-    return rol ? rol.nombre_rol : 'No seleccionado';
+    return rol ? rol.nombre : 'No seleccionado';
   }
 
   getNombreProvincia(): string {
-    const p = this.datosrecuperados.provincias.find(prov => prov.Codigo_Provincia === this.datosbusqueda.selectedProvincia);
-    return p ? p.Nombre_Provincia : 'No seleccionada';
+    const p = this.datosrecuperados.provincias.find(prov => prov.id === this.datosbusqueda.selectedProvincia);
+    return p ? p.nombre : 'No seleccionada';
   }
 
   getNombreCanton(): string {
-    const c = this.datosrecuperados.cantones.find(cant => cant.codigo_canton === this.usuarioGeneral.cantonReside);
-    return c ? c.nombre_canton : 'No seleccionado';
+    const c = this.datosrecuperados.cantones.find(cant => cant.id === this.usuarioGeneral.cantonReside);
+    return c ? c.nombre : 'No seleccionado';
   }
 
   ngOnInit() {
@@ -745,7 +745,7 @@ export class CrearPage implements OnInit {
     if (!provinciaId) return;
     this.catalogoService.getItems('cantones').subscribe({
       next: (data) => {
-        this.datosrecuperados.cantones = data.filter((c: any) => c.codigo_provincia == provinciaId && c.estado);
+        this.datosrecuperados.cantones = data.filter((c: any) => c.provinciaId == provinciaId);
         this.datosrecuperados.parroquiasSeleccionadas = [];
         this.usuarioGeneral.parroquiaReside = '';
         this.cdr.detectChanges();
@@ -759,7 +759,7 @@ export class CrearPage implements OnInit {
     if (!cantonId) return;
     this.catalogoService.getItems('parroquias').subscribe({
       next: (data) => {
-        this.datosrecuperados.parroquiasSeleccionadas = data.filter((p: any) => p.codigo_canton == cantonId && p.estado);
+        this.datosrecuperados.parroquiasSeleccionadas = data.filter((p: any) => p.cantonId == cantonId);
         this.cdr.detectChanges();
       },
       error: (err) => console.error(err)

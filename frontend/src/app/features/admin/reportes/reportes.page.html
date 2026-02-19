@@ -156,36 +156,14 @@
                         <ion-card-content>
                             <ion-grid>
                                 <ion-row>
-                                    <ion-col size="12" sizeMd="4">
+                                    <ion-col size="12" sizeMd="4" *ngFor="let rol of stats()!.usuariosPorRol">
                                         <div class="role-stat">
-                                            <div class="role-icon admin">
+                                            <div class="role-icon">
                                                 <ion-icon name="people-outline"></ion-icon>
                                             </div>
                                             <div class="role-info">
-                                                <h4>{{ stats()!.usuariosPorRol.administrador }}</h4>
-                                                <p>Administradores</p>
-                                            </div>
-                                        </div>
-                                    </ion-col>
-                                    <ion-col size="12" sizeMd="4">
-                                        <div class="role-stat">
-                                            <div class="role-icon conferencista">
-                                                <ion-icon name="people-outline"></ion-icon>
-                                            </div>
-                                            <div class="role-info">
-                                                <h4>{{ stats()!.usuariosPorRol.conferencista }}</h4>
-                                                <p>Conferencistas</p>
-                                            </div>
-                                        </div>
-                                    </ion-col>
-                                    <ion-col size="12" sizeMd="4">
-                                        <div class="role-stat">
-                                            <div class="role-icon usuario">
-                                                <ion-icon name="people-outline"></ion-icon>
-                                            </div>
-                                            <div class="role-info">
-                                                <h4>{{ stats()!.usuariosPorRol.usuario }}</h4>
-                                                <p>Usuarios</p>
+                                                <h4>{{ rol.cantidad }}</h4>
+                                                <p>{{ rol.nombre }}</p>
                                             </div>
                                         </div>
                                     </ion-col>

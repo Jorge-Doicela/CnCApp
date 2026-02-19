@@ -53,29 +53,12 @@ export class EditarPage implements OnInit {
   }
 
   loadCargo(id: number) {
-    // Como el servicio getAll trae todos, podemos filtrar o llamar a getById si lo implementamos backend.
-    // Asumiremos que tenemos que buscar en el array local o implementar getById.
-    // Por rapidez, implementaré getById en el servicio. O mejor, como es un CRUD simple,
-    // usaré la lista si ya la tengo, pero es mejor llamar al backend.
-    // Falta getById en el backend controller y usecase. 
-    // Para simplificar y dado que getAll trae pocos datos (cargos), podemos usar find.
-    // Pero lo correcto es pedir al backend.
-    // Voy a usar un find sobre getAll por ahora para no modificar backend de nuevo o añadir endpoint extra,
-    // aunque lo ideal es tener GET /:id.
-    // Espera, he olvidado GET /:id en backend?
-    // Revisemos rutas.
-    // rutas: GET /, POST /, PUT /:id, DELETE /:id. 
-    // Falta GET /:id en backend.
-
-    // Solución rápida: Modificaré getAll en servicio para filtrar en cliente o...
-    // mejor, permito editar con los datos que ya tengo? No, necesito cargarlos.
-    // Usaré getAll y find por id en el cliente. Es ineficiente si son muchos, pero aceptable para catálogos pequeños.
-
-    this.cargService.getAll().subscribe(cargos => {
-      const cargo = cargos.find(c => c.id === this.cargoId);
-      if (cargo) {
+    this.cargService.getById(id).subscribe({
+      next: (cargo) => {
         this.cargoForm.patchValue({ nombre: cargo.nombre });
-      } else {
+      },
+      error: (err) => {
+        console.error('Error loading cargo:', err);
         this.presentToast('Cargo no encontrado', 'danger');
         this.router.navigate(['/gestionar-cargos-instituciones']);
       }

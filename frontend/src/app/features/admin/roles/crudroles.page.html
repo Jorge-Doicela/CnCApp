@@ -19,7 +19,8 @@
         <div class="search-container">
           <ion-item class="search-item">
             <ion-icon name="search-outline" slot="start" color="primary"></ion-icon>
-            <ion-input placeholder="Buscar rol por nombre" [(ngModel)]="searchTerm" (ionChange)="filtrarRoles()"></ion-input>
+            <ion-input placeholder="Buscar rol por nombre" [(ngModel)]="searchTerm"
+              (ionChange)="filtrarRoles()"></ion-input>
             <ion-button slot="end" fill="clear" (click)="filtrarRoles()">
               <ion-icon name="search"></ion-icon>
             </ion-button>
@@ -29,7 +30,8 @@
             <ion-item class="filter-item">
               <ion-icon name="checkmark-circle-outline" slot="start" color="primary"></ion-icon>
               <ion-label>Estado</ion-label>
-              <ion-select [(ngModel)]="filtroEstado" interface="action-sheet" placeholder="Todos" (ionChange)="filtrarRoles()">
+              <ion-select [(ngModel)]="filtroEstado" interface="action-sheet" placeholder="Todos"
+                (ionChange)="filtrarRoles()">
                 <ion-select-option value="todos">Todos</ion-select-option>
                 <ion-select-option value="true">Activo</ion-select-option>
                 <ion-select-option value="false">Inactivo</ion-select-option>
@@ -96,14 +98,16 @@
         <div *ngIf="!cargando && rolesFiltrados.length === 0" class="empty-state">
           <ion-icon name="alert-circle-outline" color="medium"></ion-icon>
           <h4>No se encontraron roles</h4>
-          <p>No hay roles que coincidan con los criterios de búsqueda. Intenta modificar los filtros o crear un nuevo rol.</p>
+          <p>No hay roles que coincidan con los criterios de búsqueda. Intenta modificar los filtros o crear un nuevo
+            rol.</p>
         </div>
 
         <div class="roles-grid" *ngIf="!cargando && rolesFiltrados.length > 0">
-          <div class="role-card" *ngFor="let rol of rolesFiltrados" [ngClass]="{'active-card': rol.estado, 'inactive-card': !rol.estado}">
+          <div class="role-card" *ngFor="let rol of rolesFiltrados"
+            [ngClass]="{'active-card': rol.estado, 'inactive-card': !rol.estado}">
             <div class="role-header">
               <div class="role-title">
-                <h4>{{ rol.nombre_rol }}</h4>
+                <h4>{{ rol.nombre }}</h4>
                 <span class="role-badge" [ngClass]="{'active': rol.estado, 'inactive': !rol.estado}">
                   {{ rol.estado ? 'Activo' : 'Inactivo' }}
                 </span>
@@ -124,7 +128,8 @@
                     <ion-icon name="checkmark-circle-outline"></ion-icon>
                     <ion-label>{{ modulo }}</ion-label>
                   </ion-chip>
-                  <ion-chip *ngIf="rol.modulos.length > 3" color="tertiary" outline (click)="mostrarTodosLosModulos(rol)">
+                  <ion-chip *ngIf="rol.modulos.length > 3" color="tertiary" outline
+                    (click)="mostrarTodosLosModulos(rol)">
                     <ion-icon name="ellipsis-horizontal"></ion-icon>
                     <ion-label>{{ rol.modulos.length - 3 }} más</ion-label>
                   </ion-chip>
@@ -138,7 +143,7 @@
               </div>
             </div>
             <div class="role-actions">
-              <ion-button fill="clear" color="primary" (click)="iraEditarRol(rol.Id_Rol)">
+              <ion-button fill="clear" color="primary" (click)="iraEditarRol(rol.id)">
                 <ion-icon name="create-outline"></ion-icon>
                 Editar
               </ion-button>

@@ -31,12 +31,12 @@ export class EditarPage implements OnInit {
   ];
 
   rol = {
-    nombre_rol: '',
+    nombre: '',
     modulos: [] as string[],
   };
 
   rolOriginal = {
-    nombre_rol: '',
+    nombre: '',
     modulos: [] as string[],
     estado: false
   };
@@ -82,7 +82,7 @@ export class EditarPage implements OnInit {
 
       if (!this.idRol) return;
 
-      this.catalogoService.getItem('roles', this.idRol).subscribe({
+      this.catalogoService.getItem('rol', this.idRol).subscribe({
         next: (data) => {
           if (!data) {
             this.presentToast('No se pudo cargar el rol.', 'danger');
@@ -93,14 +93,14 @@ export class EditarPage implements OnInit {
 
           // Guardar datos originales para comparar cambios
           this.rolOriginal = {
-            nombre_rol: data.nombre_rol,
+            nombre: data.nombre,
             modulos: data.modulos || [],
             estado: data.estado || false
           };
 
           // Asignar datos al modelo de edición
           this.rol = {
-            nombre_rol: data.nombre_rol,
+            nombre: data.nombre,
             modulos: data.modulos || []
           };
           this.rolActivo = data.estado || false;
@@ -151,7 +151,7 @@ export class EditarPage implements OnInit {
     const modulosIguales = this.modulosSeleccionadosIguales(modulosSeleccionados, this.rolOriginal.modulos);
 
     return (
-      this.rol.nombre_rol !== this.rolOriginal.nombre_rol ||
+      this.rol.nombre !== this.rolOriginal.nombre ||
       this.rolActivo !== this.rolOriginal.estado ||
       !modulosIguales
     );
@@ -165,7 +165,7 @@ export class EditarPage implements OnInit {
 
   esFormularioValido(): boolean {
     const modulosSeleccionados = this.obtenerModulosSeleccionados();
-    return this.rol.nombre_rol.trim().length > 0 &&
+    return this.rol.nombre.trim().length > 0 &&
       modulosSeleccionados.length > 0 &&
       this.hayModificaciones();
   }
@@ -177,7 +177,7 @@ export class EditarPage implements OnInit {
         return;
       }
 
-      const mensaje = this.rol.nombre_rol.trim().length === 0
+      const mensaje = this.rol.nombre.trim().length === 0
         ? 'Debe ingresar un nombre para el rol.'
         : 'Debe seleccionar al menos un módulo para el rol.';
 
@@ -188,7 +188,7 @@ export class EditarPage implements OnInit {
     // Mostrar confirmación
     const alert = await this.alertController.create({
       header: 'Confirmar Actualización',
-      message: `¿Está seguro que desea actualizar el rol "${this.rol.nombre_rol}"?`,
+      message: `¿Está seguro que desea actualizar el rol "${this.rol.nombre}"?`,
       buttons: [
         {
           text: 'Cancelar',
@@ -224,16 +224,16 @@ export class EditarPage implements OnInit {
 
     const modulosSeleccionados = this.obtenerModulosSeleccionados();
     const dataToUpdate = {
-      nombre_rol: this.rol.nombre_rol.trim(),
+      nombre: this.rol.nombre.trim(),
       modulos: modulosSeleccionados,
       estado: this.rolActivo
     };
 
-    this.catalogoService.updateItem('roles', this.idRol, dataToUpdate).subscribe({
+    this.catalogoService.updateItem('rol', this.idRol, dataToUpdate).subscribe({
       next: async () => {
         await this.presentAlert(
           'Rol Actualizado',
-          `El rol "${this.rol.nombre_rol}" ha sido actualizado exitosamente.`,
+          `El rol "${this.rol.nombre}" ha sido actualizado exitosamente.`,
           true
         );
         this.actualizando = false;

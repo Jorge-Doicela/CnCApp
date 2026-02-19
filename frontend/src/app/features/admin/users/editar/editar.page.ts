@@ -230,15 +230,16 @@ export class EditarPage implements OnInit {
   }
 
   cargarCantones(provinciaId: number) {
-    this.catalogoService.getItems(`cantones/provincia/${provinciaId}`).subscribe({
+    if (!provinciaId) return;
+    this.catalogoService.getItems('cantones').subscribe({
       next: (data) => {
-        this.datosrecuperados.cantones = data || [];
+        this.datosrecuperados.cantones = data.filter((c: any) => c.provinciaId == provinciaId);
         // Si ya teníamos un cantón (al cargar el usuario), cargamos sus parroquias
         if (this.usuario.cantonReside) {
           this.cargarParroquias(this.usuario.cantonReside);
         }
       },
-      error: (error) => console.error('Error cantones:', error)
+      error: (err) => console.error(err)
     });
   }
 
@@ -251,19 +252,27 @@ export class EditarPage implements OnInit {
   }
 
   cargarParroquias(cantonId: string) {
-    this.catalogoService.getItems(`parroquias/canton/${cantonId}`).subscribe({
-      next: (data) => this.datosrecuperados.parroquias = data || [],
-      error: (error) => console.error('Error parroquias:', error)
+    if (!cantonId) return;
+    this.catalogoService.getItems('parroquias').subscribe({
+      next: (data) => {
+        this.datosrecuperados.parroquias = data.filter((p: any) => p.cantonId == cantonId);
+      },
+      error: (err) => console.error(err)
     });
   }
 
   private detectarProvinciaDesdeCanton() {
-    // Intentamos cargar la provincia basada en el primer dígito o consulta si el backend lo permite
-    // Por ahora, si tenemos el cantón, buscaremos cargarlo. 
-    // Opción simplificada: El backend debería retornar la provinciaId en el perfil.
-    // Si no, podríamos necesitar un endpoint para obtener provincia por cantón.
-    // Asumiremos que el usuario tiene 'cantonReside' y que eso permite cargar parroquias.
-    this.cargarParroquias(this.usuario.cantonReside);
+    // Logic to auto-select province if user has canton logic required fetching all cantones and finding the one.
+    // For now, we load all cantones and finding the one matching user.cantonReside
+    this.catalogoService.getItems('cantones').subscribe({
+      next: (data) => {
+        const canton = data.find((c: any) => c.id == this.usuario.cantonReside);
+        if (canton) {
+          this.datosbusqueda.selectedProvincia = canton.provinciaId;
+          this.cargarCantones(canton.provinciaId);
+        }
+      }
+    });
   }
 
   obtenerCargos() {

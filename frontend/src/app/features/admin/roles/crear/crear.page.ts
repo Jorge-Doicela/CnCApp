@@ -29,7 +29,7 @@ export class CrearPage implements OnInit {
   ];
 
   rol = {
-    nombre_rol: '',
+    nombre: '',
     modulos: [] as string[],
   };
 
@@ -73,12 +73,12 @@ export class CrearPage implements OnInit {
   }
 
   esFormularioValido(): boolean {
-    return this.rol.nombre_rol.trim().length > 0 && this.hayModulosSeleccionados();
+    return this.rol.nombre.trim().length > 0 && this.hayModulosSeleccionados();
   }
 
   async crearRol() {
     if (!this.esFormularioValido()) {
-      const mensaje = this.rol.nombre_rol.trim().length === 0
+      const mensaje = this.rol.nombre.trim().length === 0
         ? 'Debe ingresar un nombre para el rol.'
         : 'Debe seleccionar al menos un módulo para el rol.';
 
@@ -95,9 +95,9 @@ export class CrearPage implements OnInit {
 
       // Verificar existencia por nombre (obteniendo todos por ahora)
       // Idealmente el backend debería tener un endpoint de búsqueda o validación
-      this.catalogoService.getItems('roles').subscribe({
+      this.catalogoService.getItems('rol').subscribe({
         next: async (roles) => {
-          const existe = roles.some((r: any) => r.nombre_rol.toLowerCase() === this.rol.nombre_rol.trim().toLowerCase());
+          const existe = roles.some((r: any) => r.nombre.toLowerCase() === this.rol.nombre.trim().toLowerCase());
 
           if (existe) {
             await this.presentToast('Ya existe un rol con este nombre. Por favor, utilice otro nombre.', 'warning');
@@ -107,16 +107,16 @@ export class CrearPage implements OnInit {
 
           // Crear el nuevo rol
           const nuevoRol = {
-            nombre_rol: this.rol.nombre_rol.trim(),
+            nombre: this.rol.nombre.trim(),
             modulos: modulosSeleccionados,
             estado: this.estadoInicial
           };
 
-          this.catalogoService.createItem('roles', nuevoRol).subscribe({
+          this.catalogoService.createItem('rol', nuevoRol).subscribe({
             next: async () => {
               await this.presentAlert(
                 'Rol Creado',
-                `El rol "${this.rol.nombre_rol}" ha sido creado exitosamente con ${modulosSeleccionados.length} módulos asignados.`,
+                `El rol "${this.rol.nombre}" ha sido creado exitosamente con ${modulosSeleccionados.length} módulos asignados.`,
                 true
               );
               this.guardando = false;
@@ -144,7 +144,7 @@ export class CrearPage implements OnInit {
 
   async cancelar() {
     // Verificar si hay cambios antes de salir
-    if (this.rol.nombre_rol.trim() || this.hayModulosSeleccionados()) {
+    if (this.rol.nombre.trim() || this.hayModulosSeleccionados()) {
       const alert = await this.alertController.create({
         header: 'Cancelar Creación',
         message: '¿Está seguro que desea cancelar? Los cambios no guardados se perderán.',

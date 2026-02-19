@@ -1,21 +1,20 @@
-import { injectable, inject } from 'tsyringe';
-import { UserRepository } from '../../../domain/user/repositories/user.repository';
+import { injectable } from 'tsyringe';
 import { User } from '../../../domain/user/entities/user.entity';
 import { NotFoundError } from '../../../domain/shared/errors';
 
 @injectable()
 export class UpdateUserUseCase {
-    constructor(
-        @inject('UserRepository') private userRepository: UserRepository
-    ) { }
+    constructor() { }
 
     async execute(id: number, userData: Partial<User>): Promise<User> {
-        const user = await this.userRepository.findById(id);
+        const { container } = require('tsyringe');
+        const userRepository = container.resolve('UserRepository');
+        const user = await userRepository.findById(id);
         if (!user) {
             throw new NotFoundError('Usuario no encontrado');
         }
 
-        const updatedUser = await this.userRepository.update(id, userData);
+        const updatedUser = await userRepository.update(id, userData);
         const { password, ...userWithoutPassword } = updatedUser;
         return userWithoutPassword as User;
     }

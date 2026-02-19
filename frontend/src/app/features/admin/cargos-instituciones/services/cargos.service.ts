@@ -20,6 +20,10 @@ export class CargService {
         return this.http.get<Cargo[]>(this.apiUrl);
     }
 
+    getById(id: number): Observable<Cargo> {
+        return this.http.get<Cargo>(`${this.apiUrl}/${id}`);
+    }
+
     create(nombre: string): Observable<Cargo> {
         return this.http.post<Cargo>(this.apiUrl, { nombre });
     }
