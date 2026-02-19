@@ -1,13 +1,13 @@
-import { injectable } from 'tsyringe';
-import { Entidad } from '../../../domain/user/entidad.repository';
+import { injectable, inject } from 'tsyringe';
+import { Entidad, EntidadRepository } from '../../../domain/user/entidad.repository';
 
 @injectable()
 export class CreateEntidadUseCase {
-    constructor() { }
+    constructor(
+        @inject('EntidadRepository') private entidadRepository: EntidadRepository
+    ) { }
 
     async execute(data: Omit<Entidad, 'id'>): Promise<Entidad> {
-        const { container } = require('tsyringe');
-        const entidadRepository = container.resolve('EntidadRepository');
-        return await entidadRepository.create(data);
+        return await this.entidadRepository.create(data);
     }
 }

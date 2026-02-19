@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { container } from 'tsyringe';
+import { injectable, container } from 'tsyringe';
 import { CreatePlantillaUseCase } from '../../../application/plantilla/use-cases/create-plantilla.use-case';
 import { GetAllPlantillasUseCase } from '../../../application/plantilla/use-cases/get-all-plantillas.use-case';
 import { GetPlantillaByIdUseCase } from '../../../application/plantilla/use-cases/get-plantilla-by-id.use-case';
@@ -7,6 +7,7 @@ import { UpdatePlantillaUseCase } from '../../../application/plantilla/use-cases
 import { DeletePlantillaUseCase } from '../../../application/plantilla/use-cases/delete-plantilla.use-case';
 import { ActivarPlantillaUseCase } from '../../../application/plantilla/use-cases/activar-plantilla.use-case';
 
+@injectable()
 export class PlantillaController {
 
     async create(req: Request, res: Response, next: NextFunction) {

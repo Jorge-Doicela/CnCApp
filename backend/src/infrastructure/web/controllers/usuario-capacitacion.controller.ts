@@ -1,11 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
-import { container } from 'tsyringe';
+import { injectable, container } from 'tsyringe';
 import { GetInscritosUseCase } from '../../../application/usuario-capacitacion/use-cases/get-inscritos.use-case';
 import { InscribirUsuarioUseCase } from '../../../application/usuario-capacitacion/use-cases/inscribir-usuario.use-case';
 import { EliminarInscripcionUseCase } from '../../../application/usuario-capacitacion/use-cases/eliminar-inscripcion.use-case';
 import { ActualizarAsistenciaUseCase } from '../../../application/usuario-capacitacion/use-cases/actualizar-asistencia.use-case';
 import { UsuarioCapacitacionRepository } from '../../../domain/usuario-capacitacion/usuario-capacitacion.repository';
 
+@injectable()
 export class UsuarioCapacitacionController {
 
     // GET /api/usuarios-capacitaciones/:id

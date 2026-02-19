@@ -1,14 +1,15 @@
-import { injectable } from 'tsyringe';
+import { injectable, inject } from 'tsyringe';
 import { User } from '../../../domain/user/entities/user.entity';
+import { UserRepository } from '../../../domain/user/user.repository';
 
 @injectable()
 export class GetAllUsersUseCase {
-    constructor() { }
+    constructor(
+        @inject('UserRepository') private userRepository: UserRepository
+    ) { }
 
     async execute(): Promise<User[]> {
-        const { container } = require('tsyringe');
-        const userRepository = container.resolve('UserRepository');
-        const users = await userRepository.findAll();
+        const users = await this.userRepository.findAll();
         // Remove sensitive data
         return users.map((user: any) => {
             const { password, ...userWithoutPassword } = user;

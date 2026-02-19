@@ -5,7 +5,12 @@ import { RegisterUserUseCase } from '../../../application/auth/use-cases/registe
 import { LoginUserUseCase } from '../../../application/auth/use-cases/login-user.use-case';
 import { GetUserProfileUseCase } from '../../../application/user/use-cases/get-user-profile.use-case';
 import { AuthRequest } from '../middleware/auth.middleware';
-import { UserMapper } from '../../../domain/user/mappers/user.mapper';
+
+// Strip password from user object before sending to client
+const toDTO = (user: any) => {
+    const { password, ...userWithoutPassword } = user;
+    return userWithoutPassword;
+};
 
 // Schemas
 const registerSchema = z.object({
@@ -55,7 +60,7 @@ export class AuthController {
                 success: true,
                 message: 'Usuario registrado exitosamente',
                 data: {
-                    user: UserMapper.toDTO(result.user),
+                    user: toDTO(result.user),
                     accessToken: result.accessToken,
                     refreshToken: result.refreshToken
                 }
@@ -68,14 +73,13 @@ export class AuthController {
     login = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const data = loginSchema.parse(req.body);
-            // Updated to match Use Case signature execute(ci, password)
             const result = await this.loginUseCase.execute(data.ci, data.password);
 
             res.json({
                 success: true,
                 message: 'Inicio de sesión exitoso',
                 data: {
-                    user: UserMapper.toDTO(result.user),
+                    user: toDTO(result.user),
                     accessToken: result.accessToken,
                     refreshToken: result.refreshToken
                 }
@@ -94,7 +98,7 @@ export class AuthController {
             const user = await this.getProfileUseCase.execute(req.userId);
             res.json({
                 success: true,
-                data: UserMapper.toDTO(user)
+                data: toDTO(user)
             });
         } catch (error) {
             next(error);

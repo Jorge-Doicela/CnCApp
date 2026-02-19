@@ -1,7 +1,7 @@
 import { injectable, inject } from 'tsyringe';
 import { UserRepository } from '../../../domain/user/user.repository';
 import { PasswordEncoder, TokenProvider } from '../../../domain/auth/auth.ports';
-import { User } from '../../../domain/user/user.entity';
+import { User } from '../../../domain/user/entities/user.entity';
 import { AuthenticationError } from '../../../domain/shared/errors';
 
 interface LoginResult {
@@ -46,7 +46,7 @@ export class LoginUserUseCase {
         const tokens = this.tokenProvider.generateTokens({
             userId: user.id,
             ci: user.ci,
-            roleId: user.rolId
+            roleId: user.rolId ?? 0 // Default or handle null
         });
 
         return {

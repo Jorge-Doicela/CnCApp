@@ -1,5 +1,5 @@
 import { injectable, inject } from 'tsyringe';
-import { CapacitacionRepository } from '../../../../domain/capacitacion/repositories/capacitacion.repository';
+import { CapacitacionRepository } from '../../../domain/capacitacion/repositories/capacitacion.repository';
 
 @injectable()
 export class GetCapacitacionByIdUseCase {

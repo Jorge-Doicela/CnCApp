@@ -1,13 +1,13 @@
-import { injectable } from 'tsyringe';
-import { Rol } from '../../../domain/user/rol.repository';
+import { injectable, inject } from 'tsyringe';
+import { Rol, RolRepository } from '../../../domain/user/rol.repository';
 
 @injectable()
 export class GetRolByIdUseCase {
-    constructor() { }
+    constructor(
+        @inject('RolRepository') private rolRepository: RolRepository
+    ) { }
 
     async execute(id: number): Promise<Rol | null> {
-        const { container } = require('tsyringe');
-        const rolRepository = container.resolve('RolRepository');
-        return await rolRepository.findById(id);
+        return await this.rolRepository.findById(id);
     }
 }
