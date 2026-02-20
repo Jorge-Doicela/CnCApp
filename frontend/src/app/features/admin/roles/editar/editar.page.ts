@@ -5,6 +5,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ToastController, AlertController, NavController, LoadingController } from '@ionic/angular';
 import { CatalogoService } from 'src/app/shared/services/catalogo.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-editar',
@@ -70,63 +71,50 @@ export class EditarPage implements OnInit {
   }
 
   async cargarRol() {
+    this.cargando = true;
+    this.errorCarga = false;
+
+    const loading = await this.loadingController.create({
+      message: 'Cargando información del rol...',
+      spinner: 'crescent'
+    });
+    await loading.present();
+
     try {
-      this.cargando = true;
-      this.errorCarga = false;
-
-      const loading = await this.loadingController.create({
-        message: 'Cargando información del rol...',
-        spinner: 'crescent'
-      });
-      await loading.present();
-
       if (!this.idRol) return;
 
-      this.catalogoService.getItem('rol', this.idRol).subscribe({
-        next: (data) => {
-          if (!data) {
-            this.presentToast('No se pudo cargar el rol.', 'danger');
-            this.errorCarga = true;
-            loading.dismiss();
-            return;
-          }
+      const data = await firstValueFrom(this.catalogoService.getItem('rol', this.idRol));
 
-          // Guardar datos originales para comparar cambios
-          this.rolOriginal = {
-            nombre: data.nombre,
-            modulos: data.modulos || [],
-            estado: data.estado || false
-          };
+      if (!data) {
+        this.presentToast('No se pudo cargar el rol.', 'danger');
+        this.errorCarga = true;
+        return;
+      }
 
-          // Asignar datos al modelo de edición
-          this.rol = {
-            nombre: data.nombre,
-            modulos: data.modulos || []
-          };
-          this.rolActivo = data.estado || false;
+      this.rolOriginal = {
+        nombre: data.nombre,
+        modulos: data.modulos || [],
+        estado: data.estado || false
+      };
 
-          // Marcar los módulos seleccionados
-          this.modulosSeleccionados = {};
-          this.modulos.forEach(modulo => {
-            this.modulosSeleccionados[modulo] = this.rol.modulos.includes(modulo);
-          });
+      this.rol = {
+        nombre: data.nombre,
+        modulos: data.modulos || []
+      };
+      this.rolActivo = data.estado || false;
 
-          loading.dismiss();
-        },
-        error: (error) => {
-          console.error('Error al obtener el rol:', error);
-          this.presentToast('Error al cargar los datos.', 'danger');
-          this.errorCarga = true;
-          loading.dismiss();
-        }
+      this.modulosSeleccionados = {};
+      this.modulos.forEach(modulo => {
+        this.modulosSeleccionados[modulo] = this.rol.modulos.includes(modulo);
       });
 
     } catch (error: any) {
       console.error('Error al iniciar carga del rol:', error);
-      this.presentToast('Error inesperado.', 'danger');
+      this.presentToast('Error al cargar los datos.', 'danger');
       this.errorCarga = true;
     } finally {
       this.cargando = false;
+      loading.dismiss();
     }
   }
 

@@ -5,6 +5,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AlertController, LoadingController, ToastController } from '@ionic/angular';
 import { CatalogoService } from 'src/app/shared/services/catalogo.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-editar',
@@ -63,45 +64,32 @@ export class EditarPage implements OnInit {
     });
     await loading.present();
 
-    this.catalogoService.getItem('parroquias', id).subscribe({
-      next: (data) => {
-        loading.dismiss();
-        if (!data) {
-          this.presentToast('No se encontró la parroquia', 'warning');
-          this.router.navigate(['/crudparroquias']);
-          return;
-        }
-
-        this.parroquia = data;
-        this.fechaModificacion = new Date().toLocaleDateString('es-ES', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit'
-        });
-      },
-      error: (error) => {
-        loading.dismiss();
-        this.presentToast('Error al obtener parroquia: ' + (error.message || error.statusText), 'danger');
+    try {
+      const data = await firstValueFrom(this.catalogoService.getItem('parroquias', id));
+      if (!data) {
+        this.presentToast('No se encontró la parroquia', 'warning');
         this.router.navigate(['/crudparroquias']);
+        return;
       }
-    });
+      this.parroquia = data;
+      this.fechaModificacion = new Date().toLocaleDateString('es-ES', {
+        day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'
+      });
+    } catch (error: any) {
+      this.presentToast('Error al obtener parroquia: ' + (error.message || error.statusText), 'danger');
+      this.router.navigate(['/crudparroquias']);
+    } finally {
+      loading.dismiss();
+    }
   }
 
   async obtenerCantones() {
-    return new Promise<void>((resolve) => {
-      this.catalogoService.getItems('cantones').subscribe({
-        next: (data) => {
-          this.cantones = data.sort((a, b) => a.nombre_canton.localeCompare(b.nombre_canton));
-          resolve();
-        },
-        error: (error) => {
-          this.presentToast('Error al obtener cantones: ' + (error.message || error.statusText), 'danger');
-          resolve();
-        }
-      });
-    });
+    try {
+      const data = await firstValueFrom(this.catalogoService.getItems('cantones'));
+      this.cantones = data.sort((a, b) => a.nombre_canton.localeCompare(b.nombre_canton));
+    } catch (error: any) {
+      this.presentToast('Error al obtener cantones: ' + (error.message || error.statusText), 'danger');
+    }
   }
 
   async actualizarParroquia() {

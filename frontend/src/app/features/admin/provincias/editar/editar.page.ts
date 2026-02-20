@@ -6,7 +6,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AlertController, ToastController } from '@ionic/angular';
 import { CatalogoService } from 'src/app/shared/services/catalogo.service';
-import { map } from 'rxjs/operators';
+import { map, firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-editar',
@@ -54,36 +54,30 @@ export class EditarPage implements OnInit {
 
   async cargarProvincia() {
     this.isLoading = true;
-
-    this.catalogoService.getItem('provincias', this.idProvincia).subscribe({
-      next: (data) => {
-        if (!data) {
-          this.presentToast('Provincia no encontrada', 'danger');
-          this.router.navigate(['/gestionar provincias']);
-          return;
-        }
-        this.originalData = { ...data };
-        this.codigoOriginal = data.codigo_provincia;
-
-        // Update Form
-        this.provinciaForm.patchValue({
-          nombre: data.nombre_provincia,
-          codigo: data.codigo_provincia,
-          estado: data.estado
-        });
-
-        if (data.updated_at) {
-          this.lastUpdated = new Date(data.updated_at);
-        }
-        this.isLoading = false;
-      },
-      error: (error) => {
-        console.error('Error al cargar provincia:', error);
-        this.presentToast('No se pudo cargar la información de la provincia', 'danger');
+    try {
+      const data = await firstValueFrom(this.catalogoService.getItem('provincias', this.idProvincia));
+      if (!data) {
+        this.presentToast('Provincia no encontrada', 'danger');
         this.router.navigate(['/gestionar provincias']);
-        this.isLoading = false;
+        return;
       }
-    });
+      this.originalData = { ...data };
+      this.codigoOriginal = data.codigo_provincia;
+      this.provinciaForm.patchValue({
+        nombre: data.nombre_provincia,
+        codigo: data.codigo_provincia,
+        estado: data.estado
+      });
+      if (data.updated_at) {
+        this.lastUpdated = new Date(data.updated_at);
+      }
+    } catch (error) {
+      console.error('Error al cargar provincia:', error);
+      this.presentToast('No se pudo cargar la información de la provincia', 'danger');
+      this.router.navigate(['/gestionar provincias']);
+    } finally {
+      this.isLoading = false;
+    }
   }
 
   async guardarCambios() {

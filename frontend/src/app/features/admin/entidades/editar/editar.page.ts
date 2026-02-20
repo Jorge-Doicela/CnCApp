@@ -5,6 +5,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AlertController, LoadingController, ToastController } from '@ionic/angular';
 import { CatalogoService } from 'src/app/shared/services/catalogo.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-editar',
@@ -48,28 +49,24 @@ export class EditarPage implements OnInit {
     }
   }
 
-  // Función para cargar los datos de la entidad específica
   async cargarEntidad() {
     this.isLoading = true;
-
-    this.catalogoService.getItem('entidades', this.idEntidad).subscribe({
-      next: (data) => {
-        if (!data) {
-          this.presentToast('No se encontró la entidad solicitada', 'warning');
-          this.router.navigate(['/gestionar-entidades']);
-          return;
-        }
-        this.entidad = data;
-        console.log('Entidad cargada:', this.entidad);
-        this.isLoading = false;
-      },
-      error: (error) => {
-        console.error('Error al cargar la entidad:', error);
-        this.presentToast('Error al cargar datos de la entidad: ' + (error.message || error.statusText), 'danger');
+    try {
+      const data = await firstValueFrom(this.catalogoService.getItem('entidades', this.idEntidad));
+      if (!data) {
+        this.presentToast('No se encontró la entidad solicitada', 'warning');
         this.router.navigate(['/gestionar-entidades']);
-        this.isLoading = false;
+        return;
       }
-    });
+      this.entidad = data;
+      console.log('Entidad cargada:', this.entidad);
+    } catch (error: any) {
+      console.error('Error al cargar la entidad:', error);
+      this.presentToast('Error al cargar datos de la entidad: ' + (error.message || error.statusText), 'danger');
+      this.router.navigate(['/gestionar-entidades']);
+    } finally {
+      this.isLoading = false;
+    }
   }
 
   // Función para seleccionar una nueva imagen

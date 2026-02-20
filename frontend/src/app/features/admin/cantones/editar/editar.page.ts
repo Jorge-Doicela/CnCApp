@@ -6,6 +6,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { ActivatedRoute, Router } from '@angular/router';
 import { AlertController, LoadingController, ToastController } from '@ionic/angular';
 import { CatalogoService } from 'src/app/shared/services/catalogo.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-editar',
@@ -73,67 +74,48 @@ export class EditarPage implements OnInit {
 
   async obtenerProvincias() {
     try {
-      this.catalogoService.getItems('provincias').subscribe({
-        next: (data) => {
-          this.provincias = data.sort((a, b) => a.nombre_provincia.localeCompare(b.nombre_provincia));
-        },
-        error: (error) => {
-          console.error('Error al obtener provincias:', error);
-          this.presentToast('Error al cargar las provincias', 'danger');
-        }
-      });
+      const data = await firstValueFrom(this.catalogoService.getItems('provincias'));
+      this.provincias = data.sort((a, b) => a.nombre_provincia.localeCompare(b.nombre_provincia));
     } catch (error) {
-      console.error('Error inesperado:', error);
-      this.presentToast('Error al cargar los datos', 'danger');
+      console.error('Error al obtener provincias:', error);
+      this.presentToast('Error al cargar las provincias', 'danger');
     }
   }
 
-  // Obtener canton por ID
   async obtenerCantonPorId(id: string) {
+    const loader = await this.loadingController.create({
+      message: 'Cargando información del cantón...',
+      spinner: 'circles'
+    });
+    await loader.present();
+
     try {
-      const loader = await this.loadingController.create({
-        message: 'Cargando información del cantón...',
-        spinner: 'circles'
+      const data = await firstValueFrom(this.catalogoService.getItem('cantones', id));
+
+      if (!data) {
+        this.presentToast('El cantón solicitado no existe', 'warning');
+        this.router.navigate(['/gestionar cantones']);
+        return;
+      }
+
+      this.cantonEditado = data;
+      this.mostrarHistorial = true;
+      this.fechaUltimaModificacion = new Date(data.updated_at || Date.now());
+      this.usuarioUltimaModificacion = data.updated_by || 'Usuario del sistema';
+
+      this.cantonForm.patchValue({
+        nombre_canton: data.nombre_canton,
+        codigo_canton: data.codigo_canton,
+        codigo_provincia: data.codigo_provincia,
+        estado: data.estado,
+        notas: data.notas || ''
       });
-      await loader.present();
-
-      this.catalogoService.getItem('cantones', id).subscribe({
-        next: async (data) => {
-          await loader.dismiss();
-          if (!data) {
-            this.presentToast('El cantón solicitado no existe', 'warning');
-            this.router.navigate(['/gestionar cantones']);
-            return;
-          }
-
-          this.cantonEditado = data;
-
-          // Simulación de datos de historial
-          this.mostrarHistorial = true;
-          this.fechaUltimaModificacion = new Date(data.updated_at || Date.now());
-          this.usuarioUltimaModificacion = data.updated_by || 'Usuario del sistema';
-
-          // Actualizar el formulario con los datos del cantón
-          this.cantonForm.patchValue({
-            nombre_canton: data.nombre_canton,
-            codigo_canton: data.codigo_canton,
-            codigo_provincia: data.codigo_provincia,
-            estado: data.estado,
-            notas: data.notas || ''
-          });
-
-          this.cargando = false;
-        },
-        error: async (error) => {
-          console.error('Error al obtener canton:', error);
-          await loader.dismiss();
-          this.presentToast('Error al cargar el cantón', 'danger');
-          this.router.navigate(['/gestionar cantones']);
-        }
-      });
-    } catch (error) {
-      console.error('Error inesperado:', error);
-      this.presentToast('Error al cargar los datos del cantón', 'danger');
+    } catch (error: any) {
+      console.error('Error al obtener canton:', error);
+      this.presentToast('Error al cargar el cantón', 'danger');
+      this.router.navigate(['/gestionar cantones']);
+    } finally {
+      loader.dismiss();
       this.cargando = false;
     }
   }

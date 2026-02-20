@@ -5,6 +5,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { LoadingController, ToastController } from '@ionic/angular';
 import { CatalogoService } from 'src/app/shared/services/catalogo.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-editar',
@@ -43,46 +44,34 @@ export class EditarPage implements OnInit {
   }
 
   async cargarCompetencia() {
-    this.cargando = true;
-
     const loading = await this.loadingController.create({
       message: 'Cargando información...',
       spinner: 'crescent'
     });
     await loading.present();
 
-    if (!this.idCompetencia) {
+    try {
+      if (!this.idCompetencia) return;
+
+      const data = await firstValueFrom(this.catalogoService.getItem('competencias', this.idCompetencia));
+
+      if (!data) {
+        this.presentToast('No se encontró la competencia.', 'danger');
+        return;
+      }
+
+      this.competencia = data;
+      if (this.competencia.fecha_ultima_actualizacion) {
+        const fecha = new Date(this.competencia.fecha_ultima_actualizacion);
+        this.fechaModificacion = fecha.toLocaleString();
+      }
+    } catch (error: any) {
+      console.error('Error al cargar competencia:', error);
+      this.presentToast('Error al cargar competencia: ' + (error.message || error.statusText), 'danger');
+    } finally {
       loading.dismiss();
       this.cargando = false;
-      return;
     }
-
-    this.catalogoService.getItem('competencias', this.idCompetencia).subscribe({
-      next: (data) => {
-        if (!data) {
-          this.presentToast('No se encontró la competencia.', 'danger');
-          loading.dismiss();
-          this.cargando = false;
-          return;
-        }
-
-        this.competencia = data;
-
-        // Formatear fecha para mostrar
-        if (this.competencia.fecha_ultima_actualizacion) {
-          const fecha = new Date(this.competencia.fecha_ultima_actualizacion);
-          this.fechaModificacion = fecha.toLocaleString();
-        }
-        loading.dismiss();
-        this.cargando = false;
-      },
-      error: (error) => {
-        console.error('Error al cargar competencia:', error);
-        this.presentToast('Error al cargar competencia: ' + (error.message || error.statusText), 'danger');
-        loading.dismiss();
-        this.cargando = false;
-      }
-    });
   }
 
   async actualizarCompetencia() {
