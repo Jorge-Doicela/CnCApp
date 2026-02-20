@@ -1,19 +1,25 @@
-<ion-header [translucent]="true">
-    <ion-toolbar color="primary">
-        <ion-buttons slot="start">
-            <ion-back-button defaultHref="/gestionar-plantillas"></ion-back-button>
-        </ion-buttons>
-        <ion-title>{{ isEdit ? 'Editar' : 'Nueva' }} Plantilla</ion-title>
-        <ion-buttons slot="end">
-            <ion-button (click)="guardar()" [disabled]="guardando">
-                <ion-icon name="save-outline" slot="start"></ion-icon>
-                {{ guardando ? 'Guardando...' : 'Guardar' }}
-            </ion-button>
-        </ion-buttons>
-    </ion-toolbar>
-</ion-header>
+<ion-content>
 
-<ion-content [fullscreen]="true" class="ion-padding">
+    <!-- Back Nav -->
+    <div class="page-back-nav">
+        <ion-button fill="clear" color="medium" size="small" routerLink="/gestionar-plantillas">
+            <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
+            Plantillas
+        </ion-button>
+    </div>
+
+    <!-- In-page Header -->
+    <div class="page-header" *ngIf="!cargando">
+        <div class="header-info">
+            <h1>{{ isEdit ? 'Editar' : 'Nueva' }} Plantilla</h1>
+            <p>{{ isEdit ? 'Modifica la configuración de la plantilla' : 'Diseña una nueva plantilla de certificado' }}
+            </p>
+        </div>
+        <ion-button class="save-btn" (click)="guardar()" [disabled]="guardando">
+            <ion-icon name="save-outline" slot="start"></ion-icon>
+            {{ guardando ? 'Guardando...' : 'Guardar' }}
+        </ion-button>
+    </div>
 
     <!-- Loading State -->
     <div *ngIf="cargando" class="loading-container">
