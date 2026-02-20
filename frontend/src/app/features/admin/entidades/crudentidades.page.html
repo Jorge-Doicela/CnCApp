@@ -4,6 +4,7 @@
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
     <ion-title class="ion-text-center">Gestión de Entidades</ion-title>
+    <ion-progress-bar *ngIf="isLoading" type="indeterminate"></ion-progress-bar>
   </ion-toolbar>
 </ion-header>
 
@@ -18,17 +19,17 @@
       <div class="search-section fade-in">
         <h3 class="section-title">Administración de Entidades</h3>
         <div class="search-container">
-          <ion-item class="search-item">
+          <ion-item class="search-item" lines="none">
             <ion-icon name="search-outline" slot="start" color="primary"></ion-icon>
             <ion-input placeholder="Buscar entidad por nombre" [(ngModel)]="searchTerm"
-              (ionChange)="filtrarEntidades()"></ion-input>
+              (ionInput)="filtrarEntidades()"></ion-input>
             <ion-button slot="end" fill="clear" (click)="filtrarEntidades()">
               <ion-icon name="search"></ion-icon>
             </ion-button>
           </ion-item>
 
           <div class="filter-container">
-            <ion-item class="filter-item">
+            <ion-item class="filter-item" lines="none">
               <ion-icon name="checkmark-circle-outline" slot="start" color="primary"></ion-icon>
               <ion-label>Estado</ion-label>
               <ion-select [(ngModel)]="filtroEstado" interface="action-sheet" placeholder="Todos"
@@ -39,7 +40,7 @@
               </ion-select>
             </ion-item>
 
-            <ion-item class="filter-item">
+            <ion-item class="filter-item" lines="none">
               <ion-icon name="funnel-outline" slot="start" color="primary"></ion-icon>
               <ion-label>Ordenar por</ion-label>
               <ion-select [(ngModel)]="ordenPor" interface="action-sheet" placeholder="Nombre"
@@ -53,7 +54,8 @@
         </div>
 
         <!-- Botón para crear nueva entidad -->
-        <ion-button expand="block" color="primary" (click)="iraCrearEntidad()" class="create-button">
+        <ion-button expand="block" color="primary" (click)="iraCrearEntidad()" class="create-button"
+          [disabled]="isLoading">
           <ion-icon name="add-circle-outline" slot="start"></ion-icon>
           Crear Nueva Entidad
         </ion-button>
@@ -68,8 +70,8 @@
               <ion-icon name="business-outline" color="primary"></ion-icon>
             </div>
             <div class="stat-details">
-              <span class="stat-value">{{ Entidades.length }}</span>
-              <span class="stat-label">Total Entidades</span>
+              <span class="stat-value">{{ entidades.length }}</span>
+              <span class="stat-label">Total</span>
             </div>
           </div>
 
@@ -78,8 +80,8 @@
               <ion-icon name="checkmark-circle-outline" color="success"></ion-icon>
             </div>
             <div class="stat-details">
-              <span class="stat-value">{{ getValidEntidades() }}</span>
-              <span class="stat-label">Entidades Válidas</span>
+              <span class="stat-value">{{ getValidEntidadesCount() }}</span>
+              <span class="stat-label">Válidas</span>
             </div>
           </div>
 
@@ -88,8 +90,8 @@
               <ion-icon name="close-circle-outline" color="danger"></ion-icon>
             </div>
             <div class="stat-details">
-              <span class="stat-value">{{ getInvalidEntidades() }}</span>
-              <span class="stat-label">Entidades Inválidas</span>
+              <span class="stat-value">{{ getInvalidEntidadesCount() }}</span>
+              <span class="stat-label">No Válidas</span>
             </div>
           </div>
         </div>
@@ -102,7 +104,7 @@
           <span class="results-count">{{ entidadesFiltradas.length }} registros</span>
         </div>
 
-        <div *ngIf="isLoading" class="loading-container">
+        <div *ngIf="isLoading" class="ion-text-center ion-padding">
           <ion-spinner name="crescent" color="primary"></ion-spinner>
           <p>Cargando entidades...</p>
         </div>
@@ -126,7 +128,7 @@
             </div>
             <div class="entidad-content">
               <div class="entidad-image">
-                <img [src]="entidad.imagen || '../../../../assets/no-image.png'" alt="Imagen de la entidad">
+                <img [src]="entidad.imagen || 'assets/cnc.png'" alt="Imagen de la entidad">
               </div>
               <div class="entidad-detail">
                 <ion-icon name="key-outline" color="primary"></ion-icon>

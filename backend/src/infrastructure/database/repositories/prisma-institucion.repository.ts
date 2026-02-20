@@ -15,4 +15,24 @@ export class PrismaInstitucionRepository implements InstitucionRepository {
             where: { id }
         });
     }
+
+    async create(data: any): Promise<any> {
+        return prisma.institucionSistema.create({
+            data
+        });
+    }
+
+    async update(id: number, data: any): Promise<any> {
+        return prisma.institucionSistema.update({
+            where: { id },
+            data
+        });
+    }
+
+    async delete(id: number): Promise<boolean> {
+        await prisma.institucionSistema.delete({
+            where: { id }
+        });
+        return true;
+    }
 }

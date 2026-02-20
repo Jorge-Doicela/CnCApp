@@ -104,7 +104,7 @@ app.use('/api/capacitaciones', capacitacionRoutes);
 app.use('/api/certificados', certificadoRoutes);
 app.use('/api', ubicacionRoutes); // Provincias y Cantones
 app.use('/api/cargos', cargoRoutes);
-app.use('/api/instituciones_sistema', institucionRoutes);
+app.use('/api/instituciones', institucionRoutes);
 app.use('/api/reportes', reportesRoutes);
 app.use('/api/plantillas', plantillaRoutes);
 app.use('/api/usuarios-capacitaciones', usuarioCapacitacionRoutes);

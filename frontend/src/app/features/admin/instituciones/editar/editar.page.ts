@@ -1,45 +1,58 @@
 import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { LoadingController, ToastController } from '@ionic/angular';
+import { ToastController } from '@ionic/angular';
 import { CatalogoService } from 'src/app/shared/services/catalogo.service';
 import { firstValueFrom } from 'rxjs';
+import { addIcons } from 'ionicons';
+import {
+  createOutline,
+  keyOutline,
+  businessOutline,
+  informationCircleOutline,
+  saveOutline,
+  closeOutline
+} from 'ionicons/icons';
 
 @Component({
   selector: 'app-editar',
   templateUrl: './editar.page.html',
   styleUrls: ['./editar.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule]
+  imports: [CommonModule, FormsModule, IonicModule],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class EditarPage implements OnInit {
 
   idInstitucion: number = 0;
   institucion: any = {
-    id_institucion: 0,
-    nombre_institucion: '',
-    direccion: '',
-    telefono: '',
-    email: '',
-    descripcion: '',
-    estado_institucion: false,
-    fecha_ultima_actualizacion: null
+    id: 0,
+    nombre: '',
+    tipo: ''
   };
 
   cargando: boolean = true;
   enviando: boolean = false;
-  fechaModificacion: string = 'No disponible';
 
   private catalogoService = inject(CatalogoService);
+  private cd = inject(ChangeDetectorRef);
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private loadingController: LoadingController,
     private toastController: ToastController
-  ) { }
+  ) {
+    addIcons({
+      createOutline,
+      keyOutline,
+      businessOutline,
+      informationCircleOutline,
+      saveOutline,
+      closeOutline
+    });
+  }
 
   ngOnInit() {
     this.idInstitucion = Number(this.route.snapshot.paramMap.get('idInstitucion'));
@@ -47,95 +60,73 @@ export class EditarPage implements OnInit {
   }
 
   async cargarInstitucion() {
-    const loading = await this.loadingController.create({
-      message: 'Cargando información...',
-      spinner: 'crescent'
-    });
-    await loading.present();
+    this.cargando = true;
+    this.cd.markForCheck();
 
     try {
-      if (!this.idInstitucion) return;
+      if (!this.idInstitucion) {
+        await this.presentToast('ID de institución no válido.', 'danger');
+        this.router.navigate(['/gestionar-instituciones']);
+        return;
+      }
 
       const data = await firstValueFrom(this.catalogoService.getItem('instituciones', this.idInstitucion));
 
       if (!data) {
-        this.presentToast('No se encontró la institución.', 'danger');
+        await this.presentToast('No se encontró la institución.', 'danger');
+        this.router.navigate(['/gestionar-instituciones']);
         return;
       }
 
       this.institucion = data;
-      if (this.institucion.fecha_ultima_actualizacion) {
-        const fecha = new Date(this.institucion.fecha_ultima_actualizacion);
-        this.fechaModificacion = fecha.toLocaleString();
-      }
     } catch (error: any) {
       console.error('Error al cargar institución:', error);
-      this.presentToast('Error al cargar institución: ' + (error.message || error.statusText), 'danger');
+      await this.presentToast('Error al cargar institución: ' + (error?.message ?? ''), 'danger');
     } finally {
-      loading.dismiss();
       this.cargando = false;
+      this.cd.markForCheck();
     }
   }
 
   async actualizarInstitucion() {
-    if (!this.institucion.nombre_institucion.trim()) {
-      this.presentToast('El nombre de la institución es obligatorio', 'warning');
+    if (!this.institucion.nombre?.trim()) {
+      await this.presentToast('El nombre de la institución es obligatorio', 'warning');
       return;
     }
 
     this.enviando = true;
-    const loading = await this.loadingController.create({
-      message: 'Guardando cambios...',
-      spinner: 'crescent'
-    });
-    await loading.present();
+    this.cd.markForCheck();
 
-    const fechaActual = new Date().toISOString();
-    const dataToUpdate = {
-      nombre_institucion: this.institucion.nombre_institucion,
-      direccion: this.institucion.direccion,
-      telefono: this.institucion.telefono,
-      email: this.institucion.email,
-      descripcion: this.institucion.descripcion,
-      estado_institucion: this.institucion.estado_institucion,
-      fecha_ultima_actualizacion: fechaActual
-    };
+    try {
+      const dataToUpdate = {
+        nombre: this.institucion.nombre,
+        tipo: this.institucion.tipo
+      };
 
-    this.catalogoService.updateItem('instituciones', this.idInstitucion, dataToUpdate).subscribe({
-      next: async () => {
-        this.fechaModificacion = new Date(fechaActual).toLocaleString();
-        this.presentToast('Institución actualizada exitosamente', 'success');
-        loading.dismiss();
-        this.enviando = false;
-      },
-      error: async (error) => {
-        console.error('Error al actualizar institución:', error);
-        this.presentToast('Error al actualizar institución: ' + (error.message || error.statusText), 'danger');
-        loading.dismiss();
-        this.enviando = false;
-      }
-    });
+      await firstValueFrom(this.catalogoService.updateItem('instituciones', this.idInstitucion, dataToUpdate));
+      await this.presentToast('Institución actualizada exitosamente', 'success');
+      this.router.navigate(['/gestionar-instituciones']);
+    } catch (error: any) {
+      console.error('Error al actualizar institución:', error);
+      await this.presentToast('Error al actualizar institución: ' + (error?.message ?? ''), 'danger');
+    } finally {
+      this.enviando = false;
+      this.cd.markForCheck();
+    }
   }
 
   cancelar() {
-    this.router.navigate(['/gestionar instituciones']);
+    this.router.navigate(['/gestionar-instituciones']);
   }
 
   async presentToast(message: string, color: string = 'primary') {
     const toast = await this.toastController.create({
-      message: message,
+      message,
       duration: 3000,
       position: 'bottom',
-      color: color,
-      buttons: [
-        {
-          side: 'end',
-          icon: 'close',
-          role: 'cancel'
-        }
-      ]
+      color,
+      buttons: [{ icon: 'close', role: 'cancel' }]
     });
-
     await toast.present();
   }
 }

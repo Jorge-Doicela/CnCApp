@@ -1,96 +1,134 @@
 import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { AlertController, LoadingController, ToastController } from '@ionic/angular';
 import { CatalogoService } from 'src/app/shared/services/catalogo.service';
 import { firstValueFrom } from 'rxjs';
+import { addIcons } from 'ionicons';
+import {
+  searchOutline,
+  search,
+  funnelOutline,
+  businessOutline,
+  checkmarkCircleOutline,
+  closeCircleOutline,
+  alertCircleOutline,
+  keyOutline,
+  createOutline,
+  trashOutline,
+  swapVerticalOutline,
+  addCircleOutline,
+  locationOutline,
+  callOutline,
+  mailOutline,
+  calendarOutline,
+  close
+} from 'ionicons/icons';
 
 @Component({
   selector: 'app-crudinstituciones',
   templateUrl: './crudinstituciones.page.html',
   styleUrls: ['./crudinstituciones.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule]
+  imports: [CommonModule, FormsModule, IonicModule],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CrudinstitucionesPage implements OnInit {
 
   instituciones: any[] = [];
   institucionesFiltradas: any[] = [];
-  cargando: boolean = true;
+  isLoading: boolean = false;
   searchTerm: string = '';
   filtroEstado: string = 'todos';
   ordenarPor: string = 'nombre';
   institucionesActivas: number = 0;
 
   private catalogoService = inject(CatalogoService);
+  private cd = inject(ChangeDetectorRef);
 
   constructor(
     private router: Router,
     private alertController: AlertController,
     private loadingController: LoadingController,
     private toastController: ToastController
-  ) { }
+  ) {
+    addIcons({
+      searchOutline,
+      search,
+      funnelOutline,
+      businessOutline,
+      checkmarkCircleOutline,
+      closeCircleOutline,
+      alertCircleOutline,
+      keyOutline,
+      createOutline,
+      trashOutline,
+      swapVerticalOutline,
+      addCircleOutline,
+      locationOutline,
+      callOutline,
+      mailOutline,
+      calendarOutline,
+      close
+    });
+  }
 
   ngOnInit() {
     this.cargarDatos();
   }
 
   async cargarDatos() {
-    this.cargando = true;
-    await this.obtenerInstituciones();
-    this.cargando = false;
-  }
-
-  async obtenerInstituciones() {
-    const loading = await this.loadingController.create({
-      message: 'Obteniendo instituciones...',
-      spinner: 'crescent'
-    });
-    await loading.present();
+    this.isLoading = true;
+    this.cd.markForCheck();
     try {
-      const instituciones = await firstValueFrom(this.catalogoService.getItems('instituciones'));
-      this.instituciones = (instituciones || []).map((inst: any) => ({
+      const data = await firstValueFrom(this.catalogoService.getItems('instituciones'));
+      this.instituciones = (data || []).map((inst: any) => ({
         ...inst,
         fecha_ultima_actualizacion: inst.fecha_ultima_actualizacion || new Date().toISOString()
       }));
       this.calcularEstadisticas();
       this.filtrarInstituciones();
     } catch (error: any) {
-      this.presentToast('Error al obtener instituciones: ' + (error?.message ?? ''), 'danger');
+      this.errorToast('Error al obtener instituciones: ' + (error?.message ?? ''));
     } finally {
-      loading.dismiss();
+      this.isLoading = false;
+      this.cd.markForCheck();
     }
   }
 
   calcularEstadisticas() {
-    this.institucionesActivas = this.instituciones.filter(i => i.estado_institucion === true).length;
+    // Note: The backend model currently doesn't have an 'estado' field.
+    // Assuming all are active for statistics until the field is added.
+    this.institucionesActivas = this.instituciones.length;
   }
 
   filtrarInstituciones() {
+    const term = this.searchTerm.toLowerCase().trim();
     this.institucionesFiltradas = this.instituciones.filter(institucion => {
-      // Filtrar por término de búsqueda (en nombre, dirección, email o teléfono)
-      const matchesSearchTerm = this.searchTerm.trim() === '' ||
-        institucion.nombre_institucion.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        institucion.id_institucion.toString().includes(this.searchTerm.toLowerCase()) ||
-        (institucion.direccion && institucion.direccion.toLowerCase().includes(this.searchTerm.toLowerCase())) ||
-        (institucion.email && institucion.email.toLowerCase().includes(this.searchTerm.toLowerCase())) ||
-        (institucion.telefono && institucion.telefono.includes(this.searchTerm));
+      const nombre = institucion.nombre?.toLowerCase() || '';
+      const tipo = institucion.tipo?.toLowerCase() || '';
+      const id = institucion.id?.toString() || '';
 
-      // Filtrar por estado
-      const matchesEstado = this.filtroEstado === 'todos' ||
-        institucion.estado_institucion.toString() === this.filtroEstado;
+      const matchesSearchTerm = term === '' ||
+        nombre.includes(term) ||
+        id.includes(term) ||
+        tipo.includes(term);
 
-      return matchesSearchTerm && matchesEstado;
+      return matchesSearchTerm;
     });
 
-    // Ordenar resultados
     if (this.ordenarPor === 'nombre') {
-      this.institucionesFiltradas.sort((a, b) => a.nombre_institucion.localeCompare(b.nombre_institucion));
+      this.institucionesFiltradas.sort((a, b) => {
+        const nameA = a.nombre || '';
+        const nameB = b.nombre || '';
+        return nameA.localeCompare(nameB);
+      });
     } else if (this.ordenarPor === 'id') {
-      this.institucionesFiltradas.sort((a, b) => a.id_institucion - b.id_institucion);
+      this.institucionesFiltradas.sort((a, b) => (a.id || 0) - (b.id || 0));
     }
+    this.cd.markForCheck();
   }
 
   crearInstitucion() {
@@ -102,92 +140,79 @@ export class CrudinstitucionesPage implements OnInit {
   }
 
   async cambiarEstado(institucion: any) {
-    const loading = await this.loadingController.create({
-      message: 'Actualizando estado...',
-      spinner: 'crescent'
-    });
-    await loading.present();
+    this.isLoading = true;
+    this.cd.markForCheck();
 
-    const nuevoEstado = !institucion.estado_institucion;
-    this.catalogoService.updateItem('instituciones', institucion.id_institucion, {
-      estado_institucion: nuevoEstado,
-      fecha_ultima_actualizacion: new Date().toISOString()
-    }).subscribe({
-      next: () => {
-        loading.dismiss();
-        // Actualizar el objeto local
-        institucion.estado_institucion = nuevoEstado;
-        institucion.fecha_ultima_actualizacion = new Date().toISOString();
-        this.calcularEstadisticas();
-        this.presentToast(
-          `Institución "${institucion.nombre_institucion}" ahora está ${nuevoEstado ? 'activa' : 'inactiva'}`,
-          'success'
-        );
-      },
-      error: (error) => {
-        loading.dismiss();
-        this.presentToast('Error al cambiar estado: ' + error.message, 'danger');
-      }
-    });
+    try {
+      const nuevoEstado = !institucion.estado;
+      await firstValueFrom(this.catalogoService.updateItem('instituciones', institucion.id, {
+        estado: nuevoEstado,
+        fecha_ultima_actualizacion: new Date().toISOString()
+      }));
+
+      institucion.estado = nuevoEstado;
+      institucion.fecha_ultima_actualizacion = new Date().toISOString();
+      this.calcularEstadisticas();
+      this.successToast(`Institución "${institucion.nombre}" ahora está ${nuevoEstado ? 'activa' : 'inactiva'}`);
+    } catch (error: any) {
+      this.errorToast('Error al cambiar estado: ' + (error?.message ?? ''));
+    } finally {
+      this.isLoading = false;
+      this.cd.markForCheck();
+    }
   }
 
   async confirmarEliminar(institucion: any) {
     const alert = await this.alertController.create({
       header: 'Confirmar eliminación',
-      message: `¿Está seguro que desea eliminar la institución "${institucion.nombre_institucion}"?`,
+      message: `¿Está seguro que desea eliminar la institución "${institucion.nombre}"?`,
       buttons: [
+        { text: 'Cancelar', role: 'cancel', cssClass: 'secondary' },
         {
-          text: 'Cancelar',
-          role: 'cancel',
-          cssClass: 'secondary'
-        }, {
           text: 'Eliminar',
           cssClass: 'danger',
-          handler: () => {
-            this.eliminarInstitucion(institucion.id_institucion);
-          }
+          handler: () => this.eliminarInstitucion(institucion.id)
         }
       ]
     });
-
     await alert.present();
   }
 
   async eliminarInstitucion(idInstitucion: number) {
-    const loading = await this.loadingController.create({
-      message: 'Eliminando institución...',
-      spinner: 'crescent'
-    });
-    await loading.present();
+    this.isLoading = true;
+    this.cd.markForCheck();
 
-    this.catalogoService.deleteItem('instituciones', idInstitucion).subscribe({
-      next: () => {
-        loading.dismiss();
-        this.presentToast('Institución eliminada correctamente', 'success');
-        this.obtenerInstituciones();
-      },
-      error: (error) => {
-        loading.dismiss();
-        this.presentToast('Error al eliminar institución: ' + error.message, 'danger');
-      }
-    });
+    try {
+      await firstValueFrom(this.catalogoService.deleteItem('instituciones', idInstitucion));
+      this.successToast('Institución eliminada correctamente');
+      await this.cargarDatos();
+    } catch (error: any) {
+      this.errorToast('Error al eliminar institución: ' + (error?.message ?? ''));
+    } finally {
+      this.isLoading = false;
+      this.cd.markForCheck();
+    }
   }
 
-  async presentToast(message: string, color: string = 'primary') {
+  private async successToast(message: string) {
     const toast = await this.toastController.create({
-      message: message,
+      message,
       duration: 3000,
+      color: 'success',
       position: 'bottom',
-      color: color,
-      buttons: [
-        {
-          side: 'end',
-          icon: 'close',
-          role: 'cancel'
-        }
-      ]
+      buttons: [{ icon: 'close', role: 'cancel' }]
     });
+    await toast.present();
+  }
 
+  private async errorToast(message: string) {
+    const toast = await this.toastController.create({
+      message,
+      duration: 3000,
+      color: 'danger',
+      position: 'bottom',
+      buttons: [{ icon: 'close', role: 'cancel' }]
+    });
     await toast.present();
   }
 }

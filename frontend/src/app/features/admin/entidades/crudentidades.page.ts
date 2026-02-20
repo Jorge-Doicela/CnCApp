@@ -1,10 +1,26 @@
 import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { AlertController, ModalController, ToastController } from '@ionic/angular';
 import { CatalogoService } from 'src/app/shared/services/catalogo.service';
+import { addIcons } from 'ionicons';
+import {
+  searchOutline,
+  search,
+  funnelOutline,
+  businessOutline,
+  checkmarkCircleOutline,
+  closeCircleOutline,
+  alertCircleOutline,
+  keyOutline,
+  createOutline,
+  trashOutline,
+  swapVerticalOutline,
+  addCircleOutline,
+  close
+} from 'ionicons/icons';
 import { firstValueFrom } from 'rxjs';
 
 @Component({
@@ -12,10 +28,11 @@ import { firstValueFrom } from 'rxjs';
   templateUrl: './crudentidades.page.html',
   styleUrls: ['./crudentidades.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule]
+  imports: [CommonModule, FormsModule, IonicModule],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CrudentidadesPage implements OnInit {
-  Entidades: any[] = [];
+  entidades: any[] = [];
   entidadesFiltradas: any[] = [];
   searchTerm: string = '';
   filtroEstado: string = 'todos';
@@ -23,47 +40,62 @@ export class CrudentidadesPage implements OnInit {
   isLoading: boolean = false;
 
   private catalogoService = inject(CatalogoService);
+  private cd = inject(ChangeDetectorRef);
 
   constructor(
     private router: Router,
     private alertController: AlertController,
     private toastController: ToastController,
     private modalController: ModalController
-  ) { }
+  ) {
+    addIcons({
+      searchOutline,
+      search,
+      funnelOutline,
+      businessOutline,
+      checkmarkCircleOutline,
+      closeCircleOutline,
+      alertCircleOutline,
+      keyOutline,
+      createOutline,
+      trashOutline,
+      swapVerticalOutline,
+      addCircleOutline,
+      close
+    });
+  }
 
   ngOnInit() {
-    this.RecuperarEntidades();
+    this.cargarDatos();
   }
 
   ionViewWillEnter() {
-    // Actualizar entidades cuando se vuelva a esta página
-    this.RecuperarEntidades();
+    this.cargarDatos();
   }
 
-  async RecuperarEntidades() {
+  async cargarDatos() {
     this.isLoading = true;
+    this.cd.markForCheck();
     try {
       const data = await firstValueFrom(this.catalogoService.getItems('entidades'));
-      this.Entidades = data ?? [];
-      this.entidadesFiltradas = [...this.Entidades];
-      this.ordenarEntidades();
-      console.log('Entidades cargadas:', this.Entidades);
+      this.entidades = data ?? [];
+      this.filtrarEntidades();
+      console.log('Entidades cargadas:', this.entidades);
     } catch (error) {
       console.error('Error al obtener las entidades:', error);
       this.presentToast('Error al cargar entidades (API)', 'danger');
     } finally {
       this.isLoading = false;
+      this.cd.markForCheck();
     }
   }
 
   filtrarEntidades() {
-    this.entidadesFiltradas = this.Entidades.filter(entidad => {
-      // Filtro por término de búsqueda
-      const matchesSearch = !this.searchTerm ||
-        entidad.nombre.toLowerCase().includes(this.searchTerm.toLowerCase());
+    const term = this.searchTerm.toLowerCase().trim();
+    this.entidadesFiltradas = this.entidades.filter(entidad => {
+      const nombre = entidad.nombre?.toLowerCase() || '';
+      const matchesSearch = term === '' || nombre.includes(term);
 
-      // Filtro por estado
-      // Backend returns boolean, select returns string '1'/'0' or 'todos'
       const matchesEstado = this.filtroEstado === 'todos' ||
         (this.filtroEstado === '1' ? entidad.estado : !entidad.estado);
 
@@ -71,13 +103,14 @@ export class CrudentidadesPage implements OnInit {
     });
 
     this.ordenarEntidades();
+    this.cd.markForCheck();
   }
 
   ordenarEntidades() {
     switch (this.ordenPor) {
       case 'nombre':
         this.entidadesFiltradas.sort((a, b) =>
-          a.nombre.localeCompare(b.nombre));
+          (a.nombre || '').localeCompare(b.nombre || ''));
         break;
       case 'estado':
         this.entidadesFiltradas.sort((a, b) => (Number(b.estado) - Number(a.estado)));
@@ -86,14 +119,15 @@ export class CrudentidadesPage implements OnInit {
         this.entidadesFiltradas.sort((a, b) => a.id - b.id);
         break;
     }
+    this.cd.markForCheck();
   }
 
-  getValidEntidades(): number {
-    return this.Entidades.filter(e => e.estado).length;
+  getValidEntidadesCount(): number {
+    return this.entidades.filter(e => e.estado).length;
   }
 
-  getInvalidEntidades(): number {
-    return this.Entidades.filter(e => !e.estado).length;
+  getInvalidEntidadesCount(): number {
+    return this.entidades.filter(e => !e.estado).length;
   }
 
   iraCrearEntidad() {
@@ -117,17 +151,17 @@ export class CrudentidadesPage implements OnInit {
           role: 'cancel'
         }, {
           text: 'Confirmar',
-          handler: () => {
-            this.catalogoService.updateItem('entidades', entidad.id, { estado: newState }).subscribe({
-              next: () => {
-                // Actualizar el estado en el arreglo local
-                entidad.estado = newState;
-                this.presentToast(`La entidad ha sido ${newState ? 'activada' : 'desactivada'} correctamente`, 'success');
-              },
-              error: (error) => {
-                this.presentToast(`Error al ${stateText} la entidad: ${error.message}`, 'danger');
-              }
-            });
+          handler: async () => {
+            try {
+              await firstValueFrom(this.catalogoService.updateItem('entidades', entidad.id, { estado: newState }));
+              entidad.estado = newState;
+              this.filtrarEntidades();
+              this.presentToast(`La entidad ha sido ${newState ? 'activada' : 'desactivada'} correctamente`, 'success');
+            } catch (error: any) {
+              this.presentToast(`Error al ${stateText} la entidad: ${error.message}`, 'danger');
+            } finally {
+              this.cd.markForCheck();
+            }
           }
         }
       ]
@@ -143,11 +177,10 @@ export class CrudentidadesPage implements OnInit {
       buttons: [
         {
           text: 'Cancelar',
-          role: 'cancel',
-          cssClass: 'secondary'
+          role: 'cancel'
         }, {
           text: 'Eliminar',
-          cssClass: 'danger',
+          role: 'destructive',
           handler: () => {
             this.eliminarEntidad(entidad.id);
           }
@@ -159,18 +192,16 @@ export class CrudentidadesPage implements OnInit {
   }
 
   async eliminarEntidad(id: string) {
-    // Deletion of associated images should be handled by the backend
-    this.catalogoService.deleteItem('entidades', id).subscribe({
-      next: () => {
-        this.presentToast('Entidad eliminada correctamente', 'success');
-        // Actualizar la lista de entidades
-        this.RecuperarEntidades();
-      },
-      error: (error) => {
-        console.error('Error al eliminar la entidad:', error);
-        this.presentToast('Error al eliminar la entidad. ', 'danger');
-      }
-    });
+    try {
+      await firstValueFrom(this.catalogoService.deleteItem('entidades', id));
+      this.presentToast('Entidad eliminada correctamente', 'success');
+      await this.cargarDatos();
+    } catch (error) {
+      console.error('Error al eliminar la entidad:', error);
+      this.presentToast('Error al eliminar la entidad.', 'danger');
+    } finally {
+      this.cd.markForCheck();
+    }
   }
 
   async presentToast(message: string, color: string = 'primary') {
@@ -179,12 +210,7 @@ export class CrudentidadesPage implements OnInit {
       duration: 3000,
       position: 'bottom',
       color: color,
-      buttons: [
-        {
-          text: 'Cerrar',
-          role: 'cancel'
-        }
-      ]
+      buttons: [{ icon: 'close', role: 'cancel' }]
     });
 
     await toast.present();
