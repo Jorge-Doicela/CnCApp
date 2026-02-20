@@ -18,8 +18,24 @@ ion-content {
 .main-container {
     max-width: 900px;
     margin: 0 auto;
-    padding: 16px 16px 40px 16px;
+    padding: 20px 24px 60px;
 }
+
+// Back Navigation
+.page-back-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0 16px;
+    margin-bottom: 4px;
+
+    ion-button {
+        --color: #64748b;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+}
+
 
 // Hero Profile Section
 .profile-hero {

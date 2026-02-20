@@ -1,24 +1,21 @@
-<ion-header class="ion-no-border">
-    <ion-toolbar color="primary">
-        <ion-buttons slot="start">
-            <ion-button (click)="regresar()">
-                <ion-icon name="arrow-back-outline" slot="icon-only"></ion-icon>
-            </ion-button>
-        </ion-buttons>
-        <ion-title>Perfil de Usuario</ion-title>
-        <ion-buttons slot="end">
-            <ion-button [routerLink]="['/gestionar-usuarios/editar', usuario.id]" *ngIf="usuario">
-                <ion-icon name="create-outline" slot="icon-only"></ion-icon>
-            </ion-button>
-        </ion-buttons>
-    </ion-toolbar>
-</ion-header>
-
-<ion-content class="ion-padding">
+<ion-content>
 
     <div class="main-container" *ngIf="!cargando && usuario">
 
-        <!-- Profile Header Card -->
+        <!-- Back Nav -->
+        <div class="page-back-nav">
+            <ion-button fill="clear" color="medium" size="small" (click)="regresar()">
+                <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
+                Gestión de Usuarios
+            </ion-button>
+
+            <ion-button fill="clear" color="primary" size="small"
+                [routerLink]="['/gestionar-usuarios/editar', usuario.id]" *ngIf="usuario">
+                <ion-icon name="create-outline" slot="start"></ion-icon>
+                Editar
+            </ion-button>
+        </div>
+
         <div class="profile-hero fade-in">
             <div class="avatar-container">
                 <div class="avatar">

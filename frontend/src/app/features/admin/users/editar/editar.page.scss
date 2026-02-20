@@ -21,8 +21,41 @@ ion-content {
 .main-container {
   max-width: 900px;
   margin: 0 auto;
-  padding: 16px 16px 40px 16px;
+  padding: 20px 24px 80px;
 }
+
+// Back Navigation
+.page-back-nav {
+  padding: 8px 0 4px;
+
+  ion-button {
+    --color: #64748b;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+}
+
+// Page Header (admin-header)
+.admin-header {
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e2e8f0;
+  margin-bottom: 28px;
+
+  h1 {
+    font-size: 1.7rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0 0 4px;
+    letter-spacing: -0.02em;
+  }
+
+  p {
+    font-size: 0.9rem;
+    color: #64748b;
+    margin: 0;
+  }
+}
+
 
 // Header
 .header-section {
