@@ -5,6 +5,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AlertController, ToastController } from '@ionic/angular';
 import { CatalogoService } from 'src/app/shared/services/catalogo.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-crudroles',
@@ -41,18 +42,18 @@ export class CRUDRolesPage implements OnInit {
   }
 
   async RecuperarRoles() {
-    this.catalogoService.getItems('rol').subscribe({
-      next: (data) => {
-        this.Roles = data ?? [];
-        this.rolesFiltrados = [...this.Roles];
-        this.calcularRolesActivos();
-        console.log('Roles cargados:', this.Roles);
-      },
-      error: (error) => {
-        console.error('Error al obtener los roles:', error);
-        this.presentToast('Error al cargar los roles (API)', 'danger');
-      }
-    });
+    try {
+      const data = await firstValueFrom(this.catalogoService.getItems('rol'));
+      this.Roles = data ?? [];
+      this.rolesFiltrados = [...this.Roles];
+      this.calcularRolesActivos();
+      console.log('Roles cargados:', this.Roles);
+    } catch (error) {
+      console.error('Error al obtener los roles:', error);
+      this.presentToast('Error al cargar los roles (API)', 'danger');
+      this.Roles = [];
+      this.rolesFiltrados = [];
+    }
   }
 
   calcularRolesActivos() {

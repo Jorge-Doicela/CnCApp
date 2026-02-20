@@ -5,6 +5,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AlertController, LoadingController, ToastController } from '@ionic/angular';
 import { CatalogoService } from 'src/app/shared/services/catalogo.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-crudparroquias',
@@ -50,37 +51,27 @@ export class CrudparroquiasPage implements OnInit {
       spinner: 'crescent'
     });
     await loading.present();
-
-    this.catalogoService.getItems('parroquias').subscribe({
-      next: (parroquias) => {
-        this.parroquias = parroquias || [];
-        this.asociarCantones();
-        this.calcularEstadisticas();
-        this.filtrarParroquias();
-        loading.dismiss();
-      },
-      error: (error) => {
-        loading.dismiss();
-        this.presentToast('Error al obtener parroquias (API no implementada)', 'danger');
-        console.error(error);
-      }
-    });
-
+    try {
+      const parroquias = await firstValueFrom(this.catalogoService.getItems('parroquias'));
+      this.parroquias = parroquias || [];
+      this.asociarCantones();
+      this.calcularEstadisticas();
+      this.filtrarParroquias();
+    } catch (error) {
+      this.presentToast('Error al obtener parroquias', 'danger');
+      console.error(error);
+    } finally {
+      loading.dismiss();
+    }
   }
 
   async obtenerCantones() {
-    return new Promise<void>((resolve) => {
-      this.catalogoService.getItems('cantones').subscribe({
-        next: (cantones) => {
-          this.cantones = cantones || [];
-          resolve();
-        },
-        error: (error) => {
-          console.error('Error al obtener cantones:', error);
-          resolve();
-        }
-      });
-    });
+    try {
+      const cantones = await firstValueFrom(this.catalogoService.getItems('cantones'));
+      this.cantones = cantones || [];
+    } catch (error) {
+      console.error('Error al obtener cantones:', error);
+    }
   }
 
   asociarCantones() {

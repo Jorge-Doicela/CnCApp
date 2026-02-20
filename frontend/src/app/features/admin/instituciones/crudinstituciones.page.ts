@@ -5,6 +5,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AlertController, LoadingController, ToastController } from '@ionic/angular';
 import { CatalogoService } from 'src/app/shared/services/catalogo.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-crudinstituciones',
@@ -48,24 +49,19 @@ export class CrudinstitucionesPage implements OnInit {
       spinner: 'crescent'
     });
     await loading.present();
-
-    this.catalogoService.getItems('instituciones').subscribe({
-      next: (instituciones) => {
-        // Añadir un campo de fecha de última actualización (simulado si no existe)
-        this.instituciones = (instituciones || []).map((inst: any) => ({
-          ...inst,
-          fecha_ultima_actualizacion: inst.fecha_ultima_actualizacion || new Date().toISOString()
-        }));
-
-        this.calcularEstadisticas();
-        this.filtrarInstituciones();
-        loading.dismiss();
-      },
-      error: (error) => {
-        loading.dismiss();
-        this.presentToast('Error al obtener instituciones: ' + error.message, 'danger');
-      }
-    });
+    try {
+      const instituciones = await firstValueFrom(this.catalogoService.getItems('instituciones'));
+      this.instituciones = (instituciones || []).map((inst: any) => ({
+        ...inst,
+        fecha_ultima_actualizacion: inst.fecha_ultima_actualizacion || new Date().toISOString()
+      }));
+      this.calcularEstadisticas();
+      this.filtrarInstituciones();
+    } catch (error: any) {
+      this.presentToast('Error al obtener instituciones: ' + (error?.message ?? ''), 'danger');
+    } finally {
+      loading.dismiss();
+    }
   }
 
   calcularEstadisticas() {

@@ -5,6 +5,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AlertController, ModalController, ToastController } from '@ionic/angular';
 import { CatalogoService } from 'src/app/shared/services/catalogo.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-crudentidades',
@@ -41,20 +42,18 @@ export class CrudentidadesPage implements OnInit {
 
   async RecuperarEntidades() {
     this.isLoading = true;
-    this.catalogoService.getItems('entidades').subscribe({
-      next: (data) => {
-        this.Entidades = data ?? [];
-        this.entidadesFiltradas = [...this.Entidades];
-        this.ordenarEntidades();
-        console.log('Entidades cargadas:', this.Entidades);
-        this.isLoading = false;
-      },
-      error: (error) => {
-        console.error('Error al obtener las entidades:', error);
-        this.presentToast('Error al cargar entidades (API)', 'danger');
-        this.isLoading = false;
-      }
-    });
+    try {
+      const data = await firstValueFrom(this.catalogoService.getItems('entidades'));
+      this.Entidades = data ?? [];
+      this.entidadesFiltradas = [...this.Entidades];
+      this.ordenarEntidades();
+      console.log('Entidades cargadas:', this.Entidades);
+    } catch (error) {
+      console.error('Error al obtener las entidades:', error);
+      this.presentToast('Error al cargar entidades (API)', 'danger');
+    } finally {
+      this.isLoading = false;
+    }
   }
 
   filtrarEntidades() {

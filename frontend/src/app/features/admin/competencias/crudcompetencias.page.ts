@@ -5,6 +5,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AlertController, LoadingController, ToastController } from '@ionic/angular';
 import { CatalogoService } from 'src/app/shared/services/catalogo.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-crudcompetencias',
@@ -48,24 +49,19 @@ export class CrudcompetenciasPage implements OnInit {
       spinner: 'crescent'
     });
     await loading.present();
-
-    this.catalogoService.getItems('competencias').subscribe({
-      next: (competencias) => {
-        // Añadir un campo de fecha de última actualización (simulado si no existe)
-        this.competencias = (competencias || []).map((comp: any) => ({
-          ...comp,
-          fecha_ultima_actualizacion: comp.fecha_ultima_actualizacion || new Date().toISOString()
-        }));
-
-        this.calcularEstadisticas();
-        this.filtrarCompetencias();
-        loading.dismiss();
-      },
-      error: (error) => {
-        loading.dismiss();
-        this.presentToast('Error al obtener competencias: ' + error.message, 'danger');
-      }
-    });
+    try {
+      const competencias = await firstValueFrom(this.catalogoService.getItems('competencias'));
+      this.competencias = (competencias || []).map((comp: any) => ({
+        ...comp,
+        fecha_ultima_actualizacion: comp.fecha_ultima_actualizacion || new Date().toISOString()
+      }));
+      this.calcularEstadisticas();
+      this.filtrarCompetencias();
+    } catch (error: any) {
+      this.presentToast('Error al obtener competencias: ' + (error?.message ?? ''), 'danger');
+    } finally {
+      loading.dismiss();
+    }
   }
 
   calcularEstadisticas() {
