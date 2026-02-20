@@ -96,9 +96,9 @@ export class ValidarQrPage implements OnInit {
       // Actually I should have updated the service first. I will assume I will update it in next step or I can use the HTTP client directly if blocked, but better to update service.
 
       // Let's rely on `certificadosService.verifyCertificateByHash(this.hashCode)` which I should create.
-      const certificados = await firstValueFrom(this.certificadosService.verifyCertificateByHash(this.hashCode));
+      const certificado = await firstValueFrom(this.certificadosService.verifyCertificateByHash(this.hashCode));
 
-      if (!certificados || certificados.length === 0) {
+      if (!certificado) {
         this.mensajeValidacion = 'No se encontró ningún certificado con este código de verificación.';
         this.esValido = false;
         this.resultadoValidacion = true;
@@ -108,7 +108,7 @@ export class ValidarQrPage implements OnInit {
       }
 
       // Obtener los datos del certificado
-      this.certificadoData = certificados[0];
+      this.certificadoData = certificado;
 
       // Verificar si el certificado ha expirado (opcional)
       const fechaGenerado = new Date(this.certificadoData.Fecha_generado);

@@ -1,5 +1,5 @@
-// historia.page.scss
-@import "../../../../../../theme/shared.scss";
+@use "sass:color";
+@use "../../../../../../theme/shared.scss" as *;
 
 // Variables locales para el diseño 2025-2026
 :host {

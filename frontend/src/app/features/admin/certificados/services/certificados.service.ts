@@ -8,12 +8,13 @@ import { Observable } from 'rxjs';
 })
 export class CertificadosService {
     private http = inject(HttpClient);
-    private apiUrl = `${environment.apiUrl}/certificates`;
+    private apiUrl = `${environment.apiUrl}/certificados`;
+    private qrUrl = `${environment.apiUrl}/certificados/qr`; // Use specific if needed, but relative to apiUrl is fine
 
     constructor() { }
 
-    verifyCertificateByHash(hash: string): Observable<any[]> {
-        return this.http.get<any[]>(`${this.apiUrl}/verify-hash/${hash}`);
+    verifyCertificateByHash(hash: string): Observable<any> {
+        return this.http.get<any>(`${this.apiUrl}/qr/${hash}`);
     }
 
     verifyHash(idUsuario: string, idCapacitacion: number): Observable<any[]> {

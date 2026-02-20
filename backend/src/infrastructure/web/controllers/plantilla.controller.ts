@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { injectable, container } from 'tsyringe';
+import { injectable, inject } from 'tsyringe';
 import { CreatePlantillaUseCase } from '../../../application/plantilla/use-cases/create-plantilla.use-case';
 import { GetAllPlantillasUseCase } from '../../../application/plantilla/use-cases/get-all-plantillas.use-case';
 import { GetPlantillaByIdUseCase } from '../../../application/plantilla/use-cases/get-plantilla-by-id.use-case';
@@ -9,28 +9,34 @@ import { ActivarPlantillaUseCase } from '../../../application/plantilla/use-case
 
 @injectable()
 export class PlantillaController {
+    constructor(
+        @inject(CreatePlantillaUseCase) private createPlantillaUseCase: CreatePlantillaUseCase,
+        @inject(GetAllPlantillasUseCase) private getAllPlantillasUseCase: GetAllPlantillasUseCase,
+        @inject(GetPlantillaByIdUseCase) private getPlantillaByIdUseCase: GetPlantillaByIdUseCase,
+        @inject(UpdatePlantillaUseCase) private updatePlantillaUseCase: UpdatePlantillaUseCase,
+        @inject(DeletePlantillaUseCase) private deletePlantillaUseCase: DeletePlantillaUseCase,
+        @inject(ActivarPlantillaUseCase) private activarPlantillaUseCase: ActivarPlantillaUseCase
+    ) { }
 
-    async create(req: Request, res: Response, next: NextFunction) {
+    create = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const useCase = container.resolve(CreatePlantillaUseCase);
-            const plantilla = await useCase.execute(req.body);
+            const plantilla = await this.createPlantillaUseCase.execute(req.body);
             res.status(201).json(plantilla);
         } catch (error) {
             next(error);
         }
-    }
+    };
 
-    async getAll(_req: Request, res: Response, next: NextFunction) {
+    getAll = async (_req: Request, res: Response, next: NextFunction) => {
         try {
-            const useCase = container.resolve(GetAllPlantillasUseCase);
-            const plantillas = await useCase.execute();
+            const plantillas = await this.getAllPlantillasUseCase.execute();
             res.json(plantillas);
         } catch (error) {
             next(error);
         }
-    }
+    };
 
-    async getById(req: Request, res: Response, next: NextFunction) {
+    getById = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const id = parseInt(req.params.id as string);
             if (isNaN(id)) {
@@ -38,8 +44,7 @@ export class PlantillaController {
                 return;
             }
 
-            const useCase = container.resolve(GetPlantillaByIdUseCase);
-            const plantilla = await useCase.execute(id);
+            const plantilla = await this.getPlantillaByIdUseCase.execute(id);
 
             if (!plantilla) {
                 res.status(404).json({ message: 'Plantilla no encontrada' });
@@ -50,9 +55,9 @@ export class PlantillaController {
         } catch (error) {
             next(error);
         }
-    }
+    };
 
-    async update(req: Request, res: Response, next: NextFunction) {
+    update = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const id = parseInt(req.params.id as string);
             if (isNaN(id)) {
@@ -60,15 +65,14 @@ export class PlantillaController {
                 return;
             }
 
-            const useCase = container.resolve(UpdatePlantillaUseCase);
-            const plantilla = await useCase.execute(id, req.body);
+            const plantilla = await this.updatePlantillaUseCase.execute(id, req.body);
             res.json(plantilla);
         } catch (error) {
             next(error);
         }
-    }
+    };
 
-    async delete(req: Request, res: Response, next: NextFunction) {
+    delete = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const id = parseInt(req.params.id as string);
             if (isNaN(id)) {
@@ -76,15 +80,14 @@ export class PlantillaController {
                 return;
             }
 
-            const useCase = container.resolve(DeletePlantillaUseCase);
-            await useCase.execute(id);
+            await this.deletePlantillaUseCase.execute(id);
             res.status(204).send();
         } catch (error) {
             next(error);
         }
-    }
+    };
 
-    async activar(req: Request, res: Response, next: NextFunction) {
+    activar = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const id = parseInt(req.params.id as string);
             if (isNaN(id)) {
@@ -92,11 +95,10 @@ export class PlantillaController {
                 return;
             }
 
-            const useCase = container.resolve(ActivarPlantillaUseCase);
-            const plantilla = await useCase.execute(id);
+            const plantilla = await this.activarPlantillaUseCase.execute(id);
             res.json(plantilla);
         } catch (error) {
             next(error);
         }
-    }
+    };
 }

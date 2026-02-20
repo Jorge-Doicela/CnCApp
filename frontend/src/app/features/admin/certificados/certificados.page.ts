@@ -204,7 +204,7 @@ export class CertificadosPage implements OnInit {
       const hash = CryptoJS.SHA256(qrDataString).toString(CryptoJS.enc.Hex);
       this.hashCertificado = hash;
 
-      const validationUrl = `http://localhost:8100/validar-certificados?hash=${hash}`;
+      const validationUrl = `${window.location.origin}/validar-certificados?hash=${hash}`;
 
       this.qrCode = await QRCode.toDataURL(validationUrl, {
         width: 256,
