@@ -1,3 +1,4 @@
+@use "sass:color";
 // ============================================
 // CREAR CAPACITACIÓN - PROFESSIONAL DESIGN
 // ============================================
@@ -390,7 +391,8 @@ ion-content {
     transition: all 0.2s ease;
 
     &:hover {
-      border-color: darken($border-color, 10%);
+      border-color: color.adjust($border-color, $lightness: -10%);
+
     }
 
     &:focus-within {
@@ -462,7 +464,8 @@ ion-content {
     transition: all 0.2s;
 
     &:hover {
-      color: darken($primary-color, 10%);
+      color: color.adjust($primary-color, $lightness: -10%);
+
       transform: scale(1.1);
     }
 
@@ -619,7 +622,8 @@ ion-content {
     flex-shrink: 0;
   }
 
-  color: darken($warning-color, 20%);
+  color: color.adjust($warning-color, $lightness: -20%);
+
   font-size: 14px;
   font-weight: 500;
 }
@@ -688,7 +692,7 @@ ion-content {
 
     &:hover:not(:disabled) {
       background: $bg-page;
-      border-color: darken($border-color, 10%);
+      border-color: color.adjust($border-color, $lightness: -10%);
     }
   }
 }
