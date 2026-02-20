@@ -49,6 +49,18 @@ ion-content {
   }
 }
 
+// Back Navigation
+.page-back-nav {
+  padding: 0 0 8px;
+
+  ion-button {
+    --color: #64748b;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+}
+
+
 // ============================================
 // PAGE HEADER
 // ============================================

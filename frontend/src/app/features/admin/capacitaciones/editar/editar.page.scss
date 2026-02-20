@@ -5,7 +5,7 @@ $primary-light: #eef4fc;
 $text-dark: #1a1a2e;
 $text-medium: #545479;
 $text-light: #9fa2b4;
-$bg-color: #f7f8fc;
+$bg-color: #f8fafc;
 $card-bg: #ffffff;
 $danger-color: #ff6b6b;
 $success-color: #2ecc71;
@@ -17,16 +17,28 @@ $input-radius: 16px;
 $shadow-soft: 0 10px 40px -10px rgba(0, 0, 0, 0.08);
 $transition-bezier: cubic-bezier(0.2, 0.8, 0.2, 1);
 
-// FORCE LIGHT THEME & RESET BACKGROUNDS GLOBAL
 :host {
-  --background: #f7f8fc;
-  background-color: #f7f8fc;
+  --background: #f8fafc;
+  background-color: #f8fafc;
   color: #1a1a2e;
 }
 
 ion-content {
-  --background: #f7f8fc;
+  --background: #f8fafc;
   --color: #1a1a2e;
+}
+
+// Back Navigation
+.page-back-nav {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 16px 8px 4px;
+
+  ion-button {
+    --color: #64748b;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
 }
 
 /* --- MAIN CARD --- */

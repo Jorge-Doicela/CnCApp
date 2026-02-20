@@ -1,183 +1,181 @@
-<!-- crudcapacitaciones.page.html -->
-<ion-header class="ion-no-border">
-  <ion-toolbar color="primary">
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/home"></ion-back-button>
-    </ion-buttons>
-    <ion-title>Capacitaciones</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content>
+  <div class="main-container">
 
-<ion-content class="ion-padding">
-  <!-- Search Section -->
-  <div class="search-section fade-in">
-    <div class="search-bar">
-      <ion-icon name="search-outline"></ion-icon>
-      <input type="text" placeholder="Buscar capacitaciones..." [(ngModel)]="terminoBusqueda"
-        (input)="aplicarFiltros()">
+    <!-- Page Header -->
+    <div class="admin-header fade-in">
+      <div class="header-text">
+        <h1>Gestión de Capacitaciones</h1>
+        <p>Administra los eventos de formación y sus participantes</p>
+      </div>
+      <ion-button class="new-btn" (click)="iraCrearCapacitacion()">
+        <ion-icon name="add-outline" slot="start"></ion-icon>
+        Nueva Capacitación
+      </ion-button>
     </div>
 
-    <!-- Filter Chips -->
-    <div class="filter-chips">
-      <div class="chip" [class.active]="filtroEstado === 'todos'" (click)="filtroEstado = 'todos'; aplicarFiltros()">
-        <ion-icon name="apps-outline"></ion-icon>
-        Todas
-      </div>
-      <div class="chip" [class.active]="filtroEstado === 'Activa'" (click)="filtroEstado = 'Activa'; aplicarFiltros()">
-        <ion-icon name="time-outline"></ion-icon>
-        Pendientes
-      </div>
-      <div class="chip" [class.active]="filtroEstado === 'Finalizada'"
-        (click)="filtroEstado = 'Finalizada'; aplicarFiltros()">
-        <ion-icon name="checkmark-circle-outline"></ion-icon>
-        Realizadas
-      </div>
-      <div class="chip" [class.active]="filtroEstado === 'Cancelada'"
-        (click)="filtroEstado = 'Cancelada'; aplicarFiltros()">
-        <ion-icon name="close-circle-outline"></ion-icon>
-        Canceladas
-      </div>
-    </div>
-  </div>
-
-  <!-- Statistics Cards -->
-  <div class="stats-section fade-in" style="animation-delay: 0.1s;">
-    <div class="stat-card stat-pending">
-      <div class="stat-icon">
-        <ion-icon name="calendar-outline"></ion-icon>
-      </div>
-      <div class="stat-content">
-        <div class="stat-value">{{ obtenerCapacitacionesPendientes() }}</div>
-        <div class="stat-label">Pendientes</div>
-      </div>
-    </div>
-
-    <div class="stat-card stat-completed">
-      <div class="stat-icon">
-        <ion-icon name="checkmark-circle-outline"></ion-icon>
-      </div>
-      <div class="stat-content">
-        <div class="stat-value">{{ obtenerCapacitacionesRealizadas() }}</div>
-        <div class="stat-label">Realizadas</div>
-      </div>
-    </div>
-
-    <div class="stat-card stat-certificates">
-      <div class="stat-icon">
-        <ion-icon name="ribbon-outline"></ion-icon>
-      </div>
-      <div class="stat-content">
-        <div class="stat-value">{{ obtenerCertificadosEmitidos() }}</div>
-        <div class="stat-label">Certificados</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Section Header -->
-  <div class="section-header fade-in" style="animation-delay: 0.2s;">
-    <h2>Capacitaciones</h2>
-    <span class="count-badge">{{ capacitacionesFiltradas.length }}</span>
-  </div>
-
-  <!-- Empty State -->
-  <div *ngIf="capacitacionesFiltradas.length === 0" class="empty-state fade-in" style="animation-delay: 0.3s;">
-    <ion-icon name="school-outline"></ion-icon>
-    <h3>No hay capacitaciones</h3>
-    <p>No se encontraron capacitaciones que coincidan con tu búsqueda.</p>
-    <ion-button fill="outline" (click)="limpiarFiltros()">
-      <ion-icon name="refresh-outline" slot="start"></ion-icon>
-      Mostrar todas
-    </ion-button>
-  </div>
-
-  <!-- Capacitaciones List -->
-  <div class="capacitaciones-list" *ngIf="capacitacionesFiltradas.length > 0">
-    <div class="capacitacion-card fade-in" *ngFor="let capacitacion of capacitacionesFiltradas; let i = index"
-      [style.animation-delay]="(0.3 + i * 0.05) + 's'">
-      <!-- Card Header -->
-      <div class="card-header">
-        <div class="header-content">
-          <h3>{{ capacitacion.nombre }}</h3>
-          <div class="badges">
-            <span class="status-badge" [ngClass]="{
-                'status-active': capacitacion.estado === 'Activa',
-                'status-completed': capacitacion.estado === 'Finalizada',
-                'status-canceled': capacitacion.estado === 'Cancelada'
-              }">
-              {{ getEstadoTexto(capacitacion.estado) }}
-            </span>
-            <span class="certificate-badge" *ngIf="capacitacion.certificado">
-              <ion-icon name="ribbon"></ion-icon>
-            </span>
-          </div>
+    <!-- Stats Strip -->
+    <div class="stats-strip fade-in" style="animation-delay: 0.05s;">
+      <div class="stat-box">
+        <div class="stat-icon blue">
+          <ion-icon name="school-outline"></ion-icon>
+        </div>
+        <div class="stat-info">
+          <span class="stat-value">{{ Capacitaciones.length }}</span>
+          <span class="stat-label">Total</span>
         </div>
       </div>
+      <div class="stat-box">
+        <div class="stat-icon green">
+          <ion-icon name="calendar-outline"></ion-icon>
+        </div>
+        <div class="stat-info">
+          <span class="stat-value">{{ obtenerCapacitacionesPendientes() }}</span>
+          <span class="stat-label">Activas</span>
+        </div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-icon purple">
+          <ion-icon name="checkmark-circle-outline"></ion-icon>
+        </div>
+        <div class="stat-info">
+          <span class="stat-value">{{ obtenerCapacitacionesRealizadas() }}</span>
+          <span class="stat-label">Finalizadas</span>
+        </div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-icon amber">
+          <ion-icon name="ribbon-outline"></ion-icon>
+        </div>
+        <div class="stat-info">
+          <span class="stat-value">{{ obtenerCertificadosEmitidos() }}</span>
+          <span class="stat-label">Certificados</span>
+        </div>
+      </div>
+    </div>
 
-      <!-- Card Body -->
-      <div class="card-body">
-        <p class="description">{{ capacitacion.descripcion }}</p>
+    <!-- Actions Bar -->
+    <div class="actions-bar fade-in" style="animation-delay: 0.1s;">
+      <ion-searchbar [(ngModel)]="terminoBusqueda" (ionInput)="aplicarFiltros()" placeholder="Buscar capacitaciones..."
+        class="search-input" [debounce]="200">
+      </ion-searchbar>
 
-        <div class="details-grid">
-          <div class="detail-item">
-            <ion-icon name="location"></ion-icon>
-            <span>{{ capacitacion.lugar }}</span>
+      <div class="filter-chips">
+        <div class="chip" [class.active]="filtroEstado === 'todos'" (click)="filtroEstado = 'todos'; aplicarFiltros()">
+          Todas
+        </div>
+        <div class="chip" [class.active]="filtroEstado === 'Activa'"
+          (click)="filtroEstado = 'Activa'; aplicarFiltros()">
+          <ion-icon name="time-outline"></ion-icon> Activas
+        </div>
+        <div class="chip" [class.active]="filtroEstado === 'Finalizada'"
+          (click)="filtroEstado = 'Finalizada'; aplicarFiltros()">
+          <ion-icon name="checkmark-circle-outline"></ion-icon> Finalizadas
+        </div>
+        <div class="chip" [class.active]="filtroEstado === 'Cancelada'"
+          (click)="filtroEstado = 'Cancelada'; aplicarFiltros()">
+          <ion-icon name="close-circle-outline"></ion-icon> Canceladas
+        </div>
+      </div>
+    </div>
+
+    <!-- Section Title -->
+    <div class="section-header fade-in" style="animation-delay:0.15s;">
+      <h2>Capacitaciones</h2>
+      <span class="count-badge">{{ capacitacionesFiltradas.length }}</span>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="capacitacionesFiltradas.length === 0 && !cargando" class="empty-state fade-in">
+      <ion-icon name="school-outline"></ion-icon>
+      <h3>No hay capacitaciones</h3>
+      <p>No se encontraron capacitaciones con los filtros actuales.</p>
+      <ion-button fill="outline" size="small" (click)="limpiarFiltros()">
+        <ion-icon name="refresh-outline" slot="start"></ion-icon>
+        Mostrar todas
+      </ion-button>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="cargando" class="loading-state fade-in">
+      <ion-spinner name="crescent" color="primary"></ion-spinner>
+      <p>Cargando capacitaciones...</p>
+    </div>
+
+    <!-- Cards List -->
+    <div class="capacitaciones-list" *ngIf="!cargando">
+      <div class="capacitacion-card fade-in" *ngFor="let cap of capacitacionesFiltradas; let i = index"
+        [style.animation-delay]="(0.2 + i * 0.04) + 's'">
+
+        <div class="card-top">
+          <div class="card-title-row">
+            <h3>{{ cap.nombre }}</h3>
+            <div class="badges">
+              <span class="status-badge" [class.status-active]="cap.estado === 'Activa'"
+                [class.status-done]="cap.estado === 'Finalizada'" [class.status-canceled]="cap.estado === 'Cancelada'">
+                {{ cap.estado }}
+              </span>
+              <span class="cert-badge" *ngIf="cap.certificado">
+                <ion-icon name="ribbon"></ion-icon>
+              </span>
+            </div>
           </div>
-          <div class="detail-item">
-            <ion-icon name="calendar"></ion-icon>
-            <span>{{ capacitacion.fechaInicio | date:'dd/MM/yyyy' }}</span>
+          <p class="card-desc">{{ cap.descripcion }}</p>
+        </div>
+
+        <div class="card-meta">
+          <div class="meta-item">
+            <ion-icon name="location-outline"></ion-icon>
+            <span>{{ cap.lugar }}</span>
           </div>
-          <div class="detail-item">
+          <div class="meta-item">
+            <ion-icon name="calendar-outline"></ion-icon>
+            <span>{{ cap.fechaInicio | date:'dd/MM/yyyy' }}</span>
+          </div>
+          <div class="meta-item">
             <ion-icon name="laptop-outline"></ion-icon>
-            <span>{{ capacitacion.modalidad }}</span>
+            <span>{{ cap.modalidad }}</span>
           </div>
-          <div class="detail-item">
-            <ion-icon name="time"></ion-icon>
-            <span>{{ capacitacion.horas }}h</span>
+          <div class="meta-item">
+            <ion-icon name="time-outline"></ion-icon>
+            <span>{{ cap.horas }}h</span>
           </div>
-          <div class="detail-item">
-            <ion-icon name="people"></ion-icon>
-            <span>{{ capacitacion.limiteParticipantes }} max</span>
+          <div class="meta-item">
+            <ion-icon name="people-outline"></ion-icon>
+            <span>{{ cap.limiteParticipantes }} cupos</span>
           </div>
         </div>
-      </div>
 
-      <!-- Card Actions -->
-      <div class="card-actions">
-        <ion-button fill="clear" size="small" (click)="iraVisualizarinscritos(capacitacion.id)">
-          <ion-icon name="people-outline" slot="start"></ion-icon>
-          Participantes
-        </ion-button>
-        <ion-button fill="clear" size="small" color="success" (click)="iraEditarCapacitacion(capacitacion.id)">
-          <ion-icon name="create-outline" slot="start"></ion-icon>
-          Editar
-        </ion-button>
-        <ion-button fill="clear" size="small" color="danger" (click)="confirmarEliminar(capacitacion.id)">
-          <ion-icon name="trash-outline" slot="start"></ion-icon>
-          Eliminar
-        </ion-button>
-      </div>
+        <div class="card-actions">
+          <ion-button fill="clear" size="small" (click)="iraVisualizarinscritos(cap.id)">
+            <ion-icon name="people-outline" slot="start"></ion-icon>
+            Participantes
+          </ion-button>
+          <ion-button fill="clear" size="small" color="primary" (click)="iraEditarCapacitacion(cap.id)">
+            <ion-icon name="create-outline" slot="start"></ion-icon>
+            Editar
+          </ion-button>
+          <ion-button fill="clear" size="small" color="danger" (click)="confirmarEliminar(cap.id)">
+            <ion-icon name="trash-outline" slot="start"></ion-icon>
+            Eliminar
+          </ion-button>
+        </div>
 
-      <!-- Extra Actions -->
-      <div class="extra-actions" *ngIf="capacitacion.estado === 'Activa'">
-        <ion-button expand="block" color="success" (click)="finalizarCapacitacion(capacitacion.id)">
-          <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
-          Finalizar Capacitación
-        </ion-button>
-      </div>
+        <div class="card-extra" *ngIf="cap.estado === 'Activa'">
+          <ion-button expand="block" color="success" size="small" (click)="finalizarCapacitacion(cap.id)">
+            <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
+            Finalizar Capacitación
+          </ion-button>
+        </div>
 
-      <div class="extra-actions" *ngIf="capacitacion.estado === 'Finalizada' && !capacitacion.certificado">
-        <ion-button expand="block" color="warning" (click)="mostrarConfirmacion(capacitacion.id)">
-          <ion-icon name="ribbon-outline" slot="start"></ion-icon>
-          Emitir Certificados
-        </ion-button>
+        <div class="card-extra" *ngIf="cap.estado === 'Finalizada' && !cap.certificado">
+          <ion-button expand="block" color="warning" size="small" (click)="mostrarConfirmacion(cap.id)">
+            <ion-icon name="ribbon-outline" slot="start"></ion-icon>
+            Emitir Certificados
+          </ion-button>
+        </div>
+
       </div>
     </div>
-  </div>
 
-  <!-- Floating Action Button -->
-  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
-    <ion-fab-button color="primary" (click)="iraCrearCapacitacion()">
-      <ion-icon name="add"></ion-icon>
-    </ion-fab-button>
-  </ion-fab>
+  </div>
 </ion-content>

@@ -1,7 +1,24 @@
 // Styles optimized using shared.scss
 ion-content {
-  --background: #f5f7fa;
+  --background: #f8fafc;
 }
+
+.main-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 16px 16px 60px;
+}
+
+.page-back-nav {
+  padding: 8px 0 16px;
+
+  ion-button {
+    --color: #64748b;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+}
+
 
 // Estilos para la sección de capacitación
 .capacitacion-section {
