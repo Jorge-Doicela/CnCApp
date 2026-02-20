@@ -4,6 +4,7 @@
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
     <ion-title class="ion-text-center">Gestión de Cantones</ion-title>
+    <ion-progress-bar *ngIf="cargando" type="indeterminate"></ion-progress-bar>
   </ion-toolbar>
 </ion-header>
 
@@ -18,30 +19,34 @@
       <div class="search-section fade-in">
         <h3 class="section-title">Administración de Cantones</h3>
         <div class="search-container">
-          <ion-item class="search-item">
+          <ion-item class="search-item" lines="none">
             <ion-icon name="search-outline" slot="start" color="primary"></ion-icon>
-            <ion-input placeholder="Buscar cantón por nombre o código" [(ngModel)]="searchTerm"></ion-input>
+            <ion-input placeholder="Buscar cantón por nombre o código" [(ngModel)]="searchTerm"
+              (ionInput)="filtrarCantones()"></ion-input>
             <ion-button slot="end" fill="clear" (click)="filtrarCantones()">
               <ion-icon name="search"></ion-icon>
             </ion-button>
           </ion-item>
 
           <div class="filter-container">
-            <ion-item class="filter-item">
+            <ion-item class="filter-item" lines="none">
               <ion-icon name="map-outline" slot="start" color="primary"></ion-icon>
               <ion-label>Provincia</ion-label>
-              <ion-select [(ngModel)]="filtroProvincia" interface="action-sheet" placeholder="Todas" (ionChange)="filtrarCantones()">
+              <ion-select [(ngModel)]="filtroProvincia" interface="action-sheet" placeholder="Todas"
+                (ionChange)="filtrarCantones()">
                 <ion-select-option value="todas">Todas las provincias</ion-select-option>
-                <ion-select-option *ngFor="let provincia of provincias" [value]="provincia.Codigo_Provincia">
-                  {{ provincia.Nombre_Provincia }}
+                <ion-select-option *ngFor="let provincia of provincias"
+                  [value]="provincia.Codigo_Provincia || provincia.id">
+                  {{ provincia.Nombre_Provincia || provincia.nombre }}
                 </ion-select-option>
               </ion-select>
             </ion-item>
 
-            <ion-item class="filter-item">
+            <ion-item class="filter-item" lines="none">
               <ion-icon name="checkmark-circle-outline" slot="start" color="primary"></ion-icon>
               <ion-label>Estado</ion-label>
-              <ion-select [(ngModel)]="filtroEstado" interface="action-sheet" placeholder="Todos" (ionChange)="filtrarCantones()">
+              <ion-select [(ngModel)]="filtroEstado" interface="action-sheet" placeholder="Todos"
+                (ionChange)="filtrarCantones()">
                 <ion-select-option value="todos">Todos</ion-select-option>
                 <ion-select-option value="activo">Activo</ion-select-option>
                 <ion-select-option value="inactivo">Inactivo</ion-select-option>
@@ -51,7 +56,7 @@
         </div>
 
         <!-- Botón para crear nuevo cantón -->
-        <ion-button expand="block" color="primary" (click)="crearCanton()" class="create-button">
+        <ion-button expand="block" color="primary" (click)="crearCanton()" class="create-button" [disabled]="cargando">
           <ion-icon name="add-circle-outline" slot="start"></ion-icon>
           Crear Nuevo Cantón
         </ion-button>
@@ -66,8 +71,8 @@
               <ion-icon name="map-outline" color="primary"></ion-icon>
             </div>
             <div class="stat-details">
-              <span class="stat-value">{{ totalCantones }}</span>
-              <span class="stat-label">Total Cantones</span>
+              <span class="stat-value">{{ cantonesFiltrados.length }}</span>
+              <span class="stat-label">Cantidad</span>
             </div>
           </div>
 
@@ -100,7 +105,7 @@
           <span class="results-count">{{ cantonesFiltrados.length }} registros</span>
         </div>
 
-        <div *ngIf="cargando" class="loading-container">
+        <div *ngIf="cargando" class="ion-text-center ion-padding">
           <ion-spinner name="crescent" color="primary"></ion-spinner>
           <p>Cargando cantones...</p>
         </div>
@@ -112,7 +117,8 @@
         </div>
 
         <div class="cantones-grid" *ngIf="!cargando && cantonesFiltrados.length > 0">
-          <div class="canton-card" *ngFor="let canton of cantonesFiltrados" [ngClass]="{'active-card': canton.estado, 'inactive-card': !canton.estado}">
+          <div class="canton-card" *ngFor="let canton of cantonesFiltrados"
+            [ngClass]="{'active-card': canton.estado, 'inactive-card': !canton.estado}">
             <div class="canton-header">
               <div class="canton-title">
                 <h4>{{ canton.nombre_canton }}</h4>
@@ -132,7 +138,8 @@
               </div>
             </div>
             <div class="canton-actions">
-              <ion-button fill="clear" color="primary" (click)="editarCanton(canton.codigo_canton)">
+              <ion-button fill="clear" color="primary"
+                (click)="editarCanton(canton.id || canton.Id_Canton || canton.codigo_canton)">
                 <ion-icon name="create-outline"></ion-icon>
                 Editar
               </ion-button>
@@ -140,9 +147,9 @@
                 <ion-icon name="trash-outline"></ion-icon>
                 Eliminar
               </ion-button>
-              <ion-button fill="clear" [color]="canton.Estado ? 'warning' : 'success'" (click)="cambiarEstado(canton)">
+              <ion-button fill="clear" [color]="canton.estado ? 'warning' : 'success'" (click)="cambiarEstado(canton)">
                 <ion-icon name="swap-vertical-outline"></ion-icon>
-                {{ canton.Estado ? 'Desactivar' : 'Activar' }}
+                {{ canton.estado ? 'Desactivar' : 'Activar' }}
               </ion-button>
             </div>
           </div>

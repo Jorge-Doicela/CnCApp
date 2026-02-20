@@ -4,6 +4,7 @@
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
     <ion-title class="ion-text-center">Gestión de Parroquias</ion-title>
+    <ion-progress-bar *ngIf="cargando" type="indeterminate"></ion-progress-bar>
   </ion-toolbar>
 </ion-header>
 
@@ -18,30 +19,33 @@
       <div class="search-section fade-in">
         <h3 class="section-title">Administración de Parroquias</h3>
         <div class="search-container">
-          <ion-item class="search-item">
+          <ion-item class="search-item" lines="none">
             <ion-icon name="search-outline" slot="start" color="primary"></ion-icon>
-            <ion-input placeholder="Buscar parroquia por nombre" [(ngModel)]="searchTerm" (ionChange)="filtrarParroquias()"></ion-input>
+            <ion-input placeholder="Buscar parroquia por nombre o código" [(ngModel)]="searchTerm"
+              (ionInput)="filtrarParroquias()"></ion-input>
             <ion-button slot="end" fill="clear" (click)="filtrarParroquias()">
               <ion-icon name="search"></ion-icon>
             </ion-button>
           </ion-item>
 
           <div class="filter-container">
-            <ion-item class="filter-item">
+            <ion-item class="filter-item" lines="none">
               <ion-icon name="location-outline" slot="start" color="primary"></ion-icon>
               <ion-label>Cantón</ion-label>
-              <ion-select [(ngModel)]="filtroCanton" interface="action-sheet" placeholder="Todos" (ionChange)="filtrarParroquias()">
+              <ion-select [(ngModel)]="filtroCanton" interface="action-sheet" placeholder="Todos"
+                (ionChange)="filtrarParroquias()">
                 <ion-select-option value="todos">Todos los cantones</ion-select-option>
-                <ion-select-option *ngFor="let canton of cantones" [value]="canton.codigo_canton">
-                  {{ canton.nombre_canton }}
+                <ion-select-option *ngFor="let canton of cantones" [value]="canton.codigo_canton || canton.id">
+                  {{ canton.nombre_canton || canton.nombre }}
                 </ion-select-option>
               </ion-select>
             </ion-item>
 
-            <ion-item class="filter-item">
+            <ion-item class="filter-item" lines="none">
               <ion-icon name="checkmark-circle-outline" slot="start" color="primary"></ion-icon>
               <ion-label>Estado</ion-label>
-              <ion-select [(ngModel)]="filtroEstado" interface="action-sheet" placeholder="Todos" (ionChange)="filtrarParroquias()">
+              <ion-select [(ngModel)]="filtroEstado" interface="action-sheet" placeholder="Todos"
+                (ionChange)="filtrarParroquias()">
                 <ion-select-option value="todos">Todos</ion-select-option>
                 <ion-select-option value="true">Activo</ion-select-option>
                 <ion-select-option value="false">Inactivo</ion-select-option>
@@ -51,7 +55,8 @@
         </div>
 
         <!-- Botón para crear nueva parroquia -->
-        <ion-button expand="block" color="primary" (click)="crearParroquia()" class="create-button">
+        <ion-button expand="block" color="primary" (click)="crearParroquia()" class="create-button"
+          [disabled]="cargando">
           <ion-icon name="add-circle-outline" slot="start"></ion-icon>
           Crear Nueva Parroquia
         </ion-button>
@@ -100,7 +105,7 @@
           <span class="results-count">{{ parroquiasFiltradas.length }} registros</span>
         </div>
 
-        <div *ngIf="cargando" class="loading-container">
+        <div *ngIf="cargando" class="ion-text-center ion-padding">
           <ion-spinner name="crescent" color="primary"></ion-spinner>
           <p>Cargando parroquias...</p>
         </div>
@@ -112,7 +117,8 @@
         </div>
 
         <div class="parroquias-grid" *ngIf="!cargando && parroquiasFiltradas.length > 0">
-          <div class="parroquia-card" *ngFor="let parroquia of parroquiasFiltradas" [ngClass]="{'active-card': parroquia.estado, 'inactive-card': !parroquia.estado}">
+          <div class="parroquia-card" *ngFor="let parroquia of parroquiasFiltradas"
+            [ngClass]="{'active-card': parroquia.estado, 'inactive-card': !parroquia.estado}">
             <div class="parroquia-header">
               <div class="parroquia-title">
                 <h4>{{ parroquia.nombre_parroquia }}</h4>
@@ -132,7 +138,8 @@
               </div>
             </div>
             <div class="parroquia-actions">
-              <ion-button fill="clear" color="primary" (click)="editarParroquia(parroquia.codigo_parroquia)">
+              <ion-button fill="clear" color="primary"
+                (click)="editarParroquia(parroquia.codigo_parroquia || parroquia.Id_Parroquia)">
                 <ion-icon name="create-outline"></ion-icon>
                 Editar
               </ion-button>
@@ -140,7 +147,8 @@
                 <ion-icon name="trash-outline"></ion-icon>
                 Eliminar
               </ion-button>
-              <ion-button fill="clear" [color]="parroquia.estado ? 'warning' : 'success'" (click)="cambiarEstado(parroquia)">
+              <ion-button fill="clear" [color]="parroquia.estado ? 'warning' : 'success'"
+                (click)="cambiarEstado(parroquia)">
                 <ion-icon name="swap-vertical-outline"></ion-icon>
                 {{ parroquia.estado ? 'Desactivar' : 'Activar' }}
               </ion-button>

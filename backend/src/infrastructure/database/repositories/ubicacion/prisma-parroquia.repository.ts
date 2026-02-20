@@ -1,13 +1,13 @@
 import { injectable } from 'tsyringe';
 import prisma from '../../../../config/database';
-import { CantonRepository } from '../../../../domain/ubicacion/repositories/canton.repository';
+import { ParroquiaRepository } from '../../../../domain/ubicacion/repositories/parroquia.repository';
 
 @injectable()
-export class PrismaCantonRepository implements CantonRepository {
+export class PrismaParroquiaRepository implements ParroquiaRepository {
     async findAll(): Promise<any[]> {
-        return prisma.canton.findMany({
+        return prisma.parroquia.findMany({
             include: {
-                provincia: true
+                canton: true
             },
             orderBy: {
                 nombre: 'asc'
@@ -16,14 +16,14 @@ export class PrismaCantonRepository implements CantonRepository {
     }
 
     async update(id: number, data: any): Promise<any> {
-        return prisma.canton.update({
+        return prisma.parroquia.update({
             where: { id },
             data
         });
     }
 
     async delete(id: number): Promise<void> {
-        await prisma.canton.delete({
+        await prisma.parroquia.delete({
             where: { id }
         });
     }
