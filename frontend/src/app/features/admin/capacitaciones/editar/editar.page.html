@@ -1,12 +1,11 @@
-<ion-header [translucent]="true" class="ion-no-border">
-  <ion-toolbar style="--background: transparent;">
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/gestionar-capacitaciones" color="dark"></ion-back-button>
-    </ion-buttons>
-  </ion-toolbar>
-</ion-header>
+<ion-content>
+  <div class="page-back-nav">
+    <ion-button fill="clear" color="medium" size="small" routerLink="/gestionar-capacitaciones">
+      <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
+      Gestión de Capacitaciones
+    </ion-button>
+  </div>
 
-<ion-content [fullscreen]="true" class="ion-padding">
   <div *ngIf="cargando" class="loading-container fade-in">
     <ion-spinner name="crescent" color="primary"></ion-spinner>
     <p>Sincronizando información...</p>

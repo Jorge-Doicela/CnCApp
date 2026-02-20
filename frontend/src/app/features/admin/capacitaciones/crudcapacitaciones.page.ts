@@ -38,6 +38,10 @@ export class CrudcapacitacionesPage implements OnInit {
     this.RecuperarCapacitaciones();
   }
 
+  ionViewWillEnter() {
+    this.RecuperarCapacitaciones();
+  }
+
   // Recupera las capacitaciones
   async RecuperarCapacitaciones() {
     const loading = await this.loadingController.create({
@@ -51,18 +55,16 @@ export class CrudcapacitacionesPage implements OnInit {
       next: (data) => {
         this.Capacitaciones = data || [];
         this.aplicarFiltros();
-
-        // Forzar detección de cambios
-        this.cdr.detectChanges();
-
         this.cargando = false;
         loading.dismiss();
+        this.cdr.markForCheck();
       },
       error: (error) => {
         console.error('Error al obtener capacitaciones:', error);
         this.presentToast('Error al cargar capacitaciones (API)', 'danger');
         this.cargando = false;
         loading.dismiss();
+        this.cdr.markForCheck();
       }
     });
   }

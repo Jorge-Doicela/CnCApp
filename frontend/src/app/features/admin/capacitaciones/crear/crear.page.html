@@ -1,14 +1,14 @@
-<ion-header [translucent]="true">
-  <ion-toolbar color="primary">
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/gestionar-capacitaciones"></ion-back-button>
-    </ion-buttons>
-    <ion-title>Nueva Capacitación - Paso {{ currentStep }} de {{ totalSteps }}</ion-title>
-  </ion-toolbar>
-</ion-header>
-
-<ion-content [fullscreen]="true">
+<ion-content>
   <div class="content-wrapper">
+
+    <!-- Back Nav -->
+    <div class="page-back-nav">
+      <ion-button fill="clear" color="medium" size="small" routerLink="/gestionar-capacitaciones">
+        <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
+        Gestión de Capacitaciones
+      </ion-button>
+    </div>
+
     <!-- Header Section -->
     <div class="page-header">
       <div class="header-icon">
