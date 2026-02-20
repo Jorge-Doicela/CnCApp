@@ -11,4 +11,6 @@ export interface Capacitacion {
     createdAt: Date;
     idsUsuarios?: number[];
     entidadesEncargadas?: number[];
+    plantillaId?: number;
+    plantilla?: any;
 }

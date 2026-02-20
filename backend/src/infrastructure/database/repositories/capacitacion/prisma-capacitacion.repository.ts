@@ -16,7 +16,8 @@ export class PrismaCapacitacionRepository implements CapacitacionRepository {
                 lugar: data.lugar,
                 cuposDisponibles: data.cuposDisponibles || 0,
                 modalidad: data.modalidad,
-                estado: data.estado || 'Activa'
+                estado: data.estado || 'Activa',
+                plantillaId: data.plantillaId
             }
         });
         return CapacitacionMapper.toDomain(capacitacion);
@@ -34,7 +35,8 @@ export class PrismaCapacitacionRepository implements CapacitacionRepository {
                 lugar: data.lugar,
                 cuposDisponibles: data.cuposDisponibles,
                 modalidad: data.modalidad,
-                estado: data.estado
+                estado: data.estado,
+                plantillaId: data.plantillaId
             },
             include: {
                 inscripciones: true

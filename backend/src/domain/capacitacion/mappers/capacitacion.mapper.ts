@@ -14,7 +14,9 @@ export class CapacitacionMapper {
             modalidad: prismaCapacitacion.modalidad,
             estado: prismaCapacitacion.estado,
             createdAt: prismaCapacitacion.createdAt,
-            idsUsuarios: (prismaCapacitacion as any).inscripciones?.map((i: any) => i.usuarioId) || []
+            idsUsuarios: (prismaCapacitacion as any).inscripciones?.map((i: any) => i.usuarioId) || [],
+            plantillaId: (prismaCapacitacion as any).plantillaId,
+            plantilla: (prismaCapacitacion as any).plantilla
         };
     }
 }

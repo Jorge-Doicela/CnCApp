@@ -24,9 +24,10 @@ winston.addColors(colors);
 // Formato para desarrollo
 const devFormat = winston.format.combine(
     winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+    winston.format.errors({ stack: true }), // Ensure stack is captured
     winston.format.colorize({ all: true }),
     winston.format.printf(
-        (info) => `${info.timestamp} [${info.level}]: ${info.message}`
+        (info) => `${info.timestamp} [${info.level}]: ${info.message} ${info.stack || ''}` // Append stack if present
     )
 );
 

@@ -9,6 +9,7 @@ export interface Rol {
 export interface RolRepository {
     findAll(): Promise<Rol[]>;
     findById(id: number): Promise<Rol | null>;
+    findByName(nombre: string): Promise<Rol | null>;
     create(rol: Omit<Rol, 'id'>): Promise<Rol>;
     update(id: number, rol: Partial<Rol>): Promise<Rol>;
     delete(id: number): Promise<void>;

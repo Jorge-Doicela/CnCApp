@@ -15,7 +15,8 @@ const capacitacionSchema = z.object({
     lugar: z.string().optional(),
     cuposDisponibles: z.number().int().min(0).optional(),
     modalidad: z.string().optional(),
-    estado: z.string().optional()
+    estado: z.string().optional(),
+    plantillaId: z.number().int().optional()
 });
 
 @injectable()

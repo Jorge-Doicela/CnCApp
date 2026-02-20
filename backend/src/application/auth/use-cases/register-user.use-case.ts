@@ -16,8 +16,8 @@ interface RegisterDto {
     celular?: string;
     genero?: string;
     etnia?: string;
-    nacionalidad?: string;
-    fechaNacimiento?: string; // ISO string
+    nacionalidad?: string; // ISO string
+    fechaNacimiento?: string;
     provinciaId?: number;
     cantonId?: number;
     tipoParticipante?: number;
@@ -34,7 +34,9 @@ export class RegisterUserUseCase {
     constructor(
         @inject('UserRepository') private readonly userRepository: UserRepository,
         @inject('PasswordEncoder') private readonly passwordEncoder: PasswordEncoder,
-        @inject('TokenProvider') private readonly tokenProvider: TokenProvider
+        @inject('TokenProvider') private readonly tokenProvider: TokenProvider,
+        @inject('RolRepository') private readonly rolRepository: RolRepository,
+        @inject('EntidadRepository') private readonly entidadRepository: EntidadRepository
     ) { }
 
     async execute(data: RegisterDto): Promise<RegisterResult> {
@@ -52,6 +54,15 @@ export class RegisterUserUseCase {
 
         // 3. Hash password
         const hashedPassword = await this.passwordEncoder.hash(data.password);
+
+        // Get default Role and Entity
+        const usuarioRole = await this.rolRepository.findByName('Usuario');
+        const defaultRolId = usuarioRole ? usuarioRole.id : 3;
+
+        // Default entity: Consejo Nacional de Competencias if not specified? 
+        // Use case hardcoded 1 (CNC).
+        const cncEntity = await this.entidadRepository.findByName('Consejo Nacional de Competencias');
+        const defaultEntidadId = cncEntity ? cncEntity.id : 1;
 
         // 3. Create User Entity
         const nombreCompleto = `${data.primerNombre} ${data.segundoNombre || ''} ${data.primerApellido} ${data.segundoApellido || ''}`.replace(/\s+/g, ' ').trim();
@@ -75,8 +86,8 @@ export class RegisterUserUseCase {
             fechaNacimiento: data.fechaNacimiento ? new Date(data.fechaNacimiento) : undefined,
             provinciaId: data.provinciaId,
             cantonId: data.cantonId,
-            rolId: 3, // Usuario (rol por defecto)
-            entidadId: 1, // CNC
+            rolId: defaultRolId,
+            entidadId: defaultEntidadId,
             tipoParticipante: data.tipoParticipante || 0,
             createdAt: now,
             updatedAt: now,
