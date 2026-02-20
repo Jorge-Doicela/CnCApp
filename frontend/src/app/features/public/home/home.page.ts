@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, effect, ChangeDetectionStrategy, computed } from '@angular/core';
+import { Component, OnInit, inject, effect, ChangeDetectionStrategy, computed, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -86,6 +86,7 @@ export class HomePage implements OnInit {
   private capacitacionesService = inject(CapacitacionesService);
   private usuarioService = inject(UsuarioService);
   private menuCtrl = inject(MenuController);
+  private cd = inject(ChangeDetectorRef);
 
   constructor(
     private toastController: ToastController,
@@ -205,6 +206,7 @@ export class HomePage implements OnInit {
       console.error('Error al cargar capacitaciones:', error);
     } finally {
       this.cargandoCapacitaciones = false;
+      this.cd.markForCheck();
     }
   }
 
@@ -263,6 +265,8 @@ export class HomePage implements OnInit {
 
     } catch (error) {
       console.error('Error al cargar estadísticas admin:', error);
+    } finally {
+      this.cd.markForCheck();
     }
   }
 

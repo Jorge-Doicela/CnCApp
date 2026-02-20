@@ -1,7 +1,317 @@
-// Optimized style using shared theme
-// Specific styles for this page should be added here as needed.
-// Most styles are inherited from src/theme/shared.scss which is global.
+// ==========================================
+// ROLES PAGE - CLEAN MODERN ADMIN
+// ==========================================
 
-ion-content {
-  --background: #f5f7fa;
+:host {
+  display: block;
+  background-color: #f8fafc; // Slate 50
+  min-height: 100vh;
+}
+
+// ------------------------------------------
+// SHARED LAYOUT
+// ------------------------------------------
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.section-padding {
+  padding-top: 32px;
+  padding-bottom: 60px;
+}
+
+.admin-header {
+  padding-bottom: 24px;
+  border-bottom: 1px solid #e2e8f0;
+  margin-bottom: 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+
+  .header-content {
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #1e293b;
+      margin: 0 0 4px 0;
+      letter-spacing: -0.02em;
+    }
+
+    p {
+      font-size: 0.95rem;
+      color: #64748b;
+      margin: 0;
+    }
+  }
+}
+
+
+// ------------------------------------------
+// STATS STRIP
+// ------------------------------------------
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+
+  .stat-card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: transform 0.2s;
+
+    &:hover {
+      transform: translateY(-2px);
+      border-color: var(--ion-color-primary);
+    }
+
+    .icon-box {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+
+      &.blue {
+        background: #eff6ff;
+        color: #3b82f6;
+      }
+
+      &.green {
+        background: #ecfdf5;
+        color: #10b981;
+      }
+
+      &.purple {
+        background: #f3e8ff;
+        color: #a855f7;
+      }
+    }
+
+    .stat-info {
+      display: flex;
+      flex-direction: column;
+
+      .value {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #1e293b;
+        line-height: 1;
+      }
+
+      .label {
+        font-size: 0.85rem;
+        color: #64748b;
+        font-weight: 500;
+        margin-top: 4px;
+      }
+    }
+  }
+}
+
+// ------------------------------------------
+// FILTERS & ACTIONS
+// ------------------------------------------
+.actions-bar {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+  background: white;
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  align-items: center;
+  flex-wrap: wrap;
+
+  .search-box {
+    flex: 1;
+    min-width: 250px;
+    --background: #f8fafc;
+    --border-radius: 12px;
+    font-size: 0.9rem;
+  }
+
+  .filter-select {
+    min-width: 180px;
+    --background: #f8fafc;
+    --border-radius: 12px;
+    --placeholder-opacity: 1;
+  }
+
+  .btn-create {
+    height: 44px;
+    --border-radius: 12px;
+    font-weight: 600;
+    text-transform: none;
+    letter-spacing: 0;
+    --box-shadow: 0 4px 12px rgba(var(--ion-color-primary-rgb), 0.25);
+  }
+}
+
+// ------------------------------------------
+// ROLES GRID
+// ------------------------------------------
+.roles-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 24px;
+}
+
+.role-card {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  overflow: hidden;
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+    border-color: var(--ion-color-primary);
+
+    .card-header {
+      background: #f8fafc;
+    }
+  }
+
+  &.inactive {
+    opacity: 0.85;
+
+    .card-header h3 {
+      color: #94a3b8;
+    }
+  }
+
+  .card-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid #f1f5f9;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background 0.2s;
+
+    h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin: 0;
+      color: #1e293b;
+    }
+
+    .status-badge {
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 99px;
+      text-transform: uppercase;
+
+      &.active {
+        background: #ecfdf5;
+        color: #059669;
+      }
+
+      &.inactive {
+        background: #f1f5f9;
+        color: #64748b;
+      }
+    }
+  }
+
+  .card-body {
+    padding: 24px;
+    flex: 1;
+
+    .section-label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #94a3b8;
+      font-weight: 600;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .modules-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+
+      .module-chip {
+        font-size: 0.8rem;
+        background: #f1f5f9;
+        color: #475569;
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-weight: 500;
+      }
+
+      .more-chip {
+        font-size: 0.8rem;
+        background: #eff6ff;
+        color: #3b82f6;
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s;
+
+        &:hover {
+          background: #dbeafe;
+        }
+      }
+    }
+
+    .empty-modules {
+      color: #cbd5e1;
+      font-style: italic;
+      font-size: 0.9rem;
+    }
+  }
+
+  .card-footer {
+    padding: 16px 24px;
+    border-top: 1px solid #f1f5f9;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+
+    ion-button {
+      --padding-start: 8px;
+      --padding-end: 8px;
+      height: 32px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+  }
+}
+
+// ------------------------------------------
+// RESPONSIVE
+// ------------------------------------------
+@media (max-width: 768px) {
+  .actions-bar {
+    flex-direction: column;
+    align-items: stretch;
+
+    .search-box,
+    .filter-select,
+    .btn-create {
+      width: 100%;
+    }
+  }
 }

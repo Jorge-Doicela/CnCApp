@@ -5,6 +5,7 @@ import { IonicModule, AlertController, ToastController, NavController, LoadingCo
 import { PlantillasService } from './services/plantillas.service';
 import { PlantillaCertificado } from '../../../core/models/plantilla.interface';
 import { addIcons } from 'ionicons';
+import { firstValueFrom } from 'rxjs';
 import {
     addOutline,
     createOutline,
@@ -66,24 +67,15 @@ export class PlantillasPage implements OnInit {
 
     async cargarPlantillas() {
         this.cargando = true;
-        this.cd.detectChanges(); // Ensure loading spinner shows specifically
+        this.cd.detectChanges();
         try {
-            this.plantillasService.getPlantillas().subscribe({
-                next: (plantillas) => {
-                    this.plantillas = plantillas;
-                    this.plantillasFiltradas = plantillas;
-                    this.cargando = false;
-                    this.cd.detectChanges(); // Force view update
-                },
-                error: (error) => {
-                    console.error('Error al cargar plantillas:', error);
-                    this.mostrarToast('Error al cargar plantillas', 'danger');
-                    this.cargando = false;
-                    this.cd.detectChanges(); // Force view update
-                }
-            });
+            const plantillas = await firstValueFrom(this.plantillasService.getPlantillas());
+            this.plantillas = plantillas;
+            this.plantillasFiltradas = plantillas;
         } catch (error) {
-            console.error('Error inesperado:', error);
+            console.error('Error al cargar plantillas:', error);
+            this.mostrarToast('Error al cargar plantillas', 'danger');
+        } finally {
             this.cargando = false;
             this.cd.detectChanges();
         }

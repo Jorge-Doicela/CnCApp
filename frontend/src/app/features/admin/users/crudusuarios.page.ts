@@ -12,6 +12,7 @@ import {
 } from 'ionicons/icons';
 import { UsuarioService } from 'src/app/features/user/services/usuario.service';
 import { Usuario } from '../../../core/models/usuario.interface';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-crudusuarios',
@@ -64,28 +65,18 @@ export class CRUDUsuariosPage implements OnInit {
   async RecuperarUsuarios() {
     this.cargando = true;
     try {
-      this.usuarioService.getUsuarios().subscribe({
-        next: (data) => {
-          console.log('Usuarios cargados:', data);
-          this.usuarios = data || [];
-          this.filteredUsuarios = [...this.usuarios];
-          this.cargando = false;
-          this.cd.detectChanges(); // Force update
-        },
-        error: (error) => {
-          console.error('Error al obtener los usuarios:', error);
-          this.presentToast('Error al cargar la lista de usuarios', 'danger');
-          this.cargando = false;
-          this.usuarios = [];
-          this.filteredUsuarios = [];
-          this.cd.detectChanges(); // Force update
-        }
-      });
-
+      const data = await firstValueFrom(this.usuarioService.getUsuarios());
+      console.log('Usuarios cargados:', data);
+      this.usuarios = data || [];
+      this.filteredUsuarios = [...this.usuarios];
     } catch (error) {
-      console.error('Error inesperado:', error);
-      this.presentToast('Error inesperado al cargar usuarios', 'danger');
+      console.error('Error al obtener los usuarios:', error);
+      this.presentToast('Error al cargar la lista de usuarios', 'danger');
+      this.usuarios = [];
+      this.filteredUsuarios = [];
+    } finally {
       this.cargando = false;
+      this.cd.detectChanges();
     }
   }
 

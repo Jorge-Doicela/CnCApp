@@ -5,6 +5,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AlertController, LoadingController, ToastController } from '@ionic/angular';
 import { CatalogoService } from 'src/app/shared/services/catalogo.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-crudcantones',
@@ -53,37 +54,28 @@ export class CrudcantonesPage implements OnInit {
       spinner: 'crescent'
     });
     await loading.present();
-
-    this.catalogoService.getItems('cantones').subscribe({
-      next: (cantones) => {
-        this.cantones = cantones || [];
-        this.asociarProvincias();
-        this.calcularEstadisticas();
-        this.filtrarCantones();
-        loading.dismiss();
-      },
-      error: (error) => {
-        loading.dismiss();
-        this.presentToast('Error al obtener cantones (API no implementada)', 'danger');
-        console.error(error);
-      }
-    });
+    try {
+      const cantones = await firstValueFrom(this.catalogoService.getItems('cantones'));
+      this.cantones = cantones || [];
+      this.asociarProvincias();
+      this.calcularEstadisticas();
+      this.filtrarCantones();
+    } catch (error: any) {
+      this.presentToast('Error al obtener cantones', 'danger');
+      console.error(error);
+    } finally {
+      loading.dismiss();
+    }
   }
 
   async obtenerProvincias() {
-    return new Promise<void>((resolve) => {
-      this.catalogoService.getItems('provincias').subscribe({
-        next: (provincias) => {
-          this.provincias = provincias || [];
-          resolve();
-        },
-        error: (error) => {
-          console.error('Error al obtener provincias:', error);
-          this.presentToast('Error al obtener provincias', 'danger');
-          resolve(); // resolve anyway to continue
-        }
-      });
-    });
+    try {
+      const provincias = await firstValueFrom(this.catalogoService.getItems('provincias'));
+      this.provincias = provincias || [];
+    } catch (error) {
+      console.error('Error al obtener provincias:', error);
+      this.presentToast('Error al obtener provincias', 'danger');
+    }
   }
 
   asociarProvincias() {
