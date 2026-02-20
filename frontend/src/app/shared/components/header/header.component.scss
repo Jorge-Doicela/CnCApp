@@ -1,0 +1,295 @@
+// HEADER (Slim & Sticky)
+:host {
+    display: block;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+ion-header {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--surface-border, #e2e8f0);
+
+    ion-toolbar {
+        --background: transparent;
+        --border-width: 0;
+        --min-height: 64px;
+        height: 64px; // Force slim height
+
+        ion-menu-button {
+            --background: rgba(0, 0, 0, 0.03);
+            --border-radius: 50%; // Circle
+            color: var(--ion-color-dark);
+        }
+    }
+}
+
+.header-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+
+    .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        text-decoration: none;
+        cursor: pointer;
+
+        img.nav-logo {
+            height: 32px; // Classic logo height
+            width: auto;
+        }
+
+        .brand-text {
+            border-left: 1px solid var(--surface-border, #e2e8f0);
+            padding-left: 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+
+            h1 {
+                font-size: 0.95rem;
+                font-weight: 700;
+                color: var(--ion-color-primary);
+                letter-spacing: -0.01em;
+                margin: 0;
+            }
+
+            small {
+                font-size: 0.7rem;
+                color: var(--ion-color-medium);
+                font-weight: 500;
+                line-height: 1;
+            }
+        }
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+    }
+}
+
+// User Profile Pill
+.user-pill {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 12px 6px 6px;
+    background: #ffffff;
+    border: 1px solid var(--surface-border, #e2e8f0);
+    border-radius: 99px; // Pill shape
+    transition: all 0.2s;
+    cursor: pointer;
+
+    &:hover {
+        border-color: var(--ion-color-medium);
+        background: var(--surface-hover, #f8fafc);
+    }
+
+    .avatar {
+        width: 28px;
+        height: 28px;
+        background: var(--ion-color-primary);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    span {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--ion-color-dark);
+        margin-right: 4px;
+    }
+}
+
+// Guest Buttons
+.btn-login,
+.btn-register {
+    height: 36px;
+    padding: 0 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border-radius: 99px; // Pill Shape (User Request)
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-login {
+    background: transparent;
+    border: none;
+    color: var(--ion-color-medium-shade, #475569);
+
+    &:hover {
+        color: var(--ion-color-primary);
+        background: rgba(0, 0, 0, 0.03);
+    }
+
+    @media (max-width: 576px) {
+        display: none;
+    }
+}
+
+.btn-register {
+    background: var(--ion-color-primary);
+    color: white;
+    border: none;
+    box-shadow: var(--shadow-sm, 0 1px 2px 0 rgba(0, 0, 0, 0.05));
+
+    &:hover {
+        background: var(--ion-color-primary-shade);
+        transform: translateY(-1px);
+    }
+}
+
+// DESKTOP NAVIGATION (Pill Segment Style)
+.desktop-nav {
+    display: none; // Hidden by default (Mobile First)
+    background: #f1f5f9; // Light gray pill container (matches segment look)
+    padding: 5px;
+    border-radius: 99px; // Fully rounded pill
+    border: 1px solid #e2e8f0; // Subtle border
+    margin: 0 auto; // Center in the available space if needed
+
+    @media (min-width: 992px) {
+        display: flex;
+        gap: 2px; // Tiny gap between items
+        align-items: center;
+    }
+
+    .nav-link {
+        padding: 8px 24px;
+        border-radius: 99px; // Rounded items
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: #64748b; // Gray inactive text
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative; // For potential separators if needed
+
+        &:hover {
+            color: var(--ion-color-dark);
+            background: rgba(0, 0, 0, 0.02);
+        }
+
+        &.active {
+            background: white;
+            color: var(--ion-color-primary); // Blue active text
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04); // Segment shadow
+        }
+    }
+}
+
+// Ensure brand is not duplicated
+.brand {
+    // Styles already defined above in .header-inner .brand
+    // But verify if we need global override. 
+    // The previous file had .brand nested in .header-inner (line 37) AND at line 192 (global).
+    // The nested one is better. I will remove the global duplicate at 192.
+}
+
+
+.header-actions {
+    // This class is used in HTML at line 29.
+    // Make sure we keep the necessary styles from the removed block if they weren't in the top block.
+    // The top block (line 73) only had display: flex; gap: 12px;
+    // The bottom block (line 263) had details for buttons. We need to move those details up or keep them here.
+
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    // Login Button
+    .btn-login {
+        background: transparent;
+        border: none;
+        color: var(--ion-color-medium-shade, #475569);
+        font-weight: 600;
+        font-size: 0.9rem;
+        cursor: pointer;
+        padding: 8px 16px;
+        border-radius: 99px;
+        transition: all 0.2s;
+
+        &:hover {
+            color: var(--ion-color-primary);
+            background: rgba(var(--ion-color-primary-rgb), 0.05);
+        }
+
+        @media (max-width: 576px) {
+            display: none;
+        }
+    }
+
+    // Register Button (Pill)
+    .btn-register {
+        background: var(--ion-color-primary);
+        color: white;
+        border: none;
+        padding: 8px 24px;
+        border-radius: 99px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        cursor: pointer;
+        box-shadow: 0 4px 10px rgba(var(--ion-color-primary-rgb), 0.2);
+        transition: all 0.2s ease;
+
+        &:hover {
+            background: var(--ion-color-primary-shade);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 14px rgba(var(--ion-color-primary-rgb), 0.3);
+        }
+    }
+
+    // User Profile Pill (Clean & Modern)
+    .user-pill {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: white;
+        padding: 4px 16px 4px 4px;
+        border-radius: 99px;
+        border: 1px solid #e2e8f0;
+        cursor: pointer;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+        &:hover {
+            border-color: var(--ion-color-primary);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transform: translateY(-1px);
+        }
+
+        .avatar {
+            width: 32px;
+            height: 32px;
+            background: var(--ion-color-primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        span {
+            font-weight: 600;
+            color: #1e293b; // Slate 800
+            font-size: 0.9rem;
+        }
+    }
+}

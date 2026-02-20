@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, effect, inject, ViewChild, ElementRef, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, OnDestroy, effect, inject, ViewChild, ElementRef, ChangeDetectionStrategy, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import {
@@ -24,6 +24,7 @@ import { AuthService } from './features/auth/services/auth.service';
 import { UsuarioService } from './features/user/services/usuario.service';
 import { filter } from 'rxjs/operators';
 import { firstValueFrom } from 'rxjs';
+import { HeaderComponent } from './shared/components/header/header.component';
 
 @Component({
   selector: 'app-root',
@@ -33,7 +34,8 @@ import { firstValueFrom } from 'rxjs';
   imports: [
     CommonModule, RouterModule,
     IonApp, IonMenu, IonHeader, IonToolbar, IonContent,
-    IonList, IonItem, IonIcon, IonLabel, IonRouterOutlet
+    IonList, IonItem, IonIcon, IonLabel, IonRouterOutlet,
+    HeaderComponent
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -46,6 +48,16 @@ export class AppComponent implements OnInit, OnDestroy {
   modulos = this.authService.modulos;
 
   lastUrl: string = '';
+
+  // Logic to show header
+  showGlobalHeader = computed(() => {
+    // Hide on auth pages
+    const currentPath = this.lastUrl.split('?')[0]; // Simple access, better use router signal if available or effect
+    const hiddenRoutes = ['/login', '/register', '/admin'];
+    // This basic computed might not react to router changes if lastUrl isn't signal.
+    // Better to use a signal updated by router events.
+    return !hiddenRoutes.some(r => currentPath.startsWith(r));
+  });
 
   private usuarioService = inject(UsuarioService);
 
@@ -126,10 +138,35 @@ export class AppComponent implements OnInit, OnDestroy {
       .subscribe((event: any) => {
         if (this.lastUrl !== event.url) {
           this.lastUrl = event.url;
+          this.currentPath.set(event.urlAfterRedirects || event.url);
           this.verificarRolEnCambioRuta();
         }
       });
   }
+
+  // Signal for reactive header visibility
+  currentPath = signal('');
+
+  showHeader = computed(() => {
+    const path = this.currentPath().toLowerCase();
+
+    // 1. Completely hide on Auth pages (Login/Register)
+    if (path.includes('/login') || path.includes('/register')) return false;
+
+    // 2. Define Public Routes where the Global Pill Header should appear
+    //    - Root '/'
+    //    - '/home' and its children (historia, direccion, etc.)
+    //    - '/validar-certificados' (Public tool)
+    const isPublicRoute =
+      path === '/' ||
+      path.startsWith('/home') ||
+      path.startsWith('/validar-certificados');
+
+    // 3. Show header ONLY on public routes.
+    //    This ensures that when a logged-in user enters a module (e.g. /gestionar-usuarios),
+    //    the global header disappears, preventing overlap and double-header issues.
+    return isPublicRoute;
+  });
 
   async verificarRolEnCambioRuta() {
     // Si no hay usuario en el estado reactivo, no verificamos roles (es guest)

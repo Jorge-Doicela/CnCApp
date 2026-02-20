@@ -1,10 +1,9 @@
 import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
-import { RouterLink } from '@angular/router';
+
 
 import { CommonModule } from '@angular/common';
 import {
-  IonHeader, IonToolbar, IonButtons,
-  IonTitle, IonContent, IonIcon, IonButton
+  IonContent, IonIcon
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -21,9 +20,8 @@ import {
   standalone: true,
   imports: [
     CommonModule,
-    IonHeader, IonToolbar, IonButtons,
-    IonTitle, IonContent, IonIcon, IonButton,
-    RouterLink
+    CommonModule,
+    IonContent, IonIcon
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
