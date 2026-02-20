@@ -11,6 +11,7 @@ import { JwtTokenProvider } from '../infrastructure/security/jwt-token-provider'
 import { PrismaRolRepository } from '../infrastructure/database/prisma-rol.repository';
 import { PrismaEntidadRepository } from '../infrastructure/database/prisma-entidad.repository';
 import { PrismaReportesRepository } from '../infrastructure/database/repositories/reportes/prisma-reportes.repository';
+import { PrismaParroquiaRepository } from '../infrastructure/database/repositories/ubicacion/prisma-parroquia.repository';
 
 // Import Auth Use Cases
 import { RegisterUserUseCase } from '../application/auth/use-cases/register-user.use-case';
@@ -48,6 +49,13 @@ import { GenerateCertificadoUseCase } from '../application/certificado/use-cases
 // Import Ubicacion Use Cases
 import { GetProvinciasUseCase } from '../application/ubicacion/use-cases/get-provincias.use-case';
 import { GetCantonesUseCase } from '../application/ubicacion/use-cases/get-cantones.use-case';
+import { GetParroquiasUseCase } from '../application/ubicacion/use-cases/get-parroquias.use-case';
+import { UpdateProvinciaUseCase } from '../application/ubicacion/use-cases/update-provincia.use-case';
+import { DeleteProvinciaUseCase } from '../application/ubicacion/use-cases/delete-provincia.use-case';
+import { UpdateCantonUseCase } from '../application/ubicacion/use-cases/update-canton.use-case';
+import { DeleteCantonUseCase } from '../application/ubicacion/use-cases/delete-canton.use-case';
+import { UpdateParroquiaUseCase } from '../application/ubicacion/use-cases/update-parroquia.use-case';
+import { DeleteParroquiaUseCase } from '../application/ubicacion/use-cases/delete-parroquia.use-case';
 
 // Import Cargos Use Cases
 import { GetAllCargosUseCase } from '../application/cargos/use-cases/get-all-cargos.use-case';
@@ -123,6 +131,7 @@ container.register('ReportesRepository', { useClass: PrismaReportesRepository })
 // Ubicacion
 container.register('ProvinciaRepository', { useClass: PrismaProvinciaRepository });
 container.register('CantonRepository', { useClass: PrismaCantonRepository });
+container.register('ParroquiaRepository', { useClass: PrismaParroquiaRepository });
 
 // Register Security Services
 container.register('PasswordEncoder', { useClass: BcryptPasswordHasher });
@@ -174,6 +183,13 @@ container.registerSingleton(GenerateCertificadoUseCase);
 // Ubicacion Use Cases
 container.registerSingleton(GetProvinciasUseCase);
 container.registerSingleton(GetCantonesUseCase);
+container.registerSingleton(GetParroquiasUseCase);
+container.registerSingleton(UpdateProvinciaUseCase);
+container.registerSingleton(DeleteProvinciaUseCase);
+container.registerSingleton(UpdateCantonUseCase);
+container.registerSingleton(DeleteCantonUseCase);
+container.registerSingleton(UpdateParroquiaUseCase);
+container.registerSingleton(DeleteParroquiaUseCase);
 
 // Cargo Use Cases
 container.registerSingleton(GetAllCargosUseCase);

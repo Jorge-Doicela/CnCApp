@@ -1,10 +1,28 @@
 import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
-import { AlertController, LoadingController, ToastController } from '@ionic/angular';
+import { AlertController, ToastController } from '@ionic/angular';
 import { CatalogoService } from 'src/app/shared/services/catalogo.service';
+import { Canton } from 'src/app/shared/models/canton.model';
+import { addIcons } from 'ionicons';
+import {
+  searchOutline,
+  search,
+  filterOutline,
+  mapOutline,
+  checkmarkCircleOutline,
+  closeCircleOutline,
+  addCircleOutline,
+  alertCircleOutline,
+  keyOutline,
+  informationCircleOutline,
+  createOutline,
+  trashOutline,
+  swapVerticalOutline,
+  locationOutline
+} from 'ionicons/icons';
 import { firstValueFrom } from 'rxjs';
 
 @Component({
@@ -12,29 +30,48 @@ import { firstValueFrom } from 'rxjs';
   templateUrl: './crudcantones.page.html',
   styleUrls: ['./crudcantones.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule]
+  imports: [CommonModule, FormsModule, IonicModule],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CrudcantonesPage implements OnInit {
-
-  cantones: any[] = [];
-  cantonesFiltrados: any[] = [];
+  cantones: Canton[] = [];
+  cantonesFiltrados: Canton[] = [];
   provincias: any[] = [];
-  cargando: boolean = true;
+
+  cargando: boolean = false;
   searchTerm: string = '';
   filtroProvincia: string = 'todas';
   filtroEstado: string = 'todos';
+
   totalCantones: number = 0;
   cantonesActivos: number = 0;
   cantonesInactivos: number = 0;
 
   private catalogoService = inject(CatalogoService);
+  private cd = inject(ChangeDetectorRef);
 
   constructor(
     private router: Router,
     private alertController: AlertController,
-    private loadingController: LoadingController,
     private toastController: ToastController
-  ) { }
+  ) {
+    addIcons({
+      searchOutline,
+      search,
+      filterOutline,
+      mapOutline,
+      checkmarkCircleOutline,
+      closeCircleOutline,
+      addCircleOutline,
+      alertCircleOutline,
+      keyOutline,
+      informationCircleOutline,
+      createOutline,
+      trashOutline,
+      swapVerticalOutline,
+      locationOutline
+    });
+  }
 
   ngOnInit() {
     this.cargarDatos();
@@ -42,76 +79,89 @@ export class CrudcantonesPage implements OnInit {
 
   async cargarDatos() {
     this.cargando = true;
-    // Load both matching parallel ideally, but sequential is fine
-    await this.obtenerProvincias();
-    await this.obtenerCantones();
-    this.cargando = false;
+    this.cd.markForCheck();
+
+    try {
+      await Promise.all([
+        this.obtenerProvincias(),
+        this.obtenerCantones()
+      ]);
+      this.asociarProvincias();
+      this.filtrarCantones();
+    } catch (error) {
+      console.error('Error al cargar datos:', error);
+      this.presentToast('Error al cargar datos iniciales', 'danger');
+    } finally {
+      this.cargando = false;
+      this.cd.markForCheck();
+    }
   }
 
   async obtenerCantones() {
-    const loading = await this.loadingController.create({
-      message: 'Obteniendo cantones...',
-      spinner: 'crescent'
-    });
-    await loading.present();
     try {
-      const cantones = await firstValueFrom(this.catalogoService.getItems('cantones'));
-      this.cantones = cantones || [];
-      this.asociarProvincias();
+      const data = await firstValueFrom(this.catalogoService.getItems('cantones'));
+      this.cantones = data || [];
       this.calcularEstadisticas();
-      this.filtrarCantones();
-    } catch (error: any) {
-      this.presentToast('Error al obtener cantones', 'danger');
-      console.error(error);
-    } finally {
-      loading.dismiss();
+    } catch (error) {
+      console.error('Error al obtener cantones:', error);
+      this.presentToast('Error al obtener cantones de la API', 'danger');
     }
   }
 
   async obtenerProvincias() {
     try {
-      const provincias = await firstValueFrom(this.catalogoService.getItems('provincias'));
-      this.provincias = provincias || [];
+      const data = await firstValueFrom(this.catalogoService.getItems('provincias'));
+      this.provincias = data || [];
     } catch (error) {
       console.error('Error al obtener provincias:', error);
-      this.presentToast('Error al obtener provincias', 'danger');
     }
   }
 
   asociarProvincias() {
     this.cantones = this.cantones.map(canton => {
-      const provincia = this.provincias.find(p => p.Codigo_Provincia === canton.codigo_provincia);
+      // Normalizing property names for consistency
+      const estadoNormalizado = canton.estado !== undefined ? canton.estado : canton.Estado;
+      const nombreCantonNormalizado = canton.nombre_canton || canton.Nombre_Canton || '';
+      const codigoCantonNormalizado = canton.codigo_canton || canton.id.toString();
+
+      const provincia = this.provincias.find(p => p.Codigo_Provincia === canton.codigo_provincia || p.id === canton.Id_Provincia);
       return {
         ...canton,
-        nombre_provincia: provincia ? provincia.Nombre_Provincia : 'Provincia no encontrada'
+        estado: estadoNormalizado ?? true,
+        nombre_canton: nombreCantonNormalizado,
+        codigo_canton: codigoCantonNormalizado,
+        nombre_provincia: provincia ? (provincia.Nombre_Provincia || provincia.nombre) : 'Provincia no encontrada'
       };
     });
   }
 
   calcularEstadisticas() {
     this.totalCantones = this.cantones.length;
-    this.cantonesActivos = this.cantones.filter(c => c.estado === true).length;
-    this.cantonesInactivos = this.cantones.filter(c => c.estado === false).length;
+    this.cantonesActivos = this.cantones.filter(c => c.estado).length;
+    this.cantonesInactivos = this.totalCantones - this.cantonesActivos;
+    this.cd.markForCheck();
   }
 
   filtrarCantones() {
+    const term = this.searchTerm.trim().toLowerCase();
+
     this.cantonesFiltrados = this.cantones.filter(canton => {
-      // Filtrar por término de búsqueda
-      const matchesSearchTerm = this.searchTerm.trim() === '' ||
-        canton.nombre_canton.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        canton.codigo_canton.toString().includes(this.searchTerm.toLowerCase());
+      const matchesSearchTerm = term === '' ||
+        (canton.nombre_canton || '').toLowerCase().includes(term) ||
+        (canton.codigo_canton || '').toString().toLowerCase().includes(term);
 
-      // Filtrar por provincia
       const matchesProvincia = this.filtroProvincia === 'todas' ||
-        canton.codigo_provincia === this.filtroProvincia;
+        canton.codigo_provincia === this.filtroProvincia ||
+        canton.Id_Provincia?.toString() === this.filtroProvincia;
 
-      // Filtrar por estado
       const matchesEstado = this.filtroEstado === 'todos' ||
-        (this.filtroEstado === 'activo' && canton.estado === true) ||
-        (this.filtroEstado === 'inactivo' && canton.estado === false);
+        (this.filtroEstado === 'activo' && canton.estado) ||
+        (this.filtroEstado === 'inactivo' && !canton.estado);
 
       return matchesSearchTerm && matchesProvincia && matchesEstado;
     });
+
+    this.cd.markForCheck();
   }
 
   crearCanton() {
@@ -122,62 +172,59 @@ export class CrudcantonesPage implements OnInit {
     this.router.navigate(['/gestionar-cantones/editar', idCanton]);
   }
 
-  async cambiarEstado(canton: any) {
-    const loading = await this.loadingController.create({
-      message: 'Actualizando estado...',
-      spinner: 'crescent'
-    });
-    await loading.present();
-
+  async cambiarEstado(canton: Canton) {
     const nuevoEstado = !canton.estado;
-    this.catalogoService.updateItem('cantones', canton.codigo_canton, { estado: nuevoEstado }).subscribe({
-      next: () => {
-        loading.dismiss();
-        // Actualizar el objeto local
-        canton.estado = nuevoEstado;
-        this.calcularEstadisticas();
-        this.presentToast(
-          `Cantón "${canton.nombre_canton}" ahora está ${nuevoEstado ? 'activo' : 'inactivo'} `,
-          'success'
-        );
-      },
-      error: (error) => {
-        loading.dismiss();
-        this.presentToast('Error al cambiar estado: ' + error.message, 'danger');
-      }
-    });
+
+    try {
+      const idToUpdate = canton.id || canton.Id_Canton || canton.codigo_canton;
+      await firstValueFrom(this.catalogoService.updateItem('cantones', idToUpdate, { estado: nuevoEstado }));
+
+      canton.estado = nuevoEstado;
+      this.calcularEstadisticas();
+      this.filtrarCantones();
+      this.presentToast(
+        `Cantón "${canton.nombre_canton}" ahora está ${nuevoEstado ? 'activo' : 'inactivo'}`,
+        'success'
+      );
+    } catch (error) {
+      console.error('Error al cambiar estado:', error);
+      this.presentToast('Error al actualizar el estado', 'danger');
+    } finally {
+      this.cd.markForCheck();
+    }
   }
 
-  async verDetallesCanton(canton: any) {
+  async verDetallesCanton(canton: Canton) {
     const alert = await this.alertController.create({
       header: canton.nombre_canton,
-      subHeader: `Código: ${canton.codigo_canton} `,
-      message: `< div >
-  <p><strong>Provincia: </strong> ${canton.nombre_provincia}</p >
-    <p><strong>Estado: </strong> ${canton.estado ? 'Activo' : 'Inactivo'}</p >
-      ${canton.notas ? `<p><strong>Notas:</strong> ${canton.notas}</p>` : ''}
-</div>`,
-      buttons: ['Cerrar'],
-      cssClass: 'canton-details-alert'
+      subHeader: `Código: ${canton.codigo_canton}`,
+      message: `
+        <div class="alert-details">
+          <p><strong>Provincia:</strong> ${canton.nombre_provincia}</p>
+          <p><strong>Estado:</strong> ${canton.estado ? 'Activo' : 'Inactivo'}</p>
+          ${canton.notas ? `<p><strong>Notas:</strong> ${canton.notas}</p>` : ''}
+        </div>
+      `,
+      buttons: ['Cerrar']
     });
 
     await alert.present();
   }
 
-  async confirmarEliminacion(canton: any) {
+  async confirmarEliminacion(canton: Canton) {
     const alert = await this.alertController.create({
       header: 'Confirmar eliminación',
       message: `¿Está seguro que desea eliminar el cantón "${canton.nombre_canton}"?`,
       buttons: [
         {
           text: 'Cancelar',
-          role: 'cancel',
-          cssClass: 'secondary'
-        }, {
+          role: 'cancel'
+        },
+        {
           text: 'Eliminar',
-          cssClass: 'danger',
+          role: 'destructive',
           handler: () => {
-            this.eliminarCanton(canton.codigo_canton);
+            this.eliminarCanton(canton);
           }
         }
       ]
@@ -186,24 +233,21 @@ export class CrudcantonesPage implements OnInit {
     await alert.present();
   }
 
-  async eliminarCanton(codigo_canton: string) {
-    const loading = await this.loadingController.create({
-      message: 'Eliminando cantón...',
-      spinner: 'crescent'
-    });
-    await loading.present();
+  async eliminarCanton(canton: Canton) {
+    try {
+      const idToDelete = canton.id || canton.Id_Canton || canton.codigo_canton;
+      await firstValueFrom(this.catalogoService.deleteItem('cantones', idToDelete));
 
-    this.catalogoService.deleteItem('cantones', codigo_canton).subscribe({
-      next: () => {
-        loading.dismiss();
-        this.presentToast('Cantón eliminado correctamente', 'success');
-        this.obtenerCantones(); // Reload list
-      },
-      error: (error) => {
-        loading.dismiss();
-        this.presentToast('Error al eliminar cantón: ' + error.message, 'danger');
-      }
-    });
+      this.cantones = this.cantones.filter(c => (c.id || c.Id_Canton || c.codigo_canton) !== idToDelete);
+      this.calcularEstadisticas();
+      this.filtrarCantones();
+      this.presentToast('Cantón eliminado correctamente', 'success');
+    } catch (error) {
+      console.error('Error al eliminar cantón:', error);
+      this.presentToast('Error al eliminar el cantón', 'danger');
+    } finally {
+      this.cd.markForCheck();
+    }
   }
 
   async presentToast(message: string, color: string = 'primary') {
@@ -212,13 +256,7 @@ export class CrudcantonesPage implements OnInit {
       duration: 3000,
       position: 'bottom',
       color: color,
-      buttons: [
-        {
-          side: 'end',
-          icon: 'close',
-          role: 'cancel'
-        }
-      ]
+      buttons: [{ icon: 'close', role: 'cancel' }]
     });
 
     await toast.present();

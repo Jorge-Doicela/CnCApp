@@ -1,26 +1,46 @@
 import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { AlertController, ToastController } from '@ionic/angular';
 import { CatalogoService } from 'src/app/shared/services/catalogo.service';
+import { Provincia } from 'src/app/shared/models/provincia.model';
+import { addIcons } from 'ionicons';
+import {
+  searchOutline,
+  search,
+  filterOutline,
+  mapOutline,
+  checkmarkCircleOutline,
+  closeCircleOutline,
+  addCircleOutline,
+  alertCircleOutline,
+  keyOutline,
+  informationCircleOutline,
+  createOutline,
+  trashOutline,
+  swapVerticalOutline
+} from 'ionicons/icons';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-crudprovincias',
   templateUrl: './crudprovincias.page.html',
   styleUrls: ['./crudprovincias.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule]
+  imports: [CommonModule, FormsModule, IonicModule],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CrudprovinciasPage implements OnInit {
   // Variables para provincias
-  provincias: any[] = [];
-  filteredProvincias: any[] = [];
+  provincias: Provincia[] = [];
+  filteredProvincias: Provincia[] = [];
 
   // Variables para búsqueda y filtrado
   searchTerm: string = '';
   filtroEstado: string = 'todos';
+  cargando: boolean = false;
 
   // Variables para estadísticas
   totalProvincias: number = 0;
@@ -28,39 +48,68 @@ export class CrudprovinciasPage implements OnInit {
   provinciasInactivas: number = 0;
 
   private catalogoService = inject(CatalogoService);
+  private cd = inject(ChangeDetectorRef);
 
   constructor(
     private router: Router,
     private alertController: AlertController,
     private toastController: ToastController
-  ) { }
+  ) {
+    addIcons({
+      searchOutline,
+      search,
+      filterOutline,
+      mapOutline,
+      checkmarkCircleOutline,
+      closeCircleOutline,
+      addCircleOutline,
+      alertCircleOutline,
+      keyOutline,
+      informationCircleOutline,
+      createOutline,
+      trashOutline,
+      swapVerticalOutline
+    });
+  }
 
   ngOnInit() {
     this.obtenerProvincias();
   }
 
-  obtenerProvincias() {
-    this.catalogoService.getItems('provincias').subscribe({
-      next: (data) => {
-        this.provincias = data || [];
-        // Sort manually since backend might not
-        this.provincias.sort((a, b) => a.Nombre_Provincia.localeCompare(b.Nombre_Provincia));
-        this.filteredProvincias = [...this.provincias];
-        this.calcularEstadisticas();
-      },
-      error: (error) => {
-        console.error('Error al obtener provincias:', error);
-        this.presentToast('Error al cargar provincias. (API no implementada)', 'danger');
-      }
-    });
+  async obtenerProvincias() {
+    this.cargando = true;
+    this.cd.markForCheck();
+
+    try {
+      const data = await firstValueFrom(this.catalogoService.getItems('provincias'));
+      this.provincias = data || [];
+
+      // Sort manually with safety checks
+      this.provincias.sort((a, b) => {
+        const nameA = a.Nombre_Provincia || '';
+        const nameB = b.Nombre_Provincia || '';
+        return nameA.localeCompare(nameB);
+      });
+
+      this.filteredProvincias = [...this.provincias];
+      this.calcularEstadisticas();
+    } catch (error) {
+      console.error('Error al obtener provincias:', error);
+      this.presentToast('Error al cargar provincias. (API)', 'danger');
+    } finally {
+      this.cargando = false;
+      this.cd.markForCheck();
+    }
   }
 
   buscarProvincia() {
+    const term = this.searchTerm.trim().toLowerCase();
+
     this.filteredProvincias = this.provincias.filter(provincia => {
       // Filtrar por término de búsqueda
-      const matchesSearchTerm = this.searchTerm.trim() === '' ||
-        provincia.Nombre_Provincia.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        provincia.Codigo_Provincia.toLowerCase().includes(this.searchTerm.toLowerCase());
+      const matchesSearchTerm = term === '' ||
+        (provincia.Nombre_Provincia || '').toLowerCase().includes(term) ||
+        (provincia.Codigo_Provincia || '').toLowerCase().includes(term);
 
       // Filtrar por estado
       const matchesEstado = this.filtroEstado === 'todos' ||
@@ -70,15 +119,18 @@ export class CrudprovinciasPage implements OnInit {
       return matchesSearchTerm && matchesEstado;
     });
 
-    if (this.filteredProvincias.length === 0 && this.searchTerm !== '') {
+    if (this.filteredProvincias.length === 0 && term !== '') {
       this.presentToast('No se encontraron provincias con los criterios de búsqueda', 'warning');
     }
+
+    this.cd.markForCheck();
   }
 
   calcularEstadisticas() {
     this.totalProvincias = this.provincias.length;
     this.provinciasActivas = this.provincias.filter(p => p.Estado).length;
     this.provinciasInactivas = this.totalProvincias - this.provinciasActivas;
+    this.cd.markForCheck();
   }
 
   crearProvincia() {
@@ -89,30 +141,28 @@ export class CrudprovinciasPage implements OnInit {
     this.router.navigate(['/gestionar-provincias/editar', id]);
   }
 
-  cambiarEstado(provincia: any) {
+  async cambiarEstado(provincia: Provincia) {
     const nuevoEstado = !provincia.Estado;
-    // Assuming partial update is supported or we send full object. 
-    // Usually status toggle is a specific patch or we update the whole item.
-    // For now, let's assume we update the specific field if API supports it, or generic update.
 
-    this.catalogoService.updateItem('provincias', provincia.IdProvincia, { Estado: nuevoEstado }).subscribe({
-      next: () => {
-        // Actualizar el objeto local
-        provincia.Estado = nuevoEstado;
-        this.calcularEstadisticas();
-        this.presentToast(
-          `Provincia "${provincia.Nombre_Provincia}" ahora está ${nuevoEstado ? 'activa' : 'inactiva'}`,
-          'success'
-        );
-      },
-      error: (error) => {
-        console.error('Error al cambiar estado:', error);
-        this.presentToast('Error al cambiar el estado de la provincia', 'danger');
-      }
-    });
+    try {
+      await firstValueFrom(this.catalogoService.updateItem('provincias', provincia.IdProvincia, { Estado: nuevoEstado }));
+
+      // Actualizar el objeto local
+      provincia.Estado = nuevoEstado;
+      this.calcularEstadisticas();
+      this.presentToast(
+        `Provincia "${provincia.Nombre_Provincia}" ahora está ${nuevoEstado ? 'activa' : 'inactiva'}`,
+        'success'
+      );
+    } catch (error) {
+      console.error('Error al cambiar estado:', error);
+      this.presentToast('Error al cambiar el estado de la provincia', 'danger');
+    } finally {
+      this.cd.markForCheck();
+    }
   }
 
-  async confirmarEliminar(provincia: any) {
+  async confirmarEliminar(provincia: Provincia) {
     const alert = await this.alertController.create({
       header: 'Confirmar eliminación',
       message: `¿Está seguro que desea eliminar la provincia "${provincia.Nombre_Provincia}"?`,
@@ -134,20 +184,21 @@ export class CrudprovinciasPage implements OnInit {
     await alert.present();
   }
 
-  eliminarProvincia(provincia: any) {
-    this.catalogoService.deleteItem('provincias', provincia.IdProvincia).subscribe({
-      next: () => {
-        // Actualizar listas locales
-        this.provincias = this.provincias.filter(p => p.IdProvincia !== provincia.IdProvincia);
-        this.filteredProvincias = this.filteredProvincias.filter(p => p.IdProvincia !== provincia.IdProvincia);
-        this.calcularEstadisticas();
-        this.presentToast(`Provincia "${provincia.Nombre_Provincia}" eliminada correctamente`, 'success');
-      },
-      error: (error) => {
-        console.error('Error al eliminar provincia:', error);
-        this.presentToast('Error al eliminar la provincia. Puede que tenga registros relacionados.', 'danger');
-      }
-    });
+  async eliminarProvincia(provincia: Provincia) {
+    try {
+      await firstValueFrom(this.catalogoService.deleteItem('provincias', provincia.IdProvincia));
+
+      // Actualizar listas locales
+      this.provincias = this.provincias.filter(p => p.IdProvincia !== provincia.IdProvincia);
+      this.filteredProvincias = this.filteredProvincias.filter(p => p.IdProvincia !== provincia.IdProvincia);
+      this.calcularEstadisticas();
+      this.presentToast(`Provincia "${provincia.Nombre_Provincia}" eliminada correctamente`, 'success');
+    } catch (error) {
+      console.error('Error al eliminar provincia:', error);
+      this.presentToast('Error al eliminar la provincia. Puede que tenga registros relacionados.', 'danger');
+    } finally {
+      this.cd.markForCheck();
+    }
   }
 
   async presentToast(message: string, color: string = 'primary') {

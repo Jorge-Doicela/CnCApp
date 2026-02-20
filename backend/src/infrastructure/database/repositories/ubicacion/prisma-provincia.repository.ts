@@ -11,4 +11,17 @@ export class PrismaProvinciaRepository implements ProvinciaRepository {
             }
         });
     }
+
+    async update(id: number, data: any): Promise<any> {
+        return prisma.provincia.update({
+            where: { id },
+            data
+        });
+    }
+
+    async delete(id: number): Promise<void> {
+        await prisma.provincia.delete({
+            where: { id }
+        });
+    }
 }
