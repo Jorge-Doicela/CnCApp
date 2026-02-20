@@ -66,6 +66,10 @@ import { DeleteCargoUseCase } from '../application/cargos/use-cases/delete-cargo
 
 // Import Institucion Use Cases
 import { GetAllInstitucionesUseCase } from '../application/institucion/use-cases/get-all-instituciones.use-case';
+import { GetInstitucionByIdUseCase } from '../application/institucion/use-cases/get-institucion-by-id.use-case';
+import { CreateInstitucionUseCase } from '../application/institucion/use-cases/create-institucion.use-case';
+import { UpdateInstitucionUseCase } from '../application/institucion/use-cases/update-institucion.use-case';
+import { DeleteInstitucionUseCase } from '../application/institucion/use-cases/delete-institucion.use-case';
 
 // Import Reportes Use Cases
 import { GetDashboardStatsUseCase } from '../application/reportes/use-cases/get-dashboard-stats.use-case';
@@ -200,6 +204,10 @@ container.registerSingleton(DeleteCargoUseCase);
 
 // Institucion Use Cases
 container.registerSingleton(GetAllInstitucionesUseCase);
+container.registerSingleton(GetInstitucionByIdUseCase);
+container.registerSingleton(CreateInstitucionUseCase);
+container.registerSingleton(UpdateInstitucionUseCase);
+container.registerSingleton(DeleteInstitucionUseCase);
 
 // Reportes Use Cases
 container.registerSingleton(GetDashboardStatsUseCase);

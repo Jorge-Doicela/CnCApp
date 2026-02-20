@@ -1,98 +1,91 @@
 import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
-import { LoadingController, ToastController } from '@ionic/angular';
+import { ToastController } from '@ionic/angular';
 import { CatalogoService } from 'src/app/shared/services/catalogo.service';
+import { firstValueFrom } from 'rxjs';
+import { addIcons } from 'ionicons';
+import {
+  addCircleOutline,
+  businessOutline,
+  informationCircleOutline,
+  saveOutline,
+  closeOutline
+} from 'ionicons/icons';
 
 @Component({
   selector: 'app-crear',
   templateUrl: './crear.page.html',
   styleUrls: ['./crear.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule]
+  imports: [CommonModule, FormsModule, IonicModule],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CrearPage implements OnInit {
+export class CrearPage {
 
   nuevaInstitucion = {
-    nombre_institucion: '',
-    direccion: '',
-    telefono: '',
-    email: '',
-    descripcion: '',
-    estado_institucion: true
+    nombre: '',
+    tipo: ''
   };
 
   enviando: boolean = false;
   private catalogoService = inject(CatalogoService);
+  private cd = inject(ChangeDetectorRef);
 
   constructor(
     private router: Router,
-    private loadingController: LoadingController,
     private toastController: ToastController
-  ) { }
-
-  ngOnInit() { }
+  ) {
+    addIcons({
+      addCircleOutline,
+      businessOutline,
+      informationCircleOutline,
+      saveOutline,
+      closeOutline
+    });
+  }
 
   async crearInstitucion() {
-    if (!this.nuevaInstitucion.nombre_institucion.trim()) {
-      this.presentToast('El nombre de la institución es obligatorio', 'warning');
+    if (!this.nuevaInstitucion.nombre.trim()) {
+      await this.presentToast('El nombre de la institución es obligatorio', 'warning');
       return;
     }
 
     this.enviando = true;
-    const loading = await this.loadingController.create({
-      message: 'Guardando institución...',
-      spinner: 'crescent'
-    });
-    await loading.present();
+    this.cd.markForCheck();
 
-    const nuevaInstitucionData = {
-      nombre_institucion: this.nuevaInstitucion.nombre_institucion,
-      direccion: this.nuevaInstitucion.direccion || null,
-      telefono: this.nuevaInstitucion.telefono || null,
-      email: this.nuevaInstitucion.email || null,
-      descripcion: this.nuevaInstitucion.descripcion || null,
-      estado_institucion: this.nuevaInstitucion.estado_institucion,
-      fecha_ultima_actualizacion: new Date().toISOString()
-    };
+    try {
+      const data = {
+        nombre: this.nuevaInstitucion.nombre,
+        tipo: this.nuevaInstitucion.tipo || null
+      };
 
-    this.catalogoService.createItem('instituciones', nuevaInstitucionData).subscribe({
-      next: async () => {
-        this.presentToast('Institución creada exitosamente', 'success');
-        this.router.navigate(['/gestionar instituciones']);
-        loading.dismiss();
-        this.enviando = false;
-      },
-      error: async (error) => {
-        console.error('Error al crear institución:', error);
-        this.presentToast('Error al crear la institución: ' + (error.message || error.statusText), 'danger');
-        loading.dismiss();
-        this.enviando = false;
-      }
-    });
+      await firstValueFrom(this.catalogoService.createItem('instituciones', data));
+      await this.presentToast('Institución creada exitosamente', 'success');
+      this.router.navigate(['/gestionar-instituciones']);
+    } catch (error: any) {
+      console.error('Error al crear institución:', error);
+      await this.presentToast('Error al crear la institución: ' + (error?.message ?? ''), 'danger');
+    } finally {
+      this.enviando = false;
+      this.cd.markForCheck();
+    }
   }
 
   cancelar() {
-    this.router.navigate(['/gestionar instituciones']);
+    this.router.navigate(['/gestionar-instituciones']);
   }
 
   async presentToast(message: string, color: string = 'primary') {
     const toast = await this.toastController.create({
-      message: message,
+      message,
       duration: 3000,
       position: 'bottom',
-      color: color,
-      buttons: [
-        {
-          side: 'end',
-          icon: 'close',
-          role: 'cancel'
-        }
-      ]
+      color,
+      buttons: [{ icon: 'close', role: 'cancel' }]
     });
-
     await toast.present();
   }
 }

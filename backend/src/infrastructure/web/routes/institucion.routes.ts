@@ -5,9 +5,10 @@ import { InstitucionController } from '../controllers/institucion.controller';
 const router = Router();
 const controller = container.resolve(InstitucionController);
 
-// Public or Protected? Usually these lists are public for registration but the request came from an admin page
-// router.use(authenticate);
-
 router.get('/', controller.getAll);
+router.get('/:id', controller.getById);
+router.post('/', controller.create);
+router.put('/:id', controller.update);
+router.delete('/:id', controller.delete);
 
 export default router;

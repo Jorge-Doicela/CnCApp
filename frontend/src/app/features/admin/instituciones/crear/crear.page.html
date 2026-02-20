@@ -4,6 +4,7 @@
       <ion-back-button defaultHref="/gestionar-instituciones"></ion-back-button>
     </ion-buttons>
     <ion-title class="ion-text-center">Crear Institución</ion-title>
+    <ion-progress-bar *ngIf="enviando" type="indeterminate"></ion-progress-bar>
   </ion-toolbar>
 </ion-header>
 
@@ -16,11 +17,13 @@
     </div>
 
     <form (ngSubmit)="crearInstitucion()" #institucionForm="ngForm">
+      <!-- Nombre -->
       <div class="form-group">
         <ion-item class="form-item">
           <ion-icon name="business-outline" slot="start" color="primary"></ion-icon>
-          <ion-label position="floating">Nombre de la Institución <ion-text color="danger">*</ion-text></ion-label>
-          <ion-input [(ngModel)]="nuevaInstitucion.nombre_institucion" name="nombre_institucion" required minlength="3" #nombre="ngModel"></ion-input>
+          <ion-label position="floating">Nombre <ion-text color="danger">*</ion-text></ion-label>
+          <ion-input [(ngModel)]="nuevaInstitucion.nombre" name="nombre" required minlength="3"
+            #nombre="ngModel"></ion-input>
         </ion-item>
         <ion-note color="danger" *ngIf="nombre.invalid && (nombre.dirty || nombre.touched)">
           <ion-icon name="alert-circle-outline"></ion-icon>
@@ -28,54 +31,16 @@
         </ion-note>
       </div>
 
+      <!-- Tipo -->
       <div class="form-group">
         <ion-item class="form-item">
-          <ion-icon name="location-outline" slot="start" color="primary"></ion-icon>
-          <ion-label position="floating">Dirección</ion-label>
-          <ion-input [(ngModel)]="nuevaInstitucion.direccion" name="direccion"></ion-input>
+          <ion-icon name="information-circle-outline" slot="start" color="primary"></ion-icon>
+          <ion-label position="floating">Tipo de Institución</ion-label>
+          <ion-input [(ngModel)]="nuevaInstitucion.tipo" name="tipo"></ion-input>
         </ion-item>
       </div>
 
-      <div class="form-group">
-        <ion-item class="form-item">
-          <ion-icon name="call-outline" slot="start" color="primary"></ion-icon>
-          <ion-label position="floating">Teléfono</ion-label>
-          <ion-input [(ngModel)]="nuevaInstitucion.telefono" name="telefono" type="tel"></ion-input>
-        </ion-item>
-      </div>
-
-      <div class="form-group">
-        <ion-item class="form-item">
-          <ion-icon name="mail-outline" slot="start" color="primary"></ion-icon>
-          <ion-label position="floating">Email</ion-label>
-          <ion-input [(ngModel)]="nuevaInstitucion.email" name="email" type="email" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" #email="ngModel"></ion-input>
-        </ion-item>
-        <ion-note color="danger" *ngIf="email.invalid && (email.dirty || email.touched)">
-          <ion-icon name="alert-circle-outline"></ion-icon>
-          Por favor, introduce un email válido
-        </ion-note>
-      </div>
-
-      <div class="form-group">
-        <ion-item class="form-item">
-          <ion-icon name="document-text-outline" slot="start" color="primary"></ion-icon>
-          <ion-label position="floating">Descripción</ion-label>
-          <ion-textarea [(ngModel)]="nuevaInstitucion.descripcion" name="descripcion" rows="3"></ion-textarea>
-        </ion-item>
-      </div>
-
-      <div class="form-group status-toggle">
-        <ion-item class="form-item toggle-item">
-          <ion-icon name="checkmark-circle-outline" slot="start" color="primary"></ion-icon>
-          <ion-label>Estado</ion-label>
-          <ion-toggle [(ngModel)]="nuevaInstitucion.estado_institucion" name="estado_institucion" color="success"></ion-toggle>
-        </ion-item>
-        <ion-note>
-          <ion-icon name="information-circle-outline"></ion-icon>
-          Activo: La institución está disponible | Inactivo: La institución no está disponible
-        </ion-note>
-      </div>
-
+      <!-- Actions -->
       <div class="form-actions">
         <ion-button color="medium" fill="outline" type="button" (click)="cancelar()">
           <ion-icon name="close-outline" slot="start"></ion-icon>
