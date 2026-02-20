@@ -1,7 +1,7 @@
 import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { AlertController, ToastController } from '@ionic/angular';
 import { CatalogoService } from 'src/app/shared/services/catalogo.service';
@@ -23,6 +23,7 @@ export class CRUDRolesPage implements OnInit {
   rolesActivos: number = 0;
 
   private catalogoService = inject(CatalogoService);
+  private cd = inject(ChangeDetectorRef);
 
   constructor(
     private router: Router,
@@ -53,6 +54,8 @@ export class CRUDRolesPage implements OnInit {
       this.presentToast('Error al cargar los roles (API)', 'danger');
       this.Roles = [];
       this.rolesFiltrados = [];
+    } finally {
+      this.cd.markForCheck();
     }
   }
 
