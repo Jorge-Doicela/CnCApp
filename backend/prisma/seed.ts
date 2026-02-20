@@ -1,12 +1,13 @@
 import 'dotenv/config';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
+import { ecuadorData } from './data/ecuador-data';
 
 const prisma = new PrismaClient();
 const SALT_ROUNDS = 10;
 
 async function main() {
-    console.log('🌱 Starting COMPLETE database seed...');
+    console.log('🌱 Starting COMPLETE database seed (Real Ecuador Data)...');
     console.log('⚠️  This will DELETE all existing data and create fresh seed data\n');
 
     try {
@@ -68,29 +69,61 @@ async function main() {
         // ============================================
         // STEP 2: GEOGRAPHIC DATA (Ecuador)
         // ============================================
-        console.log('🗺️  Creating geographic data...');
+        console.log('Map  Creating geographic data (Provincias > Cantones > Parroquias)...');
 
-        // Provincias principales de Ecuador
-        const pichincha = await prisma.provincia.create({ data: { nombre: 'PICHINCHA' } });
-        const guayas = await prisma.provincia.create({ data: { nombre: 'GUAYAS' } });
-        const azuay = await prisma.provincia.create({ data: { nombre: 'AZUAY' } });
-        const manabi = await prisma.provincia.create({ data: { nombre: 'MANABÍ' } });
-        const elOro = await prisma.provincia.create({ data: { nombre: 'EL ORO' } });
-        const tungurahua = await prisma.provincia.create({ data: { nombre: 'TUNGURAHUA' } });
-        const losRios = await prisma.provincia.create({ data: { nombre: 'LOS RÍOS' } });
-        const imbabura = await prisma.provincia.create({ data: { nombre: 'IMBABURA' } });
+        let totalProvincias = 0;
+        let totalCantones = 0;
+        let totalParroquias = 0;
 
-        // Cantones principales
-        const quito = await prisma.canton.create({ data: { nombre: 'QUITO', provinciaId: pichincha.id } });
-        const guayaquil = await prisma.canton.create({ data: { nombre: 'GUAYAQUIL', provinciaId: guayas.id } });
-        const cuenca = await prisma.canton.create({ data: { nombre: 'CUENCA', provinciaId: azuay.id } });
-        const ambato = await prisma.canton.create({ data: { nombre: 'AMBATO', provinciaId: tungurahua.id } });
-        const machala = await prisma.canton.create({ data: { nombre: 'MACHALA', provinciaId: elOro.id } });
-        const portoviejo = await prisma.canton.create({ data: { nombre: 'PORTOVIEJO', provinciaId: manabi.id } });
-        const ibarra = await prisma.canton.create({ data: { nombre: 'IBARRA', provinciaId: imbabura.id } });
-        const babahoyo = await prisma.canton.create({ data: { nombre: 'BABAHOYO', provinciaId: losRios.id } });
+        for (const provData of ecuadorData) {
+            // Crear Provincia
+            const provincia = await prisma.provincia.create({
+                data: { nombre: provData.provincia }
+            });
+            totalProvincias++;
+            process.stdout.write(`.`); // Progress indicator
 
-        console.log('✅ Geographic data created\n');
+            if (provData.cantones && provData.cantones.length > 0) {
+                for (const cantData of provData.cantones) {
+                    // Crear Canton
+                    const canton = await prisma.canton.create({
+                        data: {
+                            nombre: cantData.nombre,
+                            provinciaId: provincia.id
+                        }
+                    });
+                    totalCantones++;
+
+                    if (cantData.parroquias && cantData.parroquias.length > 0) {
+                        // Crear Parroquias (Batch insert for speed)
+                        const parroquiasData = cantData.parroquias.map(pName => ({
+                            nombre: pName,
+                            cantonId: canton.id
+                        }));
+
+                        await prisma.parroquia.createMany({
+                            data: parroquiasData
+                        });
+                        totalParroquias += parroquiasData.length;
+                    }
+                }
+            }
+        }
+
+        console.log('\n✅ Geographic data created:');
+        console.log(`   - ${totalProvincias} Provincias`);
+        console.log(`   - ${totalCantones} Cantones`);
+        console.log(`   - ${totalParroquias} Parroquias\n`);
+
+        // Get key provinces/cantons for user seeding references
+        const pichincha = await prisma.provincia.findFirst({ where: { nombre: 'PICHINCHA' } });
+        const guayas = await prisma.provincia.findFirst({ where: { nombre: 'GUAYAS' } });
+        const azuay = await prisma.provincia.findFirst({ where: { nombre: 'AZUAY' } });
+
+        const quito = await prisma.canton.findFirst({ where: { nombre: 'QUITO' } });
+        const guayaquil = await prisma.canton.findFirst({ where: { nombre: 'GUAYAQUIL' } });
+        const cuenca = await prisma.canton.findFirst({ where: { nombre: 'CUENCA' } });
+
 
         // ============================================
         // STEP 3: ADMINISTRATIVE CATALOGS
@@ -250,6 +283,8 @@ async function main() {
                 rolId: usuarioRole.id,
                 entidadId: gadQuito.id,
                 tipoParticipante: 2,
+                provinciaId: pichincha?.id,
+                cantonId: quito?.id
             },
         });
 
@@ -267,6 +302,8 @@ async function main() {
                 rolId: usuarioRole.id,
                 entidadId: gadQuito.id,
                 tipoParticipante: 2,
+                provinciaId: pichincha?.id,
+                cantonId: quito?.id
             },
         });
 
@@ -284,6 +321,8 @@ async function main() {
                 rolId: usuarioRole.id,
                 entidadId: gadGuayaquil.id,
                 tipoParticipante: 2,
+                provinciaId: guayas?.id,
+                cantonId: guayaquil?.id
             },
         });
 
@@ -301,6 +340,8 @@ async function main() {
                 rolId: usuarioRole.id,
                 entidadId: gadGuayaquil.id,
                 tipoParticipante: 2,
+                provinciaId: guayas?.id,
+                cantonId: guayaquil?.id
             },
         });
 
@@ -318,6 +359,8 @@ async function main() {
                 rolId: usuarioRole.id,
                 entidadId: gadCuenca.id,
                 tipoParticipante: 2,
+                provinciaId: azuay?.id,
+                cantonId: cuenca?.id
             },
         });
 
@@ -335,6 +378,7 @@ async function main() {
                 rolId: usuarioRole.id,
                 entidadId: gadPichincha.id,
                 tipoParticipante: 1, // Funcionario Provincial
+                provinciaId: pichincha?.id,
             },
         });
 
@@ -547,8 +591,9 @@ async function main() {
         console.log('├─────────────────────────────────────────┤');
         console.log('│ GEOGRAPHIC DATA                         │');
         console.log('├─────────────────────────────────────────┤');
-        console.log('│ • 8 Provincias                          │');
-        console.log('│ • 8 Cantones                            │');
+        console.log(`│ • ${totalProvincias} Provincias                  │`);
+        console.log(`│ • ${totalCantones} Cantones                    │`);
+        console.log(`│ • ${totalParroquias} Parroquias (Approx)         │`);
         console.log('├─────────────────────────────────────────┤');
         console.log('│ CATALOGS                                │');
         console.log('├─────────────────────────────────────────┤');
