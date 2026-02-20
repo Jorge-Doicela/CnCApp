@@ -47,7 +47,13 @@ export const authorize = (...allowedRoles: number[]) => {
         }
 
         if (!allowedRoles.includes(req.userRole)) {
-            res.status(403).json({ error: 'Acceso denegado - Permisos insuficientes' });
+            console.log(`[AUTH_DEBUG] Acceso denegado. UserRole: ${req.userRole} (type: ${typeof req.userRole}), Allowed: ${allowedRoles}`);
+            res.status(403).json({
+                error: 'Acceso denegado - Permisos insuficientes',
+                currentRole: req.userRole,
+                currentRoleType: typeof req.userRole,
+                requiredRoles: allowedRoles
+            });
             return;
         }
 

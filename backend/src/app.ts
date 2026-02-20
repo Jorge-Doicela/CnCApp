@@ -90,7 +90,7 @@ app.use((req, _res, next) => {
 // RUTAS
 // ============================================
 
-// Ruta de health check
+// Health Check
 app.get('/health', (_req, res) => {
     res.status(200).json({ status: 'ok', message: 'Servidor funcionando correctamente' });
 });
