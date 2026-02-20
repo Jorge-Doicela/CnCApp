@@ -1,8 +1,9 @@
 import { Router } from 'express';
+import { container } from 'tsyringe';
 import { PlantillaController } from '../controllers/plantilla.controller';
 
 const router = Router();
-const controller = new PlantillaController();
+const controller = container.resolve(PlantillaController);
 
 router.post('/', controller.create.bind(controller));
 router.get('/', controller.getAll.bind(controller));

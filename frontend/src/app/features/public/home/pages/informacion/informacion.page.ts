@@ -4,8 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
   IonHeader, IonToolbar, IonButtons, IonBackButton,
-  IonTitle, IonContent, IonCard, IonCardHeader,
-  IonCardTitle, IonCardContent, IonAvatar,
+  IonTitle, IonContent, IonAvatar, // IonCard removed, Avatar restored
   IonAccordionGroup, IonAccordion, IonItem,
   IonIcon, IonLabel,
   IonSegment, IonSegmentButton
@@ -26,8 +25,7 @@ import {
   imports: [
     CommonModule, FormsModule,
     IonHeader, IonToolbar, IonButtons, IonBackButton,
-    IonTitle, IonContent, IonCard, IonCardHeader,
-    IonCardTitle, IonCardContent, IonAvatar,
+    IonTitle, IonContent, IonAvatar, // IonCard removed, Avatar restored
     IonAccordionGroup, IonAccordion, IonItem,
     IonIcon, IonLabel,
     IonSegment, IonSegmentButton

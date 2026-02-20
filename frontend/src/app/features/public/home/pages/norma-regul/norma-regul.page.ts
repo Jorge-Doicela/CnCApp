@@ -7,8 +7,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
   IonHeader, IonToolbar, IonButtons, IonBackButton,
-  IonTitle, IonContent, IonCard, IonCardContent,
-  IonItem, IonLabel, IonIcon,
+  IonTitle, IonContent, // IonCard, IonCardContent removed
+  IonItem, IonIcon, // IonLabel removed, IonItem kept? Wait, warning didn't say IonItem was unused.
   IonButton, IonInput,
   IonSelect, IonSelectOption
 } from '@ionic/angular/standalone';
@@ -34,8 +34,8 @@ import {
   imports: [
     CommonModule, FormsModule,
     IonHeader, IonToolbar, IonButtons, IonBackButton,
-    IonTitle, IonContent, IonCard, IonCardContent,
-    IonItem, IonLabel, IonIcon,
+    IonTitle, IonContent, // IonCard, IonCardContent removed
+    IonItem, IonIcon, // IonLabel removed
     IonButton, IonInput,
     IonSelect, IonSelectOption
   ],

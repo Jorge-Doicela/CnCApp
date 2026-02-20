@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import {
-  IonContent, IonItem, IonIcon, IonLabel,
+  IonContent, IonIcon, IonLabel, // IonItem from top import removed
   IonInput, IonButton, LoadingController, ToastController, AlertController
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
@@ -23,7 +23,7 @@ import { AuthService } from '../services/auth.service';
   imports: [
     CommonModule,
     FormsModule,
-    IonContent, IonItem, IonIcon, IonLabel,
+    IonContent, IonIcon, IonLabel, // IonItem removed from decorator, others restored
     IonInput, IonButton, RouterLink
   ]
 })

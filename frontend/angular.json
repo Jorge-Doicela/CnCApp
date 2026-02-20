@@ -65,7 +65,14 @@
               "vendorChunk": true,
               "extractLicenses": false,
               "sourceMap": true,
-              "namedChunks": true
+              "namedChunks": true,
+              "allowedCommonJsDependencies": [
+                "crypto-js",
+                "pdfmake",
+                "qrcode",
+                "raf",
+                "core-js"
+              ]
             },
             "ci": {
               "progress": false

@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import {
-  IonContent, IonItem, IonIcon, IonLabel,
+  IonContent, IonIcon, IonLabel, // IonItem from top import removed
   IonInput, IonButton, LoadingController, ToastController, IonSpinner,
   IonSelect, IonSelectOption, IonCheckbox
 } from '@ionic/angular/standalone';
@@ -28,7 +28,7 @@ import { RouterModule } from '@angular/router';
     CommonModule,
     FormsModule,
     RouterModule,
-    IonContent, IonItem, IonIcon, IonLabel,
+    IonContent, IonIcon, IonLabel, // IonItem removed from decorator, others restored
     IonInput, IonButton, IonSpinner,
     IonSelect, IonSelectOption, IonCheckbox
   ]

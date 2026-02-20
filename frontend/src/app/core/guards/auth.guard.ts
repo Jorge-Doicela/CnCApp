@@ -14,7 +14,7 @@ export const authGuard: CanActivateFn = async (route, state) => {
   const authService = inject(AuthService);
 
   // Check if user is authenticated
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('accessToken');
 
   if (!token) {
     await presentAuthAlert(
@@ -40,7 +40,7 @@ export class AuthGuard {
 
   async canActivate(route: any, state: any): Promise<boolean> {
     // Check if user is authenticated
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('accessToken');
 
     if (!token) {
       await this.presentAuthAlert(
