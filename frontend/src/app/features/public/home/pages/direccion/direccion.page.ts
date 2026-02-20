@@ -8,8 +8,7 @@ declare var google: any;
 
 import { CommonModule } from '@angular/common';
 import {
-  IonHeader, IonToolbar, IonButtons,
-  IonTitle, IonContent, IonIcon, IonButton
+  IonContent, IonIcon, IonButton
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -25,8 +24,8 @@ import {
   standalone: true,
   imports: [
     CommonModule,
-    IonHeader, IonToolbar, IonButtons,
-    IonTitle, IonContent, IonIcon, RouterModule,
+    CommonModule,
+    IonContent, IonIcon, RouterModule,
     IonButton
   ],
   changeDetection: ChangeDetectionStrategy.OnPush

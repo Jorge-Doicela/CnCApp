@@ -1,0 +1,44 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <div class="container header-inner">
+      <div class="brand" (click)="navegarModulo('/')">
+        <ion-buttons slot="start" class="ion-hide-lg-up">
+          <ion-button (click)="toggleMenu()" color="dark">
+            <ion-icon slot="icon-only" name="menu-outline"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+        <img src="assets/cnc.png" alt="CNC Logo" class="nav-logo">
+        <div class="brand-text">
+          <h1>CNC</h1>
+          <small>Ecuador</small>
+        </div>
+      </div>
+
+      <!-- Desktop Navigation (Center) -->
+      <nav class="desktop-nav" *ngIf="isGuest()">
+        <a (click)="navegarModulo('/')" class="nav-link" [class.active]="router.url === '/home' || router.url === '/'">Inicio</a>
+        <a (click)="navegarModulo('servi-progra')" class="nav-link" [class.active]="router.url.includes('servi-progra')">Servicios</a>
+        <a (click)="navegarModulo('validar-certificados')" class="nav-link" [class.active]="router.url.includes('validar-certificados')">Validar</a>
+        <!-- Expanded Public Links -->
+        <a (click)="navegarModulo('historia')" class="nav-link" [class.active]="router.url.includes('historia')">Historia</a>
+        <a (click)="navegarModulo('direccion')" class="nav-link" [class.active]="router.url.includes('direccion')">Dirección</a>
+        <a (click)="navegarModulo('norma-regul')" class="nav-link" [class.active]="router.url.includes('norma-regul')">Normativa</a>
+        <a (click)="navegarModulo('informacion')" class="nav-link" [class.active]="router.url.includes('informacion')">Nosotros</a>
+      </nav>
+
+      <div class="header-actions">
+        <!-- Logged In -->
+        <div class="user-pill" *ngIf="!isGuest()" (click)="navegarModulo('Ver Perfil')">
+          <div class="avatar">{{ userName()?.charAt(0) }}</div>
+          <span>{{ (userName() || '').split(' ')[0] }}</span>
+        </div>
+
+        <!-- Guest -->
+        <ng-container *ngIf="isGuest()">
+          <button class="btn-login" (click)="iraLogin()">Ingresar</button>
+          <button class="btn-register" (click)="iraRegistro()">Crear Cuenta</button>
+        </ng-container>
+      </div>
+    </div>
+  </ion-toolbar>
+</ion-header>

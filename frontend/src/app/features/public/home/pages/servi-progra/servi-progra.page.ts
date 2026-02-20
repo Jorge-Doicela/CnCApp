@@ -5,8 +5,7 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
-  IonHeader, IonToolbar, IonButtons, IonBackButton,
-  IonTitle, IonContent, IonSegment, IonSegmentButton,
+  IonContent, IonSegment, IonSegmentButton,
   IonLabel, IonCard, IonCardHeader,
   IonCardTitle, IonCardContent, IonIcon, IonButton, IonItem,
   IonSelect, IonSelectOption, IonModal
@@ -29,8 +28,7 @@ import {
   standalone: true,
   imports: [
     CommonModule, FormsModule,
-    IonHeader, IonToolbar, IonButtons, IonBackButton,
-    IonTitle, IonContent, IonSegment, IonSegmentButton,
+    IonContent, IonSegment, IonSegmentButton,
     IonLabel, IonIcon, IonButton, IonModal
   ],
   changeDetection: ChangeDetectionStrategy.OnPush

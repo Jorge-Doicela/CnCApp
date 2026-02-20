@@ -1,4 +1,4 @@
-<ion-app>
+<ion-app [class.has-global-header]="showHeader()">
   <!-- Menú lateral -->
   <ion-menu side="start" content-id="main-content" (ionWillOpen)="handleMenuWillOpen()" (ionDidOpen)="handleMenuOpen()"
     (ionDidClose)="handleMenuClose()">
@@ -93,6 +93,9 @@
       </ion-list>
     </ion-content>
   </ion-menu>
+
+  <!-- Header Global Persistente -->
+  <app-header *ngIf="showHeader()"></app-header>
 
   <!-- Contenido principal -->
   <ion-router-outlet id="main-content" #mainContent tabindex="-1" style="outline: none;"></ion-router-outlet>

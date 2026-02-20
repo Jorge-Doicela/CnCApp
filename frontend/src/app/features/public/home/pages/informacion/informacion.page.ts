@@ -3,8 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
-  IonHeader, IonToolbar, IonButtons, IonBackButton,
-  IonTitle, IonContent, IonAvatar, // IonCard removed, Avatar restored
+  IonContent, IonAvatar, // IonCard removed, Avatar restored
   IonAccordionGroup, IonAccordion, IonItem,
   IonIcon, IonLabel,
   IonSegment, IonSegmentButton
@@ -24,8 +23,7 @@ import {
   standalone: true,
   imports: [
     CommonModule, FormsModule,
-    IonHeader, IonToolbar, IonButtons, IonBackButton,
-    IonTitle, IonContent, IonAvatar, // IonCard removed, Avatar restored
+    IonContent, IonAvatar,
     IonAccordionGroup, IonAccordion, IonItem,
     IonIcon, IonLabel,
     IonSegment, IonSegmentButton

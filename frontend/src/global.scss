@@ -105,3 +105,13 @@ a {
 ::-webkit-scrollbar-thumb:hover {
     background: var(--ion-color-medium);
 }
+
+/* FIX: Ensure content does not overlap with sticky global header */
+ion-app.has-global-header ion-router-outlet {
+    top: 64px;
+    /* Move router outlet down by header height */
+    height: calc(100% - 64px);
+    /* Adjust height to prevent overflow/scroll issues */
+    position: absolute;
+    /* Ensure it stays positioned correctly */
+}

@@ -6,8 +6,7 @@ import { SafeResourceUrl, DomSanitizer } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
-  IonHeader, IonToolbar, IonButtons, IonBackButton,
-  IonTitle, IonContent, // IonCard, IonCardContent removed
+  IonContent, // IonCard, IonCardContent removed
   IonItem, IonIcon, // IonLabel removed, IonItem kept? Wait, warning didn't say IonItem was unused.
   IonButton, IonInput,
   IonSelect, IonSelectOption
@@ -33,9 +32,8 @@ import {
   standalone: true,
   imports: [
     CommonModule, FormsModule,
-    IonHeader, IonToolbar, IonButtons, IonBackButton,
-    IonTitle, IonContent, // IonCard, IonCardContent removed
-    IonItem, IonIcon, // IonLabel removed
+    IonContent,
+    IonItem, IonIcon,
     IonButton, IonInput,
     IonSelect, IonSelectOption
   ],
