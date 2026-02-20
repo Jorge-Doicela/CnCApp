@@ -108,6 +108,7 @@ export class CertificacionesPage implements OnInit {
 
     loading = true;
     certificadoData: any = null;
+    plantillaData: any = null;
     idCapacitacion: number | null = null;
     pdfUrl: string | null = null;
 

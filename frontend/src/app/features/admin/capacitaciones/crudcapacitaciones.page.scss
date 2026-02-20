@@ -1,3 +1,4 @@
+@use "sass:color";
 // ============================================
 // CAPACITACIONES PAGE - COLOR THEORY OPTIMIZED
 // ============================================
@@ -181,11 +182,13 @@ ion-content {
   }
 
   &.stat-completed::before {
-    background: linear-gradient(90deg, $success-color, lighten($success-color, 10%));
+    background: linear-gradient(90deg, $success-color, color.adjust($success-color, $lightness: 10%));
+
   }
 
   &.stat-certificates::before {
-    background: linear-gradient(90deg, $warning-color, lighten($warning-color, 10%));
+    background: linear-gradient(90deg, $warning-color, color.adjust($warning-color, $lightness: 10%));
+
   }
 }
 
@@ -221,7 +224,8 @@ ion-content {
     background: linear-gradient(135deg, rgba(255, 196, 9, 0.15), rgba(255, 196, 9, 0.08));
 
     ion-icon {
-      color: darken($warning-color, 10%);
+      color: color.adjust($warning-color, $lightness: -10%);
+
     }
   }
 }
@@ -287,7 +291,8 @@ ion-content {
 
   ion-icon {
     font-size: 80px;
-    color: lighten($medium-color, 10%);
+    color: color.adjust($medium-color, $lightness: 10%);
+
     margin-bottom: $spacing-md;
     opacity: 0.6;
   }
@@ -364,19 +369,22 @@ ion-content {
 
   &.status-active {
     background: rgba(23, 74, 132, 0.12);
-    color: darken($primary-color, 5%);
+    color: color.adjust($primary-color, $lightness: -5%);
+
     border: 1px solid rgba(23, 74, 132, 0.2);
   }
 
   &.status-completed {
     background: rgba(45, 211, 111, 0.12);
-    color: darken($success-color, 10%);
+    color: color.adjust($success-color, $lightness: -10%);
+
     border: 1px solid rgba(45, 211, 111, 0.2);
   }
 
   &.status-canceled {
     background: rgba(235, 68, 90, 0.12);
-    color: darken($danger-color, 5%);
+    color: color.adjust($danger-color, $lightness: -5%);
+
     border: 1px solid rgba(235, 68, 90, 0.2);
   }
 }
@@ -385,7 +393,8 @@ ion-content {
   padding: 6px 10px;
   border-radius: 12px;
   background: rgba(255, 196, 9, 0.12);
-  color: darken($warning-color, 15%);
+  color: color.adjust($warning-color, $lightness: -15%);
+
   display: inline-flex;
   align-items: center;
   border: 1px solid rgba(255, 196, 9, 0.2);
