@@ -102,6 +102,10 @@ export class PlantillasPage implements OnInit {
         return Object.keys(plantilla.configuracion).length;
     }
 
+    contarActivas(): number {
+        return this.plantillas.filter(p => p.activa).length;
+    }
+
     crearPlantilla() {
         this.navController.navigateForward('/gestionar-plantillas/crear');
     }

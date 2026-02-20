@@ -1,3 +1,61 @@
+ion-content {
+    --background: #f8fafc;
+}
+
+.page-back-nav {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 16px 16px 4px;
+
+    ion-button {
+        --color: #64748b;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+}
+
+.page-header {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 8px 16px 20px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+
+    .header-info {
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #1e293b;
+            margin: 0 0 4px;
+            letter-spacing: -0.03em;
+        }
+
+        p {
+            font-size: 0.87rem;
+            color: #64748b;
+            margin: 0;
+        }
+    }
+
+    .save-btn {
+        --background: #2563eb;
+        --border-radius: 12px;
+        --padding-start: 18px;
+        --padding-end: 18px;
+        height: 42px;
+        font-weight: 700;
+        font-size: 0.87rem;
+        flex-shrink: 0;
+
+        &:hover {
+            --background: #1d4ed8;
+        }
+    }
+}
+
 .loading-container {
     display: flex;
     flex-direction: column;

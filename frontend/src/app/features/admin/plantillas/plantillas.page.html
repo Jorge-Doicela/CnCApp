@@ -1,100 +1,125 @@
-<ion-header [translucent]="true">
-    <ion-toolbar color="primary">
-        <ion-buttons slot="start">
-            <ion-menu-button></ion-menu-button>
-        </ion-buttons>
-        <ion-title>Gestión de Plantillas</ion-title>
-    </ion-toolbar>
-</ion-header>
+<ion-content>
+    <div class="main-container">
 
-<ion-content [fullscreen]="true" class="ion-padding">
-
-    <!-- Loading State -->
-    <div *ngIf="cargando" class="loading-container">
-        <ion-spinner name="crescent" color="primary"></ion-spinner>
-        <p>Cargando plantillas...</p>
-    </div>
-
-    <!-- Content -->
-    <div *ngIf="!cargando">
-        <!-- Header Section -->
-        <div class="header-section">
-            <div class="header-content">
-                <h2>Plantillas de Certificados</h2>
-                <p>Gestiona los diseños para tus capacitaciones</p>
+        <!-- Page Header -->
+        <div class="admin-header fade-in">
+            <div class="header-text">
+                <h1>Gestión de Plantillas</h1>
+                <p>Diseña y administra las plantillas de certificados</p>
             </div>
+            <ion-button class="new-btn" (click)="crearPlantilla()" *ngIf="!cargando">
+                <ion-icon name="add-outline" slot="start"></ion-icon>
+                Nueva Plantilla
+            </ion-button>
+        </div>
 
-            <!-- Search Bar -->
-            <ion-searchbar *ngIf="plantillas.length > 0" [(ngModel)]="terminoBusqueda" (ionInput)="filtrarPlantillas()"
-                placeholder="Buscar plantilla..." animated class="search-bar">
+        <!-- Stats Strip -->
+        <div class="stats-strip fade-in" style="animation-delay: 0.05s;">
+            <div class="stat-box">
+                <div class="stat-icon blue">
+                    <ion-icon name="document-text-outline"></ion-icon>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-value">{{ plantillas.length }}</span>
+                    <span class="stat-label">Total</span>
+                </div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-icon green">
+                    <ion-icon name="checkmark-circle-outline"></ion-icon>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-value">{{ contarActivas() }}</span>
+                    <span class="stat-label">Activa</span>
+                </div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-icon purple">
+                    <ion-icon name="layers-outline"></ion-icon>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-value">{{ plantillasFiltradas.length }}</span>
+                    <span class="stat-label">Filtradas</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions Bar -->
+        <div class="actions-bar fade-in" style="animation-delay: 0.1s;" *ngIf="plantillas.length > 0">
+            <ion-searchbar [(ngModel)]="terminoBusqueda" (ionInput)="filtrarPlantillas()"
+                placeholder="Buscar plantilla..." class="search-input" [debounce]="200">
             </ion-searchbar>
         </div>
 
-        <!-- Grid Container -->
-        <div class="grid-container" *ngIf="plantillasFiltradas.length > 0">
-            <ion-card *ngFor="let plantilla of plantillasFiltradas" class="plantilla-card">
-                <!-- Active Badge -->
-                <div class="active-badge" *ngIf="plantilla.activa">
-                    <ion-icon name="checkmark-circle"></ion-icon>
-                    <span>Activa</span>
-                </div>
+        <!-- Loading -->
+        <div *ngIf="cargando" class="loading-state fade-in">
+            <ion-spinner name="crescent" color="primary"></ion-spinner>
+            <p>Cargando plantillas...</p>
+        </div>
 
-                <!-- Image Container -->
-                <div class="image-container">
+        <!-- Section Header -->
+        <div class="section-header fade-in" style="animation-delay: 0.12s;" *ngIf="!cargando && plantillas.length > 0">
+            <h2>Plantillas</h2>
+            <span class="count-badge">{{ plantillasFiltradas.length }}</span>
+        </div>
+
+        <!-- Grid Cards -->
+        <div class="plantillas-grid" *ngIf="!cargando && plantillasFiltradas.length > 0">
+            <div class="plantilla-card fade-in" *ngFor="let plantilla of plantillasFiltradas; let i = index"
+                [style.animation-delay]="(0.15 + i * 0.05) + 's'" [class.active-card]="plantilla.activa">
+
+                <!-- Image Area -->
+                <div class="card-image" (click)="previsualizarPlantilla(plantilla)">
                     <img [src]="plantilla.imagenUrl" [alt]="plantilla.nombre" (error)="onImageError($event)">
                     <div class="image-overlay">
-                        <ion-button fill="clear" size="small" (click)="previsualizarPlantilla(plantilla)">
-                            <ion-icon name="eye-outline" slot="icon-only"></ion-icon>
-                        </ion-button>
+                        <ion-icon name="eye-outline"></ion-icon>
                     </div>
+                    <span class="active-badge" *ngIf="plantilla.activa">
+                        <ion-icon name="checkmark-circle"></ion-icon>
+                        Activa
+                    </span>
                 </div>
 
                 <!-- Card Content -->
-                <ion-card-header>
-                    <ion-card-title>{{ plantilla.nombre }}</ion-card-title>
-                </ion-card-header>
+                <div class="card-body">
+                    <h3>{{ plantilla.nombre }}</h3>
 
-                <ion-card-content>
-                    <div class="card-info">
-                        <div class="info-item">
+                    <div class="card-meta">
+                        <div class="meta-item">
                             <ion-icon name="layers-outline"></ion-icon>
                             <span>{{ contarCampos(plantilla) }} campos</span>
                         </div>
-                        <div class="info-item">
+                        <div class="meta-item">
                             <ion-icon name="calendar-outline"></ion-icon>
                             <span>{{ plantilla.createdAt | date:'dd/MM/yyyy' }}</span>
                         </div>
                     </div>
 
-                    <!-- Actions -->
-                    <div class="actions">
+                    <div class="card-actions">
                         <ion-button fill="clear" size="small" [color]="plantilla.activa ? 'success' : 'medium'"
                             (click)="toggleActivar(plantilla)">
                             <ion-icon [name]="plantilla.activa ? 'radio-button-on' : 'radio-button-off'"
                                 slot="start"></ion-icon>
                             {{ plantilla.activa ? 'Activa' : 'Activar' }}
                         </ion-button>
-
-                        <ion-button fill="clear" size="small" (click)="editarPlantilla(plantilla.id)">
+                        <ion-button fill="clear" size="small" color="primary" (click)="editarPlantilla(plantilla.id)">
                             <ion-icon name="create-outline" slot="start"></ion-icon>
                             Editar
                         </ion-button>
-
                         <ion-button fill="clear" size="small" color="danger" (click)="confirmarEliminar(plantilla)"
                             [disabled]="plantilla.activa">
                             <ion-icon name="trash-outline" slot="start"></ion-icon>
                             Eliminar
                         </ion-button>
                     </div>
-                </ion-card-content>
-            </ion-card>
+                </div>
+
+            </div>
         </div>
 
-        <!-- Empty State -->
-        <div class="empty-state" *ngIf="plantillas.length === 0 && !cargando">
-            <div class="empty-icon">
-                <ion-icon name="document-text-outline"></ion-icon>
-            </div>
+        <!-- Empty State - No plantillas -->
+        <div class="empty-state fade-in" *ngIf="!cargando && plantillas.length === 0">
+            <ion-icon name="document-text-outline"></ion-icon>
             <h3>No hay plantillas creadas</h3>
             <p>Crea tu primera plantilla de certificado para comenzar</p>
             <ion-button fill="outline" (click)="crearPlantilla()">
@@ -103,24 +128,15 @@
             </ion-button>
         </div>
 
-        <!-- No Results State -->
-        <div class="empty-state" *ngIf="plantillas.length > 0 && plantillasFiltradas.length === 0 && !cargando">
-            <div class="empty-icon">
-                <ion-icon name="search-outline"></ion-icon>
-            </div>
-            <h3>No se encontraron resultados</h3>
+        <!-- Empty State - No results -->
+        <div class="empty-state fade-in" *ngIf="!cargando && plantillas.length > 0 && plantillasFiltradas.length === 0">
+            <ion-icon name="search-outline"></ion-icon>
+            <h3>Sin resultados</h3>
             <p>No hay plantillas que coincidan con "{{ terminoBusqueda }}"</p>
-            <ion-button fill="clear" (click)="limpiarBusqueda()">
+            <ion-button fill="clear" size="small" (click)="limpiarBusqueda()">
                 Limpiar búsqueda
             </ion-button>
         </div>
+
     </div>
-
-    <!-- FAB Button -->
-    <ion-fab vertical="bottom" horizontal="end" slot="fixed" *ngIf="!cargando && plantillas.length > 0">
-        <ion-fab-button color="primary" (click)="crearPlantilla()">
-            <ion-icon name="add-outline"></ion-icon>
-        </ion-fab-button>
-    </ion-fab>
-
 </ion-content>
