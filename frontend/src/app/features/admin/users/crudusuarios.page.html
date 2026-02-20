@@ -1,106 +1,126 @@
-<ion-header class="ion-no-border">
-  <ion-toolbar color="primary">
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/home"></ion-back-button>
-    </ion-buttons>
-    <ion-title>Gestión de Usuarios</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content [fullscreen]="true">
 
-<ion-content class="ion-padding">
-  <div class="main-container">
+  <div class="container section-padding">
 
-    <!-- Header & Title -->
-    <div class="header-section fade-in">
-      <h1>
-        Usuarios
-        <span>Administre el acceso y roles del sistema</span>
-      </h1>
+    <!-- Header Page -->
+    <div class="admin-header animate-fade-up">
+      <div class="header-content">
+        <h1>Gestión de Usuarios</h1>
+        <p>Administra los accesos, roles y datos de los usuarios del sistema.</p>
+      </div>
     </div>
 
-    <!-- Search Bar -->
-    <div class="search-wrapper fade-in" style="animation-delay: 0.1s;">
-      <ion-icon name="search-outline"></ion-icon>
-      <input type="text" placeholder="Buscar por nombre, cédula o email..." [(ngModel)]="searchTerm"
-        (keyup)="filtrarUsuarios()">
-    </div>
-
-    <!-- Loading State -->
-    <div class="loading-container" *ngIf="cargando">
-      <ion-spinner name="crescent" color="primary"></ion-spinner>
-      <p>Cargando usuarios...</p>
-    </div>
-
-    <!-- Content State -->
-    <div *ngIf="!cargando" class="fade-in" style="animation-delay: 0.2s;">
-
-      <!-- Users Grid -->
-      <div class="users-grid" *ngIf="filteredUsuarios.length > 0">
-        <div class="user-card clickable" *ngFor="let usuario of filteredUsuarios"
-          (click)="iraDetallesUsuario(usuario.id)">
-
-          <div class="card-header">
-            <div class="user-avatar">
-              {{ usuario.nombre.charAt(0).toUpperCase() }}
-            </div>
-            <span class="role-badge" [ngClass]="{
-              'admin': usuario.rol?.nombre === 'Administrador',
-              'user': usuario.rol?.nombre === 'Usuario',
-              'unknown': !usuario.rol?.nombre
-            }">
-              {{ usuario.rol?.nombre || 'S/R' }}
-            </span>
-          </div>
-
-          <div class="card-body">
-            <h3>{{ usuario.nombre }}</h3>
-            <span class="user-ci">{{ usuario.ci }}</span>
-
-            <div class="info-row">
-              <ion-icon name="business-outline"></ion-icon>
-              <span>{{ usuario.entidad?.nombre || 'Sin Entidad' }}</span>
-            </div>
-
-            <div class="info-row">
-              <ion-icon name="people-outline"></ion-icon>
-              <span>{{ getTipoParticipante(usuario.tipoParticipante) }}</span>
-            </div>
-            <div class="info-row" *ngIf="usuario.email">
-              <ion-icon name="mail-outline"></ion-icon>
-              <span>{{ usuario.email }}</span>
-            </div>
-          </div>
-
-          <div class="card-actions">
-            <ion-button fill="clear" size="small" color="dark"
-              (click)="$event.stopPropagation(); iraEditarUsuario(usuario.id)">
-              <ion-icon name="create-outline" slot="start"></ion-icon>
-              Editar
-            </ion-button>
-            <ion-button fill="clear" size="small" color="danger"
-              (click)="$event.stopPropagation(); confirmarEliminar(usuario)">
-              <ion-icon name="trash-outline" slot="start"></ion-icon>
-              Eliminar
-            </ion-button>
-          </div>
-
+    <!-- Stats Strip -->
+    <div class="stats-grid animate-fade-up">
+      <div class="stat-card">
+        <div class="icon-box blue">
+          <ion-icon name="people"></ion-icon>
+        </div>
+        <div class="stat-info">
+          <span class="value">{{ usuarios.length }}</span>
+          <span class="label">Total Usuarios</span>
         </div>
       </div>
 
-      <!-- Empty State -->
-      <div class="empty-state" *ngIf="filteredUsuarios.length === 0">
-        <ion-icon name="search-outline"></ion-icon>
-        <h3>No se encontraron usuarios</h3>
-        <p>Intente con otra búsqueda o cree un nuevo usuario</p>
+      <div class="stat-card">
+        <div class="icon-box green">
+          <ion-icon name="shield-checkmark"></ion-icon>
+        </div>
+        <div class="stat-info">
+          <span class="value">{{ getAdmins() }}</span>
+          <span class="label">Administradores</span>
+        </div>
       </div>
 
+      <div class="stat-card">
+        <div class="icon-box purple">
+          <ion-icon name="person"></ion-icon>
+        </div>
+        <div class="stat-info">
+          <span class="value">{{ getTiposUnicos() }}</span>
+          <span class="label">Tipos de Participante</span>
+        </div>
+      </div>
     </div>
-  </div>
 
-  <!-- Floating Action Button -->
-  <ion-fab slot="fixed" vertical="bottom" horizontal="end">
-    <ion-fab-button color="primary" (click)="iraCrearUsuario()">
-      <ion-icon name="add"></ion-icon>
-    </ion-fab-button>
-  </ion-fab>
+    <!-- Actions Bar (Search & Button) -->
+    <div class="actions-bar animate-fade-up" style="animation-delay: 0.1s;">
+      <ion-searchbar class="search-box" mode="ios" placeholder="Buscar por nombre, cédula o email..."
+        [(ngModel)]="searchTerm" (ionInput)="filtrarUsuarios()">
+      </ion-searchbar>
+
+      <ion-button class="btn-create" color="primary" (click)="iraCrearUsuario()">
+        <ion-icon name="add" slot="start"></ion-icon>
+        Nuevo Usuario
+      </ion-button>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="cargando" class="ion-text-center ion-padding top-50">
+      <ion-spinner name="crescent" color="primary"></ion-spinner>
+      <p style="color: var(--ion-color-medium); margin-top: 10px;">Cargando usuarios...</p>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!cargando && filteredUsuarios.length === 0" class="ion-text-center ion-padding empty-placeholder">
+      <ion-icon name="search-outline"></ion-icon>
+      <h3>No se encontraron resultados</h3>
+      <p>Intenta ajustar los filtros de búsqueda o crea un nuevo usuario.</p>
+    </div>
+
+    <!-- Users Grid -->
+    <div class="users-grid animate-fade-up" style="animation-delay: 0.2s;"
+      *ngIf="!cargando && filteredUsuarios.length > 0">
+
+      <div class="user-card" *ngFor="let usuario of filteredUsuarios" (click)="iraDetallesUsuario(usuario.id)">
+
+        <div class="card-header">
+          <div class="user-avatar">
+            {{ usuario.nombre.charAt(0).toUpperCase() }}
+          </div>
+          <span class="role-badge" [ngClass]="{
+            'admin': usuario.rol?.nombre === 'Administrador',
+            'user': usuario.rol?.nombre !== 'Administrador' && usuario.rol?.nombre,
+            'unknown': !usuario.rol?.nombre
+          }">
+            {{ usuario.rol?.nombre || 'S/R' }}
+          </span>
+        </div>
+
+        <div class="card-body">
+          <h3>{{ usuario.nombre }}</h3>
+          <span class="user-ci">{{ usuario.ci }}</span>
+
+          <div class="info-row">
+            <ion-icon name="business-outline"></ion-icon>
+            <span>{{ usuario.entidad?.nombre || 'Sin Entidad' }}</span>
+          </div>
+
+          <div class="info-row">
+            <ion-icon name="people-outline"></ion-icon>
+            <span>{{ getTipoParticipante(usuario.tipoParticipante) }}</span>
+          </div>
+
+          <div class="info-row" *ngIf="usuario.email">
+            <ion-icon name="mail-outline"></ion-icon>
+            <span>{{ usuario.email }}</span>
+          </div>
+        </div>
+
+        <div class="card-footer">
+          <ion-button fill="clear" size="small" color="dark"
+            (click)="$event.stopPropagation(); iraEditarUsuario(usuario.id)">
+            <ion-icon name="create-outline" slot="start"></ion-icon>
+            Editar
+          </ion-button>
+          <ion-button fill="clear" size="small" color="danger"
+            (click)="$event.stopPropagation(); confirmarEliminar(usuario)">
+            <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+          </ion-button>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
 </ion-content>

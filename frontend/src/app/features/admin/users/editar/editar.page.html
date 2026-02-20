@@ -1,25 +1,20 @@
-<ion-header class="ion-no-border">
-  <ion-toolbar color="primary">
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/gestionar-usuarios"></ion-back-button>
-    </ion-buttons>
-    <ion-title>Editar Usuario</ion-title>
-    <ion-buttons slot="end">
-      <ion-button (click)="actualizarUsuario()" [disabled]="cargando">
-        <ion-icon name="save-outline" slot="icon-only"></ion-icon>
-      </ion-button>
-    </ion-buttons>
-  </ion-toolbar>
-</ion-header>
-
-<ion-content class="ion-padding">
+<ion-content>
   <div class="main-container">
 
+    <!-- Back Nav -->
+    <div class="page-back-nav">
+      <ion-button fill="clear" color="medium" size="small" routerLink="/gestionar-usuarios">
+        <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
+        Gestión de Usuarios
+      </ion-button>
+    </div>
+
+    <!-- Header Section -->
     <div class="header-section fade-in">
-      <h1>
-        {{ usuario.nombre || 'Perfil de Usuario' }}
-        <span>Última actualización: {{ usuario.ci }}</span>
-      </h1>
+      <div class="admin-header">
+        <h1>{{ usuario.nombre || 'Editar Usuario' }}</h1>
+        <p>Cédula: {{ usuario.ci }} &mdash; Actualiza los datos del perfil</p>
+      </div>
     </div>
 
     <!-- Navigation Segments -->

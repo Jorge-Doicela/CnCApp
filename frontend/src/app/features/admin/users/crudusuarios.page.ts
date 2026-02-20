@@ -7,8 +7,8 @@ import { AlertController, ToastController, LoadingController } from '@ionic/angu
 import { addIcons } from 'ionicons';
 import {
   personAddOutline, searchOutline, search, idCardOutline,
-  businessOutline, shieldOutline, fingerPrintOutline,
-  callOutline, peopleOutline, createOutline, trashOutline, mailOutline
+  businessOutline, shieldOutline, shieldCheckmark, fingerPrintOutline,
+  callOutline, people, peopleOutline, person, createOutline, trashOutline, mailOutline, add
 } from 'ionicons/icons';
 import { UsuarioService } from 'src/app/features/user/services/usuario.service';
 import { Usuario } from '../../../core/models/usuario.interface';
@@ -45,11 +45,15 @@ export class CRUDUsuariosPage implements OnInit {
       'id-card-outline': idCardOutline,
       'business-outline': businessOutline,
       'shield-outline': shieldOutline,
+      'shield-checkmark': shieldCheckmark,
       'finger-print-outline': fingerPrintOutline,
       'call-outline': callOutline,
+      'people': people,
       'people-outline': peopleOutline,
+      'person': person,
       'create-outline': createOutline,
-      'trash-outline': trashOutline
+      'trash-outline': trashOutline,
+      'add': add
     });
   }
 
@@ -60,6 +64,15 @@ export class CRUDUsuariosPage implements OnInit {
   getTipoParticipante(tipo: number): string {
     const tipos = ["Ciudadano", "Autoridad", "Funcionario GAD", "Institución"];
     return tipos[tipo] || "Desconocido";
+  }
+
+  getAdmins(): number {
+    return this.usuarios.filter((u: any) => u.rol?.nombre === 'Administrador').length;
+  }
+
+  getTiposUnicos(): number {
+    const tipos = new Set(this.usuarios.map((u: any) => u.tipoParticipante));
+    return tipos.size;
   }
 
   async RecuperarUsuarios() {
