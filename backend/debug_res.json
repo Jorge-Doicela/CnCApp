@@ -1,0 +1,36 @@
+{
+  "success": true,
+  "message": "Usuario registrado exitosamente",
+  "data": {
+    "user": {
+      "id": 31,
+      "authUid": null,
+      "nombre": "Debug User 73956997",
+      "ci": "9973956997",
+      "email": "debug_73956997@test.com",
+      "telefono": "0912492059",
+      "tipoParticipante": 2,
+      "rolId": 6,
+      "entidadId": 6,
+      "fotoPerfilUrl": null,
+      "firmaUrl": null,
+      "createdAt": "2026-02-20T03:57:30.443Z",
+      "updatedAt": "2026-02-20T03:57:30.443Z",
+      "rol": {
+        "id": 6,
+        "nombre": "Usuario",
+        "modulos": [
+          "perfil",
+          "capacitaciones-lectura",
+          "certificados-propios"
+        ]
+      },
+      "entidad": {
+        "id": 6,
+        "nombre": "Consejo Nacional de Competencias"
+      }
+    },
+    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMxLCJjaSI6Ijk5NzM5NTY5OTciLCJyb2xlSWQiOjYsImlhdCI6MTc3MTU1OTg1MCwiZXhwIjoxNzcxNTYwNzUwfQ.Fm593XrlZD_RwDHI9G5ENHy1iSk3chLIQqzvV0yGKWY",
+    "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMxLCJjaSI6Ijk5NzM5NTY5OTciLCJyb2xlSWQiOjYsImlhdCI6MTc3MTU1OTg1MCwiZXhwIjoxNzcyMTY0NjUwfQ.sf1aKbzvGGLAe2oj-WPdwB7tsJSz6N_1u96An7hNDts"
+  }
+}

@@ -23,6 +23,11 @@ export class PrismaRolRepository implements RolRepository {
         return rol ? { ...rol, modulos: rol.modulos } : null;
     }
 
+    async findByName(nombre: string): Promise<Rol | null> {
+        const rol = await prisma.rol.findUnique({ where: { nombre } }); // nombre is @unique in schema
+        return rol ? { ...rol, modulos: rol.modulos } : null;
+    }
+
     async create(rol: Omit<Rol, 'id'>): Promise<Rol> {
         const newRol = await prisma.rol.create({
             data: {

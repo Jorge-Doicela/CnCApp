@@ -29,6 +29,22 @@ export class PrismaEntidadRepository implements EntidadRepository {
         };
     }
 
+    async findByName(nombre: string): Promise<Entidad | null> {
+        // Find first because nombre might not be unique in schema (though it refers to unique entity concept)
+        // Schema: nombre String @map("Nombre_Entidad") @db.VarChar(200) -- NO UNIQUE constraint in schema!
+        // So use findFirst.
+        const entidad = await prisma.entidad.findFirst({
+            where: { nombre }
+        });
+        if (!entidad) return null;
+        return {
+            id: entidad.id,
+            nombre: entidad.nombre,
+            estado: true,
+            imagen: ''
+        };
+    }
+
     async create(entidad: Omit<Entidad, 'id'>): Promise<Entidad> {
         const newEntidad = await prisma.entidad.create({
             data: {

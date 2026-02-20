@@ -8,14 +8,7 @@ import { environment } from 'src/environments/environment';
 import { addIcons } from 'ionicons';
 import { cloudDownloadOutline, eyeOutline, arrowBackOutline } from 'ionicons/icons';
 
-// PDFMake imports
-// @ts-ignore
-import * as pdfMake from 'pdfmake/build/pdfmake';
-// @ts-ignore
-import * as pdfFonts from 'pdfmake/build/vfs_fonts';
 
-// Fix for pdfMake vfs
-(pdfMake as any).vfs = (pdfFonts as any).pdfMake ? (pdfFonts as any).pdfMake.vfs : (pdfFonts as any).vfs;
 
 @Component({
     selector: 'app-certificaciones',
@@ -115,13 +108,12 @@ export class CertificacionesPage implements OnInit {
 
     loading = true;
     certificadoData: any = null;
-    plantillaData: any = null;
     idCapacitacion: number | null = null;
+    pdfUrl: string | null = null;
 
     private route = inject(ActivatedRoute);
     private http = inject(HttpClient);
     private loadingCtrl = inject(LoadingController);
-    private toastCtrl = inject(ToastController);
 
     constructor() {
         addIcons({ cloudDownloadOutline, eyeOutline, arrowBackOutline });
@@ -138,140 +130,39 @@ export class CertificacionesPage implements OnInit {
     }
 
     async cargarDatos(idCapacitacion: number) {
-        // We need to fetch:
-        // 1. Certificate Data (QR, Date) specific to User+Capacitacion
-        // 2. Plantilla Config (Image, Coordinates)
-
-        // Since we don't have a dedicated endpoint for "My Certificate Info", we might need to rely on what we have.
-        // Or use the public validation endpoint?
-
-        // Let's assume we fetch the Capacitacion details which includes PlantillaId
-        // And we fetch the User's inscriptions to get the QR code if generated.
-
-        // Ideally Backend should have: GET /certificados/mine/:idCapacitacion
-
-        // Mocking for now to enable functionality
         try {
-            const certs = await this.http.get<any[]>(`${environment.apiUrl}/users/me/certificados`).toPromise(); // Hypothetical endpoint
-            // Fallback: fetch list and find
-            // Since we don't have that endpoint yet, let's assume we pass data or fetch generic
+            // Fetch my certificates
+            const certs = await this.http.get<any[]>(`${environment.apiUrl}/certificados/my`).toPromise();
 
-            // Let's implement a quick backend endpoint? No, let's use what we have in frontend services.
-            // We can use CapacitacionesService.getInscripcionesUsuario() from previous step logic.
+            if (certs && certs.length > 0) {
+                // Find the one for this training
+                const cert = certs.find(c => c.capacitacionId === idCapacitacion);
 
-            const userId = JSON.parse(localStorage.getItem('user') || '{}').id;
-            const inscripciones = await this.http.get<any[]>(`${environment.apiUrl}/usuarios-capacitaciones/usuario/${userId}`).toPromise();
+                if (cert) {
+                    this.certificadoData = {
+                        usuario: { nombre: 'Participante' }, // Name is in the PDF
+                        capacitacion: { nombre: 'Capacitación' }, // Details in PDF
+                        // We could fetch details if we wanted better UI text, but PDF is what matters
+                    };
 
-            if (!inscripciones) throw new Error("No inscriptions");
+                    // Construct full URL. 
+                    // API URL is http://localhost:3000/api
+                    // PDF URL is /certificados/file.pdf (relative to public root)
+                    // Base URL is http://localhost:3000
 
-            const inscripcion = inscripciones.find(i => i.Id_Capacitacion === idCapacitacion);
-
-            if (inscripcion && inscripcion.capacitacion) {
-                this.certificadoData = {
-                    usuario: { nombre: JSON.parse(localStorage.getItem('user') || '{}').nombre },
-                    capacitacion: inscripcion.capacitacion,
-                    fecha: new Date().toLocaleDateString(), // Should be cert date
-                    qr: 'MOCK_QR_HASH'
-                };
-
-                // Fetch Plantilla if exists
-                if (inscripcion.capacitacion.plantillaId) {
-                    // Fetch template
-                    // this.plantillaData = ...
+                    const baseUrl = environment.apiUrl.replace('/api', '');
+                    this.pdfUrl = `${baseUrl}${cert.pdfUrl}`;
                 }
             }
-
         } catch (e) {
-            console.error(e);
+            console.error('Error fetching certificates', e);
         } finally {
             this.loading = false;
         }
     }
 
-    getBase64ImageFromURL(url: string) {
-        return new Promise((resolve, reject) => {
-            const img = new Image();
-            img.setAttribute("crossOrigin", "anonymous");
-            img.onload = () => {
-                const canvas = document.createElement("canvas");
-                canvas.width = img.width;
-                canvas.height = img.height;
-                const ctx = canvas.getContext("2d");
-                ctx?.drawImage(img, 0, 0);
-                const dataURL = canvas.toDataURL("image/png");
-                resolve(dataURL);
-            };
-            img.onerror = error => reject(error);
-            img.src = url;
-        });
+    generarPDF(action: 'download' | 'open') {
+        if (!this.pdfUrl) return;
+        window.open(this.pdfUrl, '_blank');
     }
-
-    async generarPDF(action: 'download' | 'open') {
-        if (!this.certificadoData) return;
-
-        const loader = await this.loadingCtrl.create({ message: 'Generando PDF...' });
-        await loader.present();
-
-        try {
-            // Prepare assets
-            let background = null;
-            if (this.plantillaData?.imagenUrl) {
-                try {
-                    background = await this.getBase64ImageFromURL(this.plantillaData.imagenUrl);
-                } catch (e) {
-                    console.warn('Could not load background', e);
-                }
-            }
-
-            const docDefinition: any = {
-                pageSize: 'A4',
-                pageOrientation: 'landscape', // Certificates usually landscape
-                background: background ? [
-                    {
-                        image: background,
-                        width: 842, // A4 landscape width points
-                        height: 595
-                    }
-                ] : undefined,
-                content: [
-                    // Dynamic Content based on Config
-                    // If no config, use standard layout
-                    {
-                        text: this.certificadoData.usuario.nombre.toUpperCase(),
-                        style: 'name',
-                        absolutePosition: { x: 100, y: 250 } // Example default
-                    },
-                    {
-                        text: `Por haber aprobado el curso: ${this.certificadoData.capacitacion.nombre}`,
-                        style: 'course',
-                        absolutePosition: { x: 100, y: 300 }
-                    },
-                    {
-                        qr: this.certificadoData.qr || 'VALID',
-                        fit: 80,
-                        absolutePosition: { x: 700, y: 450 }
-                    }
-                ],
-                styles: {
-                    name: { fontSize: 24, bold: true },
-                    course: { fontSize: 18 }
-                }
-            };
-
-            const pdfDoc = pdfMake.createPdf(docDefinition);
-
-            if (action === 'download') {
-                pdfDoc.download(`Certificado-${this.certificadoData.capacitacion.nombre}.pdf`);
-            } else {
-                pdfDoc.open();
-            }
-
-        } catch (e) {
-            const toast = await this.toastCtrl.create({ message: 'Error generando PDF', color: 'danger', duration: 2000 });
-            toast.present();
-        } finally {
-            loader.dismiss();
-        }
-    }
-
 }

@@ -8,6 +8,7 @@ export interface Entidad {
 export interface EntidadRepository {
     findAll(): Promise<Entidad[]>;
     findById(id: number): Promise<Entidad | null>;
+    findByName(nombre: string): Promise<Entidad | null>;
     create(entidad: Omit<Entidad, 'id'>): Promise<Entidad>;
     update(id: number, entidad: Partial<Entidad>): Promise<Entidad>;
     delete(id: number): Promise<void>;
