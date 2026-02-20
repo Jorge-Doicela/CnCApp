@@ -55,7 +55,7 @@ export class EditarPage implements OnInit {
   }
 
   ngOnInit() {
-    this.idInstitucion = Number(this.route.snapshot.paramMap.get('idInstitucion'));
+    this.idInstitucion = Number(this.route.snapshot.paramMap.get('id'));
     this.cargarInstitucion();
   }
 
