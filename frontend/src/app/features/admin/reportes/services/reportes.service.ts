@@ -15,6 +15,11 @@ export interface DashboardStats {
     capacitacionesFinalizadas: number;
     certificadosEsteMes: number;
     usuariosRegistradosEsteMes: number;
+    tendencias: Array<{
+        mes: string;
+        usuarios: number;
+        certificados: number;
+    }>;
 }
 
 @Injectable({

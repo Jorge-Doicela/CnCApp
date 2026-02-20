@@ -3,6 +3,8 @@ import { UserRepository } from '../../../domain/user/user.repository';
 import { PasswordEncoder, TokenProvider } from '../../../domain/auth/auth.ports';
 import { User } from '../../../domain/user/entities/user.entity';
 import { ValidationError } from '../../../domain/shared/errors';
+import { RolRepository } from '../../../domain/user/rol.repository';
+import { EntidadRepository } from '../../../domain/user/entidad.repository';
 
 interface RegisterDto {
     ci: string;

@@ -2,16 +2,23 @@ import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
     IonHeader, IonToolbar, IonTitle, IonContent, IonButtons,
-    IonMenuButton, IonCard, IonCardHeader, IonCardTitle,
-    IonCardContent, IonGrid, IonRow, IonCol, IonIcon,
-    IonSpinner, IonText
+    IonMenuButton, IonGrid, IonRow, IonCol, IonIcon,
+    IonSpinner, IonText, IonBadge
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
     peopleOutline, calendarOutline, documentTextOutline,
-    trendingUpOutline, checkmarkCircleOutline, timeOutline
+    trendingUpOutline, checkmarkCircleOutline, timeOutline,
+    statsChartOutline, schoolOutline, ribbonOutline,
+    arrowUpOutline, arrowDownOutline, playOutline,
+    checkmarkDoneOutline
 } from 'ionicons/icons';
 import { ReportesService, DashboardStats } from './services/reportes.service';
+
+// Modular Components
+import { KpiCardComponent } from './components/kpi-card/kpi-card.component';
+import { TrendChartComponent } from './components/trend-chart/trend-chart.component';
+import { RolesChartComponent } from './components/roles-chart/roles-chart.component';
 
 @Component({
     selector: 'app-reportes',
@@ -21,9 +28,9 @@ import { ReportesService, DashboardStats } from './services/reportes.service';
     imports: [
         CommonModule,
         IonHeader, IonToolbar, IonTitle, IonContent, IonButtons,
-        IonMenuButton, IonCard, IonCardHeader, IonCardTitle,
-        IonCardContent, IonGrid, IonRow, IonCol, IonIcon,
-        IonSpinner, IonText
+        IonMenuButton, IonGrid, IonRow, IonCol, IonIcon,
+        IonSpinner, IonText, IonBadge,
+        KpiCardComponent, TrendChartComponent, RolesChartComponent
     ]
 })
 export class ReportesPage implements OnInit {
@@ -38,7 +45,14 @@ export class ReportesPage implements OnInit {
             'document-text-outline': documentTextOutline,
             'trending-up-outline': trendingUpOutline,
             'checkmark-circle-outline': checkmarkCircleOutline,
-            'time-outline': timeOutline
+            'time-outline': timeOutline,
+            'stats-chart-outline': statsChartOutline,
+            'school-outline': schoolOutline,
+            'ribbon-outline': ribbonOutline,
+            'arrow-up-outline': arrowUpOutline,
+            'arrow-down-outline': arrowDownOutline,
+            'play-outline': playOutline,
+            'checkmark-done-outline': checkmarkDoneOutline
         });
     }
 
