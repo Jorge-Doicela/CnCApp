@@ -1,178 +1,128 @@
-<ion-header>
-    <ion-toolbar color="primary">
-        <ion-buttons slot="start">
-            <ion-menu-button></ion-menu-button>
-        </ion-buttons>
-        <ion-title>Reportes y Estadísticas</ion-title>
+<ion-header class="ion-no-border">
+    <ion-toolbar>
+        <div class="header-content">
+            <ion-buttons slot="start">
+                <ion-menu-button color="dark"></ion-menu-button>
+            </ion-buttons>
+            <ion-title>Estadísticas del Sistema</ion-title>
+            <ion-buttons slot="end">
+                <div class="status-pill">
+                    <span class="dot"></span>
+                    Admin Panel
+                </div>
+            </ion-buttons>
+        </div>
     </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
-    <!-- Loading State -->
-    <div *ngIf="loading()" class="loading-container">
-        <ion-spinner name="crescent"></ion-spinner>
-        <ion-text>
-            <p>Cargando estadísticas...</p>
-        </ion-text>
-    </div>
+<ion-content [fullscreen]="true">
+    <div class="dashboard-wrapper">
 
-    <!-- Error State -->
-    <div *ngIf="error()" class="error-container">
-        <ion-text color="danger">
-            <h2>{{ error() }}</h2>
-        </ion-text>
-    </div>
-
-    <!-- Stats Content -->
-    <div *ngIf="!loading() && !error() && stats()" class="stats-container">
-        <!-- Header -->
-        <div class="page-header">
-            <h1>Dashboard del Sistema</h1>
-            <p>Estadísticas generales del sistema CNC</p>
+        <!-- Compact Hero greeting (Public Style) -->
+        <div class="hero-wrapper compact" *ngIf="!loading()">
+            <div class="container hero-content">
+                <span class="pill-label">Analítica de Datos</span>
+                <h2>Panel de <span>Reportes</span></h2>
+                <p>Resumen detallado de la participación y crecimiento de la plataforma.</p>
+            </div>
         </div>
 
-        <!-- Main Stats Grid -->
-        <ion-grid>
-            <ion-row>
-                <!-- Total Usuarios -->
-                <ion-col size="12" sizeMd="6" sizeLg="3">
-                    <ion-card class="stat-card stat-card-primary">
-                        <ion-card-content>
-                            <div class="stat-icon">
-                                <ion-icon name="people-outline"></ion-icon>
-                            </div>
-                            <div class="stat-info">
-                                <h2>{{ stats()!.totalUsuarios }}</h2>
-                                <p>Total Usuarios</p>
-                            </div>
-                        </ion-card-content>
-                    </ion-card>
-                </ion-col>
+        <div class="container content-body">
+            <!-- Loading State -->
+            <div class="loading-container" *ngIf="loading()">
+                <div class="spinner-box">
+                    <ion-spinner name="crescent" color="primary"></ion-spinner>
+                    <p>Sincronizando datos en tiempo real...</p>
+                </div>
+            </div>
 
-                <!-- Total Capacitaciones -->
-                <ion-col size="12" sizeMd="6" sizeLg="3">
-                    <ion-card class="stat-card stat-card-success">
-                        <ion-card-content>
-                            <div class="stat-icon">
-                                <ion-icon name="calendar-outline"></ion-icon>
-                            </div>
-                            <div class="stat-info">
-                                <h2>{{ stats()!.totalCapacitaciones }}</h2>
-                                <p>Total Capacitaciones</p>
-                            </div>
-                        </ion-card-content>
-                    </ion-card>
-                </ion-col>
+            <!-- Error State -->
+            <div class="error-container animate-fade-up" *ngIf="error()">
+                <div class="error-card">
+                    <ion-icon name="alert-circle-outline"></ion-icon>
+                    <h3>Error de Conexión</h3>
+                    <p>{{ error() }}</p>
+                    <button class="primary pill" (click)="loadStats()">Reintentar Carga</button>
+                </div>
+            </div>
 
-                <!-- Total Certificados -->
-                <ion-col size="12" sizeMd="6" sizeLg="3">
-                    <ion-card class="stat-card stat-card-warning">
-                        <ion-card-content>
-                            <div class="stat-icon">
-                                <ion-icon name="document-text-outline"></ion-icon>
+            <!-- Dashboard Content -->
+            <div class="main-stats animate-fade-up" *ngIf="!loading() && stats()">
+
+                <!-- KPI Section -->
+                <h3 class="dash-section-title">Indicadores Clave (KPIs)</h3>
+                <div class="kpi-grid">
+                    <app-kpi-card label="Usuarios Totales" [value]="stats()!.totalUsuarios" icon="people-outline"
+                        type="primary" trendText="+12% este mes" [trendPositive]="true"></app-kpi-card>
+
+                    <app-kpi-card label="Certificados" [value]="stats()!.totalCertificados" icon="ribbon-outline"
+                        type="success" trendText="+5% este mes" [trendPositive]="true"></app-kpi-card>
+
+                    <app-kpi-card label="Capacitaciones" [value]="stats()!.totalCapacitaciones" icon="school-outline"
+                        type="warning" trendText="8 activas" trendIcon="time-outline"
+                        [trendPositive]="false"></app-kpi-card>
+
+                    <app-kpi-card label="Nuevos Registros" [value]="stats()!.usuariosRegistradosEsteMes"
+                        icon="trending-up-outline" type="info" trendText="Meta: 50" trendIcon="stats-chart-outline"
+                        [trendPositive]="true"></app-kpi-card>
+                </div>
+
+                <!-- Visualization Section -->
+                <h3 class="dash-section-title">Análisis Visual</h3>
+                <div class="charts-container">
+                    <div class="chart-item wide">
+                        <app-trend-chart title="Tendencias de Crecimiento"
+                            subtitle="Evolución de registros y certificaciones (Últimos 6 meses)"
+                            [data]="stats()!.tendencias"></app-trend-chart>
+                    </div>
+                    <div class="chart-item">
+                        <app-roles-chart title="Distribución de Roles" subtitle="Segmentación de la comunidad"
+                            [data]="stats()!.usuariosPorRol" [total]="stats()!.totalUsuarios"></app-roles-chart>
+                    </div>
+                </div>
+
+                <!-- Activity Summary -->
+                <h3 class="dash-section-title">Actividad Reciente</h3>
+                <div class="summary-card">
+                    <div class="card-header">
+                        <div class="header-info">
+                            <h4>Estado de Conferencias</h4>
+                            <p>Resumen de capacitaciones dictadas y en curso</p>
+                        </div>
+                        <button class="secondary-btn">Exportar PDF</button>
+                    </div>
+                    <div class="summary-list">
+                        <div class="summary-item">
+                            <div class="item-visual">
+                                <div class="icon-circle active"><ion-icon name="play-outline"></ion-icon></div>
                             </div>
-                            <div class="stat-info">
-                                <h2>{{ stats()!.totalCertificados }}</h2>
-                                <p>Total Certificados</p>
+                            <div class="item-data">
+                                <span class="label">En ejecución</span>
+                                <span class="val">{{ stats()!.capacitacionesActivas }}</span>
                             </div>
-                        </ion-card-content>
-                    </ion-card>
-                </ion-col>
-
-                <!-- Usuarios Este Mes -->
-                <ion-col size="12" sizeMd="6" sizeLg="3">
-                    <ion-card class="stat-card stat-card-info">
-                        <ion-card-content>
-                            <div class="stat-icon">
-                                <ion-icon name="trending-up-outline"></ion-icon>
+                        </div>
+                        <div class="summary-item">
+                            <div class="item-visual">
+                                <div class="icon-circle completed"><ion-icon name="checkmark-done-outline"></ion-icon>
+                                </div>
                             </div>
-                            <div class="stat-info">
-                                <h2>{{ stats()!.usuariosRegistradosEsteMes }}</h2>
-                                <p>Nuevos Este Mes</p>
+                            <div class="item-data">
+                                <span class="label">Completadas</span>
+                                <span class="val">{{ stats()!.capacitacionesFinalizadas }}</span>
                             </div>
-                        </ion-card-content>
-                    </ion-card>
-                </ion-col>
-            </ion-row>
-
-            <!-- Secondary Stats -->
-            <ion-row>
-                <!-- Capacitaciones Activas -->
-                <ion-col size="12" sizeMd="4">
-                    <ion-card class="detail-card">
-                        <ion-card-header>
-                            <ion-card-title>
-                                <ion-icon name="checkmark-circle-outline"></ion-icon>
-                                Capacitaciones Activas
-                            </ion-card-title>
-                        </ion-card-header>
-                        <ion-card-content>
-                            <h3>{{ stats()!.capacitacionesActivas }}</h3>
-                            <p>En curso actualmente</p>
-                        </ion-card-content>
-                    </ion-card>
-                </ion-col>
-
-                <!-- Capacitaciones Finalizadas -->
-                <ion-col size="12" sizeMd="4">
-                    <ion-card class="detail-card">
-                        <ion-card-header>
-                            <ion-card-title>
-                                <ion-icon name="time-outline"></ion-icon>
-                                Capacitaciones Finalizadas
-                            </ion-card-title>
-                        </ion-card-header>
-                        <ion-card-content>
-                            <h3>{{ stats()!.capacitacionesFinalizadas }}</h3>
-                            <p>Completadas</p>
-                        </ion-card-content>
-                    </ion-card>
-                </ion-col>
-
-                <!-- Certificados Este Mes -->
-                <ion-col size="12" sizeMd="4">
-                    <ion-card class="detail-card">
-                        <ion-card-header>
-                            <ion-card-title>
-                                <ion-icon name="document-text-outline"></ion-icon>
-                                Certificados Este Mes
-                            </ion-card-title>
-                        </ion-card-header>
-                        <ion-card-content>
-                            <h3>{{ stats()!.certificadosEsteMes }}</h3>
-                            <p>Emitidos este mes</p>
-                        </ion-card-content>
-                    </ion-card>
-                </ion-col>
-            </ion-row>
-
-            <!-- Usuarios por Rol -->
-            <ion-row>
-                <ion-col size="12">
-                    <ion-card class="roles-card">
-                        <ion-card-header>
-                            <ion-card-title>Usuarios por Rol</ion-card-title>
-                        </ion-card-header>
-                        <ion-card-content>
-                            <ion-grid>
-                                <ion-row>
-                                    <ion-col size="12" sizeMd="4" *ngFor="let rol of stats()!.usuariosPorRol">
-                                        <div class="role-stat">
-                                            <div class="role-icon">
-                                                <ion-icon name="people-outline"></ion-icon>
-                                            </div>
-                                            <div class="role-info">
-                                                <h4>{{ rol.cantidad }}</h4>
-                                                <p>{{ rol.nombre }}</p>
-                                            </div>
-                                        </div>
-                                    </ion-col>
-                                </ion-row>
-                            </ion-grid>
-                        </ion-card-content>
-                    </ion-card>
-                </ion-col>
-            </ion-row>
-        </ion-grid>
+                        </div>
+                        <div class="summary-item">
+                            <div class="item-visual">
+                                <div class="icon-circle new"><ion-icon name="ribbon-outline"></ion-icon></div>
+                            </div>
+                            <div class="item-data">
+                                <span class="label">Certificados del Mes</span>
+                                <span class="val">{{ stats()!.certificadosEsteMes }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </ion-content>

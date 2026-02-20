@@ -10,6 +10,7 @@ import { BcryptPasswordHasher } from '../infrastructure/security/bcrypt-password
 import { JwtTokenProvider } from '../infrastructure/security/jwt-token-provider';
 import { PrismaRolRepository } from '../infrastructure/database/prisma-rol.repository';
 import { PrismaEntidadRepository } from '../infrastructure/database/prisma-entidad.repository';
+import { PrismaReportesRepository } from '../infrastructure/database/repositories/reportes/prisma-reportes.repository';
 
 // Import Auth Use Cases
 import { RegisterUserUseCase } from '../application/auth/use-cases/register-user.use-case';
@@ -117,6 +118,7 @@ container.register('CapacitacionRepository', { useClass: PrismaCapacitacionRepos
 container.register('CertificadoRepository', { useClass: PrismaCertificadoRepository });
 container.register('CargoRepository', { useClass: PrismaCargoRepository });
 container.register('InstitucionRepository', { useClass: PrismaInstitucionRepository });
+container.register('ReportesRepository', { useClass: PrismaReportesRepository });
 
 // Ubicacion
 container.register('ProvinciaRepository', { useClass: PrismaProvinciaRepository });
