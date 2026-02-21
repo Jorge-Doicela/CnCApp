@@ -1,17 +1,19 @@
 import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { LoadingController, ToastController } from '@ionic/angular';
 import { CatalogoService } from 'src/app/shared/services/catalogo.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-crear',
   templateUrl: './crear.page.html',
   styleUrls: ['./crear.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule]
+  imports: [CommonModule, FormsModule, IonicModule],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CrearPage implements OnInit {
 
@@ -23,6 +25,7 @@ export class CrearPage implements OnInit {
 
   enviando: boolean = false;
   private catalogoService = inject(CatalogoService);
+  private cd = inject(ChangeDetectorRef);
 
   constructor(
     private router: Router,
@@ -52,20 +55,18 @@ export class CrearPage implements OnInit {
       fecha_ultima_actualizacion: new Date().toISOString()
     };
 
-    this.catalogoService.createItem('competencias', nuevaCompetenciaData).subscribe({
-      next: async () => {
-        this.presentToast('Competencia creada exitosamente', 'success');
-        this.router.navigate(['/gestionar competencias']);
-        loading.dismiss();
-        this.enviando = false;
-      },
-      error: async (error) => {
-        console.error('Error al crear competencia:', error);
-        this.presentToast('Error al crear la competencia: ' + (error.message || error.statusText), 'danger');
-        loading.dismiss();
-        this.enviando = false;
-      }
-    });
+    try {
+      await firstValueFrom(this.catalogoService.createItem('competencias', nuevaCompetenciaData));
+      this.presentToast('Competencia creada exitosamente', 'success');
+      this.router.navigate(['/gestionar competencias']);
+    } catch (error: any) {
+      console.error('Error al crear competencia:', error);
+      this.presentToast('Error al crear la competencia: ' + (error.message || error.statusText), 'danger');
+    } finally {
+      loading.dismiss();
+      this.enviando = false;
+      this.cd.markForCheck();
+    }
   }
 
   cancelar() {

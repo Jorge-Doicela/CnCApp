@@ -1,18 +1,20 @@
 import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { AlertController, LoadingController, ToastController } from '@ionic/angular';
 import { CatalogoService } from 'src/app/shared/services/catalogo.service';
 import { map } from 'rxjs/operators';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-crear',
   templateUrl: './crear.page.html',
   styleUrls: ['./crear.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule]
+  imports: [CommonModule, FormsModule, IonicModule],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CrearPage implements OnInit {
 
@@ -28,6 +30,7 @@ export class CrearPage implements OnInit {
   enviando: boolean = false;
 
   private catalogoService = inject(CatalogoService);
+  private cd = inject(ChangeDetectorRef);
 
   constructor(
     private router: Router,
@@ -47,39 +50,31 @@ export class CrearPage implements OnInit {
     });
     await loading.present();
 
-    this.catalogoService.getItems('cantones').subscribe({
-      next: (data) => {
-        this.cantones = data.sort((a, b) => a.nombre_canton.localeCompare(b.nombre_canton));
-        loading.dismiss();
-      },
-      error: (error) => {
-        console.error('Error al obtener cantones:', error);
-        this.presentToast('Error al obtener cantones.', 'danger');
-        loading.dismiss();
-      }
-    });
+    try {
+      const data = await firstValueFrom(this.catalogoService.getItems('cantones'));
+      this.cantones = data.sort((a: any, b: any) => a.nombre_canton.localeCompare(b.nombre_canton));
+    } catch (error) {
+      console.error('Error al obtener cantones:', error);
+      this.presentToast('Error al obtener cantones.', 'danger');
+    } finally {
+      loading.dismiss();
+      this.cd.markForCheck();
+    }
   }
 
-  async validarCodigoExistente() {
-    // NOTE: Client-side validation for now, or implement a specific check endpoint
-    return new Promise<boolean>((resolve) => {
-      this.catalogoService.getItems('parroquias').pipe(
-        map(parroquias => parroquias.find((p: any) => p.codigo_parroquia === this.nuevaParroquia.codigo_parroquia))
-      ).subscribe({
-        next: (existing) => {
-          if (existing) {
-            this.presentToast('El código de parroquia ya existe. Por favor, utilice otro código.', 'warning');
-            resolve(true);
-          } else {
-            resolve(false);
-          }
-        },
-        error: (error) => {
-          this.presentToast('Error al validar código: ' + error.message, 'danger');
-          resolve(true); // Fail safe
-        }
-      });
-    });
+  async validarCodigoExistente(): Promise<boolean> {
+    try {
+      const parroquias = await firstValueFrom(this.catalogoService.getItems('parroquias'));
+      const existing = parroquias.find((p: any) => p.codigo_parroquia === this.nuevaParroquia.codigo_parroquia);
+      if (existing) {
+        this.presentToast('El código de parroquia ya existe. Por favor, utilice otro código.', 'warning');
+        return true;
+      }
+      return false;
+    } catch (error: any) {
+      this.presentToast('Error al validar código: ' + error.message, 'danger');
+      return true; // Fail safe
+    }
   }
 
   async crearParroquia() {
@@ -105,19 +100,17 @@ export class CrearPage implements OnInit {
     }
 
     // Insertar la nueva parroquia
-    this.catalogoService.createItem('parroquias', this.nuevaParroquia).subscribe({
-      next: () => {
-        loading.dismiss();
-        this.enviando = false;
-        this.presentAlert('Éxito', 'Parroquia creada correctamente');
-        this.router.navigate(['/crudparroquias']);
-      },
-      error: (error) => {
-        loading.dismiss();
-        this.enviando = false;
-        this.presentToast('Error al crear la parroquia: ' + (error.message || error.statusText), 'danger');
-      }
-    });
+    try {
+      await firstValueFrom(this.catalogoService.createItem('parroquias', this.nuevaParroquia));
+      this.presentAlert('Éxito', 'Parroquia creada correctamente');
+      this.router.navigate(['/crudparroquias']);
+    } catch (error: any) {
+      this.presentToast('Error al crear la parroquia: ' + (error.message || error.statusText), 'danger');
+    } finally {
+      loading.dismiss();
+      this.enviando = false;
+      this.cd.markForCheck();
+    }
   }
 
   cancelar() {

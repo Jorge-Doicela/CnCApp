@@ -1,7 +1,7 @@
 import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AlertController, LoadingController, ToastController } from '@ionic/angular';
@@ -13,7 +13,8 @@ import { firstValueFrom } from 'rxjs';
   templateUrl: './editar.page.html',
   styleUrls: ['./editar.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, IonicModule]
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, IonicModule],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class EditarPage implements OnInit {
 
@@ -38,6 +39,7 @@ export class EditarPage implements OnInit {
   usuarioUltimaModificacion: string | null = null;
 
   private catalogoService = inject(CatalogoService);
+  private cd = inject(ChangeDetectorRef);
 
   constructor(
     private formBuilder: FormBuilder,
@@ -66,8 +68,10 @@ export class EditarPage implements OnInit {
     } else {
       this.cargando = false;
       this.presentToast('Error: No se especificó un ID de cantón válido', 'danger');
+      this.cd.markForCheck();
       this.router.navigate(['/gestionar cantones']);
     }
+    this.cd.markForCheck();
   }
 
   get f() { return this.cantonForm.controls; }
@@ -117,6 +121,7 @@ export class EditarPage implements OnInit {
     } finally {
       loader.dismiss();
       this.cargando = false;
+      this.cd.markForCheck();
     }
   }
 
@@ -170,21 +175,21 @@ export class EditarPage implements OnInit {
     // We should use the ID from the URL or the loaded object, NOT the (potentially modified) form value.
     const idToUpdate = this.cantonEditado.codigo_canton;
 
-    this.catalogoService.updateItem('cantones', idToUpdate, dataToUpdate).subscribe({
-      next: async () => {
-        await loader.dismiss();
-        this.presentToast('Cantón actualizado exitosamente', 'success');
-        setTimeout(() => {
-          this.router.navigate(['/gestionar cantones']);
-        }, 1000);
-      },
-      error: async (error) => {
-        console.error('Error al actualizar canton:', error);
-        await loader.dismiss();
-        this.presentToast('Error al guardar los cambios: ' + (error.message || error.statusText), 'danger');
-        this.isSubmitting = false;
-      }
-    });
+    try {
+      await firstValueFrom(this.catalogoService.updateItem('cantones', idToUpdate, dataToUpdate));
+      await loader.dismiss();
+      this.presentToast('Cantón actualizado exitosamente', 'success');
+      setTimeout(() => {
+        this.router.navigate(['/gestionar cantones']);
+      }, 1000);
+    } catch (error: any) {
+      console.error('Error al actualizar canton:', error);
+      await loader.dismiss();
+      this.presentToast('Error al guardar los cambios: ' + (error.message || error.statusText), 'danger');
+    } finally {
+      this.isSubmitting = false;
+      this.cd.markForCheck();
+    }
   }
 
   cancelar() {

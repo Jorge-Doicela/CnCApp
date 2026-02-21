@@ -9,6 +9,7 @@ import { UpdateCantonUseCase } from '../../../application/ubicacion/use-cases/up
 import { DeleteCantonUseCase } from '../../../application/ubicacion/use-cases/delete-canton.use-case';
 import { UpdateParroquiaUseCase } from '../../../application/ubicacion/use-cases/update-parroquia.use-case';
 import { DeleteParroquiaUseCase } from '../../../application/ubicacion/use-cases/delete-parroquia.use-case';
+import { updateProvinciaSchema, updateCantonSchema, updateParroquiaSchema } from '../../../domain/ubicacion/schemas/ubicacion.schema';
 
 @injectable()
 export class UbicacionController {
@@ -36,7 +37,7 @@ export class UbicacionController {
     updateProvincia = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const id = Number(req.params.id);
-            const data = req.body;
+            const data = updateProvinciaSchema.parse(req.body);
             const updated = await this.updateProvinciaUseCase.execute(id, data);
             res.json(updated);
         } catch (error) {
@@ -66,7 +67,7 @@ export class UbicacionController {
     updateCanton = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const id = Number(req.params.id);
-            const data = req.body;
+            const data = updateCantonSchema.parse(req.body);
             const updated = await this.updateCantonUseCase.execute(id, data);
             res.json(updated);
         } catch (error) {
@@ -96,7 +97,7 @@ export class UbicacionController {
     updateParroquia = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const id = Number(req.params.id);
-            const data = req.body;
+            const data = updateParroquiaSchema.parse(req.body);
             const updated = await this.updateParroquiaUseCase.execute(id, data);
             res.json(updated);
         } catch (error) {

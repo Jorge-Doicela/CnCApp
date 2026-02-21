@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -11,6 +11,7 @@ import {
 import { addIcons } from 'ionicons';
 import { saveOutline } from 'ionicons/icons';
 import { CargService } from '../services/cargos.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-editar',
@@ -23,11 +24,13 @@ import { CargService } from '../services/cargos.service';
     IonBackButton, IonCard, IonCardHeader, IonCardTitle,
     IonCardContent, IonItem, IonLabel, IonInput, IonButton,
     IonIcon
-  ]
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class EditarPage implements OnInit {
   cargoForm: FormGroup;
   cargoId: number | null = null;
+  private cd = inject(ChangeDetectorRef);
 
   constructor(
     private fb: FormBuilder,
@@ -52,31 +55,31 @@ export class EditarPage implements OnInit {
     });
   }
 
-  loadCargo(id: number) {
-    this.cargService.getById(id).subscribe({
-      next: (cargo) => {
-        this.cargoForm.patchValue({ nombre: cargo.nombre });
-      },
-      error: (err) => {
-        console.error('Error loading cargo:', err);
-        this.presentToast('Cargo no encontrado', 'danger');
-        this.router.navigate(['/gestionar-cargos-instituciones']);
-      }
-    });
+  async loadCargo(id: number) {
+    try {
+      const cargo = await firstValueFrom(this.cargService.getById(id));
+      this.cargoForm.patchValue({ nombre: cargo.nombre });
+    } catch (err) {
+      console.error('Error loading cargo:', err);
+      this.presentToast('Cargo no encontrado', 'danger');
+      this.router.navigate(['/gestionar-cargos-instituciones']);
+    } finally {
+      this.cd.markForCheck();
+    }
   }
 
-  actualizarCargo() {
+  async actualizarCargo() {
     if (this.cargoForm.valid && this.cargoId) {
-      this.cargService.update(this.cargoId, this.cargoForm.value.nombre).subscribe({
-        next: () => {
-          this.presentToast('Cargo actualizado exitosamente', 'success');
-          this.router.navigate(['/gestionar-cargos-instituciones']);
-        },
-        error: (err) => {
-          console.error('Error updating cargo:', err);
-          this.presentToast('Error al actualizar el cargo', 'danger');
-        }
-      });
+      try {
+        await firstValueFrom(this.cargService.update(this.cargoId, this.cargoForm.value.nombre));
+        this.presentToast('Cargo actualizado exitosamente', 'success');
+        this.router.navigate(['/gestionar-cargos-instituciones']);
+      } catch (err) {
+        console.error('Error updating cargo:', err);
+        this.presentToast('Error al actualizar el cargo', 'danger');
+      } finally {
+        this.cd.markForCheck();
+      }
     }
   }
 

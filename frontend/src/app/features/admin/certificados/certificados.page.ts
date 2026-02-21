@@ -1,13 +1,14 @@
 import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import * as QRCode from 'qrcode';
 import * as CryptoJS from 'crypto-js';
 import { CertificadosService } from 'src/app/features/admin/certificados/services/certificados.service';
 import { UsuarioService } from 'src/app/features/user/services/usuario.service';
 import { AuthService } from 'src/app/features/auth/services/auth.service';
+import { firstValueFrom } from 'rxjs';
 
 const pdfMake = require('pdfmake/build/pdfmake');
 const pdfFonts = require('pdfmake/build/vfs_fonts');
@@ -18,7 +19,8 @@ pdfMake.vfs = pdfFonts.pdfMake ? pdfFonts.pdfMake.vfs : pdfFonts.vfs;
   templateUrl: './certificados.page.html',
   styleUrls: ['./certificados.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule]
+  imports: [CommonModule, FormsModule, IonicModule],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CertificadosPage implements OnInit {
 
@@ -41,6 +43,7 @@ export class CertificadosPage implements OnInit {
   nombreUsuario: string = '';
   existingHash: string | null = null;
 
+  private cd = inject(ChangeDetectorRef);
   private certificadosService = inject(CertificadosService);
   private usuarioService = inject(UsuarioService);
   private authService = inject(AuthService);
@@ -71,36 +74,35 @@ export class CertificadosPage implements OnInit {
     this.UIID = userId; // auth_uid
 
     try {
-      // En un escenario real, llamaríamos a un endpoint de backend que nos de TODO (cert data)
-      // Simulamos la recuperación de datos usando los servicios
+      // Recuperar datos de usuario y capacitación en paralelo
+      const [u, data] = await Promise.all([
+        firstValueFrom(this.usuarioService.getUsuario(Number(userId))),
+        firstValueFrom(this.certificadosService.getCertificateData(this.capacitacionId))
+      ]);
 
-      // Recuperar datos usuario
-      this.usuarioService.getUsuario(Number(userId)).subscribe(u => { // Assuming userId is number
-        this.usuarioactual = [u];
-        this.nombreUsuario = u?.nombre;
-        this.idUsuario = u?.id; // Real ID
+      this.usuarioactual = [u];
+      this.nombreUsuario = u?.nombre;
+      this.idUsuario = u?.id; // Real ID
 
-        if (this.idUsuario) {
-          this.verificarHashExistente(this.idUsuario.toString());
-          this.ObtenerRolUsuarioConferencia(this.capacitacionId, this.UIID);
-        }
-      });
+      if (this.idUsuario) {
+        this.verificarHashExistente(this.idUsuario.toString());
+        await this.ObtenerRolUsuarioConferencia(this.capacitacionId, this.UIID);
+      }
 
-      // Recuperar datos capacitación
-      this.certificadosService.getCertificateData(this.capacitacionId).subscribe(data => {
-        if (data) {
-          this.capacitacion = data.capacitacion;
-          this.entidades = data.entidades || [];
-          this.expositores = data.expositores || [];
+      if (data) {
+        this.capacitacion = data.capacitacion;
+        this.entidades = data.entidades || [];
+        this.expositores = data.expositores || [];
 
-          // Process images
-          this.procesarImagenesEntidades();
-          this.procesarImagenesExpositores();
-        }
-      });
+        // Process images
+        await this.procesarImagenesEntidades();
+        await this.procesarImagenesExpositores();
+      }
 
     } catch (err) {
       console.error(err);
+    } finally {
+      this.cd.markForCheck();
     }
   }
 
@@ -115,12 +117,14 @@ export class CertificadosPage implements OnInit {
   }
 
   async ObtenerRolUsuarioConferencia(IdConferencia: number, idUsuario: string) {
-    this.certificadosService.getUserRoleInConference(IdConferencia, idUsuario).subscribe({
-      next: (data) => {
-        this.rol_usuario_conferiencia = data || [];
-      },
-      error: (err) => console.error('Error fetching role:', err)
-    });
+    try {
+      const data = await firstValueFrom(this.certificadosService.getUserRoleInConference(IdConferencia, idUsuario));
+      this.rol_usuario_conferiencia = data || [];
+    } catch (err) {
+      console.error('Error fetching role:', err);
+    } finally {
+      this.cd.markForCheck();
+    }
   }
 
   async procesarImagenesEntidades() {
@@ -222,15 +226,19 @@ export class CertificadosPage implements OnInit {
     // Use service to save
     if (!this.hashCertificado) return;
 
-    this.certificadosService.saveCertificate({
-      hash: this.hashCertificado,
-      fechaGenerado: new Date(),
-      usuarioId: this.idUsuario as number,
-      capacitacionId: this.capacitacionId
-    }).subscribe({
-      next: (res) => console.log('Certificate saved', res),
-      error: (err) => console.error('Error saving certificate', err)
-    });
+    try {
+      const res = await firstValueFrom(this.certificadosService.saveCertificate({
+        hash: this.hashCertificado,
+        fechaGenerado: new Date(),
+        usuarioId: this.idUsuario as number,
+        capacitacionId: this.capacitacionId
+      }));
+      console.log('Certificate saved', res);
+    } catch (err) {
+      console.error('Error saving certificate', err);
+    } finally {
+      this.cd.markForCheck();
+    }
   }
 
   async generarPDF() {
