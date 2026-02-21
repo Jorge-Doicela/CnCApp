@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, signal, ChangeDetectionStrategy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
     IonHeader, IonToolbar, IonTitle, IonContent, IonButtons,
@@ -15,6 +15,7 @@ import {
 } from 'ionicons/icons';
 import { firstValueFrom } from 'rxjs';
 import { ReportesService, DashboardStats } from './services/reportes.service';
+import { LoadingController, ToastController } from '@ionic/angular/standalone';
 
 // Modular Components
 import { KpiCardComponent } from './components/kpi-card/kpi-card.component';
@@ -39,6 +40,9 @@ export class ReportesPage implements OnInit {
     stats = signal<DashboardStats | null>(null);
     loading = signal(true);
     error = signal<string | null>(null);
+
+    private loadingController = inject(LoadingController);
+    private toastController = inject(ToastController);
 
     constructor(private reportesService: ReportesService) {
         addIcons({
@@ -74,6 +78,29 @@ export class ReportesPage implements OnInit {
             this.error.set('Error al cargar las estadísticas');
         } finally {
             this.loading.set(false);
+        }
+    }
+
+    async exportarPDF() {
+        const loading = await this.loadingController.create({
+            message: 'Generando reporte PDF...',
+            spinner: 'crescent'
+        });
+        await loading.present();
+
+        try {
+            const blob = await firstValueFrom(this.reportesService.exportDashboardPDF());
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `reporte-dashboard-${new Date().getTime()}.pdf`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        } catch (err) {
+            console.error('Error exporting PDF:', err);
+            this.error.set('Error al exportar el reporte PDF');
+        } finally {
+            loading.dismiss();
         }
     }
 }

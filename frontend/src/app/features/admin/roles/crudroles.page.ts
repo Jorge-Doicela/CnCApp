@@ -116,23 +116,23 @@ export class CRUDRolesPage implements OnInit {
         {
           text: 'Confirmar',
           role: 'confirm',
-          handler: () => {
-            this.catalogoService.updateItem('rol', rol.id, { estado: nuevoEstado }).subscribe({
-              next: () => {
-                // Actualizar el estado en la lista local
-                rol.estado = nuevoEstado;
-                this.calcularRolesActivos();
-                this.cd.markForCheck();
-                this.presentToast(
-                  `El rol "${rol.nombre}" ha sido ${nuevoEstado ? 'activado' : 'desactivado'} exitosamente`,
-                  'success'
-                );
-              },
-              error: (error) => {
-                console.error('Error al cambiar el estado del rol:', error);
-                this.presentToast('Error al actualizar el estado del rol', 'danger');
-              }
-            });
+          handler: async () => {
+            try {
+              await firstValueFrom(this.catalogoService.updateItem('rol', rol.id, { estado: nuevoEstado }));
+
+              // Actualizar el estado en la lista local
+              rol.estado = nuevoEstado;
+              this.calcularRolesActivos();
+              this.cd.markForCheck();
+              this.presentToast(
+                `El rol "${rol.nombre}" ha sido ${nuevoEstado ? 'activado' : 'desactivado'} exitosamente`,
+                'success'
+              );
+            } catch (error) {
+              console.error('Error al cambiar el estado del rol:', error);
+              this.presentToast('Error al actualizar el estado del rol', 'danger');
+              this.cd.markForCheck();
+            }
           }
         }
       ]
@@ -163,22 +163,21 @@ export class CRUDRolesPage implements OnInit {
     await alert.present();
   }
 
-  eliminarRol(rol: any) {
-    this.catalogoService.deleteItem('rol', rol.id).subscribe({
-      next: () => {
-        // Actualizar lista local
-        this.Roles = this.Roles.filter(r => r.id !== rol.id);
-        this.filtrarRoles();
-        this.calcularRolesActivos();
-        this.cd.markForCheck();
-        this.presentToast(`Rol "${rol.nombre}" eliminado con éxito`, 'success');
-      },
-      error: (error) => {
-        console.error('Error al eliminar rol:', error);
-        // Check for specific error codes if backend sends them in body or status
-        this.presentToast('Error al eliminar el rol. Puede estar en uso.', 'danger');
-      }
-    });
+  async eliminarRol(rol: any) {
+    try {
+      await firstValueFrom(this.catalogoService.deleteItem('rol', rol.id));
+
+      // Actualizar lista local
+      this.Roles = this.Roles.filter(r => r.id !== rol.id);
+      this.filtrarRoles();
+      this.calcularRolesActivos();
+      this.cd.markForCheck();
+      this.presentToast(`Rol "${rol.nombre}" eliminado con éxito`, 'success');
+    } catch (error) {
+      console.error('Error al eliminar rol:', error);
+      this.presentToast('Error al eliminar el rol. Puede estar en uso.', 'danger');
+      this.cd.markForCheck();
+    }
   }
 
   async mostrarTodosLosModulos(rol: any) {

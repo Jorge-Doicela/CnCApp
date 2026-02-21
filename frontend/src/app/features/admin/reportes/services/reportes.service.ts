@@ -33,4 +33,8 @@ export class ReportesService {
     getDashboardStats(): Observable<{ success: boolean; data: DashboardStats }> {
         return this.http.get<{ success: boolean; data: DashboardStats }>(`${this.apiUrl}/dashboard`);
     }
+
+    exportDashboardPDF(): Observable<Blob> {
+        return this.http.get(`${this.apiUrl}/export-pdf`, { responseType: 'blob' });
+    }
 }

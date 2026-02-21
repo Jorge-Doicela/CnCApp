@@ -8,6 +8,8 @@ import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { v4 as uuidv4 } from 'uuid';
 import SignaturePad from 'signature_pad';
 import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-firma',
@@ -150,8 +152,22 @@ export class FirmaPage implements OnInit, AfterViewInit {
 
     if (!confirmar) return;
 
-    // TODO: Implementar guardado de firma (imagen) en backend
-    this.presentToast('Funcionalidad de guardado de firma pendiente de migración a Backend', 'warning');
+    this.guardando = true;
+    const loading = await this.loadingController.create({
+      message: 'Guardando firma...',
+      spinner: 'crescent'
+    });
+    await loading.present();
+
+    try {
+      const dataUrl = this.signaturePad.toDataURL();
+      await this.ejecutarSubidaFirma(dataUrl);
+    } catch (error: any) {
+      this.presentToast('Error al guardar firma: ' + error.message, 'danger');
+    } finally {
+      this.guardando = false;
+      loading.dismiss();
+    }
   }
 
   async guardarFirmaImagen() {
@@ -167,8 +183,37 @@ export class FirmaPage implements OnInit, AfterViewInit {
 
     if (!confirmar) return;
 
-    // TODO: Implementar guardado de firma (imagen) en backend
-    this.presentToast('Funcionalidad de guardado de firma pendiente de migración a Backend', 'warning');
+    this.guardando = true;
+    const loading = await this.loadingController.create({
+      message: 'Guardando firma...',
+      spinner: 'crescent'
+    });
+    await loading.present();
+
+    try {
+      await this.ejecutarSubidaFirma(this.previewFirma);
+    } catch (error: any) {
+      this.presentToast('Error al guardar firma: ' + error.message, 'danger');
+    } finally {
+      this.guardando = false;
+      loading.dismiss();
+    }
+  }
+
+  async ejecutarSubidaFirma(dataUrl: string) {
+    // 1. Obtener ID del usuario
+    const userId = this.usuario?.id || this.usuario?.Id_Usuario;
+
+    if (!userId) {
+      throw new Error('No se pudo determinar el ID del usuario para el guardado.');
+    }
+
+    // 2. Enviar al backend
+    // Nota: El backend ahora acepta firmaUrl en el PUT de users
+    await firstValueFrom(this.http.put(`${environment.apiUrl}/users/${userId}`, { firmaUrl: dataUrl }));
+
+    this.presentToast('Firma actualizada correctamente', 'success');
+    this.navController.navigateBack('/ver-perfil');
   }
 
   async subirFirma(dataUrl: string) {

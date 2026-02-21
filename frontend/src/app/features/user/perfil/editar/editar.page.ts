@@ -12,6 +12,7 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { firstValueFrom } from 'rxjs';
 import { UsuarioService } from '../../services/usuario.service';
+import { CatalogoService } from 'src/app/shared/services/catalogo.service';
 
 @Component({
   selector: 'app-editar',
@@ -35,9 +36,11 @@ export class EditarPage implements OnInit {
   parroquiasOriginales: any[] = [];
 
   // Códigos seleccionados para actualización
-  provinciaSeleccionadaId: string = '';
-  cantonSeleccionadoId: string = '';
-  parroquiaSeleccionadaId: string = '';
+  provinciaIdSeleccionada: number | null = null;
+  cantonIdSeleccionado: number | null = null;
+  parroquiaIdSeleccionada: number | null = null;
+
+  private catalogoService = inject(CatalogoService);
 
   constructor(
     private formBuilder: FormBuilder,
@@ -106,7 +109,7 @@ export class EditarPage implements OnInit {
     // Escuchar cambios en los campos de ubicación
     this.perfilForm.get('provincia')?.valueChanges.subscribe(provinciaId => {
       if (provinciaId) {
-        this.provinciaSeleccionadaId = provinciaId;
+        this.provinciaIdSeleccionada = provinciaId;
         this.filtrarCantonesPorProvincia(provinciaId);
         // Resetear cantón y parroquia cuando cambia la provincia
         this.perfilForm.patchValue({
@@ -118,7 +121,7 @@ export class EditarPage implements OnInit {
 
     this.perfilForm.get('canton')?.valueChanges.subscribe(cantonId => {
       if (cantonId) {
-        this.cantonSeleccionadoId = cantonId;
+        this.cantonIdSeleccionado = cantonId;
         this.filtrarParroquiasPorCanton(cantonId);
         // Resetear parroquia cuando cambia el cantón
         this.perfilForm.patchValue({
@@ -129,38 +132,42 @@ export class EditarPage implements OnInit {
 
     this.perfilForm.get('parroquia')?.valueChanges.subscribe(parroquiaId => {
       if (parroquiaId) {
-        this.parroquiaSeleccionadaId = parroquiaId;
+        this.parroquiaIdSeleccionada = parroquiaId;
       }
     });
   }
 
   async cargarUbicaciones() {
     try {
-      // TODO: Implementar endpoints reales o usar JSON local
-      console.warn('Carga de ubicaciones pendiente de implementación backend');
+      this.provincias = await firstValueFrom(this.catalogoService.getItems('provincias'));
+      this.cantonesOriginales = await firstValueFrom(this.catalogoService.getItems('cantones'));
+      // Note: Backend doesn't seem to have parroquias endpoint yet or might be different
+      // this.parroquiasOriginales = await firstValueFrom(this.catalogoService.getItems('parroquias'));
 
-      this.provincias = [];
-      this.cantonesOriginales = [];
-      this.parroquiasOriginales = [];
+      console.log('Ubicaciones cargadas:', {
+        provincias: this.provincias.length,
+        cantones: this.cantonesOriginales.length
+      });
 
       // Después de cargar todas las ubicaciones, cargar los datos del usuario
       await this.cargarDatosUsuario();
     } catch (error: any) {
+      console.error('Error al cargar ubicaciones:', error);
       this.presentToast('Error al cargar las ubicaciones: ' + error.message, 'danger');
       // Aún así, intentamos cargar los datos del usuario
       await this.cargarDatosUsuario();
     }
   }
 
-  filtrarCantonesPorProvincia(provinciaId: string) {
+  filtrarCantonesPorProvincia(provinciaId: number) {
     this.cantones = this.cantonesOriginales.filter(canton =>
-      canton.codigo_provincia === provinciaId
+      canton.provinciaId === provinciaId
     );
   }
 
-  filtrarParroquiasPorCanton(cantonId: string) {
+  filtrarParroquiasPorCanton(cantonId: number) {
     this.parroquias = this.parroquiasOriginales.filter(parroquia =>
-      parroquia.codigo_canton === cantonId
+      parroquia.cantonId === cantonId
     );
   }
 
@@ -207,9 +214,9 @@ export class EditarPage implements OnInit {
           telefono: this.usuario.Celular_Usuario || this.usuario.telefono || '',
           genero: this.usuario.Genero_Usuario || '',
           nacionalidad: this.usuario.Nacionalidad_Usuario || '',
-          provincia: this.provinciaSeleccionadaId,
-          canton: this.cantonSeleccionadoId,
-          parroquia: this.parroquiaSeleccionadaId,
+          provincia: this.provinciaIdSeleccionada,
+          canton: this.cantonIdSeleccionado,
+          parroquia: this.parroquiaIdSeleccionada,
           direccion: this.usuario.direccion || ''
         });
 
@@ -279,7 +286,6 @@ export class EditarPage implements OnInit {
 
   async guardarCambios() {
     if (this.perfilForm.invalid) {
-      // Marcar todos los campos como touched para mostrar validaciones
       Object.keys(this.perfilForm.controls).forEach(key => {
         const control = this.perfilForm.get(key);
         control?.markAsTouched();
@@ -296,19 +302,33 @@ export class EditarPage implements OnInit {
     await loading.present();
 
     try {
-      // Obtener valores del formulario
       const formData = this.perfilForm.value;
+      const userId = this.usuario?.id || this.usuario?.Id_Usuario;
 
-      // TODO: Prepare backend DTO
+      if (!userId) {
+        throw new Error('ID de usuario no encontrado');
+      }
 
-      // Actualizar datos en la base de datos (Backend call)
-      // await firstValueFrom(this.http.put(`${environment.apiUrl}/users/${this.usuario.Id_Usuario}`, updateData));
-      console.warn('Update user unimplemented');
+      const updateData = {
+        nombre: formData.nombre,
+        email: formData.email,
+        telefono: formData.telefono,
+        // Map other fields
+        primerNombre: formData.nombre, // Assuming nombre field maps to first name for now or similar
+        provinciaId: formData.provincia,
+        cantonId: formData.canton,
+        genero: formData.genero,
+        nacionalidad: formData.nacionalidad,
+        direccion: formData.direccion
+      };
 
-      this.presentToast('Simulación: Perfil actualizado correctamente', 'success');
+      await firstValueFrom(this.usuarioService.updateUsuario(userId, updateData));
+
+      this.presentToast('Perfil actualizado correctamente', 'success');
       this.volver();
     } catch (error: any) {
-      this.presentToast('Error al actualizar el perfil: ' + error.message, 'danger');
+      console.error('Error al actualizar perfil:', error);
+      this.presentToast('Error al actualizar el perfil: ' + (error.error?.message || error.message), 'danger');
     } finally {
       loading.dismiss();
       this.guardando = false;

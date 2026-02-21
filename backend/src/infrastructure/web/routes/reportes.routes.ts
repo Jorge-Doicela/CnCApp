@@ -13,5 +13,6 @@ router.use(authenticate);
 router.use(authorize(...ADMIN_ROLES));
 
 router.get('/dashboard', controller.getDashboard);
+router.get('/export-pdf', controller.exportPDF);
 
 export default router;

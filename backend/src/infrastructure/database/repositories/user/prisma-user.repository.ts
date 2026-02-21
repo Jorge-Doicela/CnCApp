@@ -27,7 +27,9 @@ export class PrismaUserRepository implements UserRepository {
                 cantonId: user.cantonId,
                 tipoParticipante: user.tipoParticipante || 0,
                 rolId: user.rolId || 2, // Default role
-                entidadId: user.entidadId
+                entidadId: user.entidadId,
+                fotoPerfilUrl: user.fotoPerfilUrl,
+                firmaUrl: user.firmaUrl
             },
             include: {
                 rol: true,
@@ -91,7 +93,10 @@ export class PrismaUserRepository implements UserRepository {
                 cantonId: userData.cantonId,
                 tipoParticipante: userData.tipoParticipante,
                 rolId: userData.rolId,
-                entidadId: userData.entidadId
+                entidadId: userData.entidadId,
+                fotoPerfilUrl: userData.fotoPerfilUrl,
+                firmaUrl: userData.firmaUrl,
+                password: userData.password // Allow updating password through generic update
             },
             include: {
                 rol: true,
@@ -107,9 +112,7 @@ export class PrismaUserRepository implements UserRepository {
         const users = await prisma.usuario.findMany({
             include: {
                 rol: true,
-                entidad: true,
-                provincia: true,
-                canton: true
+                entidad: true
             },
             orderBy: {
                 createdAt: 'desc'
@@ -122,6 +125,19 @@ export class PrismaUserRepository implements UserRepository {
         await prisma.usuario.delete({
             where: { id }
         });
+    }
+
+    async findByAuthUid(authUid: string): Promise<User | null> {
+        const user = await prisma.usuario.findUnique({
+            where: { authUid },
+            include: {
+                rol: true,
+                entidad: true,
+                provincia: true,
+                canton: true
+            }
+        });
+        return user ? UserMapper.toDomain(user) : null;
     }
 
     async findByEmail(email: string): Promise<User | null> {
