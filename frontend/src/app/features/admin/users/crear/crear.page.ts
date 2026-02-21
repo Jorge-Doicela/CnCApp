@@ -1,7 +1,7 @@
 import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, inject, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { ToastController, LoadingController, AlertController } from '@ionic/angular';
 import { addIcons } from 'ionicons';
@@ -15,6 +15,7 @@ import {
 import { UsuarioService } from 'src/app/features/user/services/usuario.service';
 import { CatalogoService } from 'src/app/shared/services/catalogo.service';
 import { map } from 'rxjs/operators';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-crear',
@@ -22,6 +23,7 @@ import { map } from 'rxjs/operators';
   styleUrls: ['./crear.page.scss'],
   standalone: true,
   imports: [CommonModule, FormsModule, IonicModule],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CrearPage implements OnInit {
   // Variable para mensajes de validación
@@ -316,20 +318,19 @@ export class CrearPage implements OnInit {
   }
 
   // Función para obtener los roles
-  obtenerRoles() {
-    this.catalogoService.getItems('rol').subscribe({
-      next: (data) => {
-        this.datosrecuperados.roles = data || [];
-        this.cdr.detectChanges();
-        if (this.datosrecuperados.roles.length === 0) {
-          this.showToast('No se encontraron roles activos en el sistema');
-        }
-      },
-      error: (error) => {
-        console.error('Error al obtener roles:', error);
-        this.showToast('Error al cargar roles');
+  async obtenerRoles() {
+    try {
+      const data = await firstValueFrom(this.catalogoService.getItems('rol'));
+      this.datosrecuperados.roles = data || [];
+      if (this.datosrecuperados.roles.length === 0) {
+        this.showToast('No se encontraron roles activos en el sistema');
       }
-    });
+    } catch (error) {
+      console.error('Error al obtener roles:', error);
+      this.showToast('Error al cargar roles');
+    } finally {
+      this.cdr.markForCheck();
+    }
   }
 
   // Función para validar la cédula ecuatoriana
@@ -629,34 +630,34 @@ export class CrearPage implements OnInit {
 
     console.log('Sending user data:', fullUserData);
 
-    this.usuarioService.createUsuario(fullUserData).subscribe({
-      next: async (response) => {
-        await loading.dismiss();
-        this.isLoading = false;
+    try {
+      await firstValueFrom(this.usuarioService.createUsuario(fullUserData));
+      await loading.dismiss();
+      this.isLoading = false;
+      this.cdr.markForCheck();
 
-        const alert = await this.alertController.create({
-          header: 'Usuario creado',
-          message: 'El usuario ha sido creado correctamente en el sistema.',
-          buttons: [
-            {
-              text: 'OK',
-              handler: () => {
-                this.limpiarFormulario();
-                this.router.navigate(['/admin/usuarios']);
-              }
+      const alert = await this.alertController.create({
+        header: 'Usuario creado',
+        message: 'El usuario ha sido creado correctamente en el sistema.',
+        buttons: [
+          {
+            text: 'OK',
+            handler: () => {
+              this.limpiarFormulario();
+              this.router.navigate(['/admin/usuarios']);
             }
-          ]
-        });
-        await alert.present();
-      },
-      error: async (error) => {
-        await loading.dismiss();
-        this.isLoading = false;
-        console.error('Error al crear usuario:', error);
-        const msg = error.error?.message || error.message || 'Error desconocido';
-        this.showToast('Error al crear el usuario: ' + msg);
-      }
-    });
+          }
+        ]
+      });
+      await alert.present();
+    } catch (error: any) {
+      await loading.dismiss();
+      this.isLoading = false;
+      console.error('Error al crear usuario:', error);
+      const msg = error.error?.message || error.message || 'Error desconocido';
+      this.showToast('Error al crear el usuario: ' + msg);
+      this.cdr.markForCheck();
+    }
   }
 
   // Limpiar formulario
@@ -717,53 +718,67 @@ export class CrearPage implements OnInit {
   }
 
   // Obtener cargos
-  obtenerCargos() {
-    this.catalogoService.getItems('cargos').subscribe({
-      next: (data) => this.datosrecuperados.cargos = data || [],
-      error: (err) => console.error(err)
-    });
+  async obtenerCargos() {
+    try {
+      const data = await firstValueFrom(this.catalogoService.getItems('cargos'));
+      this.datosrecuperados.cargos = data || [];
+    } catch (err) {
+      console.error(err);
+    } finally {
+      this.cdr.markForCheck();
+    }
   }
 
   // Obtener instituciones
-  obtenerInstituciones() {
-    this.catalogoService.getItems('instituciones_sistema').subscribe({ // Verify endpoint name
-      next: (data) => this.datosrecuperados.instituciones = data || [],
-      error: (err) => console.error(err)
-    });
+  async obtenerInstituciones() {
+    try {
+      const data = await firstValueFrom(this.catalogoService.getItems('instituciones_sistema')); // Verify endpoint name
+      this.datosrecuperados.instituciones = data || [];
+    } catch (err) {
+      console.error(err);
+    } finally {
+      this.cdr.markForCheck();
+    }
   }
 
   // Obtener provincias
-  obtenerProvincias() {
-    this.catalogoService.getItems('provincias').subscribe({
-      next: (data) => this.datosrecuperados.provincias = data || [],
-      error: (err) => console.error(err)
-    });
+  async obtenerProvincias() {
+    try {
+      const data = await firstValueFrom(this.catalogoService.getItems('provincias'));
+      this.datosrecuperados.provincias = data || [];
+    } catch (err) {
+      console.error(err);
+    } finally {
+      this.cdr.markForCheck();
+    }
   }
 
   // Obtener cantones por provincia
-  obtenerCantones(provinciaId: number) {
+  async obtenerCantones(provinciaId: number) {
     if (!provinciaId) return;
-    this.catalogoService.getItems('cantones').subscribe({
-      next: (data) => {
-        this.datosrecuperados.cantones = data.filter((c: any) => c.provinciaId == provinciaId);
-        this.datosrecuperados.parroquiasSeleccionadas = [];
-        this.usuarioGeneral.parroquiaReside = '';
-        this.cdr.detectChanges();
-      },
-      error: (err) => console.error(err)
-    });
+    try {
+      const data = await firstValueFrom(this.catalogoService.getItems('cantones'));
+      this.datosrecuperados.cantones = data.filter((c: any) => c.provinciaId == provinciaId);
+      this.datosrecuperados.parroquiasSeleccionadas = [];
+      this.usuarioGeneral.parroquiaReside = '';
+    } catch (err) {
+      console.error(err);
+    } finally {
+      this.cdr.markForCheck();
+    }
   }
 
   // Obtener parroquias por cantón
-  obtenerParroquias(cantonId: string) {
+  async obtenerParroquias(cantonId: string) {
     if (!cantonId) return;
-    this.catalogoService.getItems('parroquias').subscribe({
-      next: (data) => {
-        this.datosrecuperados.parroquiasSeleccionadas = data.filter((p: any) => p.cantonId == cantonId);
-        this.cdr.detectChanges();
-      },
-      error: (err) => console.error(err)
-    });
+    try {
+      const data = await firstValueFrom(this.catalogoService.getItems('parroquias'));
+      this.datosrecuperados.parroquiasSeleccionadas = data.filter((p: any) => p.cantonId == cantonId);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      this.cdr.markForCheck();
+    }
   }
 
   // Manejar cambio en nivel de gobierno

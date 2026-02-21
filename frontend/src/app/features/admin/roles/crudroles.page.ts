@@ -1,7 +1,7 @@
 import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { AlertController, ToastController } from '@ionic/angular';
 import { CatalogoService } from 'src/app/shared/services/catalogo.service';
@@ -12,7 +12,8 @@ import { firstValueFrom } from 'rxjs';
   templateUrl: './crudroles.page.html',
   styleUrls: ['./crudroles.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule]
+  imports: [CommonModule, FormsModule, IonicModule],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CRUDRolesPage implements OnInit {
   Roles: any[] = [];
@@ -121,6 +122,7 @@ export class CRUDRolesPage implements OnInit {
                 // Actualizar el estado en la lista local
                 rol.estado = nuevoEstado;
                 this.calcularRolesActivos();
+                this.cd.markForCheck();
                 this.presentToast(
                   `El rol "${rol.nombre}" ha sido ${nuevoEstado ? 'activado' : 'desactivado'} exitosamente`,
                   'success'
@@ -168,6 +170,7 @@ export class CRUDRolesPage implements OnInit {
         this.Roles = this.Roles.filter(r => r.id !== rol.id);
         this.filtrarRoles();
         this.calcularRolesActivos();
+        this.cd.markForCheck();
         this.presentToast(`Rol "${rol.nombre}" eliminado con éxito`, 'success');
       },
       error: (error) => {

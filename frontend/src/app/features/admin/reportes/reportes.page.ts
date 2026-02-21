@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
     IonHeader, IonToolbar, IonTitle, IonContent, IonButtons,
@@ -13,6 +13,7 @@ import {
     arrowUpOutline, arrowDownOutline, playOutline,
     checkmarkDoneOutline
 } from 'ionicons/icons';
+import { firstValueFrom } from 'rxjs';
 import { ReportesService, DashboardStats } from './services/reportes.service';
 
 // Modular Components
@@ -31,7 +32,8 @@ import { RolesChartComponent } from './components/roles-chart/roles-chart.compon
         IonMenuButton, IonGrid, IonRow, IonCol, IonIcon,
         IonSpinner, IonText, IonBadge,
         KpiCardComponent, TrendChartComponent, RolesChartComponent
-    ]
+    ],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ReportesPage implements OnInit {
     stats = signal<DashboardStats | null>(null);
@@ -60,20 +62,18 @@ export class ReportesPage implements OnInit {
         this.loadStats();
     }
 
-    loadStats() {
+    async loadStats() {
         this.loading.set(true);
         this.error.set(null);
 
-        this.reportesService.getDashboardStats().subscribe({
-            next: (response) => {
-                this.stats.set(response.data);
-                this.loading.set(false);
-            },
-            error: (err) => {
-                console.error('Error loading stats:', err);
-                this.error.set('Error al cargar las estadísticas');
-                this.loading.set(false);
-            }
-        });
+        try {
+            const response = await firstValueFrom(this.reportesService.getDashboardStats());
+            this.stats.set(response.data);
+        } catch (err) {
+            console.error('Error loading stats:', err);
+            this.error.set('Error al cargar las estadísticas');
+        } finally {
+            this.loading.set(false);
+        }
     }
 }

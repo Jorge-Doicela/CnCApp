@@ -1,4 +1,5 @@
-import { Component, OnInit, ElementRef, ViewChild, inject, HostListener, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ElementRef, ViewChild, inject, HostListener, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule, NavController, LoadingController, ToastController } from '@ionic/angular';
@@ -28,7 +29,8 @@ interface DraggableField {
     templateUrl: './crear.page.html',
     styleUrls: ['./crear.page.scss'],
     standalone: true,
-    imports: [CommonModule, FormsModule, IonicModule]
+    imports: [CommonModule, FormsModule, IonicModule],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CrearPage implements OnInit {
     @ViewChild('canvasContainer') canvasContainer!: ElementRef;
@@ -97,26 +99,20 @@ export class CrearPage implements OnInit {
 
     async cargarPlantilla(id: number) {
         this.cargando = true;
+        this.cdr.markForCheck();
         try {
-            this.plantillasService.getPlantilla(id).subscribe({
-                next: (plantilla) => {
-                    if (plantilla) {
-                        this.plantilla = JSON.parse(JSON.stringify(plantilla));
-                        this.sincronizarCampos();
-                    }
-                    this.cargando = false;
-                    this.cdr.detectChanges();
-                },
-                error: (error) => {
-                    console.error('Error al cargar plantilla:', error);
-                    this.mostrarToast('Error al cargar plantilla', 'danger');
-                    this.cargando = false;
-                    this.navCtrl.navigateBack('/gestionar-plantillas');
-                }
-            });
+            const plantilla = await firstValueFrom(this.plantillasService.getPlantilla(id));
+            if (plantilla) {
+                this.plantilla = JSON.parse(JSON.stringify(plantilla));
+                this.sincronizarCampos();
+            }
         } catch (error) {
-            console.error('Error inesperado:', error);
+            console.error('Error al cargar plantilla:', error);
+            this.mostrarToast('Error al cargar plantilla', 'danger');
+            this.navCtrl.navigateBack('/gestionar-plantillas');
+        } finally {
             this.cargando = false;
+            this.cdr.markForCheck();
         }
     }
 
@@ -266,30 +262,23 @@ export class CrearPage implements OnInit {
         }
 
         this.guardando = true;
+        this.cdr.markForCheck();
         const loading = await this.loadingCtrl.create({
             message: 'Guardando plantilla...'
         });
         await loading.present();
 
         try {
-            this.plantillasService.savePlantilla(this.plantilla).subscribe({
-                next: async () => {
-                    await loading.dismiss();
-                    this.guardando = false;
-                    await this.mostrarToast('Plantilla guardada correctamente', 'success');
-                    this.navCtrl.navigateBack('/gestionar-plantillas');
-                },
-                error: async (error) => {
-                    console.error('Error al guardar plantilla:', error);
-                    await loading.dismiss();
-                    this.guardando = false;
-                    await this.mostrarToast('Error al guardar plantilla', 'danger');
-                }
-            });
+            await firstValueFrom(this.plantillasService.savePlantilla(this.plantilla));
+            await this.mostrarToast('Plantilla guardada correctamente', 'success');
+            this.navCtrl.navigateBack('/gestionar-plantillas');
         } catch (error) {
-            console.error('Error inesperado:', error);
+            console.error('Error al guardar plantilla:', error);
+            await this.mostrarToast('Error al guardar plantilla', 'danger');
+        } finally {
             await loading.dismiss();
             this.guardando = false;
+            this.cdr.markForCheck();
         }
     }
 

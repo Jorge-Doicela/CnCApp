@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
 import { ToastController, AlertController, LoadingController } from '@ionic/angular';
 import { ActivatedRoute, Router } from '@angular/router';
 import { addIcons } from 'ionicons';
@@ -20,7 +21,8 @@ import { CatalogoService } from 'src/app/shared/services/catalogo.service';
   templateUrl: './editar.page.html',
   styleUrls: ['./editar.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule]
+  imports: [CommonModule, FormsModule, IonicModule],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class EditarPage implements OnInit {
   segmentoActual: string = 'personal';
@@ -144,78 +146,88 @@ export class EditarPage implements OnInit {
     console.log('[ADMIN_EDITAR_DEBUG] ngOnInit completed');
   }
 
-  cargarUsuario(id: number) {
+  private cdr = inject(ChangeDetectorRef);
+
+  async cargarUsuario(id: number) {
     console.log('[ADMIN_EDITAR_DEBUG] cargarUsuario called with ID:', id);
-    this.usuarioService.getUsuario(id).subscribe({
-      next: (data) => {
-        console.log('[ADMIN_EDITAR_DEBUG] Usuario data received:', data);
-        if (!data) {
-          console.log('[ADMIN_EDITAR_DEBUG] No data received');
-          this.ocultarCargando();
-          this.presentToast('No se encontró el usuario', 'warning');
-          return;
-        }
-
-        // Mapeo detallado similar a CrearPage
-        this.usuario = {
-          ...this.usuario,
-          id: data.id.toString(),
-          email: data.email || '',
-          nombre1: data.nombre1 || '',
-          nombre2: data.nombre2 || '',
-          apellido1: data.apellido1 || '',
-          apellido2: data.apellido2 || '',
-          nombre: data.nombre || '',
-          ci: data.ci || '',
-          rolId: data.rolId,
-          entidadId: data.entidadId,
-          estado: (data as any).estado ?? 1,
-          firmaUrl: data.firmaUrl || '',
-          celular: data.celular || '',
-          convencional: data.convencional || '',
-          genero: data.genero || '',
-          etnia: data.etnia || '',
-          nacionalidad: data.nacionalidad || '',
-          tipoParticipante: Number(data.tipoParticipante) || 0,
-          fechaNacimiento: data.fechaNacimiento || '',
-          cantonReside: data.cantonReside || '',
-          parroquiaReside: data.parroquiaReside || '',
-        };
-
-        // Cargar ubicación si existe
-        if (this.usuario.cantonReside) {
-          this.detectarProvinciaDesdeCanton();
-        }
-
-        // Cargar datos específicos si existen
-        if (data.autoridad) this.autoridad = { ...data.autoridad };
-        if (data.funcionarioGad) this.funcionarioGad = { ...data.funcionarioGad };
-        if (data.institucion) this.institucion = { ...data.institucion };
-
-        console.log('[ADMIN_EDITAR_DEBUG] Usuario loaded successfully, hiding loading');
+    try {
+      const data = await firstValueFrom(this.usuarioService.getUsuario(id));
+      console.log('[ADMIN_EDITAR_DEBUG] Usuario data received:', data);
+      if (!data) {
+        console.log('[ADMIN_EDITAR_DEBUG] No data received');
         this.ocultarCargando();
-      },
-      error: (error) => {
-        console.error('[ADMIN_EDITAR_DEBUG] Error al cargar usuario:', error);
-        this.ocultarCargando();
-        console.error('Error al cargar usuario:', error);
-        this.presentToast('Error al cargar los datos del usuario', 'danger');
+        this.presentToast('No se encontró el usuario', 'warning');
+        return;
       }
-    });
+
+      // Mapeo detallado similar a CrearPage
+      this.usuario = {
+        ...this.usuario,
+        id: data.id.toString(),
+        email: data.email || '',
+        nombre1: data.nombre1 || '',
+        nombre2: data.nombre2 || '',
+        apellido1: data.apellido1 || '',
+        apellido2: data.apellido2 || '',
+        nombre: data.nombre || '',
+        ci: data.ci || '',
+        rolId: data.rolId,
+        entidadId: data.entidadId,
+        estado: (data as any).estado ?? 1,
+        firmaUrl: data.firmaUrl || '',
+        celular: data.celular || '',
+        convencional: data.convencional || '',
+        genero: data.genero || '',
+        etnia: data.etnia || '',
+        nacionalidad: data.nacionalidad || '',
+        tipoParticipante: Number(data.tipoParticipante) || 0,
+        fechaNacimiento: data.fechaNacimiento || '',
+        cantonReside: data.cantonReside || '',
+        parroquiaReside: data.parroquiaReside || '',
+      };
+
+      // Cargar ubicación si existe
+      if (this.usuario.cantonReside) {
+        await this.detectarProvinciaDesdeCanton();
+      }
+
+      // Cargar datos específicos si existen
+      if (data.autoridad) this.autoridad = { ...data.autoridad };
+      if (data.funcionarioGad) this.funcionarioGad = { ...data.funcionarioGad };
+      if (data.institucion) this.institucion = { ...data.institucion };
+
+      console.log('[ADMIN_EDITAR_DEBUG] Usuario loaded successfully, hiding loading');
+      this.ocultarCargando();
+    } catch (error) {
+      console.error('[ADMIN_EDITAR_DEBUG] Error al cargar usuario:', error);
+      this.ocultarCargando();
+      console.error('Error al cargar usuario:', error);
+      this.presentToast('Error al cargar los datos del usuario', 'danger');
+    } finally {
+      this.cdr.markForCheck();
+    }
   }
 
-  obtenerRoles() {
-    this.catalogoService.getItems('rol').subscribe({
-      next: (data) => this.datosrecuperados.roles = data || [],
-      error: (error) => console.error('Error al obtener roles:', error)
-    });
+  async obtenerRoles() {
+    try {
+      const data = await firstValueFrom(this.catalogoService.getItems('rol'));
+      this.datosrecuperados.roles = data || [];
+    } catch (error) {
+      console.error('Error al obtener roles:', error);
+    } finally {
+      this.cdr.markForCheck();
+    }
   }
 
-  obtenerProvincias() {
-    this.catalogoService.getItems('provincias').subscribe({
-      next: (data) => this.datosrecuperados.provincias = data || [],
-      error: (error) => console.error('Error provincias:', error)
-    });
+  async obtenerProvincias() {
+    try {
+      const data = await firstValueFrom(this.catalogoService.getItems('provincias'));
+      this.datosrecuperados.provincias = data || [];
+    } catch (error) {
+      console.error('Error provincias:', error);
+    } finally {
+      this.cdr.markForCheck();
+    }
   }
 
   cambioProvincia() {
@@ -229,18 +241,20 @@ export class EditarPage implements OnInit {
     }
   }
 
-  cargarCantones(provinciaId: number) {
+  async cargarCantones(provinciaId: number) {
     if (!provinciaId) return;
-    this.catalogoService.getItems('cantones').subscribe({
-      next: (data) => {
-        this.datosrecuperados.cantones = data.filter((c: any) => c.provinciaId == provinciaId);
-        // Si ya teníamos un cantón (al cargar el usuario), cargamos sus parroquias
-        if (this.usuario.cantonReside) {
-          this.cargarParroquias(this.usuario.cantonReside);
-        }
-      },
-      error: (err) => console.error(err)
-    });
+    try {
+      const data = await firstValueFrom(this.catalogoService.getItems('cantones'));
+      this.datosrecuperados.cantones = data.filter((c: any) => c.provinciaId == provinciaId);
+      // Si ya teníamos un cantón (al cargar el usuario), cargamos sus parroquias
+      if (this.usuario.cantonReside) {
+        await this.cargarParroquias(this.usuario.cantonReside);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      this.cdr.markForCheck();
+    }
   }
 
   cambioCanton() {
@@ -251,42 +265,55 @@ export class EditarPage implements OnInit {
     }
   }
 
-  cargarParroquias(cantonId: string) {
+  async cargarParroquias(cantonId: string) {
     if (!cantonId) return;
-    this.catalogoService.getItems('parroquias').subscribe({
-      next: (data) => {
-        this.datosrecuperados.parroquias = data.filter((p: any) => p.cantonId == cantonId);
-      },
-      error: (err) => console.error(err)
-    });
+    try {
+      const data = await firstValueFrom(this.catalogoService.getItems('parroquias'));
+      this.datosrecuperados.parroquias = data.filter((p: any) => p.cantonId == cantonId);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      this.cdr.markForCheck();
+    }
   }
 
-  private detectarProvinciaDesdeCanton() {
+  private async detectarProvinciaDesdeCanton() {
     // Logic to auto-select province if user has canton logic required fetching all cantones and finding the one.
     // For now, we load all cantones and finding the one matching user.cantonReside
-    this.catalogoService.getItems('cantones').subscribe({
-      next: (data) => {
-        const canton = data.find((c: any) => c.id == this.usuario.cantonReside);
-        if (canton) {
-          this.datosbusqueda.selectedProvincia = canton.provinciaId;
-          this.cargarCantones(canton.provinciaId);
-        }
+    try {
+      const data = await firstValueFrom(this.catalogoService.getItems('cantones'));
+      const canton = data.find((c: any) => c.id == this.usuario.cantonReside);
+      if (canton) {
+        this.datosbusqueda.selectedProvincia = canton.provinciaId;
+        await this.cargarCantones(canton.provinciaId);
       }
-    });
+    } catch (err) {
+      console.error(err);
+    } finally {
+      this.cdr.markForCheck();
+    }
   }
 
-  obtenerCargos() {
-    this.catalogoService.getItems('cargos').subscribe({
-      next: (data) => this.datosrecuperados.cargos = data || [],
-      error: (error) => console.error('Error cargos:', error)
-    });
+  async obtenerCargos() {
+    try {
+      const data = await firstValueFrom(this.catalogoService.getItems('cargos'));
+      this.datosrecuperados.cargos = data || [];
+    } catch (error) {
+      console.error('Error cargos:', error);
+    } finally {
+      this.cdr.markForCheck();
+    }
   }
 
-  obtenerInstituciones() {
-    this.catalogoService.getItems('instituciones_sistema').subscribe({
-      next: (data) => this.datosrecuperados.instituciones = data || [],
-      error: (error) => console.error('Error instituciones:', error)
-    });
+  async obtenerInstituciones() {
+    try {
+      const data = await firstValueFrom(this.catalogoService.getItems('instituciones_sistema'));
+      this.datosrecuperados.instituciones = data || [];
+    } catch (error) {
+      console.error('Error instituciones:', error);
+    } finally {
+      this.cdr.markForCheck();
+    }
   }
 
 
@@ -335,18 +362,18 @@ export class EditarPage implements OnInit {
       institucion: this.usuario.tipoParticipante == 3 ? this.institucion : null
     };
 
-    this.usuarioService.updateUsuario(Number(this.usuario.id), datosAEnviar as any).subscribe({
-      next: async () => {
-        this.ocultarCargando();
-        await this.mostrarAlertaExito('Usuario actualizado correctamente');
-        this.router.navigate(['/gestionar-usuarios']);
-      },
-      error: (error) => {
-        this.ocultarCargando();
-        console.error('Error al actualizar usuario:', error);
-        this.presentToast('Error al guardar los cambios: ' + (error.error?.message || error.message), 'danger');
-      }
-    });
+    try {
+      await firstValueFrom(this.usuarioService.updateUsuario(Number(this.usuario.id), datosAEnviar as any));
+      this.ocultarCargando();
+      await this.mostrarAlertaExito('Usuario actualizado correctamente');
+      this.router.navigate(['/gestionar-usuarios']);
+      this.cdr.markForCheck();
+    } catch (error: any) {
+      this.ocultarCargando();
+      console.error('Error al actualizar usuario:', error);
+      this.presentToast('Error al guardar los cambios: ' + (error.error?.message || error.message), 'danger');
+      this.cdr.markForCheck();
+    }
   }
 
   validarFormulario(): boolean {

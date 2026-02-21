@@ -5,6 +5,17 @@ import { GetInstitucionByIdUseCase } from '../../../application/institucion/use-
 import { CreateInstitucionUseCase } from '../../../application/institucion/use-cases/create-institucion.use-case';
 import { UpdateInstitucionUseCase } from '../../../application/institucion/use-cases/update-institucion.use-case';
 import { DeleteInstitucionUseCase } from '../../../application/institucion/use-cases/delete-institucion.use-case';
+import { z } from 'zod';
+
+const createInstitucionSchema = z.object({
+    nombre: z.string().min(3, 'El nombre debe tener al menos 3 caracteres'),
+    tipo: z.string().optional().nullable()
+});
+
+const updateInstitucionSchema = z.object({
+    nombre: z.string().min(3, 'El nombre debe tener al menos 3 caracteres').optional(),
+    tipo: z.string().optional().nullable()
+});
 
 @injectable()
 export class InstitucionController {
@@ -28,9 +39,13 @@ export class InstitucionController {
     getById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
             const id = parseInt(req.params['id'] as string);
+            if (isNaN(id)) {
+                res.status(400).json({ error: 'ID inválido' });
+                return;
+            }
             const institucion = await this.getByIdUseCase.execute(id);
             if (!institucion) {
-                res.status(404).json({ message: 'Institución no encontrada' });
+                res.status(404).json({ error: 'Institución no encontrada' });
                 return;
             }
             res.json(institucion);
@@ -41,7 +56,8 @@ export class InstitucionController {
 
     create = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const institucion = await this.createUseCase.execute(req.body);
+            const data = createInstitucionSchema.parse(req.body);
+            const institucion = await this.createUseCase.execute(data);
             res.status(201).json(institucion);
         } catch (error) {
             next(error);
@@ -51,7 +67,12 @@ export class InstitucionController {
     update = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
             const id = parseInt(req.params['id'] as string);
-            const institucion = await this.updateUseCase.execute(id, req.body);
+            if (isNaN(id)) {
+                res.status(400).json({ error: 'ID inválido' });
+                return;
+            }
+            const data = updateInstitucionSchema.parse(req.body);
+            const institucion = await this.updateUseCase.execute(id, data);
             res.json(institucion);
         } catch (error) {
             next(error);
@@ -61,6 +82,10 @@ export class InstitucionController {
     delete = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
             const id = parseInt(req.params['id'] as string);
+            if (isNaN(id)) {
+                res.status(400).json({ error: 'ID inválido' });
+                return;
+            }
             await this.deleteUseCase.execute(id);
             res.status(204).send();
         } catch (error) {

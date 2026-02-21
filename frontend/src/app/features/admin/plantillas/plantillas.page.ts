@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule, AlertController, ToastController, NavController, LoadingController, ModalController } from '@ionic/angular';
@@ -25,7 +25,8 @@ import {
     templateUrl: './plantillas.page.html',
     styleUrls: ['./plantillas.page.scss'],
     standalone: true,
-    imports: [CommonModule, FormsModule, IonicModule]
+    imports: [CommonModule, FormsModule, IonicModule],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PlantillasPage implements OnInit {
     plantillas: PlantillaCertificado[] = [];
@@ -133,18 +134,17 @@ export class PlantillasPage implements OnInit {
                         });
                         await loading.present();
 
-                        this.plantillasService.activarPlantilla(plantilla.id).subscribe({
-                            next: () => {
-                                loading.dismiss();
-                                this.mostrarToast('Plantilla activada correctamente', 'success');
-                                this.cargarPlantillas();
-                            },
-                            error: (error) => {
-                                console.error('Error al activar plantilla:', error);
-                                loading.dismiss();
-                                this.mostrarToast('Error al activar plantilla', 'danger');
-                            }
-                        });
+                        try {
+                            await firstValueFrom(this.plantillasService.activarPlantilla(plantilla.id));
+                            this.mostrarToast('Plantilla activada correctamente', 'success');
+                            this.cargarPlantillas();
+                        } catch (error) {
+                            console.error('Error al activar plantilla:', error);
+                            this.mostrarToast('Error al activar plantilla', 'danger');
+                        } finally {
+                            loading.dismiss();
+                            this.cd.markForCheck();
+                        }
                     }
                 }
             ]
@@ -172,18 +172,17 @@ export class PlantillasPage implements OnInit {
                         });
                         await loading.present();
 
-                        this.plantillasService.deletePlantilla(plantilla.id).subscribe({
-                            next: () => {
-                                loading.dismiss();
-                                this.mostrarToast('Plantilla eliminada correctamente', 'success');
-                                this.cargarPlantillas();
-                            },
-                            error: (error) => {
-                                console.error('Error al eliminar plantilla:', error);
-                                loading.dismiss();
-                                this.mostrarToast('Error al eliminar plantilla', 'danger');
-                            }
-                        });
+                        try {
+                            await firstValueFrom(this.plantillasService.deletePlantilla(plantilla.id));
+                            this.mostrarToast('Plantilla eliminada correctamente', 'success');
+                            this.cargarPlantillas();
+                        } catch (error) {
+                            console.error('Error al eliminar plantilla:', error);
+                            this.mostrarToast('Error al eliminar plantilla', 'danger');
+                        } finally {
+                            loading.dismiss();
+                            this.cd.markForCheck();
+                        }
                     }
                 }
             ]

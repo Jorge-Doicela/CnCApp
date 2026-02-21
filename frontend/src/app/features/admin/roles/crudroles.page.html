@@ -12,33 +12,33 @@
 
     <!-- Stats Strip -->
     <div class="stats-grid animate-fade-up">
-      <div class="stat-card">
-        <div class="icon-box blue">
+      <div class="stat-card-modern">
+        <div class="stat-icon-wrapper blue">
           <ion-icon name="people"></ion-icon>
         </div>
         <div class="stat-info">
-          <span class="value">{{ Roles.length }}</span>
-          <span class="label">Roles Totales</span>
+          <h3>{{ Roles.length }}</h3>
+          <p>Roles Totales</p>
         </div>
       </div>
 
-      <div class="stat-card">
-        <div class="icon-box green">
+      <div class="stat-card-modern">
+        <div class="stat-icon-wrapper green">
           <ion-icon name="shield-checkmark"></ion-icon>
         </div>
         <div class="stat-info">
-          <span class="value">{{ rolesActivos }}</span>
-          <span class="label">Roles Activos</span>
+          <h3>{{ rolesActivos }}</h3>
+          <p>Roles Activos</p>
         </div>
       </div>
 
-      <div class="stat-card">
-        <div class="icon-box purple">
+      <div class="stat-card-modern">
+        <div class="stat-icon-wrapper purple">
           <ion-icon name="apps"></ion-icon>
         </div>
         <div class="stat-info">
-          <span class="value">{{ obtenerTotalModulos() }}</span>
-          <span class="label">Módulos Asignados</span>
+          <h3>{{ obtenerTotalModulos() }}</h3>
+          <p>Módulos Asignados</p>
         </div>
       </div>
     </div>

@@ -3,199 +3,33 @@ ion-content {
   --background: #f5f7fa;
 }
 
-.search-section {
-  .search-container {
-    background: #f9fafc;
-    border-radius: 16px;
-    padding: 20px;
-    margin-bottom: 20px;
-    border-left: 4px solid var(--ion-color-primary);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+.form-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-top: 20px;
 
-    .search-item {
-      --background: white;
-      border-radius: 12px;
-      margin-bottom: 16px;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
-
-      ion-icon {
-        font-size: 22px;
-        margin-right: 10px;
-      }
-    }
-
-    .filter-container {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 12px;
-      margin-bottom: 20px;
-
-      @media (min-width: 576px) {
-        grid-template-columns: 1fr 1fr;
-      }
-
-      .filter-item {
-        --background: white;
-        border-radius: 12px;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
-
-        ion-icon {
-          font-size: 22px;
-          margin-right: 10px;
-        }
-      }
-    }
-  }
-}
-
-.create-button {
-  --border-radius: 12px;
-  --box-shadow: 0 4px 12px rgba(var(--ion-color-primary-rgb), 0.3);
-  height: 50px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  transition: transform 0.3s ease;
-  margin-top: 20px;
-
-  &:hover:not([disabled]) {
-    transform: translateY(-2px);
-    --box-shadow: 0 6px 15px rgba(var(--ion-color-primary-rgb), 0.4);
-  }
-}
-
-// Grids para competencias e instituciones
-.competencias-grid,
-.instituciones-grid,
-.parroquias-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 16px;
-
-  @media (min-width: 768px) {
-    grid-template-columns: repeat(2, 1fr);
+  ion-icon {
+    font-size: 48px;
+    margin-bottom: 8px;
   }
 
-  @media (min-width: 1200px) {
-    grid-template-columns: repeat(3, 1fr);
+  h2 {
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0 0 8px;
+    color: var(--ion-color-dark);
   }
 
-  // Cards para competencias e instituciones
-  .competencia-card,
-  .institucion-card,
-  .parroquia-card {
-    background: #f9fafc;
-    border-radius: 16px;
-    overflow: hidden;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-
-    &:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
-    }
-
-    &.active-card {
-      .competencia-header,
-      .institucion-header,
-      .parroquia-header {
-        background: linear-gradient(to right, var(--ion-color-primary), rgba(var(--ion-color-primary-rgb), 0.8));
-      }
-    }
-
-    &.inactive-card {
-      .competencia-header,
-      .institucion-header,
-      .parroquia-header {
-        background: linear-gradient(to right, var(--ion-color-warning), rgba(var(--ion-color-warning-rgb), 0.8));
-      }
-    }
-
-    .competencia-header,
-    .institucion-header,
-    .parroquia-header {
-      padding: 16px;
-      color: white;
-
-      .competencia-title,
-      .institucion-title,
-      .parroquia-title {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-
-        h4 {
-          margin: 0;
-          font-size: 18px;
-          font-weight: 600;
-          flex: 1;
-        }
-
-        .competencia-badge,
-        .institucion-badge,
-        .parroquia-badge {
-          font-size: 12px;
-          padding: 4px 8px;
-          border-radius: 20px;
-          font-weight: 500;
-
-          &.active {
-            background-color: rgba(var(--ion-color-success-rgb), 0.2);
-            color: var(--ion-color-success);
-          }
-
-          &.inactive {
-            background-color: rgba(var(--ion-color-danger-rgb), 0.2);
-            color: var(--ion-color-danger);
-          }
-        }
-      }
-    }
-
-    .competencia-content,
-    .institucion-content,
-    .parroquia-content {
-      padding: 16px;
-      background: white;
-
-      .competencia-detail,
-      .institucion-detail,
-      .parroquia-detail {
-        display: flex;
-        align-items: center;
-        margin-bottom: 10px;
-        color: #555;
-
-        ion-icon {
-          font-size: 20px;
-          margin-right: 8px;
-        }
-
-        span {
-          font-size: 14px;
-          word-break: break-word;
-        }
-      }
-    }
-
-    .competencia-actions,
-    .institucion-actions,
-    .parroquia-actions {
-      display: flex;
-      justify-content: flex-end;
-      padding: 8px 16px;
-      background-color: #f1f5f9;
-      border-top: 1px solid #eaeef5;
-      flex-wrap: wrap;
-
-      ion-button {
-        margin: 4px;
-      }
-    }
+  p {
+    color: var(--ion-color-medium);
+    margin: 0;
+    text-align: center;
   }
 }
 
 // Estilos para el formulario
-
 form {
   padding: 20px;
 
@@ -228,39 +62,6 @@ form {
     }
   }
 
-  .status-toggle {
-    .toggle-item {
-      --inner-padding-end: 0;
-    }
-  }
-
-  .form-details {
-    background: #f9fafc;
-    border-radius: 12px;
-    padding: 16px;
-    margin: 20px 0;
-
-    h4 {
-      font-size: 16px;
-      color: var(--ion-color-primary);
-      margin: 0 0 10px;
-      font-weight: 600;
-    }
-
-    .detail-item {
-      display: flex;
-      align-items: center;
-      margin-bottom: 8px;
-      font-size: 14px;
-      color: #666;
-
-      ion-icon {
-        margin-right: 8px;
-        font-size: 18px;
-      }
-    }
-  }
-
   .form-actions {
     display: flex;
     justify-content: space-between;
@@ -279,8 +80,6 @@ form {
   }
 }
 
-// Animación para elementos
-
 // Mejoras de responsividad para dispositivos móviles
 @media (max-width: 576px) {
   .form-actions {
@@ -289,17 +88,6 @@ form {
 
     ion-button {
       width: 100%;
-    }
-  }
-
-  .competencia-actions,
-  .institucion-actions,
-  .parroquia-actions {
-    flex-direction: column;
-
-    ion-button {
-      width: 100%;
-      margin: 4px 0;
     }
   }
 }

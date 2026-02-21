@@ -1,16 +1,18 @@
 import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { ToastController, AlertController, NavController } from '@ionic/angular';
 import { CatalogoService } from 'src/app/shared/services/catalogo.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-crear',
   templateUrl: './crear.page.html',
   styleUrls: ['./crear.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule]
+  imports: [CommonModule, FormsModule, IonicModule],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CrearPage implements OnInit {
   modulos: string[] = [
@@ -38,6 +40,7 @@ export class CrearPage implements OnInit {
   guardando: boolean = false;
 
   private catalogoService = inject(CatalogoService);
+  private cd = inject(ChangeDetectorRef);
 
   constructor(
     private toastController: ToastController,
@@ -89,56 +92,44 @@ export class CrearPage implements OnInit {
     // Evitar múltiples envíos
     if (this.guardando) return;
     this.guardando = true;
+    this.cd.markForCheck();
 
     try {
       const modulosSeleccionados = this.obtenerModulosSeleccionados();
 
       // Verificar existencia por nombre (obteniendo todos por ahora)
-      // Idealmente el backend debería tener un endpoint de búsqueda o validación
-      this.catalogoService.getItems('rol').subscribe({
-        next: async (roles) => {
-          const existe = roles.some((r: any) => r.nombre.toLowerCase() === this.rol.nombre.trim().toLowerCase());
+      const roles = await firstValueFrom(this.catalogoService.getItems('rol'));
+      const existe = (roles ?? []).some((r: any) => r.nombre.toLowerCase() === this.rol.nombre.trim().toLowerCase());
 
-          if (existe) {
-            await this.presentToast('Ya existe un rol con este nombre. Por favor, utilice otro nombre.', 'warning');
-            this.guardando = false;
-            return;
-          }
+      if (existe) {
+        await this.presentToast('Ya existe un rol con este nombre. Por favor, utilice otro nombre.', 'warning');
+        this.guardando = false;
+        this.cd.markForCheck();
+        return;
+      }
 
-          // Crear el nuevo rol
-          const nuevoRol = {
-            nombre: this.rol.nombre.trim(),
-            modulos: modulosSeleccionados,
-            estado: this.estadoInicial
-          };
+      // Crear el nuevo rol
+      const nuevoRol = {
+        nombre: this.rol.nombre.trim(),
+        modulos: modulosSeleccionados,
+        estado: this.estadoInicial
+      };
 
-          this.catalogoService.createItem('rol', nuevoRol).subscribe({
-            next: async () => {
-              await this.presentAlert(
-                'Rol Creado',
-                `El rol "${this.rol.nombre}" ha sido creado exitosamente con ${modulosSeleccionados.length} módulos asignados.`,
-                true
-              );
-              this.guardando = false;
-            },
-            error: async (error) => {
-              console.error('Error al insertar el rol:', error);
-              await this.presentToast('Error al crear el rol: ' + (error.message || error.statusText), 'danger');
-              this.guardando = false;
-            }
-          });
-        },
-        error: async (error) => {
-          console.error('Error al verificar roles:', error);
-          await this.presentToast('Error al verificar existencia del rol', 'danger');
-          this.guardando = false;
-        }
-      });
+      await firstValueFrom(this.catalogoService.createItem('rol', nuevoRol));
+
+      await this.presentAlert(
+        'Rol Creado',
+        `El rol "${this.rol.nombre}" ha sido creado exitosamente con ${modulosSeleccionados.length} módulos asignados.`,
+        true
+      );
+      this.guardando = false;
+      this.cd.markForCheck();
 
     } catch (error: any) {
       console.error('Error al crear el rol:', error);
-      await this.presentToast('Error inesperado al crear el rol: ' + error.message, 'danger');
+      await this.presentToast('Error al crear el rol: ' + (error.message || error.statusText), 'danger');
       this.guardando = false;
+      this.cd.markForCheck();
     }
   }
 

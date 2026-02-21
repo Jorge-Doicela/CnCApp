@@ -5,6 +5,17 @@ import { GetEntidadByIdUseCase } from '../../../application/user/use-cases/get-e
 import { CreateEntidadUseCase } from '../../../application/user/use-cases/create-entidad.use-case';
 import { UpdateEntidadUseCase } from '../../../application/user/use-cases/update-entidad.use-case';
 import { DeleteEntidadUseCase } from '../../../application/user/use-cases/delete-entidad.use-case';
+import { z } from 'zod';
+
+const createEntidadSchema = z.object({
+    nombre: z.string().min(3, 'El nombre debe tener al menos 3 caracteres'),
+    estado: z.boolean().optional()
+});
+
+const updateEntidadSchema = z.object({
+    nombre: z.string().min(3, 'El nombre debe tener al menos 3 caracteres').optional(),
+    estado: z.boolean().optional()
+});
 
 @injectable()
 export class EntidadController {
@@ -28,9 +39,13 @@ export class EntidadController {
     getById = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const id = parseInt(req.params.id as string);
+            if (isNaN(id)) {
+                res.status(400).json({ error: 'ID inválido' });
+                return;
+            }
             const entidad = await this.getEntidadByIdUseCase.execute(id);
             if (!entidad) {
-                res.status(404).json({ message: 'Entidad no encontrada' });
+                res.status(404).json({ error: 'Entidad no encontrada' });
                 return;
             }
             res.json(entidad);
@@ -41,13 +56,8 @@ export class EntidadController {
 
     create = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const { nombre } = req.body;
-            // Validate required fields
-            if (!nombre) {
-                res.status(400).json({ message: 'El nombre es requerido' });
-                return;
-            }
-            const entidad = await this.createEntidadUseCase.execute({ nombre });
+            const data = createEntidadSchema.parse(req.body);
+            const entidad = await this.createEntidadUseCase.execute(data);
             res.status(201).json(entidad);
         } catch (error) {
             next(error);
@@ -57,9 +67,12 @@ export class EntidadController {
     update = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const id = parseInt(req.params.id as string);
-            const { nombre, estado } = req.body;
-            // Note: 'estado' is mocked in repository, so we only pass what schema supports primarily
-            const entidad = await this.updateEntidadUseCase.execute(id, { nombre, estado });
+            if (isNaN(id)) {
+                res.status(400).json({ error: 'ID inválido' });
+                return;
+            }
+            const data = updateEntidadSchema.parse(req.body);
+            const entidad = await this.updateEntidadUseCase.execute(id, data);
             res.json(entidad);
         } catch (error) {
             next(error);
@@ -69,6 +82,10 @@ export class EntidadController {
     delete = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const id = parseInt(req.params['id'] as string);
+            if (isNaN(id)) {
+                res.status(400).json({ error: 'ID inválido' });
+                return;
+            }
             await this.deleteEntidadUseCase.execute(id);
             res.status(204).send();
         } catch (error) {

@@ -1,7 +1,8 @@
 import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ViewChild, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ViewChild, inject, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
 import { NgForm } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { ToastController, AlertController, NavController, LoadingController } from '@ionic/angular';
@@ -14,7 +15,8 @@ import { UsuarioService } from 'src/app/features/user/services/usuario.service';
   templateUrl: './editar.page.html',
   styleUrls: ['./editar.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule]
+  imports: [CommonModule, FormsModule, IonicModule],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class EditarPage implements OnInit {
   @ViewChild('capacitacionForm') capacitacionForm!: NgForm;
@@ -114,51 +116,27 @@ export class EditarPage implements OnInit {
     }
   }
 
-  cargarCapacitacion() {
-    return new Promise<void>((resolve, reject) => {
-      if (!this.capacitacion.id) {
-        reject('No ID');
-        return;
-      }
-      this.capacitacionesService.getCapacitacion(this.capacitacion.id).subscribe({
-        next: (data) => {
-          if (!data) {
-            this.mostrarToast('No se encontró la capacitación', 'warning');
-            this.navController.navigateBack('/gestionar-capacitaciones');
-            reject();
-            return;
-          }
-          // Direct assignment - no mapping needed anymore
-          this.capacitacion = { ...data } as any;
-          resolve();
-        },
-        error: (err) => reject(err)
-      });
-    });
+  async cargarCapacitacion() {
+    if (!this.capacitacion.id) {
+      throw new Error('No ID');
+    }
+    const data = await firstValueFrom(this.capacitacionesService.getCapacitacion(this.capacitacion.id));
+    if (!data) {
+      this.mostrarToast('No se encontró la capacitación', 'warning');
+      this.navController.navigateBack('/gestionar-capacitaciones');
+      throw new Error('No data');
+    }
+    this.capacitacion = { ...data } as any;
   }
 
-  cargarEntidades() {
-    return new Promise<void>((resolve, reject) => {
-      this.catalogoService.getItems('entidades').subscribe({
-        next: (data) => {
-          this.entidadesList = data || [];
-          resolve();
-        },
-        error: (err) => reject(err)
-      });
-    });
+  async cargarEntidades() {
+    const data = await firstValueFrom(this.catalogoService.getItems('entidades'));
+    this.entidadesList = data || [];
   }
 
-  cargarUsuarios() {
-    return new Promise<void>((resolve, reject) => {
-      this.usuarioService.getUsuarios().subscribe({
-        next: (data) => {
-          this.usuariosList = data || [];
-          resolve();
-        },
-        error: (err) => reject(err)
-      });
-    });
+  async cargarUsuarios() {
+    const data = await firstValueFrom(this.usuarioService.getUsuarios());
+    this.usuariosList = data || [];
   }
 
   async actualizarCapacitacion() {
@@ -212,28 +190,25 @@ export class EditarPage implements OnInit {
       return;
     }
 
-    // Direct use - no mapping needed anymore
-    this.capacitacionesService.updateCapacitacion(this.capacitacion.id!, this.capacitacion as any).subscribe({
-      next: () => {
-        this.capacitacionOriginal = JSON.parse(JSON.stringify(this.capacitacion));
-        this.mostrarToast('Capacitación actualizada correctamente', 'success');
+    try {
+      await firstValueFrom(this.capacitacionesService.updateCapacitacion(this.capacitacion.id!, this.capacitacion as any));
+      this.capacitacionOriginal = JSON.parse(JSON.stringify(this.capacitacion));
+      this.mostrarToast('Capacitación actualizada correctamente', 'success');
 
-        if (this.capacitacion.estado === 1 && !this.capacitacion.certificado) {
-          loading.dismiss();
-          this.preguntarEmitirCertificados();
-        } else {
-          setTimeout(() => {
-            loading.dismiss();
-            this.navController.navigateBack('/gestionar-capacitaciones');
-          }, 1000);
-        }
-      },
-      error: (error) => {
-        loading.dismiss();
-        console.error('Error al actualizar:', error);
-        this.mostrarToast('Error al actualizar la capacitación', 'danger');
+      if (this.capacitacion.estado === 1 && !this.capacitacion.certificado) {
+        this.preguntarEmitirCertificados();
+      } else {
+        setTimeout(() => {
+          this.navController.navigateBack('/gestionar-capacitaciones');
+        }, 1000);
       }
-    });
+    } catch (error) {
+      console.error('Error al actualizar:', error);
+      this.mostrarToast('Error al actualizar la capacitación', 'danger');
+    } finally {
+      loading.dismiss();
+      this.cd.markForCheck();
+    }
   }
 
   async cancelarEdicion() {
@@ -314,20 +289,19 @@ export class EditarPage implements OnInit {
       return;
     }
 
-    this.capacitacionesService.deleteCapacitacion(this.capacitacion.id).subscribe({
-      next: () => {
-        this.mostrarToast('Capacitación eliminada correctamente', 'success');
-        setTimeout(() => {
-          loading.dismiss();
-          this.navController.navigateBack('/gestionar-capacitaciones');
-        }, 1500);
-      },
-      error: (error) => {
-        loading.dismiss();
-        console.error('Error al eliminar:', error);
-        this.mostrarToast('Error al eliminar capacitación', 'danger');
-      }
-    });
+    try {
+      await firstValueFrom(this.capacitacionesService.deleteCapacitacion(this.capacitacion.id));
+      this.mostrarToast('Capacitación eliminada correctamente', 'success');
+      setTimeout(() => {
+        this.navController.navigateBack('/gestionar-capacitaciones');
+      }, 1500);
+    } catch (error) {
+      console.error('Error al eliminar:', error);
+      this.mostrarToast('Error al eliminar capacitación', 'danger');
+    } finally {
+      loading.dismiss();
+      this.cd.markForCheck();
+    }
   }
 
   async preguntarEmitirCertificados() {
