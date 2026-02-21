@@ -3,6 +3,7 @@ export interface TokenPayload {
     userId: number;
     ci: string;
     roleId: number;
+    roleName: string;
 }
 
 export interface AuthTokens {

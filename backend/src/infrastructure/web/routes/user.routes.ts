@@ -1,12 +1,14 @@
 import { Router } from 'express';
 import { container } from 'tsyringe';
 import { UserController } from '../controllers/user.controller';
-import { authenticate } from '../middleware/auth.middleware';
+import { authenticate, authorize } from '../middleware/auth.middleware';
+import { ADMIN_ROLES } from '../../../domain/shared/constants/roles.constants';
 
 const router = Router();
 const userController = container.resolve(UserController);
 
-router.use(authenticate); // Protect all user routes
+router.use(authenticate);
+router.use(authorize(...ADMIN_ROLES));
 
 router.get('/', userController.getAll);
 router.get('/count', userController.count);

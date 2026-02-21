@@ -46,7 +46,8 @@ export class LoginUserUseCase {
         const tokens = this.tokenProvider.generateTokens({
             userId: user.id,
             ci: user.ci,
-            roleId: user.rolId ?? 0 // Default or handle null
+            roleId: user.rolId ?? 0,
+            roleName: user.rol?.nombre || 'Usuario'
         });
 
         return {
