@@ -149,14 +149,14 @@ async function main() {
         // Competencias
         await prisma.competencia.createMany({
             data: [
-                { nombre: 'PLANIFICACIÓN TERRITORIAL' },
-                { nombre: 'GESTIÓN AMBIENTAL' },
-                { nombre: 'VIALIDAD' },
-                { nombre: 'AGUA POTABLE Y SANEAMIENTO' },
-                { nombre: 'GESTIÓN DE RIESGOS' },
-                { nombre: 'TRÁNSITO Y TRANSPORTE' },
-                { nombre: 'PATRIMONIO CULTURAL' },
-                { nombre: 'DESARROLLO ECONÓMICO' },
+                { nombre_competencias: 'PLANIFICACIÓN TERRITORIAL' },
+                { nombre_competencias: 'GESTIÓN AMBIENTAL' },
+                { nombre_competencias: 'VIALIDAD' },
+                { nombre_competencias: 'AGUA POTABLE Y SANEAMIENTO' },
+                { nombre_competencias: 'GESTIÓN DE RIESGOS' },
+                { nombre_competencias: 'TRÁNSITO Y TRANSPORTE' },
+                { nombre_competencias: 'PATRIMONIO CULTURAL' },
+                { nombre_competencias: 'DESARROLLO ECONÓMICO' },
             ]
         });
 

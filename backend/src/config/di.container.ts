@@ -12,6 +12,7 @@ import { PrismaRolRepository } from '../infrastructure/database/prisma-rol.repos
 import { PrismaEntidadRepository } from '../infrastructure/database/prisma-entidad.repository';
 import { PrismaReportesRepository } from '../infrastructure/database/repositories/reportes/prisma-reportes.repository';
 import { PrismaParroquiaRepository } from '../infrastructure/database/repositories/ubicacion/prisma-parroquia.repository';
+import { PrismaCompetenciaRepository } from '../infrastructure/database/repositories/competencia/prisma-competencia.repository';
 
 // Import Auth Use Cases
 import { RegisterUserUseCase } from '../application/auth/use-cases/register-user.use-case';
@@ -57,6 +58,13 @@ import { DeleteCantonUseCase } from '../application/ubicacion/use-cases/delete-c
 import { UpdateParroquiaUseCase } from '../application/ubicacion/use-cases/update-parroquia.use-case';
 import { DeleteParroquiaUseCase } from '../application/ubicacion/use-cases/delete-parroquia.use-case';
 
+// Import Competencia Use Cases
+import { GetAllCompetenciasUseCase } from '../application/competencia/use-cases/get-all-competencias.use-case';
+import { GetCompetenciaByIdUseCase } from '../application/competencia/use-cases/get-competencia-by-id.use-case';
+import { CreateCompetenciaUseCase } from '../application/competencia/use-cases/create-competencia.use-case';
+import { UpdateCompetenciaUseCase } from '../application/competencia/use-cases/update-competencia.use-case';
+import { DeleteCompetenciaUseCase } from '../application/competencia/use-cases/delete-competencia.use-case';
+
 // Import Cargos Use Cases
 import { GetAllCargosUseCase } from '../application/cargos/use-cases/get-all-cargos.use-case';
 import { GetCargoByIdUseCase } from '../application/cargos/use-cases/get-cargo-by-id.use-case';
@@ -88,6 +96,7 @@ import { ReportesController } from '../infrastructure/web/controllers/reportes.c
 import { UbicacionController } from '../infrastructure/web/controllers/ubicacion.controller';
 import { RolController } from '../infrastructure/web/controllers/rol.controller';
 import { EntidadController } from '../infrastructure/web/controllers/entidad.controller';
+import { CompetenciaController } from '../infrastructure/web/controllers/competencia.controller';
 import { CargoController } from '../infrastructure/web/controllers/cargo.controller';
 import { InstitucionController } from '../infrastructure/web/controllers/institucion.controller';
 import { UsuarioCapacitacionController } from '../infrastructure/web/controllers/usuario-capacitacion.controller';
@@ -131,6 +140,7 @@ container.register('CertificadoRepository', { useClass: PrismaCertificadoReposit
 container.register('CargoRepository', { useClass: PrismaCargoRepository });
 container.register('InstitucionRepository', { useClass: PrismaInstitucionRepository });
 container.register('ReportesRepository', { useClass: PrismaReportesRepository });
+container.register('CompetenciaRepository', { useClass: PrismaCompetenciaRepository });
 
 // Ubicacion
 container.register('ProvinciaRepository', { useClass: PrismaProvinciaRepository });
@@ -195,6 +205,13 @@ container.registerSingleton(DeleteCantonUseCase);
 container.registerSingleton(UpdateParroquiaUseCase);
 container.registerSingleton(DeleteParroquiaUseCase);
 
+// Competencia Use Cases
+container.registerSingleton(GetAllCompetenciasUseCase);
+container.registerSingleton(GetCompetenciaByIdUseCase);
+container.registerSingleton(CreateCompetenciaUseCase);
+container.registerSingleton(UpdateCompetenciaUseCase);
+container.registerSingleton(DeleteCompetenciaUseCase);
+
 // Cargo Use Cases
 container.registerSingleton(GetAllCargosUseCase);
 container.registerSingleton(GetCargoByIdUseCase);
@@ -225,6 +242,7 @@ container.registerSingleton(ReportesController);
 container.registerSingleton(UbicacionController);
 container.registerSingleton(CargoController);
 container.registerSingleton(InstitucionController);
+container.registerSingleton(CompetenciaController);
 
 // Import UsuarioCapacitacion Use Cases
 
