@@ -22,6 +22,7 @@ import cargoRoutes from './infrastructure/web/routes/cargo.routes';
 import institucionRoutes from './infrastructure/web/routes/institucion.routes';
 import plantillaRoutes from './infrastructure/web/routes/plantilla.routes';
 import usuarioCapacitacionRoutes from './infrastructure/web/routes/usuario-capacitacion.routes';
+import competenciaRoutes from './infrastructure/web/routes/competencia.routes';
 
 // Importar middleware
 import { errorHandler } from './infrastructure/web/middleware/error.middleware';
@@ -108,6 +109,7 @@ app.use('/api/instituciones', institucionRoutes);
 app.use('/api/reportes', reportesRoutes);
 app.use('/api/plantillas', plantillaRoutes);
 app.use('/api/usuarios-capacitaciones', usuarioCapacitacionRoutes);
+app.use('/api/competencias', competenciaRoutes);
 
 // ============================================
 // MANEJO DE ERRORES
