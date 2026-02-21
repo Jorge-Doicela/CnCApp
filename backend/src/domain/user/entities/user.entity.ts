@@ -25,6 +25,14 @@ export interface User {
     fechaNacimiento?: Date | null;
     provinciaId?: number | null;
     cantonId?: number | null;
+    provincia?: {
+        id: number;
+        nombre: string;
+    } | null;
+    canton?: {
+        id: number;
+        nombre: string;
+    } | null;
     rol?: {
         id: number;
         nombre: string;
@@ -33,5 +41,9 @@ export interface User {
     entidad?: {
         id: number;
         nombre: string;
+    } | null;
+    _count?: {
+        inscripciones: number;
+        certificados: number;
     } | null;
 }

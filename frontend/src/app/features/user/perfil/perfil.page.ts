@@ -80,51 +80,36 @@ export class PerfilPage implements OnInit {
         this.datosUsuario = {
           ...usuarioData,
           // Mapear campos que la vista espera con nombres específicos
-          Nombre_Usuario: usuarioData.nombre || usuarioData.Nombre_Usuario,
-          apellido: usuarioData.apellido || usuarioData.primerApellido || '', // Backend actual parece no devolver apellido en User entity
+          Nombre_Usuario: usuarioData.nombre,
+          apellido: usuarioData.primerApellido + (usuarioData.segundoApellido ? ' ' + usuarioData.segundoApellido : ''),
           email: usuarioData.email,
-          Rol_Usuario: usuarioData.rolId || (usuarioData.rol ? usuarioData.rol.id : 0),
+          Rol_Usuario: usuarioData.rol?.nombre || 'Usuario',
           Imagen_Perfil: usuarioData.fotoPerfilUrl,
           Firma_Usuario: usuarioData.firmaUrl,
-          // Ubicación (si el backend los devuelve anidados o planos, ajustar aquí)
-          Canton_Nombre: usuarioData.canton ? usuarioData.canton.nombre : '',
-          Parroquia_Nombre: usuarioData.parroquia ? usuarioData.parroquia.nombre : '' // Si existiera
+          // Ubicación desde objetos anidados
+          Provincia_Nombre: usuarioData.provincia?.nombre || '',
+          Canton_Nombre: usuarioData.canton?.nombre || '',
+          Parroquia_Nombre: usuarioData.parroquia?.nombre || ''
         };
 
-        // Manejo de ubicación plano si aplica
-        this.provinciaUsuario = usuarioData.provincia ? usuarioData.provincia.nombre : '';
-        this.cantonUsuario = usuarioData.canton ? usuarioData.canton.nombre : '';
+        this.provinciaUsuario = this.datosUsuario.Provincia_Nombre;
+        this.cantonUsuario = this.datosUsuario.Canton_Nombre;
+        this.parroquiaUsuario = this.datosUsuario.Parroquia_Nombre;
 
-
-        // Placeholder para capacitaciones
-        this.capacitacionesInscritas = 0;
-        this.certificadosObtenidos = 0;
+        // Placeholder para capacitaciones (Viene del backend con _count)
+        this.capacitacionesInscritas = usuarioData._count?.inscripciones || 0;
+        this.certificadosObtenidos = usuarioData._count?.certificados || 0;
       },
       error: (err) => {
         console.error('Error loading profile:', err);
         this.presentToast('Error al cargar perfil: ' + (err.message || 'Error de conexión'), 'danger');
       }
     });
-
-    // TODO: Recuperar capacitaciones en otra subscripción separada si es necesario
   }
 
-  async obtenerNombresUbicacion(userData: any) {
-    try {
-      // TODO: Implementar endpoints para obtener nombres de ubicación
-      // this.http.get(...)
-      console.log('Obtener nombres de ubicación pendiente de implementación backend');
-    } catch (error) {
-      console.error('Error al obtener nombres de ubicación:', error);
-    }
-  }
-
-  obtenerRolTexto(rolId: number): string {
-    switch (rolId) {
-      case 1: return 'Administrador';
-      case 2: return 'Usuario';
-      default: return 'Rol desconocido';
-    }
+  obtenerRolTexto(rol: any): string {
+    if (typeof rol === 'string') return rol;
+    return rol?.nombre || 'Usuario';
   }
 
   async editarPerfil() {
