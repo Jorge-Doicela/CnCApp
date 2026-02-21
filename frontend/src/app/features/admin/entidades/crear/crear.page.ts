@@ -110,14 +110,13 @@ export class CrearPage implements OnInit {
     await loading.present();
 
     try {
-      // Placeholder data until backend integration for Image Upload
-      const imageUrl = 'assets/placeholder.png';
-      // TODO: Handle image upload via backend service when available
+      // Note: Image upload to be handled by a storage service in production
+      const imageUrl = this.previsualizacionImagen || 'assets/placeholder.png';
 
       const nuevaEntidad = {
         nombre: this.nombreEntidad,
         imagen: imageUrl,
-        estado: this.estadoEntidad === 1 // Convert number to boolean if backend expects boolean
+        estado: this.estadoEntidad === 1
       };
 
       await firstValueFrom(this.catalogoService.createItem('entidades', nuevaEntidad));

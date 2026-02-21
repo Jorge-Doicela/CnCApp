@@ -59,7 +59,13 @@ export class PrismaUserRepository implements UserRepository {
                 rol: true,
                 entidad: true,
                 provincia: true,
-                canton: true
+                canton: true,
+                _count: {
+                    select: {
+                        inscripciones: true,
+                        certificados: true
+                    }
+                }
             }
         });
         return user ? UserMapper.toDomain(user) : null;
