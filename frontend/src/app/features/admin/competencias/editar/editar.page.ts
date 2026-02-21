@@ -1,7 +1,7 @@
 import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { LoadingController, ToastController } from '@ionic/angular';
 import { CatalogoService } from 'src/app/shared/services/catalogo.service';
@@ -12,7 +12,8 @@ import { firstValueFrom } from 'rxjs';
   templateUrl: './editar.page.html',
   styleUrls: ['./editar.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule]
+  imports: [CommonModule, FormsModule, IonicModule],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class EditarPage implements OnInit {
 
@@ -30,6 +31,7 @@ export class EditarPage implements OnInit {
   fechaModificacion: string = 'No disponible';
 
   private catalogoService = inject(CatalogoService);
+  private cd = inject(ChangeDetectorRef);
 
   constructor(
     private route: ActivatedRoute,
@@ -71,6 +73,7 @@ export class EditarPage implements OnInit {
     } finally {
       loading.dismiss();
       this.cargando = false;
+      this.cd.markForCheck();
     }
   }
 
@@ -95,20 +98,18 @@ export class EditarPage implements OnInit {
       fecha_ultima_actualizacion: fechaActual
     };
 
-    this.catalogoService.updateItem('competencias', this.idCompetencia, dataToUpdate).subscribe({
-      next: async () => {
-        this.fechaModificacion = new Date(fechaActual).toLocaleString();
-        this.presentToast('Competencia actualizada exitosamente', 'success');
-        loading.dismiss();
-        this.enviando = false;
-      },
-      error: async (error) => {
-        console.error('Error al actualizar competencia:', error);
-        this.presentToast('Error al actualizar competencia: ' + (error.message || error.statusText), 'danger');
-        loading.dismiss();
-        this.enviando = false;
-      }
-    });
+    try {
+      await firstValueFrom(this.catalogoService.updateItem('competencias', this.idCompetencia, dataToUpdate));
+      this.fechaModificacion = new Date(fechaActual).toLocaleString();
+      this.presentToast('Competencia actualizada exitosamente', 'success');
+    } catch (error: any) {
+      console.error('Error al actualizar competencia:', error);
+      this.presentToast('Error al actualizar competencia: ' + (error.message || error.statusText), 'danger');
+    } finally {
+      loading.dismiss();
+      this.enviando = false;
+      this.cd.markForCheck();
+    }
   }
 
   cancelar() {

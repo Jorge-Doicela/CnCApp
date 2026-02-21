@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -11,6 +11,7 @@ import {
 import { addIcons } from 'ionicons';
 import { saveOutline } from 'ionicons/icons';
 import { CargService } from '../services/cargos.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-crear',
@@ -23,10 +24,13 @@ import { CargService } from '../services/cargos.service';
     IonBackButton, IonCard, IonCardHeader, IonCardTitle,
     IonCardContent, IonItem, IonLabel, IonInput, IonButton,
     IonIcon
-  ]
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CrearPage {
   cargoForm: FormGroup;
+  isSubmitting: boolean = false;
+  private cd = inject(ChangeDetectorRef);
 
   constructor(
     private fb: FormBuilder,
@@ -40,18 +44,22 @@ export class CrearPage {
     });
   }
 
-  crearCargo() {
-    if (this.cargoForm.valid) {
-      this.cargService.create(this.cargoForm.value.nombre).subscribe({
-        next: () => {
-          this.presentToast('Cargo creado exitosamente', 'success');
-          this.router.navigate(['/gestionar-cargos-instituciones']);
-        },
-        error: (err) => {
-          console.error('Error creating cargo:', err);
-          this.presentToast('Error al crear el cargo', 'danger');
-        }
-      });
+  async crearCargo() {
+    if (this.cargoForm.invalid) return;
+
+    this.isSubmitting = true;
+    this.cd.markForCheck();
+
+    try {
+      await firstValueFrom(this.cargService.create(this.cargoForm.value.nombre));
+      this.presentToast('Cargo creado exitosamente', 'success');
+      this.router.navigate(['/gestionar-cargos-instituciones']);
+    } catch (err) {
+      console.error('Error creating cargo:', err);
+      this.presentToast('Error al crear el cargo', 'danger');
+    } finally {
+      this.isSubmitting = false;
+      this.cd.markForCheck();
     }
   }
 

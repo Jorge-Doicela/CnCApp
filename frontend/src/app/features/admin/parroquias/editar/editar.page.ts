@@ -1,7 +1,7 @@
 import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AlertController, LoadingController, ToastController } from '@ionic/angular';
 import { CatalogoService } from 'src/app/shared/services/catalogo.service';
@@ -12,7 +12,8 @@ import { firstValueFrom } from 'rxjs';
   templateUrl: './editar.page.html',
   styleUrls: ['./editar.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule]
+  imports: [CommonModule, FormsModule, IonicModule],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class EditarPage implements OnInit {
 
@@ -30,6 +31,7 @@ export class EditarPage implements OnInit {
   fechaModificacion: string = 'No disponible';
 
   private catalogoService = inject(CatalogoService);
+  private cd = inject(ChangeDetectorRef);
 
   constructor(
     private route: ActivatedRoute,
@@ -55,6 +57,7 @@ export class EditarPage implements OnInit {
     await this.obtenerCantones();
     await this.obtenerParroquia(this.idParroquia!);
     this.cargando = false;
+    this.cd.markForCheck();
   }
 
   async obtenerParroquia(id: string) {
@@ -80,6 +83,7 @@ export class EditarPage implements OnInit {
       this.router.navigate(['/crudparroquias']);
     } finally {
       loading.dismiss();
+      this.cd.markForCheck();
     }
   }
 
@@ -117,19 +121,17 @@ export class EditarPage implements OnInit {
     };
 
     // Use ID from URL
-    this.catalogoService.updateItem('parroquias', this.idParroquia!, dataToUpdate).subscribe({
-      next: () => {
-        loading.dismiss();
-        this.enviando = false;
-        this.presentAlert('Éxito', 'Parroquia actualizada correctamente');
-        this.router.navigate(['/crudparroquias']);
-      },
-      error: (error) => {
-        loading.dismiss();
-        this.enviando = false;
-        this.presentToast('Error al actualizar parroquia: ' + (error.message || error.statusText), 'danger');
-      }
-    });
+    try {
+      await firstValueFrom(this.catalogoService.updateItem('parroquias', this.idParroquia!, dataToUpdate));
+      this.presentAlert('Éxito', 'Parroquia actualizada correctamente');
+      this.router.navigate(['/crudparroquias']);
+    } catch (error: any) {
+      this.presentToast('Error al actualizar parroquia: ' + (error.message || error.statusText), 'danger');
+    } finally {
+      loading.dismiss();
+      this.enviando = false;
+      this.cd.markForCheck();
+    }
   }
 
   cancelar() {

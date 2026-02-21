@@ -1,7 +1,7 @@
 import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { AlertController, LoadingController, ToastController } from '@ionic/angular';
 import { CatalogoService } from 'src/app/shared/services/catalogo.service';
@@ -12,7 +12,8 @@ import { firstValueFrom } from 'rxjs';
   templateUrl: './crudcompetencias.page.html',
   styleUrls: ['./crudcompetencias.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule]
+  imports: [CommonModule, FormsModule, IonicModule],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CrudcompetenciasPage implements OnInit {
 
@@ -25,6 +26,7 @@ export class CrudcompetenciasPage implements OnInit {
   competenciasActivas: number = 0;
 
   private catalogoService = inject(CatalogoService);
+  private cd = inject(ChangeDetectorRef);
 
   constructor(
     private router: Router,
@@ -39,8 +41,10 @@ export class CrudcompetenciasPage implements OnInit {
 
   async cargarDatos() {
     this.cargando = true;
+    this.cd.markForCheck();
     await this.obtenerCompetencias();
     this.cargando = false;
+    this.cd.markForCheck();
   }
 
   async obtenerCompetencias() {
@@ -61,6 +65,7 @@ export class CrudcompetenciasPage implements OnInit {
       this.presentToast('Error al obtener competencias: ' + (error?.message ?? ''), 'danger');
     } finally {
       loading.dismiss();
+      this.cd.markForCheck();
     }
   }
 
@@ -88,6 +93,7 @@ export class CrudcompetenciasPage implements OnInit {
     } else if (this.ordenarPor === 'id') {
       this.competenciasFiltradas.sort((a, b) => a.id_competencias - b.id_competencias);
     }
+    this.cd.markForCheck();
   }
 
   crearCompetencia() {
@@ -106,26 +112,26 @@ export class CrudcompetenciasPage implements OnInit {
     await loading.present();
 
     const nuevoEstado = !competencia.estado_competencia;
-    this.catalogoService.updateItem('competencias', competencia.id_competencias, {
-      estado_competencia: nuevoEstado,
-      fecha_ultima_actualizacion: new Date().toISOString()
-    }).subscribe({
-      next: () => {
-        loading.dismiss();
-        // Actualizar el objeto local
-        competencia.estado_competencia = nuevoEstado;
-        competencia.fecha_ultima_actualizacion = new Date().toISOString();
-        this.calcularEstadisticas();
-        this.presentToast(
-          `Competencia "${competencia.nombre_competencias}" ahora está ${nuevoEstado ? 'activa' : 'inactiva'}`,
-          'success'
-        );
-      },
-      error: (error) => {
-        loading.dismiss();
-        this.presentToast('Error al cambiar estado: ' + error.message, 'danger');
-      }
-    });
+
+    try {
+      await firstValueFrom(this.catalogoService.updateItem('competencias', competencia.id_competencias, {
+        estado_competencia: nuevoEstado,
+        fecha_ultima_actualizacion: new Date().toISOString()
+      }));
+      // Actualizar el objeto local
+      competencia.estado_competencia = nuevoEstado;
+      competencia.fecha_ultima_actualizacion = new Date().toISOString();
+      this.calcularEstadisticas();
+      this.presentToast(
+        `Competencia "${competencia.nombre_competencias}" ahora está ${nuevoEstado ? 'activa' : 'inactiva'}`,
+        'success'
+      );
+    } catch (error: any) {
+      this.presentToast('Error al cambiar estado: ' + error.message, 'danger');
+    } finally {
+      loading.dismiss();
+      this.cd.markForCheck();
+    }
   }
 
   async confirmarEliminar(competencia: any) {
@@ -157,17 +163,16 @@ export class CrudcompetenciasPage implements OnInit {
     });
     await loading.present();
 
-    this.catalogoService.deleteItem('competencias', idCompetencia).subscribe({
-      next: () => {
-        loading.dismiss();
-        this.presentToast('Competencia eliminada correctamente', 'success');
-        this.obtenerCompetencias();
-      },
-      error: (error) => {
-        loading.dismiss();
-        this.presentToast('Error al eliminar competencia: ' + error.message, 'danger');
-      }
-    });
+    try {
+      await firstValueFrom(this.catalogoService.deleteItem('competencias', idCompetencia));
+      this.presentToast('Competencia eliminada correctamente', 'success');
+      this.obtenerCompetencias();
+    } catch (error: any) {
+      this.presentToast('Error al eliminar competencia: ' + error.message, 'danger');
+    } finally {
+      loading.dismiss();
+      this.cd.markForCheck();
+    }
   }
 
   async presentToast(message: string, color: string = 'primary') {

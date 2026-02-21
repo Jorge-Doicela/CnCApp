@@ -149,8 +149,11 @@ model Certificado {
 }
 
 model Competencia {
-  id     Int    @id @default(autoincrement()) @map("Id_Competencia")
-  nombre String @unique @map("Nombre_Competencia") @db.VarChar(200)
+  id                         Int       @id @default(autoincrement()) @map("id_competencias")
+  nombre_competencias        String    @unique @db.VarChar(200)
+  descripcion                String?   @db.Text
+  estado_competencia         Boolean   @default(true)
+  fecha_ultima_actualizacion DateTime? @default(now()) @updatedAt
 
   @@map("competencias")
 }

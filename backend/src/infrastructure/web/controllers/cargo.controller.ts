@@ -5,6 +5,15 @@ import { GetCargoByIdUseCase } from '../../../application/cargos/use-cases/get-c
 import { CreateCargoUseCase } from '../../../application/cargos/use-cases/create-cargo.use-case';
 import { UpdateCargoUseCase } from '../../../application/cargos/use-cases/update-cargo.use-case';
 import { DeleteCargoUseCase } from '../../../application/cargos/use-cases/delete-cargo.use-case';
+import { z } from 'zod';
+
+const createCargoSchema = z.object({
+    nombre: z.string().min(3, 'El nombre debe tener al menos 3 caracteres').max(200, 'El nombre es muy largo')
+});
+
+const updateCargoSchema = z.object({
+    nombre: z.string().min(3, 'El nombre debe tener al menos 3 caracteres').max(200, 'El nombre es muy largo')
+});
 
 @injectable()
 export class CargoController {
@@ -41,10 +50,14 @@ export class CargoController {
 
     create = async (req: Request, res: Response) => {
         try {
-            const { nombre } = req.body;
-            const cargo = await this.createUseCase.execute(nombre);
+            const data = createCargoSchema.parse(req.body);
+            const cargo = await this.createUseCase.execute(data.nombre);
             res.status(201).json(cargo);
         } catch (error) {
+            if (error instanceof z.ZodError) {
+                res.status(400).json({ error: error.errors });
+                return;
+            }
             res.status(500).json({ error: 'Error al crear cargo' });
         }
     };
@@ -52,10 +65,14 @@ export class CargoController {
     update = async (req: Request, res: Response) => {
         try {
             const { id } = req.params;
-            const { nombre } = req.body;
-            const cargo = await this.updateUseCase.execute(Number(id), nombre);
+            const data = updateCargoSchema.parse(req.body);
+            const cargo = await this.updateUseCase.execute(Number(id), data.nombre);
             res.json(cargo);
         } catch (error) {
+            if (error instanceof z.ZodError) {
+                res.status(400).json({ error: error.errors });
+                return;
+            }
             res.status(500).json({ error: 'Error al actualizar cargo' });
         }
     };

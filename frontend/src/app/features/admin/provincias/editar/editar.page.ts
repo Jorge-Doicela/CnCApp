@@ -1,7 +1,7 @@
 import { IonicModule } from '@ionic/angular';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AlertController, ToastController } from '@ionic/angular';
@@ -13,7 +13,8 @@ import { map, firstValueFrom } from 'rxjs';
   templateUrl: './editar.page.html',
   styleUrls: ['./editar.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, IonicModule]
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, IonicModule],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class EditarPage implements OnInit {
   idProvincia!: number;
@@ -25,6 +26,7 @@ export class EditarPage implements OnInit {
   codigoOriginal: string = '';
 
   private catalogoService = inject(CatalogoService);
+  private cd = inject(ChangeDetectorRef);
 
   constructor(
     private route: ActivatedRoute,
@@ -77,6 +79,7 @@ export class EditarPage implements OnInit {
       this.router.navigate(['/gestionar provincias']);
     } finally {
       this.isLoading = false;
+      this.cd.markForCheck();
     }
   }
 
@@ -87,37 +90,37 @@ export class EditarPage implements OnInit {
     }
 
     this.isSubmitting = true;
+    this.cd.markForCheck();
 
-    // Check for duplicate code if code changed
-    if (this.provinciaForm.value.codigo !== this.codigoOriginal) {
-      this.catalogoService.getItems('provincias').pipe(
-        map(provincias => provincias.find((p: any) =>
+    try {
+      // Check for duplicate code if code changed
+      if (this.provinciaForm.value.codigo !== this.codigoOriginal) {
+        const provincias = await firstValueFrom(this.catalogoService.getItems('provincias'));
+        const existing = provincias.find((p: any) =>
           p.codigo_provincia === this.provinciaForm.value.codigo && p.id_provincia !== this.idProvincia
-        ))
-      ).subscribe({
-        next: (existing) => {
-          if (existing) {
-            this.presentAlert(
-              'Código duplicado',
-              `Ya existe otra provincia con el código "${this.provinciaForm.value.codigo}". Por favor, utilice otro código.`
-            );
-            this.isSubmitting = false;
-            return;
-          }
-          this.procederGuardar();
-        },
-        error: (error) => {
-          console.error('Error al verificar duplicados:', error);
-          this.presentToast('Error al verificar duplicados. Intente nuevamente.', 'danger');
+        );
+
+        if (existing) {
+          this.presentAlert(
+            'Código duplicado',
+            `Ya existe otra provincia con el código "${this.provinciaForm.value.codigo}". Por favor, utilice otro código.`
+          );
           this.isSubmitting = false;
+          this.cd.markForCheck();
+          return;
         }
-      });
-    } else {
-      this.procederGuardar();
+      }
+
+      await this.procederGuardar();
+    } catch (error) {
+      console.error('Error al verificar duplicados:', error);
+      this.presentToast('Error al verificar duplicados. Intente nuevamente.', 'danger');
+      this.isSubmitting = false;
+      this.cd.markForCheck();
     }
   }
 
-  procederGuardar() {
+  async procederGuardar() {
     const dataToUpdate = {
       nombre_provincia: this.provinciaForm.value.nombre,
       codigo_provincia: this.provinciaForm.value.codigo,
@@ -125,18 +128,17 @@ export class EditarPage implements OnInit {
       updated_at: new Date().toISOString()
     };
 
-    this.catalogoService.updateItem('provincias', this.idProvincia, dataToUpdate).subscribe({
-      next: () => {
-        this.presentToast(`Provincia "${this.provinciaForm.value.nombre}" actualizada correctamente`, 'success');
-        this.router.navigate(['/gestionar provincias']);
-        this.isSubmitting = false;
-      },
-      error: (error) => {
-        console.error('Error al guardar los cambios:', error);
-        this.presentToast('Error al actualizar la provincia. Por favor, intente nuevamente.', 'danger');
-        this.isSubmitting = false;
-      }
-    });
+    try {
+      await firstValueFrom(this.catalogoService.updateItem('provincias', this.idProvincia, dataToUpdate));
+      this.presentToast(`Provincia "${this.provinciaForm.value.nombre}" actualizada correctamente`, 'success');
+      this.router.navigate(['/gestionar provincias']);
+    } catch (error) {
+      console.error('Error al guardar los cambios:', error);
+      this.presentToast('Error al actualizar la provincia. Por favor, intente nuevamente.', 'danger');
+    } finally {
+      this.isSubmitting = false;
+      this.cd.markForCheck();
+    }
   }
 
   marcarCamposInvalidos() {
