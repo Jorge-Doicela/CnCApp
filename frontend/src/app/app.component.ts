@@ -185,12 +185,10 @@ export class AppComponent implements OnInit, OnDestroy {
 
       if (!userData) return;
 
-      const storedRoleStr = localStorage.getItem('user_role');
-      if (!storedRoleStr) return;
+      const storedRoleName = localStorage.getItem('role_name');
+      if (!storedRoleName) return;
 
-      const storedRole = parseInt(storedRoleStr);
-
-      if (userData.rolId !== storedRole) {
+      if (userData.rol?.nombre !== storedRoleName) {
         this.mostrarAlertaCambioRol();
       }
     } catch (err) {

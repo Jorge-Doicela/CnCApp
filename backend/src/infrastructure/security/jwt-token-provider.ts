@@ -11,13 +11,13 @@ export class JwtTokenProvider implements TokenProvider {
 
     generateTokens(payload: TokenPayload): AuthTokens {
         const accessToken = jwt.sign(
-            { userId: payload.userId, ci: payload.ci, roleId: payload.roleId },
+            { userId: payload.userId, ci: payload.ci, roleId: payload.roleId, roleName: payload.roleName },
             this.ACCESS_SECRET,
             { expiresIn: this.ACCESS_EXPIRES }
         );
 
         const refreshToken = jwt.sign(
-            { userId: payload.userId, ci: payload.ci, roleId: payload.roleId },
+            { userId: payload.userId, ci: payload.ci, roleId: payload.roleId, roleName: payload.roleName },
             this.REFRESH_SECRET,
             { expiresIn: this.REFRESH_EXPIRES }
         );
@@ -30,7 +30,8 @@ export class JwtTokenProvider implements TokenProvider {
         return {
             userId: decoded.userId,
             ci: decoded.ci,
-            roleId: decoded.roleId
+            roleId: decoded.roleId,
+            roleName: decoded.roleName
         };
     }
 
@@ -39,7 +40,8 @@ export class JwtTokenProvider implements TokenProvider {
         return {
             userId: decoded.userId,
             ci: decoded.ci,
-            roleId: decoded.roleId
+            roleId: decoded.roleId,
+            roleName: decoded.roleName
         };
     }
 
@@ -48,7 +50,8 @@ export class JwtTokenProvider implements TokenProvider {
         return {
             userId: decoded.userId,
             ci: decoded.ci,
-            roleId: decoded.roleId
+            roleId: decoded.roleId,
+            roleName: decoded.roleName
         };
     }
 }

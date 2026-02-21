@@ -166,6 +166,7 @@ export class AuthService {
         // Legacy compatibility
         localStorage.setItem('token', accessToken);
         localStorage.setItem('user_role', user.rol?.id.toString() || '0');
+        localStorage.setItem('role_name', user.rol?.nombre || '');
         localStorage.setItem('auth_uid', user.id.toString());
     }
 
@@ -180,6 +181,7 @@ export class AuthService {
         localStorage.removeItem('user');
         localStorage.removeItem('token');
         localStorage.removeItem('user_role');
+        localStorage.removeItem('role_name');
         localStorage.removeItem('auth_uid');
     }
 
