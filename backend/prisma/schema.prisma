@@ -66,6 +66,11 @@ model Usuario {
 
   @@index([authUid])
   @@index([ci])
+  @@index([createdAt])
+  @@index([rolId])
+  @@index([entidadId])
+  @@index([provinciaId])
+  @@index([cantonId])
   @@map("Usuario")
 }
 
@@ -114,6 +119,10 @@ model Capacitacion {
   certificados     Certificado[]
   inscripciones    UsuarioCapacitacion[]
 
+  @@index([estado])
+  @@index([fechaInicio])
+  @@index([fechaFin])
+  @@index([createdAt])
   @@map("Capacitaciones")
 }
 
@@ -131,6 +140,9 @@ model UsuarioCapacitacion {
   @@unique([usuarioId, capacitacionId])
   @@index([usuarioId])
   @@index([capacitacionId])
+  @@index([asistio])
+  @@index([estadoInscripcion])
+  @@index([fechaInscripcion])
   @@map("Usuarios_Capacitaciones")
 }
 
@@ -145,6 +157,9 @@ model Certificado {
   usuario        Usuario      @relation(fields: [usuarioId], references: [id])
 
   @@index([codigoQR])
+  @@index([fechaEmision])
+  @@index([usuarioId])
+  @@index([capacitacionId])
   @@map("Certificados")
 }
 

@@ -190,24 +190,91 @@ export class PerfilPage implements OnInit {
     await loading.present();
 
     try {
-      // TODO: Implementar endpoint de cambio de contraseña
-      // await firstValueFrom(this.http.post(`${environment.apiUrl}/auth/change-password`, { password: nuevaContrasena }));
-      console.warn('Backend endpoint for password change not implemented yet');
-      this.presentToast('Simulación: Contraseña actualizada correctamente', 'success');
+      const id = this.datosUsuario?.id;
+      if (!id) {
+        throw new Error('ID de usuario no encontrado');
+      }
+
+      await firstValueFrom(this.http.put(`${environment.apiUrl}/users/${id}`, { password: nuevaContrasena }));
+      this.presentToast('Contraseña actualizada correctamente', 'success');
     } catch (error: any) {
-      this.presentToast('Error en la solicitud: ' + error.message, 'danger');
+      console.error('Error updating password:', error);
+      this.presentToast('Error al actualizar: ' + (error.error?.message || error.message), 'danger');
     } finally {
       loading.dismiss();
     }
   }
 
   async actualizarFotoPerfil() {
-    // TODO: Implementar manejo de cámara e imagen sin Supabase Storage
-    this.presentToast('Funcionalidad de cambio de foto pendiente de migración a Backend propio', 'warning');
+    const actionSheet = await this.actionSheetController.create({
+      header: 'Actualizar foto de perfil',
+      buttons: [
+        {
+          text: 'Cámara',
+          icon: 'camera',
+          handler: () => {
+            this.capturarFoto(CameraSource.Camera);
+          }
+        },
+        {
+          text: 'Galería',
+          icon: 'image',
+          handler: () => {
+            this.capturarFoto(CameraSource.Photos);
+          }
+        },
+        {
+          text: 'Cancelar',
+          icon: 'close',
+          role: 'cancel'
+        }
+      ]
+    });
+    await actionSheet.present();
   }
 
   async capturarFoto(source: CameraSource) {
-    // TODO
+    try {
+      const image = await Camera.getPhoto({
+        quality: 90,
+        allowEditing: true,
+        resultType: CameraResultType.Base64,
+        source: source
+      });
+
+      if (image.base64String) {
+        await this.subirFoto(image.base64String);
+      }
+    } catch (error) {
+      console.error('Error capturando foto:', error);
+    }
+  }
+
+  async subirFoto(base64: string) {
+    const loading = await this.loadingController.create({
+      message: 'Subiendo imagen...',
+      spinner: 'crescent'
+    });
+    await loading.present();
+
+    try {
+      const id = this.datosUsuario?.id;
+      // Since we don't have a dedicated storage service yet, we'll send base64 to the backend
+      // and let the backend handle it. For now, we'll simulate a URL or use base64 if needed.
+      // Ideally, the backend would save it to a file and return a URL.
+
+      const fotoUrl = `data:image/jpeg;base64,${base64}`; // Temporary simulation of uploaded URL
+
+      await firstValueFrom(this.http.put(`${environment.apiUrl}/users/${id}`, { fotoPerfilUrl: fotoUrl }));
+
+      this.datosUsuario.Imagen_Perfil = fotoUrl;
+      this.presentToast('Foto de perfil actualizada', 'success');
+      this.cdr.detectChanges();
+    } catch (error: any) {
+      this.presentToast('Error al subir imagen: ' + error.message, 'danger');
+    } finally {
+      loading.dismiss();
+    }
   }
 
   getFileExtensionFromMimeType(format: string): string {

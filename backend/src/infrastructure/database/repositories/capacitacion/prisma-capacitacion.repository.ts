@@ -98,9 +98,6 @@ export class PrismaCapacitacionRepository implements CapacitacionRepository {
         const capacitaciones = await prisma.capacitacion.findMany({
             orderBy: {
                 createdAt: 'desc'
-            },
-            include: {
-                inscripciones: true
             }
         });
         return capacitaciones.map(c => CapacitacionMapper.toDomain(c));

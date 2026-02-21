@@ -9,8 +9,15 @@ export class GetUserProfileUseCase {
         @inject('UserRepository') private userRepository: UserRepository
     ) { }
 
-    async execute(userId: number): Promise<Partial<User>> {
-        const user = await this.userRepository.findById(userId);
+    async execute(identifier: string | number): Promise<Partial<User>> {
+        let user: User | null;
+
+        if (typeof identifier === 'number') {
+            user = await this.userRepository.findById(identifier);
+        } else {
+            user = await this.userRepository.findByAuthUid(identifier);
+        }
+
         if (!user) {
             throw new NotFoundError('Usuario no encontrado');
         }

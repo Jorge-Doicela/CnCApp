@@ -81,6 +81,7 @@ import { DeleteInstitucionUseCase } from '../application/institucion/use-cases/d
 
 // Import Reportes Use Cases
 import { GetDashboardStatsUseCase } from '../application/reportes/use-cases/get-dashboard-stats.use-case';
+import { ExportarPDFUseCase } from '../application/reportes/use-cases/exportar-pdf.use-case';
 
 import { GetInscritosUseCase } from '../application/usuario-capacitacion/use-cases/get-inscritos.use-case';
 import { InscribirUsuarioUseCase } from '../application/usuario-capacitacion/use-cases/inscribir-usuario.use-case';
@@ -228,6 +229,7 @@ container.registerSingleton(DeleteInstitucionUseCase);
 
 // Reportes Use Cases
 container.registerSingleton(GetDashboardStatsUseCase);
+container.registerSingleton(ExportarPDFUseCase);
 
 // ============================================
 // REGISTER CONTROLLERS
