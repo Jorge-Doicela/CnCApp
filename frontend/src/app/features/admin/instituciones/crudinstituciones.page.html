@@ -117,31 +117,31 @@
           <p>Intenta ajustar los filtros de búsqueda.</p>
         </div>
 
-        <div class="instituciones-grid" *ngIf="institucionesFiltradas.length > 0">
-          <div class="institucion-card" *ngFor="let institucion of institucionesFiltradas">
-            <div class="institucion-header">
-              <div class="institucion-title">
+        <div class="admin-grid" *ngIf="institucionesFiltradas.length > 0">
+          <div class="admin-card" *ngFor="let institucion of institucionesFiltradas">
+            <div class="admin-header">
+              <div class="admin-title">
                 <h4>{{ institucion.nombre }}</h4>
-                <span class="institucion-badge active">
+                <span class="admin-badge active">
                   Activo
                 </span>
               </div>
             </div>
-            <div class="institucion-content">
-              <div class="institucion-detail">
+            <div class="admin-content">
+              <div class="admin-detail">
                 <ion-icon name="key-outline" color="primary"></ion-icon>
                 <span>ID: {{ institucion.id }}</span>
               </div>
-              <div *ngIf="institucion.tipo" class="institucion-detail">
+              <div *ngIf="institucion.tipo" class="admin-detail">
                 <ion-icon name="information-circle-outline" color="primary"></ion-icon>
                 <span>Tipo: {{ institucion.tipo }}</span>
               </div>
-              <div class="institucion-detail">
+              <div class="admin-detail">
                 <ion-icon name="calendar-outline" color="primary"></ion-icon>
                 <span>{{ institucion.fecha_ultima_actualizacion | date:'dd/MM/yyyy' }}</span>
               </div>
             </div>
-            <div class="institucion-actions">
+            <div class="admin-actions">
               <ion-button fill="clear" color="primary" (click)="editarInstitucion(institucion.id)">
                 <ion-icon name="create-outline" slot="icon-only"></ion-icon>
               </ion-button>

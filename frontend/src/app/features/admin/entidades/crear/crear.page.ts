@@ -1,17 +1,19 @@
 import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { AlertController, LoadingController, ToastController } from '@ionic/angular';
 import { CatalogoService } from 'src/app/shared/services/catalogo.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-crear',
   templateUrl: './crear.page.html',
   styleUrls: ['./crear.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule]
+  imports: [CommonModule, FormsModule, IonicModule],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CrearPage implements OnInit {
   nombreEntidad: string = '';
@@ -22,6 +24,7 @@ export class CrearPage implements OnInit {
   enviando: boolean = false;
 
   private catalogoService = inject(CatalogoService);
+  private cd = inject(ChangeDetectorRef);
 
   constructor(
     private router: Router,
@@ -49,6 +52,7 @@ export class CrearPage implements OnInit {
         if (!file.type.startsWith('image/')) {
           this.presentToast('Por favor, selecciona una imagen válida', 'danger');
           this.imageFile = null;
+          this.cd.markForCheck();
           return;
         }
 
@@ -56,6 +60,7 @@ export class CrearPage implements OnInit {
         if (file.size > 5 * 1024 * 1024) {
           this.presentToast('La imagen no debe superar los 5MB', 'warning');
           this.imageFile = null;
+          this.cd.markForCheck();
           return;
         }
 
@@ -63,6 +68,7 @@ export class CrearPage implements OnInit {
         const reader = new FileReader();
         reader.onload = () => {
           this.previsualizacionImagen = reader.result as string;
+          this.cd.markForCheck();
         };
         reader.readAsDataURL(file);
 
@@ -79,6 +85,7 @@ export class CrearPage implements OnInit {
   // Función para enviar el formulario
   async onSubmit() {
     this.formSubmitted = true;
+    this.cd.markForCheck();
 
     // Validar que todos los campos requeridos estén completos
     if (!this.nombreEntidad) {
@@ -93,6 +100,7 @@ export class CrearPage implements OnInit {
     }
 
     this.enviando = true;
+    this.cd.markForCheck();
 
     // Mostrar loader
     const loading = await this.loadingController.create({
@@ -112,25 +120,18 @@ export class CrearPage implements OnInit {
         estado: this.estadoEntidad === 1 // Convert number to boolean if backend expects boolean
       };
 
-      this.catalogoService.createItem('entidades', nuevaEntidad).subscribe({
-        next: async () => {
-          loading.dismiss();
-          this.enviando = false;
-          this.presentAlertExito();
-        },
-        error: async (error) => {
-          console.error('Error al crear la entidad:', error);
-          this.presentToast('Error al crear la entidad: ' + (error.message || error.statusText), 'danger');
-          loading.dismiss();
-          this.enviando = false;
-        }
-      });
+      await firstValueFrom(this.catalogoService.createItem('entidades', nuevaEntidad));
 
-    } catch (error: any) {
-      console.error('Error al crear la entidad:', error);
-      this.presentToast('Error inesperado: ' + error.message, 'danger');
       loading.dismiss();
       this.enviando = false;
+      this.cd.markForCheck();
+      this.presentAlertExito();
+    } catch (error: any) {
+      console.error('Error al crear la entidad:', error);
+      this.presentToast('Error al crear la entidad: ' + (error.message || error.statusText), 'danger');
+      loading.dismiss();
+      this.enviando = false;
+      this.cd.markForCheck();
     }
   }
 
@@ -163,6 +164,7 @@ export class CrearPage implements OnInit {
     this.estadoEntidad = 1;
     this.formSubmitted = false;
     this.imageFile = null;
+    this.cd.markForCheck();
   }
 
   async presentToast(message: string, color: string = 'primary') {

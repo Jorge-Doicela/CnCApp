@@ -1,7 +1,8 @@
 import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ViewChild, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ViewChild, inject, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
 import { NgForm } from '@angular/forms';
 import { ToastController, AlertController, NavController } from '@ionic/angular';
 import { CapacitacionesService } from 'src/app/features/admin/capacitaciones/services/capacitaciones.service';
@@ -13,7 +14,8 @@ import { UsuarioService } from 'src/app/features/user/services/usuario.service';
   templateUrl: './crear.page.html',
   styleUrls: ['./crear.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule]
+  imports: [CommonModule, FormsModule, IonicModule],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CrearPage implements OnInit {
   @ViewChild('capacitacionForm') capacitacionForm!: NgForm;
@@ -81,71 +83,39 @@ export class CrearPage implements OnInit {
     this.capacitacion.Horas = 2;
   }
 
-  cargarDatos() {
+  async cargarDatos() {
     console.log('🔄 Iniciando carga de datos...');
     this.cargandoDatos = true;
-    let entidadesCargadas = false;
-    let usuariosCargados = false;
+    this.cdr.markForCheck();
 
-    // Timeout de seguridad: ocultar loading después de 5 segundos máximo
-    setTimeout(() => {
-      console.log('⏰ Timeout alcanzado. cargandoDatos:', this.cargandoDatos);
-      if (this.cargandoDatos) {
-        console.warn('⚠️ Forzando fin de carga por timeout');
-        this.cargandoDatos = false;
-      }
-    }, 5000);
+    try {
+      const [entidadesResult, usuariosResult] = await Promise.all([
+        firstValueFrom(this.catalogoService.getItems('entidades')),
+        firstValueFrom(this.usuarioService.getUsuarios())
+      ]);
 
-    const verificarCarga = () => {
-      console.log('🔍 Verificando carga:', { entidadesCargadas, usuariosCargados });
-      if (entidadesCargadas && usuariosCargados) {
-        console.log('✅ Ambos recursos cargados, ocultando loading');
-        this.cargandoDatos = false;
-        this.cdr.detectChanges();
-        console.log('🔄 Change detection forzada');
+      // Entidades
+      this.entidades = entidadesResult || [];
+      const cnc = this.entidades.find(e =>
+        e.Nombre_Entidad?.toLowerCase().includes('cnc') ||
+        e.Nombre_Entidad?.toLowerCase().includes('consejo nacional')
+      );
+      if (cnc) {
+        this.capacitacion.entidades_encargadas = [cnc.Id_Entidad];
       }
-    };
 
-    // Cargar entidades
-    this.catalogoService.getItems('entidades').subscribe({
-      next: (data) => {
-        console.log('Entidades cargadas:', data);
-        this.entidades = data || [];
-        // Pre-seleccionar CNC si existe
-        const cnc = this.entidades.find(e =>
-          e.Nombre_Entidad?.toLowerCase().includes('cnc') ||
-          e.Nombre_Entidad?.toLowerCase().includes('consejo nacional')
-        );
-        if (cnc) {
-          this.capacitacion.entidades_encargadas = [cnc.Id_Entidad];
-        }
-        entidadesCargadas = true;
-        verificarCarga();
-      },
-      error: (err) => {
-        console.error('Error cargando entidades:', err);
-        this.mostrarToast('Error al cargar entidades', 'danger');
-        entidadesCargadas = true;
-        verificarCarga();
-      }
-    });
+      // Usuarios
+      this.usuarios = usuariosResult || [];
+      this.usuariosDisponibles = [...this.usuarios];
 
-    // Cargar usuarios
-    this.usuarioService.getUsuarios().subscribe({
-      next: (data) => {
-        console.log('Usuarios cargados:', data);
-        this.usuarios = data || [];
-        this.usuariosDisponibles = [...this.usuarios];
-        usuariosCargados = true;
-        verificarCarga();
-      },
-      error: (err) => {
-        console.error('Error cargando usuarios:', err);
-        this.mostrarToast('Error al cargar usuarios', 'danger');
-        usuariosCargados = true;
-        verificarCarga();
-      }
-    });
+    } catch (error) {
+      console.error('Error cargando datos requeridos:', error);
+      this.mostrarToast('Error al cargar la información base de catálogos y usuarios', 'danger');
+    } finally {
+      this.cargandoDatos = false;
+      this.cdr.markForCheck();
+      console.log('✅ Carga completa.');
+    }
   }
 
   onModalidadChange() {
@@ -235,52 +205,49 @@ export class CrearPage implements OnInit {
     }
 
     // Crear capacitación
-    this.capacitacionesService.createCapacitacion(this.capacitacion).subscribe({
-      next: async (response: any) => {
-        const created = Array.isArray(response) ? response[0] : (response.data || response);
-        const capacitacionId = created?.Id_Capacitacion;
+    try {
+      const response: any = await firstValueFrom(this.capacitacionesService.createCapacitacion(this.capacitacion));
+      const created = Array.isArray(response) ? response[0] : (response.data || response);
+      const capacitacionId = created?.Id_Capacitacion;
 
-        if (!capacitacionId) {
-          this.guardando = false;
-          this.mostrarToast('Error: No se recibió confirmación del servidor', 'danger');
-          return;
-        }
-
-        // Asignar expositores
-        await this.asignarUsuarios(capacitacionId, this.capacitacion.expositores, 'Expositor');
-
-        // Asignar participantes
-        if (this.capacitacion.ids_usuarios?.length > 0) {
-          const participantes = this.capacitacion.ids_usuarios.filter(
-            id => !this.capacitacion.expositores.includes(id)
-          );
-          await this.asignarUsuarios(capacitacionId, participantes, 'Participante');
-        }
-
+      if (!capacitacionId) {
         this.guardando = false;
-        this.mostrarExito();
-      },
-      error: (error) => {
-        this.guardando = false;
-        console.error('Error al crear capacitación:', error);
-        const mensaje = error.error?.message || error.message || 'Error desconocido';
-        this.mostrarToast(`Error al crear la capacitación: ${mensaje}`, 'danger');
+        this.mostrarToast('Error: No se recibió confirmación del servidor', 'danger');
+        this.cdr.markForCheck();
+        return;
       }
-    });
+
+      // Asignar expositores
+      await this.asignarUsuarios(capacitacionId, this.capacitacion.expositores, 'Expositor');
+
+      // Asignar participantes
+      if (this.capacitacion.ids_usuarios?.length > 0) {
+        const participantes = this.capacitacion.ids_usuarios.filter(
+          id => !this.capacitacion.expositores.includes(id)
+        );
+        await this.asignarUsuarios(capacitacionId, participantes, 'Participante');
+      }
+
+      this.guardando = false;
+      this.mostrarExito();
+    } catch (error: any) {
+      this.guardando = false;
+      console.error('Error al crear capacitación:', error);
+      const mensaje = error.error?.message || error.message || 'Error desconocido';
+      this.mostrarToast(`Error al crear la capacitación: ${mensaje}`, 'danger');
+    } finally {
+      this.cdr.markForCheck();
+    }
   }
 
   async asignarUsuarios(capacitacionId: number, usuarioIds: number[], rol: string): Promise<void> {
-    const promesas = usuarioIds.map(usuarioId =>
-      new Promise<void>((resolve) => {
-        this.capacitacionesService.assignUser(capacitacionId, usuarioId, rol).subscribe({
-          next: () => resolve(),
-          error: (err) => {
-            console.error(`Error asignando ${rol}:`, err);
-            resolve(); // Continuar aunque falle
-          }
-        });
-      })
-    );
+    const promesas = usuarioIds.map(async (usuarioId) => {
+      try {
+        await firstValueFrom(this.capacitacionesService.assignUser(capacitacionId, usuarioId, rol));
+      } catch (err) {
+        console.error(`Error asignando ${rol}:`, err);
+      }
+    });
 
     await Promise.all(promesas);
   }

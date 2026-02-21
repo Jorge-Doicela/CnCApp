@@ -1,7 +1,7 @@
 import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AlertController, LoadingController, ToastController } from '@ionic/angular';
 import { CatalogoService } from 'src/app/shared/services/catalogo.service';
@@ -12,7 +12,8 @@ import { firstValueFrom } from 'rxjs';
   templateUrl: './editar.page.html',
   styleUrls: ['./editar.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule]
+  imports: [CommonModule, FormsModule, IonicModule],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class EditarPage implements OnInit {
   idEntidad: string = '';
@@ -28,6 +29,7 @@ export class EditarPage implements OnInit {
   enviando: boolean = false;
 
   private catalogoService = inject(CatalogoService);
+  private cd = inject(ChangeDetectorRef);
 
   constructor(
     private route: ActivatedRoute,
@@ -51,6 +53,7 @@ export class EditarPage implements OnInit {
 
   async cargarEntidad() {
     this.isLoading = true;
+    this.cd.markForCheck();
     try {
       const data = await firstValueFrom(this.catalogoService.getItem('entidades', this.idEntidad));
       if (!data) {
@@ -59,6 +62,10 @@ export class EditarPage implements OnInit {
         return;
       }
       this.entidad = data;
+      // Normalizar nombre_entidad a nombre ya que el backend espera nombre
+      if (this.entidad.Nombre_Entidad) {
+        this.entidad.nombre = this.entidad.Nombre_Entidad;
+      }
       console.log('Entidad cargada:', this.entidad);
     } catch (error: any) {
       console.error('Error al cargar la entidad:', error);
@@ -66,6 +73,7 @@ export class EditarPage implements OnInit {
       this.router.navigate(['/gestionar-entidades']);
     } finally {
       this.isLoading = false;
+      this.cd.markForCheck();
     }
   }
 
@@ -84,6 +92,7 @@ export class EditarPage implements OnInit {
         if (!file.type.startsWith('image/')) {
           this.presentToast('Por favor, selecciona una imagen válida', 'danger');
           this.nuevaImagen = null;
+          this.cd.markForCheck();
           return;
         }
 
@@ -91,6 +100,7 @@ export class EditarPage implements OnInit {
         if (file.size > 5 * 1024 * 1024) {
           this.presentToast('La imagen no debe superar los 5MB', 'warning');
           this.nuevaImagen = null;
+          this.cd.markForCheck();
           return;
         }
 
@@ -98,6 +108,7 @@ export class EditarPage implements OnInit {
         const reader = new FileReader();
         reader.onload = () => {
           this.previsualizacionImagen = reader.result as string;
+          this.cd.markForCheck();
         };
         reader.readAsDataURL(file);
 
@@ -114,20 +125,22 @@ export class EditarPage implements OnInit {
   // Función para enviar el formulario actualizado
   async onSubmit() {
     this.formSubmitted = true;
+    this.cd.markForCheck();
 
     // Validar que todos los campos requeridos estén completos
-    if (!this.entidad.Nombre_Entidad) {
+    if (!this.entidad.nombre) {
       this.presentToast('El nombre de la entidad es obligatorio', 'danger');
       return;
     }
 
     // Validar que el nombre tenga al menos 3 caracteres
-    if (this.entidad.Nombre_Entidad.trim().length < 3) {
+    if (this.entidad.nombre.trim().length < 3) {
       this.presentToast('El nombre debe tener al menos 3 caracteres', 'warning');
       return;
     }
 
     this.enviando = true;
+    this.cd.markForCheck();
 
     // Mostrar loader
     const loading = await this.loadingController.create({
@@ -151,32 +164,26 @@ export class EditarPage implements OnInit {
         estado: this.entidad.estado,
       };
 
-      this.catalogoService.updateItem('entidades', this.idEntidad, dataToUpdate).subscribe({
-        next: async () => {
-          loading.dismiss();
-          this.enviando = false;
-          this.presentAlertExito();
-        },
-        error: async (error) => {
-          console.error('Error al actualizar la entidad:', error);
-          this.presentToast('Error al actualizar la entidad: ' + (error.message || error.statusText), 'danger');
-          loading.dismiss();
-          this.enviando = false;
-        }
-      });
+      await firstValueFrom(this.catalogoService.updateItem('entidades', this.idEntidad, dataToUpdate));
+
+      loading.dismiss();
+      this.enviando = false;
+      this.cd.markForCheck();
+      this.presentAlertExito();
 
     } catch (error: any) {
       console.error('Error al actualizar la entidad:', error);
-      this.presentToast('Error inesperado: ' + error.message, 'danger');
+      this.presentToast('Error al actualizar la entidad: ' + (error.message || error.statusText), 'danger');
       loading.dismiss();
       this.enviando = false;
+      this.cd.markForCheck();
     }
   }
 
   async presentAlertExito() {
     const alert = await this.alertController.create({
       header: '¡Entidad actualizada correctamente!',
-      message: `Los cambios en la entidad <strong>${this.entidad.Nombre_Entidad}</strong> han sido guardados.`,
+      message: `Los cambios en la entidad <strong>${this.entidad.nombre}</strong> han sido guardados.`,
       buttons: [
         {
           text: 'Volver al listado',

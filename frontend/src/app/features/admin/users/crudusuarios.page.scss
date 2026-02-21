@@ -60,66 +60,6 @@
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 16px;
   margin-bottom: 32px;
-
-  .stat-card {
-    background: white;
-    border: 1px solid #e2e8f0;
-    border-radius: 16px;
-    padding: 20px;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    transition: transform 0.2s;
-
-    &:hover {
-      transform: translateY(-2px);
-      border-color: var(--ion-color-primary);
-    }
-
-    .icon-box {
-      width: 48px;
-      height: 48px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.5rem;
-
-      &.blue {
-        background: #eff6ff;
-        color: #3b82f6;
-      }
-
-      &.green {
-        background: #ecfdf5;
-        color: #10b981;
-      }
-
-      &.purple {
-        background: #f3e8ff;
-        color: #a855f7;
-      }
-    }
-
-    .stat-info {
-      display: flex;
-      flex-direction: column;
-
-      .value {
-        font-size: 1.5rem;
-        font-weight: 800;
-        color: #1e293b;
-        line-height: 1;
-      }
-
-      .label {
-        font-size: 0.85rem;
-        color: #64748b;
-        font-weight: 500;
-        margin-top: 4px;
-      }
-    }
-  }
 }
 
 // ------------------------------------------

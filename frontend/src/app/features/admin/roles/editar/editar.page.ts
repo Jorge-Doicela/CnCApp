@@ -1,7 +1,7 @@
 import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ToastController, AlertController, NavController, LoadingController } from '@ionic/angular';
 import { CatalogoService } from 'src/app/shared/services/catalogo.service';
@@ -12,7 +12,8 @@ import { firstValueFrom } from 'rxjs';
   templateUrl: './editar.page.html',
   styleUrls: ['./editar.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule]
+  imports: [CommonModule, FormsModule, IonicModule],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class EditarPage implements OnInit {
   idRol: number | null = null;
@@ -49,6 +50,7 @@ export class EditarPage implements OnInit {
   actualizando: boolean = false;
 
   private catalogoService = inject(CatalogoService);
+  private cd = inject(ChangeDetectorRef);
 
   constructor(
     private route: ActivatedRoute,
@@ -64,6 +66,7 @@ export class EditarPage implements OnInit {
       await this.presentToast('ID de rol no válido.', 'danger');
       this.errorCarga = true;
       this.cargando = false;
+      this.cd.markForCheck();
       return;
     }
 
@@ -73,6 +76,7 @@ export class EditarPage implements OnInit {
   async cargarRol() {
     this.cargando = true;
     this.errorCarga = false;
+    this.cd.markForCheck();
 
     const loading = await this.loadingController.create({
       message: 'Cargando información del rol...',
@@ -115,6 +119,7 @@ export class EditarPage implements OnInit {
     } finally {
       this.cargando = false;
       loading.dismiss();
+      this.cd.markForCheck();
     }
   }
 
@@ -198,6 +203,7 @@ export class EditarPage implements OnInit {
     // Evitar múltiples envíos
     if (this.actualizando) return;
     this.actualizando = true;
+    this.cd.markForCheck();
 
     const loading = await this.loadingController.create({
       message: 'Actualizando rol...',
@@ -217,23 +223,23 @@ export class EditarPage implements OnInit {
       estado: this.rolActivo
     };
 
-    this.catalogoService.updateItem('rol', this.idRol, dataToUpdate).subscribe({
-      next: async () => {
-        await this.presentAlert(
-          'Rol Actualizado',
-          `El rol "${this.rol.nombre}" ha sido actualizado exitosamente.`,
-          true
-        );
-        this.actualizando = false;
-        loading.dismiss();
-      },
-      error: async (error) => {
-        console.error('Error al actualizar el rol:', error);
-        await this.presentToast('Error al actualizar el rol: ' + (error.message || error.statusText), 'danger');
-        this.actualizando = false;
-        loading.dismiss();
-      }
-    });
+    try {
+      await firstValueFrom(this.catalogoService.updateItem('rol', this.idRol, dataToUpdate));
+      await this.presentAlert(
+        'Rol Actualizado',
+        `El rol "${this.rol.nombre}" ha sido actualizado exitosamente.`,
+        true
+      );
+      this.actualizando = false;
+      loading.dismiss();
+      this.cd.markForCheck();
+    } catch (error: any) {
+      console.error('Error al actualizar el rol:', error);
+      await this.presentToast('Error al actualizar el rol: ' + (error.message || error.statusText), 'danger');
+      this.actualizando = false;
+      loading.dismiss();
+      this.cd.markForCheck();
+    }
   }
 
   async cancelar() {

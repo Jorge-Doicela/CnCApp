@@ -6,6 +6,14 @@ import { GetPlantillaByIdUseCase } from '../../../application/plantilla/use-case
 import { UpdatePlantillaUseCase } from '../../../application/plantilla/use-cases/update-plantilla.use-case';
 import { DeletePlantillaUseCase } from '../../../application/plantilla/use-cases/delete-plantilla.use-case';
 import { ActivarPlantillaUseCase } from '../../../application/plantilla/use-cases/activar-plantilla.use-case';
+import { z } from 'zod';
+
+const plantillaSchema = z.object({
+    nombre: z.string().min(3, 'El nombre es obligatorio'),
+    imagenUrl: z.string().url('URL de imagen inválida').optional().or(z.literal('')),
+    configuracion: z.record(z.any()).optional(),
+    activa: z.boolean().optional()
+});
 
 @injectable()
 export class PlantillaController {
@@ -20,7 +28,8 @@ export class PlantillaController {
 
     create = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const plantilla = await this.createPlantillaUseCase.execute(req.body);
+            const data = plantillaSchema.parse(req.body);
+            const plantilla = await this.createPlantillaUseCase.execute(data);
             res.status(201).json(plantilla);
         } catch (error) {
             next(error);
@@ -65,7 +74,8 @@ export class PlantillaController {
                 return;
             }
 
-            const plantilla = await this.updatePlantillaUseCase.execute(id, req.body);
+            const data = plantillaSchema.parse(req.body);
+            const plantilla = await this.updatePlantillaUseCase.execute(id, data);
             res.json(plantilla);
         } catch (error) {
             next(error);

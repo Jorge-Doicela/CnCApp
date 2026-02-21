@@ -281,3 +281,125 @@
     }
   }
 }
+
+// ADMIN GRIDS & CARDS
+.admin-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (min-width: 1200px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .admin-card {
+    background: #f9fafc;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    &.active-card {
+      .admin-header {
+        background: linear-gradient(to right, var(--ion-color-primary), rgba(var(--ion-color-primary-rgb), 0.8));
+      }
+    }
+
+    &.inactive-card {
+      .admin-header {
+        background: linear-gradient(to right, var(--ion-color-warning), rgba(var(--ion-color-warning-rgb), 0.8));
+      }
+    }
+
+    .admin-header {
+      padding: 16px;
+      color: white;
+
+      .admin-title {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        h4 {
+          margin: 0;
+          font-size: 18px;
+          font-weight: 600;
+          flex: 1;
+        }
+
+        .admin-badge {
+          font-size: 12px;
+          padding: 4px 8px;
+          border-radius: 20px;
+          font-weight: 500;
+
+          &.active {
+            background-color: rgba(var(--ion-color-success-rgb), 0.2);
+            color: var(--ion-color-success);
+          }
+
+          &.inactive {
+            background-color: rgba(var(--ion-color-danger-rgb), 0.2);
+            color: var(--ion-color-danger);
+          }
+        }
+      }
+    }
+
+    .admin-content {
+      padding: 16px;
+      background: white;
+
+      .admin-image {
+        text-align: center;
+        margin-bottom: 12px;
+
+        img {
+          max-width: 100%;
+          max-height: 120px;
+          object-fit: contain;
+          border-radius: 8px;
+        }
+      }
+
+      .admin-detail {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+        color: #555;
+
+        ion-icon {
+          font-size: 20px;
+          margin-right: 8px;
+        }
+
+        span {
+          font-size: 14px;
+          word-break: break-word;
+        }
+      }
+    }
+
+    .admin-actions {
+      display: flex;
+      justify-content: flex-end;
+      padding: 8px 16px;
+      background-color: #f1f5f9;
+      border-top: 1px solid #eaeef5;
+      flex-wrap: wrap;
+
+      ion-button {
+        margin: 4px;
+      }
+    }
+  }
+}

@@ -1,7 +1,7 @@
 import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { AlertController, ToastController, LoadingController } from '@ionic/angular';
 import { addIcons } from 'ionicons';
@@ -19,7 +19,8 @@ import { firstValueFrom } from 'rxjs';
   templateUrl: './crudusuarios.page.html',
   styleUrls: ['./crudusuarios.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule, RouterModule]
+  imports: [CommonModule, FormsModule, IonicModule, RouterModule],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CRUDUsuariosPage implements OnInit {
   usuarios: Usuario[] = [];
@@ -77,6 +78,7 @@ export class CRUDUsuariosPage implements OnInit {
 
   async RecuperarUsuarios() {
     this.cargando = true;
+    this.cd.markForCheck();
     try {
       const data = await firstValueFrom(this.usuarioService.getUsuarios());
       console.log('Usuarios cargados:', data);
@@ -89,7 +91,7 @@ export class CRUDUsuariosPage implements OnInit {
       this.filteredUsuarios = [];
     } finally {
       this.cargando = false;
-      this.cd.detectChanges();
+      this.cd.markForCheck();
     }
   }
 
@@ -151,24 +153,19 @@ export class CRUDUsuariosPage implements OnInit {
     await loading.present();
 
     try {
-      this.usuarioService.deleteUsuario(idUsuario).subscribe({
-        next: () => {
-          loading.dismiss();
-          // Actualizar la lista
-          this.usuarios = this.usuarios.filter(u => u.id !== idUsuario);
-          this.filteredUsuarios = this.filteredUsuarios.filter(u => u.id !== idUsuario);
-          this.presentToast('Usuario eliminado correctamente', 'success');
-        },
-        error: (error) => {
-          loading.dismiss();
-          console.error('Error al eliminar usuario:', error);
-          this.presentToast('No se pudo eliminar el usuario', 'danger');
-        }
-      });
+      await firstValueFrom(this.usuarioService.deleteUsuario(idUsuario));
+
+      loading.dismiss();
+      // Actualizar la lista
+      this.usuarios = this.usuarios.filter(u => u.id !== idUsuario);
+      this.filteredUsuarios = this.filteredUsuarios.filter(u => u.id !== idUsuario);
+      this.presentToast('Usuario eliminado correctamente', 'success');
+      this.cd.markForCheck();
     } catch (error) {
       loading.dismiss();
-      console.error('Error inesperado:', error);
-      this.presentToast('Error inesperado', 'danger');
+      console.error('Error al eliminar usuario:', error);
+      this.presentToast('No se pudo eliminar el usuario', 'danger');
+      this.cd.markForCheck();
     }
   }
 

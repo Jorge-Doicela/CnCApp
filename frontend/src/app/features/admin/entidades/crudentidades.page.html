@@ -115,27 +115,27 @@
           <p>No hay entidades que coincidan con los criterios de búsqueda. Intenta modificar los filtros.</p>
         </div>
 
-        <div class="entidades-grid" *ngIf="!isLoading && entidadesFiltradas.length > 0">
-          <div class="entidad-card" *ngFor="let entidad of entidadesFiltradas"
+        <div class="admin-grid" *ngIf="!isLoading && entidadesFiltradas.length > 0">
+          <div class="admin-card" *ngFor="let entidad of entidadesFiltradas"
             [ngClass]="{'active-card': entidad.estado, 'inactive-card': !entidad.estado}">
-            <div class="entidad-header">
-              <div class="entidad-title">
+            <div class="admin-header">
+              <div class="admin-title">
                 <h4>{{ entidad.nombre }}</h4>
-                <span class="entidad-badge" [ngClass]="{'active': entidad.estado, 'inactive': !entidad.estado}">
+                <span class="admin-badge" [ngClass]="{'active': entidad.estado, 'inactive': !entidad.estado}">
                   {{ entidad.estado ? 'Válida' : 'No Válida' }}
                 </span>
               </div>
             </div>
-            <div class="entidad-content">
-              <div class="entidad-image">
+            <div class="admin-content">
+              <div class="admin-image">
                 <img [src]="entidad.imagen || 'assets/cnc.png'" alt="Imagen de la entidad">
               </div>
-              <div class="entidad-detail">
+              <div class="admin-detail">
                 <ion-icon name="key-outline" color="primary"></ion-icon>
                 <span>ID: {{ entidad.id }}</span>
               </div>
             </div>
-            <div class="entidad-actions">
+            <div class="admin-actions">
               <ion-button fill="clear" color="primary" (click)="iraEditarEntidad(entidad.id)">
                 <ion-icon name="create-outline"></ion-icon>
                 Editar
