@@ -138,7 +138,7 @@ export class CrearPage implements OnInit {
     if (this.cantonForm.dirty) {
       this.confirmarSalida();
     } else {
-      this.router.navigate(['/gestionar cantones']);
+      this.router.navigate(['/gestionar-cantones']);
     }
   }
 
@@ -153,7 +153,7 @@ export class CrearPage implements OnInit {
         }, {
           text: 'Salir',
           handler: () => {
-            this.router.navigate(['/gestionar cantones']);
+            this.router.navigate(['/gestionar-cantones']);
           }
         }
       ]

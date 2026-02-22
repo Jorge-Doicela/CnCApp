@@ -218,7 +218,14 @@
         <div class="participants-section fade-in" style="animation-delay: 0.4s;">
           <div class="section-header">
             <h3 class="section-title">Listado de Participantes</h3>
-            <span class="results-count">{{ participantesFiltrados.length }} registros</span>
+            <div class="header-actions-row" style="display: flex; align-items: center; gap: 15px;">
+              <span class="results-count">{{ participantesFiltrados.length }} registros</span>
+              <ion-button fill="outline" size="small" (click)="exportarLista()"
+                [disabled]="participantesFiltrados.length === 0">
+                <ion-icon name="download-outline" slot="start"></ion-icon>
+                Exportar Lista
+              </ion-button>
+            </div>
           </div>
 
           <div *ngIf="participantesFiltrados.length === 0" class="empty-state">

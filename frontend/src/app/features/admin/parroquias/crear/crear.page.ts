@@ -103,7 +103,7 @@ export class CrearPage implements OnInit {
     try {
       await firstValueFrom(this.catalogoService.createItem('parroquias', this.nuevaParroquia));
       this.presentAlert('Éxito', 'Parroquia creada correctamente');
-      this.router.navigate(['/crudparroquias']);
+      this.router.navigate(['/gestionar-parroquias']);
     } catch (error: any) {
       this.presentToast('Error al crear la parroquia: ' + (error.message || error.statusText), 'danger');
     } finally {
@@ -114,7 +114,7 @@ export class CrearPage implements OnInit {
   }
 
   cancelar() {
-    this.router.navigate(['/crudparroquias']);
+    this.router.navigate(['/gestionar-parroquias']);
   }
 
   async presentToast(message: string, color: string = 'primary') {

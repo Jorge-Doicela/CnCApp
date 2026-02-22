@@ -81,7 +81,7 @@ export class CrearPage implements OnInit {
     try {
       await firstValueFrom(this.catalogoService.createItem('provincias', nuevaProvincia));
       this.presentToast(`Provincia "${this.provinciaForm.value.nombre}" creada exitosamente`, 'success');
-      this.router.navigate(['/gestionar provincias']);
+      this.router.navigate(['/gestionar-provincias']);
     } catch (error: any) {
       console.error('Error al crear la provincia:', error);
       this.presentToast('Error al crear la provincia: ' + (error.message || error.statusText), 'danger');
@@ -119,7 +119,7 @@ export class CrearPage implements OnInit {
         {
           text: 'Sí, cancelar',
           handler: () => {
-            this.router.navigate(['/gestionar provincias']);
+            this.router.navigate(['/gestionar-provincias']);
           }
         }
       ]

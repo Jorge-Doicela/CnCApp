@@ -212,7 +212,7 @@ export class EditarPage implements OnInit {
         }, {
           text: 'Salir',
           handler: () => {
-            this.router.navigate(['/gestionar cantones']);
+            this.router.navigate(['/gestionar-cantones']);
           }
         }
       ]

@@ -177,7 +177,7 @@ export class EditarPage implements OnInit {
         {
           text: 'Sí, cancelar',
           handler: () => {
-            this.router.navigate(['/gestionar provincias']);
+            this.router.navigate(['/gestionar-provincias']);
           }
         }
       ]

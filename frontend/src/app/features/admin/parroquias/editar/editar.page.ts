@@ -135,7 +135,7 @@ export class EditarPage implements OnInit {
   }
 
   cancelar() {
-    this.router.navigate(['/crudparroquias']);
+    this.router.navigate(['/gestionar-parroquias']);
   }
 
   async presentToast(message: string, color: string = 'primary') {
