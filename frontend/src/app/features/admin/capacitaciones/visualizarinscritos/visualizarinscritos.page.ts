@@ -514,6 +514,44 @@ export class VisualizarinscritosPage implements OnInit {
     }
   }
 
+  // Exportar lista de participantes a CSV
+  exportarLista() {
+    if (this.participantesFiltrados.length === 0) return;
+
+    try {
+      const headers = ['Nombre', 'Asistencia', 'Rol', 'Email', 'Cargo', 'Entidad'];
+      const data = this.participantesFiltrados.map(u => [
+        u.Nombre_Usuario,
+        u.Asistencia ? 'Asistió' : 'No asistió',
+        u.Rol_Capacitacion || 'Participante',
+        u.Email || '-',
+        u.Cargo || '-',
+        u.Entidad || '-'
+      ]);
+
+      let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; // Include BOM for Excel Spanish characters
+      csvContent += headers.join(',') + "\r\n";
+
+      data.forEach(row => {
+        csvContent += row.map(cell => `"${cell.toString().replace(/"/g, '""')}"`).join(',') + "\r\n";
+      });
+
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      const fileName = `participantes-${this.infoCapacitacion?.nombre || 'capacitacion'}-${new Date().toISOString().split('T')[0]}.csv`;
+      link.setAttribute("download", fileName);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      this.mostrarToast('Lista exportada correctamente', 'success');
+    } catch (error) {
+      console.error('Error al exportar lista:', error);
+      this.mostrarToast('Error al exportar la lista', 'danger');
+    }
+  }
+
   // Función para mostrar un mensaje de toast
   async mostrarToast(mensaje: string, color: string = 'primary') {
     const toast = await this.toastController.create({

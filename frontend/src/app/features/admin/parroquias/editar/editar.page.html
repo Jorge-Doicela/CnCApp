@@ -1,7 +1,7 @@
 <ion-header>
   <ion-toolbar color="primary">
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/crudparroquias"></ion-back-button>
+      <ion-back-button defaultHref="/gestionar-parroquias"></ion-back-button>
     </ion-buttons>
     <ion-title class="ion-text-center">Editar Parroquia</ion-title>
   </ion-toolbar>
@@ -25,7 +25,8 @@
         <ion-item class="form-item">
           <ion-icon name="key-outline" slot="start" color="primary"></ion-icon>
           <ion-label position="floating">Código Parroquia <ion-text color="danger">*</ion-text></ion-label>
-          <ion-input [(ngModel)]="parroquia.codigo_parroquia" name="codigo_parroquia" required pattern="^[A-Za-z0-9]+$" #codigo="ngModel" [readonly]="true"></ion-input>
+          <ion-input [(ngModel)]="parroquia.codigo_parroquia" name="codigo_parroquia" required pattern="^[A-Za-z0-9]+$"
+            #codigo="ngModel" [readonly]="true"></ion-input>
         </ion-item>
         <ion-note color="medium">
           <ion-icon name="information-circle-outline"></ion-icon>
@@ -37,7 +38,8 @@
         <ion-item class="form-item">
           <ion-icon name="text-outline" slot="start" color="primary"></ion-icon>
           <ion-label position="floating">Nombre Parroquia <ion-text color="danger">*</ion-text></ion-label>
-          <ion-input [(ngModel)]="parroquia.nombre_parroquia" name="nombre_parroquia" required minlength="3" #nombre="ngModel"></ion-input>
+          <ion-input [(ngModel)]="parroquia.nombre_parroquia" name="nombre_parroquia" required minlength="3"
+            #nombre="ngModel"></ion-input>
         </ion-item>
         <ion-note color="danger" *ngIf="nombre.invalid && (nombre.dirty || nombre.touched)">
           <ion-icon name="alert-circle-outline"></ion-icon>
@@ -49,7 +51,8 @@
         <ion-item class="form-item">
           <ion-icon name="location-outline" slot="start" color="primary"></ion-icon>
           <ion-label position="floating">Cantón <ion-text color="danger">*</ion-text></ion-label>
-          <ion-select [(ngModel)]="parroquia.codigo_canton" name="codigo_canton" required interface="action-sheet" #canton="ngModel">
+          <ion-select [(ngModel)]="parroquia.codigo_canton" name="codigo_canton" required interface="action-sheet"
+            #canton="ngModel">
             <ion-select-option *ngFor="let canton of cantones" [value]="canton.codigo_canton">
               {{ canton.nombre_canton }}
             </ion-select-option>

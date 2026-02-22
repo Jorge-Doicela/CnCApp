@@ -11,7 +11,7 @@ import {
     trendingUpOutline, checkmarkCircleOutline, timeOutline,
     statsChartOutline, schoolOutline, ribbonOutline,
     arrowUpOutline, arrowDownOutline, playOutline,
-    checkmarkDoneOutline
+    checkmarkDoneOutline, downloadOutline
 } from 'ionicons/icons';
 import { firstValueFrom } from 'rxjs';
 import { ReportesService, DashboardStats } from './services/reportes.service';

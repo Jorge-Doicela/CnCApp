@@ -16,7 +16,22 @@
 </ion-header>
 
 <ion-content [fullscreen]="true">
+    <!-- Back Nav -->
+    <div class="page-back-nav" style="padding: 10px 20px 0 20px;">
+        <ion-button fill="clear" color="medium" size="small" routerLink="/gestionar-reportes">
+            <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
+            Volver al Panel
+        </ion-button>
+    </div>
+
     <div class="dashboard-wrapper">
+        <!-- Back Nav -->
+        <div class="page-back-nav" style="padding: 15px 20px 0 20px;">
+            <ion-button fill="clear" color="medium" size="small" routerLink="/home">
+                <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
+                Volver al Inicio
+            </ion-button>
+        </div>
 
         <!-- Compact Hero greeting (Public Style) -->
         <div class="hero-wrapper compact" *ngIf="!loading()">

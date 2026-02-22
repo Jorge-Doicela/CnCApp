@@ -70,7 +70,7 @@ export class CrearPage implements OnInit {
   }
 
   cancelar() {
-    this.router.navigate(['/gestionar competencias']);
+    this.router.navigate(['/gestionar-competencias']);
   }
 
   async presentToast(message: string, color: string = 'primary') {
