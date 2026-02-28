@@ -18,6 +18,10 @@ import {
 import { AuthService } from '../services/auth.service';
 import { RegisterStateService } from './register.state';
 import { RouterModule } from '@angular/router';
+import { CatalogoService } from 'src/app/shared/services/catalogo.service';
+import { Provincia } from 'src/app/shared/models/provincia.model';
+import { Canton } from 'src/app/shared/models/canton.model';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-register',
@@ -43,6 +47,12 @@ export class RegisterPage {
 
   // Inject AuthService
   private authService = inject(AuthService);
+  private catalogoService = inject(CatalogoService);
+
+  // Catalogo data
+  provincias = signal<Provincia[]>([]);
+  cantones = signal<Canton[]>([]);
+  filteredCantones = signal<Canton[]>([]);
 
   // Local UI state
   isLoading = signal<boolean>(false);
@@ -66,6 +76,47 @@ export class RegisterPage {
       maleFemaleOutline, peopleCircleOutline, calendarOutline, briefcaseOutline,
       flagOutline, arrowForwardOutline, arrowBackOutline
     });
+  }
+
+  ngOnInit() {
+    this.loadCatalogos();
+  }
+
+  async loadCatalogos() {
+    try {
+      const [provinciasResp, cantonesResp] = await Promise.all([
+        firstValueFrom(this.catalogoService.getItems('provincias')),
+        firstValueFrom(this.catalogoService.getItems('cantones'))
+      ]);
+
+      // Only active ones, sorted
+      const activeProvincias = (provinciasResp || [])
+        .filter((p: Provincia) => p.Estado)
+        .sort((a: Provincia, b: Provincia) => a.Nombre_Provincia.localeCompare(b.Nombre_Provincia));
+
+      const activeCantones = (cantonesResp || [])
+        .filter((c: Canton) => c.Estado)
+        .sort((a: Canton, b: Canton) => (a.Nombre_Canton || '').localeCompare(b.Nombre_Canton || ''));
+
+      this.provincias.set(activeProvincias);
+      this.cantones.set(activeCantones);
+    } catch (e) {
+      console.error('Error loading catalogues', e);
+      this.presentToast('Error al cargar datos del formulario', 'danger');
+    }
+  }
+
+  onProvinciaChange(event: any) {
+    const provId = event.detail.value;
+    this.state.updateUserData({ provinciaId: provId, cantonId: undefined });
+
+    // Filter cantons by selected province
+    if (provId) {
+      const filtered = this.cantones().filter(c => c.Id_Provincia === provId);
+      this.filteredCantones.set(filtered);
+    } else {
+      this.filteredCantones.set([]);
+    }
   }
 
   // --- Navigation ---
@@ -111,6 +162,14 @@ export class RegisterPage {
     }
     if (data.password !== data.passwordConfirm) {
       this.presentToast('Las contraseñas no coinciden', 'warning');
+      return false;
+    }
+    if (!data.provinciaId) {
+      this.presentToast('Debe seleccionar una provincia', 'warning');
+      return false;
+    }
+    if (!data.cantonId) {
+      this.presentToast('Debe seleccionar un cantón', 'warning');
       return false;
     }
     return true;
