@@ -58,9 +58,8 @@
             </label>
             <div class="input-wrapper">
               <ion-icon name="text-outline" class="field-icon"></ion-icon>
-              <input type="text" class="field-input" [(ngModel)]="capacitacion.Nombre_Capacitacion"
-                name="Nombre_Capacitacion" #nombre="ngModel" required minlength="5" maxlength="200"
-                placeholder="Ej: Taller de Liderazgo y Gestión" />
+              <input type="text" class="field-input" [(ngModel)]="capacitacion.nombre" name="nombre" #nombre="ngModel"
+                required minlength="5" maxlength="200" placeholder="Ej: Taller de Liderazgo y Gestión" />
               <ion-icon *ngIf="nombre.valid && nombre.touched" name="checkmark-circle"
                 class="validation-icon success"></ion-icon>
             </div>
@@ -82,12 +81,12 @@
             </label>
             <div class="input-wrapper">
               <ion-icon name="document-text-outline" class="field-icon"></ion-icon>
-              <textarea class="field-textarea" [(ngModel)]="capacitacion.Descripcion_Capacitacion"
-                name="Descripcion_Capacitacion" #descripcion="ngModel" required minlength="20" maxlength="500" rows="5"
+              <textarea class="field-textarea" [(ngModel)]="capacitacion.descripcion" name="descripcion"
+                #descripcion="ngModel" required minlength="20" maxlength="500" rows="5"
                 placeholder="Describa los objetivos, contenido y beneficios de la capacitación..."></textarea>
             </div>
             <div class="field-hint" *ngIf="!descripcion.touched || descripcion.valid">
-              {{ capacitacion.Descripcion_Capacitacion.length || 0 }}/500 caracteres
+              {{ capacitacion.descripcion.length || 0 }}/500 caracteres
             </div>
             <div class="field-error" *ngIf="descripcion.invalid && descripcion.touched">
               <ion-icon name="alert-circle"></ion-icon>
@@ -110,8 +109,8 @@
               </label>
               <div class="input-wrapper">
                 <ion-icon name="calendar-outline" class="field-icon"></ion-icon>
-                <input type="date" class="field-input" [(ngModel)]="capacitacion.Fecha_Capacitacion"
-                  name="Fecha_Capacitacion" #fecha="ngModel" required [min]="fechaMinima" />
+                <input type="date" class="field-input" [(ngModel)]="capacitacion.fechaInicio" name="fechaInicio"
+                  #fecha="ngModel" required [min]="fechaMinima" />
               </div>
               <div class="field-error" *ngIf="fecha.invalid && fecha.touched">
                 <ion-icon name="alert-circle"></ion-icon>
@@ -127,8 +126,8 @@
               </label>
               <div class="input-wrapper">
                 <ion-icon name="time" class="field-icon"></ion-icon>
-                <input type="number" class="field-input" [(ngModel)]="capacitacion.Horas" name="Horas" #horas="ngModel"
-                  required min="1" max="40" placeholder="8" />
+                <input type="number" class="field-input" [(ngModel)]="capacitacion.horas" name="horas" #horas="ngModel"
+                  required min="1" max="500" placeholder="8" />
               </div>
               <div class="field-error" *ngIf="horas.invalid && horas.touched">
                 <ion-icon name="alert-circle"></ion-icon>
@@ -146,7 +145,7 @@
               </label>
               <div class="input-wrapper">
                 <ion-icon name="time-outline" class="field-icon"></ion-icon>
-                <input type="time" class="field-input" [(ngModel)]="capacitacion.Hora_Inicio" name="Hora_Inicio"
+                <input type="time" class="field-input" [(ngModel)]="capacitacion.horaInicio" name="horaInicio"
                   #horaInicio="ngModel" required />
               </div>
               <div class="field-error" *ngIf="horaInicio.invalid && horaInicio.touched">
@@ -163,7 +162,7 @@
               </label>
               <div class="input-wrapper">
                 <ion-icon name="time-outline" class="field-icon"></ion-icon>
-                <input type="time" class="field-input" [(ngModel)]="capacitacion.Hora_Fin" name="Hora_Fin"
+                <input type="time" class="field-input" [(ngModel)]="capacitacion.horaFin" name="horaFin"
                   #horaFin="ngModel" required />
               </div>
               <div class="field-error" *ngIf="horaFin.invalid && horaFin.touched">
@@ -190,24 +189,24 @@
               <span class="required">*</span>
             </label>
             <div class="radio-group">
-              <label class="radio-option" [class.selected]="capacitacion.Modalidades === 'Presencial'">
-                <input type="radio" name="Modalidades" value="Presencial" [(ngModel)]="capacitacion.Modalidades"
+              <label class="radio-option" [class.selected]="capacitacion.modalidad === 'Presencial'">
+                <input type="radio" name="modalidad" value="Presencial" [(ngModel)]="capacitacion.modalidad"
                   (change)="onModalidadChange()" />
                 <div class="radio-content">
                   <ion-icon name="people"></ion-icon>
                   <span>Presencial</span>
                 </div>
               </label>
-              <label class="radio-option" [class.selected]="capacitacion.Modalidades === 'Virtual'">
-                <input type="radio" name="Modalidades" value="Virtual" [(ngModel)]="capacitacion.Modalidades"
+              <label class="radio-option" [class.selected]="capacitacion.modalidad === 'Virtual'">
+                <input type="radio" name="modalidad" value="Virtual" [(ngModel)]="capacitacion.modalidad"
                   (change)="onModalidadChange()" />
                 <div class="radio-content">
                   <ion-icon name="laptop-outline"></ion-icon>
                   <span>Virtual</span>
                 </div>
               </label>
-              <label class="radio-option" [class.selected]="capacitacion.Modalidades === 'Hibrida'">
-                <input type="radio" name="Modalidades" value="Hibrida" [(ngModel)]="capacitacion.Modalidades"
+              <label class="radio-option" [class.selected]="capacitacion.modalidad === 'Hibrida'">
+                <input type="radio" name="modalidad" value="Hibrida" [(ngModel)]="capacitacion.modalidad"
                   (change)="onModalidadChange()" />
                 <div class="radio-content">
                   <ion-icon name="git-merge-outline"></ion-icon>
@@ -225,9 +224,8 @@
             </label>
             <div class="input-wrapper">
               <ion-icon name="location-outline" class="field-icon"></ion-icon>
-              <input type="text" class="field-input" [(ngModel)]="capacitacion.Lugar_Capacitacion"
-                name="Lugar_Capacitacion" #lugar="ngModel" required
-                placeholder="Ej: Auditorio Principal, Sala de Conferencias A" />
+              <input type="text" class="field-input" [(ngModel)]="capacitacion.lugar" name="lugar" #lugar="ngModel"
+                required placeholder="Ej: Auditorio Principal, Sala de Conferencias A" />
             </div>
             <div class="field-error" *ngIf="lugar.invalid && lugar.touched">
               <ion-icon name="alert-circle"></ion-icon>
@@ -236,19 +234,18 @@
           </div>
 
           <!-- Enlace Virtual (condicional) -->
-          <div class="field-group"
-            *ngIf="capacitacion.Modalidades === 'Virtual' || capacitacion.Modalidades === 'Hibrida'">
+          <div class="field-group" *ngIf="capacitacion.modalidad === 'Virtual' || capacitacion.modalidad === 'Hibrida'">
             <label class="field-label">
               Enlace de Reunión Virtual
-              <span class="required" *ngIf="capacitacion.Modalidades === 'Virtual'">*</span>
+              <span class="required" *ngIf="capacitacion.modalidad === 'Virtual'">*</span>
             </label>
             <div class="input-wrapper">
               <ion-icon name="link-outline" class="field-icon"></ion-icon>
-              <input type="url" class="field-input" [(ngModel)]="capacitacion.Enlace_Virtual" name="Enlace_Virtual"
-                #enlaceVirtual="ngModel" [required]="capacitacion.Modalidades === 'Virtual'"
+              <input type="url" class="field-input" [(ngModel)]="capacitacion.enlaceVirtual" name="enlaceVirtual"
+                #enlaceVirtual="ngModel" [required]="capacitacion.modalidad === 'Virtual'"
                 placeholder="https://zoom.us/j/... o https://meet.google.com/..." />
-              <button type="button" class="link-button" *ngIf="capacitacion.Enlace_Virtual"
-                (click)="abrirEnlace(capacitacion.Enlace_Virtual)">
+              <button type="button" class="link-button" *ngIf="capacitacion.enlaceVirtual"
+                (click)="abrirEnlace(capacitacion.enlaceVirtual)">
                 <ion-icon name="open-outline"></ion-icon>
               </button>
             </div>
@@ -269,9 +266,8 @@
             </label>
             <div class="input-wrapper">
               <ion-icon name="people-outline" class="field-icon"></ion-icon>
-              <input type="number" class="field-input" [(ngModel)]="capacitacion.Limite_Participantes"
-                name="Limite_Participantes" #limiteParticipantes="ngModel" required min="1" max="500"
-                placeholder="50" />
+              <input type="number" class="field-input" [(ngModel)]="capacitacion.limiteParticipantes"
+                name="limiteParticipantes" #limiteParticipantes="ngModel" required min="1" max="500" placeholder="50" />
             </div>
             <div class="field-hint">
               Número máximo de participantes permitidos
@@ -322,7 +318,7 @@
             </label>
             <div class="select-wrapper">
               <ion-icon name="business-outline" class="field-icon"></ion-icon>
-              <select class="field-select" [(ngModel)]="capacitacion.entidades_encargadas" name="entidades_encargadas"
+              <select class="field-select" [(ngModel)]="capacitacion.entidadesEncargadas" name="entidadesEncargadas"
                 #entidadesModel="ngModel" required multiple size="5">
                 <option *ngFor="let entidad of entidades" [value]="entidad.Id_Entidad">
                   {{ entidad.Nombre_Entidad }} {{ entidad.Imagen_Entidad ? '✓ Con logo' : '' }}
@@ -336,8 +332,8 @@
               <ion-icon name="alert-circle"></ion-icon>
               Debe seleccionar al menos una entidad
             </div>
-            <div class="selected-items" *ngIf="(capacitacion.entidades_encargadas?.length ?? 0) > 0">
-              <span class="selected-count">{{ capacitacion.entidades_encargadas.length }} seleccionada(s)</span>
+            <div class="selected-items" *ngIf="(capacitacion.entidadesEncargadas?.length ?? 0) > 0">
+              <span class="selected-count">{{ capacitacion.entidadesEncargadas.length }} seleccionada(s)</span>
             </div>
           </div>
 
@@ -348,8 +344,7 @@
             </label>
             <div class="select-wrapper">
               <ion-icon name="person-add-outline" class="field-icon"></ion-icon>
-              <select class="field-select" [(ngModel)]="capacitacion.ids_usuarios" name="ids_usuarios" multiple
-                size="5">
+              <select class="field-select" [(ngModel)]="capacitacion.idsUsuarios" name="idsUsuarios" multiple size="5">
                 <option *ngFor="let usuario of usuariosDisponibles" [value]="usuario.Id_Usuario">
                   {{ usuario.Nombre_Usuario }}
                 </option>
@@ -358,8 +353,8 @@
             <div class="field-hint">
               Puede añadir participantes ahora o después
             </div>
-            <div class="selected-items" *ngIf="(capacitacion.ids_usuarios?.length ?? 0) > 0">
-              <span class="selected-count">{{ capacitacion.ids_usuarios.length }} participante(s)</span>
+            <div class="selected-items" *ngIf="(capacitacion.idsUsuarios?.length ?? 0) > 0">
+              <span class="selected-count">{{ capacitacion.idsUsuarios.length }} participante(s)</span>
             </div>
           </div>
         </div>

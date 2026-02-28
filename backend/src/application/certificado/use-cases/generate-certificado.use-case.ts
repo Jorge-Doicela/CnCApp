@@ -48,7 +48,7 @@ export class GenerateCertificadoUseCase {
             fecha: new Date().toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' }),
             cedula: usuario.ci,
             rol: 'PARTICIPANTE',
-            horas: '40 HORAS' // This could be dynamic from capacitacion.duracion
+            horas: `${capacitacion.horas || 0} HORAS`
         };
 
         // 4. Generate QR Content

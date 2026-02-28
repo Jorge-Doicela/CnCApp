@@ -12,5 +12,10 @@ export interface Capacitacion {
     idsUsuarios?: number[];
     entidadesEncargadas?: number[];
     plantillaId?: number;
+    horaInicio?: string | null;
+    horaFin?: string | null;
+    horas?: number | null;
+    enlaceVirtual?: string | null;
+    certificado?: boolean;
     plantilla?: any;
 }

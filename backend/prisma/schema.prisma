@@ -115,6 +115,11 @@ model Capacitacion {
   estado           String                @default("Activa") @db.VarChar(50)
   createdAt        DateTime              @default(now()) @map("created_at")
   plantillaId      Int?                  @map("Id_Plantilla")
+  horaInicio       String?               @map("Hora_Inicio") @db.VarChar(50)
+  horaFin          String?               @map("Hora_Fin") @db.VarChar(50)
+  horas            Int?                  @map("Horas")
+  enlaceVirtual    String?               @map("Enlace_Virtual") @db.VarChar(500)
+  certificado      Boolean               @default(false) @map("Certificado")
   plantilla        Plantilla?            @relation(fields: [plantillaId], references: [id])
   certificados     Certificado[]
   inscripciones    UsuarioCapacitacion[]

@@ -26,6 +26,18 @@ export class PrismaUsuarioCapacitacionRepository implements UsuarioCapacitacionR
         return result as unknown as UsuarioCapacitacion[];
     }
 
+    async findByUserAndCapacitacion(usuarioId: number, capacitacionId: number): Promise<UsuarioCapacitacion | null> {
+        const result = await prisma.usuarioCapacitacion.findUnique({
+            where: {
+                usuarioId_capacitacionId: {
+                    usuarioId,
+                    capacitacionId
+                }
+            }
+        });
+        return result as unknown as UsuarioCapacitacion | null;
+    }
+
     async create(data: Partial<UsuarioCapacitacion>): Promise<UsuarioCapacitacion> {
         // @ts-ignore: rolCapacitacion might not be in generated client yet
         const { rolCapacitacion, ...rest } = data;

@@ -187,10 +187,17 @@ export class AuthService {
 
     register(data: {
         ci: string;
-        nombre: string;
+        primerNombre: string;
+        segundoNombre?: string;
+        primerApellido: string;
+        segundoApellido?: string;
         email: string;
-        telefono?: string;
         password: string;
+        telefono?: string;
+        celular?: string;
+        tipoParticipante?: number;
+        provinciaId?: number;
+        cantonId?: number;
     }): Observable<LoginResponse> {
         return this.http.post<LoginResponse>(`${this.apiUrl}/auth/register`, data).pipe(
             tap({

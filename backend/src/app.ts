@@ -53,7 +53,7 @@ if (env.RATE_LIMIT_MAX_REQUESTS > 0) {
     });
     app.use('/api/', limiter);
 } else {
-    logger.info('⚠️ Rate limiting esta desactivado (RATE_LIMIT_MAX_REQUESTS = 0)');
+    logger.info('Rate limiting esta desactivado (RATE_LIMIT_MAX_REQUESTS = 0)');
 }
 
 // ============================================

@@ -9,6 +9,15 @@ export class InscribirUsuarioUseCase {
     ) { }
 
     async execute(data: Partial<UsuarioCapacitacion>) {
+        if (!data.usuarioId || !data.capacitacionId) {
+            throw new Error('ID de usuario y capacitación son obligatorios');
+        }
+
+        const existing = await this.repository.findByUserAndCapacitacion(data.usuarioId, data.capacitacionId);
+        if (existing) {
+            throw new Error('Usted ya se encuentra inscrito en esta capacitación');
+        }
+
         return this.repository.create(data);
     }
 }
