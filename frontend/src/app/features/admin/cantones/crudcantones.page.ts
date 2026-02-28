@@ -177,7 +177,7 @@ export class CrudcantonesPage implements OnInit {
 
     try {
       const idToUpdate = canton.id || canton.Id_Canton || canton.codigo_canton;
-      await firstValueFrom(this.catalogoService.updateItem('cantones', idToUpdate, { estado: nuevoEstado }));
+      await firstValueFrom(this.catalogoService.updateItem('cantones', idToUpdate as number, { estado: nuevoEstado }));
 
       canton.estado = nuevoEstado;
       this.calcularEstadisticas();
@@ -236,7 +236,7 @@ export class CrudcantonesPage implements OnInit {
   async eliminarCanton(canton: Canton) {
     try {
       const idToDelete = canton.id || canton.Id_Canton || canton.codigo_canton;
-      await firstValueFrom(this.catalogoService.deleteItem('cantones', idToDelete));
+      await firstValueFrom(this.catalogoService.deleteItem('cantones', idToDelete as number));
 
       this.cantones = this.cantones.filter(c => (c.id || c.Id_Canton || c.codigo_canton) !== idToDelete);
       this.calcularEstadisticas();
