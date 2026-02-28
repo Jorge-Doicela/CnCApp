@@ -14,12 +14,18 @@ const toDTO = (user: any) => {
 
 // Schemas
 const registerSchema = z.object({
-    nombre: z.string().min(3, 'El nombre debe tener al menos 3 caracteres'),
+    primerNombre: z.string().min(2, 'El primer nombre es requerido'),
+    segundoNombre: z.string().optional(),
+    primerApellido: z.string().min(2, 'El primer apellido es requerido'),
+    segundoApellido: z.string().optional(),
     ci: z.string().length(10, 'La cédula debe tener 10 dígitos'),
     email: z.string().email('Email inválido'),
     telefono: z.string().optional(),
-    password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres'),
-    tipoParticipante: z.number().int().min(0).max(3).optional()
+    celular: z.string().optional(),
+    password: z.string().min(8, 'La contraseña debe tener al menos 8 caracteres'),
+    tipoParticipante: z.number().int().min(0).max(3).optional(),
+    provinciaId: z.number().optional(),
+    cantonId: z.number().optional()
 });
 
 const loginSchema = z.object({
@@ -39,21 +45,19 @@ export class AuthController {
         try {
             const data = registerSchema.parse(req.body);
 
-            // Split nombre into parts (simple approach)
-            const nameParts = (data.nombre as string).trim().split(' ');
-            const primerNombre = nameParts[0] || '';
-            const primerApellido = nameParts[nameParts.length - 1] || '';
-            const segundoNombre = nameParts.length > 2 ? nameParts.slice(1, -1).join(' ') : undefined;
-
             const result = await this.registerUseCase.execute({
                 ci: data.ci as string,
-                primerNombre,
-                segundoNombre,
-                primerApellido,
+                primerNombre: data.primerNombre,
+                segundoNombre: data.segundoNombre,
+                primerApellido: data.primerApellido,
+                segundoApellido: data.segundoApellido,
                 email: data.email as string,
                 password: data.password as string,
                 telefono: data.telefono,
-                tipoParticipante: data.tipoParticipante
+                celular: data.celular,
+                tipoParticipante: data.tipoParticipante,
+                provinciaId: data.provinciaId,
+                cantonId: data.cantonId
             });
 
             res.status(201).json({

@@ -3,6 +3,7 @@ import { UsuarioCapacitacion } from './entities/usuario-capacitacion.entity';
 export interface UsuarioCapacitacionRepository {
     findByCapacitacionId(capacitacionId: number): Promise<UsuarioCapacitacion[]>;
     findByUsuarioId(usuarioId: number): Promise<UsuarioCapacitacion[]>;
+    findByUserAndCapacitacion(usuarioId: number, capacitacionId: number): Promise<UsuarioCapacitacion | null>;
     create(data: Partial<UsuarioCapacitacion>): Promise<UsuarioCapacitacion>;
     update(id: number, data: Partial<UsuarioCapacitacion>): Promise<UsuarioCapacitacion>;
     delete(id: number): Promise<void>;

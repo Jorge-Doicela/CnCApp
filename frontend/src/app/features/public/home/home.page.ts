@@ -292,8 +292,10 @@ export class HomePage implements OnInit {
       this.showSuccessToast('Inscripción exitosa');
       await this.RecuperarConferenciasInscrito();
       this.calcularEstadisticas();
-    } catch (e) {
-      this.showErrorToast('Error al inscribirse');
+    } catch (e: any) {
+      console.error('Error inscribiendo:', e);
+      const msg = e.error?.message || 'Error al inscribirse';
+      this.showErrorToast(msg);
     } finally {
       loading.dismiss();
     }

@@ -93,8 +93,10 @@ export class EditarPage implements OnInit {
 
   inicializarFormulario() {
     this.perfilForm = this.formBuilder.group({
-      nombre: ['', [Validators.required]],
-      apellido: ['', [Validators.required]],
+      primerNombre: ['', [Validators.required]],
+      segundoNombre: [''],
+      primerApellido: ['', [Validators.required]],
+      segundoApellido: [''],
       cedula: ['', [Validators.required]],
       email: ['', [Validators.required, Validators.email]],
       telefono: ['', [Validators.pattern(/^[0-9]{10}$/)]],
@@ -207,11 +209,13 @@ export class EditarPage implements OnInit {
         await this.inicializarDatosUbicacion();
 
         this.perfilForm.patchValue({
-          nombre: this.usuario.Nombre_Usuario || this.usuario.nombre || '',
-          apellido: this.usuario.apellido || '',
-          cedula: this.usuario.CI_Usuario || this.usuario.cedula || '',
+          primerNombre: this.usuario.primerNombre || '',
+          segundoNombre: this.usuario.segundoNombre || '',
+          primerApellido: this.usuario.primerApellido || '',
+          segundoApellido: this.usuario.segundoApellido || '',
+          cedula: this.usuario.CI_Usuario || this.usuario.ci || '',
           email: this.usuario.email || '',
-          telefono: this.usuario.Celular_Usuario || this.usuario.telefono || '',
+          telefono: this.usuario.celular || this.usuario.telefono || '',
           genero: this.usuario.Genero_Usuario || '',
           nacionalidad: this.usuario.Nacionalidad_Usuario || '',
           provincia: this.provinciaIdSeleccionada,
@@ -310,11 +314,12 @@ export class EditarPage implements OnInit {
       }
 
       const updateData = {
-        nombre: formData.nombre,
+        primerNombre: formData.primerNombre,
+        segundoNombre: formData.segundoNombre,
+        primerApellido: formData.primerApellido,
+        segundoApellido: formData.segundoApellido,
         email: formData.email,
         telefono: formData.telefono,
-        // Map other fields
-        primerNombre: formData.nombre, // Assuming nombre field maps to first name for now or similar
         provinciaId: formData.provincia,
         cantonId: formData.canton,
         genero: formData.genero,

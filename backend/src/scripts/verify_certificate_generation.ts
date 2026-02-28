@@ -38,7 +38,10 @@ async function verify() {
                 console.log('Assigning plantilla to capacitacion for test...');
                 await prisma.capacitacion.update({
                     where: { id: cap.id },
-                    data: { plantillaId: plantilla.id }
+                    data: {
+                        plantillaId: plantilla.id,
+                        horas: 40
+                    }
                 });
                 console.log('Assigned. Restarting test...');
                 return verify();

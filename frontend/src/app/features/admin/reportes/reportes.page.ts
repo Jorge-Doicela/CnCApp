@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import {
     IonHeader, IonToolbar, IonTitle, IonContent, IonButtons,
     IonMenuButton, IonGrid, IonRow, IonCol, IonIcon,
-    IonSpinner, IonText, IonBadge
+    IonSpinner, IonText, IonBadge, IonButton
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -11,11 +11,12 @@ import {
     trendingUpOutline, checkmarkCircleOutline, timeOutline,
     statsChartOutline, schoolOutline, ribbonOutline,
     arrowUpOutline, arrowDownOutline, playOutline,
-    checkmarkDoneOutline, downloadOutline
+    checkmarkDoneOutline, downloadOutline, arrowBackOutline
 } from 'ionicons/icons';
 import { firstValueFrom } from 'rxjs';
 import { ReportesService, DashboardStats } from './services/reportes.service';
 import { LoadingController, ToastController } from '@ionic/angular/standalone';
+import { RouterModule } from '@angular/router';
 
 // Modular Components
 import { KpiCardComponent } from './components/kpi-card/kpi-card.component';
@@ -31,8 +32,9 @@ import { RolesChartComponent } from './components/roles-chart/roles-chart.compon
         CommonModule,
         IonHeader, IonToolbar, IonTitle, IonContent, IonButtons,
         IonMenuButton, IonGrid, IonRow, IonCol, IonIcon,
-        IonSpinner, IonText, IonBadge,
-        KpiCardComponent, TrendChartComponent, RolesChartComponent
+        IonSpinner, IonText, IonBadge, IonButton,
+        KpiCardComponent, TrendChartComponent, RolesChartComponent,
+        RouterModule
     ],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -58,7 +60,8 @@ export class ReportesPage implements OnInit {
             'arrow-up-outline': arrowUpOutline,
             'arrow-down-outline': arrowDownOutline,
             'play-outline': playOutline,
-            'checkmark-done-outline': checkmarkDoneOutline
+            'checkmark-done-outline': checkmarkDoneOutline,
+            'arrow-back-outline': arrowBackOutline
         });
     }
 

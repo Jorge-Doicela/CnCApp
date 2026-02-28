@@ -26,26 +26,26 @@ export const errorHandler = (
 
     if (err instanceof DomainError) {
         if (err instanceof ValidationError) {
-            res.status(400).json({ error: err.message });
+            res.status(400).json({ message: err.message });
             return;
         }
         if (err instanceof AuthenticationError) {
-            res.status(401).json({ error: err.message });
+            res.status(401).json({ message: err.message });
             return;
         }
         if (err instanceof NotFoundError) {
-            res.status(404).json({ error: err.message });
+            res.status(404).json({ message: err.message });
             return;
         }
         // Default DomainError
-        res.status(400).json({ error: err.message });
+        res.status(400).json({ message: err.message });
         return;
     }
 
     // Error de validación de Zod
     if (err instanceof ZodError) {
         res.status(400).json({
-            error: 'Datos inválidos',
+            message: 'Datos inválidos',
             details: err.errors
         });
         return;
@@ -55,12 +55,12 @@ export const errorHandler = (
     if (err.code && err.code.startsWith('P')) {
         if (err.code === 'P2002') {
             res.status(409).json({
-                error: 'Ya existe un registro con esos datos'
+                message: 'Ya existe un registro con esos datos'
             });
             return;
         }
         res.status(400).json({
-            error: 'Error en la base de datos'
+            message: 'Error en la base de datos'
         });
         return;
     }
@@ -68,14 +68,14 @@ export const errorHandler = (
     // Error de JWT
     if (err.name === 'JsonWebTokenError') {
         res.status(401).json({
-            error: 'Token inválido'
+            message: 'Token inválido'
         });
         return;
     }
 
     if (err.name === 'TokenExpiredError') {
         res.status(401).json({
-            error: 'Token expirado'
+            message: 'Token expirado'
         });
         return;
     }
@@ -85,6 +85,6 @@ export const errorHandler = (
     const message = statusCode === 500 ? 'Error interno del servidor' : err.message;
 
     res.status(statusCode).json({
-        error: message
+        message: message
     });
 };

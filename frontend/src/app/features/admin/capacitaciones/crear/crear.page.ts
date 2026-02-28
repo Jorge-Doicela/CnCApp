@@ -21,19 +21,19 @@ export class CrearPage implements OnInit {
   @ViewChild('capacitacionForm') capacitacionForm!: NgForm;
 
   capacitacion = {
-    Nombre_Capacitacion: '',
-    Descripcion_Capacitacion: '',
-    Fecha_Capacitacion: '',
-    Lugar_Capacitacion: '',
-    Estado: 0,
-    Modalidades: 'Presencial',
-    Enlace_Virtual: '',
-    Hora_Inicio: '',
-    Hora_Fin: '',
-    Horas: 0,
-    Limite_Participantes: 30,
-    entidades_encargadas: [] as number[],
-    ids_usuarios: [] as number[],
+    nombre: '',
+    descripcion: '',
+    fechaInicio: '',
+    lugar: '',
+    estado: 'Activa',
+    modalidad: 'Presencial',
+    enlaceVirtual: '',
+    horaInicio: '',
+    horaFin: '',
+    horas: 0,
+    limiteParticipantes: 30,
+    entidadesEncargadas: [] as number[],
+    idsUsuarios: [] as number[],
     expositores: [] as number[]
   };
 
@@ -69,18 +69,18 @@ export class CrearPage implements OnInit {
     // Establecer fecha mínima (hoy)
     const hoy = new Date();
     this.fechaMinima = hoy.toISOString().split('T')[0];
-    this.capacitacion.Fecha_Capacitacion = this.fechaMinima;
+    this.capacitacion.fechaInicio = this.fechaMinima;
 
     // Establecer horas por defecto
     const horaInicio = new Date();
     horaInicio.setHours(horaInicio.getHours() + 1, 0, 0, 0);
-    this.capacitacion.Hora_Inicio = horaInicio.toTimeString().substring(0, 5);
+    this.capacitacion.horaInicio = horaInicio.toTimeString().substring(0, 5);
 
     const horaFin = new Date(horaInicio);
     horaFin.setHours(horaFin.getHours() + 2);
-    this.capacitacion.Hora_Fin = horaFin.toTimeString().substring(0, 5);
+    this.capacitacion.horaFin = horaFin.toTimeString().substring(0, 5);
 
-    this.capacitacion.Horas = 2;
+    this.capacitacion.horas = 2;
   }
 
   async cargarDatos() {
@@ -101,7 +101,7 @@ export class CrearPage implements OnInit {
         e.Nombre_Entidad?.toLowerCase().includes('consejo nacional')
       );
       if (cnc) {
-        this.capacitacion.entidades_encargadas = [cnc.Id_Entidad];
+        this.capacitacion.entidadesEncargadas = [cnc.Id_Entidad];
       }
 
       // Usuarios
@@ -120,18 +120,18 @@ export class CrearPage implements OnInit {
 
   onModalidadChange() {
     // Limpiar enlace virtual si no es necesario
-    if (this.capacitacion.Modalidades === 'Presencial') {
-      this.capacitacion.Enlace_Virtual = '';
+    if (this.capacitacion.modalidad === 'Presencial') {
+      this.capacitacion.enlaceVirtual = '';
     }
   }
 
   validarHorarios(): boolean {
-    if (!this.capacitacion.Hora_Inicio || !this.capacitacion.Hora_Fin) {
+    if (!this.capacitacion.horaInicio || !this.capacitacion.horaFin) {
       return true; // No validar si están vacíos
     }
 
-    const [horaI, minI] = this.capacitacion.Hora_Inicio.split(':').map(Number);
-    const [horaF, minF] = this.capacitacion.Hora_Fin.split(':').map(Number);
+    const [horaI, minI] = this.capacitacion.horaInicio.split(':').map(Number);
+    const [horaF, minF] = this.capacitacion.horaFin.split(':').map(Number);
 
     const minutosInicio = horaI * 60 + minI;
     const minutosFin = horaF * 60 + minF;
@@ -143,21 +143,21 @@ export class CrearPage implements OnInit {
     let completados = 0;
     let total = 10;
 
-    if (this.capacitacion.Nombre_Capacitacion) completados++;
-    if (this.capacitacion.Descripcion_Capacitacion) completados++;
-    if (this.capacitacion.Fecha_Capacitacion) completados++;
-    if (this.capacitacion.Hora_Inicio) completados++;
-    if (this.capacitacion.Hora_Fin) completados++;
-    if (this.capacitacion.Horas > 0) completados++;
-    if (this.capacitacion.Lugar_Capacitacion) completados++;
-    if (this.capacitacion.Limite_Participantes > 0) completados++;
+    if (this.capacitacion.nombre) completados++;
+    if (this.capacitacion.descripcion) completados++;
+    if (this.capacitacion.fechaInicio) completados++;
+    if (this.capacitacion.horaInicio) completados++;
+    if (this.capacitacion.horaFin) completados++;
+    if (this.capacitacion.horas > 0) completados++;
+    if (this.capacitacion.lugar) completados++;
+    if (this.capacitacion.limiteParticipantes > 0) completados++;
     if (this.capacitacion.expositores?.length > 0) completados++;
-    if (this.capacitacion.entidades_encargadas?.length > 0) completados++;
+    if (this.capacitacion.entidadesEncargadas?.length > 0) completados++;
 
     // Agregar enlace virtual si es necesario
-    if (this.capacitacion.Modalidades === 'Virtual') {
+    if (this.capacitacion.modalidad === 'Virtual') {
       total = 11;
-      if (this.capacitacion.Enlace_Virtual) completados++;
+      if (this.capacitacion.enlaceVirtual) completados++;
     }
 
     return Math.round((completados / total) * 100);
@@ -178,7 +178,7 @@ export class CrearPage implements OnInit {
     }
 
     // Validación de enlace virtual
-    if (this.capacitacion.Modalidades === 'Virtual' && !this.capacitacion.Enlace_Virtual) {
+    if (this.capacitacion.modalidad === 'Virtual' && !this.capacitacion.enlaceVirtual) {
       this.mostrarToast('El enlace virtual es obligatorio para modalidad virtual', 'warning');
       return;
     }
@@ -190,7 +190,7 @@ export class CrearPage implements OnInit {
     }
 
     // Validación de entidades
-    if (!this.capacitacion.entidades_encargadas || this.capacitacion.entidades_encargadas.length === 0) {
+    if (!this.capacitacion.entidadesEncargadas || this.capacitacion.entidadesEncargadas.length === 0) {
       this.mostrarToast('Debe seleccionar al menos una entidad organizadora', 'warning');
       return;
     }
@@ -198,10 +198,10 @@ export class CrearPage implements OnInit {
     this.guardando = true;
 
     // Formatear enlace virtual
-    if (this.capacitacion.Enlace_Virtual &&
-      !this.capacitacion.Enlace_Virtual.startsWith('http://') &&
-      !this.capacitacion.Enlace_Virtual.startsWith('https://')) {
-      this.capacitacion.Enlace_Virtual = 'https://' + this.capacitacion.Enlace_Virtual;
+    if (this.capacitacion.enlaceVirtual &&
+      !this.capacitacion.enlaceVirtual.startsWith('http://') &&
+      !this.capacitacion.enlaceVirtual.startsWith('https://')) {
+      this.capacitacion.enlaceVirtual = 'https://' + this.capacitacion.enlaceVirtual;
     }
 
     // Crear capacitación
@@ -221,8 +221,8 @@ export class CrearPage implements OnInit {
       await this.asignarUsuarios(capacitacionId, this.capacitacion.expositores, 'Expositor');
 
       // Asignar participantes
-      if (this.capacitacion.ids_usuarios?.length > 0) {
-        const participantes = this.capacitacion.ids_usuarios.filter(
+      if (this.capacitacion.idsUsuarios?.length > 0) {
+        const participantes = this.capacitacion.idsUsuarios.filter(
           id => !this.capacitacion.expositores.includes(id)
         );
         await this.asignarUsuarios(capacitacionId, participantes, 'Participante');
@@ -301,22 +301,22 @@ export class CrearPage implements OnInit {
   }
 
   reiniciarFormulario() {
-    const entidadesSeleccionadas = [...this.capacitacion.entidades_encargadas];
+    const entidadesSeleccionadas = [...this.capacitacion.entidadesEncargadas];
 
     this.capacitacion = {
-      Nombre_Capacitacion: '',
-      Descripcion_Capacitacion: '',
-      Fecha_Capacitacion: this.fechaMinima,
-      Lugar_Capacitacion: '',
-      Estado: 0,
-      Modalidades: 'Presencial',
-      Enlace_Virtual: '',
-      Hora_Inicio: '',
-      Hora_Fin: '',
-      Horas: 0,
-      Limite_Participantes: 30,
-      entidades_encargadas: entidadesSeleccionadas,
-      ids_usuarios: [],
+      nombre: '',
+      descripcion: '',
+      fechaInicio: this.fechaMinima,
+      lugar: '',
+      estado: 'Activa',
+      modalidad: 'Presencial',
+      enlaceVirtual: '',
+      horaInicio: '',
+      horaFin: '',
+      horas: 0,
+      limiteParticipantes: 30,
+      entidadesEncargadas: entidadesSeleccionadas,
+      idsUsuarios: [],
       expositores: []
     };
 
@@ -329,13 +329,13 @@ export class CrearPage implements OnInit {
 
   hayDatosIngresados(): boolean {
     return !!(
-      this.capacitacion.Nombre_Capacitacion ||
-      this.capacitacion.Descripcion_Capacitacion ||
-      this.capacitacion.Lugar_Capacitacion ||
-      this.capacitacion.Enlace_Virtual ||
-      this.capacitacion.Horas > 0 ||
+      this.capacitacion.nombre ||
+      this.capacitacion.descripcion ||
+      this.capacitacion.lugar ||
+      this.capacitacion.enlaceVirtual ||
+      this.capacitacion.horas > 0 ||
       this.capacitacion.expositores?.length > 0 ||
-      this.capacitacion.ids_usuarios?.length > 0
+      this.capacitacion.idsUsuarios?.length > 0
     );
   }
 
@@ -396,15 +396,15 @@ export class CrearPage implements OnInit {
   validateCurrentStep(): boolean {
     switch (this.currentStep) {
       case 1: // Información Básica
-        if (!this.capacitacion.Nombre_Capacitacion || !this.capacitacion.Descripcion_Capacitacion) {
+        if (!this.capacitacion.nombre || !this.capacitacion.descripcion) {
           this.mostrarToast('Complete el nombre y descripción', 'warning');
           return false;
         }
         return true;
 
       case 2: // Fecha y Horario
-        if (!this.capacitacion.Fecha_Capacitacion || !this.capacitacion.Hora_Inicio ||
-          !this.capacitacion.Hora_Fin || !this.capacitacion.Horas) {
+        if (!this.capacitacion.fechaInicio || !this.capacitacion.horaInicio ||
+          !this.capacitacion.horaFin || !this.capacitacion.horas) {
           this.mostrarToast('Complete todos los campos de fecha y horario', 'warning');
           return false;
         }
@@ -415,11 +415,11 @@ export class CrearPage implements OnInit {
         return true;
 
       case 3: // Modalidad y Ubicación
-        if (!this.capacitacion.Lugar_Capacitacion || !this.capacitacion.Limite_Participantes) {
+        if (!this.capacitacion.lugar || !this.capacitacion.limiteParticipantes) {
           this.mostrarToast('Complete el lugar y límite de participantes', 'warning');
           return false;
         }
-        if (this.capacitacion.Modalidades === 'Virtual' && !this.capacitacion.Enlace_Virtual) {
+        if (this.capacitacion.modalidad === 'Virtual' && !this.capacitacion.enlaceVirtual) {
           this.mostrarToast('El enlace virtual es obligatorio para modalidad virtual', 'warning');
           return false;
         }
@@ -430,7 +430,7 @@ export class CrearPage implements OnInit {
           this.mostrarToast('Debe seleccionar al menos un responsable', 'warning');
           return false;
         }
-        if (!this.capacitacion.entidades_encargadas || this.capacitacion.entidades_encargadas.length === 0) {
+        if (!this.capacitacion.entidadesEncargadas || this.capacitacion.entidadesEncargadas.length === 0) {
           this.mostrarToast('Debe seleccionar al menos una entidad', 'warning');
           return false;
         }
