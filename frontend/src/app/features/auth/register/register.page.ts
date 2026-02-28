@@ -89,14 +89,14 @@ export class RegisterPage {
         firstValueFrom(this.catalogoService.getItems('cantones'))
       ]);
 
-      // Only active ones, sorted
+      // Only active ones, sorted (Backend returns id, nombre, estado, etc.)
       const activeProvincias = (provinciasResp || [])
-        .filter((p: Provincia) => p.Estado)
-        .sort((a: Provincia, b: Provincia) => a.Nombre_Provincia.localeCompare(b.Nombre_Provincia));
+        .filter((p: any) => p.estado !== false) // backend may not return estado or return true
+        .sort((a: any, b: any) => (a.nombre || '').localeCompare(b.nombre || ''));
 
       const activeCantones = (cantonesResp || [])
-        .filter((c: Canton) => c.Estado)
-        .sort((a: Canton, b: Canton) => (a.Nombre_Canton || '').localeCompare(b.Nombre_Canton || ''));
+        .filter((c: any) => c.estado !== false)
+        .sort((a: any, b: any) => (a.nombre || '').localeCompare(b.nombre || ''));
 
       this.provincias.set(activeProvincias);
       this.cantones.set(activeCantones);
@@ -112,7 +112,7 @@ export class RegisterPage {
 
     // Filter cantons by selected province
     if (provId) {
-      const filtered = this.cantones().filter(c => c.Id_Provincia === provId);
+      const filtered = this.cantones().filter((c: any) => c.provinciaId === provId);
       this.filteredCantones.set(filtered);
     } else {
       this.filteredCantones.set([]);

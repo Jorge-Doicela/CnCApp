@@ -137,15 +137,17 @@ export class CrudprovinciasPage implements OnInit {
     this.router.navigate(['/gestionar-provincias/crear']);
   }
 
-  editarProvincia(id: number) {
-    this.router.navigate(['/gestionar-provincias/editar', id]);
+  editarProvincia(id: number | undefined) {
+    if (id !== undefined) {
+      this.router.navigate(['/gestionar-provincias/editar', id]);
+    }
   }
 
   async cambiarEstado(provincia: Provincia) {
     const nuevoEstado = !provincia.Estado;
 
     try {
-      await firstValueFrom(this.catalogoService.updateItem('provincias', provincia.IdProvincia, { Estado: nuevoEstado }));
+      await firstValueFrom(this.catalogoService.updateItem('provincias', (provincia.IdProvincia || provincia.id) as number, { Estado: nuevoEstado }));
 
       // Actualizar el objeto local
       provincia.Estado = nuevoEstado;
@@ -186,7 +188,7 @@ export class CrudprovinciasPage implements OnInit {
 
   async eliminarProvincia(provincia: Provincia) {
     try {
-      await firstValueFrom(this.catalogoService.deleteItem('provincias', provincia.IdProvincia));
+      await firstValueFrom(this.catalogoService.deleteItem('provincias', (provincia.IdProvincia || provincia.id) as number));
 
       // Actualizar listas locales
       this.provincias = this.provincias.filter(p => p.IdProvincia !== provincia.IdProvincia);
