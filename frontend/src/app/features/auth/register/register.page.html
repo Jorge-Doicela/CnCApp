@@ -144,16 +144,28 @@
           <div class="form-grid">
             <div class="input-group">
               <ion-label>Provincia *</ion-label>
-              <div class="custom-input-wrapper readonly">
+              <div class="custom-input-wrapper">
                 <ion-icon name="map-outline" class="input-icon"></ion-icon>
-                <ion-input value="PICHINCHA" readonly></ion-input>
+                <ion-select interface="popover" [value]="state.userData().provinciaId"
+                  (ionChange)="onProvinciaChange($event)" placeholder="Seleccione..." class="custom-select w-full"
+                  style="width: 100%;">
+                  @for (prov of provincias(); track prov.IdProvincia) {
+                  <ion-select-option [value]="prov.IdProvincia">{{ prov.Nombre_Provincia }}</ion-select-option>
+                  }
+                </ion-select>
               </div>
             </div>
             <div class="input-group">
               <ion-label>Cantón *</ion-label>
-              <div class="custom-input-wrapper readonly">
+              <div class="custom-input-wrapper">
                 <ion-icon name="location-outline" class="input-icon"></ion-icon>
-                <ion-input value="QUITO" readonly></ion-input>
+                <ion-select interface="popover" [value]="state.userData().cantonId"
+                  (ionChange)="state.updateUserData({cantonId: $event.detail.value})" placeholder="Seleccione..."
+                  class="custom-select w-full" style="width: 100%;" [disabled]="!state.userData().provinciaId">
+                  @for (can of filteredCantones(); track can.Id_Canton) {
+                  <ion-select-option [value]="can.Id_Canton">{{ can.Nombre_Canton }}</ion-select-option>
+                  }
+                </ion-select>
               </div>
             </div>
           </div>
