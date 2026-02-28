@@ -2,7 +2,7 @@
 const API_URL = 'http://localhost:3000/api';
 const ADMIN_CI = '1234567890';
 const ADMIN_PASS = 'CncSecure2025!';
-const CONF_CI = '0987654321'; // Dr. Carlos Mendoza
+const CONF_CI = '0911223344'; // Dr. Ricardo Pazmiño
 const CONF_PASS = 'CncSecure2025!';
 
 // Test Data
@@ -14,6 +14,8 @@ const TEST_CITIZEN = {
     email: `test_citizen_${uniqueId}@system.com`,
     password: 'TestPassword123!',
     telefono: '0999999999',
+    primerNombre: 'Test',
+    primerApellido: 'Citizen',
     tipoParticipante: 2 // Ciudadano
 };
 
