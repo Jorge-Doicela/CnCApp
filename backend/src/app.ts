@@ -23,6 +23,7 @@ import institucionRoutes from './infrastructure/web/routes/institucion.routes';
 import plantillaRoutes from './infrastructure/web/routes/plantilla.routes';
 import usuarioCapacitacionRoutes from './infrastructure/web/routes/usuario-capacitacion.routes';
 import competenciaRoutes from './infrastructure/web/routes/competencia.routes';
+import { catalogoRoutes } from './infrastructure/web/routes/catalogo.routes';
 
 // Importar middleware
 import { errorHandler } from './infrastructure/web/middleware/error.middleware';
@@ -110,6 +111,7 @@ app.use('/api/reportes', reportesRoutes);
 app.use('/api/plantillas', plantillaRoutes);
 app.use('/api/usuarios-capacitaciones', usuarioCapacitacionRoutes);
 app.use('/api/competencias', competenciaRoutes);
+app.use('/api', catalogoRoutes); // Generos y Etnias
 
 // ============================================
 // MANEJO DE ERRORES

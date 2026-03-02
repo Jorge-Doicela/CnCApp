@@ -223,29 +223,52 @@
               <ion-label>Género *</ion-label>
               <div class="custom-input-wrapper">
                 <ion-icon name="male-female-outline" class="input-icon"></ion-icon>
-                <ion-input [value]="state.personalData().genero || 'Masculino'"
-                  (ionInput)="state.updateUserData({genero: $any($event.target).value})" placeholder="Género">
-                </ion-input>
+                <ion-select interface="action-sheet" [value]="state.personalData().generoId"
+                  (ionChange)="state.updateUserData({generoId: $event.detail.value})" placeholder="Seleccione..."
+                  class="custom-select w-full" style="width: 100%;">
+                  @for (gen of generos(); track gen.id) {
+                  <ion-select-option [value]="gen.id">{{ gen.nombre }}</ion-select-option>
+                  }
+                </ion-select>
               </div>
             </div>
             <div class="input-group">
               <ion-label>Etnia *</ion-label>
               <div class="custom-input-wrapper">
                 <ion-icon name="people-circle-outline" class="input-icon"></ion-icon>
-                <ion-input [value]="state.personalData().etnia || 'Mestizo'"
-                  (ionInput)="state.updateUserData({etnia: $any($event.target).value})" placeholder="Autodefinición">
-                </ion-input>
+                <ion-select interface="action-sheet" [value]="state.personalData().etniaId"
+                  (ionChange)="state.updateUserData({etniaId: $event.detail.value})" placeholder="Seleccione..."
+                  class="custom-select w-full" style="width: 100%;">
+                  @for (et of etnias(); track et.id) {
+                  <ion-select-option [value]="et.id">{{ et.nombre }}</ion-select-option>
+                  }
+                </ion-select>
               </div>
             </div>
           </div>
 
           <div class="input-group">
             <ion-label>Fecha de Nacimiento *</ion-label>
-            <div class="custom-input-wrapper">
+            <div class="custom-input-wrapper" (click)="dateModal.present()" style="cursor: pointer;">
               <ion-icon name="calendar-outline" class="input-icon"></ion-icon>
-              <ion-input type="date" [value]="state.personalData().fechaNacimiento"
-                (change)="state.updateUserData({fechaNacimiento: $any($event.target).value})">
+
+              <ion-input
+                [value]="state.personalData().fechaNacimiento ? (state.personalData().fechaNacimiento | date:'dd/MM/yyyy':'UTC') : ''"
+                readonly placeholder="dd/mm/aaaa" style="pointer-events: none;">
               </ion-input>
+
+              <ion-modal #dateModal class="datetime-modal">
+                <ng-template>
+                  <ion-content>
+                    <ion-datetime id="dob" presentation="date" [value]="state.personalData().fechaNacimiento"
+                      (ionChange)="state.updateUserData({fechaNacimiento: $any($event.detail.value)})"
+                      showDefaultButtons="true" doneText="Aceptar" cancelText="Cancelar"
+                      (ionCancel)="dateModal.dismiss()" (ionStyle)="dateModal.dismiss()">
+                    </ion-datetime>
+                  </ion-content>
+                </ng-template>
+              </ion-modal>
+
             </div>
           </div>
         </div>

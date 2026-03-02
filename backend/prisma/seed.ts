@@ -19,7 +19,8 @@ async function main() {
             'Certificados', 'Usuarios_Capacitaciones', 'Capacitaciones', 'Plantillas',
             'Instituciones_usuario', 'FuncionarioGAD', 'Autoridades', 'Usuario',
             'parroquia', 'Cantones', 'Provincias', 'Entidades', 'Rol',
-            'mancomunidades', 'instituciones_sistema', 'cargos', 'competencias'
+            'mancomunidades', 'instituciones_sistema', 'cargos', 'competencias',
+            'Generos', 'Etnias'
         ];
 
         for (const table of tables) {
@@ -68,6 +69,24 @@ async function main() {
         // STEP 2: CATALOGS (Realistic)
         // ============================================
         console.log('📋 Loading Product Catalogs...');
+
+        await prisma.genero.createMany({
+            data: [
+                { nombre: 'Masculino' },
+                { nombre: 'Femenino' }
+            ]
+        });
+
+        await prisma.etnia.createMany({
+            data: [
+                { nombre: 'Mestizo' },
+                { nombre: 'Afroecuatoriano' },
+                { nombre: 'Montubio' },
+                { nombre: 'Indígena' },
+                { nombre: 'Blanco' },
+                { nombre: 'Otro' }
+            ]
+        });
         const entidades = await prisma.entidad.createMany({
             data: [
                 { nombre: 'GOBIERNOS AUTÓNOMOS DESCENTRALIZADOS PROVINCIALES' },

@@ -8,8 +8,8 @@ export interface RegisterUserDto {
     password: string;
     telefono?: string;
     celular?: string;
-    genero?: string;
-    etnia?: string;
+    generoId?: number;
+    etniaId?: number;
     nacionalidad?: string;
     fechaNacimiento?: string; // ISO string
     provinciaId?: number;

@@ -47,8 +47,8 @@ model Usuario {
   segundoNombre    String?               @map("Segundo_Nombre") @db.VarChar(100)
   primerApellido   String?               @map("Primer_Apellido") @db.VarChar(100)
   segundoApellido  String?               @map("Segundo_Apellido") @db.VarChar(100)
-  genero           String?               @db.VarChar(50)
-  etnia            String?               @db.VarChar(50)
+  generoId         Int?                  @map("Id_Genero")
+  etniaId          Int?                  @map("Id_Etnia")
   nacionalidad     String?               @db.VarChar(100)
   fechaNacimiento  DateTime?             @map("Fecha_Nacimiento") @db.Date
   celular          String?               @db.VarChar(20)
@@ -62,6 +62,8 @@ model Usuario {
   canton           Canton?               @relation(fields: [cantonId], references: [id])
   provincia        Provincia?            @relation(fields: [provinciaId], references: [id])
   rol              Rol?                  @relation(fields: [rolId], references: [id])
+  genero           Genero?               @relation(fields: [generoId], references: [id])
+  etnia            Etnia?                @relation(fields: [etniaId], references: [id])
   inscripciones    UsuarioCapacitacion[]
 
   @@index([authUid])
@@ -71,6 +73,8 @@ model Usuario {
   @@index([entidadId])
   @@index([provinciaId])
   @@index([cantonId])
+  @@index([generoId])
+  @@index([etniaId])
   @@map("Usuario")
 }
 
@@ -242,4 +246,20 @@ model Plantilla {
   capacitaciones Capacitacion[]
 
   @@map("Plantillas")
+}
+
+model Genero {
+  id        Int       @id @default(autoincrement()) @map("Id_Genero")
+  nombre    String    @unique @map("Nombre_Genero") @db.VarChar(50)
+  usuarios  Usuario[]
+
+  @@map("Generos")
+}
+
+model Etnia {
+  id        Int       @id @default(autoincrement()) @map("Id_Etnia")
+  nombre    String    @unique @map("Nombre_Etnia") @db.VarChar(50)
+  usuarios  Usuario[]
+
+  @@map("Etnias")
 }
