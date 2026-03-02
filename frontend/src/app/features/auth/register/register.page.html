@@ -249,25 +249,13 @@
 
           <div class="input-group">
             <ion-label>Fecha de Nacimiento *</ion-label>
-            <div class="custom-input-wrapper" (click)="dateModal.present()" style="cursor: pointer;">
+            <div class="custom-input-wrapper">
               <ion-icon name="calendar-outline" class="input-icon"></ion-icon>
 
-              <ion-input
-                [value]="state.personalData().fechaNacimiento ? (state.personalData().fechaNacimiento | date:'dd/MM/yyyy':'UTC') : ''"
-                readonly placeholder="dd/mm/aaaa" style="pointer-events: none;">
+              <ion-input type="date" [value]="state.personalData().fechaNacimiento"
+                (ionChange)="state.updateUserData({fechaNacimiento: $any($event.detail.value)})"
+                placeholder="dd/mm/aaaa">
               </ion-input>
-
-              <ion-modal #dateModal class="datetime-modal">
-                <ng-template>
-                  <ion-content>
-                    <ion-datetime id="dob" presentation="date" [value]="state.personalData().fechaNacimiento"
-                      (ionChange)="state.updateUserData({fechaNacimiento: $any($event.detail.value)})"
-                      showDefaultButtons="true" doneText="Aceptar" cancelText="Cancelar"
-                      (ionCancel)="dateModal.dismiss()" (ionStyle)="dateModal.dismiss()">
-                    </ion-datetime>
-                  </ion-content>
-                </ng-template>
-              </ion-modal>
 
             </div>
           </div>
@@ -281,10 +269,12 @@
             <ion-label>Tipo de Participante *</ion-label>
             <div class="custom-input-wrapper">
               <ion-icon name="briefcase-outline" class="input-icon"></ion-icon>
-              <ion-select interface="popover" [value]="'1'" (ionChange)="state.updateUserData({tipoParticipante: 1})"
-                label="Seleccione" label-placement="floating" class="custom-select">
-                <ion-select-option value="1">Ciudadano</ion-select-option>
-                <ion-select-option value="2">Funcionario Público</ion-select-option>
+              <ion-select interface="action-sheet" [value]="state.laborData().tipoParticipanteId"
+                (ionChange)="state.updateUserData({tipoParticipanteId: $event.detail.value})" label="Seleccione"
+                label-placement="floating" class="custom-select">
+                @for (tp of tiposParticipante(); track tp.id) {
+                <ion-select-option [value]="tp.id">{{ tp.nombre }}</ion-select-option>
+                }
               </ion-select>
             </div>
           </div>
@@ -294,28 +284,102 @@
         <!-- STEP 5: TERMS -->
         @if (step() === 5) {
         <div class="step-content">
-          <div class="terms-box">
+          <div class="terms-box"
+            style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 10px;">
             <h4>Términos y Condiciones</h4>
-            <p>{{ termsText }}</p>
+            <p>Por favor revise nuestra política completa antes de continuar.</p>
+            <ion-button expand="block" shape="round" id="open-terms-modal" fill="outline">
+              Leer Términos y Condiciones
+            </ion-button>
           </div>
 
+          <ion-modal #termsModal trigger="open-terms-modal" [initialBreakpoint]="0.75" [breakpoints]="[0, 0.75, 1]">
+            <ng-template>
+              <div class="ion-padding" style="padding: 24px; padding-bottom: 40px;">
+                <h2 style="color: var(--ion-color-primary); margin-top: 5px;">Términos y Condiciones</h2>
+                <div [innerHTML]="termsText" style="line-height: 1.6; color: #475569; margin-bottom: 24px;"></div>
+                <div>
+                  <ion-button expand="block" shape="round" color="primary"
+                    (click)="state.updateUserData({termsAccepted: true}); termsModal.dismiss()">Aceptar y
+                    Cerrar</ion-button>
+                  <ion-button expand="block" shape="round" fill="clear" color="medium"
+                    (click)="termsModal.dismiss()">Cerrar sin Aceptar</ion-button>
+                </div>
+              </div>
+            </ng-template>
+          </ion-modal>
+
           <div class="terms-check">
-            <ion-checkbox slot="start"
+            <ion-checkbox slot="start" [checked]="termsData().termsAccepted"
               (ionChange)="state.updateUserData({termsAccepted: $event.detail.checked})"></ion-checkbox>
-            <ion-label>He leído y acepto los <strong>Términos y Condiciones</strong></ion-label>
+            <ion-label id="terms-trigger">He leído y acepto los <strong>Términos y Condiciones</strong></ion-label>
           </div>
 
           <!-- Mock Captcha -->
           <div class="captcha-container">
-            <div class="captcha-box">
-              <ion-checkbox></ion-checkbox>
-              <span>No soy un robot</span>
+            <div class="captcha-box" (click)="openCaptcha()" style="cursor: pointer; transition: all 0.3s ease;"
+              [ngStyle]="{'border': termsData().captchaVerified ? '1px solid #10b981' : '1px solid #dcdcdc', 'background': termsData().captchaVerified ? '#f0fdf4' : '#f9f9f9'}">
+
+              <div class="spin-container" *ngIf="isVerifyingCaptcha()" style="margin-right: 12px; display: flex;">
+                <ion-spinner name="crescent" color="primary" style="width: 20px; height: 20px;"></ion-spinner>
+              </div>
+
+              <ion-checkbox *ngIf="!isVerifyingCaptcha()" [checked]="termsData().captchaVerified"
+                style="pointer-events: none; --size: 24px; --border-radius: 4px;"></ion-checkbox>
+
+              <span *ngIf="!isVerifyingCaptcha()" style="margin-left:12px;">{{ termsData().captchaVerified ?
+                'Verificado' : 'No soy un robot' }}</span>
+              <span *ngIf="isVerifyingCaptcha()">Comprobando...</span>
+
               <div class="captcha-logo">
                 <img src="https://www.gstatic.com/recaptcha/api2/logo_48.png" alt="reCAPTCHA">
                 <small>reCAPTCHA</small>
               </div>
             </div>
           </div>
+
+          <!--
+          ===========================================
+          --- GOOGLE RECAPTCHA VERIFICATION (PROD) ---
+          ===========================================
+          Requiere: npm install ng-recaptcha
+          Recuerda importar RecaptchaModule en los imports del Componente
+          
+          <div class="captcha-container">
+            <re-captcha
+              siteKey="TU_CLAVE_DE_SITIO_PUBLICA_AQUI"
+              (resolved)="onCaptchaResolved($event)"
+            ></re-captcha>
+          </div>
+          ===========================================
+          -->
+
+          <!-- Modal Captcha Challenge Mock -->
+          <ion-modal [isOpen]="showCaptchaChallenge()" (didDismiss)="showCaptchaChallenge.set(false)"
+            cssClass="captcha-modal">
+            <ng-template>
+              <div class="captcha-challenge-wrapper">
+                <div class="captcha-header">
+                  <p>Selecciona todas las imágenes con</p>
+                  <h2>semáforos</h2>
+                  <p style="margin-top: 5px; font-size: 13px;">Si no hay ninguna, haz clic en omitir.</p>
+                </div>
+                <div class="captcha-grid">
+                  @for(img of captchaMockImages(); track $index) {
+                  <div class="captcha-item" [class.selected]="img.selected" (click)="toggleCaptchaImage($index)">
+                    <img [src]="img.url" alt="captcha part" />
+                    <div class="check" *ngIf="img.selected"><ion-icon name="checkmark-circle"></ion-icon></div>
+                  </div>
+                  }
+                </div>
+                <div class="captcha-footer">
+                  <ion-button fill="clear" color="medium" (click)="showCaptchaChallenge.set(false)"><ion-icon
+                      name="refresh-outline" slot="icon-only"></ion-icon></ion-button>
+                  <ion-button color="primary" (click)="verifyMockCaptcha()">Verificar</ion-button>
+                </div>
+              </div>
+            </ng-template>
+          </ion-modal>
         </div>
         }
 

@@ -19,7 +19,7 @@ export class UserMapper {
             etniaId: prismaUser.etniaId,
             nacionalidad: prismaUser.nacionalidad,
             fechaNacimiento: prismaUser.fechaNacimiento,
-            tipoParticipante: prismaUser.tipoParticipante,
+            tipoParticipanteId: prismaUser.tipoParticipanteId,
             rolId: prismaUser.rolId,
             entidadId: prismaUser.entidadId,
             provinciaId: prismaUser.provinciaId,
@@ -44,6 +44,10 @@ export class UserMapper {
             canton: prismaUser.canton ? {
                 id: prismaUser.canton.id,
                 nombre: prismaUser.canton.nombre
+            } : null,
+            tipoParticipante: prismaUser.tipoParticipante ? {
+                id: prismaUser.tipoParticipante.id,
+                nombre: prismaUser.tipoParticipante.nombre
             } : null,
             _count: prismaUser._count ? {
                 inscripciones: prismaUser._count.inscripciones,

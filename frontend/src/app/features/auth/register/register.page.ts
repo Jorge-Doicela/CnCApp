@@ -14,7 +14,7 @@ import {
   callOutline, eyeOutline, eyeOffOutline, checkmarkCircleOutline,
   closeCircleOutline, arrowBack, personOutline, mapOutline, locationOutline,
   maleFemaleOutline, peopleCircleOutline, calendarOutline, briefcaseOutline,
-  flagOutline, arrowForwardOutline, arrowBackOutline, shieldCheckmarkOutline
+  flagOutline, arrowForwardOutline, arrowBackOutline, shieldCheckmarkOutline, refreshOutline
 } from 'ionicons/icons';
 import { AuthService } from '../services/auth.service';
 import { RegisterStateService } from './register.state';
@@ -24,6 +24,7 @@ import { Provincia } from 'src/app/shared/models/provincia.model';
 import { Canton } from 'src/app/shared/models/canton.model';
 import { Genero } from 'src/app/shared/models/genero.model';
 import { Etnia } from 'src/app/shared/models/etnia.model';
+import { TipoParticipante } from 'src/app/shared/models/tipo-participante.model';
 import { firstValueFrom } from 'rxjs';
 
 @Component({
@@ -59,15 +60,38 @@ export class RegisterPage {
   filteredCantones = signal<Canton[]>([]);
   generos = signal<Genero[]>([]);
   etnias = signal<Etnia[]>([]);
+  tiposParticipante = signal<TipoParticipante[]>([]);
 
   // Local UI state
   isLoading = signal<boolean>(false);
   showPassword = signal<boolean>(false);
   showPasswordConfirm = signal<boolean>(false);
 
-  termsText = `CONVENIO DE RESPONSABILIDAD... (Texto completo del usuario)...`;
+  termsText = `
+    <p><strong>CONVENIO DE RESPONSABILIDAD DE USO DE PLATAFORMA DEL CNC</strong></p>
+    <p>Al utilizar este sistema, usted se compromete a proporcionar información veraz y verificable.</p>
+    <p>El Consejo Nacional de Competencias (CNC) garantiza la protección de sus datos personales y su uso exclusivo para los fines de capacitación y fortalecimiento institucional descritos, en estricto apego a la Ley Orgánica de Protección de Datos Personales del Ecuador.</p>
+    <p>1. Todo registro que contenga información adulterada será eliminado y reportado a las autoridades pertinentes.</p>
+    <p>2. Las capacitaciones y certificaciones otorgadas de manera gratuita son intransferibles.</p>
+    <p>Firma Electrónica: El usuario reconoce que las interacciones dentro del portal tienen valor probatorio para trámites internos y oficiales del CNC.</p>
+  `;
 
   passwordStrength = signal<{ score: number; label: string; color: string }>({ score: 0, label: '', color: 'medium' });
+
+  // Captcha Exercise State
+  showCaptchaChallenge = signal<boolean>(false);
+  isVerifyingCaptcha = signal<boolean>(false);
+  captchaMockImages = signal<{ url: string, selected: boolean }[]>([
+    { url: 'https://images.unsplash.com/photo-1534067783941-51c9c23ecefd?auto=format&fit=crop&w=150&h=150', selected: false },
+    { url: 'https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?auto=format&fit=crop&w=150&h=150', selected: false },
+    { url: 'https://images.unsplash.com/photo-1549488344-1f9b8d2bd1f3?auto=format&fit=crop&w=150&h=150', selected: false },
+    { url: 'https://images.unsplash.com/photo-1566373892301-26757b019b5b?auto=format&fit=crop&w=150&h=150', selected: false },
+    { url: 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=150&h=150', selected: false },
+    { url: 'https://images.unsplash.com/photo-1494522855154-9297ac14b55f?auto=format&fit=crop&w=150&h=150', selected: false },
+    { url: 'https://images.unsplash.com/photo-1519750783826-e2420f4d687f?auto=format&fit=crop&w=150&h=150', selected: false },
+    { url: 'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=150&h=150', selected: false },
+    { url: 'https://images.unsplash.com/photo-1522069169874-c58ec4b76be5?auto=format&fit=crop&w=150&h=150', selected: false }
+  ]);
 
   constructor(
     private router: Router,
@@ -80,7 +104,7 @@ export class RegisterPage {
       callOutline, eyeOutline, eyeOffOutline, checkmarkCircleOutline,
       closeCircleOutline, arrowBack, personOutline, mapOutline, locationOutline,
       maleFemaleOutline, peopleCircleOutline, calendarOutline, briefcaseOutline,
-      flagOutline, arrowForwardOutline, arrowBackOutline, shieldCheckmarkOutline
+      flagOutline, arrowForwardOutline, arrowBackOutline, shieldCheckmarkOutline, refreshOutline
     });
   }
 
@@ -90,11 +114,12 @@ export class RegisterPage {
 
   async loadCatalogos() {
     try {
-      const [provinciasResp, cantonesResp, generosResp, etniasResp] = await Promise.all([
+      const [provinciasResp, cantonesResp, generosResp, etniasResp, tiposParticipanteResp] = await Promise.all([
         firstValueFrom(this.catalogoService.getItems('provincias')),
         firstValueFrom(this.catalogoService.getItems('cantones')),
         firstValueFrom(this.catalogoService.getItems('generos')),
-        firstValueFrom(this.catalogoService.getItems('etnias'))
+        firstValueFrom(this.catalogoService.getItems('etnias')),
+        firstValueFrom(this.catalogoService.getItems('tipos-participante'))
       ]);
 
       // Only active ones, sorted (Backend returns id, nombre, estado, etc.)
@@ -110,6 +135,14 @@ export class RegisterPage {
       this.cantones.set(activeCantones);
       this.generos.set(generosResp || []);
       this.etnias.set(etniasResp || []);
+      this.tiposParticipante.set(tiposParticipanteResp || []);
+
+      // If reloading from session and we already had a provinciaId, restore the filtered cantones list immediately.
+      const currentProv = this.userData().provinciaId;
+      if (currentProv) {
+        this.filteredCantones.set(activeCantones.filter((c: any) => c.provinciaId === currentProv));
+      }
+
     } catch (e) {
       console.error('Error loading catalogues', e);
       this.presentToast('Error al cargar datos del formulario', 'danger');
@@ -255,7 +288,7 @@ export class RegisterPage {
 
   validateStep4(): boolean {
     const data = this.laborData();
-    if (data.tipoParticipante === undefined) {
+    if (data.tipoParticipanteId === undefined) {
       this.presentToast('Seleccione un tipo de participante', 'warning');
       return false;
     }
@@ -267,6 +300,10 @@ export class RegisterPage {
   async registerUser() {
     if (!this.termsData().termsAccepted) {
       this.presentToast('Debe aceptar los términos y condiciones', 'warning');
+      return;
+    }
+    if (!this.termsData().captchaVerified) {
+      this.presentToast('Por favor, verifique que no es un robot', 'warning');
       return;
     }
 
@@ -287,6 +324,10 @@ export class RegisterPage {
         this.isLoading.set(false);
         if (res.success) {
           this.presentToast('¡Registro exitoso!', 'success');
+          this.state.reset();
+          // Reset captcha too
+          this.isVerifyingCaptcha.set(false);
+          this.showCaptchaChallenge.set(false);
           setTimeout(() => this.router.navigate(['/login']), 1500);
         } else {
           this.presentToast(res.message || 'Error', 'danger');
@@ -314,28 +355,68 @@ export class RegisterPage {
   calculatePasswordStrength(password: string) {
     let score = 0;
     let label = '';
-    let color = 'danger';
+    let color = 'medium';
 
-    if (!password) {
-      this.passwordStrength.set({ score: 0, label: '', color: 'medium' });
-      return;
+    if (password.length > 0) score += 1;
+    if (password.length > 5) score += 1;
+    if (password.length > 8) score += 1;
+    if (/[A-Z]/.test(password)) score += 1;
+    if (/[0-9]/.test(password)) score += 1;
+    if (/[^a-zA-Z0-9]/.test(password)) score += 1;
+
+    score = Math.min(5, score);
+
+    switch (score) {
+      case 0: label = ''; color = 'medium'; break;
+      case 1:
+      case 2: label = 'Débil'; color = 'danger'; break;
+      case 3: label = 'Media'; color = 'warning'; break;
+      case 4: label = 'Fuerte'; color = 'success'; break;
+      case 5: label = 'Muy Fuerte'; color = 'success'; break;
     }
-
-    if (password.length >= 8) score++;
-    if (password.length >= 12) score++;
-    if (/[a-z]/.test(password)) score++;
-    if (/[A-Z]/.test(password)) score++;
-    if (/[0-9]/.test(password)) score++;
-    if (/[^a-zA-Z0-9]/.test(password)) score++;
-
-    if (score <= 2) { label = 'Muy débil'; color = 'danger'; }
-    else if (score === 3) { label = 'Débil'; color = 'warning'; }
-    else if (score === 4) { label = 'Media'; color = 'medium'; }
-    else if (score === 5) { label = 'Fuerte'; color = 'success'; }
-    else { label = 'Muy fuerte'; color = 'primary'; }
 
     this.passwordStrength.set({ score, label, color });
   }
+
+  // Captcha Exercise Challenge Methods
+  openCaptcha() {
+    if (!this.termsData().captchaVerified && !this.isVerifyingCaptcha()) {
+      this.captchaMockImages.update(imgs => imgs.map(img => ({ ...img, selected: false })));
+      this.showCaptchaChallenge.set(true);
+    }
+  }
+
+  toggleCaptchaImage(index: number) {
+    this.captchaMockImages.update(imgs => {
+      const copy = [...imgs];
+      copy[index].selected = !copy[index].selected;
+      return copy;
+    });
+  }
+
+  verifyMockCaptcha() {
+    this.showCaptchaChallenge.set(false);
+    this.isVerifyingCaptcha.set(true);
+    setTimeout(() => {
+      this.isVerifyingCaptcha.set(false);
+      this.state.updateUserData({ captchaVerified: true });
+    }, 1200);
+  }
+
+  /*
+  // ============================================
+  // --- GOOGLE RECAPTCHA VERIFICATION (PROD) ---
+  // ============================================
+  onCaptchaResolved(token: string | null) {
+    if (token) {
+      this.state.updateUserData({ captchaVerified: true, captchaToken: token });
+    } else {
+      // Captcha expired
+      this.state.updateUserData({ captchaVerified: false, captchaToken: undefined });
+    }
+  }
+  // ============================================
+  */
 
   async presentToast(msg: string, color: string = 'primary') {
     const toast = await this.toastController.create({

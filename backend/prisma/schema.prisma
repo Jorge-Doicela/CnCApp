@@ -38,7 +38,7 @@ model Usuario {
   password         String                @db.VarChar(255)
   rolId            Int?                  @map("Rol_Usuario")
   entidadId        Int?                  @map("Entidad_Usuario")
-  tipoParticipante Int                   @default(0) @map("tipo_participante")
+  tipoParticipanteId Int?                @map("Id_Tipo_Participante")
   fotoPerfilUrl    String?               @map("foto_perfil_url")
   firmaUrl         String?               @map("firma_url")
   createdAt        DateTime              @default(now()) @map("created_at")
@@ -64,6 +64,7 @@ model Usuario {
   rol              Rol?                  @relation(fields: [rolId], references: [id])
   genero           Genero?               @relation(fields: [generoId], references: [id])
   etnia            Etnia?                @relation(fields: [etniaId], references: [id])
+  tipoParticipante TipoParticipante?     @relation(fields: [tipoParticipanteId], references: [id])
   inscripciones    UsuarioCapacitacion[]
 
   @@index([authUid])
@@ -75,6 +76,7 @@ model Usuario {
   @@index([cantonId])
   @@index([generoId])
   @@index([etniaId])
+  @@index([tipoParticipanteId])
   @@map("Usuario")
 }
 
@@ -262,4 +264,12 @@ model Etnia {
   usuarios  Usuario[]
 
   @@map("Etnias")
+}
+
+model TipoParticipante {
+  id        Int       @id @default(autoincrement()) @map("Id_TipoParticipante")
+  nombre    String    @unique @map("Nombre_TipoParticipante") @db.VarChar(100)
+  usuarios  Usuario[]
+
+  @@map("TiposParticipante")
 }
