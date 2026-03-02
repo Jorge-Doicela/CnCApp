@@ -56,8 +56,8 @@ Supabase Local no es simplemente un equivalente ligero a ejecutar un MySQL o Pos
 ```mermaid
 graph TD
     subgraph Servidor de Producción Entregado
-        subgraph VM [Máquina Virtual Constreñida (SO Ligero)]
-            subgraph Docker Compose [Red Sobredimensionada]
+        subgraph VM ["Máquina Virtual Constreñida (SO Ligero)"]
+            subgraph Docker Compose ["Red Sobredimensionada"]
                 D1[PostgreSQL Auth Server]
                 D2[Postgres DB Main]
                 D3[GoTrue - API Identity & Auth]
