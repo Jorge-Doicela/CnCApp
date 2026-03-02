@@ -16,8 +16,8 @@ interface RegisterDto {
     password: string;
     telefono?: string;
     celular?: string;
-    genero?: string;
-    etnia?: string;
+    generoId?: number;
+    etniaId?: number;
     nacionalidad?: string; // ISO string
     fechaNacimiento?: string;
     provinciaId?: number;
@@ -82,8 +82,8 @@ export class RegisterUserUseCase {
             telefono: data.telefono,
             celular: data.celular,
             password: hashedPassword,
-            genero: data.genero,
-            etnia: data.etnia,
+            generoId: data.generoId,
+            etniaId: data.etniaId,
             nacionalidad: data.nacionalidad,
             fechaNacimiento: data.fechaNacimiento ? new Date(data.fechaNacimiento) : undefined,
             provinciaId: data.provinciaId,
@@ -104,7 +104,8 @@ export class RegisterUserUseCase {
         const tokens = this.tokenProvider.generateTokens({
             userId: savedUser.id,
             ci: savedUser.ci,
-            roleId: savedUser.rolId ?? 3
+            roleId: savedUser.rolId ?? 3,
+            roleName: usuarioRole ? usuarioRole.nombre : 'Usuario'
         });
 
         return {

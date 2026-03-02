@@ -19,8 +19,8 @@ export interface User {
     primerApellido?: string | null;
     segundoApellido?: string | null;
     celular?: string | null;
-    genero?: string | null;
-    etnia?: string | null;
+    generoId?: number | null;
+    etniaId?: number | null;
     nacionalidad?: string | null;
     fechaNacimiento?: Date | null;
     provinciaId?: number | null;

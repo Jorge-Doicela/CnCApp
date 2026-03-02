@@ -18,8 +18,8 @@ export interface RegisterStateModel {
     segundoNombre: string;
     primerApellido: string;
     segundoApellido: string;
-    genero: string;
-    etnia: string;
+    generoId?: number;
+    etniaId?: number;
     nacionalidad: string;
     fechaNacimiento: string;
     celular: string;
@@ -45,8 +45,8 @@ const initialState: RegisterStateModel = {
     segundoNombre: '',
     primerApellido: '',
     segundoApellido: '',
-    genero: '',
-    etnia: '',
+    generoId: undefined,
+    etniaId: undefined,
     nacionalidad: 'Ecuatoriana',
     fechaNacimiento: '',
     celular: '',
@@ -85,8 +85,8 @@ export class RegisterStateService {
         segundoNombre: this.state().segundoNombre,
         primerApellido: this.state().primerApellido,
         segundoApellido: this.state().segundoApellido,
-        genero: this.state().genero,
-        etnia: this.state().etnia,
+        generoId: this.state().generoId,
+        etniaId: this.state().etniaId,
         nacionalidad: this.state().nacionalidad,
         fechaNacimiento: this.state().fechaNacimiento,
         celular: this.state().celular,

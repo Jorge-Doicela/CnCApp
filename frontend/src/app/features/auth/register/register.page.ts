@@ -5,7 +5,8 @@ import { Router } from '@angular/router';
 import {
   IonContent, IonIcon, IonLabel, // IonItem from top import removed
   IonInput, IonButton, LoadingController, ToastController, IonSpinner,
-  IonSelect, IonSelectOption, IonCheckbox
+  IonSelect, IonSelectOption, IonCheckbox,
+  IonDatetime, IonDatetimeButton, IonModal, IonPopover
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -13,7 +14,7 @@ import {
   callOutline, eyeOutline, eyeOffOutline, checkmarkCircleOutline,
   closeCircleOutline, arrowBack, personOutline, mapOutline, locationOutline,
   maleFemaleOutline, peopleCircleOutline, calendarOutline, briefcaseOutline,
-  flagOutline, arrowForwardOutline, arrowBackOutline
+  flagOutline, arrowForwardOutline, arrowBackOutline, shieldCheckmarkOutline
 } from 'ionicons/icons';
 import { AuthService } from '../services/auth.service';
 import { RegisterStateService } from './register.state';
@@ -21,6 +22,8 @@ import { RouterModule } from '@angular/router';
 import { CatalogoService } from 'src/app/shared/services/catalogo.service';
 import { Provincia } from 'src/app/shared/models/provincia.model';
 import { Canton } from 'src/app/shared/models/canton.model';
+import { Genero } from 'src/app/shared/models/genero.model';
+import { Etnia } from 'src/app/shared/models/etnia.model';
 import { firstValueFrom } from 'rxjs';
 
 @Component({
@@ -34,7 +37,8 @@ import { firstValueFrom } from 'rxjs';
     RouterModule,
     IonContent, IonIcon, IonLabel, // IonItem removed from decorator, others restored
     IonInput, IonButton, IonSpinner,
-    IonSelect, IonSelectOption, IonCheckbox
+    IonSelect, IonSelectOption, IonCheckbox,
+    IonDatetime, IonDatetimeButton, IonModal, IonPopover
   ]
 })
 export class RegisterPage {
@@ -53,6 +57,8 @@ export class RegisterPage {
   provincias = signal<Provincia[]>([]);
   cantones = signal<Canton[]>([]);
   filteredCantones = signal<Canton[]>([]);
+  generos = signal<Genero[]>([]);
+  etnias = signal<Etnia[]>([]);
 
   // Local UI state
   isLoading = signal<boolean>(false);
@@ -74,7 +80,7 @@ export class RegisterPage {
       callOutline, eyeOutline, eyeOffOutline, checkmarkCircleOutline,
       closeCircleOutline, arrowBack, personOutline, mapOutline, locationOutline,
       maleFemaleOutline, peopleCircleOutline, calendarOutline, briefcaseOutline,
-      flagOutline, arrowForwardOutline, arrowBackOutline
+      flagOutline, arrowForwardOutline, arrowBackOutline, shieldCheckmarkOutline
     });
   }
 
@@ -84,9 +90,11 @@ export class RegisterPage {
 
   async loadCatalogos() {
     try {
-      const [provinciasResp, cantonesResp] = await Promise.all([
+      const [provinciasResp, cantonesResp, generosResp, etniasResp] = await Promise.all([
         firstValueFrom(this.catalogoService.getItems('provincias')),
-        firstValueFrom(this.catalogoService.getItems('cantones'))
+        firstValueFrom(this.catalogoService.getItems('cantones')),
+        firstValueFrom(this.catalogoService.getItems('generos')),
+        firstValueFrom(this.catalogoService.getItems('etnias'))
       ]);
 
       // Only active ones, sorted (Backend returns id, nombre, estado, etc.)
@@ -100,6 +108,8 @@ export class RegisterPage {
 
       this.provincias.set(activeProvincias);
       this.cantones.set(activeCantones);
+      this.generos.set(generosResp || []);
+      this.etnias.set(etniasResp || []);
     } catch (e) {
       console.error('Error loading catalogues', e);
       this.presentToast('Error al cargar datos del formulario', 'danger');
