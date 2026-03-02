@@ -26,11 +26,12 @@ export interface RegisterStateModel {
     telefono: string;
 
     // Step 4: Labor Info
-    tipoParticipante?: number;
+    tipoParticipanteId?: number;
 
     // Step 5: Terms
     termsAccepted: boolean;
     captchaVerified: boolean;
+    // captchaToken?: string; // --- GOOGLE RECAPTCHA (Descomentar en Producción) ---
 }
 
 const initialState: RegisterStateModel = {
@@ -51,9 +52,10 @@ const initialState: RegisterStateModel = {
     fechaNacimiento: '',
     celular: '',
     telefono: '',
-    tipoParticipante: undefined,
+    tipoParticipanteId: undefined,
     termsAccepted: false,
-    captchaVerified: false // In dev we might mock this
+    captchaVerified: false, // In dev we might mock this
+    // captchaToken: undefined // --- GOOGLE RECAPTCHA (Descomentar en Producción) ---
 };
 
 @Injectable({
@@ -61,6 +63,24 @@ const initialState: RegisterStateModel = {
 })
 export class RegisterStateService {
     private state = signal<RegisterStateModel>(initialState);
+
+    constructor() {
+        const saved = sessionStorage.getItem('cnc_register_state');
+        if (saved) {
+            try {
+                const parsed = JSON.parse(saved);
+                this.state.set({ ...initialState, ...parsed });
+            } catch (e) {
+                console.error('Error parsing saved register state', e);
+            }
+        }
+    }
+
+    private saveState(newState: RegisterStateModel) {
+        // Guardamos todo excepto contraseñas por seguridad
+        const { password, passwordConfirm, ...safeState } = newState;
+        sessionStorage.setItem('cnc_register_state', JSON.stringify(safeState));
+    }
 
     // Selectors
     step = computed(() => this.state().step);
@@ -94,32 +114,50 @@ export class RegisterStateService {
     }));
 
     laborData = computed(() => ({
-        tipoParticipante: this.state().tipoParticipante
+        tipoParticipanteId: this.state().tipoParticipanteId
     }));
 
     termsData = computed(() => ({
         termsAccepted: this.state().termsAccepted,
-        captchaVerified: this.state().captchaVerified
+        captchaVerified: this.state().captchaVerified,
+        // captchaToken: this.state().captchaToken // --- GOOGLE RECAPTCHA (Descomentar en Producción) ---
     }));
 
     // Actions
     setStep(step: number) {
-        this.state.update(s => ({ ...s, step }));
+        this.state.update(s => {
+            const newState = { ...s, step };
+            this.saveState(newState);
+            return newState;
+        });
     }
 
     nextStep() {
-        this.state.update(s => ({ ...s, step: s.step + 1 }));
+        this.state.update(s => {
+            const newState = { ...s, step: s.step + 1 };
+            this.saveState(newState);
+            return newState;
+        });
     }
 
     prevStep() {
-        this.state.update(s => ({ ...s, step: Math.max(1, s.step - 1) }));
+        this.state.update(s => {
+            const newState = { ...s, step: Math.max(1, s.step - 1) };
+            this.saveState(newState);
+            return newState;
+        });
     }
 
     updateUserData(data: Partial<RegisterStateModel>) {
-        this.state.update(s => ({ ...s, ...data }));
+        this.state.update(s => {
+            const newState = { ...s, ...data };
+            this.saveState(newState);
+            return newState;
+        });
     }
 
     reset() {
+        sessionStorage.removeItem('cnc_register_state');
         this.state.set(initialState);
     }
 }

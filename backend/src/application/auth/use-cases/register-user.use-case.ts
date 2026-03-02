@@ -22,7 +22,8 @@ interface RegisterDto {
     fechaNacimiento?: string;
     provinciaId?: number;
     cantonId?: number;
-    tipoParticipante?: number;
+    tipoParticipanteId?: number;
+    // captchaToken?: string; // --- GOOGLE RECAPTCHA (Descomentar en Producción) ---
 }
 
 interface RegisterResult {
@@ -53,6 +54,30 @@ export class RegisterUserUseCase {
         if (existingUserByEmail) {
             throw new ValidationError('Ya existe un usuario con este Email');
         }
+
+        /* 
+        // ============================================
+        // --- GOOGLE RECAPTCHA VERIFICATION (PROD) ---
+        // ============================================
+        // Requiere: npm install axios
+        // Constante secreta desde process.env.RECAPTCHA_SECRET_KEY
+        if (!data.captchaToken) {
+            throw new ValidationError('Captcha requerido');
+        }
+        
+        const axios = require('axios');
+        const googleVerifyUrl = \`https://www.google.com/recaptcha/api/siteverify?secret=\${process.env.RECAPTCHA_SECRET_KEY}&response=\${data.captchaToken}\`;
+        
+        try {
+            const googleResponse = await axios.post(googleVerifyUrl);
+            if (!googleResponse.data.success) {
+                throw new ValidationError('Fallo de verificación de seguridad (reCAPTCHA bot detectado).');
+            }
+        } catch (error) {
+            throw new ValidationError('Error al comunicarse con servidores de reCAPTCHA.');
+        }
+        // ============================================
+        */
 
         // 3. Hash password
         const hashedPassword = await this.passwordEncoder.hash(data.password);
@@ -90,7 +115,7 @@ export class RegisterUserUseCase {
             cantonId: data.cantonId,
             rolId: defaultRolId,
             entidadId: defaultEntidadId,
-            tipoParticipante: data.tipoParticipante || 0,
+            tipoParticipanteId: data.tipoParticipanteId || null,
             createdAt: now,
             updatedAt: now,
             authUid: null,

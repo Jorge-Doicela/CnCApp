@@ -20,7 +20,7 @@ async function main() {
             'Instituciones_usuario', 'FuncionarioGAD', 'Autoridades', 'Usuario',
             'parroquia', 'Cantones', 'Provincias', 'Entidades', 'Rol',
             'mancomunidades', 'instituciones_sistema', 'cargos', 'competencias',
-            'Generos', 'Etnias'
+            'Generos', 'Etnias', 'TiposParticipante'
         ];
 
         for (const table of tables) {
@@ -85,6 +85,13 @@ async function main() {
                 { nombre: 'Indígena' },
                 { nombre: 'Blanco' },
                 { nombre: 'Otro' }
+            ]
+        });
+
+        await prisma.tipoParticipante.createMany({
+            data: [
+                { nombre: 'Ciudadano' },
+                { nombre: 'Funcionario Público' }
             ]
         });
         const entidades = await prisma.entidad.createMany({
@@ -208,7 +215,7 @@ async function main() {
                     password: hashedPassword,
                     rolId: u.roleId,
                     authUid: u.authUid,
-                    tipoParticipante: u.roleId === adminRole.id ? 1 : 2,
+                    tipoParticipanteId: u.roleId === adminRole.id ? 1 : 2,
                 }
             });
             createdUsers.push(user);

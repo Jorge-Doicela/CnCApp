@@ -14,8 +14,9 @@ export interface RegisterUserDto {
     fechaNacimiento?: string; // ISO string
     provinciaId?: number;
     cantonId?: number;
-    tipoParticipante?: number;
+    tipoParticipanteId?: number;
     rolId?: number;
+    // captchaToken?: string; // --- GOOGLE RECAPTCHA (Descomentar en Producción) ---
 }
 
 export interface LoginUserDto {

@@ -6,7 +6,7 @@ export interface User {
     email?: string | null;
     telefono?: string | null;
     password?: string;
-    tipoParticipante: number;
+    tipoParticipanteId?: number | null;
     rolId?: number | null;
     entidadId?: number | null;
     fotoPerfilUrl?: string | null;
@@ -39,6 +39,10 @@ export interface User {
         modulos?: any;
     } | null;
     entidad?: {
+        id: number;
+        nombre: string;
+    } | null;
+    tipoParticipante?: {
         id: number;
         nombre: string;
     } | null;

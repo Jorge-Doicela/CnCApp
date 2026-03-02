@@ -23,9 +23,11 @@ const registerSchema = z.object({
     telefono: z.string().optional(),
     celular: z.string().optional(),
     password: z.string().min(8, 'La contraseña debe tener al menos 8 caracteres'),
-    tipoParticipante: z.number().int().min(0).max(3).optional(),
+    tipoParticipanteId: z.number().int().optional(),
     provinciaId: z.number().optional(),
-    cantonId: z.number().optional()
+    cantonId: z.number().optional(),
+    generoId: z.number().optional(),
+    etniaId: z.number().optional()
 });
 
 const loginSchema = z.object({
@@ -55,9 +57,11 @@ export class AuthController {
                 password: data.password as string,
                 telefono: data.telefono,
                 celular: data.celular,
-                tipoParticipante: data.tipoParticipante,
+                tipoParticipanteId: data.tipoParticipanteId,
                 provinciaId: data.provinciaId,
-                cantonId: data.cantonId
+                cantonId: data.cantonId,
+                generoId: data.generoId,
+                etniaId: data.etniaId
             });
 
             res.status(201).json({

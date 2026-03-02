@@ -25,7 +25,7 @@ export class PrismaUserRepository implements UserRepository {
                 fechaNacimiento: user.fechaNacimiento,
                 provinciaId: user.provinciaId,
                 cantonId: user.cantonId,
-                tipoParticipante: user.tipoParticipante || 0,
+                tipoParticipanteId: user.tipoParticipanteId || null,
                 rolId: user.rolId || 2, // Default role
                 entidadId: user.entidadId,
                 fotoPerfilUrl: user.fotoPerfilUrl,
@@ -35,7 +35,8 @@ export class PrismaUserRepository implements UserRepository {
                 rol: true,
                 entidad: true,
                 provincia: true,
-                canton: true
+                canton: true,
+                tipoParticipante: true
             }
         });
         return UserMapper.toDomain(createdUser);
@@ -62,6 +63,7 @@ export class PrismaUserRepository implements UserRepository {
                 entidad: true,
                 provincia: true,
                 canton: true,
+                tipoParticipante: true,
                 _count: {
                     select: {
                         inscripciones: true,
@@ -91,7 +93,7 @@ export class PrismaUserRepository implements UserRepository {
                 fechaNacimiento: userData.fechaNacimiento,
                 provinciaId: userData.provinciaId,
                 cantonId: userData.cantonId,
-                tipoParticipante: userData.tipoParticipante,
+                tipoParticipanteId: userData.tipoParticipanteId,
                 rolId: userData.rolId,
                 entidadId: userData.entidadId,
                 fotoPerfilUrl: userData.fotoPerfilUrl,
@@ -102,7 +104,8 @@ export class PrismaUserRepository implements UserRepository {
                 rol: true,
                 entidad: true,
                 provincia: true,
-                canton: true
+                canton: true,
+                tipoParticipante: true
             }
         });
         return UserMapper.toDomain(user);
@@ -134,7 +137,8 @@ export class PrismaUserRepository implements UserRepository {
                 rol: true,
                 entidad: true,
                 provincia: true,
-                canton: true
+                canton: true,
+                tipoParticipante: true
             }
         });
         return user ? UserMapper.toDomain(user) : null;
@@ -147,7 +151,8 @@ export class PrismaUserRepository implements UserRepository {
                 rol: true,
                 entidad: true,
                 provincia: true,
-                canton: true
+                canton: true,
+                tipoParticipante: true
             }
         });
         return user ? UserMapper.toDomain(user) : null;
