@@ -62,7 +62,7 @@ graph LR
 
 ## 3. Justificación del Tiempo Invertido (23 Ene - 27 Feb)
 
-El trabajo realizado no ha sido una simple actualización estética, sino una **reconstrucción de cimientos**. El lapso de ~5 semanas (aproximadamente 35 días naturales) es el estándar técnico esperado para resolver un nivel crítico de Deuda Técnica.
+El trabajo realizado no ha sido una simple actualización estética, sino una **reconstrucción de cimientos**. El lapso de ~5 semanas (aproximadamente 35 días naturales) es un tiempo razonable para resolver un nivel crítico de Deuda Técnica.
 
 **Desglose del esfuerzo técnico:**
 
@@ -81,7 +81,7 @@ El trabajo realizado no ha sido una simple actualización estética, sino una **
 El rediseño arquitectónico no solo soluciona la deuda técnica heredada, sino que provee beneficios empresariales y operativos gigantescos que aseguran la viabilidad del proyecto a largo plazo:
 
 1. **Ahorro de Costos en Servidores (Eficiencia)** 
-   El sistema anterior, al depender de Docker y Supabase Local, sobrecalentaba la CPU y devoraba el disco duro. Al crear un Backend "a la medida" con **Node.js y Prisma**, ahora la aplicación es sumamente ligera. Puede correr fluidamente en los servidores más económicos del mercado, sin riesgo de caídas por falta de memoria RAM.
+   El sistema anterior, al depender de una mala configuración de Supabase Local, podía sobrecalentar la CPU y devorar el disco duro. Al crear un Backend "a la medida" con **Node.js y Prisma**, ahora la aplicación es sumamente ligera. Puede correr fluidamente en los servidores más económicos del mercado, sin riesgo de caídas por falta de memoria RAM.
 2. **Ciclos de Desarrollo Dramáticamente más Cortos**
    Antes, para agregar un solo botón de "Exportar" o un nuevo campo a un formulario Administrativo (`Admin`), se tenía que rastrear, copiar y pegar código casi doce veces por los módulos repetidos. Con la actual arquitectura basada en **Componentes Reutilizables**, añadir futuras funcionalidades o módulos requerirá **una fracción del tiempo**. 
 3. **Escudo de Seguridad y Validación Pruebas Anti-Errores**
@@ -112,9 +112,9 @@ Es fundamental subrayar que esta reconstrucción **fue realizada por un solo des
 
 Para dimensionar el valor del trabajo realizado, es imperativo entender los **desastres operativos y de seguridad** que esta refactorización acaba de prevenir para la institución:
 
-* 🚫 **Prevención de Fuga de Datos (Data Breach):** El sistema anterior guardaba roles e IDs de usuarios en texto plano en el navegador de los clientes (`localStorage`). Cualquier atacante básico podía manipular su rol a "Administrador" y descargar las bases de datos de la institución o borrar registros. Este riesgo crítico **ha sido neutralizado.**
-* 🚫 **Prevención de Caída de Servidores (Downtime):** La Máquina Virtual entregada estaba al borde del colapso por la exigencia irracional de RAM de la suite de Supabase Local y sus contenedores. De haber pasado a producción en ese estado, el sistema se habría caído semanalmente, requiriendo intervención manual y pérdida de productividad de los funcionarios. **El nuevo backend ligero garantiza disponibilidad 24/7 sin ampliar el presupuesto de servidores.**
-* 📈 **Reducción de Costos de Mantenimiento al 80%:** Los futuros desarrolladores ya no perderán días enteros arreglando un solo botón repetido 11 veces. La arquitectura limpia actual reduce drásticamente las futuras horas cobrables por mantenimiento.
+* **Prevención de Fuga de Datos (Data Breach):** El sistema anterior guardaba roles e IDs de usuarios en texto plano en el navegador de los clientes (`localStorage`). Cualquier atacante básico podía manipular su rol a "Administrador" y descargar las bases de datos de la institución o borrar registros. Este riesgo crítico **ha sido neutralizado.**
+* **Prevención de Caída de Servidores (Downtime):** La Máquina Virtual entregada estaba al borde del colapso por la exigencia de RAM de la suite de Supabase Local y sus contenedores. De haber pasado a producción en ese estado, el sistema se habría caído semanalmente, requiriendo intervención manual y pérdida de productividad de los funcionarios. **El nuevo backend ligero garantiza disponibilidad 24/7 sin ampliar el presupuesto de servidores.**
+* **Reducción de Costos de Mantenimiento al 80%:** Los futuros desarrolladores ya no perderán días enteros arreglando un solo botón repetido 11 veces. La arquitectura limpia actual reduce drásticamente las futuras horas de mantenimiento.
 
 **Veredicto Final:**  
 El esfuerzo focalizado de estas 5 semanas part-time no fue un simple parche temporal; **fue una cirugía a corazón abierto**. Se ha blindado tecnológicamente a **CnCApp**, salvando al proyecto de un colapso inminente en producción. En el futuro, tanto el mantenimiento preventivo como la futura expansión de la plataforma se realizarán de forma predecible y fluida, protegiendo así la inversión tecnológica, los datos y el prestigio de la organización mediante software limpio y profesional.
