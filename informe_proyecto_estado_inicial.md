@@ -51,7 +51,7 @@ El backend demostró ser el área con el sobredimensionamiento y desperdicio de 
 
 ### 3.1 El Colapso de "Supabase Local" en entornos limitados
 
-Supabase Local no es simplemente un equivalente ligero a ejecutar un MySQL o Postgres. Es un **Hub Enterprise Completo** de más de 10 microservicios orquestados en contenedores de Docker, diseñados ya sea para el trabajo intenso de desarrollo local multiplataforma, o el despliegue distribuido de alto rendimiento en AWS o GCP; **su uso no está justificado en absoluto para el despliegue directo en una VM pequeña**.
+Supabase Local no es simplemente un equivalente ligero a ejecutar un MySQL o Postgres. Es un **Hub Enterprise Completo** de más de 10 microservicios orquestados en contenedores de Docker, diseñados ya sea para el trabajo intenso de desarrollo local multiplataforma, o el despliegue distribuido de alto rendimiento en AWS o GCP.
 
 ```mermaid
 graph TD
@@ -77,9 +77,9 @@ graph TD
 #### Los Efectos Catastróficos de esta Decisión de Infraestructura:
 
 1. **Almacenamiento Acaparado (Cientos de Gigabytes Desperdiciados):** 
-   Debido a que cada contenedor genera y acumula sus propios logs incesantemente (al no haber configuración adecuada de *Log Rotation* en Docker Daemon), las dependencias de imágenes bases pesadas gigantes y la orquestación de decenas de volúmenes persistentes huérfanos, el backend se volvía obeso rápidamente. Es por esta razón que **la máquina virtual perdía gran parte de sus Gigabytes**, saturando su minúsculo disco duro y causando corrupciones preventivas.
+   Debido a que cada contenedor genera y acumula sus propios logs incesantemente (al no haber configuración adecuada de *Log Rotation* en Docker Daemon), las dependencias de imágenes bases pesadas gigantes y la orquestación de decenas de volúmenes persistentes huérfanos, el backend se volvía obeso rápidamente.
 2. **Uso Hostil e Ineficiente de Memoria RAM + CPU:** 
-   Mantener la plataforma de UI administrativa (`Studio`), brokers de websockets complejos de Elixir (`Realtime`) y motores enteros (`Deno`), solo para poder interactuar esporádicamente con tablas CRUD ridículamente simples, equivale a rentar un aeropuerto entero para estacionar una sola bicicleta. Esto sobrecalentaba y silenciaba la CPU virtual.
+   Mantener la plataforma de UI administrativa (`Studio`), brokers de websockets complejos de Elixir (`Realtime`) y motores enteros (`Deno`), solo para poder interactuar esporádicamente con tablas CRUD simples, equivale a rentar un aeropuerto entero para estacionar una sola bicicleta. Esto puede sobrecalentar y silenciar la CPU virtual.
 3. **Alto Riesgo y Complejidad DevOps:** 
    Una caída de cualquier contenedor menor en la orquestación interna de Supabase, podría causar bucles infinitos en el *API Gateway Kong*, dejando fuera de línea el sistema completo, obligando a reiniciar la VM constantemente.
 
@@ -90,6 +90,5 @@ graph TD
 El sistema tal y como se entregó constituía un conjunto frágil, inviable y en fase terminal.
 
 * En la capa **Frontend (Angular)**, el "código espagueti", las lógicas de red incrustadas en botones y la monumental duplicidad por malas prácticas de programación hacían imposible el escalamiento o adición de funciones a futuro, convirtiendo la corrección de fallos en un calvario logístico.
-* En la capa **Backend (Infraestructura)**, se escogieron herramientas destinadas a empresas enteras (`Supabase suite`) para encapsular lógicas que cabían en una base de datos solitaria, desangrando injustamente el espacio (los Gigabytes) y los núcleos lógicos del cliente.
 
-**Justificación Final del Tiempo:** El periodo de tiempo empleado para la actual etapa no es un simple retraso programando nuevos "formularios"; es una **etapa imperativa de emergencia arquitectónica**, la cual involucró limpiar cientos de líneas de código redundante e inseguro, demoler una infraestructura inmanejable y refactorizar en su totalidad un software para dotarlo verdaderamente de calidad profesional.
+**Justificación Final del Tiempo:** El periodo de tiempo empleado para la actual etapa no es un simple retraso programando nuevos "formularios"; es una **etapa imperativa de emergencia arquitectónica**, la cual involucra limpiar cientos de líneas de código redundante e inseguro, demoler una infraestructura inmanejable y refactorizar en su totalidad un software para dotarlo verdaderamente de calidad profesional.
