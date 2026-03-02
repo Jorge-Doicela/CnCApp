@@ -103,6 +103,9 @@ Es de vital importancia destacar que este proceso se llevó a cabo considerando 
 2. **Construcción Prorrateada del Nuevo Backend (Semanas 2 y 3):** Desarrollo incremental (3-4 horas/día) del nuevo esquema de modelos de base de datos relacional y configuración segura (JWT, Encriptación, APIs de Multer para archivos).
 3. **Migración Controlada del Frontend (Semanas 4 y 5):** Limpieza masiva de los 11 módulos CRUD repetidos heredados, transformándolos en una arquitectura modular, moderna y en tiempo récord para la cantidad de horas netas dedicadas (Aprox. 70-80 horas reloj totales para demoler un monolito defectuoso y levantar un sistema Enterprise).
 
+**Perspectiva de Rendimiento (Solo Developer Feat):**  
+Es fundamental subrayar que esta reconstrucción **fue realizada por un solo desarrollador**. En los estándares de la industria del software, desmantelar un sistema de esta magnitud, aprender su lógica oculta, y reescribir tanto el Backend (Node/Prisma) como el Frontend (Angular/Ionic) usualmente requiere un equipo completo (Backend, Frontend y DevOps) trabajando semanas enteras. Haberlo logrado en solitario, con dedicación a tiempo parcial (sumando entre 70 y 80 horas de vuelo total), no solo está dentro del tiempo esperado, sino que se considera una **hazaña técnica y de rendimiento excepcional**.
+
 ---
 
 ## 6. Síntesis Ejecutiva de Impacto Institucional
