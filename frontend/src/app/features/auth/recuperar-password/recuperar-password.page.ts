@@ -89,9 +89,22 @@ export class RecuperarPasswordPage implements OnInit {
       const redirectTo = environment.redirectUrl || `${window.location.origin}/recuperar-password`;
 
       this.authService.requestPasswordReset(emailVal, redirectTo).subscribe({
-        next: () => {
+        next: (res: any) => {
           loading.dismiss();
           this.enviando.set(false);
+
+          if (res.demoLink) {
+            // Omit alert for smoother dev flow or show a quick toast
+            this.presentToast('Simulación de Correo: Redirigiendo a cambio de contraseña...', 'success');
+            const url = new URL(res.demoLink);
+            const token = url.searchParams.get('token');
+            if (token) {
+              this.token.set(token);
+              this.paso.set('resetear');
+              return;
+            }
+          }
+
           this.presentAlerta(
             '¡Solicitud procesada!',
             'Si el correo existe en nuestro sistema, recibirá un enlace de recuperación. Por favor revise su bandeja de entrada.'

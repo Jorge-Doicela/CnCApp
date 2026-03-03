@@ -15,7 +15,7 @@ const updateUserSchema = z.object({
     email: z.string().email('Email inválido').optional(),
     telefono: z.string().optional(),
     celular: z.string().optional(),
-    tipoParticipante: z.number().int().min(0).max(3).optional(),
+    tipoParticipanteId: z.number().int().optional(),
     rolId: z.number().int().optional(),
     entidadId: z.number().int().optional(),
     provinciaId: z.number().int().optional(),

@@ -4,6 +4,8 @@ import { z } from 'zod';
 import { RegisterUserUseCase } from '../../../application/auth/use-cases/register-user.use-case';
 import { LoginUserUseCase } from '../../../application/auth/use-cases/login-user.use-case';
 import { GetUserProfileUseCase } from '../../../application/user/use-cases/get-user-profile.use-case';
+import { RequestPasswordResetUseCase } from '../../../application/auth/use-cases/request-password-reset.use-case';
+import { ResetPasswordUseCase } from '../../../application/auth/use-cases/reset-password.use-case';
 import { AuthRequest } from '../middleware/auth.middleware';
 
 // Strip password from user object before sending to client
@@ -35,12 +37,24 @@ const loginSchema = z.object({
     password: z.string().min(1, 'La contraseña es requerida')
 });
 
+const requestResetSchema = z.object({
+    email: z.string().email('Email inválido'),
+    redirectTo: z.string()
+});
+
+const resetPasswordSchema = z.object({
+    token: z.string(),
+    password: z.string().min(8, 'La contraseña debe tener al menos 8 caracteres')
+});
+
 @injectable()
 export class AuthController {
     constructor(
         @inject(RegisterUserUseCase) private registerUseCase: RegisterUserUseCase,
         @inject(LoginUserUseCase) private loginUseCase: LoginUserUseCase,
-        @inject(GetUserProfileUseCase) private getProfileUseCase: GetUserProfileUseCase
+        @inject(GetUserProfileUseCase) private getProfileUseCase: GetUserProfileUseCase,
+        @inject(RequestPasswordResetUseCase) private requestPasswordResetUseCase: RequestPasswordResetUseCase,
+        @inject(ResetPasswordUseCase) private resetPasswordUseCase: ResetPasswordUseCase
     ) { }
 
     register = async (req: Request, res: Response, next: NextFunction) => {
@@ -107,6 +121,33 @@ export class AuthController {
             res.json({
                 success: true,
                 data: toDTO(user)
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    requestPasswordReset = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const data = requestResetSchema.parse(req.body);
+            const result = await this.requestPasswordResetUseCase.execute(data.email, data.redirectTo);
+            res.json({
+                success: true,
+                message: 'Si el correo existe, recibirá un enlace de recuperación.',
+                demoLink: result?.resetLink
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    resetPassword = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const data = resetPasswordSchema.parse(req.body);
+            await this.resetPasswordUseCase.execute(data.token, data.password);
+            res.json({
+                success: true,
+                message: 'Contraseña actualizada exitosamente'
             });
         } catch (error) {
             next(error);
