@@ -52,6 +52,21 @@ export class UsuarioCapacitacionController {
         }
     };
 
+    // GET /api/usuarios-capacitaciones/usuario/:idUsuario
+    getByUsuarioId = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const { idUsuario } = req.params;
+            if (!idUsuario) {
+                res.status(400).json({ message: 'Missing idUsuario param' });
+                return;
+            }
+            const data = await this.usuarioCapacitacionRepository.findByUsuarioId(Number(idUsuario));
+            res.status(200).json(data);
+        } catch (error) {
+            next(error);
+        }
+    };
+
     // POST /api/usuarios-capacitaciones
     inscribir = async (req: Request, res: Response, next: NextFunction) => {
         try {

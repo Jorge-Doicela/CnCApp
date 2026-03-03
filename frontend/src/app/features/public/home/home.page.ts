@@ -91,7 +91,7 @@ export class HomePage implements OnInit {
   constructor(
     private toastController: ToastController,
     private loadingController: LoadingController,
-    private router: Router
+    public router: Router
   ) {
     // Register icons
     addIcons({
@@ -188,11 +188,6 @@ export class HomePage implements OnInit {
 
     if (this.isAdmin()) {
       await this.cargarEstadisticasAdmin();
-    } else if (this.isCreator()) {
-      // En un futuro, implementar endpoint real para creadores
-      // Por ahora, reutilizamos stats parciales o mockeamos
-      this.myConferencesCount = this.Capacitaciones.length; // Placeholder
-      this.myAttendeesCount = 0; // Placeholder
     }
   }
 
@@ -211,39 +206,35 @@ export class HomePage implements OnInit {
   }
 
   async RecuperarConferenciasInscrito() {
-    const authUid = localStorage.getItem('auth_uid');
-    if (!authUid) return;
+    // Obtener ID directamente del AuthService (evita llamadas extra al backend)
+    const user = this.authService.currentUser();
+    const userId = user?.id ?? parseInt(localStorage.getItem('auth_uid') ?? '', 10);
+    if (!userId || isNaN(userId)) return;
 
     try {
-      const idUsuario = await this.recuperarDataUsuario(authUid);
-      if (!idUsuario) return;
-
-      const inscripciones = await firstValueFrom(this.capacitacionesService.getInscripcionesUsuario(idUsuario)) as any[];
+      const inscripciones = await firstValueFrom(
+        this.capacitacionesService.getInscripcionesUsuario(userId)
+      ) as any[];
 
       if (inscripciones?.length) {
-        const capacitacionIds = inscripciones.map((item: any) => item.capacitacionId || item.Id_Capacitacion);
+        const capacitacionIds = inscripciones.map((item: any) =>
+          item.capacitacionId ?? item.Id_Capacitacion
+        ).filter(Boolean);
 
         if (capacitacionIds.length > 0) {
           if (this.Capacitaciones.length === 0) {
             await this.RecuperarCapacitaciones();
           }
-          this.ConferenciasInscritas = this.Capacitaciones.filter(c => capacitacionIds.includes(c.id));
+          this.ConferenciasInscritas = this.Capacitaciones.filter(c =>
+            capacitacionIds.includes(c.id)
+          );
         }
       } else {
         this.ConferenciasInscritas = [];
       }
     } catch (error) {
       console.error('Error al recuperar conferencias inscritas:', error);
-    }
-  }
-
-  async recuperarDataUsuario(authUid: string) {
-    try {
-      const userData = await firstValueFrom(this.usuarioService.getUsuarioByAuthId(authUid)) as any;
-      return userData?.Id_Usuario;
-    } catch (error) {
-      // Silent error for guests
-      return null;
+      this.ConferenciasInscritas = [];
     }
   }
 
@@ -276,19 +267,16 @@ export class HomePage implements OnInit {
       return;
     }
 
-    // ... same inscribirse logic needs to be robust ...
-    // For brevity, ensuring the call works:
     const loading = await this.loadingController.create({ message: 'Inscribiendo...', spinner: 'crescent' });
     await loading.present();
 
     try {
-      const authUid = localStorage.getItem('auth_uid');
-      if (!authUid) throw new Error("No Auth ID");
+      // Obtener userId directamente sin llamada extra al backend
+      const user = this.authService.currentUser();
+      const idUsuario = user?.id ?? parseInt(localStorage.getItem('auth_uid') ?? '', 10);
+      if (!idUsuario || isNaN(idUsuario as number)) throw new Error('Usuario no identificado');
 
-      const idUsuario = await this.recuperarDataUsuario(authUid);
-      if (!idUsuario) throw new Error("Usuario no encontrado");
-
-      await firstValueFrom(this.capacitacionesService.inscribirse(idUsuario, idCapacitacion) as any);
+      await firstValueFrom(this.capacitacionesService.inscribirse(idUsuario as number, idCapacitacion) as any);
       this.showSuccessToast('Inscripción exitosa');
       await this.RecuperarConferenciasInscrito();
       this.calcularEstadisticas();
@@ -354,14 +342,15 @@ export class HomePage implements OnInit {
 
     let ruta = rutasModulos[modulo] || modulo.toLowerCase().replace(/\s+/g, '-');
 
-    // Rol Creator Redirection
-    if (this.isCreator()) {
-      const creatorAllowed = ['gestionar-capacitaciones', 'gestionar-plantillas', 'validar-certificados'];
-      if (creatorAllowed.some(ca => ruta.includes(ca))) {
-        // Normalize for creator routes
-        if (!ruta.startsWith('creator/')) {
-          ruta = `creator/${ruta.replace('gestionar-', '')}`;
-        }
+    // Rol Conferencista: redirigir a su propio módulo con prefijo correcto
+    if (this.isCreator() && !this.isAdmin()) {
+      const creatorAllowed: Record<string, string> = {
+        'gestionar-capacitaciones': 'conferencista/gestionar-capacitaciones',
+        'gestionar-plantillas': 'conferencista/gestionar-plantillas',
+        'validar-certificados': 'validar-certificados'
+      };
+      if (creatorAllowed[ruta]) {
+        ruta = creatorAllowed[ruta];
       }
     }
 

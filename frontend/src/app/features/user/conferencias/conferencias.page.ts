@@ -1,12 +1,11 @@
 import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { AlertController, ToastController } from '@ionic/angular';
 import { CapacitacionesService } from '../../admin/capacitaciones/services/capacitaciones.service';
 import { AuthService } from '../../auth/services/auth.service';
-import { UsuarioCapacitacion } from '../../../core/models/capacitacion.interface';
 
 @Component({
   selector: 'app-conferencias',
@@ -18,61 +17,100 @@ import { UsuarioCapacitacion } from '../../../core/models/capacitacion.interface
 export class ConferenciasPage implements OnInit {
   inscripciones: any[] = [];
   inscripcionesFiltradas: any[] = [];
-  loading: boolean = true;
-  currentUser: any = null;
+  loading = false;
+  errorMsg = '';
 
-  searchTerm: string = '';
-  filtroEstado: string = 'todos';
+  searchTerm = '';
+  filtroEstado = 'todos';
 
   private capacitacionesService = inject(CapacitacionesService);
   private authService = inject(AuthService);
   private router = inject(Router);
   private alertController = inject(AlertController);
   private toastController = inject(ToastController);
+  private cdr = inject(ChangeDetectorRef);
 
   constructor() { }
 
-  async ngOnInit() {
+  ngOnInit() {
+    this.resolverYCargar();
+  }
+
+  /** Resuelve el userId de la sesión y lanza la carga */
+  private resolverYCargar() {
+    // 1. Intentar desde el signal (ya cargado desde localStorage en AuthService constructor)
     const user = this.authService.currentUser();
-    this.currentUser = user;
-    if (user) {
+    if (user?.id) {
       this.cargarHistorial(user.id);
+      return;
     }
+
+    // 2. Fallback: leer auth_uid de localStorage directamente
+    const rawId = localStorage.getItem('auth_uid');
+    const userId = rawId ? parseInt(rawId, 10) : NaN;
+    if (!isNaN(userId) && userId > 0) {
+      this.cargarHistorial(userId);
+      return;
+    }
+
+    // 3. No hay sesión: mostrar vacío sin carga infinita
+    this.loading = false;
+    this.errorMsg = 'No hay sesión activa. Inicia sesión para ver tus conferencias.';
   }
 
   cargarHistorial(userId: number) {
     this.loading = true;
+    this.errorMsg = '';
+    this.inscripciones = [];
+    this.inscripcionesFiltradas = [];
+    this.cdr.markForCheck();
+
     this.capacitacionesService.getInscripcionesUsuario(userId).subscribe({
       next: (data) => {
-        // Data is UsuarioCapacitacion, we might need to join with Capacitacion details
-        // Assuming the backend returns the nested relations or we map it.
-        // If the interface UsuarioCapacitacion has 'capacitacion' relation populated:
-        this.inscripciones = data;
+        this.inscripciones = Array.isArray(data) ? data : [];
         this.filtrarCapacitaciones();
         this.loading = false;
+        this.cdr.markForCheck();
       },
       error: (err) => {
-        console.error(err);
+        console.error('[ConferenciasPage] Error al cargar historial:', err);
+        this.inscripciones = [];
+        this.inscripcionesFiltradas = [];
         this.loading = false;
+        const status = err?.status;
+        if (status === 401 || status === 403) {
+          this.errorMsg = 'Sin autorización. Inicia sesión nuevamente.';
+        } else if (status === 404) {
+          this.errorMsg = 'Servicio no encontrado. Contacta al administrador.';
+        } else {
+          this.errorMsg = 'Error al cargar conferencias. Verifica tu conexión.';
+        }
+        this.cdr.markForCheck();
       }
     });
   }
 
-  getCapacitacionesConCertificado(): number {
-    return this.inscripciones.filter(i => i.capacitacion?.certificado === true && i.estadoInscripcion === 'Finalizada').length;
+  recargar() {
+    this.resolverYCargar();
   }
 
   getCapacitacionesPorEstado(estado: string): number {
     return this.inscripciones.filter(i => i.estadoInscripcion === estado).length;
   }
 
+  getCapacitacionesConCertificado(): number {
+    return this.inscripciones.filter(i =>
+      i.capacitacion?.certificado === true && i.estadoInscripcion === 'Finalizada'
+    ).length;
+  }
+
   filtrarCapacitaciones() {
     let resultado = [...this.inscripciones];
 
-    if (this.searchTerm && this.searchTerm.trim() !== '') {
-      const termino = this.searchTerm.toLowerCase().trim();
+    if (this.searchTerm?.trim()) {
+      const term = this.searchTerm.toLowerCase().trim();
       resultado = resultado.filter(i =>
-        i.capacitacion?.nombre?.toLowerCase().includes(termino)
+        i.capacitacion?.nombre?.toLowerCase().includes(term)
       );
     }
 
@@ -85,30 +123,25 @@ export class ConferenciasPage implements OnInit {
 
   async verDetallesCapacitacion(inscripcion: any) {
     const cap = inscripcion.capacitacion;
-    if (!cap) return;
-
     const alert = await this.alertController.create({
-      header: cap.nombre,
-      subHeader: `Inscrito el: ${new Date(inscripcion.fechaInscripcion).toLocaleDateString()}`,
+      header: cap?.nombre ?? 'Capacitación',
+      subHeader: inscripcion.fechaInscripcion
+        ? `Inscrito el: ${new Date(inscripcion.fechaInscripcion).toLocaleDateString()}`
+        : '',
       message: `
-        <div style="text-align: left;">
-          <p><strong>Descripción:</strong> ${cap.descripcion || 'Sin descripción'}</p>
-          <p><strong>Modalidad:</strong> ${cap.modalidad || 'N/A'}</p>
-          <p><strong>Estado Inscripción:</strong> ${inscripcion.estadoInscripcion}</p>
+        <div style="text-align:left">
+          <p><strong>Descripción:</strong> ${cap?.descripcion ?? 'Sin descripción'}</p>
+          <p><strong>Modalidad:</strong> ${cap?.modalidad ?? 'N/A'}</p>
+          <p><strong>Estado:</strong> ${inscripcion.estadoInscripcion ?? 'N/A'}</p>
           <p><strong>Asistencia:</strong> ${inscripcion.asistio ? 'Sí' : 'No'}</p>
         </div>
       `,
       buttons: ['OK']
     });
-
     await alert.present();
   }
 
   iraGenerarCertificado(idCapacitacion: number) {
-    this.router.navigate(['/ver-certificaciones', { id: idCapacitacion }]); // Or direct
-    // Actually requirement says "Visualiza y descarga desde lista".
-    // We can navigate to the certifications tab or open specific one.
-    // Let's assume we navigate to the Certificaciones page which will show the PDF.
     this.router.navigate(['/ver-certificaciones'], { queryParams: { idCapacitacion } });
   }
 }

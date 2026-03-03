@@ -4,45 +4,29 @@ import { AlertController } from '@ionic/angular';
 import { AuthService } from '../../features/auth/services/auth.service';
 
 /**
- * Creator Guard - Verifica que el usuario sea "Creador de Conferencias"
+ * Guard para el módulo Conferencista.
+ * Permite acceso a usuarios con rol "Conferencista" o "Administrador".
  */
-export const creatorGuard: CanActivateFn = async (route, state) => {
+export const creatorGuard: CanActivateFn = async (_route, _state) => {
     const router = inject(Router);
     const alertController = inject(AlertController);
     const authService = inject(AuthService);
 
-    // Verificar autenticación primero
-    const token = localStorage.getItem('token');
+    // Verificar autenticación: preferir accessToken, luego token (legacy)
+    const token = localStorage.getItem('accessToken') || localStorage.getItem('token');
     if (!token) {
-        await presentAuthAlert(
-            alertController,
-            'Acceso denegado',
-            'Debe iniciar sesión para acceder a esta página'
-        );
+        await showAlert(alertController, 'Acceso denegado', 'Debe iniciar sesión para acceder a esta sección.');
         router.navigate(['/login']);
         return false;
     }
 
-    // Verificar rol usando el nombre o un ID si lo supiéramos con certeza.
-    // Usamos el nombre para flexibilidad segun prompt del usuario.
-    const roleName = authService.roleName();
+    const roleName = authService.roleName()?.toLowerCase().trim() ?? '';
 
-    // Lista de roles permitidos para este módulo (incluyendo Admin si queremos que Admin también entre)
-    // Pero el usuario pidió módulos separados. Así que solo Creador.
-    const isCreator = roleName?.toLowerCase().includes('creador') || roleName?.toLowerCase().includes('conferencia');
+    const ALLOWED_ROLES = ['conferencista', 'administrador'];
+    const hasAccess = ALLOWED_ROLES.some(role => roleName === role);
 
-    if (!isCreator && roleName?.toLowerCase() !== 'administrador') { // Admin usually supersedes, but user asked for separation. adhering to permissions.
-        // If we strictly follow "Separated modules", maybe Admin shouldn't see it?
-        // But usually Admin sees everything. I'll allow Admin too but primary target is Creator.
-        // Wait, "3 módulos claramente separados". 
-        // I will just check for "Creador" or "Administrador" (as fallback/superuse) or strict?
-        // Let's implement strict check + Admin fallback because Admins usually need access.
-
-        await presentAuthAlert(
-            alertController,
-            'Acceso denegado',
-            'No tiene permisos de Creador de Conferencias.'
-        );
+    if (!hasAccess) {
+        await showAlert(alertController, 'Sin permisos', 'Esta sección es exclusiva para Conferencistas y Administradores.');
         router.navigate(['/home']);
         return false;
     }
@@ -50,7 +34,7 @@ export const creatorGuard: CanActivateFn = async (route, state) => {
     return true;
 };
 
-async function presentAuthAlert(alertController: AlertController, header: string, message: string) {
+async function showAlert(alertController: AlertController, header: string, message: string): Promise<void> {
     const alert = await alertController.create({
         header,
         message,
@@ -58,6 +42,6 @@ async function presentAuthAlert(alertController: AlertController, header: string
         cssClass: 'auth-alert',
         backdropDismiss: false
     });
-
     await alert.present();
+    await alert.onDidDismiss();
 }

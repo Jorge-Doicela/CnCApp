@@ -8,12 +8,13 @@ const router = Router();
 const userController = container.resolve(UserController);
 
 router.use(authenticate);
+router.get('/auth/:authId', userController.getByAuthId);
+
 router.use(authorize(...ADMIN_ROLES));
 
 router.get('/', userController.getAll);
 router.post('/', userController.create);
 router.get('/count', userController.count);
-router.get('/auth/:authId', userController.getByAuthId);
 router.get('/:id', userController.getById);
 router.put('/:id', userController.update);
 router.delete('/:id', userController.delete);
