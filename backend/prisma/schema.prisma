@@ -49,7 +49,7 @@ model Usuario {
   segundoApellido  String?               @map("Segundo_Apellido") @db.VarChar(100)
   generoId         Int?                  @map("Id_Genero")
   etniaId          Int?                  @map("Id_Etnia")
-  nacionalidad     String?               @db.VarChar(100)
+  nacionalidadId   Int?                  @map("Id_Nacionalidad")
   fechaNacimiento  DateTime?             @map("Fecha_Nacimiento") @db.Date
   celular          String?               @db.VarChar(20)
   provinciaId      Int?                  @map("Id_Provincia")
@@ -64,6 +64,7 @@ model Usuario {
   rol              Rol?                  @relation(fields: [rolId], references: [id])
   genero           Genero?               @relation(fields: [generoId], references: [id])
   etnia            Etnia?                @relation(fields: [etniaId], references: [id])
+  nacionalidad     Nacionalidad?         @relation(fields: [nacionalidadId], references: [id])
   tipoParticipante TipoParticipante?     @relation(fields: [tipoParticipanteId], references: [id])
   inscripciones    UsuarioCapacitacion[]
 
@@ -76,6 +77,7 @@ model Usuario {
   @@index([cantonId])
   @@index([generoId])
   @@index([etniaId])
+  @@index([nacionalidadId])
   @@index([tipoParticipanteId])
   @@map("Usuario")
 }
@@ -272,4 +274,12 @@ model TipoParticipante {
   usuarios  Usuario[]
 
   @@map("TiposParticipante")
+}
+
+model Nacionalidad {
+  id        Int       @id @default(autoincrement()) @map("Id_Nacionalidad")
+  nombre    String    @unique @map("Nombre_Nacionalidad") @db.VarChar(100)
+  usuarios  Usuario[]
+
+  @@map("Nacionalidades")
 }

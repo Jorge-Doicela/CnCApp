@@ -60,6 +60,7 @@ export class RegisterPage {
   filteredCantones = signal<Canton[]>([]);
   generos = signal<Genero[]>([]);
   etnias = signal<Etnia[]>([]);
+  nacionalidades = signal<any[]>([]);
   tiposParticipante = signal<TipoParticipante[]>([]);
 
   // Local UI state
@@ -114,12 +115,13 @@ export class RegisterPage {
 
   async loadCatalogos() {
     try {
-      const [provinciasResp, cantonesResp, generosResp, etniasResp, tiposParticipanteResp] = await Promise.all([
+      const [provinciasResp, cantonesResp, generosResp, etniasResp, tiposParticipanteResp, nacionalidadesResp] = await Promise.all([
         firstValueFrom(this.catalogoService.getItems('provincias')),
         firstValueFrom(this.catalogoService.getItems('cantones')),
         firstValueFrom(this.catalogoService.getItems('generos')),
         firstValueFrom(this.catalogoService.getItems('etnias')),
-        firstValueFrom(this.catalogoService.getItems('tipos-participante'))
+        firstValueFrom(this.catalogoService.getItems('tipos-participante')),
+        firstValueFrom(this.catalogoService.getItems('nacionalidades'))
       ]);
 
       // Only active ones, sorted (Backend returns id, nombre, estado, etc.)
@@ -135,6 +137,7 @@ export class RegisterPage {
       this.cantones.set(activeCantones);
       this.generos.set(generosResp || []);
       this.etnias.set(etniasResp || []);
+      this.nacionalidades.set(nacionalidadesResp || []);
       this.tiposParticipante.set(tiposParticipanteResp || []);
 
       // If reloading from session and we already had a provinciaId, restore the filtered cantones list immediately.
@@ -277,6 +280,18 @@ export class RegisterPage {
     const data = this.personalData();
     if (!data.primerNombre || !data.primerApellido) {
       this.presentToast('Ingrese sus nombres y apellidos', 'warning');
+      return false;
+    }
+    if (!data.generoId || !data.etniaId) {
+      this.presentToast('Seleccione su género y etnia', 'warning');
+      return false;
+    }
+    if (!data.nacionalidadId) {
+      this.presentToast('Seleccione su nacionalidad', 'warning');
+      return false;
+    }
+    if (!data.celular || data.celular.length < 10) {
+      this.presentToast('Ingrese un número de celular válido de 10 dígitos', 'warning');
       return false;
     }
     if (!data.fechaNacimiento) {

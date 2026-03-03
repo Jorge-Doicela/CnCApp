@@ -19,7 +19,8 @@ export interface Usuario {
     convencional?: string;
     genero?: string;
     etnia?: string;
-    nacionalidad?: string;
+    nacionalidadId?: number;
+    nacionalidad?: any;
     fechaNacimiento?: string;
     cantonReside?: string;
     parroquiaReside?: string;

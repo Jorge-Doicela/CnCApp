@@ -18,7 +18,7 @@ interface RegisterDto {
     celular?: string;
     generoId?: number;
     etniaId?: number;
-    nacionalidad?: string; // ISO string
+    nacionalidadId?: number;
     fechaNacimiento?: string;
     provinciaId?: number;
     cantonId?: number;
@@ -109,7 +109,7 @@ export class RegisterUserUseCase {
             password: hashedPassword,
             generoId: data.generoId,
             etniaId: data.etniaId,
-            nacionalidad: data.nacionalidad,
+            nacionalidadId: data.nacionalidadId,
             fechaNacimiento: data.fechaNacimiento ? new Date(data.fechaNacimiento) : undefined,
             provinciaId: data.provinciaId,
             cantonId: data.cantonId,

@@ -17,7 +17,7 @@ export class UserMapper {
             celular: prismaUser.celular,
             generoId: prismaUser.generoId,
             etniaId: prismaUser.etniaId,
-            nacionalidad: prismaUser.nacionalidad,
+            nacionalidadId: prismaUser.nacionalidadId,
             fechaNacimiento: prismaUser.fechaNacimiento,
             tipoParticipanteId: prismaUser.tipoParticipanteId,
             rolId: prismaUser.rolId,
@@ -48,6 +48,10 @@ export class UserMapper {
             tipoParticipante: prismaUser.tipoParticipante ? {
                 id: prismaUser.tipoParticipante.id,
                 nombre: prismaUser.tipoParticipante.nombre
+            } : null,
+            nacionalidad: prismaUser.nacionalidad ? {
+                id: prismaUser.nacionalidad.id,
+                nombre: prismaUser.nacionalidad.nombre
             } : null,
             _count: prismaUser._count ? {
                 inscripciones: prismaUser._count.inscripciones,
