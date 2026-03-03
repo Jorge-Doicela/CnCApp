@@ -16,22 +16,35 @@
 
       <!-- Desktop Navigation (Center) -->
       <nav class="desktop-nav" *ngIf="isGuest()">
-        <a (click)="navegarModulo('/')" class="nav-link" [class.active]="router.url === '/home' || router.url === '/'">Inicio</a>
-        <a (click)="navegarModulo('servi-progra')" class="nav-link" [class.active]="router.url.includes('servi-progra')">Servicios</a>
-        <a (click)="navegarModulo('validar-certificados')" class="nav-link" [class.active]="router.url.includes('validar-certificados')">Validar</a>
+        <a (click)="navegarModulo('/')" class="nav-link"
+          [class.active]="router.url === '/home' || router.url === '/'">Inicio</a>
+        <a (click)="navegarModulo('servi-progra')" class="nav-link"
+          [class.active]="router.url.includes('servi-progra')">Servicios</a>
+        <a (click)="navegarModulo('validar-certificados')" class="nav-link"
+          [class.active]="router.url.includes('validar-certificados')">Validar</a>
         <!-- Expanded Public Links -->
-        <a (click)="navegarModulo('historia')" class="nav-link" [class.active]="router.url.includes('historia')">Historia</a>
-        <a (click)="navegarModulo('direccion')" class="nav-link" [class.active]="router.url.includes('direccion')">Dirección</a>
-        <a (click)="navegarModulo('norma-regul')" class="nav-link" [class.active]="router.url.includes('norma-regul')">Normativa</a>
-        <a (click)="navegarModulo('informacion')" class="nav-link" [class.active]="router.url.includes('informacion')">Nosotros</a>
+        <a (click)="navegarModulo('historia')" class="nav-link"
+          [class.active]="router.url.includes('historia')">Historia</a>
+        <a (click)="navegarModulo('direccion')" class="nav-link"
+          [class.active]="router.url.includes('direccion')">Dirección</a>
+        <a (click)="navegarModulo('norma-regul')" class="nav-link"
+          [class.active]="router.url.includes('norma-regul')">Normativa</a>
+        <a (click)="navegarModulo('informacion')" class="nav-link"
+          [class.active]="router.url.includes('informacion')">Nosotros</a>
       </nav>
 
       <div class="header-actions">
         <!-- Logged In -->
-        <div class="user-pill" *ngIf="!isGuest()" (click)="navegarModulo('Ver Perfil')">
-          <div class="avatar">{{ userName()?.charAt(0) }}</div>
-          <span>{{ (userName() || '').split(' ')[0] }}</span>
-        </div>
+        <ng-container *ngIf="!isGuest()">
+          <div class="user-pill" (click)="navegarModulo('Ver Perfil')" title="Ver Mi Perfil" style="cursor: pointer;">
+            <div class="avatar">{{ userName()?.charAt(0) }}</div>
+            <span>{{ (userName() || '').split(' ')[0] }}</span>
+          </div>
+          <ion-button fill="clear" color="danger" (click)="cerrarSesion()" title="Cerrar Sesión"
+            style="margin-left: 10px;">
+            <ion-icon slot="icon-only" name="log-out-outline"></ion-icon>
+          </ion-button>
+        </ng-container>
 
         <!-- Guest -->
         <ng-container *ngIf="isGuest()">
