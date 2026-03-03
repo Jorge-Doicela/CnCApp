@@ -7,5 +7,6 @@ const catalogoController = new CatalogoController();
 router.get('/generos', catalogoController.getGeneros.bind(catalogoController));
 router.get('/etnias', catalogoController.getEtnias.bind(catalogoController));
 router.get('/tipos-participante', catalogoController.getTiposParticipante.bind(catalogoController));
+router.get('/nacionalidades', catalogoController.getNacionalidades.bind(catalogoController));
 
 export { router as catalogoRoutes };

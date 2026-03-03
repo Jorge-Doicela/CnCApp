@@ -21,7 +21,7 @@ export interface User {
     celular?: string | null;
     generoId?: number | null;
     etniaId?: number | null;
-    nacionalidad?: string | null;
+    nacionalidadId?: number | null;
     fechaNacimiento?: Date | null;
     provinciaId?: number | null;
     cantonId?: number | null;
@@ -43,6 +43,10 @@ export interface User {
         nombre: string;
     } | null;
     tipoParticipante?: {
+        id: number;
+        nombre: string;
+    } | null;
+    nacionalidad?: {
         id: number;
         nombre: string;
     } | null;

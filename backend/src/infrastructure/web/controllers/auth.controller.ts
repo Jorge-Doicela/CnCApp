@@ -29,7 +29,8 @@ const registerSchema = z.object({
     provinciaId: z.number().optional(),
     cantonId: z.number().optional(),
     generoId: z.number().optional(),
-    etniaId: z.number().optional()
+    etniaId: z.number().optional(),
+    nacionalidadId: z.number().optional()
 });
 
 const loginSchema = z.object({
@@ -75,7 +76,8 @@ export class AuthController {
                 provinciaId: data.provinciaId,
                 cantonId: data.cantonId,
                 generoId: data.generoId,
-                etniaId: data.etniaId
+                etniaId: data.etniaId,
+                nacionalidadId: data.nacionalidadId
             });
 
             res.status(201).json({

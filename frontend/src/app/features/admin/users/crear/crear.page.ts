@@ -50,7 +50,7 @@ export class CrearPage implements OnInit {
     convencional: '',
     genero: '',
     etnia: '',
-    nacionalidad: '',
+    nacionalidadId: undefined as number | undefined,
     tipoParticipante: 0, // Por defecto ciudadano
     fechaNacimiento: '',
     cantonReside: '',
@@ -529,7 +529,12 @@ export class CrearPage implements OnInit {
       return false;
     }
 
-    if (!this.usuarioGeneral.nacionalidad) {
+    if (!this.usuarioGeneral.etnia) {
+      this.showToast('Por favor seleccione la autodefinición étnica');
+      return false;
+    }
+
+    if (!this.usuarioGeneral.nacionalidadId) {
       this.showToast('Por favor seleccione la nacionalidad');
       return false;
     }
@@ -681,7 +686,7 @@ export class CrearPage implements OnInit {
       convencional: '',
       genero: '',
       etnia: '',
-      nacionalidad: '',
+      nacionalidadId: undefined,
       tipoParticipante: 0,
       fechaNacimiento: '',
       cantonReside: '',

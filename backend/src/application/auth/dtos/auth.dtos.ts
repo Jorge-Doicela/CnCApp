@@ -10,7 +10,7 @@ export interface RegisterUserDto {
     celular?: string;
     generoId?: number;
     etniaId?: number;
-    nacionalidad?: string;
+    nacionalidadId?: number;
     fechaNacimiento?: string; // ISO string
     provinciaId?: number;
     cantonId?: number;

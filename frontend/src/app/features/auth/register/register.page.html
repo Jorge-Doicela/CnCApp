@@ -247,6 +247,32 @@
             </div>
           </div>
 
+          <div class="form-grid">
+            <div class="input-group">
+              <ion-label>Nacionalidad *</ion-label>
+              <div class="custom-input-wrapper">
+                <ion-icon name="flag-outline" class="input-icon"></ion-icon>
+                <ion-select interface="action-sheet" [value]="state.personalData().nacionalidadId"
+                  (ionChange)="state.updateUserData({nacionalidadId: $event.detail.value})" placeholder="Seleccione..."
+                  class="custom-select w-full" style="width: 100%;">
+                  @for (nac of nacionalidades(); track nac.id) {
+                  <ion-select-option [value]="nac.id">{{ nac.nombre }}</ion-select-option>
+                  }
+                </ion-select>
+              </div>
+            </div>
+            <div class="input-group">
+              <ion-label>Celular *</ion-label>
+              <div class="custom-input-wrapper">
+                <ion-icon name="call-outline" class="input-icon"></ion-icon>
+                <ion-input [value]="state.personalData().celular"
+                  (ionInput)="state.updateUserData({celular: $any($event.target).value})" placeholder="0999999999"
+                  maxlength="10">
+                </ion-input>
+              </div>
+            </div>
+          </div>
+
           <div class="input-group">
             <ion-label>Fecha de Nacimiento *</ion-label>
             <div class="custom-input-wrapper">

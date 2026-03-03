@@ -20,7 +20,7 @@ async function main() {
             'Instituciones_usuario', 'FuncionarioGAD', 'Autoridades', 'Usuario',
             'parroquia', 'Cantones', 'Provincias', 'Entidades', 'Rol',
             'mancomunidades', 'instituciones_sistema', 'cargos', 'competencias',
-            'Generos', 'Etnias', 'TiposParticipante'
+            'Generos', 'Etnias', 'TiposParticipante', 'Nacionalidades'
         ];
 
         for (const table of tables) {
@@ -88,10 +88,19 @@ async function main() {
             ]
         });
 
+        await prisma.nacionalidad.createMany({
+            data: [
+                { nombre: 'Ecuatoriana' },
+                { nombre: 'Otra' }
+            ]
+        });
+
         await prisma.tipoParticipante.createMany({
             data: [
+                { nombre: 'Autoridad' },
                 { nombre: 'Ciudadano' },
-                { nombre: 'Funcionario Público' }
+                { nombre: 'Funcionario de GAD' },
+                { nombre: 'Institución' }
             ]
         });
         const entidades = await prisma.entidad.createMany({
