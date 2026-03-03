@@ -14,7 +14,8 @@ export class RefreshTokenUseCase {
             return this.tokenProvider.generateTokens({
                 userId: payload.userId,
                 ci: payload.ci,
-                roleId: payload.roleId
+                roleId: payload.roleId,
+                roleName: payload.roleName
             });
         } catch (error) {
             throw new Error('Invalid refresh token');
