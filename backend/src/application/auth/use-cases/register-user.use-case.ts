@@ -26,6 +26,7 @@ interface RegisterDto {
     autoridad?: any;
     funcionarioGad?: any;
     institucion?: any;
+    rolId?: number;
     // captchaToken?: string; // --- GOOGLE RECAPTCHA (Descomentar en Producción) ---
 }
 
@@ -85,9 +86,24 @@ export class RegisterUserUseCase {
         // 3. Hash password
         const hashedPassword = await this.passwordEncoder.hash(data.password);
 
-        // Get default Role and Entity
-        const usuarioRole = await this.rolRepository.findByName('Usuario');
-        const defaultRolId = usuarioRole ? usuarioRole.id : 3;
+        // Asignar rol dependiendo del tipo de participante
+        let assignedRoleName = 'Usuario';
+        // 1: Autoridad, 3: Funcionario GAD, 4: Institucion
+        if (data.tipoParticipanteId === 1 || data.tipoParticipanteId === 3 || data.tipoParticipanteId === 4) {
+            assignedRoleName = 'Conferencista';
+        }
+
+        let finalRolId = data.rolId;
+        let finalRoleName = '';
+
+        if (finalRolId) {
+            const explicitRole = await this.rolRepository.findById(finalRolId);
+            finalRoleName = explicitRole ? explicitRole.nombre : assignedRoleName;
+        } else {
+            const usuarioRole = await this.rolRepository.findByName(assignedRoleName);
+            finalRolId = usuarioRole ? usuarioRole.id : (assignedRoleName === 'Conferencista' ? 2 : 3);
+            finalRoleName = usuarioRole ? usuarioRole.nombre : assignedRoleName;
+        }
 
         // Default entity: Consejo Nacional de Competencias if not specified? 
         // Use case hardcoded 1 (CNC).
@@ -116,7 +132,7 @@ export class RegisterUserUseCase {
             fechaNacimiento: data.fechaNacimiento ? new Date(data.fechaNacimiento) : undefined,
             provinciaId: data.provinciaId,
             cantonId: data.cantonId,
-            rolId: defaultRolId,
+            rolId: finalRolId,
             entidadId: data.autoridad?.nivelgobierno || data.funcionarioGad?.nivelgobierno || defaultEntidadId,
             tipoParticipanteId: data.tipoParticipanteId || null,
             createdAt: now,
@@ -135,8 +151,8 @@ export class RegisterUserUseCase {
         const tokens = this.tokenProvider.generateTokens({
             userId: savedUser.id,
             ci: savedUser.ci,
-            roleId: savedUser.rolId ?? 3,
-            roleName: usuarioRole ? usuarioRole.nombre : 'Usuario'
+            roleId: savedUser.rolId ?? finalRolId,
+            roleName: finalRoleName
         });
 
         return {

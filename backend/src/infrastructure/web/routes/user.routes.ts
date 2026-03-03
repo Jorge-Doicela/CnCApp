@@ -11,6 +11,7 @@ router.use(authenticate);
 router.use(authorize(...ADMIN_ROLES));
 
 router.get('/', userController.getAll);
+router.post('/', userController.create);
 router.get('/count', userController.count);
 router.get('/auth/:authId', userController.getByAuthId);
 router.get('/:id', userController.getById);
