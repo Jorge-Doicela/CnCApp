@@ -11,6 +11,9 @@ export interface RegisterUserDto {
     generoId?: number;
     etniaId?: number;
     nacionalidadId?: number;
+    autoridad?: any;
+    funcionarioGad?: any;
+    institucion?: any;
     fechaNacimiento?: string; // ISO string
     provinciaId?: number;
     cantonId?: number;

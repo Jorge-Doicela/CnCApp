@@ -29,7 +29,36 @@ export class PrismaUserRepository implements UserRepository {
                 rolId: user.rolId || 2, // Default role
                 entidadId: user.entidadId,
                 fotoPerfilUrl: user.fotoPerfilUrl,
-                firmaUrl: user.firmaUrl
+                firmaUrl: user.firmaUrl,
+                ...(user.autoridad && {
+                    autoridades: {
+                        create: [{
+                            cargo: user.autoridad.cargo,
+                            entidad: user.autoridad.gadAutoridad
+                        }]
+                    }
+                }),
+                ...(user.funcionarioGad && {
+                    funcionarios: {
+                        create: [{
+                            cargo: user.funcionarioGad.cargo,
+                            departamento: user.funcionarioGad.gadFuncionarioGad,
+                            ...(user.funcionarioGad.competencias?.length > 0 && {
+                                competencias: {
+                                    connect: user.funcionarioGad.competencias.map((c: any) => ({ id: Number(c) }))
+                                }
+                            })
+                        }]
+                    }
+                }),
+                ...(user.institucion && {
+                    instituciones: {
+                        create: [{
+                            institucionId: Number(user.institucion.institucion),
+                            gradoOcupacionalId: user.institucion.gradoOcupacional ? Number(user.institucion.gradoOcupacional) : null
+                        }]
+                    }
+                })
             },
             include: {
                 rol: true,

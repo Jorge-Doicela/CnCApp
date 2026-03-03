@@ -63,6 +63,14 @@ export class RegisterPage {
   nacionalidades = signal<any[]>([]);
   tiposParticipante = signal<TipoParticipante[]>([]);
 
+  // Labor Specific Catalogs
+  cargos = signal<any[]>([]);
+  entidades = signal<any[]>([]); // "Nivel de gobierno u otro"
+  mancomunidades = signal<any[]>([]);
+  competencias = signal<any[]>([]);
+  gradosOcupacionales = signal<any[]>([]);
+  instituciones = signal<any[]>([]);
+
   // Local UI state
   isLoading = signal<boolean>(false);
   showPassword = signal<boolean>(false);
@@ -115,13 +123,19 @@ export class RegisterPage {
 
   async loadCatalogos() {
     try {
-      const [provinciasResp, cantonesResp, generosResp, etniasResp, tiposParticipanteResp, nacionalidadesResp] = await Promise.all([
+      const [provinciasResp, cantonesResp, generosResp, etniasResp, tiposParticipanteResp, nacionalidadesResp, cargosResp, entidadesResp, mancomunidadesResp, competenciasResp, gradosOcupacionalesResp, institucionesResp] = await Promise.all([
         firstValueFrom(this.catalogoService.getItems('provincias')),
         firstValueFrom(this.catalogoService.getItems('cantones')),
         firstValueFrom(this.catalogoService.getItems('generos')),
         firstValueFrom(this.catalogoService.getItems('etnias')),
         firstValueFrom(this.catalogoService.getItems('tipos-participante')),
-        firstValueFrom(this.catalogoService.getItems('nacionalidades'))
+        firstValueFrom(this.catalogoService.getItems('nacionalidades')),
+        firstValueFrom(this.catalogoService.getItems('public/cargos')),
+        firstValueFrom(this.catalogoService.getItems('public/entidades')),
+        firstValueFrom(this.catalogoService.getItems('public/mancomunidades')),
+        firstValueFrom(this.catalogoService.getItems('public/competencias')),
+        firstValueFrom(this.catalogoService.getItems('public/grados-ocupacionales')),
+        firstValueFrom(this.catalogoService.getItems('public/instituciones'))
       ]);
 
       // Only active ones, sorted (Backend returns id, nombre, estado, etc.)
@@ -139,6 +153,12 @@ export class RegisterPage {
       this.etnias.set(etniasResp || []);
       this.nacionalidades.set(nacionalidadesResp || []);
       this.tiposParticipante.set(tiposParticipanteResp || []);
+      this.cargos.set(cargosResp || []);
+      this.entidades.set(entidadesResp || []);
+      this.mancomunidades.set(mancomunidadesResp || []);
+      this.competencias.set(competenciasResp || []);
+      this.gradosOcupacionales.set(gradosOcupacionalesResp || []);
+      this.instituciones.set(institucionesResp || []);
 
       // If reloading from session and we already had a provinciaId, restore the filtered cantones list immediately.
       const currentProv = this.userData().provinciaId;
@@ -307,6 +327,24 @@ export class RegisterPage {
       this.presentToast('Seleccione un tipo de participante', 'warning');
       return false;
     }
+
+    if (data.tipoParticipanteId === 1) { // Autoridad
+      if (!data.autoridad?.cargo || !data.autoridad?.nivelgobierno || !data.autoridad?.gadAutoridad) {
+        this.presentToast('Complete todos los campos para Autoridad', 'warning');
+        return false;
+      }
+    } else if (data.tipoParticipanteId === 3) { // Funcionario
+      if (!data.funcionarioGad?.cargo || !data.funcionarioGad?.nivelgobierno || !data.funcionarioGad?.gadFuncionarioGad || !data.funcionarioGad?.competencias || data.funcionarioGad.competencias.length === 0) {
+        this.presentToast('Complete todos los campos para Funcionario GAD, incluyendo competencias', 'warning');
+        return false;
+      }
+    } else if (data.tipoParticipanteId === 4) { // Institucion
+      if (!data.institucion?.institucion || !data.institucion?.gradoOcupacional || !data.institucion?.cargo) {
+        this.presentToast('Complete todos los campos para Institución (institución, grado ocupacional y cargo)', 'warning');
+        return false;
+      }
+    }
+
     return true;
   }
 

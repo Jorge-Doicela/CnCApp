@@ -27,6 +27,18 @@ export interface RegisterStateModel {
 
     // Step 4: Labor Info
     tipoParticipanteId?: number;
+    autoridadCargo?: string;
+    autoridadNivelGobiernoId?: number;
+    autoridadGad?: string;
+
+    funcionarioCargo?: string;
+    funcionarioNivelGobiernoId?: number;
+    funcionarioGad?: string;
+    funcionarioCompetencias?: number[];
+
+    institucionId?: number;
+    institucionCargoId?: number;
+    institucionGradoOcupacionalId?: number;
 
     // Step 5: Terms
     termsAccepted: boolean;
@@ -53,6 +65,16 @@ const initialState: RegisterStateModel = {
     celular: '',
     telefono: '',
     tipoParticipanteId: undefined,
+    autoridadCargo: undefined,
+    autoridadNivelGobiernoId: undefined,
+    autoridadGad: undefined,
+    funcionarioCargo: undefined,
+    funcionarioNivelGobiernoId: undefined,
+    funcionarioGad: undefined,
+    institucionId: undefined,
+    institucionCargoId: undefined,
+    institucionGradoOcupacionalId: undefined,
+    funcionarioCompetencias: [],
     termsAccepted: false,
     captchaVerified: false, // In dev we might mock this
     // captchaToken: undefined // --- GOOGLE RECAPTCHA (Descomentar en Producción) ---
@@ -114,7 +136,23 @@ export class RegisterStateService {
     }));
 
     laborData = computed(() => ({
-        tipoParticipanteId: this.state().tipoParticipanteId
+        tipoParticipanteId: this.state().tipoParticipanteId,
+        autoridad: this.state().tipoParticipanteId == 1 ? {
+            cargo: this.state().autoridadCargo,
+            nivelgobierno: this.state().autoridadNivelGobiernoId,
+            gadAutoridad: this.state().autoridadGad
+        } : undefined,
+        funcionarioGad: this.state().tipoParticipanteId == 2 ? {
+            cargo: this.state().funcionarioCargo,
+            nivelgobierno: this.state().funcionarioNivelGobiernoId,
+            gadFuncionarioGad: this.state().funcionarioGad,
+            competencias: this.state().funcionarioCompetencias
+        } : undefined,
+        institucion: this.state().tipoParticipanteId == 3 ? {
+            institucion: this.state().institucionId,
+            cargo: this.state().institucionCargoId,
+            gradoOcupacional: this.state().institucionGradoOcupacionalId
+        } : undefined
     }));
 
     termsData = computed(() => ({

@@ -54,4 +54,7 @@ export interface User {
         inscripciones: number;
         certificados: number;
     } | null;
+    autoridad?: any;
+    funcionarioGad?: any;
+    institucion?: any;
 }

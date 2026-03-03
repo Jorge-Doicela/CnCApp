@@ -260,7 +260,7 @@
         </div>
 
         <!-- Funcionario GAD -->
-        <div *ngIf="usuarioGeneral.tipoParticipante == 2">
+        <div *ngIf="usuarioGeneral.tipoParticipante == 3">
           <h3 class="section-title">Datos Funcionario GAD</h3>
           <div class="field-group">
             <ion-item class="form-field">
@@ -286,11 +286,11 @@
         </div>
 
         <!-- Institución -->
-        <div *ngIf="usuarioGeneral.tipoParticipante == 3">
+        <div *ngIf="usuarioGeneral.tipoParticipante == 4">
           <h3 class="section-title">Datos Institucionales</h3>
           <div class="field-group">
             <ion-item class="form-field">
-              <ion-label>Institución *</ion-label>
+              <ion-label position="floating">Institución *</ion-label>
               <ion-select [(ngModel)]="institucion.institucion" placeholder="Seleccione" interface="popover">
                 <ion-select-option *ngFor="let inst of datosrecuperados.instituciones" [value]="inst.id">
                   {{ inst.nombre }}
@@ -298,9 +298,19 @@
               </ion-select>
             </ion-item>
             <ion-item class="form-field">
-              <ion-label>Cargo *</ion-label>
+              <ion-label position="floating">Grado Ocupacional *</ion-label>
+              <ion-select [(ngModel)]="institucion.gradoOcupacional" placeholder="Seleccione" interface="popover">
+                <ion-select-option *ngFor="let g of datosrecuperados.gradosOcupacionales" [value]="g.id">
+                  {{ g.nombre }}
+                </ion-select-option>
+              </ion-select>
+            </ion-item>
+          </div>
+          <div class="field-group" style="grid-column: span 2;">
+            <ion-item class="form-field">
+              <ion-label position="floating">Cargo *</ion-label>
               <ion-select [(ngModel)]="institucion.cargo" placeholder="Seleccione" interface="popover">
-                <ion-select-option *ngFor="let cargo of datosrecuperados.cargos" [value]="cargo.id">
+                <ion-select-option *ngFor="let cargo of datosrecuperados.cargos" [value]="cargo.nombre">
                   {{ cargo.nombre }}
                 </ion-select-option>
               </ion-select>
