@@ -292,18 +292,194 @@
         @if (step() === 4) {
         <div class="step-content">
           <div class="input-group">
-            <ion-label>Tipo de Participante *</ion-label>
+            <ion-label>Tipo de Participante * <span
+                style="font-size: 0.8rem; color: #ef4444; float: right; margin-top: 5px;">Los campos con asterisco(*)
+                son obligatorios.</span></ion-label>
             <div class="custom-input-wrapper">
               <ion-icon name="briefcase-outline" class="input-icon"></ion-icon>
               <ion-select interface="action-sheet" [value]="state.laborData().tipoParticipanteId"
-                (ionChange)="state.updateUserData({tipoParticipanteId: $event.detail.value})" label="Seleccione"
-                label-placement="floating" class="custom-select">
+                (ionChange)="state.updateUserData({tipoParticipanteId: $event.detail.value})" placeholder="Seleccione"
+                class="custom-select w-full" style="width: 100%;">
                 @for (tp of tiposParticipante(); track tp.id) {
                 <ion-select-option [value]="tp.id">{{ tp.nombre }}</ion-select-option>
                 }
               </ion-select>
             </div>
           </div>
+
+          <!-- Autoridad (ID=1) -->
+          @if (state.laborData().tipoParticipanteId === 1) {
+          <div class="form-grid" style="margin-top: 20px;">
+            <!-- Cargos y Nivel de gobierno -->
+            <div class="input-group" style="grid-column: span 2;">
+              <ion-label>Cargos *</ion-label>
+              <div class="custom-input-wrapper">
+                <ion-select interface="popover" [value]="state.laborData().autoridad?.cargo"
+                  (ionChange)="state.updateUserData({autoridadCargo: $event.detail.value})"
+                  placeholder="[Seleccione un cargo]" class="custom-select w-full" style="width: 100%;">
+                  @for (c of cargos(); track c.id) {
+                  <ion-select-option [value]="c.nombre">{{ c.nombre }}</ion-select-option>
+                  }
+                </ion-select>
+              </div>
+            </div>
+
+            <div class="input-group">
+              <ion-label>Nivel de gobierno u otro *</ion-label>
+              <div class="custom-input-wrapper">
+                <ion-select interface="popover" [value]="state.laborData().autoridad?.nivelgobierno"
+                  (ionChange)="state.updateUserData({autoridadNivelGobiernoId: $event.detail.value})"
+                  placeholder="[Seleccione un elemento]" class="custom-select w-full" style="width: 100%;">
+                  @for (e of entidades(); track e.id) {
+                  <ion-select-option [value]="e.id">{{ e.nombre }}</ion-select-option>
+                  }
+                </ion-select>
+              </div>
+            </div>
+
+            <div class="input-group">
+              <ion-label>GAD *</ion-label>
+              <div class="custom-input-wrapper">
+                <ion-select interface="popover" [value]="state.laborData().autoridad?.gadAutoridad"
+                  (ionChange)="state.updateUserData({autoridadGad: $event.detail.value})"
+                  placeholder="[Seleccione un GAD]" class="custom-select w-full" style="width: 100%;">
+                  @if (state.laborData().autoridad?.nivelgobierno === 4) {
+                  @for (m of mancomunidades(); track m.id) {
+                  <ion-select-option [value]="m.nombre">{{ m.nombre }}</ion-select-option>
+                  }
+                  } @else if (state.laborData().autoridad?.nivelgobierno === 2 ||
+                  state.laborData().autoridad?.nivelgobierno === 3) {
+                  @for (c of cantones(); track c.id) {
+                  <ion-select-option [value]="c.nombre">{{ c.nombre }}</ion-select-option>
+                  }
+                  } @else {
+                  @for (p of provincias(); track p.id) {
+                  <ion-select-option [value]="p.nombre">{{ p.nombre }}</ion-select-option>
+                  }
+                  }
+                </ion-select>
+              </div>
+            </div>
+          </div>
+          }
+
+          <!-- Funcionario GAD (ID=3) -->
+          @if (state.laborData().tipoParticipanteId === 3) {
+          <div class="form-grid" style="margin-top: 20px;">
+            <div class="input-group">
+              <ion-label>Cargos *</ion-label>
+              <div class="custom-input-wrapper">
+                <ion-select interface="popover" [value]="state.laborData().funcionarioGad?.cargo"
+                  (ionChange)="state.updateUserData({funcionarioCargo: $event.detail.value})"
+                  placeholder="[Seleccione un cargo]" class="custom-select w-full" style="width: 100%;">
+                  @for (c of cargos(); track c.id) {
+                  <ion-select-option [value]="c.nombre">{{ c.nombre }}</ion-select-option>
+                  }
+                </ion-select>
+              </div>
+            </div>
+
+            <div class="input-group">
+              <ion-label>Competencias *</ion-label>
+              <div class="custom-input-wrapper" style="height: auto;">
+                <ion-select interface="popover" [multiple]="true"
+                  [value]="state.laborData().funcionarioGad?.competencias || []"
+                  (ionChange)="state.updateUserData({funcionarioCompetencias: $event.detail.value})"
+                  placeholder="[Seleccione competencias]" class="custom-select w-full" style="width: 100%;">
+                  @for (comp of competencias(); track comp.id) {
+                  <ion-select-option [value]="comp.id">{{ comp.nombre }}</ion-select-option>
+                  }
+                </ion-select>
+              </div>
+            </div>
+
+            <div class="input-group">
+              <ion-label>Nivel de gobierno u otro *</ion-label>
+              <div class="custom-input-wrapper">
+                <ion-select interface="popover" [value]="state.laborData().funcionarioGad?.nivelgobierno"
+                  (ionChange)="state.updateUserData({funcionarioNivelGobiernoId: $event.detail.value})"
+                  placeholder="[Seleccione un elemento]" class="custom-select w-full" style="width: 100%;">
+                  @for (e of entidades(); track e.id) {
+                  <ion-select-option [value]="e.id">{{ e.nombre }}</ion-select-option>
+                  }
+                </ion-select>
+              </div>
+            </div>
+
+            <div class="input-group">
+              <ion-label>GAD *</ion-label>
+              <div class="custom-input-wrapper">
+                <ion-select interface="popover" [value]="state.laborData().funcionarioGad?.gadFuncionarioGad"
+                  (ionChange)="state.updateUserData({funcionarioGad: $event.detail.value})"
+                  placeholder="[Seleccione un GAD]" class="custom-select w-full" style="width: 100%;">
+                  @if (state.laborData().funcionarioGad?.nivelgobierno === 4) {
+                  @for (m of mancomunidades(); track m.id) {
+                  <ion-select-option [value]="m.nombre">{{ m.nombre }}</ion-select-option>
+                  }
+                  } @else if (state.laborData().funcionarioGad?.nivelgobierno === 2 ||
+                  state.laborData().funcionarioGad?.nivelgobierno === 3) {
+                  @for (c of cantones(); track c.id) {
+                  <ion-select-option [value]="c.nombre">{{ c.nombre }}</ion-select-option>
+                  }
+                  } @else {
+                  @for (p of provincias(); track p.id) {
+                  <ion-select-option [value]="p.nombre">{{ p.nombre }}</ion-select-option>
+                  }
+                  }
+                </ion-select>
+              </div>
+            </div>
+          </div>
+          }
+
+          <!-- Institución (ID=4) -->
+          @if (state.laborData().tipoParticipanteId === 4) {
+          <div class="form-grid" style="margin-top: 20px;">
+
+            <!-- Fila 1: Instituciones | Grados Ocupacionales -->
+            <div class="input-group">
+              <ion-label>Instituciones *</ion-label>
+              <div class="custom-input-wrapper">
+                <ion-select interface="popover" [value]="state.laborData().institucion?.institucion"
+                  (ionChange)="state.updateUserData({institucionId: $event.detail.value})"
+                  placeholder="[Seleccione una institución]" class="custom-select w-full" style="width: 100%;">
+                  @for (inst of instituciones(); track inst.id) {
+                  <ion-select-option [value]="inst.id">{{ inst.nombre }}</ion-select-option>
+                  }
+                </ion-select>
+              </div>
+            </div>
+
+            <div class="input-group">
+              <ion-label>Grados Ocupacionales *</ion-label>
+              <div class="custom-input-wrapper">
+                <ion-select interface="popover" [value]="state.laborData().institucion?.gradoOcupacional"
+                  (ionChange)="state.updateUserData({institucionGradoOcupacionalId: $event.detail.value})"
+                  placeholder="[Seleccione un grado ocupacional]" class="custom-select w-full" style="width: 100%;">
+                  @for (g of gradosOcupacionales(); track g.id) {
+                  <ion-select-option [value]="g.id">{{ g.nombre }}</ion-select-option>
+                  }
+                </ion-select>
+              </div>
+            </div>
+
+            <!-- Fila 2: Cargos - full width -->
+            <div class="input-group" style="grid-column: span 2;">
+              <ion-label>Cargos *</ion-label>
+              <div class="custom-input-wrapper">
+                <ion-select interface="popover" [value]="state.laborData().institucion?.cargo"
+                  (ionChange)="state.updateUserData({institucionCargoId: $event.detail.value})"
+                  placeholder="[Seleccione un cargo]" class="custom-select w-full" style="width: 100%;">
+                  @for (c of cargos(); track c.id) {
+                  <ion-select-option [value]="c.nombre">{{ c.nombre }}</ion-select-option>
+                  }
+                </ion-select>
+              </div>
+            </div>
+
+          </div>
+          }
+
         </div>
         }
 

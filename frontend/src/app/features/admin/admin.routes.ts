@@ -186,5 +186,10 @@ export const ADMIN_ROUTES: Routes = [
         path: 'gestionar-plantillas/editar/:id',
         loadComponent: () => import('./plantillas/crear/crear.page').then(m => m.CrearPage), // Reusing CrearPage for Edit
         canActivate: [adminGuard]
+    },
+    {
+        path: 'gestionar-grados',
+        loadComponent: () => import('./grados-ocupacionales/grados-ocupacionales.page').then(m => m.GradosOcupacionalesPage),
+        canActivate: [adminGuard]
     }
 ];

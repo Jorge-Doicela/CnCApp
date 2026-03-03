@@ -325,6 +325,7 @@ export class HomePage implements OnInit {
       'Gestionar entidades': 'gestionar-entidades',
       'Gestionar competencias': 'gestionar-competencias',
       'Gestionar instituciones': 'gestionar-instituciones',
+      'Gestionar grados': 'gestionar-grados',
       'Ver Perfil': 'ver-perfil',
       'Ver conferencias': 'ver-conferencias',
       'Ver certificaciones': 'ver-certificaciones',
@@ -347,6 +348,7 @@ export class HomePage implements OnInit {
       'Entidades': 'gestionar-entidades',
       'Instituciones': 'gestionar-instituciones',
       'Cargos': 'gestionar-cargos-instituciones',
+      'Grados Ocupacionales': 'gestionar-grados',
       'Competencias': 'gestionar-competencias'
     };
 

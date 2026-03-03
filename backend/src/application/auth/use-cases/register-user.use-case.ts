@@ -23,6 +23,9 @@ interface RegisterDto {
     provinciaId?: number;
     cantonId?: number;
     tipoParticipanteId?: number;
+    autoridad?: any;
+    funcionarioGad?: any;
+    institucion?: any;
     // captchaToken?: string; // --- GOOGLE RECAPTCHA (Descomentar en Producción) ---
 }
 
@@ -114,13 +117,16 @@ export class RegisterUserUseCase {
             provinciaId: data.provinciaId,
             cantonId: data.cantonId,
             rolId: defaultRolId,
-            entidadId: defaultEntidadId,
+            entidadId: data.autoridad?.nivelgobierno || data.funcionarioGad?.nivelgobierno || defaultEntidadId,
             tipoParticipanteId: data.tipoParticipanteId || null,
             createdAt: now,
             updatedAt: now,
             authUid: null,
             fotoPerfilUrl: null,
-            firmaUrl: null
+            firmaUrl: null,
+            autoridad: data.autoridad,
+            funcionarioGad: data.funcionarioGad,
+            institucion: data.institucion
         };
 
         const savedUser = await this.userRepository.save(newUser);

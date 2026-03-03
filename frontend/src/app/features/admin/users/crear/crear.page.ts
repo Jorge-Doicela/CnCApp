@@ -90,6 +90,7 @@ export class CrearPage implements OnInit {
     macrocomunidades: [] as any[],
     municipios: [] as any[],
     competencias: [] as any[],
+    gradosOcupacionales: [] as any[],
   }
 
   datosconcatenar = {
@@ -315,6 +316,7 @@ export class CrearPage implements OnInit {
     this.obtenerProvincias();
     this.obtenerCargos();
     this.obtenerInstituciones();
+    this.obtenerGradosOcupacionales();
   }
 
   // Función para obtener los roles
@@ -579,7 +581,7 @@ export class CrearPage implements OnInit {
         this.showToast('Por favor seleccione el GAD');
         return false;
       }
-    } else if (this.usuarioGeneral.tipoParticipante == 2) {
+    } else if (this.usuarioGeneral.tipoParticipante == 3) {
       if (!this.funcionarioGad.cargo) {
         this.showToast('Por favor seleccione el cargo del funcionario');
         return false;
@@ -596,7 +598,7 @@ export class CrearPage implements OnInit {
         this.showToast('Por favor seleccione el GAD');
         return false;
       }
-    } else if (this.usuarioGeneral.tipoParticipante == 3) {
+    } else if (this.usuarioGeneral.tipoParticipante == 4) {
       if (!this.institucion.institucion) {
         this.showToast('Por favor seleccione la institución');
         return false;
@@ -629,8 +631,8 @@ export class CrearPage implements OnInit {
     const fullUserData = {
       ...this.usuarioGeneral,
       autoridad: this.usuarioGeneral.tipoParticipante == 1 ? this.autoridad : undefined,
-      funcionarioGad: this.usuarioGeneral.tipoParticipante == 2 ? this.funcionarioGad : undefined,
-      institucion: this.usuarioGeneral.tipoParticipante == 3 ? this.institucion : undefined
+      funcionarioGad: this.usuarioGeneral.tipoParticipante == 3 ? this.funcionarioGad : undefined,
+      institucion: this.usuarioGeneral.tipoParticipante == 4 ? this.institucion : undefined
     };
 
     console.log('Sending user data:', fullUserData);
@@ -737,8 +739,20 @@ export class CrearPage implements OnInit {
   // Obtener instituciones
   async obtenerInstituciones() {
     try {
-      const data = await firstValueFrom(this.catalogoService.getItems('instituciones_sistema')); // Verify endpoint name
+      const data = await firstValueFrom(this.catalogoService.getItems('public/instituciones'));
       this.datosrecuperados.instituciones = data || [];
+    } catch (err) {
+      console.error(err);
+    } finally {
+      this.cdr.markForCheck();
+    }
+  }
+
+  // Obtener grados ocupacionales
+  async obtenerGradosOcupacionales() {
+    try {
+      const data = await firstValueFrom(this.catalogoService.getItems('public/grados-ocupacionales'));
+      this.datosrecuperados.gradosOcupacionales = data || [];
     } catch (err) {
       console.error(err);
     } finally {

@@ -55,4 +55,71 @@ export class CatalogoController {
             res.status(500).json({ error: 'Internal server error while fetching nacionalidades' });
         }
     }
+
+    async getCargos(_req: Request, res: Response): Promise<void> {
+        try {
+            const cargos = await prisma.cargo.findMany({ orderBy: { id: 'asc' } });
+            res.json(cargos);
+        } catch (error) {
+            console.error('Error:', error);
+            res.status(500).json({ error: 'Error fetching cargos' });
+        }
+    }
+
+    async getEntidades(_req: Request, res: Response): Promise<void> {
+        try {
+            const entidades = await prisma.entidad.findMany({ orderBy: { id: 'asc' } });
+            res.json(entidades);
+        } catch (error) {
+            console.error('Error:', error);
+            res.status(500).json({ error: 'Error fetching entidades' });
+        }
+    }
+
+    async getInstituciones(_req: Request, res: Response): Promise<void> {
+        try {
+            const instituciones = await prisma.institucionSistema.findMany({ orderBy: { nombre: 'asc' } });
+            res.json(instituciones);
+        } catch (error) {
+            console.error('Error:', error);
+            res.status(500).json({ error: 'Error fetching instituciones' });
+        }
+    }
+
+    async getMancomunidades(_req: Request, res: Response): Promise<void> {
+        try {
+            const mancomunidades = await prisma.mancomunidad.findMany({ orderBy: { nombre: 'asc' } });
+            res.json(mancomunidades);
+        } catch (error) {
+            console.error('Error:', error);
+            res.status(500).json({ error: 'Error fetching mancomunidades' });
+        }
+    }
+
+    async getCompetencias(_req: Request, res: Response): Promise<void> {
+        try {
+            const competencias = await prisma.competencia.findMany({
+                where: { estado_competencia: true },
+                orderBy: { nombre_competencias: 'asc' }
+            });
+            const mapped = competencias.map((c: any) => ({
+                id: c.id,
+                nombre: c.nombre_competencias
+            }));
+            res.json(mapped);
+        } catch (error) {
+            console.error('Error:', error);
+            res.status(500).json({ error: 'Error fetching competencias' });
+        }
+    }
+
+    async getGradosOcupacionales(_req: Request, res: Response): Promise<void> {
+        try {
+            const grados = await prisma.gradoOcupacional.findMany({ orderBy: { nombre: 'asc' } });
+            res.json(grados);
+        } catch (error) {
+            console.error('Error:', error);
+            res.status(500).json({ error: 'Error fetching grados ocupacionales' });
+        }
+    }
 }

@@ -24,6 +24,7 @@ import plantillaRoutes from './infrastructure/web/routes/plantilla.routes';
 import usuarioCapacitacionRoutes from './infrastructure/web/routes/usuario-capacitacion.routes';
 import competenciaRoutes from './infrastructure/web/routes/competencia.routes';
 import { catalogoRoutes } from './infrastructure/web/routes/catalogo.routes';
+import { gradoOcupacionalRoutes } from './infrastructure/web/routes/grado-ocupacional.routes';
 
 // Importar middleware
 import { errorHandler } from './infrastructure/web/middleware/error.middleware';
@@ -97,21 +98,24 @@ app.get('/health', (_req, res) => {
     res.status(200).json({ status: 'ok', message: 'Servidor funcionando correctamente' });
 });
 
-// Rutas de la API
+// Rutas de la API (Públicas y Catálogos van primero)
+app.use('/api', catalogoRoutes); // Generos, Etnias, Nacionalidades, (cargos, entidades pub)
+app.use('/api', ubicacionRoutes); // Provincias y Cantones
 app.use('/api/auth', authRoutes);
+
+// Rutas Restringidas (Requieren Auth)
 app.use('/api/users', userRoutes);
 app.use('/api/rol', rolRoutes); // Singular to match frontend service
 app.use('/api/entidades', entidadRoutes); // Plural to match frontend service
 app.use('/api/capacitaciones', capacitacionRoutes);
 app.use('/api/certificados', certificadoRoutes);
-app.use('/api', ubicacionRoutes); // Provincias y Cantones
 app.use('/api/cargos', cargoRoutes);
 app.use('/api/instituciones', institucionRoutes);
+app.use('/api/grados-ocupacionales', gradoOcupacionalRoutes);
 app.use('/api/reportes', reportesRoutes);
 app.use('/api/plantillas', plantillaRoutes);
 app.use('/api/usuarios-capacitaciones', usuarioCapacitacionRoutes);
 app.use('/api/competencias', competenciaRoutes);
-app.use('/api', catalogoRoutes); // Generos y Etnias
 
 // ============================================
 // MANEJO DE ERRORES

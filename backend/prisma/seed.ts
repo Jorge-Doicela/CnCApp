@@ -14,25 +14,19 @@ async function main() {
         // ============================================
         // STEP 0: CLEAN DATABASE (FULL RESET)
         // ============================================
-        console.log('🗑️  Performing deep clean and sequence reset...');
         const tables = [
             'Certificados', 'Usuarios_Capacitaciones', 'Capacitaciones', 'Plantillas',
             'Instituciones_usuario', 'FuncionarioGAD', 'Autoridades', 'Usuario',
             'parroquia', 'Cantones', 'Provincias', 'Entidades', 'Rol',
             'mancomunidades', 'instituciones_sistema', 'cargos', 'competencias',
-            'Generos', 'Etnias', 'TiposParticipante', 'Nacionalidades'
+            'Generos', 'Etnias', 'TiposParticipante', 'Nacionalidades', 'grados_ocupacionales'
         ];
 
         for (const table of tables) {
             try {
                 await prisma.$executeRawUnsafe(`TRUNCATE TABLE "${table}" RESTART IDENTITY CASCADE`);
             } catch (e) {
-                // Fallback for non-postgres or specific table issues
-                // @ts-ignore
-                if (prisma[table.toLowerCase()]) {
-                    // @ts-ignore
-                    await prisma[table.toLowerCase()].deleteMany({});
-                }
+                console.log(`⚠️  Could not truncate ${table}, skipping...`);
             }
         }
         console.log('✅ System clean\n');
@@ -112,6 +106,27 @@ async function main() {
                 { nombre: 'ORGANISMOS INTERNACIONALES' },
                 { nombre: 'ACADEMIA Y CENTROS DE INVESTIGACIÓN' },
                 { nombre: 'CONSULTORES Y PROFESIONALES INDEPENDIENTES' },
+            ]
+        });
+
+        await prisma.gradoOcupacional.createMany({
+            data: [
+                { nombre: 'PROFESIONAL 1' },
+                { nombre: 'PROFESIONAL 2' },
+                { nombre: 'PROFESIONAL 3' },
+                { nombre: 'PROFESIONAL 4' },
+                { nombre: 'PROFESIONAL 5' },
+                { nombre: 'PROFESIONAL 6' },
+                { nombre: 'TÉCNICO A' },
+                { nombre: 'TÉCNICO B' },
+                { nombre: 'TÉCNICO C' },
+                { nombre: 'SERVIDOR PÚBLICO 1' },
+                { nombre: 'SERVIDOR PÚBLICO 2' },
+                { nombre: 'SERVIDOR PÚBLICO 3' },
+                { nombre: 'SERVIDOR PÚBLICO 4' },
+                { nombre: 'SERVIDOR PÚBLICO 5' },
+                { nombre: 'SERVIDOR PÚBLICO 6' },
+                { nombre: 'SERVIDOR PÚBLICO 7' },
             ]
         });
 

@@ -30,7 +30,10 @@ const registerSchema = z.object({
     cantonId: z.number().optional(),
     generoId: z.number().optional(),
     etniaId: z.number().optional(),
-    nacionalidadId: z.number().optional()
+    nacionalidadId: z.number().optional(),
+    autoridad: z.any().optional(),
+    funcionarioGad: z.any().optional(),
+    institucion: z.any().optional()
 });
 
 const loginSchema = z.object({
@@ -77,7 +80,10 @@ export class AuthController {
                 cantonId: data.cantonId,
                 generoId: data.generoId,
                 etniaId: data.etniaId,
-                nacionalidadId: data.nacionalidadId
+                nacionalidadId: data.nacionalidadId,
+                autoridad: data.autoridad,
+                funcionarioGad: data.funcionarioGad,
+                institucion: data.institucion
             });
 
             res.status(201).json({

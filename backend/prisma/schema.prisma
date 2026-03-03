@@ -177,11 +177,12 @@ model Certificado {
 }
 
 model Competencia {
-  id                         Int       @id @default(autoincrement()) @map("id_competencias")
-  nombre_competencias        String    @unique @db.VarChar(200)
-  descripcion                String?   @db.Text
-  estado_competencia         Boolean   @default(true)
-  fecha_ultima_actualizacion DateTime? @default(now()) @updatedAt
+  id                         Int              @id @default(autoincrement()) @map("id_competencias")
+  nombre_competencias        String           @unique @db.VarChar(200)
+  descripcion                String?          @db.Text
+  estado_competencia         Boolean          @default(true)
+  fecha_ultima_actualizacion DateTime?        @default(now()) @updatedAt
+  funcionarios               FuncionarioGAD[] @relation("FuncionarioCompetencias")
 
   @@map("competencias")
 }
@@ -213,21 +214,24 @@ model Autoridad {
 }
 
 model FuncionarioGAD {
-  id           Int     @id @default(autoincrement()) @map("Id_Funcionario")
-  usuarioId    Int     @map("Id_Usuario")
-  cargo        String? @db.VarChar(200)
-  departamento String? @db.VarChar(200)
-  usuario      Usuario @relation(fields: [usuarioId], references: [id])
+  id           Int           @id @default(autoincrement()) @map("Id_Funcionario")
+  usuarioId    Int           @map("Id_Usuario")
+  cargo        String?       @db.VarChar(200)
+  departamento String?       @db.VarChar(200)
+  usuario      Usuario       @relation(fields: [usuarioId], references: [id])
+  competencias Competencia[] @relation("FuncionarioCompetencias")
 
   @@map("FuncionarioGAD")
 }
 
 model InstitucionUsuario {
-  id            Int                @id @default(autoincrement())
-  usuarioId     Int                @map("Id_Usuario")
-  institucionId Int                @map("Id_Institucion")
-  institucion   InstitucionSistema @relation(fields: [institucionId], references: [id])
-  usuario       Usuario            @relation(fields: [usuarioId], references: [id])
+  id                 Int                @id @default(autoincrement())
+  usuarioId          Int                @map("Id_Usuario")
+  institucionId      Int                @map("Id_Institucion")
+  gradoOcupacionalId Int?               @map("Id_Grado_Ocupacional")
+  institucion        InstitucionSistema @relation(fields: [institucionId], references: [id])
+  usuario            Usuario            @relation(fields: [usuarioId], references: [id])
+  gradoOcupacional   GradoOcupacional?  @relation(fields: [gradoOcupacionalId], references: [id])
 
   @@map("Instituciones_usuario")
 }
@@ -237,6 +241,14 @@ model Mancomunidad {
   nombre String @map("Nombre_Mancomunidad") @db.VarChar(300)
 
   @@map("mancomunidades")
+}
+
+model GradoOcupacional {
+  id            Int                  @id @default(autoincrement()) @map("Id_Grado_Ocupacional")
+  nombre        String               @unique @map("Nombre_Grado") @db.VarChar(200)
+  instituciones InstitucionUsuario[]
+
+  @@map("grados_ocupacionales")
 }
 
 model Plantilla {

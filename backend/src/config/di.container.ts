@@ -13,6 +13,7 @@ import { PrismaEntidadRepository } from '../infrastructure/database/prisma-entid
 import { PrismaReportesRepository } from '../infrastructure/database/repositories/reportes/prisma-reportes.repository';
 import { PrismaParroquiaRepository } from '../infrastructure/database/repositories/ubicacion/prisma-parroquia.repository';
 import { PrismaCompetenciaRepository } from '../infrastructure/database/repositories/competencia/prisma-competencia.repository';
+import { PrismaGradoOcupacionalRepository } from '../infrastructure/database/repositories/prisma-grado-ocupacional.repository';
 
 // Import Auth Use Cases
 import { RegisterUserUseCase } from '../application/auth/use-cases/register-user.use-case';
@@ -79,6 +80,13 @@ import { CreateInstitucionUseCase } from '../application/institucion/use-cases/c
 import { UpdateInstitucionUseCase } from '../application/institucion/use-cases/update-institucion.use-case';
 import { DeleteInstitucionUseCase } from '../application/institucion/use-cases/delete-institucion.use-case';
 
+// Import GradoOcupacional Use Cases
+import { GetAllGradosUseCase } from '../application/grado-ocupacional/use-cases/get-all-grados.use-case';
+import { GetGradoByIdUseCase } from '../application/grado-ocupacional/use-cases/get-grado-by-id.use-case';
+import { CreateGradoUseCase } from '../application/grado-ocupacional/use-cases/create-grado.use-case';
+import { UpdateGradoUseCase } from '../application/grado-ocupacional/use-cases/update-grado.use-case';
+import { DeleteGradoUseCase } from '../application/grado-ocupacional/use-cases/delete-grado.use-case';
+
 // Import Reportes Use Cases
 import { GetDashboardStatsUseCase } from '../application/reportes/use-cases/get-dashboard-stats.use-case';
 import { ExportarPDFUseCase } from '../application/reportes/use-cases/exportar-pdf.use-case';
@@ -101,6 +109,7 @@ import { CompetenciaController } from '../infrastructure/web/controllers/compete
 import { CargoController } from '../infrastructure/web/controllers/cargo.controller';
 import { InstitucionController } from '../infrastructure/web/controllers/institucion.controller';
 import { UsuarioCapacitacionController } from '../infrastructure/web/controllers/usuario-capacitacion.controller';
+import { GradoOcupacionalController } from '../infrastructure/web/controllers/grado-ocupacional.controller';
 import { PrismaUsuarioCapacitacionRepository } from '../infrastructure/repositories/usuario-capacitacion.repository.impl';
 
 // Import Database
@@ -142,6 +151,7 @@ container.register('CargoRepository', { useClass: PrismaCargoRepository });
 container.register('InstitucionRepository', { useClass: PrismaInstitucionRepository });
 container.register('ReportesRepository', { useClass: PrismaReportesRepository });
 container.register('CompetenciaRepository', { useClass: PrismaCompetenciaRepository });
+container.register('GradoOcupacionalRepository', { useClass: PrismaGradoOcupacionalRepository });
 
 // Ubicacion
 container.register('ProvinciaRepository', { useClass: PrismaProvinciaRepository });
@@ -227,6 +237,13 @@ container.registerSingleton(CreateInstitucionUseCase);
 container.registerSingleton(UpdateInstitucionUseCase);
 container.registerSingleton(DeleteInstitucionUseCase);
 
+// GradoOcupacional Use Cases
+container.registerSingleton(GetAllGradosUseCase);
+container.registerSingleton(GetGradoByIdUseCase);
+container.registerSingleton(CreateGradoUseCase);
+container.registerSingleton(UpdateGradoUseCase);
+container.registerSingleton(DeleteGradoUseCase);
+
 // Reportes Use Cases
 container.registerSingleton(GetDashboardStatsUseCase);
 container.registerSingleton(ExportarPDFUseCase);
@@ -245,6 +262,7 @@ container.registerSingleton(UbicacionController);
 container.registerSingleton(CargoController);
 container.registerSingleton(InstitucionController);
 container.registerSingleton(CompetenciaController);
+container.registerSingleton(GradoOcupacionalController);
 
 // Import UsuarioCapacitacion Use Cases
 
