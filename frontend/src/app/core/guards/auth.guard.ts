@@ -1,4 +1,4 @@
-import { inject } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Router, CanActivateFn } from '@angular/router';
 import { AlertController } from '@ionic/angular';
 import { AuthService } from '../../features/auth/services/auth.service';
@@ -33,24 +33,23 @@ export const authGuard: CanActivateFn = async (route, state) => {
  * Injectable class-based guard for backwards compatibility
  * Only checks authentication, not roles
  */
+@Injectable({
+  providedIn: 'root'
+})
 export class AuthGuard {
-  private router = inject(Router);
-  private alertController = inject(AlertController);
-  private authService = inject(AuthService);
+  constructor(
+    private router: Router,
+    private alertController: AlertController,
+    private authService: AuthService
+  ) { }
 
   async canActivate(route: any, state: any): Promise<boolean> {
-    // Check if user is authenticated
-    const token = localStorage.getItem('accessToken');
-
+    const token = localStorage.getItem('accessToken') || localStorage.getItem('token');
     if (!token) {
-      await this.presentAuthAlert(
-        'Acceso denegado',
-        'Debe iniciar sesión para acceder a esta página'
-      );
+      await this.presentAuthAlert('Acceso denegado', 'Debe iniciar sesión');
       this.router.navigate(['/login']);
       return false;
     }
-
     return true;
   }
 
@@ -62,7 +61,6 @@ export class AuthGuard {
       cssClass: 'auth-alert',
       backdropDismiss: false
     });
-
     await alert.present();
   }
 }

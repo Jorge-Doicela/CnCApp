@@ -260,8 +260,19 @@ export class AppComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Mapeo de nombres de módulos a rutas específicas
-    const rutasModulos: { [key: string]: string } = {
+    const roleName = this.authService.roleName()?.toLowerCase().trim() ?? '';
+    const isConferencista = roleName === 'conferencista';
+    const isAdmin = roleName === 'administrador';
+
+    // Rutas del Admin (panel /gestionar-*)
+    const adminRoutes: Record<string, string> = {
+      'usuarios': 'gestionar-usuarios',
+      'capacitaciones': 'gestionar-capacitaciones',
+      'certificados': 'gestionar-certificados',
+      'reportes': 'gestionar-reportes',
+      'configuracion': 'gestionar-roles',
+      'plantillas': 'gestionar-plantillas',
+      'competencias': 'gestionar-competencias',
       'Gestionar roles': 'gestionar-roles',
       'Gestionar capacitación': 'gestionar-capacitaciones',
       'Gestionar capacitaciones': 'gestionar-capacitaciones',
@@ -274,42 +285,50 @@ export class AppComponent implements OnInit, OnDestroy {
       'Gestionar instituciones': 'gestionar-instituciones',
       'Gestionar cargos instituciones': 'gestionar-cargos-instituciones',
       'Reportes': 'gestionar-reportes',
-      'reportes': 'gestionar-reportes',
+      'Gestionar plantillas': 'gestionar-plantillas',
+      'Plantillas': 'gestionar-plantillas'
+    };
+
+    // Rutas del Conferencista (prefijo conferencista/)
+    const conferencistaRoutes: Record<string, string> = {
+      'capacitaciones': 'conferencista/gestionar-capacitaciones',
+      'plantillas': 'conferencista/gestionar-plantillas',
+      'inscripciones': 'ver-conferencias',
+      'certificados': 'ver-certificaciones',
+      'Gestionar capacitaciones': 'conferencista/gestionar-capacitaciones',
+      'Gestionar capacitación': 'conferencista/gestionar-capacitaciones',
+      'Plantillas': 'conferencista/gestionar-plantillas',
+      'Gestionar plantillas': 'conferencista/gestionar-plantillas',
+    };
+
+    // Rutas comunes para todos los roles
+    const commonRoutes: Record<string, string> = {
       'Ver Perfil': 'ver-perfil',
       'Ver conferencias': 'ver-conferencias',
       'Ver certificaciones': 'ver-certificaciones',
       'Ver certificados': 'ver-certificaciones',
       'Validar certificados': 'validar-certificados',
+      'validar-certificados': 'validar-certificados',
       'informacion': 'home/informacion',
       'direccion': 'home/direccion',
       'historia': 'home/historia',
       'norma-regul': 'home/norma-regul',
       'servi-progra': 'home/servi-progra',
-      'Gestionar plantillas': 'gestionar-plantillas',
-      'Plantillas': 'gestionar-plantillas'
     };
 
-    // Obtener la ruta del mapeo o convertir el nombre del módulo a formato kebab-case
-    let ruta = rutasModulos[modulo] || modulo.toLowerCase().replace(/\s+/g, '-');
+    let ruta: string;
 
-    // Lógica específica para Creadores: Redirigir a rutas /creator/ para módulos compartidos
-    const roleName = this.authService.roleName()?.toLowerCase();
-    const isCreator = roleName?.includes('creador') || roleName?.includes('conferencia');
-
-    if (isCreator) {
-      // Lista de rutas que tienen versión específica para creadores
-      const creatorRoutes = [
-        'gestionar-capacitaciones',
-        'gestionar-plantillas',
-        'certificados' // Si aplica
-      ];
-
-      if (creatorRoutes.some(r => ruta.includes(r))) {
-        ruta = `creator/${ruta}`;
-      }
+    if (commonRoutes[modulo]) {
+      ruta = commonRoutes[modulo];
+    } else if (isConferencista && conferencistaRoutes[modulo]) {
+      ruta = conferencistaRoutes[modulo];
+    } else if (isAdmin && adminRoutes[modulo]) {
+      ruta = adminRoutes[modulo];
+    } else {
+      ruta = adminRoutes[modulo] || modulo.toLowerCase().replace(/\s+/g, '-');
     }
 
-    console.log(`Navegando a: /${ruta}`);
+    console.log(`[NAV] Módulo: "${modulo}" → Rol: ${roleName} → Ruta: /${ruta}`);
     this.router.navigate([`/${ruta}`]);
     this.closeMenu();
   }

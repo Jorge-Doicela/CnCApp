@@ -154,11 +154,18 @@ export class UserController {
 
     getByAuthId = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const authId = req.params.authId as string;
-            if (!authId) {
+            const authIdStr = req.params.authId as string;
+            if (!authIdStr) {
                 res.status(400).json({ error: 'Auth ID inválido' });
                 return;
             }
+
+            // Try to parse as number first, since legacy code passes internal user ID here
+            const numericId = parseInt(authIdStr, 10);
+            const authId = !isNaN(numericId) && numericId.toString() === authIdStr
+                ? numericId
+                : authIdStr;
+
             const user = await this.getUserByIdUseCase.execute(authId);
             res.json(user);
         } catch (error) {

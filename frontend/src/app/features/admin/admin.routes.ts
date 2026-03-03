@@ -184,7 +184,7 @@ export const ADMIN_ROUTES: Routes = [
     },
     {
         path: 'gestionar-plantillas/editar/:id',
-        loadComponent: () => import('./plantillas/crear/crear.page').then(m => m.CrearPage), // Reusing CrearPage for Edit
+        loadComponent: () => import('./plantillas/crear/crear.page').then(m => m.CrearPage),
         canActivate: [adminGuard]
     },
     {

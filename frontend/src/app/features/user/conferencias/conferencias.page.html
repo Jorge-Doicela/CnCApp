@@ -99,7 +99,17 @@
           <p>Cargando conferencias...</p>
         </div>
 
-        <div *ngIf="!loading && inscripcionesFiltradas.length === 0" class="empty-state">
+        <!-- Error state -->
+        <div *ngIf="!loading && errorMsg" class="empty-state" style="color: var(--ion-color-danger);">
+          <ion-icon name="alert-circle-outline" color="danger"></ion-icon>
+          <h4>{{ errorMsg }}</h4>
+          <ion-button fill="outline" color="primary" (click)="recargar()">
+            <ion-icon name="refresh-outline" slot="start"></ion-icon>
+            Reintentar
+          </ion-button>
+        </div>
+
+        <div *ngIf="!loading && !errorMsg && inscripcionesFiltradas.length === 0" class="empty-state">
           <ion-icon name="calendar-outline" color="medium"></ion-icon>
           <h4>No se encontraron conferencias</h4>
           <p>Actualmente no estás inscrito en ninguna conferencia o no hay resultados para tu búsqueda.</p>

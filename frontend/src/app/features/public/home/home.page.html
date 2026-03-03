@@ -234,19 +234,19 @@
       <div *ngIf="isCreator()">
         <h3 class="dash-section-title">Gestión de Eventos</h3>
         <div class="dashboard-grid">
-          <div class="dash-card card-wide" (click)="navegarModulo('gestionar-capacitaciones')">
+          <div class="dash-card card-wide" (click)="router.navigate(['/conferencista/gestionar-capacitaciones'])">
             <div class="icon-circle"><ion-icon name="easel"></ion-icon></div>
             <h4>Mis Eventos</h4>
             <p>Tus conferencias asignadas</p>
             <ion-icon name="arrow-forward" class="arrow"></ion-icon>
           </div>
-          <div class="dash-card" (click)="navegarModulo('gestionar-plantillas')">
+          <div class="dash-card" (click)="router.navigate(['/conferencista/gestionar-plantillas'])">
             <div class="icon-circle"><ion-icon name="image"></ion-icon></div>
             <h4>Plantillas</h4>
             <p>Diseños de certif.</p>
             <ion-icon name="arrow-forward" class="arrow"></ion-icon>
           </div>
-          <div class="dash-card" (click)="navegarModulo('validar-certificados')">
+          <div class="dash-card" (click)="router.navigate(['/validar-certificados'])">
             <div class="icon-circle"><ion-icon name="qr-code"></ion-icon></div>
             <h4>Validar</h4>
             <p>Scanner QR</p>
