@@ -4,7 +4,7 @@ import { Router, RouterModule } from '@angular/router';
 import { IonHeader, IonToolbar, IonButtons, IonButton, IonIcon, IonMenuButton, MenuController } from '@ionic/angular/standalone';
 import { AuthService } from '../../../features/auth/services/auth.service';
 import { addIcons } from 'ionicons';
-import { menuOutline, arrowForward, logOutOutline, menu } from 'ionicons/icons';
+import { menuOutline, arrowForward, logOutOutline, menu, logInOutline, personAddOutline } from 'ionicons/icons';
 
 @Component({
     selector: 'app-header',
@@ -34,7 +34,7 @@ export class HeaderComponent {
     isGuest = computed(() => !this.userName());
 
     constructor() {
-        addIcons({ menuOutline, arrowForward, logOutOutline, menu });
+        addIcons({ menuOutline, arrowForward, logOutOutline, menu, logInOutline, personAddOutline });
     }
 
     toggleMenu() {
