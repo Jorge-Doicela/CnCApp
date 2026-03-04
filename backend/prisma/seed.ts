@@ -14,21 +14,31 @@ async function main() {
         // ============================================
         // STEP 0: CLEAN DATABASE (FULL RESET)
         // ============================================
-        const tables = [
-            'Certificados', 'Usuarios_Capacitaciones', 'Capacitaciones', 'Plantillas',
-            'Instituciones_usuario', 'FuncionarioGAD', 'Autoridades', 'Usuario',
-            'parroquia', 'Cantones', 'Provincias', 'Entidades', 'Rol',
-            'mancomunidades', 'instituciones_sistema', 'cargos', 'competencias',
-            'Generos', 'Etnias', 'TiposParticipante', 'Nacionalidades', 'grados_ocupacionales'
-        ];
+        // Limpiar en orden inverso para evitar errores de claves foráneas
+        console.log('🧹 Cleaning database...');
+        await prisma.certificado.deleteMany();
+        await prisma.usuarioCapacitacion.deleteMany();
+        await prisma.capacitacion.deleteMany();
+        await prisma.plantilla.deleteMany();
+        await prisma.institucionUsuario.deleteMany();
+        await prisma.funcionarioGAD.deleteMany();
+        await prisma.autoridad.deleteMany();
+        await prisma.usuario.deleteMany();
+        await prisma.parroquia.deleteMany();
+        await prisma.canton.deleteMany();
+        await prisma.provincia.deleteMany();
+        await prisma.entidad.deleteMany();
+        await prisma.rol.deleteMany();
+        await prisma.mancomunidad.deleteMany();
+        await prisma.institucionSistema.deleteMany();
+        await prisma.cargo.deleteMany();
+        await prisma.competencia.deleteMany();
+        await prisma.genero.deleteMany();
+        await prisma.etnia.deleteMany();
+        await prisma.tipoParticipante.deleteMany();
+        await prisma.nacionalidad.deleteMany();
+        await prisma.gradoOcupacional.deleteMany();
 
-        for (const table of tables) {
-            try {
-                await prisma.$executeRawUnsafe(`TRUNCATE TABLE "${table}" RESTART IDENTITY CASCADE`);
-            } catch (e) {
-                console.log(`⚠️  Could not truncate ${table}, skipping...`);
-            }
-        }
         console.log('✅ System clean\n');
 
         // ============================================

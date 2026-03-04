@@ -1,6 +1,6 @@
 {
     "appId": "com.cnc.app",
-    "appName": "CNC App",
+    "appName": "CNC",
     "webDir": "www",
     "server": {
         "androidScheme": "https"

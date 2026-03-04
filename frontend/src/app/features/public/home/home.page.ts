@@ -149,7 +149,8 @@ export class HomePage implements OnInit {
       'star': star,
       'shield-checkmark': shieldCheckmark,
       'time': time,
-      'key-outline': keyOutline
+      'key-outline': keyOutline,
+      'person-add-outline': personAddOutline
     });
 
     effect(() => {
@@ -337,7 +338,9 @@ export class HomePage implements OnInit {
       'Instituciones': 'gestionar-instituciones',
       'Cargos': 'gestionar-cargos-instituciones',
       'Grados Ocupacionales': 'gestionar-grados',
-      'Competencias': 'gestionar-competencias'
+      'Competencias': 'gestionar-competencias',
+      'iniciar-sesion': 'login',
+      'registrarse': 'register'
     };
 
     let ruta = rutasModulos[modulo] || modulo.toLowerCase().replace(/\s+/g, '-');
