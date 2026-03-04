@@ -2,7 +2,7 @@ import { Component, OnInit, inject, effect, ChangeDetectionStrategy, computed, C
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
-  IonContent, IonIcon,
+  IonContent, IonIcon, IonHeader, IonToolbar, IonButtons, IonMenuButton, IonTitle,
   ToastController, LoadingController, MenuController
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
@@ -35,7 +35,7 @@ import { firstValueFrom } from 'rxjs';
   standalone: true,
   imports: [
     CommonModule, FormsModule,
-    IonContent, IonIcon
+    IonContent, IonIcon, IonHeader, IonToolbar, IonButtons, IonMenuButton, IonTitle
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -149,8 +149,7 @@ export class HomePage implements OnInit {
       'star': star,
       'shield-checkmark': shieldCheckmark,
       'time': time,
-      'key-outline': keyOutline,
-      'person-add-outline': personAddOutline
+      'key-outline': keyOutline
     });
 
     effect(() => {
