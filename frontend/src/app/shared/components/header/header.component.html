@@ -1,57 +1,46 @@
 <ion-header class="ion-no-border">
-  <ion-toolbar>
-    <div class="container header-inner">
-      <div class="brand" (click)="navegarModulo('/')">
-        <ion-buttons slot="start" class="ion-hide-lg-up">
-          <ion-button (click)="toggleMenu()" color="dark">
-            <ion-icon slot="icon-only" name="menu-outline"></ion-icon>
-          </ion-button>
-        </ion-buttons>
-        <img src="assets/cnc.png" alt="CNC Logo" class="nav-logo">
-        <div class="brand-text">
-          <h1>CNC</h1>
-          <small>Ecuador</small>
-        </div>
-      </div>
+  <ion-toolbar style="--background: #ffffff; border-bottom: 2px solid #f8fafc;">
 
-      <!-- Desktop Navigation (Center) -->
-      <nav class="desktop-nav" *ngIf="isGuest()">
-        <a (click)="navegarModulo('/')" class="nav-link"
-          [class.active]="router.url === '/home' || router.url === '/'">Inicio</a>
-        <a (click)="navegarModulo('servi-progra')" class="nav-link"
-          [class.active]="router.url.includes('servi-progra')">Servicios</a>
-        <a (click)="navegarModulo('validar-certificados')" class="nav-link"
-          [class.active]="router.url.includes('validar-certificados')">Validar</a>
-        <!-- Expanded Public Links -->
-        <a (click)="navegarModulo('historia')" class="nav-link"
-          [class.active]="router.url.includes('historia')">Historia</a>
-        <a (click)="navegarModulo('direccion')" class="nav-link"
-          [class.active]="router.url.includes('direccion')">Dirección</a>
-        <a (click)="navegarModulo('norma-regul')" class="nav-link"
-          [class.active]="router.url.includes('norma-regul')">Normativa</a>
-        <a (click)="navegarModulo('informacion')" class="nav-link"
-          [class.active]="router.url.includes('informacion')">Nosotros</a>
-      </nav>
+    <ion-buttons slot="start">
+      <ion-menu-button style="color: #475569;"></ion-menu-button>
+    </ion-buttons>
 
-      <div class="header-actions">
-        <!-- Logged In -->
-        <ng-container *ngIf="!isGuest()">
-          <div class="user-pill" (click)="navegarModulo('Ver Perfil')" title="Ver Mi Perfil" style="cursor: pointer;">
-            <div class="avatar">{{ userName()?.charAt(0) }}</div>
-            <span>{{ (userName() || '').split(' ')[0] }}</span>
-          </div>
-          <ion-button fill="clear" color="danger" (click)="cerrarSesion()" title="Cerrar Sesión"
-            style="margin-left: 10px;">
-            <ion-icon slot="icon-only" name="log-out-outline"></ion-icon>
-          </ion-button>
-        </ng-container>
-
-        <!-- Guest -->
-        <ng-container *ngIf="isGuest()">
-          <button class="btn-login" (click)="iraLogin()">Ingresar</button>
-          <button class="btn-register" (click)="iraRegistro()">Crear Cuenta</button>
-        </ng-container>
+    <!-- Center Brand -->
+    <div style="display: flex; align-items: center; gap: 8px; margin-left: 8px;">
+      <img src="assets/icon/cnc-logo.png" style="width: 32px; height: 32px; object-fit: contain;" alt="CNC" />
+      <div style="border-left: 1px solid #e2e8f0; padding-left: 10px; line-height: 1.1;">
+        <div style="font-weight: 800; color: #1e3a8a; font-size: 0.95rem; letter-spacing: -0.5px;">CNC</div>
+        <div style="font-size: 0.7rem; color: #64748b; font-weight: 500;">Ecuador</div>
       </div>
     </div>
+
+    <!-- Right Actions -->
+    <ion-buttons slot="end" style="padding-right: 12px;">
+      <ng-container *ngIf="!isGuest()">
+        <!-- User Pill -->
+        <div (click)="navegarModulo('Ver Perfil')"
+          style="display: flex; align-items: center; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 999px; padding: 4px 14px 4px 4px; gap: 10px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); cursor: pointer; height: 36px;">
+          <div
+            style="background: #1e3a8a; color: #ffffff; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.8rem;">
+            {{ (userName() || 'U')[0].toUpperCase() }}
+          </div>
+          <span
+            style="font-weight: 800; font-size: 0.8rem; color: #1e3a8a; text-transform: uppercase; letter-spacing: 0.2px;">
+            {{ (userName() || '').split(' ')[0] }}
+          </span>
+        </div>
+
+        <!-- Red Logout -->
+        <ion-button (click)="cerrarSesion()" style="--color: #ef4444;">
+          <ion-icon slot="icon-only" name="log-out-outline" style="font-size: 1.5rem;"></ion-icon>
+        </ion-button>
+      </ng-container>
+
+      <!-- Guest -->
+      <ion-button *ngIf="isGuest()" (click)="iraLogin()" style="--color: #1e3a8a; font-weight: 700; font-size: 0.9rem;">
+        Entrar
+      </ion-button>
+    </ion-buttons>
+
   </ion-toolbar>
 </ion-header>
