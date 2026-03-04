@@ -1,4 +1,3 @@
-import { PrismaClient } from '@prisma/client';
 import { injectable } from 'tsyringe';
 import { GradoOcupacional, GradoOcupacionalRepository } from '../../../domain/grado-ocupacional/repositories/grado-ocupacional.repository';
 import prisma from '../../../config/database';
