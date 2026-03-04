@@ -79,15 +79,19 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // Servir archivos estáticos (Certificados, etc.)
 app.use(express.static('public'));
 
-// Debug Middleware
-app.use((req, _res, next) => {
-    console.log(`[DEBUG_API] ${new Date().toISOString()} - ${req.method} ${req.url}`);
-    console.log('[DEBUG_API] Headers:', {
-        authorization: req.get('Authorization') ? 'Bearer [HIDDEN]' : 'None',
-        origin: req.get('Origin')
+// Debug Middleware (solo en desarrollo)
+if (env.NODE_ENV === 'development') {
+    app.use((req, _res, next) => {
+        console.log(`[DEBUG_API] ${new Date().toISOString()} - ${req.method} ${req.url}`);
+        console.log('[DEBUG_API] Headers:', {
+            authorization: req.get('Authorization') ? 'Bearer [HIDDEN]' : 'None',
+            origin: req.get('Origin')
+        });
+        next();
     });
-    next();
-});
+} else {
+    app.use((_req, _res, next) => next());
+}
 
 // ============================================
 // RUTAS
