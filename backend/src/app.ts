@@ -41,9 +41,25 @@ const PORT = env.PORT;
 app.use(helmet());
 
 // CORS - Permitir peticiones desde el frontend
+const allowedOrigins = Array.isArray(env.ALLOWED_ORIGINS)
+    ? env.ALLOWED_ORIGINS
+    : (env.ALLOWED_ORIGINS as string).split(',');
+
 app.use(cors({
-    origin: env.ALLOWED_ORIGINS,
-    credentials: true
+    origin: (origin, callback) => {
+        // Permitir peticiones sin origin (como apps móviles o curl)
+        if (!origin) return callback(null, true);
+
+        if (allowedOrigins.indexOf(origin) !== -1 || allowedOrigins.includes('*')) {
+            callback(null, true);
+        } else {
+            console.log(`[CORS_REJECTED] Origin: ${origin}`);
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin']
 }));
 
 // Rate Limiting - Prevenir ataques de fuerza bruta
