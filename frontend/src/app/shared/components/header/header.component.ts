@@ -1,10 +1,10 @@
 import { Component, inject, computed, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
-import { IonHeader, IonToolbar, IonButtons, IonButton, IonIcon, MenuController } from '@ionic/angular/standalone';
+import { IonHeader, IonToolbar, IonButtons, IonButton, IonIcon, IonMenuButton, MenuController } from '@ionic/angular/standalone';
 import { AuthService } from '../../../features/auth/services/auth.service';
 import { addIcons } from 'ionicons';
-import { menuOutline, arrowForward, logOutOutline } from 'ionicons/icons';
+import { menuOutline, arrowForward, logOutOutline, menu } from 'ionicons/icons';
 
 @Component({
     selector: 'app-header',
@@ -19,7 +19,8 @@ import { menuOutline, arrowForward, logOutOutline } from 'ionicons/icons';
         IonToolbar,
         IonButtons,
         IonButton,
-        IonIcon
+        IonIcon,
+        IonMenuButton
     ]
 })
 export class HeaderComponent {
@@ -33,7 +34,7 @@ export class HeaderComponent {
     isGuest = computed(() => !this.userName());
 
     constructor() {
-        addIcons({ menuOutline, arrowForward, logOutOutline });
+        addIcons({ menuOutline, arrowForward, logOutOutline, menu });
     }
 
     toggleMenu() {

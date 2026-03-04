@@ -1,17 +1,22 @@
 :host {
     display: block;
+    background: #ffffff;
 }
 
 ion-header {
     background: #ffffff;
+    box-shadow: none;
 
     ion-toolbar {
         --border-width: 0;
-        // The safe-area-top padding is handled inside the template inline style for better precision
+        --padding-start: 0;
+        --padding-end: 0;
+        --padding-top: 0;
+        --padding-bottom: 0;
     }
 }
 
-// Ensure the menu button looks clean
+// Ensure the menu button looks clean and aligned
 ion-menu-button {
     --color: #475569;
 }

@@ -1,17 +1,18 @@
 {
-    "appId": "com.cnc.app",
-    "appName": "CNC",
-    "webDir": "www",
-    "server": {
-        "androidScheme": "https"
-    },
-    "plugins": {
-        "SplashScreen": {
-            "launchShowDuration": 2000,
-            "launchAutoHide": true,
-            "backgroundColor": "#1e3a8a",
-            "androidSplashResourceName": "splash",
-            "androidScaleType": "CENTER_CROP"
-        }
+  "appId": "com.cnc.app",
+  "appName": "CNC",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "http",
+    "hostname": "localhost"
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 2000,
+      "launchAutoHide": true,
+      "backgroundColor": "#1e3a8a",
+      "androidSplashResourceName": "splash",
+      "androidScaleType": "CENTER_CROP"
     }
+  }
 }
