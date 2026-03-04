@@ -2,12 +2,11 @@
   <ion-toolbar
     style="--background: #ffffff; border-bottom: 2px solid #edeff3; --min-height: 110px; height: 110px; position: relative;">
 
-    <!-- Row: Logo and Buttons at the TOP -->
     <div
-      style="width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 10px 12px 0 12px;">
+      style="width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 10px 15px 0 15px;">
 
-      <!-- Left: Logo -->
-      <div style="display: flex; align-items: center; gap: 4px;">
+      <!-- Left: Logo Group -->
+      <div style="display: flex; align-items: center; gap: 4px; flex: 0 0 auto;">
         <ion-menu-button style="color: #475569; margin: 0; --padding-start: 0;"></ion-menu-button>
         <div style="display: flex; align-items: center; gap: 8px;">
           <img src="assets/icon/cnc-logo.png" style="width: 24px; height: 24px; object-fit: contain;" alt="CNC" />
@@ -18,15 +17,25 @@
         </div>
       </div>
 
-      <!-- Center/Right: Navigation Pills (HIDDEN ON MOBILE, VISIBLE ON WEB) -->
-      <div class="desktop-navigation" style="display: flex; align-items: center; gap: 10px;">
-        <div (click)="navegarModulo('servi-progra')" class="nav-pill">Servicios</div>
-        <div (click)="navegarModulo('direccion')" class="nav-pill">Dirección</div>
-        <div (click)="navegarModulo('validar-certificados')" class="nav-pill">Validar</div>
+      <!-- CENTER: The COMPLETE "United Pill" (All public routes) -->
+      <div class="desktop-navigation-center" style="display: flex; justify-content: center; flex: 1; padding: 0 20px;">
+        <div class="united-pill">
+          <div (click)="navegarModulo('historia')" class="pill-item">Historia</div>
+          <div class="pill-separator"></div>
+          <div (click)="navegarModulo('direccion')" class="pill-item">Dirección</div>
+          <div class="pill-separator"></div>
+          <div (click)="navegarModulo('norma-regul')" class="pill-item">Normativa</div>
+          <div class="pill-separator"></div>
+          <div (click)="navegarModulo('informacion')" class="pill-item">Información</div>
+          <div class="pill-separator"></div>
+          <div (click)="navegarModulo('servi-progra')" class="pill-item">Servicios</div>
+          <div class="pill-separator"></div>
+          <div (click)="navegarModulo('validar-certificados')" class="pill-item">Verificación</div>
+        </div>
+      </div>
 
-        <div style="width: 1px; height: 20px; background: #e2e8f0; margin: 0 5px;"></div>
-
-        <!-- User/Login section -->
+      <!-- Right: User/Login Group -->
+      <div style="display: flex; align-items: center; gap: 10px; flex: 0 0 auto; justify-content: flex-end;">
         <ng-container *ngIf="!isGuest()">
           <div (click)="navegarModulo('Ver Perfil')" class="user-pill">
             <div class="user-avatar">{{ (userName() || 'U').charAt(0).toUpperCase() }}</div>
@@ -44,48 +53,71 @@
 
     </div>
 
-    <!-- The rest of the 110px height is empty space for Android safety -->
+    <!-- Empty Space below for Android UI safety -->
   </ion-toolbar>
 </ion-header>
 
 <style>
-  /* Navigation Pills Styling */
-  .nav-pill {
+  /* The United Pill Container - High End Design */
+  .united-pill {
+    display: flex;
+    align-items: center;
     background: #f8fafc;
-    color: #475569;
-    border-radius: 999px;
-    padding: 6px 16px;
-    font-size: 0.8rem;
-    font-weight: 700;
-    cursor: pointer;
     border: 1px solid #e2e8f0;
-    transition: all 0.2s ease;
+    border-radius: 999px;
+    padding: 2px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    max-width: fit-content;
   }
 
-  .nav-pill:hover {
-    background: #f1f5f9;
-    border-color: #cbd5e1;
+  .pill-item {
+    padding: 6px 14px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #475569;
+    cursor: pointer;
+    border-radius: 999px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
   }
 
-  /* User Pill Styling */
+  .pill-item:hover {
+    background: #ffffff;
+    color: #1e3a8a;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+    transform: translateY(-1px);
+  }
+
+  .pill-separator {
+    width: 1px;
+    height: 14px;
+    background: #e2e8f0;
+  }
+
+  /* User Section */
   .user-pill {
     display: flex;
     align-items: center;
     background: #ffffff;
     border: 1px solid #e2e8f0;
     border-radius: 999px;
-    padding: 2px 12px 2px 2px;
+    padding: 2px 10px 2px 2px;
     gap: 8px;
     cursor: pointer;
-    height: 30px;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    height: 32px;
+    transition: all 0.2s ease;
+  }
+
+  .user-pill:hover {
+    border-color: #cbd5e1;
+    transform: translateY(-1px);
   }
 
   .user-avatar {
     background: #1e3a8a;
     color: #ffffff;
-    width: 26px;
-    height: 26px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -103,20 +135,18 @@
 
   .login-button {
     --background: #1e3a8a;
-    --background-hover: #172554;
     --color: #ffffff;
     --border-radius: 999px;
-    font-weight: 700;
-    font-size: 0.8rem;
+    font-weight: 800;
+    font-size: 0.75rem;
     margin: 0;
+    height: 32px;
   }
 
-  /* RESPONSIVE LOGIC: Hide pills on mobile, show on Tablets/Desktop */
-  @media (max-width: 768px) {
-
-    .desktop-navigation .nav-pill,
-    .desktop-navigation div[style*="width: 1px"] {
-      display: none;
+  /* Responsive Control */
+  @media (max-width: 1024px) {
+    .desktop-navigation-center {
+      display: none !important;
     }
   }
 </style>
