@@ -1,4 +1,26 @@
+<ion-header class="ion-no-border" [translucent]="true">
+  <ion-toolbar style="--background: transparent;">
+    <ion-buttons slot="start">
+      <ion-menu-button style="color: var(--ion-color-dark); font-size: 1.5rem;"></ion-menu-button>
+    </ion-buttons>
+    <ion-title *ngIf="isGuest()" slot="end" style="padding-right: 15px;">
+      <div
+        style="background: white; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);">
+        <img src="assets/icon/cnc-logo.png" style="width: 30px; object-fit: contain;" alt="CNC" />
+      </div>
+    </ion-title>
+    <ion-title *ngIf="!isGuest()" slot="end">
+      <img src="assets/icon/cnc-logo.png" style="width: 40px;" alt="CNC" />
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
 <ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar style="--background: transparent;">
+      <ion-title size="large">CNC</ion-title>
+    </ion-toolbar>
+  </ion-header>
 
   <!-- ========================================== -->
   <!-- 1. GUEST LANDING PAGE (Clean Modern)     -->
@@ -15,10 +37,11 @@
 
           <div class="hero-actions">
             <button class="primary" (click)="iraRegistro()">
-              Comenzar Ahora <ion-icon name="arrow-forward"></ion-icon>
+              Registrarse <ion-icon name="person-add-outline"></ion-icon>
             </button>
-            <button class="secondary" (click)="navegarModulo('servi-progra')">
-              Nuestros Servicios
+            <button class="secondary" (click)="navegarModulo('iniciar-sesion')"
+              style="background: rgba(255,255,255,0.7);">
+              Iniciar Sesión <ion-icon name="log-in-outline"></ion-icon>
             </button>
           </div>
         </div>
