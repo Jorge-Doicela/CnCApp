@@ -1,12 +1,12 @@
 <ion-header class="ion-no-border">
   <ion-toolbar
-    style="--background: #ffffff; border-bottom: 2px solid #edeff3; --min-height: 110px; height: 110px; position: relative; --padding-top: 0; --padding-bottom: 0;">
+    style="--background: #ffffff; border-bottom: 2px solid #edeff3; --min-height: 110px; height: 110px; position: relative;">
 
-    <!-- Row: Buttons and Branding at the VERY TOP -->
+    <!-- Row: Logo and Buttons at the TOP -->
     <div
       style="width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 10px 12px 0 12px;">
 
-      <!-- Left: Simple Menu + Clean CNC Brand -->
+      <!-- Left: Logo -->
       <div style="display: flex; align-items: center; gap: 4px;">
         <ion-menu-button style="color: #475569; margin: 0; --padding-start: 0;"></ion-menu-button>
         <div style="display: flex; align-items: center; gap: 8px;">
@@ -18,36 +18,105 @@
         </div>
       </div>
 
-      <!-- Right: User Pill and Logout -->
-      <div style="display: flex; align-items: center; gap: 6px;">
+      <!-- Center/Right: Navigation Pills (HIDDEN ON MOBILE, VISIBLE ON WEB) -->
+      <div class="desktop-navigation" style="display: flex; align-items: center; gap: 10px;">
+        <div (click)="navegarModulo('servi-progra')" class="nav-pill">Servicios</div>
+        <div (click)="navegarModulo('direccion')" class="nav-pill">Dirección</div>
+        <div (click)="navegarModulo('validar-certificados')" class="nav-pill">Validar</div>
+
+        <div style="width: 1px; height: 20px; background: #e2e8f0; margin: 0 5px;"></div>
+
+        <!-- User/Login section -->
         <ng-container *ngIf="!isGuest()">
-          <!-- Pill -->
-          <div (click)="navegarModulo('Ver Perfil')"
-            style="display: flex; align-items: center; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 999px; padding: 2px 10px 2px 2px; gap: 8px; cursor: pointer; height: 26px;">
-            <div
-              style="background: #1e3a8a; color: #ffffff; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.7rem;">
-              {{ (userName() || 'U').charAt(0).toUpperCase() }}
-            </div>
-            <span style="font-weight: 800; font-size: 0.7rem; color: #1e3a8a; text-transform: uppercase;">
-              {{ (userName() || '').split(' ')[0] }}
-            </span>
+          <div (click)="navegarModulo('Ver Perfil')" class="user-pill">
+            <div class="user-avatar">{{ (userName() || 'U').charAt(0).toUpperCase() }}</div>
+            <span class="user-name">{{ (userName() || '').split(' ')[0] }}</span>
           </div>
-          <!-- Logout Button (Red Icon) -->
-          <ion-button (click)="cerrarSesion()"
-            style="--color: #ef4444; margin: 0; --padding-start: 2px; --padding-end: 2px;">
+          <ion-button (click)="cerrarSesion()" style="--color: #ef4444; margin: 0;">
             <ion-icon slot="icon-only" name="log-out-outline" style="font-size: 1.3rem;"></ion-icon>
           </ion-button>
         </ng-container>
 
-        <ion-button *ngIf="isGuest()" (click)="iraLogin()"
-          style="--color: #1e3a8a; font-weight: 700; font-size: 0.85rem;">
+        <ion-button *ngIf="isGuest()" (click)="iraLogin()" class="login-button">
           Entrar
         </ion-button>
       </div>
 
     </div>
 
-    <!-- The rest of the 110px height is empty space BELOW the buttons -->
-
+    <!-- The rest of the 110px height is empty space for Android safety -->
   </ion-toolbar>
 </ion-header>
+
+<style>
+  /* Navigation Pills Styling */
+  .nav-pill {
+    background: #f8fafc;
+    color: #475569;
+    border-radius: 999px;
+    padding: 6px 16px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    border: 1px solid #e2e8f0;
+    transition: all 0.2s ease;
+  }
+
+  .nav-pill:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+  }
+
+  /* User Pill Styling */
+  .user-pill {
+    display: flex;
+    align-items: center;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 999px;
+    padding: 2px 12px 2px 2px;
+    gap: 8px;
+    cursor: pointer;
+    height: 30px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  }
+
+  .user-avatar {
+    background: #1e3a8a;
+    color: #ffffff;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 0.75rem;
+  }
+
+  .user-name {
+    font-weight: 800;
+    font-size: 0.75rem;
+    color: #1e3a8a;
+    text-transform: uppercase;
+  }
+
+  .login-button {
+    --background: #1e3a8a;
+    --background-hover: #172554;
+    --color: #ffffff;
+    --border-radius: 999px;
+    font-weight: 700;
+    font-size: 0.8rem;
+    margin: 0;
+  }
+
+  /* RESPONSIVE LOGIC: Hide pills on mobile, show on Tablets/Desktop */
+  @media (max-width: 768px) {
+
+    .desktop-navigation .nav-pill,
+    .desktop-navigation div[style*="width: 1px"] {
+      display: none;
+    }
+  }
+</style>
