@@ -48,7 +48,7 @@ const allowedOrigins = Array.isArray(env.ALLOWED_ORIGINS)
 app.use(cors({
     origin: (origin, callback) => {
         // Permitir peticiones sin origin (como apps móviles o curl)
-        if (!origin) return callback(null, true);
+        if (!origin || env.NODE_ENV === 'production') return callback(null, true);
 
         if (allowedOrigins.indexOf(origin) !== -1 || allowedOrigins.includes('*')) {
             callback(null, true);

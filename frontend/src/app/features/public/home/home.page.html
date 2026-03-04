@@ -1,16 +1,17 @@
-<ion-header class="ion-no-border" [translucent]="true">
-  <ion-toolbar style="--background: transparent;">
+<ion-header class="ion-no-border">
+  <ion-toolbar
+    style="--background: #ffffff; border-bottom: 1px solid #f0f0f0; --padding-top: var(--ion-safe-area-top); height: calc(56px + var(--ion-safe-area-top));">
     <ion-buttons slot="start">
-      <ion-menu-button style="color: var(--ion-color-dark); font-size: 1.5rem;"></ion-menu-button>
+      <ion-menu-button style="color: #1e3a8a; font-size: 1.8rem;"></ion-menu-button>
     </ion-buttons>
-    <ion-title *ngIf="isGuest()" slot="end" style="padding-right: 15px;">
-      <div
-        style="background: white; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);">
-        <img src="assets/icon/cnc-logo.png" style="width: 30px; object-fit: contain;" alt="CNC" />
+    <ion-title slot="end">
+      <div style="display: flex; align-items: center; justify-content: flex-end; gap: 8px; margin-right: 12px;">
+        <span style="font-weight: 800; color: #1e3a8a; font-size: 1.2rem;">CNC</span>
+        <div
+          style="background: #f8fafc; border-radius: 8px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border: 1px solid #e2e8f0;">
+          <img src="assets/icon/cnc-logo.png" style="width: 22px; object-fit: contain;" alt="Logo" />
+        </div>
       </div>
-    </ion-title>
-    <ion-title *ngIf="!isGuest()" slot="end">
-      <img src="assets/icon/cnc-logo.png" style="width: 40px;" alt="CNC" />
     </ion-title>
   </ion-toolbar>
 </ion-header>
