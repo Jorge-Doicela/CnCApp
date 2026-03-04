@@ -1,9 +1,7 @@
 export const environment = {
   production: true,
-  // IMPORTANTE: Actualizar estas URLs antes de desplegar a producción
-  // Opción 1: Usar URL relativa (recomendado si backend y frontend están en el mismo dominio)
-  apiUrl: '/api',
-  // Opción 2: Usar URL absoluta (si backend está en un dominio diferente)
-  // apiUrl: 'https://api.tu-dominio.com/api',
-  redirectUrl: window.location.origin + '/recuperar-password',
+  // IP local de la máquina donde corre el backend
+  // IMPORTANTE: El teléfono y la PC deben estar en la misma red WiFi
+  apiUrl: 'http://192.168.110.174:3000/api',
+  redirectUrl: 'http://192.168.110.174:3000/recuperar-password',
 };
