@@ -2,7 +2,7 @@ import { Component, OnInit, inject, effect, ChangeDetectionStrategy, computed, C
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
-  IonContent, IonIcon, IonHeader, IonToolbar, IonButtons, IonMenuButton, IonTitle,
+  IonContent, IonIcon, IonHeader, IonToolbar, IonButtons, IonMenuButton, IonTitle, IonButton,
   ToastController, LoadingController, MenuController
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
@@ -35,7 +35,7 @@ import { firstValueFrom } from 'rxjs';
   standalone: true,
   imports: [
     CommonModule, FormsModule,
-    IonContent, IonIcon, IonHeader, IonToolbar, IonButtons, IonMenuButton, IonTitle
+    IonContent, IonIcon, IonHeader, IonToolbar, IonButtons, IonMenuButton, IonTitle, IonButton
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })

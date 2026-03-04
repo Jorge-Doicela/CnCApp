@@ -150,22 +150,14 @@ export class AppComponent implements OnInit, OnDestroy {
   showHeader = computed(() => {
     const path = this.currentPath().toLowerCase();
 
-    // 1. Completely hide on Auth pages (Login/Register)
-    if (path.includes('/login') || path.includes('/register')) return false;
+    // Define the specific paths where we want the Global Header
+    const publicPaths = [
+      '/', '/home', '/validar-certificados'
+    ];
 
-    // 2. Define Public Routes where the Global Pill Header should appear
-    //    - Root '/'
-    //    - '/home' and its children (historia, direccion, etc.)
-    //    - '/validar-certificados' (Public tool)
-    const isPublicRoute =
-      path === '/' ||
-      path.startsWith('/home') ||
-      path.startsWith('/validar-certificados');
-
-    // 3. Show header ONLY on public routes.
-    //    This ensures that when a logged-in user enters a module (e.g. /gestionar-usuarios),
-    //    the global header disappears, preventing overlap and double-header issues.
-    return isPublicRoute;
+    // Check if the current path matches exactly any of the public top-level paths
+    // or starts with 'home/' (info pages)
+    return publicPaths.includes(path) || path.startsWith('/home/');
   });
 
   async verificarRolEnCambioRuta() {
@@ -381,3 +373,4 @@ export class AppComponent implements OnInit, OnDestroy {
     return iconMap[modulo] || 'apps-outline';
   }
 }
+
