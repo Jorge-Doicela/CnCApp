@@ -5,13 +5,15 @@ import { GetRolByIdUseCase } from '../../../application/user/use-cases/get-rol-b
 import { CreateRolUseCase } from '../../../application/user/use-cases/create-rol.use-case';
 import { UpdateRolUseCase } from '../../../application/user/use-cases/update-rol.use-case';
 import { DeleteRolUseCase } from '../../../application/user/use-cases/delete-rol.use-case';
+import { parseIdParam } from '../middleware/parse-id.helper';
+import { NotFoundError } from '../../../domain/shared/errors';
 import { z } from 'zod';
 
 const roleSchema = z.object({
     nombre: z.string().min(3, 'El nombre del rol debe tener al menos 3 caracteres'),
     descripcion: z.string().optional().nullable(),
     estado: z.boolean().optional(),
-    modulos: z.union([z.array(z.string()), z.string()]).optional().nullable() // some older data might send stringified arrays
+    modulos: z.union([z.array(z.string()), z.string()]).optional().nullable()
 });
 
 @injectable()
@@ -24,7 +26,7 @@ export class RolController {
         @inject(DeleteRolUseCase) private deleteRolUseCase: DeleteRolUseCase
     ) { }
 
-    getAll = async (_req: Request, res: Response, next: NextFunction) => {
+    getAll = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
             const roles = await this.getAllRolesUseCase.execute();
             res.json(roles);
@@ -33,25 +35,19 @@ export class RolController {
         }
     };
 
-    getById = async (req: Request, res: Response, next: NextFunction) => {
+    getById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
-            const id = Number(req.params.id);
-            if (isNaN(id)) {
-                res.status(400).json({ error: 'ID inválido' });
-                return;
-            }
+            const id = parseIdParam(req, res);
+            if (id === null) return;
             const rol = await this.getRolByIdUseCase.execute(id);
-            if (!rol) {
-                res.status(404).json({ error: 'Rol no encontrado' });
-                return;
-            }
+            if (!rol) throw new NotFoundError('Rol no encontrado');
             res.json(rol);
         } catch (error) {
             next(error);
         }
     };
 
-    create = async (req: Request, res: Response, next: NextFunction) => {
+    create = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
             const roleData = roleSchema.parse(req.body);
             const newRole = await this.createRolUseCase.execute(roleData);
@@ -61,13 +57,10 @@ export class RolController {
         }
     };
 
-    update = async (req: Request, res: Response, next: NextFunction) => {
+    update = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
-            const id = Number(req.params.id);
-            if (isNaN(id)) {
-                res.status(400).json({ error: 'ID inválido' });
-                return;
-            }
+            const id = parseIdParam(req, res);
+            if (id === null) return;
             const roleData = roleSchema.partial().parse(req.body);
             const updatedRole = await this.updateRolUseCase.execute(id, roleData);
             res.json(updatedRole);
@@ -76,13 +69,10 @@ export class RolController {
         }
     };
 
-    delete = async (req: Request, res: Response, next: NextFunction) => {
+    delete = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
-            const id = Number(req.params.id);
-            if (isNaN(id)) {
-                res.status(400).json({ error: 'ID inválido' });
-                return;
-            }
+            const id = parseIdParam(req, res);
+            if (id === null) return;
             await this.deleteRolUseCase.execute(id);
             res.status(204).send();
         } catch (error) {

@@ -5,6 +5,8 @@ import { GetAllCapacitacionesUseCase } from '../../../application/capacitacion/u
 import { UpdateCapacitacionUseCase } from '../../../application/capacitacion/use-cases/update-capacitacion.use-case';
 import { GetCapacitacionByIdUseCase } from '../../../application/capacitacion/use-cases/get-capacitacion-by-id.use-case';
 import { DeleteCapacitacionUseCase } from '../../../application/capacitacion/use-cases/delete-capacitacion.use-case';
+import { parseIdParam } from '../middleware/parse-id.helper';
+import { NotFoundError } from '../../../domain/shared/errors';
 import { z } from 'zod';
 
 const capacitacionSchema = z.object({
@@ -34,7 +36,7 @@ export class CapacitacionController {
         @inject(DeleteCapacitacionUseCase) private deleteUseCase: DeleteCapacitacionUseCase
     ) { }
 
-    create = async (req: Request, res: Response, next: NextFunction) => {
+    create = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
             const data = capacitacionSchema.parse(req.body);
             const capacitacion = await this.createUseCase.execute(data);
@@ -44,7 +46,7 @@ export class CapacitacionController {
         }
     };
 
-    getAll = async (_req: Request, res: Response, next: NextFunction) => {
+    getAll = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
             const capacitaciones = await this.getAllUseCase.execute();
             res.json(capacitaciones);
@@ -53,25 +55,19 @@ export class CapacitacionController {
         }
     };
 
-    getById = async (req: Request, res: Response, next: NextFunction) => {
+    getById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
-            const id = parseInt(req.params.id as string);
-            if (isNaN(id)) {
-                res.status(400).json({ error: 'ID inválido' });
-                return;
-            }
+            const id = parseIdParam(req, res);
+            if (id === null) return;
             const capacitacion = await this.getByIdUseCase.execute(id);
-            if (!capacitacion) {
-                res.status(404).json({ error: 'Capacitación no encontrada' });
-                return;
-            }
+            if (!capacitacion) throw new NotFoundError('Capacitación no encontrada');
             res.json(capacitacion);
         } catch (error) {
             next(error);
         }
     };
 
-    count = async (_req: Request, res: Response, next: NextFunction) => {
+    count = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
             const capacitaciones = await this.getAllUseCase.execute();
             res.json({ count: capacitaciones.length });
@@ -80,13 +76,10 @@ export class CapacitacionController {
         }
     };
 
-    update = async (req: Request, res: Response, next: NextFunction) => {
+    update = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
-            const id = parseInt(req.params.id as string);
-            if (isNaN(id)) {
-                res.status(400).json({ error: 'ID inválido' });
-                return;
-            }
+            const id = parseIdParam(req, res);
+            if (id === null) return;
             const data = capacitacionSchema.parse(req.body);
             const capacitacion = await this.updateUseCase.execute(id, data);
             res.json(capacitacion);
@@ -95,13 +88,10 @@ export class CapacitacionController {
         }
     };
 
-    delete = async (req: Request, res: Response, next: NextFunction) => {
+    delete = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
-            const id = parseInt(req.params.id as string);
-            if (isNaN(id)) {
-                res.status(400).json({ error: 'ID inválido' });
-                return;
-            }
+            const id = parseIdParam(req, res);
+            if (id === null) return;
             await this.deleteUseCase.execute(id);
             res.status(204).send();
         } catch (error) {

@@ -6,7 +6,8 @@ import { CreateCompetenciaUseCase } from '../../../application/competencia/use-c
 import { UpdateCompetenciaUseCase } from '../../../application/competencia/use-cases/update-competencia.use-case';
 import { DeleteCompetenciaUseCase } from '../../../application/competencia/use-cases/delete-competencia.use-case';
 import { createCompetenciaSchema, updateCompetenciaSchema } from '../../../domain/competencia/schemas/competencia.schema';
-import { z } from 'zod';
+import { parseIdParam } from '../middleware/parse-id.helper';
+import { NotFoundError } from '../../../domain/shared/errors';
 
 @injectable()
 export class CompetenciaController {
@@ -18,7 +19,7 @@ export class CompetenciaController {
         @inject(DeleteCompetenciaUseCase) private deleteUseCase: DeleteCompetenciaUseCase
     ) { }
 
-    getAll = async (_req: Request, res: Response, next: NextFunction) => {
+    getAll = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
             const competencias = await this.getAllUseCase.execute();
             res.json(competencias);
@@ -29,62 +30,43 @@ export class CompetenciaController {
 
     getById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
-            const id = parseInt(req.params['id'] as string);
-            if (isNaN(id)) {
-                res.status(400).json({ error: 'ID inválido' });
-                return;
-            }
+            const id = parseIdParam(req, res);
+            if (id === null) return;
             const competencia = await this.getByIdUseCase.execute(id);
-            if (!competencia) {
-                res.status(404).json({ error: 'Competencia no encontrada' });
-                return;
-            }
+            if (!competencia) throw new NotFoundError('Competencia no encontrada');
             res.json(competencia);
         } catch (error) {
             next(error);
         }
     };
 
-    create = async (req: Request, res: Response, next: NextFunction) => {
+    create = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
+            // ZodError se propaga a next(error) → errorHandler global lo maneja con 400
             const data = createCompetenciaSchema.parse(req.body);
             const competencia = await this.createUseCase.execute(data);
             res.status(201).json(competencia);
         } catch (error) {
-            if (error instanceof z.ZodError) {
-                res.status(400).json({ error: error.errors });
-                return;
-            }
             next(error);
         }
     };
 
     update = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
-            const id = parseInt(req.params['id'] as string);
-            if (isNaN(id)) {
-                res.status(400).json({ error: 'ID inválido' });
-                return;
-            }
+            const id = parseIdParam(req, res);
+            if (id === null) return;
             const data = updateCompetenciaSchema.parse(req.body);
             const competencia = await this.updateUseCase.execute(id, data);
             res.json(competencia);
         } catch (error) {
-            if (error instanceof z.ZodError) {
-                res.status(400).json({ error: error.errors });
-                return;
-            }
             next(error);
         }
     };
 
     delete = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
-            const id = parseInt(req.params['id'] as string);
-            if (isNaN(id)) {
-                res.status(400).json({ error: 'ID inválido' });
-                return;
-            }
+            const id = parseIdParam(req, res);
+            if (id === null) return;
             await this.deleteUseCase.execute(id);
             res.status(204).send();
         } catch (error) {

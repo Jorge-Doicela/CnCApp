@@ -1,125 +1,67 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import prisma from '../../../config/database';
 
+type PrismaQueryFn = () => Promise<any[]>;
+
+/**
+ * Helper interno: ejecuta una consulta Prisma de solo lectura y maneja errores.
+ * Reemplaza el bloque try/catch repetido 9 veces en el controlador original.
+ */
+async function query(
+    res: Response,
+    next: NextFunction,
+    fn: PrismaQueryFn
+): Promise<void> {
+    try {
+        const result = await fn();
+        res.json(result);
+    } catch (error) {
+        next(error);
+    }
+}
+
+/**
+ * Controlador de catálogos de solo lectura (datos de referencia).
+ * Estos endpoints son PÚBLICOS (sin autenticación) y solo retornan listas.
+ *
+ * Nota: Para CRUD completo de estos catálogos ver los routes protegidos:
+ *  - /api/cargos         → cargo.routes.ts
+ *  - /api/grados-ocupacionales → grado-ocupacional.routes.ts
+ */
 export class CatalogoController {
-    async getGeneros(_req: Request, res: Response): Promise<void> {
-        try {
-            const generos = await prisma.genero.findMany({
-                orderBy: {
-                    id: 'asc'
-                }
-            });
-            res.json(generos);
-        } catch (error) {
-            console.error('Error fetching generos:', error);
-            res.status(500).json({ error: 'Internal server error while fetching generos' });
-        }
-    }
+    getGeneros = async (_req: Request, res: Response, next: NextFunction) =>
+        query(res, next, () => prisma.genero.findMany({ orderBy: { id: 'asc' } }));
 
-    async getEtnias(_req: Request, res: Response): Promise<void> {
-        try {
-            const etnias = await prisma.etnia.findMany({
-                orderBy: {
-                    id: 'asc'
-                }
-            });
-            res.json(etnias);
-        } catch (error) {
-            console.error('Error fetching etnias:', error);
-            res.status(500).json({ error: 'Internal server error while fetching etnias' });
-        }
-    }
+    getEtnias = async (_req: Request, res: Response, next: NextFunction) =>
+        query(res, next, () => prisma.etnia.findMany({ orderBy: { id: 'asc' } }));
 
-    async getTiposParticipante(_req: Request, res: Response): Promise<void> {
-        try {
-            const tipos = await prisma.tipoParticipante.findMany({
-                orderBy: {
-                    id: 'asc'
-                }
-            });
-            res.json(tipos);
-        } catch (error) {
-            console.error('Error fetching tipos participante:', error);
-            res.status(500).json({ error: 'Internal server error while fetching tipos participante' });
-        }
-    }
+    getTiposParticipante = async (_req: Request, res: Response, next: NextFunction) =>
+        query(res, next, () => prisma.tipoParticipante.findMany({ orderBy: { id: 'asc' } }));
 
-    async getNacionalidades(_req: Request, res: Response): Promise<void> {
-        try {
-            const nacionalidades = await prisma.nacionalidad.findMany({
-                orderBy: { id: 'asc' }
-            });
-            res.json(nacionalidades);
-        } catch (error) {
-            console.error('Error fetching nacionalidades:', error);
-            res.status(500).json({ error: 'Internal server error while fetching nacionalidades' });
-        }
-    }
+    getNacionalidades = async (_req: Request, res: Response, next: NextFunction) =>
+        query(res, next, () => prisma.nacionalidad.findMany({ orderBy: { id: 'asc' } }));
 
-    async getCargos(_req: Request, res: Response): Promise<void> {
-        try {
-            const cargos = await prisma.cargo.findMany({ orderBy: { id: 'asc' } });
-            res.json(cargos);
-        } catch (error) {
-            console.error('Error:', error);
-            res.status(500).json({ error: 'Error fetching cargos' });
-        }
-    }
+    getCargos = async (_req: Request, res: Response, next: NextFunction) =>
+        query(res, next, () => prisma.cargo.findMany({ orderBy: { nombre: 'asc' } }));
 
-    async getEntidades(_req: Request, res: Response): Promise<void> {
-        try {
-            const entidades = await prisma.entidad.findMany({ orderBy: { id: 'asc' } });
-            res.json(entidades);
-        } catch (error) {
-            console.error('Error:', error);
-            res.status(500).json({ error: 'Error fetching entidades' });
-        }
-    }
+    getEntidades = async (_req: Request, res: Response, next: NextFunction) =>
+        query(res, next, () => prisma.entidad.findMany({ orderBy: { id: 'asc' } }));
 
-    async getInstituciones(_req: Request, res: Response): Promise<void> {
-        try {
-            const instituciones = await prisma.institucionSistema.findMany({ orderBy: { nombre: 'asc' } });
-            res.json(instituciones);
-        } catch (error) {
-            console.error('Error:', error);
-            res.status(500).json({ error: 'Error fetching instituciones' });
-        }
-    }
+    getInstituciones = async (_req: Request, res: Response, next: NextFunction) =>
+        query(res, next, () => prisma.institucionSistema.findMany({ orderBy: { nombre: 'asc' } }));
 
-    async getMancomunidades(_req: Request, res: Response): Promise<void> {
-        try {
-            const mancomunidades = await prisma.mancomunidad.findMany({ orderBy: { nombre: 'asc' } });
-            res.json(mancomunidades);
-        } catch (error) {
-            console.error('Error:', error);
-            res.status(500).json({ error: 'Error fetching mancomunidades' });
-        }
-    }
+    getMancomunidades = async (_req: Request, res: Response, next: NextFunction) =>
+        query(res, next, () => prisma.mancomunidad.findMany({ orderBy: { nombre: 'asc' } }));
 
-    async getCompetencias(_req: Request, res: Response): Promise<void> {
-        try {
+    getGradosOcupacionales = async (_req: Request, res: Response, next: NextFunction) =>
+        query(res, next, () => prisma.gradoOcupacional.findMany({ orderBy: { nombre: 'asc' } }));
+
+    getCompetencias = async (_req: Request, res: Response, next: NextFunction) =>
+        query(res, next, async () => {
             const competencias = await prisma.competencia.findMany({
                 where: { estado_competencia: true },
                 orderBy: { nombre_competencias: 'asc' }
             });
-            const mapped = competencias.map((c: any) => ({
-                id: c.id,
-                nombre: c.nombre_competencias
-            }));
-            res.json(mapped);
-        } catch (error) {
-            console.error('Error:', error);
-            res.status(500).json({ error: 'Error fetching competencias' });
-        }
-    }
-
-    async getGradosOcupacionales(_req: Request, res: Response): Promise<void> {
-        try {
-            const grados = await prisma.gradoOcupacional.findMany({ orderBy: { nombre: 'asc' } });
-            res.json(grados);
-        } catch (error) {
-            console.error('Error:', error);
-            res.status(500).json({ error: 'Error fetching grados ocupacionales' });
-        }
-    }
+            return competencias.map((c: any) => ({ id: c.id, nombre: c.nombre_competencias }));
+        });
 }

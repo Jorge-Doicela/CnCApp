@@ -1,14 +1,5 @@
-import { Router } from 'express';
-import { container } from 'tsyringe';
-import { GradoOcupacionalController } from '../controllers/grado-ocupacional.controller';
+import { gradoOcupacionalController } from '../../../config/simple-entities.config';
+import { createSimpleEntityRouter } from './simple-entity.router';
 
-const router = Router();
-const controller = container.resolve(GradoOcupacionalController);
-
-router.get('/', controller.getAll);
-router.get('/:id', controller.getById);
-router.post('/', controller.create);
-router.put('/:id', controller.update);
-router.delete('/:id', controller.delete);
-
-export { router as gradoOcupacionalRoutes };
+// Grado Ocupacional es de consulta pública (sin auth requerida según la config original)
+export const gradoOcupacionalRoutes = createSimpleEntityRouter(gradoOcupacionalController);

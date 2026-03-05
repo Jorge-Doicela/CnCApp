@@ -1,4 +1,3 @@
-<!-- editar.page.html - Updated with location selectors -->
 <ion-header [translucent]="true">
   <ion-toolbar color="primary">
     <ion-buttons slot="start">
@@ -9,153 +8,128 @@
 </ion-header>
 
 <ion-content [fullscreen]="true" class="ion-padding">
-  <div *ngIf="cargando" class="loading-container">
+
+  <!-- Spinner de carga -->
+  <div *ngIf="cargando" class="loading-container"
+    style="display:flex;flex-direction:column;align-items:center;padding:40px">
     <ion-spinner name="crescent" color="primary"></ion-spinner>
     <p>Cargando datos...</p>
   </div>
 
-  <ion-card *ngIf="!cargando && usuario" class="edit-card">
+  <ion-card *ngIf="!cargando && usuario">
     <ion-card-header>
-      <div class="user-image-container">
-        <ion-avatar>
-          <img [src]="usuario.Imagen_Perfil || 'assets/avatar-placeholder.png'" alt="Foto de perfil">
-        </ion-avatar>
-        <div class="edit-photo-button" (click)="actualizarFotoPerfil()">
-          <ion-icon name="camera"></ion-icon>
-        </div>
-      </div>
-      <ion-card-title class="ion-text-center">{{ perfilForm.get('nombre')?.value }} {{ perfilForm.get('apellido')?.value
-        }}</ion-card-title>
+      <ion-card-title class="ion-text-center">
+        {{ perfilForm.get('primerNombre')?.value }} {{ perfilForm.get('primerApellido')?.value }}
+      </ion-card-title>
       <ion-card-subtitle class="ion-text-center">{{ perfilForm.get('email')?.value }}</ion-card-subtitle>
     </ion-card-header>
 
     <ion-card-content>
       <form [formGroup]="perfilForm" (ngSubmit)="guardarCambios()">
-        <div class="form-section">
-          <h3 class="section-title">Información Personal</h3>
 
-          <ion-item>
-            <ion-label position="stacked">Primer Nombre <ion-text color="danger">*</ion-text></ion-label>
-            <ion-input type="text" formControlName="primerNombre" placeholder="Ingrese su primer nombre"></ion-input>
-            <ion-note slot="error"
-              *ngIf="perfilForm.get('primerNombre')?.touched && perfilForm.get('primerNombre')?.hasError('required')">
-              El primer nombre es obligatorio
-            </ion-note>
-          </ion-item>
+        <!-- SECCIÓN: Información Personal -->
+        <h3 style="font-weight:600;color:var(--ion-color-primary);margin:16px 0 8px">Información Personal</h3>
 
-          <ion-item>
-            <ion-label position="stacked">Segundo Nombre</ion-label>
-            <ion-input type="text" formControlName="segundoNombre" placeholder="Ingrese su segundo nombre"></ion-input>
-          </ion-item>
+        <ion-item>
+          <ion-label position="stacked">Primer Nombre <ion-text color="danger">*</ion-text></ion-label>
+          <ion-input type="text" formControlName="primerNombre" placeholder="Primer nombre"></ion-input>
+          <ion-note slot="error"
+            *ngIf="perfilForm.get('primerNombre')?.touched && perfilForm.get('primerNombre')?.invalid">
+            Mínimo 2 caracteres
+          </ion-note>
+        </ion-item>
 
-          <ion-item>
-            <ion-label position="stacked">Primer Apellido <ion-text color="danger">*</ion-text></ion-label>
-            <ion-input type="text" formControlName="primerApellido"
-              placeholder="Ingrese su primer apellido"></ion-input>
-            <ion-note slot="error"
-              *ngIf="perfilForm.get('primerApellido')?.touched && perfilForm.get('primerApellido')?.hasError('required')">
-              El primer apellido es obligatorio
-            </ion-note>
-          </ion-item>
+        <ion-item>
+          <ion-label position="stacked">Segundo Nombre</ion-label>
+          <ion-input type="text" formControlName="segundoNombre" placeholder="Segundo nombre (opcional)"></ion-input>
+        </ion-item>
 
-          <ion-item>
-            <ion-label position="stacked">Segundo Apellido</ion-label>
-            <ion-input type="text" formControlName="segundoApellido"
-              placeholder="Ingrese su segundo apellido"></ion-input>
-          </ion-item>
+        <ion-item>
+          <ion-label position="stacked">Primer Apellido <ion-text color="danger">*</ion-text></ion-label>
+          <ion-input type="text" formControlName="primerApellido" placeholder="Primer apellido"></ion-input>
+          <ion-note slot="error"
+            *ngIf="perfilForm.get('primerApellido')?.touched && perfilForm.get('primerApellido')?.invalid">
+            Mínimo 2 caracteres
+          </ion-note>
+        </ion-item>
 
-          <ion-item>
-            <ion-label position="stacked">Cédula <ion-text color="danger">*</ion-text></ion-label>
-            <ion-input type="text" formControlName="cedula" placeholder="Ingrese su cédula"
-              [readonly]="true"></ion-input>
-          </ion-item>
+        <ion-item>
+          <ion-label position="stacked">Segundo Apellido</ion-label>
+          <ion-input type="text" formControlName="segundoApellido"
+            placeholder="Segundo apellido (opcional)"></ion-input>
+        </ion-item>
 
-          <ion-item>
-            <ion-label position="stacked">Teléfono</ion-label>
-            <ion-input type="tel" formControlName="telefono" placeholder="Ingrese su teléfono"></ion-input>
-            <ion-note slot="error"
-              *ngIf="perfilForm.get('telefono')?.touched && perfilForm.get('telefono')?.hasError('pattern')">
-              Ingrese un número de teléfono válido de 10 dígitos
-            </ion-note>
-          </ion-item>
+        <!-- Cédula: solo lectura -->
+        <ion-item>
+          <ion-label position="stacked">Cédula</ion-label>
+          <ion-input type="text" [value]="usuario.ci" [readonly]="true" style="opacity:0.6"></ion-input>
+        </ion-item>
 
-          <ion-item>
-            <ion-label position="stacked">Género</ion-label>
-            <ion-select formControlName="genero" placeholder="Seleccione su género">
-              <ion-select-option value="Masculino">Masculino</ion-select-option>
-              <ion-select-option value="Femenino">Femenino</ion-select-option>
-              <ion-select-option value="Otro">Otro</ion-select-option>
-              <ion-select-option value="Prefiero no decir">Prefiero no decir</ion-select-option>
-            </ion-select>
-          </ion-item>
+        <!-- SECCIÓN: Contacto -->
+        <h3 style="font-weight:600;color:var(--ion-color-primary);margin:16px 0 8px">Contacto</h3>
 
-          <ion-item>
-            <ion-label position="stacked">Nacionalidad</ion-label>
-            <ion-input type="text" formControlName="nacionalidad" placeholder="Ingrese su nacionalidad"></ion-input>
-          </ion-item>
-        </div>
+        <ion-item>
+          <ion-label position="stacked">Correo Electrónico <ion-text color="danger">*</ion-text></ion-label>
+          <ion-input type="email" formControlName="email" placeholder="correo@ejemplo.com"></ion-input>
+          <ion-note slot="error" *ngIf="perfilForm.get('email')?.touched && perfilForm.get('email')?.invalid">
+            Ingrese un correo válido
+          </ion-note>
+        </ion-item>
 
-        <div class="form-section">
-          <h3 class="section-title">Ubicación y Contacto</h3>
+        <ion-item>
+          <ion-label position="stacked">Teléfono</ion-label>
+          <ion-input type="tel" formControlName="telefono" placeholder="Teléfono fijo"></ion-input>
+        </ion-item>
 
-          <ion-item>
-            <ion-label position="stacked">Correo Electrónico <ion-text color="danger">*</ion-text></ion-label>
-            <ion-input type="email" formControlName="email" placeholder="Ingrese su correo electrónico"
-              [readonly]="true"></ion-input>
-          </ion-item>
+        <ion-item>
+          <ion-label position="stacked">Celular</ion-label>
+          <ion-input type="tel" formControlName="celular" placeholder="Número de celular"></ion-input>
+        </ion-item>
 
-          <!-- Selectores de ubicación -->
-          <ion-item>
-            <ion-label position="stacked">Provincia</ion-label>
-            <ion-select formControlName="provincia" placeholder="Seleccione su provincia">
-              <ion-select-option *ngFor="let provincia of provincias" [value]="provincia.Codigo_Provincia">
-                {{ provincia.Nombre_Provincia }}
-              </ion-select-option>
-            </ion-select>
-          </ion-item>
+        <!-- SECCIÓN: Ubicación -->
+        <h3 style="font-weight:600;color:var(--ion-color-primary);margin:16px 0 8px">Ubicación</h3>
 
-          <ion-item>
-            <ion-label position="stacked">Cantón</ion-label>
-            <ion-select formControlName="canton" placeholder="Seleccione su cantón"
-              [disabled]="!perfilForm.get('provincia')?.value">
-              <ion-select-option *ngFor="let canton of cantones" [value]="canton.codigo_canton">
-                {{ canton.nombre_canton }}
-              </ion-select-option>
-            </ion-select>
-          </ion-item>
+        <ion-item>
+          <ion-label position="stacked">Provincia</ion-label>
+          <ion-select formControlName="provincia" placeholder="Seleccione una provincia">
+            <ion-select-option *ngFor="let p of provincias" [value]="p.id">
+              {{ p.nombre }}
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
 
-          <ion-item>
-            <ion-label position="stacked">Parroquia</ion-label>
-            <ion-select formControlName="parroquia" placeholder="Seleccione su parroquia"
-              [disabled]="!perfilForm.get('canton')?.value">
-              <ion-select-option *ngFor="let parroquia of parroquias" [value]="parroquia.codigo_parroquia">
-                {{ parroquia.nombre_parroquia }}
-              </ion-select-option>
-            </ion-select>
-          </ion-item>
-        </div>
+        <ion-item>
+          <ion-label position="stacked">Cantón</ion-label>
+          <ion-select formControlName="canton" placeholder="Seleccione un cantón"
+            [disabled]="!perfilForm.get('provincia')?.value || cantones.length === 0">
+            <ion-select-option *ngFor="let c of cantones" [value]="c.id">
+              {{ c.nombre }}
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
 
-        <div class="form-actions">
+        <!-- ACCIONES -->
+        <div style="margin-top:24px;display:flex;flex-direction:column;gap:8px">
           <ion-button expand="block" type="submit" [disabled]="perfilForm.invalid || guardando" color="primary">
             <ion-icon name="save-outline" slot="start"></ion-icon>
             {{ guardando ? 'Guardando...' : 'Guardar Cambios' }}
           </ion-button>
-          <ion-button expand="block" type="button" color="medium" (click)="cancelar()">
+          <ion-button expand="block" type="button" color="medium" (click)="volver()">
             <ion-icon name="close-outline" slot="start"></ion-icon>
             Cancelar
           </ion-button>
         </div>
+
       </form>
     </ion-card-content>
   </ion-card>
 
-  <!-- Estado vacío si no hay datos -->
-  <div *ngIf="!cargando && !usuario" class="empty-state">
-    <ion-icon name="alert-circle-outline" color="medium"></ion-icon>
+  <!-- Estado vacío -->
+  <div *ngIf="!cargando && !usuario" style="text-align:center;padding:40px">
+    <ion-icon name="alert-circle-outline" color="medium" style="font-size:48px"></ion-icon>
     <h4>No se pudieron cargar los datos</h4>
     <p>No se encontró información del usuario para editar.</p>
-    <ion-button expand="block" color="primary" (click)="volver()">
-      Volver al perfil
-    </ion-button>
+    <ion-button expand="block" color="primary" (click)="volver()">Volver al perfil</ion-button>
   </div>
+
 </ion-content>
