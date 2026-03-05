@@ -108,5 +108,11 @@ export class CapacitacionesService {
     countCertificados(): Observable<{ count: number }> {
         return this.http.get<{ count: number }>(`${environment.apiUrl}/certificados/count`);
     }
+
+    generateAllCertificates(capacitacionId: number): Observable<any> {
+        return this.http.post<any>(`${environment.apiUrl}/certificados/generate-all`, {
+            capacitacionId
+        });
+    }
 }
 

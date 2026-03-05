@@ -313,13 +313,13 @@ export class VisualizarinscritosPage implements OnInit {
       await firstValueFrom(this.capacitacionesService.deleteUsuariosNoAsistieron(this.idCapacitacion));
 
       // 2. Marcar capacitación con certificado emitido
-      // We can reuse updateCapacitacion from the service, but we only want to update one field.
-      // Assuming updateCapacitacion handles partial updates or we send full object.
-      // Best to send what changed.
       const updatedCap = { ...this.infoCapacitacion, Certificado: true };
       await firstValueFrom(this.capacitacionesService.updateCapacitacion(this.idCapacitacion, updatedCap));
 
-      // 3. Actualizar datos locales
+      // 3. Generar todos los certificados en masa en el backend
+      await firstValueFrom(this.capacitacionesService.generateAllCertificates(this.idCapacitacion));
+
+      // 4. Actualizar datos locales
       this.infoCapacitacion.certificado = true;
       this.usuariosInscritos = this.usuariosInscritos.filter(u => u.asistio === true);
       this.filtrarParticipantes();

@@ -17,6 +17,7 @@ router.get('/qr/:qr', controller.getByQR);
 router.get('/my', authenticate, controller.getMyCertificados);
 
 // Management routes (Solo Staff)
+router.post('/generate-all', [authenticate, authorize(...STAFF_ROLES)], controller.generateAll);
 router.post('/generate', [authenticate, authorize(...STAFF_ROLES)], controller.generate);
 router.post('/', [authenticate, authorize(...STAFF_ROLES)], controller.create);
 
