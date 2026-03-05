@@ -5,6 +5,7 @@ import { GetCertificadoByQRUseCase } from '../../../application/certificado/use-
 import { GetUserCertificadosUseCase } from '../../../application/certificado/use-cases/get-user-certificados.use-case';
 import { CountCertificadosUseCase } from '../../../application/certificado/use-cases/count-certificados.use-case';
 import { GenerateCertificadoUseCase } from '../../../application/certificado/use-cases/generate-certificado.use-case';
+import { GenerateAllCertificadosUseCase } from '../../../application/certificado/use-cases/generate-all-certificados.use-case';
 import { AuthRequest } from '../middleware/auth.middleware';
 import { z } from 'zod';
 
@@ -22,7 +23,8 @@ export class CertificadoController {
         @inject(GetCertificadoByQRUseCase) private getByQRUseCase: GetCertificadoByQRUseCase,
         @inject(GetUserCertificadosUseCase) private getByUserUseCase: GetUserCertificadosUseCase,
         @inject(CountCertificadosUseCase) private countCertificadosUseCase: CountCertificadosUseCase,
-        @inject(GenerateCertificadoUseCase) private generateUseCase: GenerateCertificadoUseCase
+        @inject(GenerateCertificadoUseCase) private generateUseCase: GenerateCertificadoUseCase,
+        @inject(GenerateAllCertificadosUseCase) private generateAllUseCase: GenerateAllCertificadosUseCase
     ) { }
 
     generate = async (req: Request, res: Response, next: NextFunction) => {
@@ -34,6 +36,20 @@ export class CertificadoController {
             }
             const certificado = await this.generateUseCase.execute(Number(usuarioId), Number(capacitacionId));
             res.status(201).json(certificado);
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    generateAll = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const { capacitacionId } = req.body;
+            if (!capacitacionId) {
+                res.status(400).json({ message: 'capacitacionId es requerido' });
+                return;
+            }
+            await this.generateAllUseCase.execute(Number(capacitacionId));
+            res.status(200).json({ message: 'Certificados generados correctamente a los asistentes' });
         } catch (error) {
             next(error);
         }
