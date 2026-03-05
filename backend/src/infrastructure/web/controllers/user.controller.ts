@@ -5,6 +5,8 @@ import { UpdateUserUseCase } from '../../../application/user/use-cases/update-us
 import { DeleteUserUseCase } from '../../../application/user/use-cases/delete-user.use-case';
 import { GetUserProfileUseCase } from '../../../application/user/use-cases/get-user-profile.use-case';
 import { RegisterUserUseCase } from '../../../application/auth/use-cases/register-user.use-case';
+import { parseIdParam } from '../middleware/parse-id.helper';
+import { AuthRequest } from '../middleware/auth.middleware';
 import { z } from 'zod';
 
 const updateUserSchema = z.object({
@@ -67,13 +69,10 @@ export class UserController {
         }
     };
 
-    getById = async (req: Request, res: Response, next: NextFunction) => {
+    getById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
-            const id = parseInt(req.params.id as string);
-            if (isNaN(id)) {
-                res.status(400).json({ error: 'ID inválido' });
-                return;
-            }
+            const id = parseIdParam(req, res);
+            if (id === null) return;
             const user = await this.getUserByIdUseCase.execute(id);
             res.json(user);
         } catch (error) {
@@ -114,13 +113,10 @@ export class UserController {
         }
     };
 
-    update = async (req: Request, res: Response, next: NextFunction) => {
+    update = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
-            const id = parseInt(req.params.id as string);
-            if (isNaN(id)) {
-                res.status(400).json({ error: 'ID inválido' });
-                return;
-            }
+            const id = parseIdParam(req, res);
+            if (id === null) return;
             const data = updateUserSchema.parse(req.body);
             const user = await this.updateUserUseCase.execute(id, data);
             res.json(user);
@@ -129,13 +125,10 @@ export class UserController {
         }
     };
 
-    delete = async (req: Request, res: Response, next: NextFunction) => {
+    delete = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
-            const id = parseInt(req.params.id as string);
-            if (isNaN(id)) {
-                res.status(400).json({ error: 'ID inválido' });
-                return;
-            }
+            const id = parseIdParam(req, res);
+            if (id === null) return;
             await this.deleteUserUseCase.execute(id);
             res.status(204).send();
         } catch (error) {
@@ -152,11 +145,11 @@ export class UserController {
         }
     };
 
-    getByAuthId = async (req: Request, res: Response, next: NextFunction) => {
+    getByAuthId = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
             const authIdStr = req.params.authId as string;
             if (!authIdStr) {
-                res.status(400).json({ error: 'Auth ID inválido' });
+                res.status(400).json({ message: 'Auth ID inválido' });
                 return;
             }
 
@@ -167,6 +160,58 @@ export class UserController {
                 : authIdStr;
 
             const user = await this.getUserByIdUseCase.execute(authId);
+            res.json(user);
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    /**
+     * GET /api/users/me
+     * Devuelve el perfil completo del usuario autenticado (sin requerir ser admin).
+     * Incluye inscripciones, certificados y datos de ubicación anidados.
+     */
+    getMe = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+        try {
+            if (!req.userId) {
+                res.status(401).json({ message: 'Usuario no autenticado' });
+                return;
+            }
+            const user = await this.getUserByIdUseCase.execute(req.userId);
+            res.json(user);
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    /**
+     * PUT /api/users/me
+     * Permite al usuario actualizar sus propios datos (nombre, teléfono, ubicación, etc.).
+     * No permite cambiar rol, entidad, ni ci.
+     */
+    updateMe = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+        try {
+            if (!req.userId) {
+                res.status(401).json({ message: 'Usuario no autenticado' });
+                return;
+            }
+            // Schema más restrictivo que el de admin (no puede cambiar rol ni ci)
+            const meSchema = z.object({
+                primerNombre: z.string().min(2).optional(),
+                segundoNombre: z.string().optional(),
+                primerApellido: z.string().min(2).optional(),
+                segundoApellido: z.string().optional(),
+                email: z.string().email().optional(),
+                telefono: z.string().optional(),
+                celular: z.string().optional(),
+                provinciaId: z.number().int().optional().nullable(),
+                cantonId: z.number().int().optional().nullable(),
+                fotoPerfilUrl: z.string().url().optional().or(z.literal('')).or(z.null()),
+                firmaUrl: z.string().optional().or(z.literal('')).or(z.null()),
+                password: z.string().min(6).optional()
+            });
+            const data = meSchema.parse(req.body);
+            const user = await this.updateUserUseCase.execute(req.userId, data);
             res.json(user);
         } catch (error) {
             next(error);

@@ -192,9 +192,28 @@ export class EditarPage implements OnInit {
       }
 
       // Cargar datos específicos si existen
-      if (data.autoridad) this.autoridad = { ...data.autoridad };
-      if (data.funcionarioGad) this.funcionarioGad = { ...data.funcionarioGad };
-      if (data.institucion) this.institucion = { ...data.institucion };
+      if (data.autoridad) {
+        this.autoridad = {
+          cargo: data.autoridad.cargo || '',
+          nivelgobierno: data.autoridad.nivelgobierno || '',
+          gadAutoridad: data.autoridad.entidad || data.autoridad.gadAutoridad || ''
+        };
+      }
+      if (data.funcionarioGad) {
+        this.funcionarioGad = {
+          cargo: data.funcionarioGad.cargo || '',
+          competencias: data.funcionarioGad.competencias || '',
+          nivelgobierno: data.funcionarioGad.nivelgobierno || '',
+          gadFuncionarioGad: data.funcionarioGad.departamento || data.funcionarioGad.gadFuncionarioGad || ''
+        };
+      }
+      if (data.institucion) {
+        this.institucion = {
+          institucion: data.institucion.institucionId?.toString() || data.institucion.institucion || '',
+          gradoOcupacional: data.institucion.gradoOcupacionalId?.toString() || data.institucion.gradoOcupacional || '',
+          cargo: data.institucion.cargo || ''
+        };
+      }
 
       console.log('[ADMIN_EDITAR_DEBUG] Usuario loaded successfully, hiding loading');
       this.ocultarCargando();

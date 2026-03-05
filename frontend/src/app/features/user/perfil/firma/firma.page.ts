@@ -201,19 +201,15 @@ export class FirmaPage implements OnInit, AfterViewInit {
   }
 
   async ejecutarSubidaFirma(dataUrl: string) {
-    // 1. Obtener ID del usuario
-    const userId = this.usuario?.id || this.usuario?.Id_Usuario;
-
-    if (!userId) {
-      throw new Error('No se pudo determinar el ID del usuario para el guardado.');
+    try {
+      // 1. Enviar al backend (usamos /me para no requerir ser admin)
+      await firstValueFrom(this.http.put(`${environment.apiUrl}/users/me`, { firmaUrl: dataUrl }));
+      this.presentToast('Firma actualizada correctamente', 'success');
+      this.navController.navigateBack('/ver-perfil');
+    } catch (error: any) {
+      console.error('[FIRMA] Error al subir firma:', error);
+      throw error;
     }
-
-    // 2. Enviar al backend
-    // Nota: El backend ahora acepta firmaUrl en el PUT de users
-    await firstValueFrom(this.http.put(`${environment.apiUrl}/users/${userId}`, { firmaUrl: dataUrl }));
-
-    this.presentToast('Firma actualizada correctamente', 'success');
-    this.navController.navigateBack('/ver-perfil');
   }
 
   async subirFirma(dataUrl: string) {

@@ -5,6 +5,8 @@ import { GetEntidadByIdUseCase } from '../../../application/user/use-cases/get-e
 import { CreateEntidadUseCase } from '../../../application/user/use-cases/create-entidad.use-case';
 import { UpdateEntidadUseCase } from '../../../application/user/use-cases/update-entidad.use-case';
 import { DeleteEntidadUseCase } from '../../../application/user/use-cases/delete-entidad.use-case';
+import { parseIdParam } from '../middleware/parse-id.helper';
+import { NotFoundError } from '../../../domain/shared/errors';
 import { z } from 'zod';
 
 const createEntidadSchema = z.object({
@@ -27,7 +29,7 @@ export class EntidadController {
         @inject(DeleteEntidadUseCase) private deleteEntidadUseCase: DeleteEntidadUseCase
     ) { }
 
-    getAll = async (_req: Request, res: Response, next: NextFunction) => {
+    getAll = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
             const entidades = await this.getAllEntidadesUseCase.execute();
             res.json(entidades);
@@ -36,25 +38,19 @@ export class EntidadController {
         }
     };
 
-    getById = async (req: Request, res: Response, next: NextFunction) => {
+    getById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
-            const id = parseInt(req.params.id as string);
-            if (isNaN(id)) {
-                res.status(400).json({ error: 'ID inválido' });
-                return;
-            }
+            const id = parseIdParam(req, res);
+            if (id === null) return;
             const entidad = await this.getEntidadByIdUseCase.execute(id);
-            if (!entidad) {
-                res.status(404).json({ error: 'Entidad no encontrada' });
-                return;
-            }
+            if (!entidad) throw new NotFoundError('Entidad no encontrada');
             res.json(entidad);
         } catch (error) {
             next(error);
         }
     };
 
-    create = async (req: Request, res: Response, next: NextFunction) => {
+    create = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
             const data = createEntidadSchema.parse(req.body);
             const entidad = await this.createEntidadUseCase.execute(data);
@@ -64,13 +60,10 @@ export class EntidadController {
         }
     };
 
-    update = async (req: Request, res: Response, next: NextFunction) => {
+    update = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
-            const id = parseInt(req.params.id as string);
-            if (isNaN(id)) {
-                res.status(400).json({ error: 'ID inválido' });
-                return;
-            }
+            const id = parseIdParam(req, res);
+            if (id === null) return;
             const data = updateEntidadSchema.parse(req.body);
             const entidad = await this.updateEntidadUseCase.execute(id, data);
             res.json(entidad);
@@ -79,13 +72,10 @@ export class EntidadController {
         }
     };
 
-    delete = async (req: Request, res: Response, next: NextFunction) => {
+    delete = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
-            const id = parseInt(req.params['id'] as string);
-            if (isNaN(id)) {
-                res.status(400).json({ error: 'ID inválido' });
-                return;
-            }
+            const id = parseIdParam(req, res);
+            if (id === null) return;
             await this.deleteEntidadUseCase.execute(id);
             res.status(204).send();
         } catch (error) {

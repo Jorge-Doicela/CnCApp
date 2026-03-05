@@ -208,11 +208,11 @@ export class CrearPage implements OnInit {
     try {
       const response: any = await firstValueFrom(this.capacitacionesService.createCapacitacion(this.capacitacion));
       const created = Array.isArray(response) ? response[0] : (response.data || response);
-      const capacitacionId = created?.Id_Capacitacion;
+      const capacitacionId = created?.id || created?.Id_Capacitacion;
 
       if (!capacitacionId) {
         this.guardando = false;
-        this.mostrarToast('Error: No se recibió confirmación del servidor', 'danger');
+        this.mostrarToast('Error: No se recibió confirmación del servidor (ID faltante)', 'danger');
         this.cdr.markForCheck();
         return;
       }

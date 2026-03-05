@@ -1,19 +1,11 @@
-import { Router } from 'express';
-import { container } from 'tsyringe';
-import { CargoController } from '../controllers/cargo.controller';
-import { authenticate } from '../middleware/auth.middleware';
-import { authorize } from '../middleware/auth.middleware';
+import { authenticate, authorize } from '../middleware/auth.middleware';
 import { ADMIN_ROLES } from '../../../domain/shared/constants/roles.constants';
+import { cargoController } from '../../../config/simple-entities.config';
+import { createSimpleEntityRouter } from './simple-entity.router';
 
-const router = Router();
-const controller = container.resolve(CargoController);
-
-// router.use(authenticate);
-// Todas las rutas de cargos requieren autenticación y rol de administrador
-router.get('/', authenticate, authorize(...ADMIN_ROLES), controller.getAll);
-router.get('/:id', authenticate, authorize(...ADMIN_ROLES), controller.getById);
-router.post('/', authenticate, authorize(...ADMIN_ROLES), controller.create);
-router.put('/:id', authenticate, authorize(...ADMIN_ROLES), controller.update);
-router.delete('/:id', authenticate, authorize(...ADMIN_ROLES), controller.delete);
+const router = createSimpleEntityRouter(cargoController, {
+    readMiddlewares: [authenticate, authorize(...ADMIN_ROLES)],
+    writeMiddlewares: [authenticate, authorize(...ADMIN_ROLES)],
+});
 
 export default router;

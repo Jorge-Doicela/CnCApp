@@ -6,6 +6,8 @@ import { GetPlantillaByIdUseCase } from '../../../application/plantilla/use-case
 import { UpdatePlantillaUseCase } from '../../../application/plantilla/use-cases/update-plantilla.use-case';
 import { DeletePlantillaUseCase } from '../../../application/plantilla/use-cases/delete-plantilla.use-case';
 import { ActivarPlantillaUseCase } from '../../../application/plantilla/use-cases/activar-plantilla.use-case';
+import { parseIdParam } from '../middleware/parse-id.helper';
+import { NotFoundError } from '../../../domain/shared/errors';
 import { z } from 'zod';
 
 const plantillaSchema = z.object({
@@ -26,7 +28,7 @@ export class PlantillaController {
         @inject(ActivarPlantillaUseCase) private activarPlantillaUseCase: ActivarPlantillaUseCase
     ) { }
 
-    create = async (req: Request, res: Response, next: NextFunction) => {
+    create = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
             const data = plantillaSchema.parse(req.body);
             const plantilla = await this.createPlantillaUseCase.execute(data);
@@ -36,7 +38,7 @@ export class PlantillaController {
         }
     };
 
-    getAll = async (_req: Request, res: Response, next: NextFunction) => {
+    getAll = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
             const plantillas = await this.getAllPlantillasUseCase.execute();
             res.json(plantillas);
@@ -45,35 +47,22 @@ export class PlantillaController {
         }
     };
 
-    getById = async (req: Request, res: Response, next: NextFunction) => {
+    getById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
-            const id = parseInt(req.params.id as string);
-            if (isNaN(id)) {
-                res.status(400).json({ message: 'ID inválido' });
-                return;
-            }
-
+            const id = parseIdParam(req, res);
+            if (id === null) return;
             const plantilla = await this.getPlantillaByIdUseCase.execute(id);
-
-            if (!plantilla) {
-                res.status(404).json({ message: 'Plantilla no encontrada' });
-                return;
-            }
-
+            if (!plantilla) throw new NotFoundError('Plantilla no encontrada');
             res.json(plantilla);
         } catch (error) {
             next(error);
         }
     };
 
-    update = async (req: Request, res: Response, next: NextFunction) => {
+    update = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
-            const id = parseInt(req.params.id as string);
-            if (isNaN(id)) {
-                res.status(400).json({ message: 'ID inválido' });
-                return;
-            }
-
+            const id = parseIdParam(req, res);
+            if (id === null) return;
             const data = plantillaSchema.parse(req.body);
             const plantilla = await this.updatePlantillaUseCase.execute(id, data);
             res.json(plantilla);
@@ -82,14 +71,10 @@ export class PlantillaController {
         }
     };
 
-    delete = async (req: Request, res: Response, next: NextFunction) => {
+    delete = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
-            const id = parseInt(req.params.id as string);
-            if (isNaN(id)) {
-                res.status(400).json({ message: 'ID inválido' });
-                return;
-            }
-
+            const id = parseIdParam(req, res);
+            if (id === null) return;
             await this.deletePlantillaUseCase.execute(id);
             res.status(204).send();
         } catch (error) {
@@ -97,14 +82,10 @@ export class PlantillaController {
         }
     };
 
-    activar = async (req: Request, res: Response, next: NextFunction) => {
+    activar = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
-            const id = parseInt(req.params.id as string);
-            if (isNaN(id)) {
-                res.status(400).json({ message: 'ID inválido' });
-                return;
-            }
-
+            const id = parseIdParam(req, res);
+            if (id === null) return;
             const plantilla = await this.activarPlantillaUseCase.execute(id);
             res.json(plantilla);
         } catch (error) {

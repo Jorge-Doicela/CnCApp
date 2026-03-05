@@ -1,0 +1,153 @@
+
+> event-app@0.0.1 build
+> ng build
+
+- Generating browser application bundles (phase: setup)...
+Ô£ö Browser application bundle generation complete.
+Ô£ö Browser application bundle generation complete.
+
+Warning: src/app/features/admin/cargos-instituciones/crudcargosinstituciones.page.ts:28:5 - warning NG8113: IonMenuButton is not used within the template of CrudcargosinstitucionesPage
+
+28     IonMenuButton, IonCard, IonCardHeader, IonCardTitle,
+       ~~~~~~~~~~~~~
+
+
+Warning: src/app/features/admin/grados-ocupacionales/grados-ocupacionales.page.ts:28:34 - warning NG8113: IonLabel is not used within the template of GradosOcupacionalesPage
+
+28         IonCardContent, IonItem, IonLabel, IonButton, IonIcon,
+                                    ~~~~~~~~
+
+
+Warning: src/app/features/admin/grados-ocupacionales/grados-ocupacionales.page.ts:29:9 - warning NG8113: IonList is not used within the template of GradosOcupacionalesPage
+
+29         IonList, IonInput, IonCardSubtitle
+           ~~~~~~~
+
+
+Warning: src/app/features/admin/reportes/reportes.page.ts:34:24 - warning NG8113: IonGrid is not used within the template of ReportesPage
+
+34         IonMenuButton, IonGrid, IonRow, IonCol, IonIcon,
+                          ~~~~~~~
+
+
+Warning: src/app/features/admin/reportes/reportes.page.ts:34:33 - warning NG8113: IonRow is not used within the template of ReportesPage
+
+34         IonMenuButton, IonGrid, IonRow, IonCol, IonIcon,
+                                   ~~~~~~
+
+
+Warning: src/app/features/admin/reportes/reportes.page.ts:34:41 - warning NG8113: IonCol is not used within the template of ReportesPage
+
+34         IonMenuButton, IonGrid, IonRow, IonCol, IonIcon,
+                                           ~~~~~~
+
+
+Warning: src/app/features/admin/reportes/reportes.page.ts:35:21 - warning NG8113: IonText is not used within the template of ReportesPage
+
+35         IonSpinner, IonText, IonBadge, IonButton,
+                       ~~~~~~~
+
+
+Warning: src/app/features/admin/reportes/reportes.page.ts:35:30 - warning NG8113: IonBadge is not used within the template of ReportesPage
+
+35         IonSpinner, IonText, IonBadge, IonButton,
+                                ~~~~~~~~
+
+
+Warning: src/app/features/auth/register/register.page.ts:42:5 - warning NG8113: IonDatetime is not used within the template of RegisterPage
+
+42     IonDatetime, IonDatetimeButton, IonModal, IonPopover
+       ~~~~~~~~~~~
+
+
+Warning: src/app/features/auth/register/register.page.ts:42:18 - warning NG8113: IonDatetimeButton is not used within the template of RegisterPage
+
+42     IonDatetime, IonDatetimeButton, IonModal, IonPopover
+                    ~~~~~~~~~~~~~~~~~
+
+
+Warning: src/app/features/auth/register/register.page.ts:42:47 - warning NG8113: IonPopover is not used within the template of RegisterPage
+
+42     IonDatetime, IonDatetimeButton, IonModal, IonPopover
+                                                 ~~~~~~~~~~
+
+
+Warning: src/app/features/public/home/home.page.ts:38:26 - warning NG8113: IonHeader is not used within the template of HomePage
+
+38     IonContent, IonIcon, IonHeader, IonToolbar, IonButtons, IonMenuButton, IonTitle, IonButton
+                            ~~~~~~~~~
+
+
+Warning: src/app/features/public/home/home.page.ts:38:37 - warning NG8113: IonToolbar is not used within the template of HomePage
+
+38     IonContent, IonIcon, IonHeader, IonToolbar, IonButtons, IonMenuButton, IonTitle, IonButton
+                                       ~~~~~~~~~~
+
+
+Warning: src/app/features/public/home/home.page.ts:38:49 - warning NG8113: IonButtons is not used within the template of HomePage
+
+38     IonContent, IonIcon, IonHeader, IonToolbar, IonButtons, IonMenuButton, IonTitle, IonButton
+                                                   ~~~~~~~~~~
+
+
+Warning: src/app/features/public/home/home.page.ts:38:61 - warning NG8113: IonMenuButton is not used within the template of HomePage
+
+38     IonContent, IonIcon, IonHeader, IonToolbar, IonButtons, IonMenuButton, IonTitle, IonButton
+                                                               ~~~~~~~~~~~~~
+
+
+Warning: src/app/features/public/home/home.page.ts:38:76 - warning NG8113: IonTitle is not used within the template of HomePage
+
+38     IonContent, IonIcon, IonHeader, IonToolbar, IonButtons, IonMenuButton, IonTitle, IonButton
+                                                                              ~~~~~~~~
+
+
+Warning: src/app/features/public/home/home.page.ts:38:86 - warning NG8113: IonButton is not used within the template of HomePage
+
+38     IonContent, IonIcon, IonHeader, IonToolbar, IonButtons, IonMenuButton, IonTitle, IonButton
+                                                                                        ~~~~~~~~~
+
+
+Warning: src/app/shared/components/header/header.component.ts:20:9 - warning NG8113: IonButtons is not used within the template of HeaderComponent
+
+20         IonButtons,
+           ~~~~~~~~~~
+
+
+Warning: C:\Users\Jorge Doicela\Desktop\CnCApp\frontend\src\app\features\admin\certificados\certificados.page.ts depends on 'crypto-js'. CommonJS or AMD dependencies can cause optimization bailouts.
+For more info see: https://angular.dev/tools/cli/build#configuring-commonjs-dependencies
+
+Warning: C:\Users\Jorge Doicela\Desktop\CnCApp\frontend\src\app\features\admin\certificados\certificados.page.ts depends on 'pdfmake/build/pdfmake'. CommonJS or AMD dependencies can cause optimization bailouts.
+For more info see: https://angular.dev/tools/cli/build#configuring-commonjs-dependencies
+
+Warning: C:\Users\Jorge Doicela\Desktop\CnCApp\frontend\src\app\features\admin\certificados\certificados.page.ts depends on 'pdfmake/build/vfs_fonts'. CommonJS or AMD dependencies can cause optimization bailouts.
+For more info see: https://angular.dev/tools/cli/build#configuring-commonjs-dependencies
+
+Warning: C:\Users\Jorge Doicela\Desktop\CnCApp\frontend\src\app\features\admin\certificados\certificados.page.ts depends on 'qrcode'. CommonJS or AMD dependencies can cause optimization bailouts.
+For more info see: https://angular.dev/tools/cli/build#configuring-commonjs-dependencies
+
+
+
+Error: src/app/features/user/perfil/perfil.page.html:132:43 - error TS2339: Property 'parroquiaUsuario' does not exist on type 'PerfilPage'.
+
+132             <div class="info-item" *ngIf="parroquiaUsuario">
+                                              ~~~~~~~~~~~~~~~~
+
+  src/app/features/user/perfil/perfil.page.ts:15:16
+    15   templateUrl: './perfil.page.html',
+                      ~~~~~~~~~~~~~~~~~~~~
+    Error occurs in the template of component PerfilPage.
+
+
+Error: src/app/features/user/perfil/perfil.page.html:136:45 - error TS2339: Property 'parroquiaUsuario' does not exist on type 'PerfilPage'.
+
+136                 <span class="info-value">{{ parroquiaUsuario }}</span>
+                                                ~~~~~~~~~~~~~~~~
+
+  src/app/features/user/perfil/perfil.page.ts:15:16
+    15   templateUrl: './perfil.page.html',
+                      ~~~~~~~~~~~~~~~~~~~~
+    Error occurs in the template of component PerfilPage.
+
+
+

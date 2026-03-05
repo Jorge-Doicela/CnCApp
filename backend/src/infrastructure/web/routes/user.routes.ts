@@ -7,9 +7,13 @@ import { ADMIN_ROLES } from '../../../domain/shared/constants/roles.constants';
 const router = Router();
 const userController = container.resolve(UserController);
 
+// Rutas accesibles por cualquier usuario autenticado
 router.use(authenticate);
+router.get('/me', userController.getMe);             // Perfil propio
+router.put('/me', userController.updateMe);          // Actualizar perfil propio
 router.get('/auth/:authId', userController.getByAuthId);
 
+// Rutas solo para administradores
 router.use(authorize(...ADMIN_ROLES));
 
 router.get('/', userController.getAll);

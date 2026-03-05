@@ -29,7 +29,7 @@ export class CertificadoController {
         try {
             const { usuarioId, capacitacionId } = req.body;
             if (!usuarioId || !capacitacionId) {
-                res.status(400).json({ error: 'usuarioId y capacitacionId son requeridos' });
+                res.status(400).json({ message: 'usuarioId y capacitacionId son requeridos' });
                 return;
             }
             const certificado = await this.generateUseCase.execute(Number(usuarioId), Number(capacitacionId));
@@ -54,7 +54,7 @@ export class CertificadoController {
             const qr = req.params.qr as string;
             const certificado = await this.getByQRUseCase.execute(qr);
             if (!certificado) {
-                res.status(404).json({ error: 'Certificado no encontrado' });
+                res.status(404).json({ message: 'Certificado no encontrado' });
                 return;
             }
             res.json(certificado);
@@ -66,7 +66,7 @@ export class CertificadoController {
     getMyCertificados = async (req: AuthRequest, res: Response, next: NextFunction) => {
         try {
             if (!req.userId) {
-                res.status(401).json({ error: 'Usuario no autenticado' });
+                res.status(401).json({ message: 'Usuario no autenticado' });
                 return;
             }
             const certificados = await this.getByUserUseCase.execute(req.userId);

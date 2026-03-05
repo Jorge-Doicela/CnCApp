@@ -1,18 +1,15 @@
 import { IonicModule } from '@ionic/angular';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-// editar.page.ts - Fixed version with correct navigation state handling
 import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { AlertController, LoadingController, ToastController, ActionSheetController, NavController } from '@ionic/angular';
+import { AlertController, LoadingController, ToastController, NavController } from '@ionic/angular';
 import { Router, ActivatedRoute } from '@angular/router';
-import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
-import { v4 as uuidv4 } from 'uuid';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { firstValueFrom } from 'rxjs';
 import { UsuarioService } from '../../services/usuario.service';
-import { CatalogoService } from 'src/app/shared/services/catalogo.service';
+import { AuthService } from 'src/app/features/auth/services/auth.service';
 
 @Component({
   selector: 'app-editar',
@@ -26,350 +23,177 @@ export class EditarPage implements OnInit {
   usuario: any = null;
   cargando: boolean = true;
   guardando: boolean = false;
-  modoFirma: boolean = false;
+  modoAdmin: boolean = false; // true si el admin edita a otro usuario
 
   // Arrays para los selectores de ubicación
   provincias: any[] = [];
   cantones: any[] = [];
-  parroquias: any[] = [];
   cantonesOriginales: any[] = [];
-  parroquiasOriginales: any[] = [];
 
-  // Códigos seleccionados para actualización
-  provinciaIdSeleccionada: number | null = null;
-  cantonIdSeleccionado: number | null = null;
-  parroquiaIdSeleccionada: number | null = null;
-
-  private catalogoService = inject(CatalogoService);
+  private authService = inject(AuthService);
 
   constructor(
     private formBuilder: FormBuilder,
     private alertController: AlertController,
     private loadingController: LoadingController,
     private toastController: ToastController,
-    private actionSheetController: ActionSheetController,
     private router: Router,
     private route: ActivatedRoute,
     private navController: NavController,
     private http: HttpClient,
     private usuarioService: UsuarioService
   ) {
-    // Obtener datos del estado de navegación
-    console.log('[EDITAR_DEBUG] Constructor iniciado');
+    // Intentar obtener datos pasados via navigation state
     const navigation = this.router.getCurrentNavigation();
-    console.log('[EDITAR_DEBUG] Navigation object:', navigation);
-    if (navigation && navigation.extras && navigation.extras.state) {
+    if (navigation?.extras?.state) {
       const state = navigation.extras.state as any;
-      this.usuario = state.usuario;
-      this.modoFirma = state.modoFirma || false;
-      console.log('[EDITAR_DEBUG] Usuario recibido en constructor:', this.usuario);
-      console.log('[EDITAR_DEBUG] modoFirma en constructor:', this.modoFirma);
-    } else {
-      console.log('[EDITAR_DEBUG] No se recibieron datos de usuario en el constructor');
+      this.usuario = state.usuario || null;
     }
   }
 
   ngOnInit() {
     this.inicializarFormulario();
-    this.cargarUbicaciones();
 
-    // Si no se recibieron los datos en el constructor, intentar vaciarlo
-    if (!this.usuario && history.state && history.state.usuario) {
+    // Si llegamos sin datos de navegación, intentar desde history.state
+    if (!this.usuario && history.state?.usuario) {
       this.usuario = history.state.usuario;
-      this.modoFirma = history.state.modoFirma || false;
-      console.log('Usuario recuperado de history.state:', this.usuario);
     }
 
-    // Si aun no tenemos usuario, revisar los params de la ruta (caso Admin)
-    if (!this.usuario) {
-      const idParam = this.route.snapshot.paramMap.get('id');
-      if (idParam) {
-        console.log('[EDITAR_DEBUG] ID encontrado en URL:', idParam);
-        // Flag para indicar que estamos en modo edición por ID (Admin suele usar esto)
-        // La carga real sucederá en cargarDatosUsuario
-      }
-    }
+    this.cargarDatos();
   }
 
   inicializarFormulario() {
     this.perfilForm = this.formBuilder.group({
-      primerNombre: ['', [Validators.required]],
+      primerNombre: ['', [Validators.required, Validators.minLength(2)]],
       segundoNombre: [''],
-      primerApellido: ['', [Validators.required]],
+      primerApellido: ['', [Validators.required, Validators.minLength(2)]],
       segundoApellido: [''],
-      cedula: ['', [Validators.required]],
       email: ['', [Validators.required, Validators.email]],
-      telefono: ['', [Validators.pattern(/^[0-9]{10}$/)]],
-      genero: [''],
-      nacionalidad: [''],
-      provincia: [''],
-      canton: [''],
-      parroquia: [''],
-      direccion: ['']
+      telefono: [''],
+      celular: [''],
+      provincia: [null],
+      canton: [null],
     });
 
-    // Escuchar cambios en los campos de ubicación
+    // Filtrar cantones cuando cambia provincia
     this.perfilForm.get('provincia')?.valueChanges.subscribe(provinciaId => {
-      if (provinciaId) {
-        this.provinciaIdSeleccionada = provinciaId;
-        this.filtrarCantonesPorProvincia(provinciaId);
-        // Resetear cantón y parroquia cuando cambia la provincia
-        this.perfilForm.patchValue({
-          canton: '',
-          parroquia: ''
-        });
-      }
-    });
-
-    this.perfilForm.get('canton')?.valueChanges.subscribe(cantonId => {
-      if (cantonId) {
-        this.cantonIdSeleccionado = cantonId;
-        this.filtrarParroquiasPorCanton(cantonId);
-        // Resetear parroquia cuando cambia el cantón
-        this.perfilForm.patchValue({
-          parroquia: ''
-        });
-      }
-    });
-
-    this.perfilForm.get('parroquia')?.valueChanges.subscribe(parroquiaId => {
-      if (parroquiaId) {
-        this.parroquiaIdSeleccionada = parroquiaId;
-      }
+      this.perfilForm.patchValue({ canton: null }, { emitEvent: false });
+      this.cantones = provinciaId
+        ? this.cantonesOriginales.filter(c => c.provinciaId === +provinciaId)
+        : [];
     });
   }
 
-  async cargarUbicaciones() {
+  async cargarDatos() {
     try {
-      this.provincias = await firstValueFrom(this.catalogoService.getItems('provincias'));
-      this.cantonesOriginales = await firstValueFrom(this.catalogoService.getItems('cantones'));
-      // Note: Backend doesn't seem to have parroquias endpoint yet or might be different
-      // this.parroquiasOriginales = await firstValueFrom(this.catalogoService.getItems('parroquias'));
+      // Cargar provincias y cantones
+      const [provResp, cantResp] = await Promise.all([
+        firstValueFrom(this.http.get<any[]>(`${environment.apiUrl}/provincias`)),
+        firstValueFrom(this.http.get<any[]>(`${environment.apiUrl}/cantones`))
+      ]);
+      this.provincias = provResp || [];
+      this.cantonesOriginales = cantResp || [];
 
-      console.log('Ubicaciones cargadas:', {
-        provincias: this.provincias.length,
-        cantones: this.cantonesOriginales.length
-      });
+      // Si hay ID en la URL → modo admin editando a un usuario específico
+      const idParam = this.route.snapshot.paramMap.get('id');
+      if (idParam) {
+        this.modoAdmin = true;
+        this.usuario = await firstValueFrom(this.usuarioService.getUsuario(+idParam));
+      }
 
-      // Después de cargar todas las ubicaciones, cargar los datos del usuario
-      await this.cargarDatosUsuario();
-    } catch (error: any) {
-      console.error('Error al cargar ubicaciones:', error);
-      this.presentToast('Error al cargar las ubicaciones: ' + error.message, 'danger');
-      // Aún así, intentamos cargar los datos del usuario
-      await this.cargarDatosUsuario();
-    }
-  }
-
-  filtrarCantonesPorProvincia(provinciaId: number) {
-    this.cantones = this.cantonesOriginales.filter(canton =>
-      canton.provinciaId === provinciaId
-    );
-  }
-
-  filtrarParroquiasPorCanton(cantonId: number) {
-    this.parroquias = this.parroquiasOriginales.filter(parroquia =>
-      parroquia.cantonId === cantonId
-    );
-  }
-
-  async cargarDatosUsuario() {
-    try {
-      // Si no tenemos usuario, intentar obtenerlo del parámetro de ruta o navegación al perfil
-      // Si no tenemos usuario, intentar obtenerlo del parámetro de ruta o navegación al perfil
+      // Si aún no tenemos usuario → cargar el perfil propio
       if (!this.usuario) {
-
-        // 1. Intentar obtener ID de la URL (Caso Admin)
-        const idParam = this.route.snapshot.paramMap.get('id');
-        if (idParam) {
-          console.log('[EDITAR_DEBUG] Cargando usuario por ID de URL:', idParam);
-          try {
-            this.usuario = await firstValueFrom(this.usuarioService.getUsuario(+idParam));
-            console.log('[EDITAR_DEBUG] Usuario cargado por ID:', this.usuario);
-          } catch (err) {
-            console.error('[EDITAR_DEBUG] Error loading user by ID:', err);
-            throw err; // Re-throw to be caught by outer catch
-          }
-        }
-
-        // 2. Si falló lo anterior, intentar obtener auth_uid (Caso Perfil Propio)
-        if (!this.usuario || Object.keys(this.usuario).length === 0) {
-          const authUid = localStorage.getItem('auth_uid');
-          if (authUid && !idParam) { // Solo si NO hay ID param, para no sobreescribir admin view
-            // TODO: Fetch from backend
-            console.warn('Fetch user from backend unimplemented in editar page');
-            // Mock empty
-            this.usuario = {};
-          }
-        }
+        const me = await firstValueFrom(this.http.get<any>(`${environment.apiUrl}/users/me`));
+        this.usuario = me;
       }
 
-      if (this.usuario && Object.keys(this.usuario).length > 0) {
-        // Si el usuario tiene asignados códigos, necesitamos obtener los valores iniciales para los selectores
-        await this.inicializarDatosUbicacion();
+      if (this.usuario) {
+        // Pre-cargar cantones según la provincia del usuario
+        if (this.usuario.provinciaId) {
+          this.cantones = this.cantonesOriginales.filter(c => c.provinciaId === this.usuario.provinciaId);
+        }
 
         this.perfilForm.patchValue({
           primerNombre: this.usuario.primerNombre || '',
           segundoNombre: this.usuario.segundoNombre || '',
           primerApellido: this.usuario.primerApellido || '',
           segundoApellido: this.usuario.segundoApellido || '',
-          cedula: this.usuario.CI_Usuario || this.usuario.ci || '',
           email: this.usuario.email || '',
-          telefono: this.usuario.celular || this.usuario.telefono || '',
-          genero: this.usuario.Genero_Usuario || '',
-          nacionalidad: this.usuario.Nacionalidad_Usuario || '',
-          provincia: this.provinciaIdSeleccionada,
-          canton: this.cantonIdSeleccionado,
-          parroquia: this.parroquiaIdSeleccionada,
-          direccion: this.usuario.direccion || ''
+          telefono: this.usuario.telefono || '',
+          celular: this.usuario.celular || '',
+          provincia: this.usuario.provinciaId || null,
+          canton: this.usuario.cantonId || null,
         });
-
-        console.log('Formulario inicializado con datos de usuario');
       }
     } catch (error: any) {
-      console.error('[EDITAR_DEBUG] Error al cargar datos de usuario:', error);
-      // Mostrar alerta visible para el usuario para debug
-      const alert = await this.alertController.create({
-        header: 'Error de Depuración',
-        subHeader: 'Ocurrió un error al cargar los datos',
-        message: error.message || JSON.stringify(error),
-        buttons: ['OK']
-      });
-      await alert.present();
-
-      this.presentToast('Error al cargar datos del usuario: ' + error.message, 'danger');
-      // COMENTADO PARA DEBUG: No redirigir automáticamente
-      // setTimeout(() => {
-      //   console.log('[EDITAR_DEBUG] Redirigiendo por error catch');
-      //   this.volver();
-      // }, 3000);
+      console.error('[EDITAR] Error cargando datos:', error);
+      this.presentToast('Error al cargar datos: ' + (error.error?.message || error.message), 'danger');
     } finally {
       this.cargando = false;
-      console.log('[EDITAR_DEBUG] Finally block reached.');
-      console.log('[EDITAR_DEBUG] ModoFirma:', this.modoFirma);
-      console.log('[EDITAR_DEBUG] Usuario:', this.usuario);
-      console.log('[EDITAR_DEBUG] Usuario keys:', this.usuario ? Object.keys(this.usuario) : 'null');
-
-      // Si estamos en modo firma, redirigir a la página de firma
-      if (this.modoFirma && this.usuario) {
-        console.log('[EDITAR_DEBUG] REDIRECT TRIGGERED: Redirecting to Firma');
-        this.navController.navigateForward('/firma', {
-          state: {
-            usuario: this.usuario
-          }
-        });
-      } else {
-        console.log('[EDITAR_DEBUG] NO REDIRECT: modoFirma=', this.modoFirma, ', usuario=', !!this.usuario);
-      }
-    }
-  }
-
-  async inicializarDatosUbicacion() {
-    // TODO: Implementar lógica de ubicación con datos del backend
-  }
-
-  async actualizarFotoPerfil() {
-    this.presentToast('Cambio de foto no disponible (Migrando a Backend)', 'warning');
-  }
-
-  async capturarFoto(source: CameraSource) {
-    // TODO
-  }
-
-  getFileExtensionFromMimeType(format: string): string {
-    switch (format.toLowerCase()) {
-      case 'jpeg':
-      case 'jpg':
-        return 'jpg';
-      case 'png':
-        return 'png';
-      default:
-        return 'jpg';
     }
   }
 
   async guardarCambios() {
     if (this.perfilForm.invalid) {
       Object.keys(this.perfilForm.controls).forEach(key => {
-        const control = this.perfilForm.get(key);
-        control?.markAsTouched();
+        this.perfilForm.get(key)?.markAsTouched();
       });
-      this.presentToast('Por favor complete todos los campos obligatorios.', 'warning');
+      this.presentToast('Complete todos los campos obligatorios', 'warning');
       return;
     }
 
     this.guardando = true;
-    const loading = await this.loadingController.create({
-      message: 'Guardando cambios...',
-      spinner: 'crescent'
-    });
+    const loading = await this.loadingController.create({ message: 'Guardando...', spinner: 'crescent' });
     await loading.present();
 
     try {
       const formData = this.perfilForm.value;
-      const userId = this.usuario?.id || this.usuario?.Id_Usuario;
-
-      if (!userId) {
-        throw new Error('ID de usuario no encontrado');
-      }
-
-      const updateData = {
+      const updateData: any = {
         primerNombre: formData.primerNombre,
-        segundoNombre: formData.segundoNombre,
+        segundoNombre: formData.segundoNombre || null,
         primerApellido: formData.primerApellido,
-        segundoApellido: formData.segundoApellido,
+        segundoApellido: formData.segundoApellido || null,
         email: formData.email,
-        telefono: formData.telefono,
-        provinciaId: formData.provincia,
-        cantonId: formData.canton,
-        genero: formData.genero,
-        nacionalidad: formData.nacionalidad,
-        direccion: formData.direccion
+        telefono: formData.telefono || null,
+        celular: formData.celular || null,
+        provinciaId: formData.provincia ? +formData.provincia : null,
+        cantonId: formData.canton ? +formData.canton : null,
       };
 
-      await firstValueFrom(this.usuarioService.updateUsuario(userId, updateData));
+      if (this.modoAdmin && this.usuario?.id) {
+        // Admin editando a otro usuario → PUT /api/users/:id
+        await firstValueFrom(this.usuarioService.updateUsuario(this.usuario.id, updateData));
+      } else {
+        // Usuario editando su propio perfil → PUT /api/users/me
+        await firstValueFrom(this.http.put(`${environment.apiUrl}/users/me`, updateData));
+      }
 
       this.presentToast('Perfil actualizado correctamente', 'success');
       this.volver();
     } catch (error: any) {
-      console.error('Error al actualizar perfil:', error);
-      this.presentToast('Error al actualizar el perfil: ' + (error.error?.message || error.message), 'danger');
+      console.error('[EDITAR] Error al guardar:', error);
+      const msg = error.error?.message || error.message || 'Error desconocido';
+      this.presentToast('Error al guardar: ' + msg, 'danger');
     } finally {
       loading.dismiss();
       this.guardando = false;
     }
   }
 
-  cancelar() {
-    this.volver();
-  }
-
   volver() {
-    // Si estamos editando un usuario específico (URL tiene ID), volver a detalles o lista
     const idParam = this.route.snapshot.paramMap.get('id');
     if (idParam) {
       this.navController.navigateBack(['/gestionar-usuarios/detalles', idParam]);
     } else {
-      // Caso por defecto: volver al perfil propio
       this.navController.navigateBack('/ver-perfil');
     }
   }
 
   async presentToast(message: string, color: string = 'primary') {
     const toast = await this.toastController.create({
-      message: message,
-      duration: 3000,
-      position: 'bottom',
-      color: color,
-      buttons: [
-        {
-          side: 'end',
-          icon: 'close',
-          role: 'cancel'
-        }
-      ]
+      message, duration: 3000, position: 'bottom', color,
+      buttons: [{ side: 'end', icon: 'close', role: 'cancel' }]
     });
-
     await toast.present();
   }
 }
