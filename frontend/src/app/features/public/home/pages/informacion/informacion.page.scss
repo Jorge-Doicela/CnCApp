@@ -47,31 +47,65 @@
 }
 
 // ------------------------------------------
-// OVAL SEGMENTS
+// PILL TRAY NAVIGATION (New Consistent Design)
 // ------------------------------------------
-ion-segment {
-  background: white;
-  border-radius: 50px; // Fully Oval
-  padding: 6px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  max-width: 500px;
-  margin: 0 auto;
+.info-pill-tray-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 40px;
+}
 
-  ion-segment-button {
-    --indicator-color: var(--ion-color-primary);
-    --indicator-box-shadow: 0 4px 12px rgba(var(--ion-color-primary-rgb), 0.3);
-    --border-radius: 50px; // Fully Oval
-    --color: #64748b;
-    --color-checked: white;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    min-height: 48px;
-    transition: transform 0.2s;
+.info-pill-tray {
+  display: flex;
+  align-items: center;
+  background: white; // Solid white against slate bg
+  padding: 5px;
+  border-radius: 999px;
+  border: 1px solid #e2e8f0;
+  gap: 3px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.04);
+}
 
-    &::part(indicator-background) {
-      border-radius: 50px;
-    }
+.info-pill {
+  padding: 10px 30px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #64748b;
+  cursor: pointer;
+  border-radius: 999px;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+
+  &.active {
+    background: #1e3a8a; // Primary active color
+    color: white;
+    box-shadow: 0 8px 20px rgba(30, 58, 138, 0.3);
+    transform: scale(1.05);
+  }
+
+  &:hover:not(.active) {
+    background: #f1f5f9;
+    color: #1e3a8a;
+  }
+}
+
+.info-nav-separator {
+  width: 1px;
+  height: 24px;
+  background: #cbd5e1;
+  margin: 0 6px;
+  opacity: 0.6;
+}
+
+@media (max-width: 600px) {
+  .info-pill-tray {
+    padding: 4px;
+    gap: 2px;
+  }
+
+  .info-pill {
+    padding: 8px 16px;
+    font-size: 0.8rem;
   }
 }
 

@@ -7,19 +7,23 @@
       <p>Organismo técnico encargado de organizar e implementar el proceso de descentralización en el Ecuador.</p>
     </div>
 
-    <!-- SEGMENTED CONTROL -->
-    <div class="ion-padding-bottom" style="max-width: 600px; margin: 0 auto 30px;">
-      <ion-segment [(ngModel)]="selectedSegment" mode="ios">
-        <ion-segment-button value="general">
-          <ion-label>General</ion-label>
-        </ion-segment-button>
-        <ion-segment-button value="estructura">
-          <ion-label>Estructura</ion-label>
-        </ion-segment-button>
-        <ion-segment-button value="competencias">
-          <ion-label>Competencias</ion-label>
-        </ion-segment-button>
-      </ion-segment>
+    <!-- SEGMENTED CONTROL - Pill Tray Style -->
+    <div class="info-pill-tray-wrapper animate-fade-up">
+      <div class="info-pill-tray">
+        <div (click)="selectedSegment = 'general'" class="info-pill" [class.active]="selectedSegment === 'general'">
+          General
+        </div>
+        <div class="info-nav-separator"></div>
+        <div (click)="selectedSegment = 'estructura'" class="info-pill"
+          [class.active]="selectedSegment === 'estructura'">
+          Estructura
+        </div>
+        <div class="info-nav-separator"></div>
+        <div (click)="selectedSegment = 'competencias'" class="info-pill"
+          [class.active]="selectedSegment === 'competencias'">
+          Competencias
+        </div>
+      </div>
     </div>
 
     <!-- VIEW: GENERAL -->

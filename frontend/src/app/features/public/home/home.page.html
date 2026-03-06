@@ -14,14 +14,18 @@
           <p>Accede a programas educativos de alto nivel, obtén certificaciones avaladas por el CNC y fortalece tus
             competencias profesionales.</p>
 
-          <div class="hero-actions">
-            <button class="primary" (click)="iraRegistro()">
-              Registrarse <ion-icon name="person-add-outline"></ion-icon>
-            </button>
-            <button class="secondary" (click)="navegarModulo('iniciar-sesion')"
-              style="background: rgba(255,255,255,0.7);">
-              Iniciar Sesión <ion-icon name="log-in-outline"></ion-icon>
-            </button>
+          <div class="hero-pill-tray-wrapper animate-fade-up" style="animation-delay: 0.3s;">
+            <div class="hero-pill-tray">
+              <div (click)="iraRegistro()" class="hero-pill register">
+                <span>Registrarse</span>
+                <ion-icon name="person-add-outline"></ion-icon>
+              </div>
+              <div class="hero-nav-separator"></div>
+              <div (click)="iraLogin()" class="hero-pill login">
+                <span>Iniciar Sesión</span>
+                <ion-icon name="log-in-outline"></ion-icon>
+              </div>
+            </div>
           </div>
         </div>
       </div>

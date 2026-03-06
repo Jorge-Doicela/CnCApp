@@ -235,47 +235,89 @@ ion-header {
     margin-right: auto;
   }
 
-  .hero-actions {
+  .hero-pill-tray-wrapper {
     display: flex;
     justify-content: center;
-    gap: 20px;
+    margin-top: 40px;
+  }
 
-    button {
-      height: 52px;
-      padding: 0 32px;
-      border-radius: 99px; // Pill Shape (User Request)
-      font-size: 1.05rem;
-      font-weight: 600;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      transition: all 0.2s ease;
+  .hero-pill-tray {
+    display: flex;
+    align-items: center;
+    background: #f8fafc;
+    padding: 6px;
+    border-radius: 999px;
+    border: 1px solid #e2e8f0;
+    gap: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  }
 
-      &.primary {
-        background: var(--ion-color-primary); // CNC Official Deep Blue
-        color: white;
-        border: none;
+  .hero-pill {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 34px;
+    cursor: pointer;
+    border-radius: 999px;
+    font-weight: 800; // Even bolder for hero presence
+    font-size: 1.05rem;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
 
-        &:hover {
-          background: var(--ion-color-primary-shade);
-          transform: translateY(-1px);
-          box-shadow: 0 4px 12px rgba(30, 58, 138, 0.4);
-        }
+    ion-icon {
+      font-size: 1.4rem;
+    }
+
+    &.login {
+      color: #1e3a8a;
+      background: transparent;
+
+      &:hover {
+        background: rgba(30, 58, 138, 0.05);
       }
+    }
 
-      &.secondary {
-        background: transparent;
-        color: var(--ion-color-primary); // CNC Official Deep Blue
-        border: 1px solid transparent; // Cleaner
+    &.register {
+      background: #1e3a8a;
+      color: #ffffff;
+      box-shadow: 0 4px 15px rgba(30, 58, 138, 0.25);
 
-        &:hover {
-          background: #f8fafc;
-          border-color: #e2e8f0;
-          text-decoration: none;
-          border-radius: 99px; // Ensure hover maintains shape
-        }
+      &:hover {
+        background: #1e40af;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(30, 58, 138, 0.35);
       }
+    }
+  }
+
+  .hero-nav-separator {
+    width: 1.5px;
+    height: 30px;
+    background: #cbd5e1;
+    margin: 0 4px;
+    opacity: 0.6;
+  }
+
+  @media (max-width: 600px) {
+    .hero-pill-tray {
+      flex-direction: column;
+      border-radius: 24px;
+      padding: 10px;
+      width: 100%;
+      max-width: 320px;
+    }
+
+    .hero-nav-separator {
+      width: 80%;
+      height: 1.5px;
+      margin: 8px 0;
+    }
+
+    .hero-pill {
+      width: 100%;
+      justify-content: center;
+      padding: 12px 20px;
+      font-size: 0.95rem;
     }
   }
 }

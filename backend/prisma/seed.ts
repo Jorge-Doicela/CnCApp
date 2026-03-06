@@ -99,10 +99,10 @@ async function main() {
             ]
         });
 
+        const tipoAutoridad = await prisma.tipoParticipante.create({ data: { nombre: 'Autoridad' } });
+        const tipoCiudadano = await prisma.tipoParticipante.create({ data: { nombre: 'Ciudadano' } });
         await prisma.tipoParticipante.createMany({
             data: [
-                { nombre: 'Autoridad' },
-                { nombre: 'Ciudadano' },
                 { nombre: 'Funcionario de GAD' },
                 { nombre: 'Institución' }
             ]
@@ -249,7 +249,7 @@ async function main() {
                     password: hashedPassword,
                     rolId: u.roleId,
                     authUid: u.authUid,
-                    tipoParticipanteId: u.roleId === adminRole.id ? 1 : 2,
+                    tipoParticipanteId: u.roleId === adminRole.id ? tipoAutoridad.id : tipoCiudadano.id,
                 }
             });
             createdUsers.push(user);
