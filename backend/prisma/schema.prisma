@@ -95,7 +95,7 @@ model Canton {
   id          Int         @id @default(autoincrement()) @map("Id_Canton")
   nombre      String      @map("Nombre_Canton") @db.VarChar(100)
   provinciaId Int         @map("Id_Provincia")
-  provincia   Provincia   @relation(fields: [provinciaId], references: [id])
+  provincia   Provincia   @relation(fields: [provinciaId], references: [id], onDelete: Cascade)
   usuarios    Usuario[]
   parroquias  Parroquia[]
 
@@ -106,7 +106,7 @@ model Parroquia {
   id       Int    @id @default(autoincrement()) @map("Id_Parroquia")
   nombre   String @map("Nombre_Parroquia") @db.VarChar(100)
   cantonId Int    @map("Id_Canton")
-  canton   Canton @relation(fields: [cantonId], references: [id])
+  canton   Canton @relation(fields: [cantonId], references: [id], onDelete: Cascade)
 
   @@map("parroquia")
 }
@@ -166,8 +166,8 @@ model Certificado {
   codigoQR       String       @unique @map("Codigo_QR")
   fechaEmision   DateTime     @default(now()) @map("Fecha_Emision")
   pdfUrl         String?      @map("PDF_URL")
-  capacitacion   Capacitacion @relation(fields: [capacitacionId], references: [id])
-  usuario        Usuario      @relation(fields: [usuarioId], references: [id])
+  capacitacion   Capacitacion @relation(fields: [capacitacionId], references: [id], onDelete: Cascade)
+  usuario        Usuario      @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
 
   @@index([codigoQR])
   @@index([fechaEmision])
@@ -208,7 +208,7 @@ model Autoridad {
   usuarioId Int     @map("Id_Usuario")
   cargo     String? @db.VarChar(200)
   entidad   String? @db.VarChar(200)
-  usuario   Usuario @relation(fields: [usuarioId], references: [id])
+  usuario   Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
 
   @@map("Autoridades")
 }
@@ -218,7 +218,7 @@ model FuncionarioGAD {
   usuarioId    Int           @map("Id_Usuario")
   cargo        String?       @db.VarChar(200)
   departamento String?       @db.VarChar(200)
-  usuario      Usuario       @relation(fields: [usuarioId], references: [id])
+  usuario      Usuario       @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
   competencias Competencia[] @relation("FuncionarioCompetencias")
 
   @@map("FuncionarioGAD")
@@ -229,8 +229,8 @@ model InstitucionUsuario {
   usuarioId          Int                @map("Id_Usuario")
   institucionId      Int                @map("Id_Institucion")
   gradoOcupacionalId Int?               @map("Id_Grado_Ocupacional")
-  institucion        InstitucionSistema @relation(fields: [institucionId], references: [id])
-  usuario            Usuario            @relation(fields: [usuarioId], references: [id])
+  institucion        InstitucionSistema @relation(fields: [institucionId], references: [id], onDelete: Cascade)
+  usuario            Usuario            @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
   gradoOcupacional   GradoOcupacional?  @relation(fields: [gradoOcupacionalId], references: [id])
 
   @@map("Instituciones_usuario")
