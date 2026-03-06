@@ -1,22 +1,19 @@
 <ion-header class="ion-no-border">
-  <ion-toolbar
-    style="--background: #ffffff; border-bottom: 2.5px solid #f1f5f9; --min-height: 92px; height: 92px; position: relative;">
+  <ion-toolbar class="main-toolbar">
 
-    <div style="width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 0 24px;">
+    <div class="header-content-wrapper">
 
       <!-- Left: Brand (CNC) -->
-      <div style="display: flex; align-items: center; gap: 6px; flex: 0 0 auto;">
-        <ion-menu-button style="color: #475569; margin: 0; --padding-start: 0;"></ion-menu-button>
-        <div style="border-left: 2.5px solid #1e3a8a; padding-left: 12px; line-height: 1.1; margin-left: 5px;">
-          <div style="font-weight: 900; color: #1e3a8a; font-size: 1.0rem; letter-spacing: -0.4px;">CNC</div>
-          <div
-            style="font-size: 0.65rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">
-            Ecuador</div>
+      <div class="brand-section" (click)="navegarModulo('/')">
+        <ion-menu-button class="mobile-menu-btn"></ion-menu-button>
+        <div class="brand-identity">
+          <div class="brand-acronym">CNC</div>
+          <div class="brand-tagline">Ecuador</div>
         </div>
       </div>
 
       <!-- CENTER: Encapsulated Navigation (Directly dependent on Role) -->
-      <div class="desktop-only" style="display: flex; justify-content: center; flex: 1; padding: 0 20px;">
+      <div class="nav-center-container">
         <div class="encased-pill-system">
 
           <!-- GUEST NAVIGATION: Public Links -->
@@ -35,7 +32,9 @@
 
           <!-- ADMIN NAVIGATION: Tools -->
           <ng-container *ngIf="isAdmin()">
-            <div (click)="navegarModulo('/')" class="encased-item" [class.active]="isActive('/')">Dashboard</div>
+            <div (click)="navegarModulo('/')" class="encased-item" [class.active]="isActive('/')">
+              <ion-icon name="grid-outline" style="margin-right: 6px;"></ion-icon> Dashboard
+            </div>
             <div (click)="navegarModulo('gestionar-usuarios')" class="encased-item"
               [class.active]="isActive('gestionar-usuarios')">
               <ion-icon name="people" style="margin-right: 6px;"></ion-icon> Usuarios
@@ -50,24 +49,30 @@
             </div>
             <div class="nav-separator"></div>
             <div (click)="navegarModulo('servi-progra')" class="encased-item" [class.active]="isActive('servi-progra')">
-              Sitio Público</div>
+              <ion-icon name="globe-outline" style="margin-right: 6px;"></ion-icon> Sitio Público
+            </div>
           </ng-container>
 
           <!-- CREATOR NAVIGATION: Management -->
           <ng-container *ngIf="isCreator()">
-            <div (click)="navegarModulo('/')" class="encased-item" [class.active]="isActive('/')">Inicio</div>
+            <div (click)="navegarModulo('/')" class="encased-item" [class.active]="isActive('/')">
+              <ion-icon name="home-outline" style="margin-right: 6px;"></ion-icon> Inicio
+            </div>
             <div (click)="navegarModulo('conferencista/gestionar-capacitaciones')" class="encased-item"
               [class.active]="isActive('conferencista/gestionar-capacitaciones')">Eventos</div>
             <div (click)="navegarModulo('conferencista/gestionar-plantillas')" class="encased-item"
               [class.active]="isActive('conferencista/gestionar-plantillas')">Plantillas</div>
             <div class="nav-separator"></div>
             <div (click)="navegarModulo('servi-progra')" class="encased-item" [class.active]="isActive('servi-progra')">
-              Sitio Público</div>
+              <ion-icon name="globe-outline" style="margin-right: 6px;"></ion-icon> Sitio Público
+            </div>
           </ng-container>
 
           <!-- USER NAVIGATION: Learning -->
           <ng-container *ngIf="isUser()">
-            <div (click)="navegarModulo('/')" class="encased-item" [class.active]="isActive('/')">Inicio</div>
+            <div (click)="navegarModulo('/')" class="encased-item" [class.active]="isActive('/')">
+              <ion-icon name="home-outline" style="margin-right: 6px;"></ion-icon> Inicio
+            </div>
             <div (click)="navegarModulo('ver-conferencias')" class="encased-item"
               [class.active]="isActive('ver-conferencias')">
               <ion-icon name="search" style="margin-right: 6px;"></ion-icon> Explorar
@@ -78,14 +83,15 @@
             </div>
             <div class="nav-separator"></div>
             <div (click)="navegarModulo('servi-progra')" class="encased-item" [class.active]="isActive('servi-progra')">
-              Sitio Público</div>
+              <ion-icon name="globe-outline" style="margin-right: 6px;"></ion-icon> Sitio Público
+            </div>
           </ng-container>
 
         </div>
       </div>
 
       <!-- Right: Encapsulated Auth/User -->
-      <div style="display: flex; align-items: center; gap: 12px; flex: 0 0 auto; justify-content: flex-end;">
+      <div class="auth-user-section">
 
         <!-- Guest: Encapsulated Auth -->
         <ng-container *ngIf="isGuest()">
@@ -102,22 +108,24 @@
 
           <!-- Mobile Login Button -->
           <div *ngIf="isGuest()" class="mobile-only-btn-frame">
-            <div (click)="iraLogin()" class="auth-box login" style="padding: 10px;">
-              <ion-icon name="log-in-outline" style="font-size: 1.3rem;"></ion-icon>
+            <div (click)="iraLogin()" class="auth-box login mobile-login-pill">
+              <ion-icon name="log-in-outline"></ion-icon>
             </div>
           </div>
         </ng-container>
 
         <!-- Logged In User -->
         <ng-container *ngIf="!isGuest()">
-          <div (click)="navegarModulo('Ver Perfil')" class="user-encased">
-            <div class="user-avatar-circle">{{ (userName() || 'U').charAt(0).toUpperCase() }}</div>
-            <span class="user-label">{{ (userName() || '').split(' ')[0] }}</span>
+          <div class="user-action-group">
+            <div (click)="navegarModulo('Ver Perfil')" class="user-encased">
+              <div class="user-avatar-circle">{{ (userName() || 'U').charAt(0).toUpperCase() }}</div>
+              <span class="user-label">{{ (userName() || '').split(' ')[0] }}</span>
+            </div>
+
+            <div class="logout-wrapper" (click)="cerrarSesion()" title="Cerrar Sesión">
+              <ion-icon name="log-out-outline"></ion-icon>
+            </div>
           </div>
-          <ion-button (click)="cerrarSesion()"
-            style="--color: #ef4444; margin: 0; --padding-start: 6px; --padding-end: 6px;">
-            <ion-icon slot="icon-only" name="log-out-outline" style="font-size: 1.4rem;"></ion-icon>
-          </ion-button>
         </ng-container>
 
       </div>
@@ -127,20 +135,97 @@
 </ion-header>
 
 <style>
-  /* Navigation Central - Balanced Style */
+  ion-header {
+    background: #ffffff;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+    border-bottom: 1px solid #f1f5f9;
+    z-index: 100;
+  }
+
+  .main-toolbar {
+    --background: #ffffff;
+    --border-width: 0;
+    --min-height: 72px;
+    height: 72px;
+  }
+
+  .header-content-wrapper {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 24px;
+  }
+
+  /* Left: Brand */
+  .brand-section {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .brand-identity {
+    border-left: 3px solid #1e3a8a;
+    padding-left: 14px;
+    line-height: 1;
+  }
+
+  .brand-acronym {
+    font-weight: 900;
+    color: #1e3a8a;
+    font-size: 1.1rem;
+    letter-spacing: -0.5px;
+    margin-bottom: 2px;
+  }
+
+  .brand-tagline {
+    font-size: 0.68rem;
+    color: #94a3b8;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+  }
+
+  .mobile-menu-btn {
+    color: #475569;
+    margin: 0;
+    --padding-start: 0;
+    display: none;
+
+    @media (max-width: 992px) {
+      display: block;
+    }
+  }
+
+  /* CENTER: Navigation */
+  .nav-center-container {
+    display: flex;
+    justify-content: center;
+    flex: 1;
+    padding: 0 30px;
+
+    @media (max-width: 992px) {
+      display: none;
+    }
+  }
+
   .encased-pill-system {
     display: flex;
     align-items: center;
-    background: #f1f5f9;
-    padding: 4px;
+    background: #f8fafc;
+    padding: 5px;
     border-radius: 999px;
     border: 1px solid #e2e8f0;
-    gap: 3px;
+    gap: 4px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
   }
 
   .encased-item {
-    padding: 8px 18px;
-    font-size: 0.82rem;
+    padding: 9px 20px;
+    font-size: 0.84rem;
     font-weight: 750;
     color: #64748b;
     cursor: pointer;
@@ -150,10 +235,17 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 8px;
 
     ion-icon {
-      font-size: 1.1rem;
+      font-size: 1.2rem;
       color: inherit;
+    }
+
+    &:hover:not(.active) {
+      background: #ffffff;
+      color: #1e3a8a;
+      transform: translateY(-1px);
     }
   }
 
@@ -165,20 +257,22 @@
     transform: scale(1.02);
   }
 
-  .encased-item:hover:not(.active) {
-    background: rgba(255, 255, 255, 0.6);
-    color: #1e3a8a;
-  }
-
   .nav-separator {
-    width: 1px;
-    height: 20px;
+    width: 1.5px;
+    height: 22px;
     background: #cbd5e1;
-    margin: 0 6px;
-    opacity: 0.7;
+    margin: 0 8px;
+    opacity: 0.4;
   }
 
-  /* Right Side Auth - Balanced */
+  /* Right Side: Auth/User */
+  .auth-user-section {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-shrink: 0;
+  }
+
   .encased-auth-frame {
     display: flex;
     align-items: center;
@@ -186,83 +280,125 @@
     padding: 4px;
     border-radius: 999px;
     border: 1px solid #e2e8f0;
-    gap: 3px;
+    gap: 4px;
   }
 
   .auth-box {
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 8px 18px;
+    padding: 9px 20px;
     cursor: pointer;
     border-radius: 999px;
-    font-weight: 800;
-    font-size: 0.78rem;
-    transition: all 0.2s ease;
+    font-weight: 850;
+    font-size: 0.8rem;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .auth-box.login {
     color: #1e3a8a;
-  }
 
-  .auth-box.login ion-icon {
-    font-size: 1.05rem;
-  }
-
-  .auth-box.login:hover {
-    background: rgba(30, 58, 138, 0.05);
+    &:hover {
+      background: rgba(30, 58, 138, 0.05);
+    }
   }
 
   .auth-box.register {
     background: #1e3a8a;
     color: #ffffff;
-    box-shadow: 0 3px 10px rgba(30, 58, 138, 0.18);
+    box-shadow: 0 4px 12px rgba(30, 58, 138, 0.2);
+
+    &:hover {
+      background: #1e40af;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(30, 58, 138, 0.3);
+    }
   }
 
-  .auth-box.register ion-icon {
-    font-size: 0.95rem;
-  }
+  .mobile-login-pill {
+    padding: 10px;
+    background: #f1f5f9;
+    color: #1e3a8a;
+    border: 1px solid #e2e8f0;
 
-  .auth-box.register:hover {
-    background: #1e40af;
-    box-shadow: 0 5px 15px rgba(30, 58, 138, 0.28);
-    transform: translateY(-1px);
+    ion-icon {
+      font-size: 1.4rem;
+    }
   }
 
   /* User Section */
+  .user-action-group {
+    display: flex;
+    align-items: center;
+    background: #f8fafc;
+    padding: 4px;
+    border-radius: 999px;
+    border: 1px solid #e2e8f0;
+    gap: 4px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
+  }
+
   .user-encased {
     display: flex;
     align-items: center;
-    background: #f1f5f9;
-    padding: 4px 15px 4px 4px;
-    border-radius: 999px;
-    gap: 10px;
+    background: #ffffff;
+    padding: 4px 16px 4px 4px;
+    border-radius: 99px;
+    gap: 12px;
     cursor: pointer;
+    border: 1px solid #e2e8f0;
+    transition: all 0.2s;
+
+    &:hover {
+      border-color: #cbd5e1;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      transform: translateY(-1px);
+    }
   }
 
   .user-avatar-circle {
     background: #1e3a8a;
     color: white;
-    width: 34px;
-    height: 34px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: 900;
-    font-size: 0.85rem;
+    font-weight: 800;
+    font-size: 0.9rem;
+    box-shadow: 0 2px 4px rgba(30, 58, 138, 0.2);
   }
 
   .user-label {
     font-weight: 800;
-    font-size: 0.78rem;
+    font-size: 0.75rem;
     color: #1e3a8a;
     text-transform: uppercase;
+    letter-spacing: 0.03em;
   }
 
-  /* Responsive Constraints */
-  .desktop-only {
+  .logout-wrapper {
     display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: transparent;
+    color: #94a3b8;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    ion-icon {
+      font-size: 1.25rem;
+    }
+
+    &:hover {
+      background: #fef2f2;
+      color: #ef4444;
+      transform: rotate(5deg);
+    }
   }
 
   @media (max-width: 1200px) {

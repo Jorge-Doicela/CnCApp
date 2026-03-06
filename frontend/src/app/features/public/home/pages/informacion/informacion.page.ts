@@ -5,8 +5,7 @@ import { FormsModule } from '@angular/forms';
 import {
   IonContent, IonAvatar, // IonCard removed, Avatar restored
   IonAccordionGroup, IonAccordion, IonItem,
-  IonIcon, IonLabel,
-  IonSegment, IonSegmentButton
+  IonIcon, IonLabel
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -25,8 +24,7 @@ import {
     CommonModule, FormsModule,
     IonContent, IonAvatar,
     IonAccordionGroup, IonAccordion, IonItem,
-    IonIcon, IonLabel,
-    IonSegment, IonSegmentButton
+    IonIcon, IonLabel
   ]
 })
 export class InformacionPage implements OnInit {

@@ -468,90 +468,158 @@ ion-header {
 // ------------------------------------------
 
 .admin-hero {
-  padding: 80px 0 60px;
-  background: radial-gradient(circle at 0% 0%, rgba(30, 58, 138, 0.03) 0%, transparent 50%);
+  padding: 50px 0 40px;
+  background: #ffffff;
+  border-bottom: 1px solid #f1f5f9;
+  text-align: left !important;
+  position: relative;
+  overflow: hidden;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(30, 58, 138, 0.03) 0%, transparent 70%);
+    z-index: 0;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    text-align: left !important;
+  }
 
   .hero-top-info {
-    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+    justify-content: flex-start;
   }
 
   .date-pill {
-    background: #f1f5f9;
+    background: #f8fafc;
     color: #64748b;
     padding: 6px 14px;
     border-radius: 99px;
     font-size: 0.75rem;
     font-weight: 750;
+    border: 1px solid #e2e8f0;
     text-transform: capitalize;
-    letter-spacing: 0.02em;
+  }
+
+  .role-badge {
+    padding: 6px 12px;
+    border-radius: 99px;
+    font-size: 0.7rem;
+    font-weight: 850;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+
+    &.admin {
+      background: rgba(30, 58, 138, 0.08);
+      color: #1e3a8a;
+    }
+
+    &.creator {
+      background: rgba(2, 132, 199, 0.08);
+      color: #0284c7;
+    }
+  }
+
+  .dynamic-greeting {
+    font-size: 2.8rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0 0 10px;
+    letter-spacing: -0.04em;
+    line-height: 1.1;
+    text-align: left !important;
+
+    span {
+      color: #1e3a8a;
+    }
+  }
+
+  .hero-subtitle {
+    font-size: 1.1rem;
+    color: #64748b;
+    font-weight: 500;
+    max-width: 650px;
+    line-height: 1.6;
+    margin: 0;
+    text-align: left !important;
   }
 }
 
-// Modern Stats Grid (Glassmorphism)
+// Stats Grid
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 20px;
-  margin-top: -30px;
-  margin-bottom: 40px;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+  margin-top: -32px;
+  margin-bottom: 48px;
 }
 
 .glass-stat-card {
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
   border-radius: 24px;
-  padding: 24px;
+  padding: 28px;
   display: flex;
   align-items: center;
-  gap: 20px;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.04);
+  gap: 24px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05),
+    0 8px 10px -6px rgba(0, 0, 0, 0.05);
   position: relative;
-  overflow: hidden;
+  transition: transform 0.3s ease;
 
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 4px;
-    height: 100%;
+  &:hover {
+    transform: translateY(-4px);
   }
 
-  &.primary::before {
-    background: #1e3a8a;
-  }
-
-  &.secondary::before {
-    background: #0284c7;
-  }
-
-  &.success::before {
-    background: #10b981;
-  }
-
-  .stat-icon {
-    width: 50px;
-    height: 50px;
-    border-radius: 12px;
-    background: #f8fafc;
+  .stat-icon-wrapper {
+    width: 64px;
+    height: 64px;
+    border-radius: 18px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.5rem;
-    color: #1e3a8a;
+    font-size: 2rem;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
   }
 
-  .stat-info {
+  &.primary .stat-icon-wrapper {
+    background: #eff6ff;
+    color: #1e40af;
+  }
+
+  &.secondary .stat-icon-wrapper {
+    background: #f0f9ff;
+    color: #0369a1;
+  }
+
+  &.success .stat-icon-wrapper {
+    background: #f0fdf4;
+    color: #15803d;
+  }
+
+  .stat-details {
     flex: 1;
 
     .stat-value {
       display: block;
-      font-size: 1.8rem;
+      font-size: 2.2rem;
       font-weight: 800;
-      color: #1d1d1f;
+      color: #1e293b;
       line-height: 1;
-      margin-bottom: 4px;
+      margin-bottom: 6px;
+      letter-spacing: -0.02em;
     }
 
     .stat-label {
@@ -563,84 +631,203 @@ ion-header {
     }
   }
 
-  .stat-trend {
+  .stat-growth {
+    position: absolute;
+    top: 28px;
+    right: 28px;
     font-size: 0.75rem;
-    font-weight: 700;
+    font-weight: 800;
     color: #10b981;
-    background: rgba(16, 185, 129, 0.1);
-    padding: 4px 8px;
-    border-radius: 6px;
+    background: #ecfdf5;
+    padding: 4px 10px;
+    border-radius: 8px;
   }
 }
 
-// Admin Layout
-.admin-sections-hub {
-  .section-group {
-    margin-bottom: 50px;
+// Bento Hub styles
+.section-group {
+  margin-bottom: 56px;
+
+  .section-header {
+    margin-bottom: 24px;
+
+    .dash-section-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 4px;
+    }
+
+    .section-subtitle {
+      font-size: 0.9rem;
+      color: #94a3b8;
+      font-weight: 500;
+    }
   }
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 20px;
 }
 
 .bento-layout {
   @media (min-width: 1024px) {
-    grid-template-columns: 2fr 1fr 1fr !important;
+    grid-template-columns: 1.5fr 1fr 1fr !important;
+  }
+}
+
+.dash-card {
+  background: white;
+  border: 1px solid #f1f5f9;
+  border-radius: 20px;
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+
+  &:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+
+    .arrow-small,
+    .arrow-icon {
+      transform: translateX(4px);
+      opacity: 1;
+    }
+  }
+
+  .card-info {
+    flex: 1;
+
+    h4 {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #1e293b;
+      margin: 0 0 4px;
+    }
+
+    p {
+      font-size: 0.88rem;
+      color: #64748b;
+      margin: 0;
+      line-height: 1.4;
+    }
+  }
+
+  // Icons containers
+  .icon-box,
+  .icon-box-outline,
+  .card-icon-main {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    flex-shrink: 0;
+  }
+
+  .icon-box {
+    &.blue {
+      background: #eff6ff;
+      color: #2563eb;
+    }
+
+    &.purple {
+      background: #f5f3ff;
+      color: #7c3aed;
+    }
+
+    &.amber {
+      background: #fffbeb;
+      color: #d97706;
+    }
+
+    &.slate {
+      background: #f8fafc;
+      color: #475569;
+    }
+  }
+
+  .icon-box-outline {
+    border: 1.5px solid #f1f5f9;
+    color: #64748b;
+  }
+
+  .arrow-small {
+    font-size: 1.2rem;
+    color: #cbd5e1;
+    opacity: 0.5;
+    transition: all 0.2s;
+  }
+
+  .arrow-icon {
+    font-size: 1.6rem;
+    color: #1e3a8a;
+    transition: all 0.2s;
   }
 }
 
 .featured-card {
-  background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%) !important;
-  border-color: transparent !important;
+  background: #1e3a8a !important;
+  border: none !important;
 
-  h4 {
-    color: white !important;
-    font-size: 1.3rem !important;
+  .card-icon-main {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    width: 54px;
+    height: 54px;
+    font-size: 1.6rem;
   }
 
-  p {
-    color: rgba(255, 255, 255, 0.8) !important;
-    font-size: 0.95rem !important;
+  .card-info {
+    h4 {
+      color: white;
+      font-size: 1.15rem;
+    }
+
+    p {
+      color: rgba(255, 255, 255, 0.7);
+    }
   }
 
-  .icon-circle.main {
-    background: rgba(255, 255, 255, 0.2) !important;
-    color: white !important;
-    width: 60px !important;
-    height: 60px !important;
-    font-size: 1.8rem !important;
-  }
-
-  .arrow {
-    color: white !important;
+  .arrow-icon {
+    color: white;
+    opacity: 0.8;
   }
 }
 
 .highlight-card {
-  border: 2px solid #e2e8f0 !important;
-  position: relative;
+  border-left: 4px solid #f59e0b !important;
 
-  .tag-pill {
+  .status-tag {
     position: absolute;
-    top: 24px;
-    right: 24px;
-    background: #f1f5f9;
-    padding: 4px 10px;
-    border-radius: 6px;
+    top: 20px;
+    right: 20px;
     font-size: 0.65rem;
-    font-weight: 850;
-    color: #64748b;
+    font-weight: 800;
+    color: #94a3b8;
+    background: #f8fafc;
+    padding: 3px 8px;
+    border-radius: 6px;
     text-transform: uppercase;
-  }
-
-  .icon-circle.settings {
-    background: #fef3c7 !important;
-    color: #d97706 !important;
   }
 }
 
 .portal-shortcut-strip {
-  background: white;
+  margin-top: 40px;
+  background: #f8fafc;
   border: 1px dashed #cbd5e1;
-  padding: 24px 30px;
   border-radius: 20px;
+  padding: 24px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -649,8 +836,8 @@ ion-header {
   .shortcut-content {
     display: flex;
     align-items: center;
-    gap: 15px;
-    color: #64748b;
+    gap: 16px;
+    color: #475569;
     font-weight: 600;
 
     ion-icon {
@@ -660,13 +847,13 @@ ion-header {
   }
 
   .portal-btn {
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
-    padding: 10px 24px;
-    border-radius: 99px;
-    font-weight: 750;
+    background: white;
     color: #1e3a8a;
-    font-size: 0.85rem;
+    border: 1.5px solid #e2e8f0;
+    padding: 10px 24px;
+    border-radius: 12px;
+    font-weight: 750;
+    font-size: 0.9rem;
     cursor: pointer;
     transition: all 0.2s;
 
@@ -677,86 +864,40 @@ ion-header {
       transform: translateY(-1px);
     }
   }
-
-  @media (max-width: 640px) {
-    flex-direction: column;
-    text-align: center;
-
-    .portal-btn {
-      width: 100%;
-    }
-  }
 }
 
 // ------------------------------------------
-// RESPONSIVE
+// HEADER SHARED / UI HELPERS
 // ------------------------------------------
-@media (max-width: 768px) {
+.user-action-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f8fafc;
+  padding: 4px;
+  border-radius: 999px;
+  border: 1px solid #e2e8f0;
+}
 
-  .header-inner .brand h1,
-  .header-inner .brand small {
-    display: none;
+@media (max-width: 992px) {
+  .dynamic-greeting {
+    font-size: 2.2rem !important;
   }
 
-  // Hide text on small screens if needed
-  .hero-content h2 {
-    font-size: 2.2rem;
-  }
-
-  .clean-grid,
-  .dashboard-grid {
+  .stats-grid {
     grid-template-columns: 1fr;
   }
 
-  .stats-strip {
+  .portal-shortcut-strip {
     flex-direction: column;
-    gap: 24px;
+    text-align: center;
   }
 
-  .hero-wrapper {
-    padding: 80px 0 60px; // Adjusted: Lowered slightly per user request
-  }
-}
-
-// ------------------------------------------
-// DESKTOP NAVIGATION (Pill Segment Style)
-// ------------------------------------------
-.desktop-nav {
-  display: none; // Hidden by default (Mobile First)
-  background: #f1f5f9; // Light gray pill container
-  padding: 4px;
-  border-radius: 99px; // Fully rounded pill
-  border: 1px solid rgba(0, 0, 0, 0.04);
-
-  .nav-link {
-    padding: 8px 20px;
-    border-radius: 99px; // Rounded items
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: #64748b; // Gray inactive
-    text-decoration: none;
-    cursor: pointer;
-    transition: all 0.2s ease;
-
-    &:hover {
-      color: var(--ion-color-dark);
-    }
-
-    &.active {
-      background: white;
-      color: var(--ion-color-primary); // Blue active text
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); // Soft shadow
-    }
-  }
-}
-
-@media (min-width: 992px) {
-  .desktop-nav {
-    display: flex; // Only show on large screens
+  .bento-layout {
+    grid-template-columns: 1fr !important;
   }
 
-  // Hide hamburger on desktop
-  ion-menu-button {
-    display: none;
+  .hero-subtitle {
+    font-size: 1rem;
   }
 }
