@@ -7,7 +7,7 @@ import { LoadingController, ToastController, AlertController, Platform, IonConte
 import { environment } from 'src/environments/environment';
 import { AuthService } from '../services/auth.service';
 import { addIcons } from 'ionicons';
-import { mailOutline, paperPlaneOutline, lockClosedOutline, saveOutline, checkmarkCircle, closeCircle, informationCircleOutline } from 'ionicons/icons';
+import { mailOutline, paperPlaneOutline, lockClosedOutline, saveOutline, checkmarkCircle, closeCircle, informationCircleOutline, arrowBackOutline } from 'ionicons/icons';
 
 @Component({
   selector: 'app-recuperar-password',
@@ -42,7 +42,7 @@ export class RecuperarPasswordPage implements OnInit {
   constructor() {
     addIcons({
       mailOutline, paperPlaneOutline, lockClosedOutline,
-      saveOutline, checkmarkCircle, closeCircle, informationCircleOutline
+      saveOutline, checkmarkCircle, closeCircle, informationCircleOutline, arrowBackOutline
     });
   }
 

@@ -15,7 +15,7 @@
         "prisma:seed": "tsx prisma/seed.ts",
         "test": "jest",
         "system:check": "node scripts/system-check.js",
-        "lint": "eslint src --ext .ts"
+        "lint": "eslint \"src/**/*.ts\""
     },
     "prisma": {
         "seed": "tsx prisma/seed.ts"

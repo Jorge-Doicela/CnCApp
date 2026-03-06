@@ -8,16 +8,7 @@ import {
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
-  homeOutline, timeOutline, bookOutline, locationOutline, briefcaseOutline,
-  informationCircleOutline, logInOutline, logOutOutline, personAddOutline,
-  personOutline, personCircleOutline, peopleOutline, calendarOutline,
-  documentTextOutline, businessOutline, mapOutline, pinOutline,
-  ribbonOutline, idCardOutline, listOutline, qrCodeOutline, appsOutline,
-  searchOutline, checkmarkCircleOutline, closeCircleOutline, addCircleOutline,
-  schoolOutline, trophyOutline, medalOutline, add, refreshOutline, arrowForwardOutline,
-  checkmarkDoneOutline, lockClosedOutline, location, calendar, laptopOutline, time, people,
-  createOutline, trashOutline, saveOutline, closeOutline, textOutline, alarmOutline,
-  hourglassOutline, linkOutline, openOutline
+  homeOutline, logInOutline, personAddOutline, personCircleOutline, informationCircleOutline, locationOutline, bookOutline, documentTextOutline, calendarOutline, qrCodeOutline, logOutOutline, textOutline, alertCircleOutline, barcodeOutline, mapOutline, checkmarkCircleOutline, closeOutline, saveOutline, arrowBackOutline, searchOutline, search, addCircleOutline, closeCircleOutline, keyOutline, createOutline, trashOutline, swapVerticalOutline, personOutline, schoolOutline, checkmarkCircle, alertCircle, time, timeOutline, people, laptopOutline, gitMergeOutline, linkOutline, openOutline, peopleOutline, businessOutline, arrowForwardOutline, checkmarkOutline, addOutline, ribbonOutline, refreshOutline, ribbon, hourglassOutline, toggleOutline, wifiOutline, peopleCircleOutline, briefcaseOutline, lockClosedOutline, checkmarkDoneOutline, business, personCircle, mailOutline, analyticsOutline, downloadOutline, warningOutline, desktopOutline, shieldCheckmarkOutline, funnelOutline, trophyOutline, arrowBack, pinOutline, idCardOutline, imageOutline, cloudUploadOutline, layersOutline, eyeOutline, addCircle, filterOutline, create, playOutline, appsOutline, shieldCheckmark, apps, add, checkmarkDoneCircleOutline, callOutline, maleFemaleOutline, globeOutline, person, fingerPrintOutline, settingsOutline, flagOutline, arrowForwardCircle, easel, chevronForward, statsChart, arrowForward, colorPaletteOutline, rocketOutline, helpCircleOutline, sparklesOutline, busOutline, carOutline, navigateOutline, medalOutline, bodyOutline, swapHorizontalOutline, gitNetworkOutline, barChartOutline, scaleOutline, libraryOutline, walletOutline, carSportOutline, chevronForwardOutline, waterOutline, leafOutline, airplaneOutline, calculatorOutline, optionsOutline, fileTrayFullOutline, fitnessOutline, buildOutline, constructOutline, calendar, closeCircle, camera, gridOutline, statsChartOutline
 } from 'ionicons/icons';
 
 import { AuthService } from './features/auth/services/auth.service';
@@ -70,54 +61,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private alertController: AlertController
   ) {
     addIcons({
-      'home-outline': homeOutline,
-      'time-outline': timeOutline,
-      'book-outline': bookOutline,
-      'location-outline': locationOutline,
-      'briefcase-outline': briefcaseOutline,
-      'information-circle-outline': informationCircleOutline,
-      'log-in-outline': logInOutline,
-      'log-out-outline': logOutOutline,
-      'person-add-outline': personAddOutline,
-      'person-outline': personOutline,
-      'person-circle-outline': personCircleOutline,
-      'people-outline': peopleOutline,
-      'calendar-outline': calendarOutline,
-      'document-text-outline': documentTextOutline,
-      'business-outline': businessOutline,
-      'map-outline': mapOutline,
-      'pin-outline': pinOutline,
-      'ribbon-outline': ribbonOutline,
-      'id-card-outline': idCardOutline,
-      'list-outline': listOutline,
-      'qr-code-outline': qrCodeOutline,
-      'apps-outline': appsOutline,
-      'search-outline': searchOutline,
-      'checkmark-circle-outline': checkmarkCircleOutline,
-      'close-circle-outline': closeCircleOutline,
-      'add-circle-outline': addCircleOutline,
-      'school-outline': schoolOutline,
-      'trophy-outline': trophyOutline,
-      'medal-outline': medalOutline,
-      'add': add,
-      'refresh-outline': refreshOutline,
-      'arrow-forward-outline': arrowForwardOutline,
-      'checkmark-done-outline': checkmarkDoneOutline,
-      'lock-closed-outline': lockClosedOutline,
-      'location': location,
-      'calendar': calendar,
-      'laptop-outline': laptopOutline,
-      'time': time,
-      'people': people,
-      'create-outline': createOutline,
-      'trash-outline': trashOutline,
-      'save-outline': saveOutline,
-      'close-outline': closeOutline,
-      'text-outline': textOutline,
-      'alarm-outline': alarmOutline,
-      'hourglass-outline': hourglassOutline,
-      'link-outline': linkOutline,
-      'open-outline': openOutline
+      homeOutline, logInOutline, personAddOutline, personCircleOutline, informationCircleOutline, locationOutline, bookOutline, documentTextOutline, calendarOutline, qrCodeOutline, logOutOutline, textOutline, alertCircleOutline, barcodeOutline, mapOutline, checkmarkCircleOutline, closeOutline, saveOutline, arrowBackOutline, searchOutline, search, addCircleOutline, closeCircleOutline, keyOutline, createOutline, trashOutline, swapVerticalOutline, personOutline, schoolOutline, checkmarkCircle, alertCircle, time, timeOutline, people, laptopOutline, gitMergeOutline, linkOutline, openOutline, peopleOutline, businessOutline, arrowForwardOutline, checkmarkOutline, addOutline, ribbonOutline, refreshOutline, ribbon, hourglassOutline, toggleOutline, wifiOutline, peopleCircleOutline, briefcaseOutline, lockClosedOutline, checkmarkDoneOutline, business, personCircle, mailOutline, analyticsOutline, downloadOutline, warningOutline, desktopOutline, shieldCheckmarkOutline, funnelOutline, trophyOutline, arrowBack, pinOutline, idCardOutline, imageOutline, cloudUploadOutline, layersOutline, eyeOutline, addCircle, filterOutline, create, playOutline, appsOutline, shieldCheckmark, apps, add, checkmarkDoneCircleOutline, callOutline, maleFemaleOutline, globeOutline, person, fingerPrintOutline, settingsOutline, flagOutline, arrowForwardCircle, easel, chevronForward, statsChart, arrowForward, colorPaletteOutline, rocketOutline, helpCircleOutline, sparklesOutline, busOutline, carOutline, navigateOutline, medalOutline, bodyOutline, swapHorizontalOutline, gitNetworkOutline, barChartOutline, scaleOutline, libraryOutline, walletOutline, carSportOutline, chevronForwardOutline, waterOutline, leafOutline, airplaneOutline, calculatorOutline, optionsOutline, fileTrayFullOutline, fitnessOutline, buildOutline, constructOutline, calendar, closeCircle, camera, gridOutline, statsChartOutline
     });
 
     // Effect to log user changes
