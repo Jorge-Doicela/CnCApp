@@ -15,23 +15,72 @@
         </div>
       </div>
 
-      <!-- CENTER: Encapsulated Navigation -->
+      <!-- CENTER: Encapsulated Navigation (Directly dependent on Role) -->
       <div class="desktop-only" style="display: flex; justify-content: center; flex: 1; padding: 0 20px;">
         <div class="encased-pill-system">
-          <div (click)="navegarModulo('/')" class="encased-item" [class.active]="isActive('/')">Inicio</div>
-          <div (click)="navegarModulo('historia')" class="encased-item" [class.active]="isActive('historia')">Historia
-          </div>
-          <div (click)="navegarModulo('direccion')" class="encased-item" [class.active]="isActive('direccion')">
-            Dirección</div>
-          <div (click)="navegarModulo('norma-regul')" class="encased-item" [class.active]="isActive('norma-regul')">
-            Normativa</div>
-          <div (click)="navegarModulo('informacion')" class="encased-item" [class.active]="isActive('informacion')">
-            Información</div>
-          <div (click)="navegarModulo('servi-progra')" class="encased-item" [class.active]="isActive('servi-progra')">
-            Servicios</div>
-          <div class="nav-separator"></div>
-          <div (click)="navegarModulo('validar-certificados')" class="encased-item"
-            [class.active]="isActive('validar-certificados')">Verificación</div>
+
+          <!-- GUEST NAVIGATION: Public Links -->
+          <ng-container *ngIf="isGuest()">
+            <div (click)="navegarModulo('/')" class="encased-item" [class.active]="isActive('/')">Inicio</div>
+            <div (click)="navegarModulo('servi-progra')" class="encased-item" [class.active]="isActive('servi-progra')">
+              Servicios</div>
+            <div (click)="navegarModulo('historia')" class="encased-item" [class.active]="isActive('historia')">Historia
+            </div>
+            <div (click)="navegarModulo('informacion')" class="encased-item" [class.active]="isActive('informacion')">
+              Información</div>
+            <div class="nav-separator"></div>
+            <div (click)="navegarModulo('validar-certificados')" class="encased-item"
+              [class.active]="isActive('validar-certificados')">Verificación</div>
+          </ng-container>
+
+          <!-- ADMIN NAVIGATION: Tools -->
+          <ng-container *ngIf="isAdmin()">
+            <div (click)="navegarModulo('/')" class="encased-item" [class.active]="isActive('/')">Dashboard</div>
+            <div (click)="navegarModulo('gestionar-usuarios')" class="encased-item"
+              [class.active]="isActive('gestionar-usuarios')">
+              <ion-icon name="people" style="margin-right: 6px;"></ion-icon> Usuarios
+            </div>
+            <div (click)="navegarModulo('gestionar-capacitaciones')" class="encased-item"
+              [class.active]="isActive('gestionar-capacitaciones')">
+              <ion-icon name="easel" style="margin-right: 6px;"></ion-icon> Conferencias
+            </div>
+            <div (click)="navegarModulo('gestionar-reportes')" class="encased-item"
+              [class.active]="isActive('gestionar-reportes')">
+              <ion-icon name="stats-chart-outline" style="margin-right: 6px;"></ion-icon> Reportes
+            </div>
+            <div class="nav-separator"></div>
+            <div (click)="navegarModulo('servi-progra')" class="encased-item" [class.active]="isActive('servi-progra')">
+              Sitio Público</div>
+          </ng-container>
+
+          <!-- CREATOR NAVIGATION: Management -->
+          <ng-container *ngIf="isCreator()">
+            <div (click)="navegarModulo('/')" class="encased-item" [class.active]="isActive('/')">Inicio</div>
+            <div (click)="navegarModulo('conferencista/gestionar-capacitaciones')" class="encased-item"
+              [class.active]="isActive('conferencista/gestionar-capacitaciones')">Eventos</div>
+            <div (click)="navegarModulo('conferencista/gestionar-plantillas')" class="encased-item"
+              [class.active]="isActive('conferencista/gestionar-plantillas')">Plantillas</div>
+            <div class="nav-separator"></div>
+            <div (click)="navegarModulo('servi-progra')" class="encased-item" [class.active]="isActive('servi-progra')">
+              Sitio Público</div>
+          </ng-container>
+
+          <!-- USER NAVIGATION: Learning -->
+          <ng-container *ngIf="isUser()">
+            <div (click)="navegarModulo('/')" class="encased-item" [class.active]="isActive('/')">Inicio</div>
+            <div (click)="navegarModulo('ver-conferencias')" class="encased-item"
+              [class.active]="isActive('ver-conferencias')">
+              <ion-icon name="search" style="margin-right: 6px;"></ion-icon> Explorar
+            </div>
+            <div (click)="navegarModulo('ver-certificaciones')" class="encased-item"
+              [class.active]="isActive('ver-certificaciones')">
+              <ion-icon name="ribbon" style="margin-right: 6px;"></ion-icon> Mis Títulos
+            </div>
+            <div class="nav-separator"></div>
+            <div (click)="navegarModulo('servi-progra')" class="encased-item" [class.active]="isActive('servi-progra')">
+              Sitio Público</div>
+          </ng-container>
+
         </div>
       </div>
 
@@ -91,20 +140,28 @@
 
   .encased-item {
     padding: 8px 18px;
-    font-size: 0.8rem;
-    font-weight: 700;
+    font-size: 0.82rem;
+    font-weight: 750;
     color: #64748b;
     cursor: pointer;
     border-radius: 999px;
-    transition: all 0.2s ease;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     white-space: nowrap;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    ion-icon {
+      font-size: 1.1rem;
+      color: inherit;
+    }
   }
 
   .encased-item.active {
     background: #ffffff;
     color: #1e3a8a;
     border: 1.5px solid #cbd5e1;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     transform: scale(1.02);
   }
 

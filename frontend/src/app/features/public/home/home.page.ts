@@ -58,6 +58,20 @@ export class HomePage implements OnInit {
     const r = this.roleName()?.toLowerCase();
     return r?.includes('creador') || r?.includes('conferencista') || r?.includes('conferencia');
   });
+  // Greeting Logic
+  saludo = computed(() => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Buenos días';
+    if (hour < 19) return 'Buenas tardes';
+    return 'Buenas noches';
+  });
+
+  currentDate = new Date().toLocaleDateString('es-ES', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long'
+  });
+
   isUser = computed(() => {
     return !this.isAdmin() && !this.isCreator() && !this.isGuest();
   });
@@ -339,7 +353,8 @@ export class HomePage implements OnInit {
       'Grados Ocupacionales': 'gestionar-grados',
       'Competencias': 'gestionar-competencias',
       'iniciar-sesion': 'login',
-      'registrarse': 'register'
+      'registrarse': 'register',
+      'configuracion-maestros': 'configuracion-maestros'
     };
 
     let ruta = rutasModulos[modulo] || modulo.toLowerCase().replace(/\s+/g, '-');
