@@ -1,13 +1,13 @@
 import { IonicModule } from '@ionic/angular';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AlertController, LoadingController, ToastController, NavController } from '@ionic/angular';
 import { Router, ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, Subscription } from 'rxjs';
 import { UsuarioService } from '../../services/usuario.service';
 import { AuthService } from 'src/app/features/auth/services/auth.service';
 
@@ -18,8 +18,9 @@ import { AuthService } from 'src/app/features/auth/services/auth.service';
   standalone: true,
   imports: [CommonModule, FormsModule, ReactiveFormsModule, IonicModule]
 })
-export class EditarPage implements OnInit {
+export class EditarPage implements OnInit, OnDestroy {
   perfilForm!: FormGroup;
+  private subscripciones = new Subscription();
   usuario: any = null;
   cargando: boolean = true;
   guardando: boolean = false;
@@ -76,12 +77,15 @@ export class EditarPage implements OnInit {
     });
 
     // Filtrar cantones cuando cambia provincia
-    this.perfilForm.get('provincia')?.valueChanges.subscribe(provinciaId => {
+    const sub = this.perfilForm.get('provincia')?.valueChanges.subscribe(provinciaId => {
       this.perfilForm.patchValue({ canton: null }, { emitEvent: false });
       this.cantones = provinciaId
         ? this.cantonesOriginales.filter(c => c.provinciaId === +provinciaId)
         : [];
     });
+    if (sub) {
+      this.subscripciones.add(sub);
+    }
   }
 
   async cargarDatos() {
@@ -195,5 +199,9 @@ export class EditarPage implements OnInit {
       buttons: [{ side: 'end', icon: 'close', role: 'cancel' }]
     });
     await toast.present();
+  }
+
+  ngOnDestroy() {
+    this.subscripciones.unsubscribe();
   }
 }
