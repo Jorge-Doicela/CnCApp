@@ -30,6 +30,7 @@ export class EditarPage implements OnInit {
     lugar: '',
     estado: 0,
     modalidad: '',
+    tipoEvento: '',
     horas: 0,
     limiteParticipantes: 0,
     entidadesEncargadas: [] as number[],
