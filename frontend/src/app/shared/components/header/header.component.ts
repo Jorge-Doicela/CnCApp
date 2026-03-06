@@ -37,6 +37,24 @@ export class HeaderComponent {
         addIcons({ menuOutline, arrowForward, logOutOutline, menu, logInOutline, personAddOutline });
     }
 
+    isActive(modulo: string): boolean {
+        const currentUrl = this.router.url;
+        if (modulo === '/') return currentUrl === '/home' || currentUrl === '/';
+
+        const rutasModulos: { [key: string]: string } = {
+            'historia': 'home/historia',
+            'direccion': 'home/direccion',
+            'norma-regul': 'home/norma-regul',
+            'informacion': 'home/informacion',
+            'servi-progra': 'home/servi-progra',
+            'validar-certificados': 'validar-certificados',
+            'Ver Perfil': 'ver-perfil'
+        };
+
+        const target = rutasModulos[modulo] || modulo;
+        return currentUrl.includes(target);
+    }
+
     toggleMenu() {
         if (document.activeElement instanceof HTMLElement) {
             document.activeElement.blur();
