@@ -2,7 +2,7 @@ import { Component, OnInit, inject, effect, ChangeDetectionStrategy, computed, C
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
-  IonContent, IonIcon, IonHeader, IonToolbar, IonButtons, IonMenuButton, IonTitle, IonButton,
+  IonContent, IonIcon,
   ToastController, LoadingController, MenuController
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
@@ -18,7 +18,10 @@ import {
   // Filled variants used in new design
   documentText, school, qrCode, logIn, calendarClearOutline,
   people, calendar, easel, image, ribbon, business, personAdd, person,
-  checkmarkCircle, star, shieldCheckmark, time, keyOutline
+  checkmarkCircle, star, shieldCheckmark, time, keyOutline,
+  arrowForwardCircle, chevronForward, statsChart, shieldCheckmarkOutline,
+  colorPaletteOutline, gridOutline, globeOutline, sparklesOutline,
+  personCircleOutline, helpCircleOutline
 } from 'ionicons/icons';
 import { Router } from '@angular/router';
 
@@ -35,7 +38,7 @@ import { firstValueFrom } from 'rxjs';
   standalone: true,
   imports: [
     CommonModule, FormsModule,
-    IonContent, IonIcon, IonHeader, IonToolbar, IonButtons, IonMenuButton, IonTitle, IonButton
+    IonContent, IonIcon
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -163,7 +166,17 @@ export class HomePage implements OnInit {
       'star': star,
       'shield-checkmark': shieldCheckmark,
       'time': time,
-      'key-outline': keyOutline
+      'key-outline': keyOutline,
+      'arrow-forward-circle': arrowForwardCircle,
+      'chevron-forward': chevronForward,
+      'stats-chart': statsChart,
+      'shield-checkmark-outline': shieldCheckmarkOutline,
+      'color-palette-outline': colorPaletteOutline,
+      'grid-outline': gridOutline,
+      'globe-outline': globeOutline,
+      'sparkles-outline': sparklesOutline,
+      'person-circle-outline': personCircleOutline,
+      'help-circle-outline': helpCircleOutline
     });
 
     effect(() => {

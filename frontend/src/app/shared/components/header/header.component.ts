@@ -4,7 +4,7 @@ import { Router, RouterModule } from '@angular/router';
 import { IonHeader, IonToolbar, IonButtons, IonButton, IonIcon, IonMenuButton, MenuController } from '@ionic/angular/standalone';
 import { AuthService } from '../../../features/auth/services/auth.service';
 import { addIcons } from 'ionicons';
-import { menuOutline, arrowForward, logOutOutline, menu, logInOutline, personAddOutline, people, statsChartOutline, easel, search, ribbon } from 'ionicons/icons';
+import { menuOutline, arrowForward, logOutOutline, menu, logInOutline, personAddOutline, people, statsChartOutline, easel, searchOutline, ribbon, gridOutline, globeOutline, chevronForward } from 'ionicons/icons';
 
 @Component({
     selector: 'app-header',
@@ -17,8 +17,6 @@ import { menuOutline, arrowForward, logOutOutline, menu, logInOutline, personAdd
         RouterModule,
         IonHeader,
         IonToolbar,
-        IonButtons,
-        IonButton,
         IonIcon,
         IonMenuButton
     ]
@@ -48,7 +46,11 @@ export class HeaderComponent {
     constructor() {
         addIcons({
             menuOutline, arrowForward, logOutOutline, menu, logInOutline, personAddOutline,
-            people, statsChartOutline, easel, search, ribbon
+            people, statsChartOutline, easel, ribbon,
+            'search': searchOutline,
+            'grid-outline': gridOutline,
+            'globe-outline': globeOutline,
+            'chevron-forward': chevronForward
         });
     }
 
