@@ -1,0 +1,122 @@
+<ion-content>
+    <!-- Main Wrapper -->
+    <div class="hub-container">
+
+        <!-- Professional Header -->
+        <header class="hub-header">
+            <div class="hub-header-content">
+                <ion-button fill="clear" (click)="router.navigate(['/'])" class="back-btn">
+                    <ion-icon name="arrow-back"></ion-icon>
+                    <span>Regresar al Dashboard</span>
+                </ion-button>
+
+                <div class="title-block">
+                    <h2>Configuración del <span>Sistema</span></h2>
+                    <p>Gestiona los parámetros maestros de geografía, estructura institucional y competencias.</p>
+                </div>
+            </div>
+        </header>
+
+        <div class="hub-body container">
+
+            <!-- 1. GESTIÓN TERRITORIAL -->
+            <section class="hub-section animate-fade-up">
+                <div class="section-header">
+                    <div class="header-icon territorial">
+                        <ion-icon name="map-outline"></ion-icon>
+                    </div>
+                    <div class="header-text">
+                        <h3>Organización Territorial</h3>
+                        <p>Define la jerarquía geográfica del país</p>
+                    </div>
+                </div>
+
+                <div class="hub-grid">
+                    <div class="hub-card" (click)="navegarModulo('gestionar-provincias')">
+                        <div class="card-icon"><ion-icon name="map-outline"></ion-icon></div>
+                        <div class="card-content">
+                            <h4>Provincias</h4>
+                            <p>Primer nivel territorial</p>
+                        </div>
+                    </div>
+
+                    <div class="hub-card" (click)="navegarModulo('gestionar-cantones')">
+                        <div class="card-icon"><ion-icon name="location-outline"></ion-icon></div>
+                        <div class="card-content">
+                            <h4>Cantones</h4>
+                            <p>Segunda división administrativa</p>
+                        </div>
+                    </div>
+
+                    <div class="hub-card" (click)="navegarModulo('gestionar-parroquias')">
+                        <div class="card-icon"><ion-icon name="pin-outline"></ion-icon></div>
+                        <div class="card-content">
+                            <h4>Parroquias</h4>
+                            <p>Localidades y distritos</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. GESTIÓN INSTITUCIONAL -->
+            <section class="hub-section animate-fade-up" style="animation-delay: 0.1s;">
+                <div class="section-header">
+                    <div class="header-icon institucional">
+                        <ion-icon name="business"></ion-icon>
+                    </div>
+                    <div class="header-text">
+                        <h3>Estructura Institucional</h3>
+                        <p>Configura los organismos y niveles de talento humano</p>
+                    </div>
+                </div>
+
+                <div class="hub-grid main-grid">
+                    <div class="hub-card" (click)="navegarModulo('gestionar-entidades')">
+                        <div class="card-icon"><ion-icon name="business"></ion-icon></div>
+                        <div class="card-content">
+                            <h4>Entidades</h4>
+                            <p>Gestión de organismos principales</p>
+                        </div>
+                    </div>
+
+                    <div class="hub-card" (click)="navegarModulo('gestionar-instituciones')">
+                        <div class="card-icon"><ion-icon name="business-outline"></ion-icon></div>
+                        <div class="card-content">
+                            <h4>Instituciones</h4>
+                            <p>Dependencias operativas</p>
+                        </div>
+                    </div>
+
+                    <div class="hub-card" (click)="navegarModulo('gestionar-cargos-instituciones')">
+                        <div class="card-icon"><ion-icon name="id-card-outline"></ion-icon></div>
+                        <div class="card-content">
+                            <h4>Cargos</h4>
+                            <p>Catálogo de puestos públicos</p>
+                        </div>
+                    </div>
+
+                    <div class="hub-card" (click)="navegarModulo('gestionar-grados')">
+                        <div class="card-icon"><ion-icon name="ribbon-outline"></ion-icon></div>
+                        <div class="card-content">
+                            <h4>Grados</h4>
+                            <p>Escalafón ocupacional</p>
+                        </div>
+                    </div>
+
+                    <div class="hub-card full-width" (click)="navegarModulo('gestionar-competencias')">
+                        <div class="card-icon"><ion-icon name="ribbon"></ion-icon></div>
+                        <div class="card-content">
+                            <h4>Competencias</h4>
+                            <p>Gestión de facultades y atribuciones legales</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </div>
+
+    <footer class="hub-footer">
+        <p>&copy; 2026 Consejo Nacional de Competencias | Administración de Datos Maestros</p>
+    </footer>
+</ion-content>

@@ -4,7 +4,7 @@ import { Router, RouterModule } from '@angular/router';
 import { IonHeader, IonToolbar, IonButtons, IonButton, IonIcon, IonMenuButton, MenuController } from '@ionic/angular/standalone';
 import { AuthService } from '../../../features/auth/services/auth.service';
 import { addIcons } from 'ionicons';
-import { menuOutline, arrowForward, logOutOutline, menu, logInOutline, personAddOutline } from 'ionicons/icons';
+import { menuOutline, arrowForward, logOutOutline, menu, logInOutline, personAddOutline, people, statsChartOutline, easel, search, ribbon } from 'ionicons/icons';
 
 @Component({
     selector: 'app-header',
@@ -29,12 +29,27 @@ export class HeaderComponent {
     private menuCtrl = inject(MenuController);
 
     userName = this.authService.userName;
+    roleName = this.authService.roleName;
 
     // Computed Role Helpers
     isGuest = computed(() => !this.userName());
+    isAdmin = computed(() => {
+        const r = this.roleName()?.toLowerCase();
+        return r === 'administrador';
+    });
+    isCreator = computed(() => {
+        const r = this.roleName()?.toLowerCase();
+        return r?.includes('creador') || r?.includes('conferencista') || r?.includes('conferencia');
+    });
+    isUser = computed(() => {
+        return !this.isAdmin() && !this.isCreator() && !this.isGuest();
+    });
 
     constructor() {
-        addIcons({ menuOutline, arrowForward, logOutOutline, menu, logInOutline, personAddOutline });
+        addIcons({
+            menuOutline, arrowForward, logOutOutline, menu, logInOutline, personAddOutline,
+            people, statsChartOutline, easel, search, ribbon
+        });
     }
 
     isActive(modulo: string): boolean {
@@ -48,7 +63,14 @@ export class HeaderComponent {
             'informacion': 'home/informacion',
             'servi-progra': 'home/servi-progra',
             'validar-certificados': 'validar-certificados',
-            'Ver Perfil': 'ver-perfil'
+            'Ver Perfil': 'ver-perfil',
+            'gestionar-usuarios': 'gestionar-usuarios',
+            'gestionar-capacitaciones': 'gestionar-capacitaciones',
+            'gestionar-reportes': 'gestionar-reportes',
+            'conferencista/gestionar-capacitaciones': 'conferencista/gestionar-capacitaciones',
+            'conferencista/gestionar-plantillas': 'conferencista/gestionar-plantillas',
+            'ver-conferencias': 'ver-conferencias',
+            'ver-certificaciones': 'ver-certificaciones'
         };
 
         const target = rutasModulos[modulo] || modulo;
@@ -75,7 +97,14 @@ export class HeaderComponent {
             'informacion': 'home/informacion',
             'servi-progra': 'home/servi-progra',
             'validar-certificados': 'validar-certificados',
-            'Ver Perfil': 'ver-perfil'
+            'Ver Perfil': 'ver-perfil',
+            'gestionar-usuarios': 'gestionar-usuarios',
+            'gestionar-capacitaciones': 'gestionar-capacitaciones',
+            'gestionar-reportes': 'gestionar-reportes',
+            'conferencista/gestionar-capacitaciones': 'conferencista/gestionar-capacitaciones',
+            'conferencista/gestionar-plantillas': 'conferencista/gestionar-plantillas',
+            'ver-conferencias': 'ver-conferencias',
+            'ver-certificaciones': 'ver-certificaciones'
         };
 
         let ruta = rutasModulos[modulo] || modulo;
