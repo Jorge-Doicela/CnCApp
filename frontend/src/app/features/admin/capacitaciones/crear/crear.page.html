@@ -73,6 +73,31 @@
             </div>
           </div>
 
+          <!-- Tipo de Evento -->
+          <div class="field-group">
+            <label class="field-label">
+              Tipo de Evento
+              <span class="required">*</span>
+            </label>
+            <div class="radio-group">
+              <label class="radio-option" [class.selected]="capacitacion.tipoEvento === 'CAPACITACIÓN'">
+                <input type="radio" name="tipoEvento" value="CAPACITACIÓN" [(ngModel)]="capacitacion.tipoEvento" />
+                <div class="radio-content">
+                  <ion-icon name="school-outline"></ion-icon>
+                  <span>Capacitación</span>
+                </div>
+              </label>
+              <label class="radio-option" [class.selected]="capacitacion.tipoEvento === 'ASISTENCIA TÉCNICA'">
+                <input type="radio" name="tipoEvento" value="ASISTENCIA TÉCNICA"
+                  [(ngModel)]="capacitacion.tipoEvento" />
+                <div class="radio-content">
+                  <ion-icon name="construct-outline"></ion-icon>
+                  <span>Asistencia Técnica</span>
+                </div>
+              </label>
+            </div>
+          </div>
+
           <!-- Descripción -->
           <div class="field-group" [class.has-error]="descripcion.invalid && descripcion.touched">
             <label class="field-label">
@@ -189,28 +214,28 @@
               <span class="required">*</span>
             </label>
             <div class="radio-group">
-              <label class="radio-option" [class.selected]="capacitacion.modalidad === 'Presencial'">
-                <input type="radio" name="modalidad" value="Presencial" [(ngModel)]="capacitacion.modalidad"
+              <label class="radio-option" [class.selected]="capacitacion.modalidad === 'PRESENCIAL'">
+                <input type="radio" name="modalidad" value="PRESENCIAL" [(ngModel)]="capacitacion.modalidad"
                   (change)="onModalidadChange()" />
                 <div class="radio-content">
                   <ion-icon name="people"></ion-icon>
                   <span>Presencial</span>
                 </div>
               </label>
-              <label class="radio-option" [class.selected]="capacitacion.modalidad === 'Virtual'">
-                <input type="radio" name="modalidad" value="Virtual" [(ngModel)]="capacitacion.modalidad"
+              <label class="radio-option" [class.selected]="capacitacion.modalidad === 'VIRTUAL'">
+                <input type="radio" name="modalidad" value="VIRTUAL" [(ngModel)]="capacitacion.modalidad"
                   (change)="onModalidadChange()" />
                 <div class="radio-content">
                   <ion-icon name="laptop-outline"></ion-icon>
                   <span>Virtual</span>
                 </div>
               </label>
-              <label class="radio-option" [class.selected]="capacitacion.modalidad === 'Hibrida'">
-                <input type="radio" name="modalidad" value="Hibrida" [(ngModel)]="capacitacion.modalidad"
+              <label class="radio-option" [class.selected]="capacitacion.modalidad === 'PRESENCIAL Y VIRTUAL'">
+                <input type="radio" name="modalidad" value="PRESENCIAL Y VIRTUAL" [(ngModel)]="capacitacion.modalidad"
                   (change)="onModalidadChange()" />
                 <div class="radio-content">
                   <ion-icon name="git-merge-outline"></ion-icon>
-                  <span>Híbrida</span>
+                  <span>Presencial y Virtual</span>
                 </div>
               </label>
             </div>
@@ -234,15 +259,16 @@
           </div>
 
           <!-- Enlace Virtual (condicional) -->
-          <div class="field-group" *ngIf="capacitacion.modalidad === 'Virtual' || capacitacion.modalidad === 'Hibrida'">
+          <div class="field-group"
+            *ngIf="capacitacion.modalidad === 'VIRTUAL' || capacitacion.modalidad === 'PRESENCIAL Y VIRTUAL'">
             <label class="field-label">
               Enlace de Reunión Virtual
-              <span class="required" *ngIf="capacitacion.modalidad === 'Virtual'">*</span>
+              <span class="required" *ngIf="capacitacion.modalidad === 'VIRTUAL'">*</span>
             </label>
             <div class="input-wrapper">
               <ion-icon name="link-outline" class="field-icon"></ion-icon>
               <input type="url" class="field-input" [(ngModel)]="capacitacion.enlaceVirtual" name="enlaceVirtual"
-                #enlaceVirtual="ngModel" [required]="capacitacion.modalidad === 'Virtual'"
+                #enlaceVirtual="ngModel" [required]="capacitacion.modalidad === 'VIRTUAL'"
                 placeholder="https://zoom.us/j/... o https://meet.google.com/..." />
               <button type="button" class="link-button" *ngIf="capacitacion.enlaceVirtual"
                 (click)="abrirEnlace(capacitacion.enlaceVirtual)">

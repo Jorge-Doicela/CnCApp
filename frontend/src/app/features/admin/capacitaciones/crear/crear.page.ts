@@ -26,7 +26,8 @@ export class CrearPage implements OnInit {
     fechaInicio: '',
     lugar: '',
     estado: 'Activa',
-    modalidad: 'Presencial',
+    modalidad: 'PRESENCIAL',
+    tipoEvento: 'CAPACITACIÓN',
     enlaceVirtual: '',
     horaInicio: '',
     horaFin: '',
@@ -120,7 +121,7 @@ export class CrearPage implements OnInit {
 
   onModalidadChange() {
     // Limpiar enlace virtual si no es necesario
-    if (this.capacitacion.modalidad === 'Presencial') {
+    if (this.capacitacion.modalidad === 'PRESENCIAL') {
       this.capacitacion.enlaceVirtual = '';
     }
   }
@@ -155,7 +156,7 @@ export class CrearPage implements OnInit {
     if (this.capacitacion.entidadesEncargadas?.length > 0) completados++;
 
     // Agregar enlace virtual si es necesario
-    if (this.capacitacion.modalidad === 'Virtual') {
+    if (this.capacitacion.modalidad === 'VIRTUAL') {
       total = 11;
       if (this.capacitacion.enlaceVirtual) completados++;
     }
@@ -178,7 +179,7 @@ export class CrearPage implements OnInit {
     }
 
     // Validación de enlace virtual
-    if (this.capacitacion.modalidad === 'Virtual' && !this.capacitacion.enlaceVirtual) {
+    if (this.capacitacion.modalidad === 'VIRTUAL' && !this.capacitacion.enlaceVirtual) {
       this.mostrarToast('El enlace virtual es obligatorio para modalidad virtual', 'warning');
       return;
     }
@@ -309,7 +310,8 @@ export class CrearPage implements OnInit {
       fechaInicio: this.fechaMinima,
       lugar: '',
       estado: 'Activa',
-      modalidad: 'Presencial',
+      modalidad: 'PRESENCIAL',
+      tipoEvento: 'CAPACITACIÓN',
       enlaceVirtual: '',
       horaInicio: '',
       horaFin: '',
@@ -419,7 +421,7 @@ export class CrearPage implements OnInit {
           this.mostrarToast('Complete el lugar y límite de participantes', 'warning');
           return false;
         }
-        if (this.capacitacion.modalidad === 'Virtual' && !this.capacitacion.enlaceVirtual) {
+        if (this.capacitacion.modalidad === 'VIRTUAL' && !this.capacitacion.enlaceVirtual) {
           this.mostrarToast('El enlace virtual es obligatorio para modalidad virtual', 'warning');
           return false;
         }

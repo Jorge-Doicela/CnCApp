@@ -2,6 +2,14 @@ import 'dotenv/config';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import { ecuadorData } from './data/ecuador-data';
+import {
+    tiposEvento, modalidades, cargosList, gremiosList,
+    entidadesCentralesList, cooperantesList, academiaList,
+    educacionList, privadoList, ciudadaniaList,
+    regimenEspecialList, mancomunidadesList,
+    bomberosList, empresasPublicasList,
+    registrosPropiedadList, consejosCantonalesList
+} from './data/form-options-index';
 
 const prisma = new PrismaClient();
 const SALT_ROUNDS = 10;
@@ -109,13 +117,18 @@ async function main() {
         });
         const entidades = await prisma.entidad.createMany({
             data: [
-                { nombre: 'GOBIERNOS AUTÓNOMOS DESCENTRALIZADOS PROVINCIALES' },
-                { nombre: 'GOBIERNOS AUTÓNOMOS DESCENTRALIZADOS MUNICIPALES' },
-                { nombre: 'GOBIERNOS AUTÓNOMOS DESCENTRALIZADOS PARROQUIALES' },
-                { nombre: 'INSTITUCIONES DEL SECTOR PÚBLICO NACIONAL' },
-                { nombre: 'ORGANISMOS INTERNACIONALES' },
-                { nombre: 'ACADEMIA Y CENTROS DE INVESTIGACIÓN' },
-                { nombre: 'CONSULTORES Y PROFESIONALES INDEPENDIENTES' },
+                { nombre: 'INSTITUCIÓN — NIVEL PROVINCIAL' },
+                { nombre: 'INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)' },
+                { nombre: 'INSTITUCIÓN — NIVEL PARROQUIAL RURAL' },
+                { nombre: 'GREMIOS' },
+                { nombre: 'INSTITUCIÓN — NIVEL CENTRAL' },
+                { nombre: 'COOPERANTES' },
+                { nombre: 'ACADEMIA' },
+                { nombre: 'EDUCACIÓN GENERAL BÁSICA Y BACHILLERATO' },
+                { nombre: 'PRIVADO' },
+                { nombre: 'CIUDADANÍA' },
+                { nombre: 'MANCOMUNIDADES Y CONSORCIOS' },
+                { nombre: 'RÉGIMEN ESPECIAL' }
             ]
         });
 
@@ -141,19 +154,7 @@ async function main() {
         });
 
         await prisma.cargo.createMany({
-            data: [
-                { nombre: 'ALCALDE / ALCALDESA' },
-                { nombre: 'PREFECTO / PREFECTA' },
-                { nombre: 'PRESIDENTE / PRESIDENTA GAD PARROQUIAL' },
-                { nombre: 'CONCEJAL / CONCEJALA METROPOLITANO' },
-                { nombre: 'DIRECTOR / DIRECTORA DE PLANIFICACIÓN' },
-                { nombre: 'COORDINADOR / COORDINADORA ESTRATÉGICA' },
-                { nombre: 'ESPECIALISTA EN PROYECTOS' },
-                { nombre: 'TÉCNICO / TÉCNICA DE CAMPO' },
-                { nombre: 'SECRETARIO / SECRETARIA GENERAL' },
-                { nombre: 'ASISTENTE ADMINISTRATIVO' },
-                { nombre: 'ASESOR POLÍTICO' },
-            ]
+            data: cargosList.map(c => ({ nombre: c }))
         });
 
         await prisma.competencia.createMany({
@@ -169,15 +170,28 @@ async function main() {
             ]
         });
 
+        const institucionesArray = [
+            ...gremiosList.map(n => ({ nombre: n, tipo: 'GREMIOS' })),
+            ...entidadesCentralesList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL CENTRAL' })),
+            ...cooperantesList.map(n => ({ nombre: n, tipo: 'COOPERANTES' })),
+            ...academiaList.map(n => ({ nombre: n, tipo: 'ACADEMIA' })),
+            ...educacionList.map(n => ({ nombre: n, tipo: 'EDUCACIÓN GENERAL BÁSICA Y BACHILLERATO' })),
+            ...privadoList.map(n => ({ nombre: n, tipo: 'PRIVADO' })),
+            ...ciudadaniaList.map(n => ({ nombre: n, tipo: 'CIUDADANÍA' })),
+            ...regimenEspecialList.map(n => ({ nombre: n, tipo: 'RÉGIMEN ESPECIAL' })),
+            // Municipales additions
+            ...bomberosList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)' })),
+            ...empresasPublicasList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)' })),
+            ...registrosPropiedadList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)' })),
+            ...consejosCantonalesList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)' }))
+        ];
+
         const insSistema = await prisma.institucionSistema.createMany({
-            data: [
-                { nombre: 'CONSEJO NACIONAL DE COMPETENCIAS (CNC)', tipo: 'ORGANISMO TÉCNICO' },
-                { nombre: 'ASOCIACIÓN DE MUNICIPALIDADES DEL ECUADOR (AME)', tipo: 'GREMIO' },
-                { nombre: 'CONSORCIO DE GADS PROVINCIALES (CONGOPE)', tipo: 'GREMIO' },
-                { nombre: 'CONSEJO NACIONAL DE GADS PARROQUIALES (CONAGOPARE)', tipo: 'GREMIO' },
-                { nombre: 'SECRETARÍA NACIONAL DE PLANIFICACIÓN', tipo: 'NACIONAL' },
-                { nombre: 'MINISTERIO DE ECONOMÍA Y FINANZAS', tipo: 'NACIONAL' },
-            ]
+            data: institucionesArray
+        });
+
+        await prisma.mancomunidad.createMany({
+            data: mancomunidadesList.map(n => ({ nombre: n }))
         });
 
         // ============================================

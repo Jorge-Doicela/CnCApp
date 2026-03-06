@@ -50,6 +50,17 @@
 
         <div class="form-group">
           <ion-item class="form-item item-label-floating" lines="none">
+            <ion-icon name="options-outline" slot="start"></ion-icon>
+            <ion-label position="floating">Tipo de Evento</ion-label>
+            <ion-select [(ngModel)]="capacitacion.tipoEvento" name="tipoEvento" interface="popover">
+              <ion-select-option value="CAPACITACIÓN">Capacitación</ion-select-option>
+              <ion-select-option value="ASISTENCIA TÉCNICA">Asistencia Técnica</ion-select-option>
+            </ion-select>
+          </ion-item>
+        </div>
+
+        <div class="form-group">
+          <ion-item class="form-item item-label-floating" lines="none">
             <ion-icon name="document-text-outline" slot="start"></ion-icon>
             <ion-label position="floating">Descripción Detallada</ion-label>
             <ion-textarea [(ngModel)]="capacitacion.descripcion" name="descripcion" required rows="4"
@@ -123,9 +134,9 @@
               <ion-label position="stacked">Modalidad</ion-label>
               <ion-select [(ngModel)]="capacitacion.modalidad" name="modalidad" required interface="popover"
                 #modalidad="ngModel">
-                <ion-select-option value="Virtual">Virtual</ion-select-option>
-                <ion-select-option value="Hibrida">Híbrida</ion-select-option>
-                <ion-select-option value="Presencial">Presencial</ion-select-option>
+                <ion-select-option value="VIRTUAL">Virtual</ion-select-option>
+                <ion-select-option value="PRESENCIAL Y VIRTUAL">Presencial y Virtual</ion-select-option>
+                <ion-select-option value="PRESENCIAL">Presencial</ion-select-option>
               </ion-select>
             </ion-item>
           </div>

@@ -343,7 +343,7 @@
                 <ion-select interface="popover" [value]="state.laborData().autoridad?.gadAutoridad"
                   (ionChange)="state.updateUserData({autoridadGad: $event.detail.value})"
                   placeholder="[Seleccione un GAD]" class="custom-select w-full" style="width: 100%;">
-                  @if (state.laborData().autoridad?.nivelgobierno === 4) {
+                  @if (state.laborData().autoridad?.nivelgobierno === 11) {
                   @for (m of mancomunidades(); track m.id) {
                   <ion-select-option [value]="m.nombre">{{ m.nombre }}</ion-select-option>
                   }
@@ -412,7 +412,7 @@
                 <ion-select interface="popover" [value]="state.laborData().funcionarioGad?.gadFuncionarioGad"
                   (ionChange)="state.updateUserData({funcionarioGad: $event.detail.value})"
                   placeholder="[Seleccione un GAD]" class="custom-select w-full" style="width: 100%;">
-                  @if (state.laborData().funcionarioGad?.nivelgobierno === 4) {
+                  @if (state.laborData().funcionarioGad?.nivelgobierno === 11) {
                   @for (m of mancomunidades(); track m.id) {
                   <ion-select-option [value]="m.nombre">{{ m.nombre }}</ion-select-option>
                   }
