@@ -113,6 +113,7 @@ model Parroquia {
 
 model Capacitacion {
   id               Int                   @id @default(autoincrement()) @map("Id_Capacitacion")
+  tipoEvento       String?               @map("Tipo_Evento") @db.VarChar(100)
   nombre           String                @map("Nombre_Capacitacion") @db.VarChar(300)
   descripcion      String?
   fechaInicio      DateTime?             @map("Fecha_Inicio") @db.Date
