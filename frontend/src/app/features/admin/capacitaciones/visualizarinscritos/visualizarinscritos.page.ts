@@ -7,6 +7,8 @@ import { AlertController, ToastController, NavController, LoadingController } fr
 import { CapacitacionesService } from 'src/app/features/admin/capacitaciones/services/capacitaciones.service';
 import { CatalogoService } from 'src/app/shared/services/catalogo.service';
 import { UsuarioService } from 'src/app/features/user/services/usuario.service';
+import { ErrorHandlerUtil } from 'src/app/shared/utils/error-handler.util';
+import { EstadoCapacitacionEnum, RolCapacitacionEnum } from 'src/app/shared/constants/enums';
 import { firstValueFrom } from 'rxjs';
 
 @Component({
@@ -82,7 +84,7 @@ export class VisualizarinscritosPage implements OnInit {
       this.filtrarParticipantes();
     } catch (error) {
       console.error('Error al cargar datos:', error);
-      this.mostrarToast('Error al cargar los datos. Por favor intente nuevamente.', 'danger');
+      this.mostrarToast(ErrorHandlerUtil.getErrorMessage(error), 'danger');
     } finally {
       this.cargando = false;
       this.cd.detectChanges(); // Forzar actualización de la vista
@@ -113,21 +115,7 @@ export class VisualizarinscritosPage implements OnInit {
 
   // Cargar las entidades encargadas
   async cargarEntidadesEncargadas() {
-    if (!this.infoCapacitacion || !this.infoCapacitacion.entidades_encargadas || this.infoCapacitacion.entidades_encargadas.length === 0) {
-      this.entidadesEncargadas = [];
-      return;
-    }
-
-    // Simplification: Fetch all entities and filter. Ideally backend should support fetching by IDs or we make parallel requests.
-    // For now, assuming CatalogoService doesn't have "getByIds", we will fetch all and filter client side or loop.
-    // Ideally backend endpoint for entities should support filtering.
-    // We will fetch all entities (cached by service ideally or just fetch) and filter.
-    try {
-      const entidades = await firstValueFrom(this.catalogoService.getItems('entidades'));
-      this.entidadesEncargadas = entidades.filter(e => this.infoCapacitacion.entidades_encargadas.includes(e.Id_Entidad));
-    } catch (error) {
-      console.error('Error al cargar entidades:', error);
-    }
+    this.entidadesEncargadas = [];
   }
 
   // Cargar usuarios inscritos y expositores
@@ -140,19 +128,16 @@ export class VisualizarinscritosPage implements OnInit {
       const mappedUsuarios = todosUsuarios.map((u: any) => ({
         id: u.id, // ID de la inscripción (Relación)
         usuarioId: u.usuarioId, // ID del Usuario
-        nombre: u.usuario?.nombre, // Para lógica interna
-        Nombre_Usuario: u.usuario?.nombre, // Para el template (PascalCase)
+        nombre: u.usuario?.nombre,
         rolCapacitacion: u.rolCapacitacion,
-        Rol_Capacitacion: u.rolCapacitacion, // Para el template
         asistio: u.asistio,
-        Asistencia: u.asistio, // Para el template
-        Email: u.usuario?.email,
-        Cargo: u.usuario?.cargo, // Si existe en el objeto usuario
-        Entidad: u.usuario?.entidad?.nombre
+        email: u.usuario?.email,
+        cargo: u.usuario?.cargo,
+        entidad: u.usuario?.entidad?.nombre
       }));
 
-      this.expositores = mappedUsuarios.filter((u: any) => u.rolCapacitacion === 'Expositor');
-      this.usuariosInscritos = mappedUsuarios.filter((u: any) => u.rolCapacitacion !== 'Expositor');
+      this.expositores = mappedUsuarios.filter((u: any) => u.rolCapacitacion === RolCapacitacionEnum.EXPOSITOR);
+      this.usuariosInscritos = mappedUsuarios.filter((u: any) => u.rolCapacitacion !== RolCapacitacionEnum.EXPOSITOR);
 
     } catch (error) {
       console.error('Error al cargar usuarios inscritos:', error);
@@ -217,12 +202,12 @@ export class VisualizarinscritosPage implements OnInit {
   }
 
   // Obtener texto del estado
-  getEstadoTexto(estado: number): string {
+  getEstadoTexto(estado: string): string {
     switch (estado) {
-      case 0: return 'Pendiente';
-      case 1: return 'Realizada';
-      case 2: return 'Cancelada';
-      default: return 'Desconocido';
+      case EstadoCapacitacionEnum.PENDIENTE: return 'Pendiente';
+      case EstadoCapacitacionEnum.REALIZADA: return 'Realizada';
+      case EstadoCapacitacionEnum.CANCELADA: return 'Cancelada';
+      default: return estado;
     }
   }
 
@@ -239,7 +224,7 @@ export class VisualizarinscritosPage implements OnInit {
       this.mostrarToast(`Asistencia actualizada correctamente`, 'success');
     } catch (error) {
       console.error('Error inesperado:', error);
-      this.mostrarToast('Error al actualizar asistencia', 'danger');
+      this.mostrarToast(ErrorHandlerUtil.getErrorMessage(error), 'danger');
       // Revert change in UI if failed? Angular binding might keep it checked.
       // Ideally we reload or revert.
     }
@@ -313,7 +298,7 @@ export class VisualizarinscritosPage implements OnInit {
       await firstValueFrom(this.capacitacionesService.deleteUsuariosNoAsistieron(this.idCapacitacion));
 
       // 2. Marcar capacitación con certificado emitido
-      const updatedCap = { ...this.infoCapacitacion, Certificado: true };
+      const updatedCap = { ...this.infoCapacitacion, certificado: true };
       await firstValueFrom(this.capacitacionesService.updateCapacitacion(this.idCapacitacion, updatedCap));
 
       // 3. Generar todos los certificados en masa en el backend
@@ -439,14 +424,14 @@ export class VisualizarinscritosPage implements OnInit {
                   name: 'rol',
                   type: 'radio',
                   label: 'Participante',
-                  value: 'Participante',
+                  value: RolCapacitacionEnum.PARTICIPANTE,
                   checked: true
                 },
                 {
                   name: 'rol',
                   type: 'radio',
                   label: 'Expositor',
-                  value: 'Expositor'
+                  value: RolCapacitacionEnum.EXPOSITOR
                 }
               ],
               buttons: [
@@ -521,12 +506,12 @@ export class VisualizarinscritosPage implements OnInit {
     try {
       const headers = ['Nombre', 'Asistencia', 'Rol', 'Email', 'Cargo', 'Entidad'];
       const data = this.participantesFiltrados.map(u => [
-        u.Nombre_Usuario,
-        u.Asistencia ? 'Asistió' : 'No asistió',
-        u.Rol_Capacitacion || 'Participante',
-        u.Email || '-',
-        u.Cargo || '-',
-        u.Entidad || '-'
+        u.nombre,
+        u.asistio ? 'Asistió' : 'No asistió',
+        u.rolCapacitacion || 'Participante',
+        u.email || '-',
+        u.cargo || '-',
+        u.entidad || '-'
       ]);
 
       let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; // Include BOM for Excel Spanish characters

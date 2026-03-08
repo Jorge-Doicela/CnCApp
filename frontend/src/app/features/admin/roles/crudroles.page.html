@@ -118,7 +118,8 @@
             (click)="cambiarEstadoRol(rol)">
             {{ rol.estado ? 'Desactivar' : 'Activar' }}
           </ion-button>
-          <ion-button fill="clear" size="small" color="dark" (click)="iraEditarRol(rol.id)">
+          <ion-button fill="clear" size="small" color="primary" (click)="iraEditarRol(rol.id)">
+            <ion-icon name="create-outline" slot="start"></ion-icon>
             Editar
           </ion-button>
           <ion-button fill="clear" size="small" color="danger" (click)="confirmarEliminar(rol)">

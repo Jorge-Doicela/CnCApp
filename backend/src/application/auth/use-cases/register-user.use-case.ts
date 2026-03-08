@@ -5,6 +5,7 @@ import { User } from '../../../domain/user/entities/user.entity';
 import { ValidationError } from '../../../domain/shared/errors';
 import { RolRepository } from '../../../domain/user/rol.repository';
 import { EntidadRepository } from '../../../domain/user/entidad.repository';
+import prisma from '../../../config/database';
 
 interface RegisterDto {
     ci: string;
@@ -86,11 +87,16 @@ export class RegisterUserUseCase {
         // 3. Hash password
         const hashedPassword = await this.passwordEncoder.hash(data.password);
 
-        // Asignar rol dependiendo del tipo de participante
+        // Asignar rol dependiendo del tipo de participante dinámicamente
         let assignedRoleName = 'Usuario';
-        // 1: Autoridad, 3: Funcionario GAD, 4: Institucion
-        if (data.tipoParticipanteId === 1 || data.tipoParticipanteId === 3 || data.tipoParticipanteId === 4) {
-            assignedRoleName = 'Conferencista';
+        
+        if (data.tipoParticipanteId) {
+            const tipo = await prisma.tipoParticipante.findUnique({
+                where: { id: data.tipoParticipanteId }
+            });
+            if (tipo && ['Autoridad', 'Funcionario GAD', 'Institución del Sistema'].includes(tipo.nombre)) {
+                assignedRoleName = 'Conferencista';
+            }
         }
 
         let finalRolId = data.rolId;
@@ -98,17 +104,20 @@ export class RegisterUserUseCase {
 
         if (finalRolId) {
             const explicitRole = await this.rolRepository.findById(finalRolId);
-            finalRoleName = explicitRole ? explicitRole.nombre : assignedRoleName;
+            if (!explicitRole) {
+                throw new ValidationError(`El rol proporcionado (ID: ${finalRolId}) no existe en el sistema.`);
+            }
+            finalRoleName = explicitRole.nombre;
         } else {
             const usuarioRole = await this.rolRepository.findByName(assignedRoleName);
-            finalRolId = usuarioRole ? usuarioRole.id : (assignedRoleName === 'Conferencista' ? 2 : 3);
-            finalRoleName = usuarioRole ? usuarioRole.nombre : assignedRoleName;
+            if (!usuarioRole) {
+                throw new ValidationError(`El rol por defecto '${assignedRoleName}' no se encuentra en el sistema. Contacte al administrador.`);
+            }
+            finalRolId = usuarioRole.id;
+            finalRoleName = usuarioRole.nombre;
         }
 
-        // Default entity: Consejo Nacional de Competencias if not specified? 
-        // Use case hardcoded 1 (CNC).
         const cncEntity = await this.entidadRepository.findByName('Consejo Nacional de Competencias');
-        const defaultEntidadId = cncEntity ? cncEntity.id : 1;
 
         // 3. Create User Entity
         const nombreCompleto = `${data.primerNombre} ${data.segundoNombre || ''} ${data.primerApellido} ${data.segundoApellido || ''}`.replace(/\s+/g, ' ').trim();
@@ -133,7 +142,7 @@ export class RegisterUserUseCase {
             provinciaId: data.provinciaId,
             cantonId: data.cantonId,
             rolId: finalRolId,
-            entidadId: data.autoridad?.nivelgobierno || data.funcionarioGad?.nivelgobierno || defaultEntidadId,
+            entidadId: data.autoridad?.nivelgobierno || data.funcionarioGad?.nivelgobierno || (cncEntity ? cncEntity.id : null),
             tipoParticipanteId: data.tipoParticipanteId || null,
             createdAt: now,
             updatedAt: now,

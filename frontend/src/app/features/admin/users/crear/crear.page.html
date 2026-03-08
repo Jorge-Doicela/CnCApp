@@ -91,10 +91,9 @@
             <ion-label>Tipo Participante *</ion-label>
             <ion-select [(ngModel)]="usuarioGeneral.tipoParticipante" (ionChange)="onTipoParticipanteChange()"
               placeholder="Seleccione Tipo" interface="popover">
-              <ion-select-option value="0">Ciudadano</ion-select-option>
-              <ion-select-option value="1">Autoridad</ion-select-option>
-              <ion-select-option value="2">Funcionario GAD</ion-select-option>
-              <ion-select-option value="3">Institución</ion-select-option>
+              <ion-select-option *ngFor="let tp of datosrecuperados.tiposParticipante" [value]="tp.id">
+                {{ tp.nombre }}
+              </ion-select-option>
             </ion-select>
           </ion-item>
         </div>
@@ -230,7 +229,7 @@
       <!-- Paso 4: Datos Específicos -->
       <div class="form-section transition-step" *ngIf="passoActual === 4">
         <!-- Autoridad -->
-        <div *ngIf="usuarioGeneral.tipoParticipante == 1">
+        <div *ngIf="usuarioGeneral.tipoParticipante == 13">
           <h3 class="section-title">Datos Autoridad</h3>
           <div class="field-group">
             <ion-item class="form-field">
@@ -260,7 +259,7 @@
         </div>
 
         <!-- Funcionario GAD -->
-        <div *ngIf="usuarioGeneral.tipoParticipante == 3">
+        <div *ngIf="usuarioGeneral.tipoParticipante == 15">
           <h3 class="section-title">Datos Funcionario GAD</h3>
           <div class="field-group">
             <ion-item class="form-field">
@@ -286,7 +285,7 @@
         </div>
 
         <!-- Institución -->
-        <div *ngIf="usuarioGeneral.tipoParticipante == 4">
+        <div *ngIf="usuarioGeneral.tipoParticipante == 16">
           <h3 class="section-title">Datos Institucionales</h3>
           <div class="field-group">
             <ion-item class="form-field">
@@ -318,7 +317,7 @@
           </div>
         </div>
 
-        <div *ngIf="usuarioGeneral.tipoParticipante == 0" class="empty-state">
+        <div *ngIf="usuarioGeneral.tipoParticipante == 14" class="empty-state">
           <ion-icon name="people-outline"></ion-icon>
           <p>No se requieren datos específicos adicionales para Ciudadanos.</p>
         </div>
@@ -354,12 +353,12 @@
           </div>
           <div class="review-item">
             <span class="label">Tipo Participante:</span>
-            <span class="value">{{ [
-              'Ciudadano',
-              'Autoridad',
-              'Funcionario GAD',
-              'Institución'
-              ][usuarioGeneral.tipoParticipante] }}</span>
+            <span class="value">{{
+              usuarioGeneral.tipoParticipante == 14 ? 'Ciudadano' :
+              usuarioGeneral.tipoParticipante == 13 ? 'Autoridad' :
+              usuarioGeneral.tipoParticipante == 15 ? 'Funcionario GAD' :
+              usuarioGeneral.tipoParticipante == 16 ? 'Institución' : 'Desconocido'
+              }}</span>
           </div>
         </div>
 

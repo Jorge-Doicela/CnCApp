@@ -8,6 +8,8 @@ import { ToastController, AlertController, NavController } from '@ionic/angular'
 import { CapacitacionesService } from 'src/app/features/admin/capacitaciones/services/capacitaciones.service';
 import { CatalogoService } from 'src/app/shared/services/catalogo.service';
 import { UsuarioService } from 'src/app/features/user/services/usuario.service';
+import { ErrorHandlerUtil } from 'src/app/shared/utils/error-handler.util';
+import { EstadoCapacitacionEnum, RolCapacitacionEnum } from 'src/app/shared/constants/enums';
 
 @Component({
   selector: 'app-crear',
@@ -25,7 +27,7 @@ export class CrearPage implements OnInit {
     descripcion: '',
     fechaInicio: '',
     lugar: '',
-    estado: 'Activa',
+    estado: EstadoCapacitacionEnum.PENDIENTE,
     modalidad: 'PRESENCIAL',
     tipoEvento: 'CAPACITACIÓN',
     enlaceVirtual: '',
@@ -98,11 +100,11 @@ export class CrearPage implements OnInit {
       // Entidades
       this.entidades = entidadesResult || [];
       const cnc = this.entidades.find(e =>
-        e.Nombre_Entidad?.toLowerCase().includes('cnc') ||
-        e.Nombre_Entidad?.toLowerCase().includes('consejo nacional')
+        e.nombre?.toLowerCase().includes('cnc') ||
+        e.nombre?.toLowerCase().includes('consejo nacional')
       );
       if (cnc) {
-        this.capacitacion.entidadesEncargadas = [cnc.Id_Entidad];
+        this.capacitacion.entidadesEncargadas = [cnc.id];
       }
 
       // Usuarios
@@ -111,7 +113,7 @@ export class CrearPage implements OnInit {
 
     } catch (error) {
       console.error('Error cargando datos requeridos:', error);
-      this.mostrarToast('Error al cargar la información base de catálogos y usuarios', 'danger');
+      this.mostrarToast(ErrorHandlerUtil.getErrorMessage(error), 'danger');
     } finally {
       this.cargandoDatos = false;
       this.cdr.markForCheck();
@@ -219,14 +221,14 @@ export class CrearPage implements OnInit {
       }
 
       // Asignar expositores
-      await this.asignarUsuarios(capacitacionId, this.capacitacion.expositores, 'Expositor');
+      await this.asignarUsuarios(capacitacionId, this.capacitacion.expositores, RolCapacitacionEnum.EXPOSITOR);
 
       // Asignar participantes
       if (this.capacitacion.idsUsuarios?.length > 0) {
         const participantes = this.capacitacion.idsUsuarios.filter(
           id => !this.capacitacion.expositores.includes(id)
         );
-        await this.asignarUsuarios(capacitacionId, participantes, 'Participante');
+        await this.asignarUsuarios(capacitacionId, participantes, RolCapacitacionEnum.PARTICIPANTE);
       }
 
       this.guardando = false;
@@ -234,8 +236,7 @@ export class CrearPage implements OnInit {
     } catch (error: any) {
       this.guardando = false;
       console.error('Error al crear capacitación:', error);
-      const mensaje = error.error?.message || error.message || 'Error desconocido';
-      this.mostrarToast(`Error al crear la capacitación: ${mensaje}`, 'danger');
+      this.mostrarToast(ErrorHandlerUtil.getErrorMessage(error), 'danger');
     } finally {
       this.cdr.markForCheck();
     }
@@ -309,7 +310,7 @@ export class CrearPage implements OnInit {
       descripcion: '',
       fechaInicio: this.fechaMinima,
       lugar: '',
-      estado: 'Activa',
+      estado: EstadoCapacitacionEnum.PENDIENTE,
       modalidad: 'PRESENCIAL',
       tipoEvento: 'CAPACITACIÓN',
       enlaceVirtual: '',

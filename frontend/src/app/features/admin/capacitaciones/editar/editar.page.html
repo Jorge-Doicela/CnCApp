@@ -21,11 +21,15 @@
       <h2>Editar Capacitación</h2>
       <p>Gestione los detalles del evento y sus participantes</p>
 
-      <div class="status-badge"
-        [ngClass]="{'badge-active': capacitacion.estado === 1, 'badge-pending': capacitacion.estado === 0, 'badge-canceled': capacitacion.estado === 2}">
+      <div class="status-badge" [ngClass]="{
+          'badge-active': capacitacion.estado === EstadoCapacitacion.REALIZADA, 
+          'badge-pending': capacitacion.estado === EstadoCapacitacion.PENDIENTE, 
+          'badge-canceled': capacitacion.estado === EstadoCapacitacion.CANCELADA
+        }">
         <ion-icon
-          name="{{ capacitacion.estado === 1 ? 'checkmark-circle' : (capacitacion.estado === 0 ? 'time' : 'close-circle') }}"></ion-icon>
-        {{ capacitacion.estado === 1 ? 'Realizada' : (capacitacion.estado === 0 ? 'Pendiente' : 'Cancelada') }}
+          [name]="capacitacion.estado === EstadoCapacitacion.REALIZADA ? 'checkmark-circle' : (capacitacion.estado === EstadoCapacitacion.PENDIENTE ? 'time' : 'close-circle')"></ion-icon>
+        {{ capacitacion.estado === EstadoCapacitacion.REALIZADA ? 'Realizada' : (capacitacion.estado ===
+        EstadoCapacitacion.PENDIENTE ? 'Pendiente' : 'Cancelada') }}
       </div>
     </div>
 
@@ -121,9 +125,9 @@
               <ion-label position="stacked">Estado Actual</ion-label>
               <ion-select [(ngModel)]="capacitacion.estado" name="estado" interface="popover" required
                 #estado="ngModel">
-                <ion-select-option [value]="0">Pendiente</ion-select-option>
-                <ion-select-option [value]="1">Realizada</ion-select-option>
-                <ion-select-option [value]="2">Cancelada</ion-select-option>
+                <ion-select-option [value]="EstadoCapacitacion.PENDIENTE">Pendiente</ion-select-option>
+                <ion-select-option [value]="EstadoCapacitacion.REALIZADA">Realizada</ion-select-option>
+                <ion-select-option [value]="EstadoCapacitacion.CANCELADA">Cancelada</ion-select-option>
               </ion-select>
             </ion-item>
           </div>
@@ -165,8 +169,8 @@
             <ion-label position="stacked">Entidades Organizadoras</ion-label>
             <ion-select [(ngModel)]="capacitacion.entidadesEncargadas" name="entidadesEncargadas" multiple="true"
               #entidadesModel="ngModel" interface="action-sheet" placeholder="Seleccionar entidades">
-              <ion-select-option *ngFor="let entidad of entidadesList" [value]="entidad.Id_Entidad">
-                {{ entidad.Nombre_Entidad }}
+              <ion-select-option *ngFor="let entidad of entidadesList" [value]="entidad.id">
+                {{ entidad.nombre }}
               </ion-select-option>
             </ion-select>
           </ion-item>
@@ -178,8 +182,8 @@
             <ion-label position="stacked">Lista de Participantes</ion-label>
             <ion-select [(ngModel)]="capacitacion.idsUsuarios" name="idsUsuarios" multiple="true" required
               #usuariosModel="ngModel" interface="action-sheet" placeholder="Seleccionar usuarios">
-              <ion-select-option *ngFor="let usuario of usuariosList" [value]="usuario.Id_Usuario">
-                {{ usuario.Nombre_Usuario }}
+              <ion-select-option *ngFor="let usuario of usuariosList" [value]="usuario.id">
+                {{ usuario.nombre }}
               </ion-select-option>
             </ion-select>
           </ion-item>
@@ -226,7 +230,7 @@
           </ion-button>
         </div>
 
-        <div class="action-extension" *ngIf="capacitacion.estado === 1 && !capacitacion.certificado">
+        <div class="action-extension" *ngIf="capacitacion.estado === EstadoCapacitacion.REALIZADA && !capacitacion.certificado">
           <ion-button color="success" (click)="irAEmitirCertificados()" expand="block"
             style="--box-shadow: 0 8px 20px rgba(46, 204, 113, 0.25);">
             <ion-icon name="ribbon-outline" slot="start"></ion-icon>
@@ -234,7 +238,7 @@
           </ion-button>
         </div>
 
-        <div class="action-extension" *ngIf="capacitacion.estado === 0">
+        <div class="action-extension" *ngIf="capacitacion.estado === EstadoCapacitacion.PENDIENTE">
           <ion-button color="success" (click)="irAEmitirCertificados()" expand="block">
             <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
             Marcar como Realizada

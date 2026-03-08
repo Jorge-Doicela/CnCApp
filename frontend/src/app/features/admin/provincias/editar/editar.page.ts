@@ -6,6 +6,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AlertController, ToastController } from '@ionic/angular';
 import { CatalogoService } from 'src/app/shared/services/catalogo.service';
+import { ErrorHandlerUtil } from 'src/app/shared/utils/error-handler.util';
 import { map, firstValueFrom } from 'rxjs';
 
 @Component({
@@ -44,7 +45,7 @@ export class EditarPage implements OnInit {
 
   ngOnInit() {
     // Obtener el ID de la provincia desde la URL
-    const idParam = this.route.snapshot.paramMap.get('Id_Provincia');
+    const idParam = this.route.snapshot.paramMap.get('id');
     if (idParam) {
       this.idProvincia = Number(idParam);
       this.cargarProvincia();
@@ -64,10 +65,10 @@ export class EditarPage implements OnInit {
         return;
       }
       this.originalData = { ...data };
-      this.codigoOriginal = data.codigo_provincia;
+      this.codigoOriginal = data.codigo;
       this.provinciaForm.patchValue({
-        nombre: data.nombre_provincia,
-        codigo: data.codigo_provincia,
+        nombre: data.nombre,
+        codigo: data.codigo,
         estado: data.estado
       });
       if (data.updated_at) {
@@ -75,8 +76,8 @@ export class EditarPage implements OnInit {
       }
     } catch (error) {
       console.error('Error al cargar provincia:', error);
-      this.presentToast('No se pudo cargar la información de la provincia', 'danger');
-      this.router.navigate(['/gestionar provincias']);
+      this.presentToast(ErrorHandlerUtil.getErrorMessage(error), 'danger');
+      this.router.navigate(['/gestionar-provincias']);
     } finally {
       this.isLoading = false;
       this.cd.markForCheck();
@@ -97,7 +98,7 @@ export class EditarPage implements OnInit {
       if (this.provinciaForm.value.codigo !== this.codigoOriginal) {
         const provincias = await firstValueFrom(this.catalogoService.getItems('provincias'));
         const existing = provincias.find((p: any) =>
-          p.codigo_provincia === this.provinciaForm.value.codigo && p.id_provincia !== this.idProvincia
+          p.codigo === this.provinciaForm.value.codigo && p.id !== this.idProvincia
         );
 
         if (existing) {
@@ -122,19 +123,18 @@ export class EditarPage implements OnInit {
 
   async procederGuardar() {
     const dataToUpdate = {
-      nombre_provincia: this.provinciaForm.value.nombre,
-      codigo_provincia: this.provinciaForm.value.codigo,
+      nombre: this.provinciaForm.value.nombre,
+      codigo: this.provinciaForm.value.codigo,
       estado: this.provinciaForm.value.estado,
-      updated_at: new Date().toISOString()
     };
 
     try {
       await firstValueFrom(this.catalogoService.updateItem('provincias', this.idProvincia, dataToUpdate));
       this.presentToast(`Provincia "${this.provinciaForm.value.nombre}" actualizada correctamente`, 'success');
-      this.router.navigate(['/gestionar provincias']);
+      this.router.navigate(['/gestionar-provincias']);
     } catch (error) {
       console.error('Error al guardar los cambios:', error);
-      this.presentToast('Error al actualizar la provincia. Por favor, intente nuevamente.', 'danger');
+      this.presentToast(ErrorHandlerUtil.getErrorMessage(error), 'danger');
     } finally {
       this.isSubmitting = false;
       this.cd.markForCheck();
@@ -159,8 +159,8 @@ export class EditarPage implements OnInit {
 
   hayCambios(): boolean {
     return (
-      this.provinciaForm.value.nombre !== this.originalData.nombre_provincia ||
-      this.provinciaForm.value.codigo !== this.originalData.codigo_provincia ||
+      this.provinciaForm.value.nombre !== this.originalData.nombre ||
+      this.provinciaForm.value.codigo !== this.originalData.codigo ||
       this.provinciaForm.value.estado !== this.originalData.estado
     );
   }

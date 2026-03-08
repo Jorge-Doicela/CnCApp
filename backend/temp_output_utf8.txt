@@ -1,0 +1,17 @@
+﻿
+[33m====================================================[0m
+[33m­ƒÜÇ STARTING COMPREHENSIVE SYSTEM VERIFICATION[0m
+[33m====================================================[0m
+
+­ƒö╣ [36m1.1 Admin Login.............................................[0m [32mÔ£à OK[0m
+­ƒö╣ [36m1.2 Admin Profile Fetch.....................................[0m [32mÔ£à OK[0m
+­ƒö╣ [36m2.x Fetching Catalog: /generos..............................[0m [32mÔ£à OK[0m
+­ƒö╣ [36m2.x Fetching Catalog: /etnias...............................[0m [32mÔ£à OK[0m
+­ƒö╣ [36m2.x Fetching Catalog: /nacionalidades.......................[0m [32mÔ£à OK[0m
+­ƒö╣ [36m2.x Fetching Catalog: /tipos-participante...................[0m [32mÔ£à OK[0m
+­ƒö╣ [36m2.x Fetching Catalog: /public/instituciones.................[0m [32mÔ£à OK[0m
+­ƒö╣ [36m3.1 Create Entidad..........................................[0m [32mÔ£à OK[0m
+­ƒö╣ [36m3.2 Create Cargo............................................[0m [32mÔ£à OK[0m
+­ƒö╣ [36m3.3 Create Competencia......................................[0m [32mÔ£à OK[0m
+­ƒö╣ [36m3.4 Create Institucion de Sistema...........................[0m [32mÔ£à OK[0m
+­ƒö╣ [36m4.1 Create User: Ciudadano..................................[0m [31mÔØî FAILED[0m

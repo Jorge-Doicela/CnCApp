@@ -14,6 +14,8 @@ import {
 } from 'ionicons/icons';
 import { UsuarioService } from 'src/app/features/user/services/usuario.service';
 import { CatalogoService } from 'src/app/shared/services/catalogo.service';
+import { ErrorHandlerUtil } from 'src/app/shared/utils/error-handler.util';
+import { TipoParticipanteEnum } from 'src/app/shared/constants/enums';
 import { map } from 'rxjs/operators';
 import { firstValueFrom } from 'rxjs';
 
@@ -91,6 +93,7 @@ export class CrearPage implements OnInit {
     municipios: [] as any[],
     competencias: [] as any[],
     gradosOcupacionales: [] as any[],
+    tiposParticipante: [] as any[],
   }
 
   datosconcatenar = {
@@ -272,17 +275,17 @@ export class CrearPage implements OnInit {
         return true;
 
       case 4: // Datos Específicos
-        if (this.usuarioGeneral.tipoParticipante == 1) { // Autoridad
+        if (this.usuarioGeneral.tipoParticipante == TipoParticipanteEnum.AUTORIDAD) { // Autoridad
           if (!this.autoridad.cargo || !this.autoridad.nivelgobierno) {
             this.showToast('Complete los datos de autoridad');
             return false;
           }
-        } else if (this.usuarioGeneral.tipoParticipante == 2) { // Funcionario
+        } else if (this.usuarioGeneral.tipoParticipante == TipoParticipanteEnum.FUNCIONARIO_GAD) { // Funcionario
           if (!this.funcionarioGad.cargo || !this.funcionarioGad.nivelgobierno) {
             this.showToast('Complete los datos de funcionario');
             return false;
           }
-        } else if (this.usuarioGeneral.tipoParticipante == 3) { // Institución
+        } else if (this.usuarioGeneral.tipoParticipante == TipoParticipanteEnum.INSTITUCION) { // Institución
           if (!this.institucion.institucion || !this.institucion.cargo) {
             this.showToast('Complete los datos institucionales');
             return false;
@@ -317,6 +320,7 @@ export class CrearPage implements OnInit {
     this.obtenerCargos();
     this.obtenerInstituciones();
     this.obtenerGradosOcupacionales();
+    this.obtenerTiposParticipante();
   }
 
   // Función para obtener los roles
@@ -329,7 +333,7 @@ export class CrearPage implements OnInit {
       }
     } catch (error) {
       console.error('Error al obtener roles:', error);
-      this.showToast('Error al cargar roles');
+      this.showToast(ErrorHandlerUtil.getErrorMessage(error));
     } finally {
       this.cdr.markForCheck();
     }
@@ -436,7 +440,19 @@ export class CrearPage implements OnInit {
 
   // Manejar cambio en tipo de participante
   onTipoParticipanteChange() {
-    // No necesitamos cargar datos adicionales ya que lo hicimos al inicio
+    console.log('Tipo participante cambiado a:', this.usuarioGeneral.tipoParticipante);
+  }
+
+  // Obtener tipos de participante
+  async obtenerTiposParticipante() {
+    try {
+      const data = await firstValueFrom(this.catalogoService.getItems('tipos-participante'));
+      this.datosrecuperados.tiposParticipante = data || [];
+    } catch (err) {
+      console.error('Error al obtener tipos de participante:', err);
+    } finally {
+      this.cdr.markForCheck();
+    }
   }
 
   // Toast para mensajes de error
@@ -568,7 +584,7 @@ export class CrearPage implements OnInit {
     }
 
     // Validar según tipo de participante
-    if (this.usuarioGeneral.tipoParticipante == 1) {
+    if (this.usuarioGeneral.tipoParticipante == TipoParticipanteEnum.AUTORIDAD) {
       if (!this.autoridad.cargo) {
         this.showToast('Por favor seleccione el cargo de la autoridad');
         return false;
@@ -581,7 +597,7 @@ export class CrearPage implements OnInit {
         this.showToast('Por favor seleccione el GAD');
         return false;
       }
-    } else if (this.usuarioGeneral.tipoParticipante == 3) {
+    } else if (this.usuarioGeneral.tipoParticipante == TipoParticipanteEnum.FUNCIONARIO_GAD) {
       if (!this.funcionarioGad.cargo) {
         this.showToast('Por favor seleccione el cargo del funcionario');
         return false;
@@ -598,7 +614,7 @@ export class CrearPage implements OnInit {
         this.showToast('Por favor seleccione el GAD');
         return false;
       }
-    } else if (this.usuarioGeneral.tipoParticipante == 4) {
+    } else if (this.usuarioGeneral.tipoParticipante == TipoParticipanteEnum.INSTITUCION) {
       if (!this.institucion.institucion) {
         this.showToast('Por favor seleccione la institución');
         return false;
@@ -630,9 +646,10 @@ export class CrearPage implements OnInit {
     // Prepare full payload
     const fullUserData = {
       ...this.usuarioGeneral,
-      autoridad: this.usuarioGeneral.tipoParticipante == 1 ? this.autoridad : undefined,
-      funcionarioGad: this.usuarioGeneral.tipoParticipante == 3 ? this.funcionarioGad : undefined,
-      institucion: this.usuarioGeneral.tipoParticipante == 4 ? this.institucion : undefined
+      tipoParticipanteId: Number(this.usuarioGeneral.tipoParticipante),
+      autoridad: this.usuarioGeneral.tipoParticipante == TipoParticipanteEnum.AUTORIDAD ? this.autoridad : undefined,
+      funcionarioGad: this.usuarioGeneral.tipoParticipante == TipoParticipanteEnum.FUNCIONARIO_GAD ? this.funcionarioGad : undefined,
+      institucion: this.usuarioGeneral.tipoParticipante == TipoParticipanteEnum.INSTITUCION ? this.institucion : undefined
     };
 
     console.log('Sending user data:', fullUserData);
@@ -651,7 +668,7 @@ export class CrearPage implements OnInit {
             text: 'OK',
             handler: () => {
               this.limpiarFormulario();
-              this.router.navigate(['/admin/usuarios']);
+              this.router.navigate(['/gestionar-usuarios']);
             }
           }
         ]
@@ -661,8 +678,7 @@ export class CrearPage implements OnInit {
       await loading.dismiss();
       this.isLoading = false;
       console.error('Error al crear usuario:', error);
-      const msg = error.error?.message || error.message || 'Error desconocido';
-      this.showToast('Error al crear el usuario: ' + msg);
+      this.showToast(ErrorHandlerUtil.getErrorMessage(error));
       this.cdr.markForCheck();
     }
   }

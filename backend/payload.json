@@ -1,0 +1,15 @@
+{
+  "password": "Password123!",
+  "telefono": "0999999999",
+  "primerNombre": "Test",
+  "primerApellido": "User_41154",
+  "generoId": 7,
+  "etniaId": 19,
+  "nacionalidadId": 7,
+  "provinciaId": null,
+  "cantonId": null,
+  "ci": "1041154000",
+  "email": "ciu_41154@test.com",
+  "tipoParticipanteId": 14,
+  "estado": 1
+}

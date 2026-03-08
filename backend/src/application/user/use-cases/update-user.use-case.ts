@@ -1,6 +1,6 @@
 import { injectable, inject } from 'tsyringe';
 import { User } from '../../../domain/user/entities/user.entity';
-import { UserRepository } from '../../../domain/user/repositories/user.repository';
+import { UserRepository } from '../../../domain/user/user.repository';
 import { NotFoundError } from '../../../domain/shared/errors';
 import { PasswordEncoder } from '../../../domain/auth/auth.ports';
 

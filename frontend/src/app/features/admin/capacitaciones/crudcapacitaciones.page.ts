@@ -7,6 +7,8 @@ import { Router } from '@angular/router';
 import { AlertController, LoadingController, ToastController } from '@ionic/angular';
 import { CapacitacionesService } from './services/capacitaciones.service';
 import { Capacitacion } from '../../../core/models/capacitacion.interface';
+import { ErrorHandlerUtil } from 'src/app/shared/utils/error-handler.util';
+import { EstadoCapacitacionEnum } from 'src/app/shared/constants/enums';
 
 @Component({
   selector: 'app-crudcapacitaciones',
@@ -58,7 +60,7 @@ export class CrudcapacitacionesPage implements OnInit {
       this.aplicarFiltros();
     } catch (error) {
       console.error('Error al obtener capacitaciones:', error);
-      this.presentToast('Error al cargar capacitaciones (API)', 'danger');
+      this.presentToast(ErrorHandlerUtil.getErrorMessage(error), 'danger');
     } finally {
       this.cargando = false;
       loading.dismiss();
@@ -109,18 +111,23 @@ export class CrudcapacitacionesPage implements OnInit {
     this.aplicarFiltros();
   }
 
-  // Obtener el texto del estado (Simplemente retornar el string o mapear si es necesario)
+  // Obtener el texto del estado
   getEstadoTexto(estado: string): string {
-    return estado;
+    switch (estado) {
+      case EstadoCapacitacionEnum.PENDIENTE: return 'Pendiente';
+      case EstadoCapacitacionEnum.REALIZADA: return 'Realizada';
+      case EstadoCapacitacionEnum.CANCELADA: return 'Cancelada';
+      default: return estado;
+    }
   }
 
   // Estadísticas
   obtenerCapacitacionesPendientes(): number {
-    return this.Capacitaciones.filter(cap => cap.estado === 'Activa').length;
+    return this.Capacitaciones.filter(cap => cap.estado === EstadoCapacitacionEnum.PENDIENTE).length;
   }
 
   obtenerCapacitacionesRealizadas(): number {
-    return this.Capacitaciones.filter(cap => cap.estado === 'Finalizada').length;
+    return this.Capacitaciones.filter(cap => cap.estado === EstadoCapacitacionEnum.REALIZADA).length;
   }
 
   obtenerCertificadosEmitidos(): number {
@@ -132,12 +139,12 @@ export class CrudcapacitacionesPage implements OnInit {
     this.router.navigate(['/gestionar-capacitaciones/crear']);
   }
 
-  iraEditarCapacitacion(Id_Capacitacion: number) {
-    this.router.navigate(['/gestionar-capacitaciones/editar', Id_Capacitacion]);
+  iraEditarCapacitacion(id: number) {
+    this.router.navigate(['/gestionar-capacitaciones/editar', id]);
   }
 
-  iraVisualizarinscritos(Id_Capacitacion: number) {
-    this.router.navigate(['/gestionar-capacitaciones/visualizar-inscritos', Id_Capacitacion]);
+  iraVisualizarinscritos(id: number) {
+    this.router.navigate(['/gestionar-capacitaciones/visualizar-inscritos', id]);
   }
 
   // Finalizar capacitación (nueva funcionalidad)
@@ -170,12 +177,12 @@ export class CrudcapacitacionesPage implements OnInit {
     await loading.present();
 
     try {
-      await firstValueFrom(this.capacitacionesService.updateCapacitacion(Id_Capacitacion, { estado: 'Finalizada' }));
+      await firstValueFrom(this.capacitacionesService.updateCapacitacion(Id_Capacitacion, { estado: EstadoCapacitacionEnum.REALIZADA }));
       this.presentToast('Capacitación finalizada exitosamente', 'success');
       this.RecuperarCapacitaciones();
     } catch (error) {
       console.error('Error al finalizar la capacitación:', error);
-      this.presentToast('Error al finalizar la capacitación', 'danger');
+      this.presentToast(ErrorHandlerUtil.getErrorMessage(error), 'danger');
     } finally {
       loading.dismiss();
       this.cdr.markForCheck();
@@ -288,7 +295,7 @@ export class CrudcapacitacionesPage implements OnInit {
       this.RecuperarCapacitaciones();
     } catch (error) {
       console.error('Error al emitir el certificado:', error);
-      this.presentToast('Error al emitir certificados', 'danger');
+      this.presentToast(ErrorHandlerUtil.getErrorMessage(error), 'danger');
     } finally {
       loading.dismiss();
       this.cdr.markForCheck();

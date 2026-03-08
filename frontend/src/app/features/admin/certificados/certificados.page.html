@@ -11,7 +11,7 @@
   <ion-card class="main-card">
     <div class="welcome-header">
       <img src="../../../../assets/certificados/cnc.png" alt="Logo CNC" class="logo">
-      <h1>Bienvenido, {{ usuarioactual && usuarioactual.length > 0 ? usuarioactual[0].Nombre_Usuario : 'Usuario' }}</h1>
+      <h1>Bienvenido, {{ usuarioactual && usuarioactual.length > 0 ? usuarioactual[0].nombre : 'Usuario' }}</h1>
       <p>Aquí puedes ver y descargar tu certificado oficial emitido por el CNC</p>
     </div>
 
@@ -25,7 +25,7 @@
             <ion-icon name="school-outline" color="primary"></ion-icon>
             <div class="info-content">
               <span class="info-label">Capacitación</span>
-              <span class="info-value">{{ capacitacion?.Nombre_Capacitacion || 'Cargando...' }}</span>
+              <span class="info-value">{{ capacitacion?.nombre || 'Cargando...' }}</span>
             </div>
           </div>
 
@@ -33,7 +33,7 @@
             <ion-icon name="time-outline" color="primary"></ion-icon>
             <div class="info-content">
               <span class="info-label">Duración</span>
-              <span class="info-value">{{ capacitacion?.Horas || 0 }} horas</span>
+              <span class="info-value">{{ capacitacion?.horas || 0 }} horas</span>
             </div>
           </div>
 
@@ -41,7 +41,7 @@
             <ion-icon name="desktop-outline" color="primary"></ion-icon>
             <div class="info-content">
               <span class="info-label">Modalidad</span>
-              <span class="info-value">{{ capacitacion?.Modalidades || 'No especificada' }}</span>
+              <span class="info-value">{{ capacitacion?.modalidad || 'No especificada' }}</span>
             </div>
           </div>
 
@@ -49,7 +49,8 @@
             <ion-icon name="person-outline" color="primary"></ion-icon>
             <div class="info-content">
               <span class="info-label">Rol en capacitación</span>
-              <span class="info-value">{{ rol_usuario_conferiencia && rol_usuario_conferiencia.length > 0 ? rol_usuario_conferiencia[0].Rol_Capacitacion : 'Participante' }}</span>
+              <span class="info-value">{{ rol_usuario_conferiencia && rol_usuario_conferiencia.length > 0 ?
+                rol_usuario_conferiencia[0].rolCapacitacion : 'Participante' }}</span>
             </div>
           </div>
         </div>
@@ -61,10 +62,10 @@
 
         <div class="entities-container">
           <div class="entity-card" *ngFor="let entidad of entidades">
-            <div class="entity-logo" *ngIf="entidad.Imagen_Entidad">
-              <img [src]="entidad.Imagen_Entidad" [alt]="entidad.Nombre_Entidad">
+            <div class="entity-logo" *ngIf="entidad.imagenUrl">
+              <img [src]="entidad.imagenUrl" [alt]="entidad.nombre">
             </div>
-            <div class="entity-name">{{ entidad.Nombre_Entidad }}</div>
+            <div class="entity-name">{{ entidad.nombre }}</div>
           </div>
 
           <div class="empty-state" *ngIf="entidades.length === 0">
@@ -90,18 +91,25 @@
 
               <div class="certificate-body">
                 <div class="certificate-recipient">
-                  <div class="role-text">Por ocupar el rol de {{ rol_usuario_conferiencia && rol_usuario_conferiencia.length > 0 ? rol_usuario_conferiencia[0].Rol_Capacitacion : 'Participante' }}</div>
-                  <div class="recipient-name">{{ usuarioactual && usuarioactual.length > 0 ? usuarioactual[0].Nombre_Usuario : 'Usuario' }}</div>
+                  <div class="role-text">Por ocupar el rol de {{ rol_usuario_conferiencia &&
+                    rol_usuario_conferiencia.length > 0 ? rol_usuario_conferiencia[0].rolCapacitacion : 'Participante'
+                    }}</div>
+                  <div class="recipient-name">{{ usuarioactual && usuarioactual.length > 0 ? usuarioactual[0].nombre :
+                    'Usuario' }}</div>
                 </div>
 
                 <div class="certificate-text">
-                  El Consejo Nacional de Competencias de Ecuador certifica oficialmente que {{ usuarioactual && usuarioactual.length > 0 ? usuarioactual[0].Nombre_Usuario : 'Usuario' }},
-                  con Cédula de Identidad {{ usuarioactual && usuarioactual.length > 0 ? usuarioactual[0].CI_Usuario : '' }}, ha completado satisfactoriamente la capacitación titulada "{{ capacitacion?.Nombre_Capacitacion || 'asdasd' }}",
-                  impartida bajo la modalidad "{{ capacitacion?.Modalidades || 'Virtual' }}", con una duración total de {{ capacitacion?.Horas || 2 }} horas académicas.
+                  El Consejo Nacional de Competencias de Ecuador certifica oficialmente que {{ usuarioactual &&
+                  usuarioactual.length > 0 ? usuarioactual[0].nombre : 'Usuario' }},
+                  con Cédula de Identidad {{ usuarioactual && usuarioactual.length > 0 ? usuarioactual[0].ci : '' }}, ha
+                  completado satisfactoriamente la capacitación titulada "{{ capacitacion?.nombre || 'asdasd' }}",
+                  impartida bajo la modalidad "{{ capacitacion?.modalidad || 'Virtual' }}", con una duración total de {{
+                  capacitacion?.horas || 2 }} horas académicas.
                 </div>
 
                 <div class="certificate-footer-text">
-                  En reconocimiento a su participación activa y aprovechamiento en el programa de formación profesional, se expide el presente certificado.
+                  En reconocimiento a su participación activa y aprovechamiento en el programa de formación profesional,
+                  se expide el presente certificado.
                 </div>
 
                 <div class="certificate-date">
@@ -113,8 +121,10 @@
                 <div class="certificate-logo">
                   <img src="../../../../assets/certificados/cnc.png" alt="CNC Logo">
                   <div class="logo-text">
-                    <div class="signatory-name">{{ usuarioactual && usuarioactual.length > 0 ? usuarioactual[0].Nombre_Usuario : 'Usuario' }}</div>
-                    <div class="signatory-id">CI: {{ usuarioactual && usuarioactual.length > 0 ? usuarioactual[0].CI_Usuario : '' }}</div>
+                    <div class="signatory-name">{{ usuarioactual && usuarioactual.length > 0 ? usuarioactual[0].nombre :
+                      'Usuario' }}</div>
+                    <div class="signatory-id">CI: {{ usuarioactual && usuarioactual.length > 0 ? usuarioactual[0].ci :
+                      '' }}</div>
                   </div>
                 </div>
               </div>

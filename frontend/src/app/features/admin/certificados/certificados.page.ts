@@ -8,6 +8,7 @@ import * as CryptoJS from 'crypto-js';
 import { CertificadosService } from 'src/app/features/admin/certificados/services/certificados.service';
 import { UsuarioService } from 'src/app/features/user/services/usuario.service';
 import { AuthService } from 'src/app/features/auth/services/auth.service';
+import { ErrorHandlerUtil } from 'src/app/shared/utils/error-handler.util';
 import { firstValueFrom } from 'rxjs';
 
 const pdfMake = require('pdfmake/build/pdfmake');
@@ -51,7 +52,7 @@ export class CertificadosPage implements OnInit {
   constructor(private route: ActivatedRoute) { }
 
   ngOnInit() {
-    this.capacitacionId = Number(this.route.snapshot.paramMap.get('Id_Capacitacion'));
+    this.capacitacionId = Number(this.route.snapshot.paramMap.get('id'));
 
     if (!this.capacitacionId) {
       console.error('No se encontró el ID de la capacitación');
@@ -101,6 +102,7 @@ export class CertificadosPage implements OnInit {
 
     } catch (err) {
       console.error(err);
+      // Optional: show toast
     } finally {
       this.cd.markForCheck();
     }

@@ -59,9 +59,9 @@ export class CatalogoController {
     getCompetencias = async (_req: Request, res: Response, next: NextFunction) =>
         query(res, next, async () => {
             const competencias = await prisma.competencia.findMany({
-                where: { estado_competencia: true },
-                orderBy: { nombre_competencias: 'asc' }
+                where: { estado: true },
+                orderBy: { nombre: 'asc' }
             });
-            return competencias.map((c: any) => ({ id: c.id, nombre: c.nombre_competencias }));
+            return competencias.map((c: any) => ({ id: c.id, nombre: c.nombre }));
         });
 }

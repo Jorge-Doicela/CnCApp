@@ -5,6 +5,7 @@ import { Component, OnInit, inject, ChangeDetectorRef, ChangeDetectionStrategy }
 import { Router } from '@angular/router';
 import { AlertController, ToastController } from '@ionic/angular';
 import { CatalogoService } from 'src/app/shared/services/catalogo.service';
+import { ErrorHandlerUtil } from 'src/app/shared/utils/error-handler.util';
 import { firstValueFrom } from 'rxjs';
 
 @Component({
@@ -52,7 +53,7 @@ export class CRUDRolesPage implements OnInit {
       console.log('Roles cargados:', this.Roles);
     } catch (error) {
       console.error('Error al obtener los roles:', error);
-      this.presentToast('Error al cargar los roles (API)', 'danger');
+      this.presentToast(ErrorHandlerUtil.getErrorMessage(error), 'danger');
       this.Roles = [];
       this.rolesFiltrados = [];
     } finally {
@@ -130,7 +131,7 @@ export class CRUDRolesPage implements OnInit {
               );
             } catch (error) {
               console.error('Error al cambiar el estado del rol:', error);
-              this.presentToast('Error al actualizar el estado del rol', 'danger');
+              this.presentToast(ErrorHandlerUtil.getErrorMessage(error), 'danger');
               this.cd.markForCheck();
             }
           }
@@ -175,7 +176,7 @@ export class CRUDRolesPage implements OnInit {
       this.presentToast(`Rol "${rol.nombre}" eliminado con éxito`, 'success');
     } catch (error) {
       console.error('Error al eliminar rol:', error);
-      this.presentToast('Error al eliminar el rol. Puede estar en uso.', 'danger');
+      this.presentToast(ErrorHandlerUtil.getErrorMessage(error), 'danger');
       this.cd.markForCheck();
     }
   }
@@ -217,7 +218,7 @@ export class CRUDRolesPage implements OnInit {
     this.router.navigate(['/gestionar-roles/crear']);
   }
 
-  iraEditarRol(IdRol: string) {
-    this.router.navigate(['/gestionar-roles/editar', IdRol]);
+  iraEditarRol(id: string | number) {
+    this.router.navigate(['/gestionar-roles/editar', id]);
   }
 }

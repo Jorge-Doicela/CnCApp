@@ -83,7 +83,7 @@ export const ADMIN_ROUTES: Routes = [
         canActivate: [adminGuard]
     },
     {
-        path: 'certificados/:Id_Capacitacion',
+        path: 'certificados/:id',
         loadComponent: () => import('./certificados/certificados.page').then(m => m.CertificadosPage),
         canActivate: [adminGuard]
     },

@@ -12,6 +12,8 @@ import {
 } from 'ionicons/icons';
 import { UsuarioService } from 'src/app/features/user/services/usuario.service';
 import { Usuario } from '../../../core/models/usuario.interface';
+import { ErrorHandlerUtil } from 'src/app/shared/utils/error-handler.util';
+import { TipoParticipanteEnum } from 'src/app/shared/constants/enums';
 import { firstValueFrom } from 'rxjs';
 
 @Component({
@@ -62,9 +64,15 @@ export class CRUDUsuariosPage implements OnInit {
     this.RecuperarUsuarios();
   }
 
-  getTipoParticipante(tipo: number): string {
-    const tipos = ["Ciudadano", "Autoridad", "Funcionario GAD", "Institución"];
-    return tipos[tipo] || "Desconocido";
+  getTipoParticipante(tipo: number | string): string {
+    const t = Number(tipo);
+    const labels: { [key: number]: string } = {
+      [TipoParticipanteEnum.CIUDADANO]: 'Ciudadano',
+      [TipoParticipanteEnum.AUTORIDAD]: 'Autoridad',
+      [TipoParticipanteEnum.FUNCIONARIO_GAD]: 'Funcionario GAD',
+      [TipoParticipanteEnum.INSTITUCION]: 'Institución'
+    };
+    return labels[t] || "Desconocido";
   }
 
   getAdmins(): number {
@@ -86,7 +94,7 @@ export class CRUDUsuariosPage implements OnInit {
       this.filteredUsuarios = [...this.usuarios];
     } catch (error) {
       console.error('Error al obtener los usuarios:', error);
-      this.presentToast('Error al cargar la lista de usuarios', 'danger');
+      this.presentToast(ErrorHandlerUtil.getErrorMessage(error), 'danger');
       this.usuarios = [];
       this.filteredUsuarios = [];
     } finally {
@@ -99,14 +107,14 @@ export class CRUDUsuariosPage implements OnInit {
     this.router.navigate(['/gestionar-usuarios/crear']);
   }
 
-  iraEditarUsuario(Id_Usuario: number) {
-    if (!Id_Usuario) return;
-    this.router.navigate(['/gestionar-usuarios/editar', Id_Usuario]);
+  iraEditarUsuario(id: number) {
+    if (!id) return;
+    this.router.navigate(['/gestionar-usuarios/editar', id]);
   }
 
-  iraDetallesUsuario(Id_Usuario: number) {
-    if (!Id_Usuario) return;
-    this.router.navigate(['/gestionar-usuarios/detalles', Id_Usuario]);
+  iraDetallesUsuario(id: number) {
+    if (!id) return;
+    this.router.navigate(['/gestionar-usuarios/detalles', id]);
   }
 
   filtrarUsuarios() {
@@ -164,7 +172,7 @@ export class CRUDUsuariosPage implements OnInit {
     } catch (error) {
       loading.dismiss();
       console.error('Error al eliminar usuario:', error);
-      this.presentToast('No se pudo eliminar el usuario', 'danger');
+      this.presentToast(ErrorHandlerUtil.getErrorMessage(error), 'danger');
       this.cd.markForCheck();
     }
   }

@@ -8,16 +8,35 @@ import { RegisterUserUseCase } from '../../../application/auth/use-cases/registe
 import { parseIdParam } from '../middleware/parse-id.helper';
 import { AuthRequest } from '../middleware/auth.middleware';
 import { z } from 'zod';
+import prisma from '../../../config/database';
+
+const autoridadSchema = z.object({
+    cargo: z.string().optional().nullable(),
+    gadAutoridad: z.string().optional().nullable(),
+    nivelgobierno: z.number().int().optional().nullable()
+});
+
+const funcionarioGadSchema = z.object({
+    cargo: z.string().optional().nullable(),
+    gadFuncionarioGad: z.string().optional().nullable(),
+    nivelgobierno: z.number().int().optional().nullable(),
+    competencias: z.array(z.union([z.number(), z.string()])).optional().nullable()
+});
+
+const institucionSchema = z.object({
+    institucion: z.union([z.number(), z.string()]),
+    gradoOcupacional: z.union([z.number(), z.string()]).optional().nullable()
+});
 
 const updateUserSchema = z.object({
-    nombre: z.string().min(3, 'El nombre debe tener al menos 3 caracteres').optional(),
-    primerNombre: z.string().optional(),
-    segundoNombre: z.string().optional(),
-    primerApellido: z.string().optional(),
-    segundoApellido: z.string().optional(),
-    email: z.string().email('Email inválido').optional().or(z.literal('')),
-    telefono: z.string().optional(),
-    celular: z.string().optional(),
+    nombre: z.string().min(3, 'El nombre debe tener al menos 3 caracteres').optional().nullable(),
+    primerNombre: z.string().optional().nullable(),
+    segundoNombre: z.string().optional().nullable(),
+    primerApellido: z.string().optional().nullable(),
+    segundoApellido: z.string().optional().nullable(),
+    email: z.string().email('Email inválido').optional().or(z.literal('')).nullable(),
+    telefono: z.string().optional().nullable(),
+    celular: z.string().optional().nullable(),
     tipoParticipanteId: z.number().int().optional().nullable(),
     rolId: z.number().int().optional().nullable(),
     entidadId: z.number().int().optional().nullable(),
@@ -29,22 +48,22 @@ const updateUserSchema = z.object({
     fechaNacimiento: z.string().optional().nullable(),
     fotoPerfilUrl: z.string().optional().or(z.literal('')).or(z.null()),
     firmaUrl: z.string().optional().or(z.literal('')).or(z.null()),
-    password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres').optional(),
+    password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres').optional().nullable(),
     estado: z.number().int().optional().nullable(),
-    autoridad: z.any().optional().nullable(),
-    funcionarioGad: z.any().optional().nullable(),
-    institucion: z.any().optional().nullable()
+    autoridad: autoridadSchema.optional().nullable(),
+    funcionarioGad: funcionarioGadSchema.optional().nullable(),
+    institucion: institucionSchema.optional().nullable()
 });
 
 const createUserSchema = z.object({
     primerNombre: z.string().min(2, 'El primer nombre es requerido'),
-    segundoNombre: z.string().optional(),
+    segundoNombre: z.string().optional().nullable(),
     primerApellido: z.string().min(2, 'El primer apellido es requerido'),
-    segundoApellido: z.string().optional(),
+    segundoApellido: z.string().optional().nullable(),
     ci: z.string().length(10, 'La cédula debe tener 10 dígitos'),
     email: z.string().email('Email inválido'),
-    telefono: z.string().optional(),
-    celular: z.string().optional(),
+    telefono: z.string().optional().nullable(),
+    celular: z.string().optional().nullable(),
     password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres'),
     tipoParticipanteId: z.number().int().optional().nullable(),
     provinciaId: z.number().optional().nullable(),
@@ -53,9 +72,9 @@ const createUserSchema = z.object({
     etniaId: z.number().optional(),
     nacionalidadId: z.number().optional(),
     rolId: z.number().optional().nullable(),
-    autoridad: z.any().optional(),
-    funcionarioGad: z.any().optional(),
-    institucion: z.any().optional()
+    autoridad: autoridadSchema.optional().nullable(),
+    funcionarioGad: funcionarioGadSchema.optional().nullable(),
+    institucion: institucionSchema.optional().nullable()
 });
 
 @injectable()
@@ -95,13 +114,13 @@ export class UserController {
             const result = await this.registerUserUseCase.execute({
                 ci: data.ci,
                 primerNombre: data.primerNombre,
-                segundoNombre: data.segundoNombre,
+                segundoNombre: data.segundoNombre || undefined,
                 primerApellido: data.primerApellido,
-                segundoApellido: data.segundoApellido,
+                segundoApellido: data.segundoApellido || undefined,
                 email: data.email,
                 password: data.password,
-                telefono: data.telefono,
-                celular: data.celular,
+                telefono: data.telefono || undefined,
+                celular: data.celular || undefined,
                 tipoParticipanteId: data.tipoParticipanteId || undefined,
                 provinciaId: data.provinciaId || undefined,
                 cantonId: data.cantonId || undefined,
@@ -146,8 +165,8 @@ export class UserController {
 
     count = async (_req: Request, res: Response, next: NextFunction) => {
         try {
-            const users = await this.getAllUsersUseCase.execute();
-            res.json({ count: users.length });
+            const count = await prisma.usuario.count();
+            res.json({ count });
         } catch (error) {
             next(error);
         }

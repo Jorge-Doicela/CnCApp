@@ -8,35 +8,44 @@ export interface Usuario {
     ci: string;
     email?: string;
     telefono?: string;
+    celular?: string;
+    password?: string;
     rolId?: number;
     entidadId?: number;
-    tipoParticipante: number;
     tipoParticipanteId?: number | null;
+    fotoPerfilUrl?: string;
+    firmaUrl?: string;
     primerNombre?: string;
     segundoNombre?: string;
     primerApellido?: string;
     segundoApellido?: string;
-    celular?: string;
-    convencional?: string;
-    genero?: string;
     generoId?: number | null;
-    etnia?: string;
     etniaId?: number | null;
     nacionalidadId?: number | null;
-    nacionalidad?: any;
     fechaNacimiento?: string;
     provinciaId?: number | null;
     cantonId?: number | null;
-    cantonReside?: string;
-    parroquiaReside?: string;
-    firmaUrl?: string;
-    fotoPerfilUrl?: string;
+    estado?: number;
     createdAt?: string;
     updatedAt?: string;
+    convencional?: string;
+    cantonReside?: string;
+    parroquiaReside?: string;
+
+    // Virtual/Mapped properties for UI
     rol?: Rol;
     entidad?: Entidad;
+    tipoParticipante?: any;
+    provincia?: any;
+    canton?: any;
+    genero?: any;
+    etnia?: any;
+    nacionalidad?: any;
     autoridad?: any;
     funcionarioGad?: any;
     institucion?: any;
-    estado?: number;
+    _count?: {
+        inscripciones: number;
+        certificados: number;
+    };
 }

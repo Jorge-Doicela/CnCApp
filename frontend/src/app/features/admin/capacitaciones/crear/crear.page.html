@@ -319,8 +319,8 @@
               <ion-icon name="person-outline" class="field-icon"></ion-icon>
               <select class="field-select" [(ngModel)]="capacitacion.expositores" name="expositores"
                 #expositoresModel="ngModel" required multiple size="5">
-                <option *ngFor="let usuario of usuarios" [value]="usuario.Id_Usuario">
-                  {{ usuario.Nombre_Usuario }} {{ usuario.Firma_Usuario ? '✓ Con firma' : '' }}
+                <option *ngFor="let usuario of usuarios" [value]="usuario.id">
+                  {{ usuario.nombre }} {{ usuario.firmaUrl ? '✓ Con firma' : '' }}
                 </option>
               </select>
             </div>
@@ -346,8 +346,8 @@
               <ion-icon name="business-outline" class="field-icon"></ion-icon>
               <select class="field-select" [(ngModel)]="capacitacion.entidadesEncargadas" name="entidadesEncargadas"
                 #entidadesModel="ngModel" required multiple size="5">
-                <option *ngFor="let entidad of entidades" [value]="entidad.Id_Entidad">
-                  {{ entidad.Nombre_Entidad }} {{ entidad.Imagen_Entidad ? '✓ Con logo' : '' }}
+                <option *ngFor="let entidad of entidades" [value]="entidad.id">
+                  {{ entidad.nombre }}
                 </option>
               </select>
             </div>
@@ -371,8 +371,8 @@
             <div class="select-wrapper">
               <ion-icon name="person-add-outline" class="field-icon"></ion-icon>
               <select class="field-select" [(ngModel)]="capacitacion.idsUsuarios" name="idsUsuarios" multiple size="5">
-                <option *ngFor="let usuario of usuariosDisponibles" [value]="usuario.Id_Usuario">
-                  {{ usuario.Nombre_Usuario }}
+                <option *ngFor="let usuario of usuariosDisponibles" [value]="usuario.id">
+                  {{ usuario.nombre }}
                 </option>
               </select>
             </div>

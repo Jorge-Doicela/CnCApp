@@ -7,7 +7,7 @@ export interface Capacitacion {
     lugar?: string;
     cuposDisponibles: number;
     modalidad?: string;
-    estado: string; // Backend returns string ("Activa", "Finalizada")? UseCase says string in Schema
+    estado: string; // 'Activa', 'Finalizada', 'Cancelada'
     horaInicio?: string;
     horaFin?: string;
     horas?: number;
