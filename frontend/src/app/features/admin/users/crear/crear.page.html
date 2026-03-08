@@ -111,30 +111,30 @@
           <ion-item class="form-field">
             <ion-icon name="person-outline" slot="start"></ion-icon>
             <ion-label position="floating">Primer Nombre *</ion-label>
-            <ion-input [(ngModel)]="usuarioGeneral.nombre1" [readonly]="camposNombreReadonly"></ion-input>
+            <ion-input [(ngModel)]="usuarioGeneral.primerNombre" [readonly]="camposNombreReadonly"></ion-input>
           </ion-item>
           <ion-item class="form-field">
             <ion-icon name="person-outline" slot="start"></ion-icon>
             <ion-label position="floating">Segundo Nombre</ion-label>
-            <ion-input [(ngModel)]="usuarioGeneral.nombre2" [readonly]="camposNombreReadonly"></ion-input>
+            <ion-input [(ngModel)]="usuarioGeneral.segundoNombre" [readonly]="camposNombreReadonly"></ion-input>
           </ion-item>
         </div>
         <div class="field-group">
           <ion-item class="form-field">
             <ion-icon name="person-outline" slot="start"></ion-icon>
             <ion-label position="floating">Primer Apellido *</ion-label>
-            <ion-input [(ngModel)]="usuarioGeneral.apellido1" [readonly]="camposNombreReadonly"></ion-input>
+            <ion-input [(ngModel)]="usuarioGeneral.primerApellido" [readonly]="camposNombreReadonly"></ion-input>
           </ion-item>
           <ion-item class="form-field">
             <ion-icon name="person-outline" slot="start"></ion-icon>
             <ion-label position="floating">Segundo Apellido</ion-label>
-            <ion-input [(ngModel)]="usuarioGeneral.apellido2" [readonly]="camposNombreReadonly"></ion-input>
+            <ion-input [(ngModel)]="usuarioGeneral.segundoApellido" [readonly]="camposNombreReadonly"></ion-input>
           </ion-item>
         </div>
 
         <div class="field-group confirm-btn-container" *ngIf="!nombresEdited">
           <ion-button expand="block" shape="round" fill="outline" color="secondary" (click)="confirmarNombres()"
-            [disabled]="!usuarioGeneral.nombre1 || !usuarioGeneral.apellido1">
+            [disabled]="!usuarioGeneral.primerNombre || !usuarioGeneral.primerApellido">
             <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
             Confirmar Nombres
           </ion-button>

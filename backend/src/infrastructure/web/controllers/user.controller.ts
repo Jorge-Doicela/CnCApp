@@ -15,17 +15,25 @@ const updateUserSchema = z.object({
     segundoNombre: z.string().optional(),
     primerApellido: z.string().optional(),
     segundoApellido: z.string().optional(),
-    email: z.string().email('Email inválido').optional(),
+    email: z.string().email('Email inválido').optional().or(z.literal('')),
     telefono: z.string().optional(),
     celular: z.string().optional(),
-    tipoParticipanteId: z.number().int().optional(),
-    rolId: z.number().int().optional(),
-    entidadId: z.number().int().optional(),
-    provinciaId: z.number().int().optional(),
-    cantonId: z.number().int().optional(),
-    fotoPerfilUrl: z.string().url('URL de foto inválida').optional().or(z.literal('')).or(z.null()),
-    firmaUrl: z.string().url('URL de firma inválida').optional().or(z.literal('')).or(z.null()),
-    password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres').optional()
+    tipoParticipanteId: z.number().int().optional().nullable(),
+    rolId: z.number().int().optional().nullable(),
+    entidadId: z.number().int().optional().nullable(),
+    provinciaId: z.number().int().optional().nullable(),
+    cantonId: z.number().int().optional().nullable(),
+    generoId: z.number().int().optional().nullable(),
+    etniaId: z.number().int().optional().nullable(),
+    nacionalidadId: z.number().int().optional().nullable(),
+    fechaNacimiento: z.string().optional().nullable(),
+    fotoPerfilUrl: z.string().optional().or(z.literal('')).or(z.null()),
+    firmaUrl: z.string().optional().or(z.literal('')).or(z.null()),
+    password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres').optional(),
+    estado: z.number().int().optional().nullable(),
+    autoridad: z.any().optional().nullable(),
+    funcionarioGad: z.any().optional().nullable(),
+    institucion: z.any().optional().nullable()
 });
 
 const createUserSchema = z.object({
@@ -118,7 +126,7 @@ export class UserController {
             const id = parseIdParam(req, res);
             if (id === null) return;
             const data = updateUserSchema.parse(req.body);
-            const user = await this.updateUserUseCase.execute(id, data);
+            const user = await this.updateUserUseCase.execute(id, data as any);
             res.json(user);
         } catch (error) {
             next(error);

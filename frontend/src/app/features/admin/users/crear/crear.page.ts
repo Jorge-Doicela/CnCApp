@@ -34,10 +34,10 @@ export class CrearPage implements OnInit {
     email: '',
     password: '',
     // Datos generales para todos los usuarios
-    nombre1: '',
-    nombre2: '',
-    apellido1: '',
-    apellido2: '',
+    primerNombre: '',
+    segundoNombre: '',
+    primerApellido: '',
+    segundoApellido: '',
     rolId: undefined as number | undefined, // Cambiado a null para requerir selección explícita
     nombre: '',
     ci: '',
@@ -238,7 +238,7 @@ export class CrearPage implements OnInit {
         return true;
 
       case 2: // Información Personal
-        if (!this.usuarioGeneral.nombre1 || !this.usuarioGeneral.apellido1) {
+        if (!this.usuarioGeneral.primerNombre || !this.usuarioGeneral.primerApellido) {
           this.showToast('Nombre y primer apellido son obligatorios');
           return false;
         }
@@ -401,7 +401,7 @@ export class CrearPage implements OnInit {
 
   // Confirmar nombres
   confirmarNombres() {
-    if (this.usuarioGeneral.nombre1 && this.usuarioGeneral.apellido1) {
+    if (this.usuarioGeneral.primerNombre && this.usuarioGeneral.primerApellido) {
       this.nombresEdited = true;
       this.camposNombreReadonly = true;
       this.showSuccessToast('Nombres confirmados correctamente');
@@ -431,7 +431,7 @@ export class CrearPage implements OnInit {
 
   // Concatenar nombre completo
   concatenarNombreCompleto(): string {
-    return `${this.usuarioGeneral.nombre1} ${this.usuarioGeneral.nombre2 || ''} ${this.usuarioGeneral.apellido1} ${this.usuarioGeneral.apellido2 || ''}`.trim().replace(/\s+/g, ' ');
+    return `${this.usuarioGeneral.primerNombre} ${this.usuarioGeneral.segundoNombre || ''} ${this.usuarioGeneral.primerApellido} ${this.usuarioGeneral.segundoApellido || ''}`.trim().replace(/\s+/g, ' ');
   }
 
   // Manejar cambio en tipo de participante
@@ -516,7 +516,7 @@ export class CrearPage implements OnInit {
       return false;
     }
 
-    if (!this.usuarioGeneral.nombre1 || !this.usuarioGeneral.apellido1) {
+    if (!this.usuarioGeneral.primerNombre || !this.usuarioGeneral.primerApellido) {
       this.showToast('Por favor ingrese al menos el primer nombre y primer apellido');
       return false;
     }
@@ -672,10 +672,10 @@ export class CrearPage implements OnInit {
     this.usuarioGeneral = {
       email: '',
       password: '',
-      nombre1: '',
-      nombre2: '',
-      apellido1: '',
-      apellido2: '',
+      primerNombre: '',
+      segundoNombre: '',
+      primerApellido: '',
+      segundoApellido: '',
       rolId: undefined,
       nombre: '',
       ci: '',

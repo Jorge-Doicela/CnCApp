@@ -32,6 +32,11 @@ export class UpdateUserUseCase {
             userData.password = await this.passwordEncoder.hash(userData.password);
         }
 
+        // Convert fechaNacimiento to Date if it's a string
+        if (userData.fechaNacimiento && typeof userData.fechaNacimiento === 'string') {
+            userData.fechaNacimiento = new Date(userData.fechaNacimiento);
+        }
+
         const updatedUser = await this.userRepository.update(id, userData);
         const { password, ...userWithoutPassword } = updatedUser;
         return userWithoutPassword as User;
