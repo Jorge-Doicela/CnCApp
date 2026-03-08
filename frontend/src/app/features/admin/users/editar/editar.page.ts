@@ -31,10 +31,10 @@ export class EditarPage implements OnInit {
     id: '',
     email: '',
     password: '', // Usually not changed here but kept for structure
-    nombre1: '',
-    nombre2: '',
-    apellido1: '',
-    apellido2: '',
+    primerNombre: '',
+    segundoNombre: '',
+    primerApellido: '',
+    segundoApellido: '',
     nombre: '',
     ci: '',
     rolId: undefined as number | undefined,
@@ -50,6 +50,11 @@ export class EditarPage implements OnInit {
     fechaNacimiento: '',
     cantonReside: '',
     parroquiaReside: '',
+    generoId: undefined as number | null | undefined,
+    etniaId: undefined as number | null | undefined,
+    nacionalidadId: undefined as number | null | undefined,
+    telefono: '',
+    fotoPerfilUrl: '',
     // Auxiliar para UI
     Firma_Usuario_Imagen: null as any
   };
@@ -66,6 +71,9 @@ export class EditarPage implements OnInit {
     provincias: [] as any[],
     cantones: [] as any[],
     parroquias: [] as any[],
+    generos: [] as any[],
+    etnias: [] as any[],
+    nacionalidades: [] as any[],
   };
 
   datosbusqueda = {
@@ -130,6 +138,9 @@ export class EditarPage implements OnInit {
     console.log('[ADMIN_EDITAR_DEBUG] After obtenerCargos');
     this.obtenerInstituciones();
     console.log('[ADMIN_EDITAR_DEBUG] After obtenerInstituciones');
+    this.obtenerGeneros();
+    this.obtenerEtnias();
+    this.obtenerNacionalidades();
 
     const userId = +this.activatedRoute.snapshot.params['id'];
     console.log('[ADMIN_EDITAR_DEBUG] userId from route:', userId);
@@ -165,10 +176,10 @@ export class EditarPage implements OnInit {
         ...this.usuario,
         id: data.id.toString(),
         email: data.email || '',
-        nombre1: data.nombre1 || '',
-        nombre2: data.nombre2 || '',
-        apellido1: data.apellido1 || '',
-        apellido2: data.apellido2 || '',
+        primerNombre: data.primerNombre || '',
+        segundoNombre: data.segundoNombre || '',
+        primerApellido: data.primerApellido || '',
+        segundoApellido: data.segundoApellido || '',
         nombre: data.nombre || '',
         ci: data.ci || '',
         rolId: data.rolId,
@@ -184,6 +195,9 @@ export class EditarPage implements OnInit {
         fechaNacimiento: data.fechaNacimiento || '',
         cantonReside: data.cantonReside || '',
         parroquiaReside: data.parroquiaReside || '',
+        generoId: data.generoId,
+        etniaId: data.etniaId,
+        nacionalidadId: data.nacionalidadId,
       };
 
       // Cargar ubicación si existe
@@ -326,10 +340,43 @@ export class EditarPage implements OnInit {
 
   async obtenerInstituciones() {
     try {
-      const data = await firstValueFrom(this.catalogoService.getItems('instituciones_sistema'));
+      const data = await firstValueFrom(this.catalogoService.getItems('public/instituciones'));
       this.datosrecuperados.instituciones = data || [];
     } catch (error) {
       console.error('Error instituciones:', error);
+    } finally {
+      this.cdr.markForCheck();
+    }
+  }
+
+  async obtenerGeneros() {
+    try {
+      const data = await firstValueFrom(this.catalogoService.getItems('generos'));
+      this.datosrecuperados.generos = data || [];
+    } catch (error) {
+      console.error('Error generos:', error);
+    } finally {
+      this.cdr.markForCheck();
+    }
+  }
+
+  async obtenerEtnias() {
+    try {
+      const data = await firstValueFrom(this.catalogoService.getItems('etnias'));
+      this.datosrecuperados.etnias = data || [];
+    } catch (error) {
+      console.error('Error etnias:', error);
+    } finally {
+      this.cdr.markForCheck();
+    }
+  }
+
+  async obtenerNacionalidades() {
+    try {
+      const data = await firstValueFrom(this.catalogoService.getItems('nacionalidades'));
+      this.datosrecuperados.nacionalidades = data || [];
+    } catch (error) {
+      console.error('Error nacionalidades:', error);
     } finally {
       this.cdr.markForCheck();
     }
@@ -374,12 +421,35 @@ export class EditarPage implements OnInit {
 
     await this.mostrarCargando('Guardando cambios...');
 
-    const datosAEnviar = {
-      ...this.usuario,
+    const datosAEnviar: any = {
+      primerNombre: this.usuario.primerNombre,
+      segundoNombre: this.usuario.segundoNombre || null,
+      primerApellido: this.usuario.primerApellido,
+      segundoApellido: this.usuario.segundoApellido || null,
+      email: this.usuario.email || null,
+      telefono: this.usuario.telefono || null,
+      celular: this.usuario.celular || null,
+      generoId: this.usuario.generoId ? Number(this.usuario.generoId) : null,
+      etniaId: this.usuario.etniaId ? Number(this.usuario.etniaId) : null,
+      nacionalidadId: this.usuario.nacionalidadId ? Number(this.usuario.nacionalidadId) : null,
+      fechaNacimiento: this.usuario.fechaNacimiento || null,
+      provinciaId: this.datosbusqueda.selectedProvincia ? Number(this.datosbusqueda.selectedProvincia) : null,
+      cantonId: this.usuario.cantonReside ? Number(this.usuario.cantonReside) : null,
+      rolId: this.usuario.rolId ? Number(this.usuario.rolId) : undefined,
+      entidadId: this.usuario.entidadId ? Number(this.usuario.entidadId) : null,
+      tipoParticipanteId: this.usuario.tipoParticipante ? Number(this.usuario.tipoParticipante) : null,
+      estado: this.usuario.estado !== undefined ? Number(this.usuario.estado) : 1,
       autoridad: this.usuario.tipoParticipante == 1 ? this.autoridad : null,
       funcionarioGad: this.usuario.tipoParticipante == 2 ? this.funcionarioGad : null,
       institucion: this.usuario.tipoParticipante == 3 ? this.institucion : null
     };
+
+    if (this.usuario.password && this.usuario.password.trim() !== '') {
+      datosAEnviar.password = this.usuario.password;
+    }
+
+    if (this.usuario.fotoPerfilUrl) datosAEnviar.fotoPerfilUrl = this.usuario.fotoPerfilUrl;
+    if (this.usuario.firmaUrl) datosAEnviar.firmaUrl = this.usuario.firmaUrl;
 
     try {
       await firstValueFrom(this.usuarioService.updateUsuario(Number(this.usuario.id), datosAEnviar as any));
@@ -396,8 +466,8 @@ export class EditarPage implements OnInit {
   }
 
   validarFormulario(): boolean {
-    if (!this.usuario.nombre?.trim()) {
-      this.presentToast('El nombre es obligatorio', 'warning');
+    if (!this.usuario.primerNombre?.trim() || !this.usuario.primerApellido?.trim()) {
+      this.presentToast('El nombre y primer apellido son obligatorios', 'warning');
       return false;
     }
 

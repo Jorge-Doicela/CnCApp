@@ -60,22 +60,22 @@
           <div class="field-group">
             <ion-item class="form-field">
               <ion-label position="stacked">Primer Nombre *</ion-label>
-              <ion-input [(ngModel)]="usuario.nombre1" placeholder="Ej: Juan"></ion-input>
+              <ion-input [(ngModel)]="usuario.primerNombre" placeholder="Ej: Juan"></ion-input>
             </ion-item>
             <ion-item class="form-field">
               <ion-label position="stacked">Segundo Nombre</ion-label>
-              <ion-input [(ngModel)]="usuario.nombre2" placeholder="Ej: Antonio"></ion-input>
+              <ion-input [(ngModel)]="usuario.segundoNombre" placeholder="Ej: Antonio"></ion-input>
             </ion-item>
           </div>
 
           <div class="field-group">
             <ion-item class="form-field">
               <ion-label position="stacked">Primer Apellido *</ion-label>
-              <ion-input [(ngModel)]="usuario.apellido1" placeholder="Ej: Pérez"></ion-input>
+              <ion-input [(ngModel)]="usuario.primerApellido" placeholder="Ej: Pérez"></ion-input>
             </ion-item>
             <ion-item class="form-field">
               <ion-label position="stacked">Segundo Apellido</ion-label>
-              <ion-input [(ngModel)]="usuario.apellido2" placeholder="Ej: Castro"></ion-input>
+              <ion-input [(ngModel)]="usuario.segundoApellido" placeholder="Ej: Castro"></ion-input>
             </ion-item>
           </div>
 
@@ -95,10 +95,10 @@
             </ion-item>
             <ion-item class="form-field">
               <ion-label position="stacked">Género</ion-label>
-              <ion-select [(ngModel)]="usuario.genero" interface="popover">
-                <ion-select-option value="Masculino">Masculino</ion-select-option>
-                <ion-select-option value="Femenino">Femenino</ion-select-option>
-                <ion-select-option value="Otro">Otro</ion-select-option>
+              <ion-select [(ngModel)]="usuario.generoId" interface="popover" placeholder="Seleccione Género">
+                <ion-select-option *ngFor="let g of datosrecuperados.generos" [value]="g.id">
+                  {{ g.nombre }}
+                </ion-select-option>
               </ion-select>
             </ion-item>
           </div>
@@ -110,12 +110,19 @@
             </ion-item>
             <ion-item class="form-field">
               <ion-label position="stacked">Etnia</ion-label>
-              <ion-select [(ngModel)]="usuario.etnia" interface="popover">
-                <ion-select-option value="MESTIZO">Mestizo</ion-select-option>
-                <ion-select-option value="AFROECUATORIANO">Afroecuatoriano</ion-select-option>
-                <ion-select-option value="INDÍGENA">Indígena</ion-select-option>
-                <ion-select-option value="MONTUBIO">Montubio</ion-select-option>
-                <ion-select-option value="OTRO">Otro</ion-select-option>
+              <ion-select [(ngModel)]="usuario.etniaId" interface="popover" placeholder="Seleccione Etnia">
+                <ion-select-option *ngFor="let e of datosrecuperados.etnias" [value]="e.id">
+                  {{ e.nombre }}
+                </ion-select-option>
+              </ion-select>
+            </ion-item>
+            <ion-item class="form-field">
+              <ion-label position="stacked">Nacionalidad</ion-label>
+              <ion-select [(ngModel)]="usuario.nacionalidadId" interface="popover"
+                placeholder="Seleccione Nacionalidad">
+                <ion-select-option *ngFor="let n of datosrecuperados.nacionalidades" [value]="n.id">
+                  {{ n.nombre }}
+                </ion-select-option>
               </ion-select>
             </ion-item>
           </div>
