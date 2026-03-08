@@ -109,9 +109,10 @@ export class ValidarQrPage implements OnInit {
 
       // Obtener los datos del certificado
       this.certificadoData = certificado;
+      this.capacitacionData = certificado.capacitacion;
 
       // Verificar si el certificado ha expirado (opcional)
-      const fechaGenerado = new Date(this.certificadoData.Fecha_generado);
+      const fechaGenerado = new Date(this.certificadoData.fechaEmision);
       const fechaActual = new Date();
       const diferenciaMeses = this.calcularDiferenciaMeses(fechaGenerado, fechaActual);
 
@@ -124,10 +125,7 @@ export class ValidarQrPage implements OnInit {
         return;
       }
 
-      // Obtener información de la capacitación
-      if (this.certificadoData.Id_Capacitacion) {
-        await this.obtenerDatosCapacitacion(this.certificadoData.Id_Capacitacion);
-      }
+      // El objeto 'capacitacion' ya viene en el certificado
 
       // Certificado válido
       this.mensajeValidacion = 'Este certificado es auténtico y ha sido emitido por el Consejo Nacional de Competencias.';

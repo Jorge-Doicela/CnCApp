@@ -246,7 +246,7 @@ export class EditarPage implements OnInit {
 
   async obtenerRoles() {
     try {
-      const data = await firstValueFrom(this.catalogoService.getItems('roles'));
+      const data = await firstValueFrom(this.catalogoService.getItems('rol'));
       this.datosrecuperados.roles = data || [];
     } catch (error) {
       console.error('Error al obtener roles:', error);

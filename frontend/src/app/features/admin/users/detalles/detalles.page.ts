@@ -13,6 +13,7 @@ import {
 } from 'ionicons/icons';
 import { UsuarioService } from 'src/app/features/user/services/usuario.service';
 import { Usuario } from 'src/app/core/models/usuario.interface';
+import { TipoParticipanteEnum } from 'src/app/shared/constants/enums';
 
 @Component({
     selector: 'app-detalles',
@@ -82,10 +83,10 @@ export class DetallesPage implements OnInit {
     getTipoParticipanteLabel(tipo: number | string): string {
         const t = Number(tipo);
         const labels: { [key: number]: string } = {
-            14: 'Ciudadano / Particular',
-            13: 'Autoridad',
-            15: 'Funcionario GAD',
-            16: 'Institución del Sistema'
+            [TipoParticipanteEnum.CIUDADANO]: 'Ciudadano',
+            [TipoParticipanteEnum.AUTORIDAD]: 'Autoridad',
+            [TipoParticipanteEnum.FUNCIONARIO_GAD]: 'Funcionario GAD',
+            [TipoParticipanteEnum.INSTITUCION]: 'Institución'
         };
         return labels[t] || 'No definido';
     }

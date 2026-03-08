@@ -272,7 +272,7 @@ export class VisualizarinscritosPage implements OnInit {
 
     const alert = await this.alertController.create({
       header: 'Confirmar emisión de certificados',
-      message: `Se va a emitir el certificado para esta capacitación. Los usuarios que no asistieron (${usuariosNoAsistieron.length}) serán eliminados de la lista y no recibirán certificados. Esta acción no se puede deshacer.`,
+      message: `Se va a emitir el certificado para esta capacitación. Los usuarios que no asistieron (${usuariosNoAsistieron.length}) <strong>no recibirán certificados</strong>, pero se mantendrán en el registro histórico. Esta acción no se puede deshacer.`,
       buttons: [
         {
           text: 'Cancelar',
@@ -294,19 +294,16 @@ export class VisualizarinscritosPage implements OnInit {
   async emitirCertificados() {
     if (!this.idCapacitacion) return;
     try {
-      // 1. Eliminar usuarios sin asistencia
-      await firstValueFrom(this.capacitacionesService.deleteUsuariosNoAsistieron(this.idCapacitacion));
-
-      // 2. Marcar capacitación con certificado emitido
+      // 1. Marcar capacitación con certificado emitido
       const updatedCap = { ...this.infoCapacitacion, certificado: true };
       await firstValueFrom(this.capacitacionesService.updateCapacitacion(this.idCapacitacion, updatedCap));
 
-      // 3. Generar todos los certificados en masa en el backend
+      // 2. Generar todos los certificados en masa en el backend
+      // El backend solo genera para los que marcaron asistencia (asistio === true)
       await firstValueFrom(this.capacitacionesService.generateAllCertificates(this.idCapacitacion));
 
-      // 4. Actualizar datos locales
+      // 3. Actualizar datos locales
       this.infoCapacitacion.certificado = true;
-      this.usuariosInscritos = this.usuariosInscritos.filter(u => u.asistio === true);
       this.filtrarParticipantes();
 
       // 4. Mostrar mensaje de éxito

@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { injectable, inject } from 'tsyringe';
 import { z } from 'zod';
+import { validarCedula } from '../../../domain/shared/utils/validar-cedula';
 import { RegisterUserUseCase } from '../../../application/auth/use-cases/register-user.use-case';
 import { LoginUserUseCase } from '../../../application/auth/use-cases/login-user.use-case';
 import { GetUserProfileUseCase } from '../../../application/user/use-cases/get-user-profile.use-case';
@@ -20,7 +21,7 @@ const registerSchema = z.object({
     segundoNombre: z.string().optional(),
     primerApellido: z.string().min(2, 'El primer apellido es requerido'),
     segundoApellido: z.string().optional(),
-    ci: z.string().length(10, 'La cédula debe tener 10 dígitos'),
+    ci: z.string().length(10, 'La cédula debe tener 10 dígitos').refine(validarCedula, 'Cédula ecuatoriana inválida'),
     email: z.string().email('Email inválido'),
     telefono: z.string().optional(),
     celular: z.string().optional(),
@@ -37,7 +38,7 @@ const registerSchema = z.object({
 });
 
 const loginSchema = z.object({
-    ci: z.string().length(10, 'La cédula debe tener 10 dígitos'),
+    ci: z.string().length(10, 'La cédula debe tener 10 dígitos').refine(validarCedula, 'Cédula ecuatoriana inválida'),
     password: z.string().min(1, 'La contraseña es requerida')
 });
 

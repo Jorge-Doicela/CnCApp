@@ -45,6 +45,7 @@ import { GetUserCertificadosUseCase } from '../application/certificado/use-cases
 import { CountCertificadosUseCase } from '../application/certificado/use-cases/count-certificados.use-case';
 import { CertificateGeneratorService } from '../infrastructure/services/certificate-generator.service';
 import { GenerateCertificadoUseCase } from '../application/certificado/use-cases/generate-certificado.use-case';
+import { FileStorageService } from '../infrastructure/services/file-storage.service';
 
 // Import Ubicacion Use Cases
 import { GetProvinciasUseCase } from '../application/ubicacion/use-cases/get-provincias.use-case';
@@ -184,6 +185,7 @@ container.registerSingleton(CountCertificadosUseCase);
 
 container.registerSingleton(CertificateGeneratorService);
 container.registerSingleton(GenerateCertificadoUseCase);
+container.registerSingleton(FileStorageService);
 
 // Ubicacion Use Cases
 container.registerSingleton(GetProvinciasUseCase);

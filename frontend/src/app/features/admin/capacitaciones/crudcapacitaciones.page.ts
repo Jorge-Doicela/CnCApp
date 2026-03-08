@@ -234,64 +234,41 @@ export class CrudcapacitacionesPage implements OnInit {
 
   // Generación de certificados
   async mostrarConfirmacion(Id_Capacitacion: number) {
-    try {
-      const usuariosNoAsistieron = await firstValueFrom(this.capacitacionesService.getUsuariosNoAsistieron(Id_Capacitacion));
-      const alert = await this.alertController.create({
-        header: 'Confirmar emisión de certificados',
-        message: `Se va a emitir el certificado para esta capacitación.Los usuarios que no asistieron(${usuariosNoAsistieron.length}) serán eliminados de la lista y no recibirán certificados.Esta acción no se puede deshacer.`,
-        buttons: [
-          {
-            text: 'Cancelar',
-            role: 'cancel'
-          },
-          {
-            text: 'Emitir certificados',
-            handler: () => {
-              this.eliminarNoAsistieron(Id_Capacitacion);
-              this.iraGenerarCertificado(Id_Capacitacion);
-            }
+    const alert = await this.alertController.create({
+      header: 'Confirmar emisión de certificados',
+      message: `Se emitirán certificados para todos los asistentes confirmados. Los usuarios que no marcaron asistencia no recibirán certificado. ¿Desea continuar?`,
+      buttons: [
+        {
+          text: 'Cancelar',
+          role: 'cancel'
+        },
+        {
+          text: 'Emitir certificados',
+          handler: () => {
+            this.iraGenerarCertificado(Id_Capacitacion);
           }
-        ]
-      });
-      await alert.present();
-    } catch (error) {
-      console.error('Error fetching non-attending users:', error);
-      this.presentToast('Error al verificar asistencia', 'danger');
-    } finally {
-      this.cdr.markForCheck();
-    }
-  }
-
-  async eliminarNoAsistieron(Id_Capacitacion: number) {
-    const loading = await this.loadingController.create({
-      message: 'Procesando usuarios sin asistencia...',
-      spinner: 'crescent'
+        }
+      ]
     });
-    await loading.present();
-
-    try {
-      const response = await firstValueFrom(this.capacitacionesService.deleteUsuariosNoAsistieron(Id_Capacitacion));
-      console.log('Usuarios sin asistencia eliminados:', response);
-      this.presentToast(`Se han eliminado usuarios sin asistencia`, 'success');
-    } catch (error) {
-      console.error('Error al eliminar usuarios sin asistencia:', error);
-      this.presentToast('Error al procesar usuarios sin asistencia', 'danger');
-    } finally {
-      loading.dismiss();
-      this.cdr.markForCheck();
-    }
+    await alert.present();
+    this.cdr.markForCheck();
   }
 
   async iraGenerarCertificado(Id_Capacitacion: number) {
     const loading = await this.loadingController.create({
-      message: 'Emitiendo certificados...',
+      message: 'Generando certificados y códigos QR... Por favor espere.',
       spinner: 'crescent'
     });
     await loading.present();
 
     try {
+      // 1. Llamar al servicio de generación masiva (Backend real)
+      await firstValueFrom(this.capacitacionesService.generateAllCertificates(Id_Capacitacion));
+      
+      // 2. Marcar la capacitación como que ya tiene certificados (Actualización de flag)
       await firstValueFrom(this.capacitacionesService.updateCapacitacion(Id_Capacitacion, { certificado: true }));
-      this.presentToast('Certificados emitidos correctamente', 'success');
+      
+      this.presentToast('Certificados generados correctamente', 'success');
       this.RecuperarCapacitaciones();
     } catch (error) {
       console.error('Error al emitir el certificado:', error);

@@ -102,7 +102,7 @@
           <div class="certificate-details" *ngIf="esValido && certificadoData">
             <div class="detail-row">
               <span class="label">Expedido a:</span>
-              <span class="value person-name">{{ certificadoData.Usuario?.Nombre_Usuario }}</span>
+              <span class="value person-name">{{ certificadoData.usuario?.nombre }}</span>
             </div>
 
             <div class="separator"></div>
@@ -112,7 +112,7 @@
                 <ion-icon name="calendar-outline"></ion-icon>
                 <div class="detail-text">
                   <span class="label">Fecha</span>
-                  <span class="value">{{ formatearFecha(certificadoData.Fecha_generado) }}</span>
+                  <span class="value">{{ formatearFecha(certificadoData.fechaEmision) }}</span>
                 </div>
               </div>
 
@@ -120,14 +120,14 @@
                 <ion-icon name="time-outline"></ion-icon>
                 <div class="detail-text">
                   <span class="label">Duración</span>
-                  <span class="value">{{ capacitacionData?.Horas || 'N/A' }} horas</span>
+                  <span class="value">{{ capacitacionData?.horas || 'N/A' }} horas</span>
                 </div>
               </div>
             </div>
 
             <div class="detail-row full-width">
               <span class="label">Capacitación:</span>
-              <span class="value course-name">{{ capacitacionData?.Nombre_Capacitacion || 'No disponible' }}</span>
+              <span class="value course-name">{{ capacitacionData?.nombre || 'No disponible' }}</span>
             </div>
 
           </div>

@@ -147,36 +147,42 @@ export class PrismaUserRepository implements UserRepository {
                 fotoPerfilUrl: userData.fotoPerfilUrl,
                 firmaUrl: userData.firmaUrl,
                 password: userData.password, // Allow updating password through generic update
-                ...(userData.autoridad && {
+                ...(userData.autoridad !== undefined && {
                     autoridades: {
                         deleteMany: {},
-                        create: [{
-                            cargo: userData.autoridad.cargo,
-                            entidad: userData.autoridad.gadAutoridad
-                        }]
+                        ...(userData.autoridad !== null && {
+                            create: [{
+                                cargo: userData.autoridad.cargo,
+                                entidad: userData.autoridad.gadAutoridad
+                            }]
+                        })
                     }
                 }),
-                ...(userData.funcionarioGad && {
+                ...(userData.funcionarioGad !== undefined && {
                     funcionarios: {
                         deleteMany: {},
-                        create: [{
-                            cargo: userData.funcionarioGad.cargo,
-                            departamento: userData.funcionarioGad.gadFuncionarioGad,
-                            ...(userData.funcionarioGad.competencias?.length > 0 && {
-                                competencias: {
-                                    set: userData.funcionarioGad.competencias.map((c: any) => ({ id: Number(c) }))
-                                }
-                            })
-                        }]
+                        ...(userData.funcionarioGad !== null && {
+                            create: [{
+                                cargo: userData.funcionarioGad.cargo,
+                                departamento: userData.funcionarioGad.gadFuncionarioGad,
+                                ...(userData.funcionarioGad.competencias?.length > 0 && {
+                                    competencias: {
+                                        set: userData.funcionarioGad.competencias.map((c: any) => ({ id: Number(c) }))
+                                    }
+                                })
+                            }]
+                        })
                     }
                 }),
-                ...(userData.institucion && {
+                ...(userData.institucion !== undefined && {
                     instituciones: {
                         deleteMany: {},
-                        create: [{
-                            institucionId: Number(userData.institucion.institucion),
-                            gradoOcupacionalId: userData.institucion.gradoOcupacional ? Number(userData.institucion.gradoOcupacional) : null
-                        }]
+                        ...(userData.institucion !== null && {
+                            create: [{
+                                institucionId: Number(userData.institucion.institucion),
+                                gradoOcupacionalId: userData.institucion.gradoOcupacional ? Number(userData.institucion.gradoOcupacional) : null
+                            }]
+                        })
                     }
                 })
             },
@@ -196,7 +202,9 @@ export class PrismaUserRepository implements UserRepository {
         const users = await prisma.usuario.findMany({
             include: {
                 rol: true,
-                entidad: true
+                entidad: true,
+                tipoParticipante: true,
+                nacionalidad: true
             },
             orderBy: {
                 createdAt: 'desc'

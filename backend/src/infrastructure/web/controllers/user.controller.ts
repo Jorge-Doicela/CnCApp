@@ -8,6 +8,7 @@ import { RegisterUserUseCase } from '../../../application/auth/use-cases/registe
 import { parseIdParam } from '../middleware/parse-id.helper';
 import { AuthRequest } from '../middleware/auth.middleware';
 import { z } from 'zod';
+import { validarCedula } from '../../../domain/shared/utils/validar-cedula';
 import prisma from '../../../config/database';
 
 const autoridadSchema = z.object({
@@ -60,7 +61,7 @@ const createUserSchema = z.object({
     segundoNombre: z.string().optional().nullable(),
     primerApellido: z.string().min(2, 'El primer apellido es requerido'),
     segundoApellido: z.string().optional().nullable(),
-    ci: z.string().length(10, 'La cédula debe tener 10 dígitos'),
+    ci: z.string().length(10, 'La cédula debe tener 10 dígitos').refine(validarCedula, 'Cédula ecuatoriana inválida'),
     email: z.string().email('Email inválido'),
     telefono: z.string().optional().nullable(),
     celular: z.string().optional().nullable(),
@@ -152,10 +153,17 @@ export class UserController {
         }
     };
 
-    delete = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    delete = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
         try {
             const id = parseIdParam(req, res);
             if (id === null) return;
+
+            // Self-deletion guard
+            if (req.userId === id) {
+                res.status(400).json({ message: 'No puedes eliminar tu propia cuenta mientras estás autenticado.' });
+                return;
+            }
+
             await this.deleteUserUseCase.execute(id);
             res.status(204).send();
         } catch (error) {
@@ -233,7 +241,7 @@ export class UserController {
                 celular: z.string().optional(),
                 provinciaId: z.number().int().optional().nullable(),
                 cantonId: z.number().int().optional().nullable(),
-                fotoPerfilUrl: z.string().url().optional().or(z.literal('')).or(z.null()),
+                fotoPerfilUrl: z.string().optional().or(z.literal('')).or(z.null()),
                 firmaUrl: z.string().optional().or(z.literal('')).or(z.null()),
                 password: z.string().min(6).optional()
             });

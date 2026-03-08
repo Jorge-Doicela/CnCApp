@@ -31,6 +31,7 @@
     "dependencies": {
         "@mapbox/node-pre-gyp": "^2.0.3",
         "@prisma/client": "^5.22.0",
+        "@types/uuid": "^10.0.0",
         "bcrypt": "^6.0.0",
         "compression": "^1.7.5",
         "cors": "^2.8.5",
@@ -46,6 +47,7 @@
         "reflect-metadata": "^0.2.2",
         "tar": "^7.5.9",
         "tsyringe": "^4.10.0",
+        "uuid": "^13.0.0",
         "winston": "^3.19.0",
         "zod": "^3.24.1"
     },
