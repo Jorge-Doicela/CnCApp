@@ -51,11 +51,16 @@ export class GenerateCertificadoUseCase {
             horas: `${capacitacion.horas || 0} HORAS`
         };
 
-        // 4. Generate QR Content
-        const qrCode = `https://cnc-app.com/verify?u=${usuarioId}&c=${capacitacionId}&t=${Date.now()}`;
+        // 4. Generate Unique Hash and QR Content
+        const crypto = require('crypto');
+        const hash = crypto.randomBytes(12).toString('hex'); // 24 chars, very unique
+        
+        // Base URL for verification (Should ideally come from config/env)
+        const baseUrl = process.env.FRONTEND_URL || 'https://cnc-app.com';
+        const qrCodeUrl = `${baseUrl}/validar-certificados?hash=${hash}`;
 
         // 5. Define Output Path
-        const fileName = `cert_${usuarioId}_${capacitacionId}_${Date.now()}.pdf`;
+        const fileName = `cert_${usuarioId}_${capacitacionId}_${hash.substring(0, 8)}.pdf`;
         const publicDir = path.join(process.cwd(), 'public', 'certificados');
 
         if (!fs.existsSync(publicDir)) {
@@ -68,7 +73,7 @@ export class GenerateCertificadoUseCase {
             plantilla.imagenUrl || '',
             config,
             data,
-            qrCode,
+            qrCodeUrl, // Physical QR code has full URL
             outputPath
         );
 
@@ -76,7 +81,7 @@ export class GenerateCertificadoUseCase {
         return this.certificadoRepository.create({
             usuarioId,
             capacitacionId,
-            codigoQR: qrCode,
+            codigoQR: hash, // Store only hash for cleaner lookup
             pdfUrl: `/certificados/${fileName}`
         });
     }

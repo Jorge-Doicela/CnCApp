@@ -11,6 +11,7 @@ import {
   callOutline, people, peopleOutline, person, createOutline, trashOutline, mailOutline, add
 } from 'ionicons/icons';
 import { UsuarioService } from 'src/app/features/user/services/usuario.service';
+import { AuthService } from 'src/app/features/auth/services/auth.service';
 import { Usuario } from '../../../core/models/usuario.interface';
 import { ErrorHandlerUtil } from 'src/app/shared/utils/error-handler.util';
 import { TipoParticipanteEnum } from 'src/app/shared/constants/enums';
@@ -31,6 +32,7 @@ export class CRUDUsuariosPage implements OnInit {
   cargando: boolean = true;
 
   private usuarioService = inject(UsuarioService);
+  private authService = inject(AuthService);
   private router = inject(Router);
   private alertController = inject(AlertController);
   private toastController = inject(ToastController);
@@ -80,7 +82,7 @@ export class CRUDUsuariosPage implements OnInit {
   }
 
   getTiposUnicos(): number {
-    const tipos = new Set(this.usuarios.map((u: any) => u.tipoParticipante));
+    const tipos = new Set(this.usuarios.map((u: any) => u.tipoParticipanteId || u.tipoParticipante?.id).filter(id => !!id));
     return tipos.size;
   }
 
@@ -127,14 +129,23 @@ export class CRUDUsuariosPage implements OnInit {
     this.filteredUsuarios = this.usuarios.filter((usuario: any) =>
       (usuario.nombre || '').toLowerCase().includes(term) ||
       (usuario.ci || '').toLowerCase().includes(term) ||
-      (usuario.email || '').toLowerCase().includes(term)
+      (usuario.email || '').toLowerCase().includes(term) ||
+      (usuario.rol?.nombre || '').toLowerCase().includes(term) ||
+      (usuario.entidad?.nombre || '').toLowerCase().includes(term)
     );
   }
 
   async confirmarEliminar(usuario: any) {
+    // Self-deletion guard
+    const currentUserId = this.authService.currentUser()?.id;
+    if (currentUserId === usuario.id) {
+      this.presentToast('No puedes eliminar tu propia cuenta.', 'warning');
+      return;
+    }
+
     const alert = await this.alertController.create({
       header: 'Confirmar eliminación',
-      message: `¿Está seguro que desea eliminar al usuario ${usuario.nombre}?`,
+      message: `¿Está seguro que desea eliminar al usuario <strong>${usuario.nombre}</strong>? Esta acción no se puede deshacer.`,
       cssClass: 'custom-alert',
       buttons: [
         {
@@ -143,6 +154,7 @@ export class CRUDUsuariosPage implements OnInit {
           cssClass: 'cancel-button'
         }, {
           text: 'Eliminar',
+          role: 'destructive',
           cssClass: 'confirm-button',
           handler: () => {
             this.eliminarUsuario(usuario.id);

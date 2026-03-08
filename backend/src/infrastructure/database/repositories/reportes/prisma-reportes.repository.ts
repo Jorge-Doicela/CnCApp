@@ -1,6 +1,7 @@
 import { injectable, inject } from 'tsyringe';
 import { PrismaClient } from '@prisma/client';
 import { ReportesRepository, DashboardStatsData, DashboardStatsTrend } from '../../../../domain/reportes/repositories/reportes.repository';
+import { EstadoCapacitacionEnum } from '../../../../domain/shared/constants/enums';
 
 @injectable()
 export class PrismaReportesRepository implements ReportesRepository {
@@ -29,13 +30,12 @@ export class PrismaReportesRepository implements ReportesRepository {
             this.getUsuariosPorRolData(),
             this.prisma.capacitacion.count({
                 where: {
-                    fechaInicio: { lte: now },
-                    fechaFin: { gte: now }
+                    estado: EstadoCapacitacionEnum.PENDIENTE
                 }
             }),
             this.prisma.capacitacion.count({
                 where: {
-                    fechaFin: { lt: now }
+                    estado: EstadoCapacitacionEnum.REALIZADA
                 }
             }),
             this.prisma.certificado.count({

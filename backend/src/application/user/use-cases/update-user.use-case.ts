@@ -3,18 +3,46 @@ import { User } from '../../../domain/user/entities/user.entity';
 import { UserRepository } from '../../../domain/user/user.repository';
 import { NotFoundError } from '../../../domain/shared/errors';
 import { PasswordEncoder } from '../../../domain/auth/auth.ports';
+import { FileStorageService } from '../../../infrastructure/services/file-storage.service';
 
 @injectable()
 export class UpdateUserUseCase {
     constructor(
         @inject('UserRepository') private userRepository: UserRepository,
-        @inject('PasswordEncoder') private passwordEncoder: PasswordEncoder
+        @inject('PasswordEncoder') private passwordEncoder: PasswordEncoder,
+        @inject(FileStorageService) private fileStorageService: FileStorageService
     ) { }
 
     async execute(id: number, userData: Partial<User>): Promise<User> {
         const user = await this.userRepository.findById(id);
         if (!user) {
             throw new NotFoundError('Usuario no encontrado');
+        }
+
+        // Handle Image Uploads (Profile Photo)
+        if (userData.fotoPerfilUrl && userData.fotoPerfilUrl.startsWith('data:image')) {
+            try {
+                // Delete old file if it was a local upload
+                if (user.fotoPerfilUrl) {
+                    await this.fileStorageService.deleteFile(user.fotoPerfilUrl);
+                }
+                userData.fotoPerfilUrl = await this.fileStorageService.saveBase64(userData.fotoPerfilUrl, 'profiles');
+            } catch (error) {
+                console.error('[UPDATE_USER] Error saving profile photo:', error);
+            }
+        }
+
+        // Handle Image Uploads (Signature)
+        if (userData.firmaUrl && userData.firmaUrl.startsWith('data:image')) {
+            try {
+                // Delete old file if it was a local upload
+                if (user.firmaUrl) {
+                    await this.fileStorageService.deleteFile(user.firmaUrl);
+                }
+                userData.firmaUrl = await this.fileStorageService.saveBase64(userData.firmaUrl, 'signatures');
+            } catch (error) {
+                console.error('[UPDATE_USER] Error saving signature:', error);
+            }
         }
 
         // If any name field is updated, reconstruct the full name

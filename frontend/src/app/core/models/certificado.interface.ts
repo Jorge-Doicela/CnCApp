@@ -1,8 +1,13 @@
+import { Usuario } from './usuario.interface';
+import { Capacitacion } from './capacitacion.interface';
+
 export interface Certificado {
     id: number;
     usuarioId: number;
     capacitacionId: number;
-    codigoQr: string;
+    codigoQR: string;
     fechaEmision: string;
     pdfUrl?: string;
+    usuario?: Usuario;
+    capacitacion?: Capacitacion;
 }

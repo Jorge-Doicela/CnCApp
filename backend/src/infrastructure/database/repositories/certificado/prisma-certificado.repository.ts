@@ -28,7 +28,16 @@ export class PrismaCertificadoRepository implements CertificadoRepository {
 
     async findByQR(qr: string): Promise<Certificado | null> {
         const certificado = await prisma.certificado.findUnique({
-            where: { codigoQR: qr }
+            where: { codigoQR: qr },
+            include: {
+                usuario: {
+                    include: {
+                        rol: true,
+                        entidad: true
+                    }
+                },
+                capacitacion: true
+            }
         });
         return certificado ? CertificadoMapper.toDomain(certificado) : null;
     }

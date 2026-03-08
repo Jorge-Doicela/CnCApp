@@ -25,6 +25,11 @@ const envSchema = z.object({
 
     // CORS
     ALLOWED_ORIGINS: z.string().transform(origins => origins.split(',')).default('http://localhost:8100,http://localhost:4200'),
+
+    // Storage
+    UPLOAD_DIR: z.string().default('public/uploads'),
+    BASE_URL: z.string().url().default('http://localhost:3000'),
+    FRONTEND_URL: z.string().url().default('http://localhost:8100'),
 });
 
 // Validar y exportar la configuración

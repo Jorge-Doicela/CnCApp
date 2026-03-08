@@ -18,6 +18,7 @@ export interface Capacitacion {
     idsUsuarios?: number[]; // For form
     expositores?: number[]; // For form
     createdAt?: string;
+    inscripciones?: UsuarioCapacitacion[];
 }
 
 export interface UsuarioCapacitacion {

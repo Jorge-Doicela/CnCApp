@@ -81,7 +81,7 @@ export class PrismaCapacitacionRepository implements CapacitacionRepository {
                     usuarioId,
                     capacitacionId: id,
                     fechaInscripcion: new Date(),
-                    estadoInscripcion: 'Inscrito'
+                    estadoInscripcion: 'Activa'
                 }));
                 await prisma.usuarioCapacitacion.createMany({
                     data: dataToCreate
