@@ -88,10 +88,9 @@
             Entidades Organizadoras
           </h3>
           <div class="entidades-grid">
-            <div class="entidad-card" *ngFor="let entidad of entidadesEncargadas">
-              <div class="entidad-header">
-                <ion-icon name="business"></ion-icon>
-                <h4>{{ entidad.Nombre_Entidad }}</h4>
+            <div class="entity-card" *ngFor="let entidad of entidadesEncargadas">
+              <div class="entity-info">
+                <span class="entity-name">{{ entidad.nombre }}</span>
               </div>
               <p *ngIf="entidad.Descripcion_Entidad" class="entidad-description">
                 {{ entidad.Descripcion_Entidad }}
@@ -113,22 +112,30 @@
                   <ion-icon name="person-circle"></ion-icon>
                 </div>
                 <div class="expositor-info">
-                  <h4>{{ expositor.Nombre_Usuario }}</h4>
-                  <span class="expositor-badge">Expositor</span>
+                  <div class="user-main">
+                    <h3>{{ expositor.nombre }}</h3>
+                    <div class="user-meta">
+                      <span class="user-role badge-role">{{ expositor.rolCapacitacion }}</span>
+                      <span *ngIf="expositor.email && expositor.email !== '-'" class="user-email">
+                        <ion-icon name="mail-outline"></ion-icon>
+                        {{ expositor.email }}
+                      </span>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div class="expositor-details" *ngIf="expositor.Email || expositor.Cargo || expositor.Entidad">
-                <div class="detail-item" *ngIf="expositor.Email && expositor.Email !== '-'">
+              <div class="expositor-details" *ngIf="expositor.email || expositor.cargo || expositor.entidad">
+                <div class="detail-item" *ngIf="expositor.email && expositor.email !== '-'">
                   <ion-icon name="mail-outline" color="primary"></ion-icon>
-                  <span>{{ expositor.Email }}</span>
+                  <span>{{ expositor.email }}</span>
                 </div>
-                <div class="detail-item" *ngIf="expositor.Cargo && expositor.Cargo !== '-'">
+                <div class="detail-item" *ngIf="expositor.cargo && expositor.cargo !== '-'">
                   <ion-icon name="briefcase-outline" color="primary"></ion-icon>
-                  <span>{{ expositor.Cargo }}</span>
+                  <span>{{ expositor.cargo }}</span>
                 </div>
-                <div class="detail-item" *ngIf="expositor.Entidad && expositor.Entidad !== '-'">
+                <div class="detail-item" *ngIf="expositor.entidad && expositor.entidad !== '-'">
                   <ion-icon name="business-outline" color="primary"></ion-icon>
-                  <span>{{ expositor.Entidad }}</span>
+                  <span>{{ expositor.entidad }}</span>
                 </div>
               </div>
             </div>
@@ -242,50 +249,55 @@
 
           <div class="participants-grid" *ngIf="participantesFiltrados.length > 0">
             <div class="participant-card" *ngFor="let usuario of participantesFiltrados"
-              [ngClass]="{'attended-card': usuario.Asistencia, 'absent-card': !usuario.Asistencia}">
+              [ngClass]="{'attended-card': usuario.asistio, 'absent-card': !usuario.asistio}">
               <div class="participant-header">
                 <div class="participant-avatar">
                   <ion-icon name="person-circle"></ion-icon>
                 </div>
                 <div class="participant-info">
-                  <h4>{{ usuario.Nombre_Usuario }}</h4>
-                  <span class="participant-badge"
-                    [ngClass]="{'badge-attended': usuario.Asistencia, 'badge-absent': !usuario.Asistencia}">
-                    {{ usuario.Asistencia ? 'Asistió' : 'No asistió' }}
-                  </span>
+                  <h3>{{ usuario.nombre }}</h3>
+                  <div class="user-meta">
+                    <span class="user-role">{{ usuario.rolCapacitacion }}</span>
+                    <span *ngIf="usuario.entidad && usuario.entidad !== '-'" class="user-entidad">
+                      <ion-icon name="business-outline"></ion-icon>
+                      {{ usuario.entidad }}
+                    </span>
+                  </div>
                 </div>
               </div>
 
               <div class="participant-content">
                 <div class="participant-detail">
                   <ion-icon name="briefcase-outline" color="primary"></ion-icon>
-                  <span>{{ usuario.Rol_Capacitacion || 'Participante' }}</span>
+                  <span>{{ usuario.rolCapacitacion || 'Participante' }}</span>
                 </div>
 
                 <!-- Mostrar información adicional si está disponible -->
-                <div class="participant-detail" *ngIf="usuario.Email && usuario.Email !== '-'">
+                <div class="participant-detail" *ngIf="usuario.email && usuario.email !== '-'">
                   <ion-icon name="mail-outline" color="primary"></ion-icon>
-                  <span>{{ usuario.Email }}</span>
+                  <span>{{ usuario.email }}</span>
                 </div>
 
-                <div class="participant-detail" *ngIf="usuario.Cargo && usuario.Cargo !== '-'">
+                <div class="participant-detail" *ngIf="usuario.cargo && usuario.cargo !== '-'">
                   <ion-icon name="briefcase-outline" color="primary"></ion-icon>
-                  <span>{{ usuario.Cargo }}</span>
+                  <span>{{ usuario.cargo }}</span>
                 </div>
 
-                <div class="participant-detail" *ngIf="usuario.Entidad && usuario.Entidad !== '-'">
+                <div class="participant-detail" *ngIf="usuario.entidad && usuario.entidad !== '-'">
                   <ion-icon name="business-outline" color="primary"></ion-icon>
-                  <span>{{ usuario.Entidad }}</span>
+                  <span>{{ usuario.entidad }}</span>
                 </div>
               </div>
 
               <div class="participant-actions">
-                <ion-toggle [(ngModel)]="usuario.Asistencia" (ionChange)="actualizarAsistencia(usuario)"
-                  [disabled]="infoCapacitacion?.Certificado">
+                <ion-toggle [(ngModel)]="usuario.asistio" (ionChange)="actualizarAsistencia(usuario)"
+                  [disabled]="infoCapacitacion?.certificado" color="success">
                 </ion-toggle>
-
+                <span class="toggle-label" [class.success]="usuario.asistio">
+                  {{ usuario.asistio ? 'Asistió' : 'Pendiente' }}
+                </span>
                 <ion-button fill="clear" color="danger" (click)="confirmarEliminar(usuario)"
-                  *ngIf="!infoCapacitacion?.Certificado">
+                  *ngIf="!infoCapacitacion?.certificado">
                   <ion-icon name="trash-outline"></ion-icon>
                   Eliminar
                 </ion-button>
@@ -296,7 +308,7 @@
 
         <!-- Sección de certificados -->
         <div class="certificate-section fade-in" style="animation-delay: 0.5s;"
-          *ngIf="infoCapacitacion && infoCapacitacion.Estado === 1 && !infoCapacitacion.Certificado">
+          *ngIf="infoCapacitacion && infoCapacitacion.estado === 'Finalizada' && !infoCapacitacion.certificado">
           <h3 class="section-title">
             <ion-icon name="ribbon-outline"></ion-icon>
             Emisión de Certificados
@@ -322,7 +334,7 @@
 
         <!-- Certificado generado -->
         <div class="certificate-section fade-in" style="animation-delay: 0.5s;"
-          *ngIf="infoCapacitacion && infoCapacitacion.Certificado">
+          *ngIf="infoCapacitacion && infoCapacitacion.certificado">
           <h3 class="section-title">
             <ion-icon name="ribbon"></ion-icon>
             Certificados Emitidos

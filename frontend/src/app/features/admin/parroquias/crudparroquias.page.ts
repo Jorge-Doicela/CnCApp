@@ -6,6 +6,8 @@ import { Router } from '@angular/router';
 import { AlertController, ToastController } from '@ionic/angular';
 import { CatalogoService } from 'src/app/shared/services/catalogo.service';
 import { Parroquia } from 'src/app/shared/models/parroquia.model';
+import { Canton } from 'src/app/shared/models/canton.model';
+import { ErrorHandlerUtil } from 'src/app/shared/utils/error-handler.util';
 import { addIcons } from 'ionicons';
 import {
   searchOutline,
@@ -22,7 +24,8 @@ import {
   trashOutline,
   swapVerticalOutline,
   locationOutline,
-  close
+  close,
+  arrowBackOutline
 } from 'ionicons/icons';
 import { firstValueFrom } from 'rxjs';
 
@@ -37,7 +40,7 @@ import { firstValueFrom } from 'rxjs';
 export class CrudparroquiasPage implements OnInit {
   parroquias: Parroquia[] = [];
   parroquiasFiltradas: Parroquia[] = [];
-  cantones: any[] = [];
+  cantones: Canton[] = [];
 
   cargando: boolean = false;
   searchTerm: string = '';
@@ -68,7 +71,8 @@ export class CrudparroquiasPage implements OnInit {
       trashOutline,
       swapVerticalOutline,
       locationOutline,
-      close
+      close,
+      arrowBackOutline
     });
   }
 
@@ -81,51 +85,22 @@ export class CrudparroquiasPage implements OnInit {
     this.cd.markForCheck();
 
     try {
-      await Promise.all([
-        this.obtenerCantones(),
-        this.obtenerParroquias()
+      const [cantonesData, parroquiasData] = await Promise.all([
+        firstValueFrom(this.catalogoService.getItems('cantones')),
+        firstValueFrom(this.catalogoService.getItems('parroquias'))
       ]);
-      this.asociarCantones();
+
+      this.cantones = cantonesData || [];
+      this.parroquias = parroquiasData || [];
+
       this.filtrarParroquias();
     } catch (error) {
       console.error('Error al cargar datos:', error);
-      this.presentToast('Error al cargar los datos iniciales', 'danger');
+      this.presentToast(ErrorHandlerUtil.getErrorMessage(error), 'danger');
     } finally {
       this.cargando = false;
       this.cd.markForCheck();
     }
-  }
-
-  async obtenerParroquias() {
-    try {
-      const data = await firstValueFrom(this.catalogoService.getItems('parroquias'));
-      this.parroquias = data || [];
-      this.calcularEstadisticas();
-    } catch (error) {
-      console.error('Error al obtener parroquias:', error);
-      this.presentToast('Error al cargar parroquias. (API)', 'danger');
-    }
-  }
-
-  async obtenerCantones() {
-    try {
-      const data = await firstValueFrom(this.catalogoService.getItems('cantones'));
-      this.cantones = data || [];
-    } catch (error) {
-      console.error('Error al obtener cantones:', error);
-    }
-  }
-
-  asociarCantones() {
-    this.parroquias = this.parroquias.map(parroquia => {
-      // Logic for matching canton name might depend on the property name. 
-      // Existing code used codigo_canton. I'll stick to it or id if available.
-      const canton = this.cantones.find(c => c.codigo_canton === parroquia.codigo_canton || c.id === parroquia.Id_Canton);
-      return {
-        ...parroquia,
-        nombre_canton: canton ? (canton.nombre_canton || canton.nombre) : 'Cantón no encontrado'
-      };
-    });
   }
 
   calcularEstadisticas() {
@@ -137,52 +112,59 @@ export class CrudparroquiasPage implements OnInit {
     const term = this.searchTerm.trim().toLowerCase();
 
     this.parroquiasFiltradas = this.parroquias.filter(parroquia => {
+      // Find canton name for search
+      const canton = this.cantones.find(c => c.id === parroquia.cantonId);
+      const nombreCanton = (canton?.nombre || '').toLowerCase();
+
       // Filtrar por término de búsqueda
       const matchesSearchTerm = term === '' ||
-        (parroquia.nombre_parroquia || '').toLowerCase().includes(term) ||
-        (parroquia.codigo_parroquia || '').toString().toLowerCase().includes(term);
+        (parroquia.nombre || '').toLowerCase().includes(term) ||
+        nombreCanton.includes(term);
 
       // Filtrar por cantón
       const matchesCanton = this.filtroCanton === 'todos' ||
-        parroquia.codigo_canton === this.filtroCanton ||
-        parroquia.Id_Canton?.toString() === this.filtroCanton;
+        parroquia.cantonId?.toString() === this.filtroCanton;
 
       // Filtrar por estado
       const matchesEstado = this.filtroEstado === 'todos' ||
-        parroquia.estado.toString() === this.filtroEstado;
+        (this.filtroEstado === 'true' && parroquia.estado) ||
+        (this.filtroEstado === 'false' && !parroquia.estado);
 
       return matchesSearchTerm && matchesCanton && matchesEstado;
     });
 
+    this.calcularEstadisticas();
     this.cd.markForCheck();
+  }
+
+  getCantonNombre(cantonId: number): string {
+    const canton = this.cantones.find(c => c.id === cantonId);
+    return canton ? canton.nombre : 'No asignado';
   }
 
   crearParroquia() {
     this.router.navigate(['/gestionar-parroquias/crear']);
   }
 
-  editarParroquia(idparroquia: any) {
-    this.router.navigate(['/gestionar-parroquias/editar', idparroquia]);
+  editarParroquia(id: number) {
+    this.router.navigate(['/gestionar-parroquias/editar', id]);
   }
 
   async cambiarEstado(parroquia: Parroquia) {
     const nuevoEstado = !parroquia.estado;
 
     try {
-      // Using codigo_parroquia or id based on what the API expects
-      const idToUpdate = parroquia.codigo_parroquia || parroquia.Id_Parroquia;
-      await firstValueFrom(this.catalogoService.updateItem('parroquias', idToUpdate, { estado: nuevoEstado }));
+      await firstValueFrom(this.catalogoService.updateItem('parroquias', parroquia.id, { estado: nuevoEstado }));
 
       parroquia.estado = nuevoEstado;
-      this.calcularEstadisticas();
       this.filtrarParroquias();
       this.presentToast(
-        `Parroquia "${parroquia.nombre_parroquia}" ahora está ${nuevoEstado ? 'activa' : 'inactiva'}`,
+        `Parroquia "${parroquia.nombre}" ahora está ${nuevoEstado ? 'activa' : 'inactiva'}`,
         'success'
       );
     } catch (error) {
       console.error('Error al cambiar estado:', error);
-      this.presentToast('Error al actualizar el estado', 'danger');
+      this.presentToast(ErrorHandlerUtil.getErrorMessage(error), 'danger');
     } finally {
       this.cd.markForCheck();
     }
@@ -191,7 +173,7 @@ export class CrudparroquiasPage implements OnInit {
   async confirmarEliminar(parroquia: Parroquia) {
     const alert = await this.alertController.create({
       header: 'Confirmar eliminación',
-      message: `¿Está seguro que desea eliminar la parroquia "${parroquia.nombre_parroquia}"?`,
+      message: `¿Está seguro que desea eliminar la parroquia "${parroquia.nombre}"?`,
       buttons: [
         {
           text: 'Cancelar',
@@ -212,16 +194,14 @@ export class CrudparroquiasPage implements OnInit {
 
   async eliminarParroquia(parroquia: Parroquia) {
     try {
-      const idToDelete = parroquia.codigo_parroquia || parroquia.Id_Parroquia;
-      await firstValueFrom(this.catalogoService.deleteItem('parroquias', idToDelete));
+      await firstValueFrom(this.catalogoService.deleteItem('parroquias', parroquia.id));
 
-      this.parroquias = this.parroquias.filter(p => (p.codigo_parroquia || p.Id_Parroquia) !== idToDelete);
-      this.calcularEstadisticas();
+      this.parroquias = this.parroquias.filter(p => p.id !== parroquia.id);
       this.filtrarParroquias();
-      this.presentToast('Parroquia eliminada correctamente', 'success');
+      this.presentToast(`Parroquia "${parroquia.nombre}" eliminada correctamente`, 'success');
     } catch (error) {
       console.error('Error al eliminar parroquia:', error);
-      this.presentToast('Error al eliminar la parroquia', 'danger');
+      this.presentToast(ErrorHandlerUtil.getErrorMessage(error), 'danger');
     } finally {
       this.cd.markForCheck();
     }

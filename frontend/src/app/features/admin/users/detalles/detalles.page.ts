@@ -79,14 +79,15 @@ export class DetallesPage implements OnInit {
     }
 
 
-    getTipoParticipanteLabel(tipo: number): string {
+    getTipoParticipanteLabel(tipo: number | string): string {
+        const t = Number(tipo);
         const labels: { [key: number]: string } = {
-            0: 'Ciudadano / Particular',
-            1: 'Autoridad',
-            2: 'Funcionario GAD',
-            3: 'Institución del Sistema'
+            14: 'Ciudadano / Particular',
+            13: 'Autoridad',
+            15: 'Funcionario GAD',
+            16: 'Institución del Sistema'
         };
-        return labels[tipo] || 'No definido';
+        return labels[t] || 'No definido';
     }
 
     getInicial(nombre: string): string {

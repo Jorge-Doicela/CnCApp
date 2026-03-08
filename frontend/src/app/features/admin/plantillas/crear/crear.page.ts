@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { IonicModule, NavController, LoadingController, ToastController } from '@ionic/angular';
 import { ActivatedRoute } from '@angular/router';
 import { PlantillasService } from '../services/plantillas.service';
+import { ErrorHandlerUtil } from 'src/app/shared/utils/error-handler.util';
 import { PlantillaCertificado } from '../../../../core/models/plantilla.interface';
 import { addIcons } from 'ionicons';
 import {
@@ -108,7 +109,7 @@ export class CrearPage implements OnInit {
             }
         } catch (error) {
             console.error('Error al cargar plantilla:', error);
-            this.mostrarToast('Error al cargar plantilla', 'danger');
+            this.mostrarToast(ErrorHandlerUtil.getErrorMessage(error), 'danger');
             this.navCtrl.navigateBack('/gestionar-plantillas');
         } finally {
             this.cargando = false;
@@ -274,7 +275,7 @@ export class CrearPage implements OnInit {
             this.navCtrl.navigateBack('/gestionar-plantillas');
         } catch (error) {
             console.error('Error al guardar plantilla:', error);
-            await this.mostrarToast('Error al guardar plantilla', 'danger');
+            await this.mostrarToast(ErrorHandlerUtil.getErrorMessage(error), 'danger');
         } finally {
             await loading.dismiss();
             this.guardando = false;

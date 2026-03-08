@@ -8,6 +8,7 @@ import { DeleteCapacitacionUseCase } from '../../../application/capacitacion/use
 import { parseIdParam } from '../middleware/parse-id.helper';
 import { NotFoundError } from '../../../domain/shared/errors';
 import { z } from 'zod';
+import prisma from '../../../config/database';
 
 const capacitacionSchema = z.object({
     nombre: z.string().min(3, 'El nombre es obligatorio'),
@@ -25,6 +26,9 @@ const capacitacionSchema = z.object({
     enlaceVirtual: z.string().url().optional(),
     certificado: z.boolean().optional()
 });
+
+// Schema para updates parciales (todos los campos son opcionales)
+const updateCapacitacionSchema = capacitacionSchema.partial();
 
 @injectable()
 export class CapacitacionController {
@@ -69,8 +73,8 @@ export class CapacitacionController {
 
     count = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
-            const capacitaciones = await this.getAllUseCase.execute();
-            res.json({ count: capacitaciones.length });
+            const count = await prisma.capacitacion.count();
+            res.json({ count });
         } catch (error) {
             next(error);
         }
@@ -80,7 +84,7 @@ export class CapacitacionController {
         try {
             const id = parseIdParam(req, res);
             if (id === null) return;
-            const data = capacitacionSchema.parse(req.body);
+            const data = updateCapacitacionSchema.parse(req.body);
             const capacitacion = await this.updateUseCase.execute(id, data);
             res.json(capacitacion);
         } catch (error) {

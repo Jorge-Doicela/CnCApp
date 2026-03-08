@@ -23,11 +23,8 @@
         <div class="search-container">
           <ion-item class="search-item" lines="none">
             <ion-icon name="search-outline" slot="start" color="primary"></ion-icon>
-            <ion-input placeholder="Buscar parroquia por nombre o código" [(ngModel)]="searchTerm"
+            <ion-input placeholder="Buscar por nombre..." [(ngModel)]="searchTerm"
               (ionInput)="filtrarParroquias()"></ion-input>
-            <ion-button slot="end" fill="clear" (click)="filtrarParroquias()">
-              <ion-icon name="search"></ion-icon>
-            </ion-button>
           </ion-item>
 
           <div class="filter-container">
@@ -37,8 +34,8 @@
               <ion-select [(ngModel)]="filtroCanton" interface="action-sheet" placeholder="Todos"
                 (ionChange)="filtrarParroquias()">
                 <ion-select-option value="todos">Todos los cantones</ion-select-option>
-                <ion-select-option *ngFor="let canton of cantones" [value]="canton.codigo_canton || canton.id">
-                  {{ canton.nombre_canton || canton.nombre }}
+                <ion-select-option *ngFor="let canton of cantones" [value]="canton.id.toString()">
+                  {{ canton.nombre }}
                 </ion-select-option>
               </ion-select>
             </ion-item>
@@ -115,7 +112,7 @@
         <div *ngIf="!cargando && parroquiasFiltradas.length === 0" class="empty-state">
           <ion-icon name="alert-circle-outline" color="medium"></ion-icon>
           <h4>No se encontraron parroquias</h4>
-          <p>No hay parroquias que coincidan con los criterios de búsqueda. Intenta modificar los filtros.</p>
+          <p>No hay parroquias que coincidan con los criterios de búsqueda.</p>
         </div>
 
         <div class="parroquias-grid" *ngIf="!cargando && parroquiasFiltradas.length > 0">
@@ -123,7 +120,7 @@
             [ngClass]="{'active-card': parroquia.estado, 'inactive-card': !parroquia.estado}">
             <div class="parroquia-header">
               <div class="parroquia-title">
-                <h4>{{ parroquia.nombre_parroquia }}</h4>
+                <h4>{{ parroquia.nombre }}</h4>
                 <span class="parroquia-badge" [ngClass]="{'active': parroquia.estado, 'inactive': !parroquia.estado}">
                   {{ parroquia.estado ? 'Activo' : 'Inactivo' }}
                 </span>
@@ -131,17 +128,12 @@
             </div>
             <div class="parroquia-content">
               <div class="parroquia-detail">
-                <ion-icon name="key-outline" color="primary"></ion-icon>
-                <span>{{ parroquia.codigo_parroquia }}</span>
-              </div>
-              <div class="parroquia-detail">
                 <ion-icon name="location-outline" color="primary"></ion-icon>
-                <span>{{ parroquia.nombre_canton }}</span>
+                <span>{{ getCantonNombre(parroquia.cantonId) }}</span>
               </div>
             </div>
             <div class="parroquia-actions">
-              <ion-button fill="clear" color="primary"
-                (click)="editarParroquia(parroquia.codigo_parroquia || parroquia.Id_Parroquia)">
+              <ion-button fill="clear" color="primary" (click)="editarParroquia(parroquia.id)">
                 <ion-icon name="create-outline"></ion-icon>
                 Editar
               </ion-button>

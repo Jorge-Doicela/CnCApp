@@ -1,75 +1,79 @@
 import { injectable } from 'tsyringe';
 import prisma from '../../../../config/database';
 import { User } from '../../../../domain/user/entities/user.entity';
-import { UserRepository } from '../../../../domain/user/repositories/user.repository';
+import { UserRepository } from '../../../../domain/user/user.repository';
 import { UserMapper } from '../../../../domain/user/mappers/user.mapper';
 
 @injectable()
 export class PrismaUserRepository implements UserRepository {
     async create(user: Partial<User>): Promise<User> {
-        const createdUser = await prisma.usuario.create({
-            data: {
-                nombre: user.nombre!,
-                primerNombre: user.primerNombre,
-                segundoNombre: user.segundoNombre,
-                primerApellido: user.primerApellido,
-                segundoApellido: user.segundoApellido,
-                ci: user.ci!,
-                email: user.email,
-                telefono: user.telefono,
-                celular: user.celular,
-                password: user.password!,
-                generoId: user.generoId,
-                etniaId: user.etniaId,
-                nacionalidadId: user.nacionalidadId,
-                fechaNacimiento: user.fechaNacimiento,
-                provinciaId: user.provinciaId,
-                cantonId: user.cantonId,
-                tipoParticipanteId: user.tipoParticipanteId || null,
-                rolId: user.rolId || 2, // Default role
-                entidadId: user.entidadId,
-                fotoPerfilUrl: user.fotoPerfilUrl,
-                firmaUrl: user.firmaUrl,
-                ...(user.autoridad && {
-                    autoridades: {
-                        create: [{
-                            cargo: user.autoridad.cargo,
-                            entidad: user.autoridad.gadAutoridad
-                        }]
-                    }
-                }),
-                ...(user.funcionarioGad && {
-                    funcionarios: {
-                        create: [{
-                            cargo: user.funcionarioGad.cargo,
-                            departamento: user.funcionarioGad.gadFuncionarioGad,
-                            ...(user.funcionarioGad.competencias?.length > 0 && {
-                                competencias: {
-                                    connect: user.funcionarioGad.competencias.map((c: any) => ({ id: Number(c) }))
-                                }
-                            })
-                        }]
-                    }
-                }),
-                ...(user.institucion && {
-                    instituciones: {
-                        create: [{
-                            institucionId: Number(user.institucion.institucion),
-                            gradoOcupacionalId: user.institucion.gradoOcupacional ? Number(user.institucion.gradoOcupacional) : null
-                        }]
-                    }
-                })
-            },
-            include: {
-                rol: true,
-                entidad: true,
-                provincia: true,
-                canton: true,
-                tipoParticipante: true,
-                nacionalidad: true
-            }
-        });
-        return UserMapper.toDomain(createdUser);
+        try {
+            const createdUser = await prisma.usuario.create({
+                data: {
+                    nombre: user.nombre!,
+                    primerNombre: user.primerNombre,
+                    segundoNombre: user.segundoNombre,
+                    primerApellido: user.primerApellido,
+                    segundoApellido: user.segundoApellido,
+                    ci: user.ci!,
+                    email: user.email,
+                    telefono: user.telefono,
+                    celular: user.celular,
+                    password: user.password!,
+                    generoId: user.generoId,
+                    etniaId: user.etniaId,
+                    nacionalidadId: user.nacionalidadId,
+                    fechaNacimiento: user.fechaNacimiento,
+                    provinciaId: user.provinciaId,
+                    cantonId: user.cantonId,
+                    tipoParticipanteId: user.tipoParticipanteId || null,
+                    rolId: user.rolId,
+                    entidadId: user.entidadId,
+                    fotoPerfilUrl: user.fotoPerfilUrl,
+                    firmaUrl: user.firmaUrl,
+                    ...(user.autoridad && {
+                        autoridades: {
+                            create: [{
+                                cargo: user.autoridad.cargo,
+                                entidad: user.autoridad.gadAutoridad
+                            }]
+                        }
+                    }),
+                    ...(user.funcionarioGad && {
+                        funcionarios: {
+                            create: [{
+                                cargo: user.funcionarioGad.cargo,
+                                departamento: user.funcionarioGad.gadFuncionarioGad,
+                                ...(user.funcionarioGad.competencias?.length > 0 && {
+                                    competencias: {
+                                        connect: user.funcionarioGad.competencias.map((c: any) => ({ id: Number(c) }))
+                                    }
+                                })
+                            }]
+                        }
+                    }),
+                    ...(user.institucion && {
+                        instituciones: {
+                            create: [{
+                                institucionId: Number(user.institucion.institucion),
+                                gradoOcupacionalId: user.institucion.gradoOcupacional ? Number(user.institucion.gradoOcupacional) : null
+                            }]
+                        }
+                    })
+                },
+                include: {
+                    rol: true,
+                    entidad: true,
+                    provincia: true,
+                    canton: true,
+                    tipoParticipante: true,
+                    nacionalidad: true
+                }
+            });
+            return UserMapper.toDomain(createdUser);
+        } catch (error: any) {
+            throw error;
+        }
     }
 
     async findByCi(ci: string): Promise<User | null> {
@@ -96,6 +100,18 @@ export class PrismaUserRepository implements UserRepository {
                 canton: true,
                 tipoParticipante: true,
                 nacionalidad: true,
+                autoridades: true,
+                funcionarios: {
+                    include: {
+                        competencias: true
+                    }
+                },
+                instituciones: {
+                    include: {
+                        institucion: true,
+                        gradoOcupacional: true
+                    }
+                },
                 _count: {
                     select: {
                         inscripciones: true,
@@ -205,6 +221,18 @@ export class PrismaUserRepository implements UserRepository {
                 canton: true,
                 tipoParticipante: true,
                 nacionalidad: true,
+                autoridades: true,
+                funcionarios: {
+                    include: {
+                        competencias: true
+                    }
+                },
+                instituciones: {
+                    include: {
+                        institucion: true,
+                        gradoOcupacional: true
+                    }
+                },
                 _count: {
                     select: {
                         inscripciones: true,
@@ -225,7 +253,19 @@ export class PrismaUserRepository implements UserRepository {
                 provincia: true,
                 canton: true,
                 tipoParticipante: true,
-                nacionalidad: true
+                nacionalidad: true,
+                autoridades: true,
+                funcionarios: {
+                    include: {
+                        competencias: true
+                    }
+                },
+                instituciones: {
+                    include: {
+                        institucion: true,
+                        gradoOcupacional: true
+                    }
+                }
             }
         });
         return user ? UserMapper.toDomain(user) : null;

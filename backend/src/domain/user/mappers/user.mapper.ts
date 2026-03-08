@@ -56,6 +56,24 @@ export class UserMapper {
             _count: prismaUser._count ? {
                 inscripciones: prismaUser._count.inscripciones,
                 certificados: prismaUser._count.certificados
+            } : null,
+            autoridad: prismaUser.autoridades && prismaUser.autoridades.length > 0 ? {
+                id: prismaUser.autoridades[0].id,
+                cargo: prismaUser.autoridades[0].cargo,
+                gadAutoridad: prismaUser.autoridades[0].entidad
+            } : null,
+            funcionarioGad: prismaUser.funcionarios && prismaUser.funcionarios.length > 0 ? {
+                id: prismaUser.funcionarios[0].id,
+                cargo: prismaUser.funcionarios[0].cargo,
+                gadFuncionarioGad: prismaUser.funcionarios[0].departamento,
+                competencias: prismaUser.funcionarios[0].competencias ? prismaUser.funcionarios[0].competencias.map((c: any) => c.id) : []
+            } : null,
+            institucion: prismaUser.instituciones && prismaUser.instituciones.length > 0 ? {
+                id: prismaUser.instituciones[0].id,
+                institucion: prismaUser.instituciones[0].institucionId,
+                institucionNombre: prismaUser.instituciones[0].institucion?.nombre,
+                gradoOcupacional: prismaUser.instituciones[0].gradoOcupacionalId,
+                gradoOcupacionalNombre: prismaUser.instituciones[0].gradoOcupacional?.nombre
             } : null
         };
     }

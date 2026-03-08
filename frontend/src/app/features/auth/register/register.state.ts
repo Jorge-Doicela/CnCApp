@@ -137,18 +137,18 @@ export class RegisterStateService {
 
     laborData = computed(() => ({
         tipoParticipanteId: this.state().tipoParticipanteId,
-        autoridad: this.state().tipoParticipanteId == 1 ? {
+        autoridad: this.state().tipoParticipanteId == 13 ? {
             cargo: this.state().autoridadCargo,
             nivelgobierno: this.state().autoridadNivelGobiernoId,
             gadAutoridad: this.state().autoridadGad
         } : undefined,
-        funcionarioGad: this.state().tipoParticipanteId == 2 ? {
+        funcionarioGad: this.state().tipoParticipanteId == 15 ? {
             cargo: this.state().funcionarioCargo,
             nivelgobierno: this.state().funcionarioNivelGobiernoId,
             gadFuncionarioGad: this.state().funcionarioGad,
             competencias: this.state().funcionarioCompetencias
         } : undefined,
-        institucion: this.state().tipoParticipanteId == 3 ? {
+        institucion: this.state().tipoParticipanteId == 16 ? {
             institucion: this.state().institucionId,
             cargo: this.state().institucionCargoId,
             gradoOcupacional: this.state().institucionGradoOcupacionalId

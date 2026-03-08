@@ -112,27 +112,27 @@
 
         <div class="provincias-grid" *ngIf="!cargando">
           <div class="provincia-card" *ngFor="let provincia of filteredProvincias"
-            [ngClass]="{'active-card': provincia.Estado, 'inactive-card': !provincia.Estado}">
+            [ngClass]="{'active-card': provincia.estado, 'inactive-card': !provincia.estado}">
             <div class="provincia-header">
               <div class="provincia-title">
-                <h4>{{ provincia.Nombre_Provincia }}</h4>
-                <span class="provincia-badge" [ngClass]="{'active': provincia.Estado, 'inactive': !provincia.Estado}">
-                  {{ provincia.Estado ? 'Activo' : 'Inactivo' }}
+                <h4>{{ provincia.nombre }}</h4>
+                <span class="provincia-badge" [ngClass]="{'active': provincia.estado, 'inactive': !provincia.estado}">
+                  {{ provincia.estado ? 'Activo' : 'Inactivo' }}
                 </span>
               </div>
             </div>
             <div class="provincia-content">
               <div class="provincia-detail">
                 <ion-icon name="key-outline" color="primary"></ion-icon>
-                <span>{{ provincia.Codigo_Provincia }}</span>
+                <span>{{ provincia.codigo }}</span>
               </div>
               <div class="provincia-detail">
                 <ion-icon name="information-circle-outline" color="primary"></ion-icon>
-                <span>ID: {{ provincia.IdProvincia }}</span>
+                <span>ID: {{ provincia.id }}</span>
               </div>
             </div>
             <div class="provincia-actions">
-              <ion-button fill="clear" color="primary" (click)="editarProvincia(provincia.IdProvincia)">
+              <ion-button fill="clear" color="primary" (click)="editarProvincia(provincia.id)">
                 <ion-icon name="create-outline"></ion-icon>
                 Editar
               </ion-button>
@@ -140,10 +140,10 @@
                 <ion-icon name="trash-outline"></ion-icon>
                 Eliminar
               </ion-button>
-              <ion-button fill="clear" [color]="provincia.Estado ? 'warning' : 'success'"
+              <ion-button fill="clear" [color]="provincia.estado ? 'warning' : 'success'"
                 (click)="cambiarEstado(provincia)">
                 <ion-icon name="swap-vertical-outline"></ion-icon>
-                {{ provincia.Estado ? 'Desactivar' : 'Activar' }}
+                {{ provincia.estado ? 'Desactivar' : 'Activar' }}
               </ion-button>
             </div>
           </div>

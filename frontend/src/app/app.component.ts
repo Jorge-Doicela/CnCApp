@@ -42,11 +42,9 @@ export class AppComponent implements OnInit, OnDestroy {
 
   // Logic to show header
   showGlobalHeader = computed(() => {
-    // Hide on auth pages
-    const currentPath = this.lastUrl.split('?')[0]; // Simple access, better use router signal if available or effect
+    // Usa currentPath signal (reactivo), no lastUrl (no reactivo)
+    const currentPath = this.currentPath().split('?')[0];
     const hiddenRoutes = ['/login', '/register', '/admin'];
-    // This basic computed might not react to router changes if lastUrl isn't signal.
-    // Better to use a signal updated by router events.
     return !hiddenRoutes.some(r => currentPath.startsWith(r));
   });
 
@@ -83,7 +81,8 @@ export class AppComponent implements OnInit, OnDestroy {
         if (this.lastUrl !== event.url) {
           this.lastUrl = event.url;
           this.currentPath.set(event.urlAfterRedirects || event.url);
-          this.verificarRolEnCambioRuta();
+          // Removed checking roles on every single route change (Performance issue)
+          // this.verificarRolEnCambioRuta();
         }
       });
   }

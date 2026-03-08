@@ -128,26 +128,22 @@
             </div>
 
             <!-- Professional Data (Contextual) -->
-            <div class="info-card full-width" *ngIf="usuario.tipoParticipante !== 0">
+            <div class="info-card full-width" *ngIf="usuario.tipoParticipante?.nombre !== 'Ciudadano'">
                 <h3 class="card-title">
                     <ion-icon name="briefcase-outline"></ion-icon>
                     Perfil Profesional
                 </h3>
 
                 <!-- Autoridad -->
-                <div class="data-list" *ngIf="usuario.tipoParticipante === 1 && usuario.autoridad">
+                <div class="data-list" *ngIf="usuario.tipoParticipante?.nombre === 'Autoridad' && usuario.autoridad">
                     <div class="data-item">
                         <span class="label">Cargo de Autoridad</span>
                         <span class="value">{{ usuario.autoridad.cargo }}</span>
                     </div>
-                    <div class="data-item">
-                        <span class="label">Nivel de Gobierno</span>
-                        <span class="value">{{ usuario.autoridad.nivelgobierno }}</span>
-                    </div>
                 </div>
 
                 <!-- Funcionario -->
-                <div class="data-list" *ngIf="usuario.tipoParticipante === 2 && usuario.funcionarioGad">
+                <div class="data-list" *ngIf="usuario.tipoParticipante?.nombre === 'Funcionario GAD' && usuario.funcionarioGad">
                     <div class="data-item">
                         <span class="label">Cargo Funcional</span>
                         <span class="value">{{ usuario.funcionarioGad.cargo }}</span>
@@ -155,6 +151,18 @@
                     <div class="data-item">
                         <span class="label">Entidad GAD</span>
                         <span class="value">{{ usuario.funcionarioGad.gadFuncionarioGad }}</span>
+                    </div>
+                </div>
+
+                <!-- Institucion -->
+                <div class="data-list" *ngIf="usuario.tipoParticipante?.nombre === 'Institución del Sistema' && usuario.institucion">
+                    <div class="data-item">
+                        <span class="label">Institución</span>
+                        <span class="value">{{ usuario.institucion.institucionNombre || usuario.institucion.institucion }}</span>
+                    </div>
+                    <div class="data-item">
+                        <span class="label">Cargo Institucional</span>
+                        <span class="value">{{ usuario.institucion.gradoOcupacionalNombre || usuario.institucion.gradoOcupacional }}</span>
                     </div>
                 </div>
             </div>

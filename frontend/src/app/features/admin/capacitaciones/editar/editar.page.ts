@@ -9,6 +9,8 @@ import { ToastController, AlertController, NavController, LoadingController } fr
 import { CapacitacionesService } from 'src/app/features/admin/capacitaciones/services/capacitaciones.service';
 import { CatalogoService } from 'src/app/shared/services/catalogo.service';
 import { UsuarioService } from 'src/app/features/user/services/usuario.service';
+import { ErrorHandlerUtil } from 'src/app/shared/utils/error-handler.util';
+import { EstadoCapacitacionEnum } from 'src/app/shared/constants/enums';
 
 @Component({
   selector: 'app-editar',
@@ -28,7 +30,7 @@ export class EditarPage implements OnInit {
     descripcion: '',
     fechaInicio: '',
     lugar: '',
-    estado: 0,
+    estado: EstadoCapacitacionEnum.PENDIENTE,
     modalidad: '',
     tipoEvento: '',
     horas: 0,
@@ -45,6 +47,8 @@ export class EditarPage implements OnInit {
   private capacitacionesService = inject(CapacitacionesService);
   private catalogoService = inject(CatalogoService);
   private usuarioService = inject(UsuarioService);
+
+  readonly EstadoCapacitacion = EstadoCapacitacionEnum;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -96,7 +100,7 @@ export class EditarPage implements OnInit {
       if (error?.status === 404 || error === 'No ID') {
         this.mostrarToast('No se encontró la capacitación solicitada', 'warning');
       } else {
-        this.mostrarToast('Error al cargar los datos de la capacitación', 'danger');
+        this.mostrarToast(ErrorHandlerUtil.getErrorMessage(error), 'danger');
       }
 
       // Navigate back after a short delay
@@ -196,7 +200,7 @@ export class EditarPage implements OnInit {
       this.capacitacionOriginal = JSON.parse(JSON.stringify(this.capacitacion));
       this.mostrarToast('Capacitación actualizada correctamente', 'success');
 
-      if (this.capacitacion.estado === 1 && !this.capacitacion.certificado) {
+      if (this.capacitacion.estado === EstadoCapacitacionEnum.REALIZADA && !this.capacitacion.certificado) {
         this.preguntarEmitirCertificados();
       } else {
         setTimeout(() => {
@@ -205,7 +209,7 @@ export class EditarPage implements OnInit {
       }
     } catch (error) {
       console.error('Error al actualizar:', error);
-      this.mostrarToast('Error al actualizar la capacitación', 'danger');
+      this.mostrarToast(ErrorHandlerUtil.getErrorMessage(error), 'danger');
     } finally {
       loading.dismiss();
       this.cd.markForCheck();
@@ -248,7 +252,7 @@ export class EditarPage implements OnInit {
         {
           text: 'Finalizar',
           handler: async () => {
-            this.capacitacion.estado = 1;
+            this.capacitacion.estado = EstadoCapacitacionEnum.REALIZADA;
             await this.guardarCambios();
           }
         }
@@ -328,7 +332,7 @@ export class EditarPage implements OnInit {
   }
 
   irAEmitirCertificados() {
-    this.navController.navigateForward(`/gestionar-capacitaciones/visualizarinscritos/${this.capacitacion.id}`);
+    this.navController.navigateForward(`/gestionar-capacitaciones/visualizar-inscritos/${this.capacitacion.id}`);
   }
 
   async mostrarToast(mensaje: string, color: string = 'primary') {

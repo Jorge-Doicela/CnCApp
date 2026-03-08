@@ -16,7 +16,7 @@ export class PrismaCompetenciaRepository implements CompetenciaRepository {
         return prisma.competencia.create({
             data: {
                 ...data,
-                fecha_ultima_actualizacion: new Date()
+                updatedAt: new Date()
             }
         });
     }
@@ -26,7 +26,7 @@ export class PrismaCompetenciaRepository implements CompetenciaRepository {
             where: { id },
             data: {
                 ...data,
-                fecha_ultima_actualizacion: new Date()
+                updatedAt: new Date()
             }
         });
     }

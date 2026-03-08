@@ -6,6 +6,7 @@ import { Router } from '@angular/router';
 import { AlertController, ToastController } from '@ionic/angular';
 import { CatalogoService } from 'src/app/shared/services/catalogo.service';
 import { Provincia } from 'src/app/shared/models/provincia.model';
+import { ErrorHandlerUtil } from 'src/app/shared/utils/error-handler.util';
 import { addIcons } from 'ionicons';
 import {
   searchOutline,
@@ -86,8 +87,8 @@ export class CrudprovinciasPage implements OnInit {
 
       // Sort manually with safety checks
       this.provincias.sort((a, b) => {
-        const nameA = a.Nombre_Provincia || '';
-        const nameB = b.Nombre_Provincia || '';
+        const nameA = a.nombre || '';
+        const nameB = b.nombre || '';
         return nameA.localeCompare(nameB);
       });
 
@@ -95,7 +96,7 @@ export class CrudprovinciasPage implements OnInit {
       this.calcularEstadisticas();
     } catch (error) {
       console.error('Error al obtener provincias:', error);
-      this.presentToast('Error al cargar provincias. (API)', 'danger');
+      this.presentToast(ErrorHandlerUtil.getErrorMessage(error), 'danger');
     } finally {
       this.cargando = false;
       this.cd.markForCheck();
@@ -108,13 +109,13 @@ export class CrudprovinciasPage implements OnInit {
     this.filteredProvincias = this.provincias.filter(provincia => {
       // Filtrar por término de búsqueda
       const matchesSearchTerm = term === '' ||
-        (provincia.Nombre_Provincia || '').toLowerCase().includes(term) ||
-        (provincia.Codigo_Provincia || '').toLowerCase().includes(term);
+        (provincia.nombre || '').toLowerCase().includes(term) ||
+        (provincia.codigo || '').toLowerCase().includes(term);
 
       // Filtrar por estado
       const matchesEstado = this.filtroEstado === 'todos' ||
-        (this.filtroEstado === 'activo' && provincia.Estado) ||
-        (this.filtroEstado === 'inactivo' && !provincia.Estado);
+        (this.filtroEstado === 'activo' && provincia.estado) ||
+        (this.filtroEstado === 'inactivo' && !provincia.estado);
 
       return matchesSearchTerm && matchesEstado;
     });
@@ -128,7 +129,7 @@ export class CrudprovinciasPage implements OnInit {
 
   calcularEstadisticas() {
     this.totalProvincias = this.provincias.length;
-    this.provinciasActivas = this.provincias.filter(p => p.Estado).length;
+    this.provinciasActivas = this.provincias.filter(p => p.estado).length;
     this.provinciasInactivas = this.totalProvincias - this.provinciasActivas;
     this.cd.markForCheck();
   }
@@ -144,21 +145,21 @@ export class CrudprovinciasPage implements OnInit {
   }
 
   async cambiarEstado(provincia: Provincia) {
-    const nuevoEstado = !provincia.Estado;
+    const nuevoEstado = !provincia.estado;
 
     try {
-      await firstValueFrom(this.catalogoService.updateItem('provincias', (provincia.IdProvincia || provincia.id) as number, { Estado: nuevoEstado }));
+      await firstValueFrom(this.catalogoService.updateItem('provincias', provincia.id as number, { estado: nuevoEstado }));
 
       // Actualizar el objeto local
-      provincia.Estado = nuevoEstado;
+      provincia.estado = nuevoEstado;
       this.calcularEstadisticas();
       this.presentToast(
-        `Provincia "${provincia.Nombre_Provincia}" ahora está ${nuevoEstado ? 'activa' : 'inactiva'}`,
+        `Provincia "${provincia.nombre}" ahora está ${nuevoEstado ? 'activa' : 'inactiva'}`,
         'success'
       );
     } catch (error) {
       console.error('Error al cambiar estado:', error);
-      this.presentToast('Error al cambiar el estado de la provincia', 'danger');
+      this.presentToast(ErrorHandlerUtil.getErrorMessage(error), 'danger');
     } finally {
       this.cd.markForCheck();
     }
@@ -167,7 +168,7 @@ export class CrudprovinciasPage implements OnInit {
   async confirmarEliminar(provincia: Provincia) {
     const alert = await this.alertController.create({
       header: 'Confirmar eliminación',
-      message: `¿Está seguro que desea eliminar la provincia "${provincia.Nombre_Provincia}"?`,
+      message: `¿Está seguro que desea eliminar la provincia "${provincia.nombre}"?`,
       buttons: [
         {
           text: 'Cancelar',
@@ -188,16 +189,16 @@ export class CrudprovinciasPage implements OnInit {
 
   async eliminarProvincia(provincia: Provincia) {
     try {
-      await firstValueFrom(this.catalogoService.deleteItem('provincias', (provincia.IdProvincia || provincia.id) as number));
+      await firstValueFrom(this.catalogoService.deleteItem('provincias', provincia.id as number));
 
       // Actualizar listas locales
-      this.provincias = this.provincias.filter(p => p.IdProvincia !== provincia.IdProvincia);
-      this.filteredProvincias = this.filteredProvincias.filter(p => p.IdProvincia !== provincia.IdProvincia);
+      this.provincias = this.provincias.filter(p => p.id !== provincia.id);
+      this.filteredProvincias = this.filteredProvincias.filter(p => p.id !== provincia.id);
       this.calcularEstadisticas();
-      this.presentToast(`Provincia "${provincia.Nombre_Provincia}" eliminada correctamente`, 'success');
+      this.presentToast(`Provincia "${provincia.nombre}" eliminada correctamente`, 'success');
     } catch (error) {
       console.error('Error al eliminar provincia:', error);
-      this.presentToast('Error al eliminar la provincia. Puede que tenga registros relacionados.', 'danger');
+      this.presentToast(ErrorHandlerUtil.getErrorMessage(error), 'danger');
     } finally {
       this.cd.markForCheck();
     }

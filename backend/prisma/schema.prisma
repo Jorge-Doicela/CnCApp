@@ -8,65 +8,65 @@ datasource db {
 }
 
 model Rol {
-  id          Int       @id @default(autoincrement()) @map("Id_Rol")
+  id          Int       @id @default(autoincrement()) @map("id_rol")
   nombre      String    @unique @map("nombre_rol") @db.VarChar(100)
-  descripcion String?
-  modulos     Json?     @default("[]")
+  descripcion String?   @map("descripcion")
+  modulos     Json?     @default("[]") @map("modulos")
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime  @updatedAt @map("updated_at")
   usuarios    Usuario[]
 
-  @@map("Rol")
+  @@map("roles")
 }
 
 model Entidad {
-  id        Int       @id @default(autoincrement()) @map("Id_Entidad")
-  nombre    String    @map("Nombre_Entidad") @db.VarChar(200)
+  id        Int       @id @default(autoincrement()) @map("id_entidad")
+  nombre    String    @map("nombre_entidad") @db.VarChar(200)
   createdAt DateTime  @default(now()) @map("created_at")
   usuarios  Usuario[]
 
-  @@map("Entidades")
+  @@map("entidades")
 }
 
 model Usuario {
-  id               Int                   @id @default(autoincrement()) @map("Id_Usuario")
-  authUid          String?               @unique @map("auth_uid")
-  nombre           String                @map("Nombre_Usuario") @db.VarChar(200)
-  ci               String                @unique @map("CI_Usuario") @db.VarChar(20)
-  email            String?               @map("Email_Usuario") @db.VarChar(200)
-  telefono         String?               @map("Telefono_Usuario") @db.VarChar(20)
-  password         String                @db.VarChar(255)
-  rolId            Int?                  @map("Rol_Usuario")
-  entidadId        Int?                  @map("Entidad_Usuario")
-  tipoParticipanteId Int?                @map("Id_Tipo_Participante")
-  fotoPerfilUrl    String?               @map("foto_perfil_url")
-  firmaUrl         String?               @map("firma_url")
-  createdAt        DateTime              @default(now()) @map("created_at")
-  updatedAt        DateTime              @updatedAt @map("updated_at")
-  primerNombre     String?               @map("Primer_Nombre") @db.VarChar(100)
-  segundoNombre    String?               @map("Segundo_Nombre") @db.VarChar(100)
-  primerApellido   String?               @map("Primer_Apellido") @db.VarChar(100)
-  segundoApellido  String?               @map("Segundo_Apellido") @db.VarChar(100)
-  generoId         Int?                  @map("Id_Genero")
-  etniaId          Int?                  @map("Id_Etnia")
-  nacionalidadId   Int?                  @map("Id_Nacionalidad")
-  fechaNacimiento  DateTime?             @map("Fecha_Nacimiento") @db.Date
-  celular          String?               @db.VarChar(20)
-  provinciaId      Int?                  @map("Id_Provincia")
-  cantonId         Int?                  @map("Id_Canton")
-  autoridades      Autoridad[]
-  certificados     Certificado[]
-  funcionarios     FuncionarioGAD[]
-  instituciones    InstitucionUsuario[]
-  entidad          Entidad?              @relation(fields: [entidadId], references: [id])
-  canton           Canton?               @relation(fields: [cantonId], references: [id])
-  provincia        Provincia?            @relation(fields: [provinciaId], references: [id])
-  rol              Rol?                  @relation(fields: [rolId], references: [id])
-  genero           Genero?               @relation(fields: [generoId], references: [id])
-  etnia            Etnia?                @relation(fields: [etniaId], references: [id])
-  nacionalidad     Nacionalidad?         @relation(fields: [nacionalidadId], references: [id])
-  tipoParticipante TipoParticipante?     @relation(fields: [tipoParticipanteId], references: [id])
-  inscripciones    UsuarioCapacitacion[]
+  id                 Int                   @id @default(autoincrement()) @map("id_usuario")
+  authUid            String?               @unique @map("auth_uid")
+  nombre             String                @map("nombre_usuario") @db.VarChar(200)
+  ci                 String                @unique @map("ci_usuario") @db.VarChar(20)
+  email              String?               @map("email_usuario") @db.VarChar(200)
+  telefono           String?               @map("telefono_usuario") @db.VarChar(20)
+  password           String                @map("password") @db.VarChar(255)
+  rolId              Int?                  @map("rol_usuario")
+  entidadId          Int?                  @map("entidad_usuario")
+  tipoParticipanteId Int?                  @map("id_tipo_participante")
+  fotoPerfilUrl      String?               @map("foto_perfil_url")
+  firmaUrl           String?               @map("firma_url")
+  createdAt          DateTime              @default(now()) @map("created_at")
+  updatedAt          DateTime              @updatedAt @map("updated_at")
+  primerNombre       String?               @map("primer_nombre") @db.VarChar(100)
+  segundoNombre      String?               @map("segundo_nombre") @db.VarChar(100)
+  primerApellido     String?               @map("primer_apellido") @db.VarChar(100)
+  segundoApellido    String?               @map("segundo_apellido") @db.VarChar(100)
+  generoId           Int?                  @map("id_genero")
+  etniaId            Int?                  @map("id_etnia")
+  nacionalidadId     Int?                  @map("id_nacionalidad")
+  fechaNacimiento    DateTime?             @map("fecha_nacimiento") @db.Date
+  celular            String?               @map("celular") @db.VarChar(20)
+  provinciaId        Int?                  @map("id_provincia")
+  cantonId           Int?                  @map("id_canton")
+  autoridades        Autoridad[]
+  certificados       Certificado[]
+  funcionarios       FuncionarioGAD[]
+  instituciones      InstitucionUsuario[]
+  entidad            Entidad?              @relation(fields: [entidadId], references: [id])
+  canton             Canton?               @relation(fields: [cantonId], references: [id])
+  provincia          Provincia?            @relation(fields: [provinciaId], references: [id])
+  rol                Rol?                  @relation(fields: [rolId], references: [id])
+  genero             Genero?               @relation(fields: [generoId], references: [id])
+  etnia              Etnia?                @relation(fields: [etniaId], references: [id])
+  nacionalidad       Nacionalidad?         @relation(fields: [nacionalidadId], references: [id])
+  tipoParticipante   TipoParticipante?     @relation(fields: [tipoParticipanteId], references: [id])
+  inscripciones      UsuarioCapacitacion[]
 
   @@index([authUid])
   @@index([ci])
@@ -79,56 +79,56 @@ model Usuario {
   @@index([etniaId])
   @@index([nacionalidadId])
   @@index([tipoParticipanteId])
-  @@map("Usuario")
+  @@map("usuarios")
 }
 
 model Provincia {
-  id       Int       @id @default(autoincrement()) @map("Id_Provincia")
-  nombre   String    @unique @map("Nombre_Provincia") @db.VarChar(100)
+  id       Int       @id @default(autoincrement()) @map("id_provincia")
+  nombre   String    @unique @map("nombre_provincia") @db.VarChar(100)
   cantones Canton[]
   usuarios Usuario[]
 
-  @@map("Provincias")
+  @@map("provincias")
 }
 
 model Canton {
-  id          Int         @id @default(autoincrement()) @map("Id_Canton")
-  nombre      String      @map("Nombre_Canton") @db.VarChar(100)
-  provinciaId Int         @map("Id_Provincia")
+  id          Int         @id @default(autoincrement()) @map("id_canton")
+  nombre      String      @map("nombre_canton") @db.VarChar(100)
+  provinciaId Int         @map("id_provincia")
   provincia   Provincia   @relation(fields: [provinciaId], references: [id], onDelete: Cascade)
   usuarios    Usuario[]
   parroquias  Parroquia[]
 
-  @@map("Cantones")
+  @@map("cantones")
 }
 
 model Parroquia {
-  id       Int    @id @default(autoincrement()) @map("Id_Parroquia")
-  nombre   String @map("Nombre_Parroquia") @db.VarChar(100)
-  cantonId Int    @map("Id_Canton")
+  id       Int    @id @default(autoincrement()) @map("id_parroquia")
+  nombre   String @map("nombre_parroquia") @db.VarChar(100)
+  cantonId Int    @map("id_canton")
   canton   Canton @relation(fields: [cantonId], references: [id], onDelete: Cascade)
 
-  @@map("parroquia")
+  @@map("parroquias")
 }
 
 model Capacitacion {
-  id               Int                   @id @default(autoincrement()) @map("Id_Capacitacion")
-  tipoEvento       String?               @map("Tipo_Evento") @db.VarChar(100)
-  nombre           String                @map("Nombre_Capacitacion") @db.VarChar(300)
-  descripcion      String?
-  fechaInicio      DateTime?             @map("Fecha_Inicio") @db.Date
-  fechaFin         DateTime?             @map("Fecha_Fin") @db.Date
-  lugar            String?               @db.VarChar(200)
-  cuposDisponibles Int                   @default(0) @map("Cupos_Disponibles")
-  modalidad        String?               @db.VarChar(50)
-  estado           String                @default("Activa") @db.VarChar(50)
+  id               Int                   @id @default(autoincrement()) @map("id_capacitacion")
+  tipoEvento       String?               @map("tipo_evento") @db.VarChar(100)
+  nombre           String                @map("nombre_capacitacion") @db.VarChar(300)
+  descripcion      String?               @map("descripcion")
+  fechaInicio      DateTime?             @map("fecha_inicio") @db.Date
+  fechaFin         DateTime?             @map("fecha_fin") @db.Date
+  lugar            String?               @map("lugar") @db.VarChar(200)
+  cuposDisponibles Int                   @default(0) @map("cupos_disponibles")
+  modalidad        String?               @map("modalidad") @db.VarChar(50)
+  estado           String                @default("Activa") @map("estado") @db.VarChar(50)
   createdAt        DateTime              @default(now()) @map("created_at")
-  plantillaId      Int?                  @map("Id_Plantilla")
-  horaInicio       String?               @map("Hora_Inicio") @db.VarChar(50)
-  horaFin          String?               @map("Hora_Fin") @db.VarChar(50)
-  horas            Int?                  @map("Horas")
-  enlaceVirtual    String?               @map("Enlace_Virtual") @db.VarChar(500)
-  certificado      Boolean               @default(false) @map("Certificado")
+  plantillaId      Int?                  @map("id_plantilla")
+  horaInicio       String?               @map("hora_inicio") @db.VarChar(50)
+  horaFin          String?               @map("hora_fin") @db.VarChar(50)
+  horas            Int?                  @map("horas")
+  enlaceVirtual    String?               @map("enlace_virtual") @db.VarChar(500)
+  certificado      Boolean               @default(false) @map("certificado")
   plantilla        Plantilla?            @relation(fields: [plantillaId], references: [id])
   certificados     Certificado[]
   inscripciones    UsuarioCapacitacion[]
@@ -137,17 +137,17 @@ model Capacitacion {
   @@index([fechaInicio])
   @@index([fechaFin])
   @@index([createdAt])
-  @@map("Capacitaciones")
+  @@map("capacitaciones")
 }
 
 model UsuarioCapacitacion {
-  id                Int          @id @default(autoincrement()) @map("Id_Inscripcion")
-  usuarioId         Int          @map("Id_Usuario")
-  capacitacionId    Int          @map("Id_Capacitacion")
-  fechaInscripcion  DateTime     @default(now()) @map("Fecha_Inscripcion")
-  estadoInscripcion String       @default("Activa") @map("Estado_Inscripcion") @db.VarChar(50)
-  asistio           Boolean      @default(false)
-  rolCapacitacion   String       @default("Participante") @map("Rol_Capacitacion") @db.VarChar(50)
+  id                Int          @id @default(autoincrement()) @map("id_inscripcion")
+  usuarioId         Int          @map("id_usuario")
+  capacitacionId    Int          @map("id_capacitacion")
+  fechaInscripcion  DateTime     @default(now()) @map("fecha_inscripcion")
+  estadoInscripcion String       @default("Activa") @map("estado_inscripcion") @db.VarChar(50)
+  asistio           Boolean      @default(false) @map("asistio")
+  rolCapacitacion   String       @default("Participante") @map("rol_capacitacion") @db.VarChar(50)
   capacitacion      Capacitacion @relation(fields: [capacitacionId], references: [id], onDelete: Cascade)
   usuario           Usuario      @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
 
@@ -157,16 +157,16 @@ model UsuarioCapacitacion {
   @@index([asistio])
   @@index([estadoInscripcion])
   @@index([fechaInscripcion])
-  @@map("Usuarios_Capacitaciones")
+  @@map("usuarios_capacitaciones")
 }
 
 model Certificado {
-  id             Int          @id @default(autoincrement()) @map("Id_Certificado")
-  usuarioId      Int          @map("Id_Usuario")
-  capacitacionId Int          @map("Id_Capacitacion")
-  codigoQR       String       @unique @map("Codigo_QR")
-  fechaEmision   DateTime     @default(now()) @map("Fecha_Emision")
-  pdfUrl         String?      @map("PDF_URL")
+  id             Int          @id @default(autoincrement()) @map("id_certificado")
+  usuarioId      Int          @map("id_usuario")
+  capacitacionId Int          @map("id_capacitacion")
+  codigoQR       String       @unique @map("codigo_qr")
+  fechaEmision   DateTime     @default(now()) @map("fecha_emision")
+  pdfUrl         String?      @map("pdf_url")
   capacitacion   Capacitacion @relation(fields: [capacitacionId], references: [id], onDelete: Cascade)
   usuario        Usuario      @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
 
@@ -174,125 +174,126 @@ model Certificado {
   @@index([fechaEmision])
   @@index([usuarioId])
   @@index([capacitacionId])
-  @@map("Certificados")
+  @@map("certificados")
 }
 
 model Competencia {
-  id                         Int              @id @default(autoincrement()) @map("id_competencias")
-  nombre_competencias        String           @unique @db.VarChar(200)
-  descripcion                String?          @db.Text
-  estado_competencia         Boolean          @default(true)
-  fecha_ultima_actualizacion DateTime?        @default(now()) @updatedAt
-  funcionarios               FuncionarioGAD[] @relation("FuncionarioCompetencias")
+  id            Int              @id @default(autoincrement()) @map("id_competencia")
+  nombre        String           @unique @map("nombre") @db.VarChar(200)
+  descripcion   String?          @map("descripcion") @db.Text
+  estado        Boolean          @default(true) @map("estado")
+  updatedAt     DateTime?        @default(now()) @updatedAt @map("updated_at")
+  funcionarios  FuncionarioGAD[] @relation("FuncionarioCompetencias")
 
   @@map("competencias")
 }
 
 model InstitucionSistema {
-  id            Int                  @id @default(autoincrement()) @map("Id_Institucion")
-  nombre        String               @unique @map("Nombre_Institucion") @db.VarChar(300)
-  tipo          String?              @map("Tipo_Institucion") @db.VarChar(100)
+  id            Int                  @id @default(autoincrement()) @map("id_institucion")
+  nombre        String               @unique @map("nombre") @db.VarChar(300)
+  tipo          String?              @map("tipo") @db.VarChar(100)
   instituciones InstitucionUsuario[]
 
   @@map("instituciones_sistema")
 }
 
 model Cargo {
-  id     Int    @id @default(autoincrement()) @map("Id_Cargo")
-  nombre String @unique @map("Nombre_Cargo") @db.VarChar(200)
+  id     Int    @id @default(autoincrement()) @map("id_cargo")
+  nombre String @unique @map("nombre") @db.VarChar(200)
 
   @@map("cargos")
 }
 
 model Autoridad {
-  id        Int     @id @default(autoincrement()) @map("Id_Autoridad")
-  usuarioId Int     @map("Id_Usuario")
-  cargo     String? @db.VarChar(200)
-  entidad   String? @db.VarChar(200)
+  id        Int     @id @default(autoincrement()) @map("id_autoridad")
+  usuarioId Int     @map("id_usuario")
+  cargo     String? @map("cargo") @db.VarChar(200)
+  entidad   String? @map("entidad") @db.VarChar(200)
   usuario   Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
 
-  @@map("Autoridades")
+  @@map("autoridades")
 }
 
 model FuncionarioGAD {
-  id           Int           @id @default(autoincrement()) @map("Id_Funcionario")
-  usuarioId    Int           @map("Id_Usuario")
-  cargo        String?       @db.VarChar(200)
-  departamento String?       @db.VarChar(200)
+  id           Int           @id @default(autoincrement()) @map("id_funcionario")
+  usuarioId    Int           @map("id_usuario")
+  cargo        String?       @map("cargo") @db.VarChar(200)
+  departamento String?       @map("departamento") @db.VarChar(200)
   usuario      Usuario       @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
   competencias Competencia[] @relation("FuncionarioCompetencias")
 
-  @@map("FuncionarioGAD")
+  @@map("funcionarios_gad")
 }
 
 model InstitucionUsuario {
-  id                 Int                @id @default(autoincrement())
-  usuarioId          Int                @map("Id_Usuario")
-  institucionId      Int                @map("Id_Institucion")
-  gradoOcupacionalId Int?               @map("Id_Grado_Ocupacional")
+  id                 Int                @id @default(autoincrement()) @map("id")
+  usuarioId          Int                @map("id_usuario")
+  institucionId      Int                @map("id_institucion")
+  gradoOcupacionalId Int?               @map("id_grado_ocupacional")
   institucion        InstitucionSistema @relation(fields: [institucionId], references: [id], onDelete: Cascade)
   usuario            Usuario            @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
   gradoOcupacional   GradoOcupacional?  @relation(fields: [gradoOcupacionalId], references: [id])
 
-  @@map("Instituciones_usuario")
+  @@map("instituciones_usuario")
 }
 
 model Mancomunidad {
-  id     Int    @id @default(autoincrement()) @map("Id_Mancomunidad")
-  nombre String @map("Nombre_Mancomunidad") @db.VarChar(300)
+  id     Int    @id @default(autoincrement()) @map("id_mancomunidad")
+  nombre String @map("nombre") @db.VarChar(300)
 
   @@map("mancomunidades")
 }
 
 model GradoOcupacional {
-  id            Int                  @id @default(autoincrement()) @map("Id_Grado_Ocupacional")
-  nombre        String               @unique @map("Nombre_Grado") @db.VarChar(200)
+  id            Int                  @id @default(autoincrement()) @map("id_grado_ocupacional")
+  nombre        String               @unique @map("nombre") @db.VarChar(200)
   instituciones InstitucionUsuario[]
 
   @@map("grados_ocupacionales")
 }
 
 model Plantilla {
-  id             Int            @id @default(autoincrement()) @map("Id_Plantilla")
-  nombre         String         @map("Nombre_Plantilla") @db.VarChar(200)
-  imagenUrl      String?        @map("Imagen_URL")
-  configuracion  Json?          @default("{}") @map("Configuracion")
-  activa         Boolean        @default(true) @map("Activa")
+  id             Int            @id @default(autoincrement()) @map("id_plantilla")
+  nombre         String         @map("nombre") @db.VarChar(200)
+  imagenUrl      String?        @map("imagen_url")
+  configuracion  Json?          @default("{}") @map("configuracion")
+  activa         Boolean        @default(true) @map("activa")
   createdAt      DateTime       @default(now()) @map("created_at")
   updatedAt      DateTime       @updatedAt @map("updated_at")
   capacitaciones Capacitacion[]
 
-  @@map("Plantillas")
+  @@map("plantillas")
 }
 
 model Genero {
-  id        Int       @id @default(autoincrement()) @map("Id_Genero")
-  nombre    String    @unique @map("Nombre_Genero") @db.VarChar(50)
+  id        Int       @id @default(autoincrement()) @map("id_genero")
+  nombre    String    @unique @map("nombre") @db.VarChar(50)
   usuarios  Usuario[]
 
-  @@map("Generos")
+  @@map("generos")
 }
 
 model Etnia {
-  id        Int       @id @default(autoincrement()) @map("Id_Etnia")
-  nombre    String    @unique @map("Nombre_Etnia") @db.VarChar(50)
+  id        Int       @id @default(autoincrement()) @map("id_etnia")
+  nombre    String    @unique @map("nombre") @db.VarChar(50)
   usuarios  Usuario[]
 
-  @@map("Etnias")
+  @@map("etnias")
 }
 
 model TipoParticipante {
-  id        Int       @id @default(autoincrement()) @map("Id_TipoParticipante")
-  nombre    String    @unique @map("Nombre_TipoParticipante") @db.VarChar(100)
+  id        Int       @id @default(autoincrement()) @map("id_tipo_participante")
+  nombre    String    @unique @map("nombre") @db.VarChar(100)
   usuarios  Usuario[]
 
-  @@map("TiposParticipante")
+  @@map("tipos_participante")
 }
 
 model Nacionalidad {
-  id        Int       @id @default(autoincrement()) @map("Id_Nacionalidad")
-  nombre    String    @unique @map("Nombre_Nacionalidad") @db.VarChar(100)
+  id        Int       @id @default(autoincrement()) @map("id_nacionalidad")
+  nombre    String    @unique @map("nombre") @db.VarChar(100)
   usuarios  Usuario[]
 
-  @@map("Nacionalidades")
+  @@map("nacionalidades")
 }
+

@@ -6,6 +6,7 @@ import { Router } from '@angular/router';
 import { AlertController, ToastController } from '@ionic/angular';
 import { CapacitacionesService } from '../../admin/capacitaciones/services/capacitaciones.service';
 import { AuthService } from '../../auth/services/auth.service';
+import { ErrorHandlerUtil } from 'src/app/shared/utils/error-handler.util';
 
 @Component({
   selector: 'app-conferencias',
@@ -83,7 +84,7 @@ export class ConferenciasPage implements OnInit {
         } else if (status === 404) {
           this.errorMsg = 'Servicio no encontrado. Contacta al administrador.';
         } else {
-          this.errorMsg = 'Error al cargar conferencias. Verifica tu conexión.';
+          this.errorMsg = ErrorHandlerUtil.getErrorMessage(err);
         }
         this.cdr.markForCheck();
       }

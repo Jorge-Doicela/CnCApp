@@ -53,16 +53,33 @@ export const errorHandler = (
 
     // Error de Prisma (base de datos)
     if (err.code && err.code.startsWith('P')) {
-        if (err.code === 'P2002') {
-            res.status(409).json({
-                message: 'Ya existe un registro con esos datos'
-            });
-            return;
+        switch (err.code) {
+            case 'P2002':
+                res.status(409).json({
+                    message: 'Ya existe un registro con esos datos de forma única en el sistema.'
+                });
+                return;
+            case 'P2003':
+                res.status(400).json({
+                    message: `Error de integridad referencial. El ID proporcionado no existe en la base de datos original.`,
+                    code: err.code,
+                    meta: (err as any).meta
+                });
+                return;
+            case 'P2025':
+                res.status(404).json({
+                    message: 'El registro solicitado no fue encontrado o no se pudo actualizar.',
+                    code: err.code
+                });
+                return;
+            default:
+                res.status(400).json({
+                    message: `Error en la base de datos: ${err.message}`, // MODIFIED FOR DEBUGGING
+                    code: err.code,
+                    meta: (err as any).meta
+                });
+                return;
         }
-        res.status(400).json({
-            message: 'Error en la base de datos'
-        });
-        return;
     }
 
     // Error de JWT

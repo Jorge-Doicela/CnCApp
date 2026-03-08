@@ -208,17 +208,16 @@
           <ion-item class="form-field ion-margin-bottom">
             <ion-label position="stacked">Categoría de Usuario</ion-label>
             <ion-select [(ngModel)]="usuario.tipoParticipante" interface="popover">
-              <ion-select-option [value]="0">Ciudadano / Particular</ion-select-option>
-              <ion-select-option [value]="1">Autoridad</ion-select-option>
-              <ion-select-option [value]="2">Funcionario GAD</ion-select-option>
-              <ion-select-option [value]="3">Institución del Sistema</ion-select-option>
+              <ion-select-option *ngFor="let tp of datosrecuperados.tiposParticipante" [value]="tp.id">
+                {{ tp.nombre }}
+              </ion-select-option>
             </ion-select>
           </ion-item>
 
           <!-- Dynamic Fields Based on Participant Type -->
           <div [ngSwitch]="usuario.tipoParticipante" class="animate-in">
             <!-- Autoridad -->
-            <div *ngSwitchCase="1" class="specific-fields card-inner">
+            <div *ngSwitchCase="13" class="specific-fields card-inner">
               <div class="field-group">
                 <ion-item class="form-field">
                   <ion-label position="stacked">Cargo Autoridad</ion-label>
@@ -240,7 +239,7 @@
             </div>
 
             <!-- Funcionario -->
-            <div *ngSwitchCase="2" class="specific-fields card-inner">
+            <div *ngSwitchCase="15" class="specific-fields card-inner">
               <div class="field-group">
                 <ion-item class="form-field">
                   <ion-label position="stacked">Cargo Funcionario</ion-label>
@@ -262,7 +261,7 @@
             </div>
 
             <!-- Institucion -->
-            <div *ngSwitchCase="3" class="specific-fields card-inner">
+            <div *ngSwitchCase="16" class="specific-fields card-inner">
               <div class="field-group">
                 <ion-item class="form-field">
                   <ion-label position="stacked">Institución</ion-label>

@@ -15,6 +15,8 @@ import {
 } from 'ionicons/icons';
 import { UsuarioService } from 'src/app/features/user/services/usuario.service';
 import { CatalogoService } from 'src/app/shared/services/catalogo.service';
+import { ErrorHandlerUtil } from 'src/app/shared/utils/error-handler.util';
+import { TipoParticipanteEnum } from 'src/app/shared/constants/enums';
 
 @Component({
   selector: 'app-editar',
@@ -74,6 +76,7 @@ export class EditarPage implements OnInit {
     generos: [] as any[],
     etnias: [] as any[],
     nacionalidades: [] as any[],
+    tiposParticipante: [] as any[],
   };
 
   datosbusqueda = {
@@ -141,6 +144,7 @@ export class EditarPage implements OnInit {
     this.obtenerGeneros();
     this.obtenerEtnias();
     this.obtenerNacionalidades();
+    this.obtenerTiposParticipante();
 
     const userId = +this.activatedRoute.snapshot.params['id'];
     console.log('[ADMIN_EDITAR_DEBUG] userId from route:', userId);
@@ -191,7 +195,7 @@ export class EditarPage implements OnInit {
         genero: data.genero || '',
         etnia: data.etnia || '',
         nacionalidad: data.nacionalidad || '',
-        tipoParticipante: Number(data.tipoParticipante) || 0,
+        tipoParticipante: Number(data.tipoParticipanteId || data.tipoParticipante) || TipoParticipanteEnum.CIUDADANO,
         fechaNacimiento: data.fechaNacimiento || '',
         cantonReside: data.cantonReside || '',
         parroquiaReside: data.parroquiaReside || '',
@@ -234,8 +238,7 @@ export class EditarPage implements OnInit {
     } catch (error) {
       console.error('[ADMIN_EDITAR_DEBUG] Error al cargar usuario:', error);
       this.ocultarCargando();
-      console.error('Error al cargar usuario:', error);
-      this.presentToast('Error al cargar los datos del usuario', 'danger');
+      this.presentToast(ErrorHandlerUtil.getErrorMessage(error), 'danger');
     } finally {
       this.cdr.markForCheck();
     }
@@ -243,10 +246,21 @@ export class EditarPage implements OnInit {
 
   async obtenerRoles() {
     try {
-      const data = await firstValueFrom(this.catalogoService.getItems('rol'));
+      const data = await firstValueFrom(this.catalogoService.getItems('roles'));
       this.datosrecuperados.roles = data || [];
     } catch (error) {
       console.error('Error al obtener roles:', error);
+    } finally {
+      this.cdr.markForCheck();
+    }
+  }
+
+  async obtenerTiposParticipante() {
+    try {
+      const data = await firstValueFrom(this.catalogoService.getItems('tipos-participante'));
+      this.datosrecuperados.tiposParticipante = data || [];
+    } catch (error) {
+      console.error('Error al obtener tipos de participante:', error);
     } finally {
       this.cdr.markForCheck();
     }
@@ -437,11 +451,11 @@ export class EditarPage implements OnInit {
       cantonId: this.usuario.cantonReside ? Number(this.usuario.cantonReside) : null,
       rolId: this.usuario.rolId ? Number(this.usuario.rolId) : undefined,
       entidadId: this.usuario.entidadId ? Number(this.usuario.entidadId) : null,
-      tipoParticipanteId: this.usuario.tipoParticipante ? Number(this.usuario.tipoParticipante) : null,
+      tipoParticipanteId: this.usuario.tipoParticipante ? Number(this.usuario.tipoParticipante) : TipoParticipanteEnum.CIUDADANO,
       estado: this.usuario.estado !== undefined ? Number(this.usuario.estado) : 1,
-      autoridad: this.usuario.tipoParticipante == 1 ? this.autoridad : null,
-      funcionarioGad: this.usuario.tipoParticipante == 2 ? this.funcionarioGad : null,
-      institucion: this.usuario.tipoParticipante == 3 ? this.institucion : null
+      autoridad: this.usuario.tipoParticipante == TipoParticipanteEnum.AUTORIDAD ? this.autoridad : null,
+      funcionarioGad: this.usuario.tipoParticipante == TipoParticipanteEnum.FUNCIONARIO_GAD ? this.funcionarioGad : null,
+      institucion: this.usuario.tipoParticipante == TipoParticipanteEnum.INSTITUCION ? this.institucion : null
     };
 
     if (this.usuario.password && this.usuario.password.trim() !== '') {
@@ -460,7 +474,7 @@ export class EditarPage implements OnInit {
     } catch (error: any) {
       this.ocultarCargando();
       console.error('Error al actualizar usuario:', error);
-      this.presentToast('Error al guardar los cambios: ' + (error.error?.message || error.message), 'danger');
+      this.presentToast(ErrorHandlerUtil.getErrorMessage(error), 'danger');
       this.cdr.markForCheck();
     }
   }
