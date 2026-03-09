@@ -25,10 +25,12 @@ export interface Usuario {
     fechaNacimiento?: string;
     provinciaId?: number | null;
     cantonId?: number | null;
+    parroquiaId?: number | null;
     estado?: number;
     createdAt?: string;
     updatedAt?: string;
     convencional?: string;
+    // Deprecated: migrate to cantonId/parroquiaId
     cantonReside?: string;
     parroquiaReside?: string;
 

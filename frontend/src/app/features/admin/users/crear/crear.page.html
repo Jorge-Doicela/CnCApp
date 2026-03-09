@@ -204,8 +204,8 @@
           <ion-item class="form-field">
             <ion-icon name="location-outline" slot="start"></ion-icon>
             <ion-label>Cantón *</ion-label>
-            <ion-select [(ngModel)]="usuarioGeneral.cantonReside"
-              (ionChange)="obtenerParroquias(usuarioGeneral.cantonReside)" placeholder="Seleccione" interface="popover"
+            <ion-select [(ngModel)]="usuarioGeneral.cantonId"
+              (ionChange)="obtenerParroquias(usuarioGeneral.cantonId)" placeholder="Seleccione" interface="popover"
               [disabled]="!datosrecuperados.cantones.length">
               <ion-select-option *ngFor="let canton of datosrecuperados.cantones" [value]="canton.id">
                 {{ canton.nombre }}
@@ -215,7 +215,7 @@
           <ion-item class="form-field">
             <ion-icon name="map-outline" slot="start"></ion-icon>
             <ion-label>Parroquia</ion-label>
-            <ion-select [(ngModel)]="usuarioGeneral.parroquiaReside" placeholder="Seleccione" interface="popover"
+            <ion-select [(ngModel)]="usuarioGeneral.parroquiaId" placeholder="Seleccione" interface="popover"
               [disabled]="!datosrecuperados.parroquiasSeleccionadas.length">
               <ion-select-option *ngFor="let parroquia of datosrecuperados.parroquiasSeleccionadas"
                 [value]="parroquia.id">
@@ -247,7 +247,7 @@
             </ion-item>
             <ion-item class="form-field">
               <ion-label>Nivel Gobierno *</ion-label>
-              <ion-select [(ngModel)]="autoridad.nivelgobierno" placeholder="Seleccione" interface="popover">
+              <ion-select [(ngModel)]="autoridad.nivelGobierno" placeholder="Seleccione" interface="popover">
                 <ion-select-option value="mancomunidad">Mancomunidad y Consorcios</ion-select-option>
                 <ion-select-option value="municipal">Municipal</ion-select-option>
                 <ion-select-option value="parroquial">Parroquial Rural</ion-select-option>
@@ -274,7 +274,7 @@
             </ion-item>
             <ion-item class="form-field">
               <ion-label>Nivel Gobierno *</ion-label>
-              <ion-select [(ngModel)]="funcionarioGad.nivelgobierno" placeholder="Seleccione" interface="popover">
+              <ion-select [(ngModel)]="funcionarioGad.nivelGobierno" placeholder="Seleccione" interface="popover">
                 <ion-select-option value="mancomunidad">Mancomunidad</ion-select-option>
                 <ion-select-option value="municipal">Municipal</ion-select-option>
                 <ion-select-option value="parroquial">Parroquial</ion-select-option>

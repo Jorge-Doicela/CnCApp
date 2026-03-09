@@ -55,13 +55,13 @@ export class CrearPage implements OnInit {
     nacionalidadId: undefined as number | undefined,
     tipoParticipante: 0, // Por defecto ciudadano
     fechaNacimiento: '',
-    cantonReside: '',
-    parroquiaReside: '',
+    cantonId: undefined as number | undefined,
+    parroquiaId: undefined as number | undefined,
   };
 
   autoridad = {
     cargo: '',
-    nivelgobierno: '',
+    nivelGobierno: '',
     gadAutoridad: '',
     idUsuario: '',
   };
@@ -69,7 +69,7 @@ export class CrearPage implements OnInit {
   funcionarioGad = {
     cargo: '',
     competencias: '',
-    nivelgobierno: '',
+    nivelGobierno: '',
     gadFuncionarioGad: '',
     idUsuario: ''
   };
@@ -268,7 +268,7 @@ export class CrearPage implements OnInit {
           this.showToast('Seleccione una provincia');
           return false;
         }
-        if (!this.usuarioGeneral.cantonReside && this.datosrecuperados.cantones.length > 0) {
+        if (!this.usuarioGeneral.cantonId && this.datosrecuperados.cantones.length > 0) {
           this.showToast('Seleccione un cantón');
           return false;
         }
@@ -276,12 +276,12 @@ export class CrearPage implements OnInit {
 
       case 4: // Datos Específicos
         if (this.usuarioGeneral.tipoParticipante == TipoParticipanteEnum.AUTORIDAD) { // Autoridad
-          if (!this.autoridad.cargo || !this.autoridad.nivelgobierno) {
+          if (!this.autoridad.cargo || !this.autoridad.nivelGobierno) {
             this.showToast('Complete los datos de autoridad');
             return false;
           }
         } else if (this.usuarioGeneral.tipoParticipante == TipoParticipanteEnum.FUNCIONARIO_GAD) { // Funcionario
-          if (!this.funcionarioGad.cargo || !this.funcionarioGad.nivelgobierno) {
+          if (!this.funcionarioGad.cargo || !this.funcionarioGad.nivelGobierno) {
             this.showToast('Complete los datos de funcionario');
             return false;
           }
@@ -310,7 +310,7 @@ export class CrearPage implements OnInit {
   }
 
   getNombreCanton(): string {
-    const c = this.datosrecuperados.cantones.find(cant => cant.id === this.usuarioGeneral.cantonReside);
+    const c = this.datosrecuperados.cantones.find(cant => cant.id === this.usuarioGeneral.cantonId);
     return c ? c.nombre : 'No seleccionado';
   }
 
@@ -572,7 +572,7 @@ export class CrearPage implements OnInit {
       return false;
     }
 
-    if (!this.usuarioGeneral.cantonReside && this.datosrecuperados.cantones.length > 0) {
+    if (!this.usuarioGeneral.cantonId && this.datosrecuperados.cantones.length > 0) {
       this.showToast('Por favor seleccione un cantón');
       return false;
     }
@@ -589,7 +589,7 @@ export class CrearPage implements OnInit {
         this.showToast('Por favor seleccione el cargo de la autoridad');
         return false;
       }
-      if (!this.autoridad.nivelgobierno) {
+      if (!this.autoridad.nivelGobierno) {
         this.showToast('Por favor seleccione el nivel de gobierno');
         return false;
       }
@@ -602,7 +602,7 @@ export class CrearPage implements OnInit {
         this.showToast('Por favor seleccione el cargo del funcionario');
         return false;
       }
-      if (!this.funcionarioGad.nivelgobierno) {
+      if (!this.funcionarioGad.nivelGobierno) {
         this.showToast('Por favor seleccione el nivel de gobierno');
         return false;
       }
@@ -647,8 +647,9 @@ export class CrearPage implements OnInit {
     const fullUserData = {
       ...this.usuarioGeneral,
       tipoParticipanteId: Number(this.usuarioGeneral.tipoParticipante),
-      autoridad: this.usuarioGeneral.tipoParticipante == TipoParticipanteEnum.AUTORIDAD ? this.autoridad : undefined,
-      funcionarioGad: this.usuarioGeneral.tipoParticipante == TipoParticipanteEnum.FUNCIONARIO_GAD ? this.funcionarioGad : undefined,
+      provinciaId: this.datosbusqueda.selectedProvincia,
+      autoridad: this.usuarioGeneral.tipoParticipante == TipoParticipanteEnum.AUTORIDAD ? { ...this.autoridad, parroquiaId: this.usuarioGeneral.parroquiaId } : undefined,
+      funcionarioGad: this.usuarioGeneral.tipoParticipante == TipoParticipanteEnum.FUNCIONARIO_GAD ? { ...this.funcionarioGad, parroquiaId: this.usuarioGeneral.parroquiaId } : undefined,
       institucion: this.usuarioGeneral.tipoParticipante == TipoParticipanteEnum.INSTITUCION ? this.institucion : undefined
     };
 
@@ -707,13 +708,13 @@ export class CrearPage implements OnInit {
       nacionalidadId: undefined,
       tipoParticipante: 0,
       fechaNacimiento: '',
-      cantonReside: '',
-      parroquiaReside: '',
+      cantonId: undefined,
+      parroquiaId: undefined,
     };
 
     this.autoridad = {
       cargo: '',
-      nivelgobierno: '',
+      nivelGobierno: '',
       gadAutoridad: '',
       idUsuario: '',
     };
@@ -721,7 +722,7 @@ export class CrearPage implements OnInit {
     this.funcionarioGad = {
       cargo: '',
       competencias: '',
-      nivelgobierno: '',
+      nivelGobierno: '',
       gadFuncionarioGad: '',
       idUsuario: ''
     };
@@ -795,7 +796,7 @@ export class CrearPage implements OnInit {
       const data = await firstValueFrom(this.catalogoService.getItems('cantones'));
       this.datosrecuperados.cantones = data.filter((c: any) => c.provinciaId == provinciaId);
       this.datosrecuperados.parroquiasSeleccionadas = [];
-      this.usuarioGeneral.parroquiaReside = '';
+      this.usuarioGeneral.parroquiaId = undefined;
     } catch (err) {
       console.error(err);
     } finally {

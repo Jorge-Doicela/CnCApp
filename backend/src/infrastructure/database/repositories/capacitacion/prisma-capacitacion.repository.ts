@@ -3,6 +3,7 @@ import prisma from '../../../../config/database';
 import { Capacitacion } from '../../../../domain/capacitacion/entities/capacitacion.entity';
 import { CapacitacionRepository } from '../../../../domain/capacitacion/repositories/capacitacion.repository';
 import { CapacitacionMapper } from '../../../../domain/capacitacion/mappers/capacitacion.mapper';
+import { EstadoCapacitacionEnum } from '../../../../domain/shared/constants/enums';
 
 @injectable()
 export class PrismaCapacitacionRepository implements CapacitacionRepository {
@@ -16,7 +17,7 @@ export class PrismaCapacitacionRepository implements CapacitacionRepository {
                 lugar: data.lugar,
                 cuposDisponibles: data.cuposDisponibles || 0,
                 modalidad: data.modalidad,
-                estado: data.estado || 'Activa',
+                estado: data.estado || EstadoCapacitacionEnum.PENDIENTE,
                 plantillaId: data.plantillaId,
                 horaInicio: data.horaInicio,
                 horaFin: data.horaFin,

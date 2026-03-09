@@ -2,6 +2,7 @@ import { injectable } from 'tsyringe';
 import prisma from '../../config/database';
 import { UsuarioCapacitacion } from '../../domain/usuario-capacitacion/entities/usuario-capacitacion.entity';
 import { UsuarioCapacitacionRepository } from '../../domain/usuario-capacitacion/usuario-capacitacion.repository';
+import { RolCapacitacionEnum, EstadoCapacitacionEnum } from '../../domain/shared/constants/enums';
 
 @injectable()
 export class PrismaUsuarioCapacitacionRepository implements UsuarioCapacitacionRepository {
@@ -39,7 +40,7 @@ export class PrismaUsuarioCapacitacionRepository implements UsuarioCapacitacionR
     }
 
     async create(data: Partial<UsuarioCapacitacion>): Promise<UsuarioCapacitacion> {
-        // @ts-ignore: rolCapacitacion might not be in generated client yet
+        // @ts-ignore
         const { rolCapacitacion, ...rest } = data;
 
         const result = await prisma.usuarioCapacitacion.create({
@@ -47,9 +48,9 @@ export class PrismaUsuarioCapacitacionRepository implements UsuarioCapacitacionR
                 usuarioId: data.usuarioId!,
                 capacitacionId: data.capacitacionId!,
                 // @ts-ignore
-                rolCapacitacion: rolCapacitacion || 'Participante',
+                rolCapacitacion: rolCapacitacion || RolCapacitacionEnum.PARTICIPANTE,
                 asistio: data.asistio || false,
-                estadoInscripcion: data.estadoInscripcion || 'Activa'
+                estadoInscripcion: data.estadoInscripcion || 'Activa' // Inscriptions use 'Activa' too
             },
             include: {
                 usuario: true,

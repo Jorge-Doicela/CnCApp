@@ -8,6 +8,7 @@ const authController = container.resolve(AuthController);
 
 router.post('/register', authController.register);
 router.post('/login', authController.login);
+router.post('/refresh', authController.refreshToken);
 router.get('/profile', authenticate, authController.getProfile);
 router.post('/reset-password-request', authController.requestPasswordReset);
 router.post('/reset-password', authController.resetPassword);
