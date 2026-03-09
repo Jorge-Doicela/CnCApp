@@ -230,7 +230,7 @@ async function main() {
 
         const usersData = [
             // Administrators
-            { nombre: 'JORGE DOICELA', ci: '1710101011', email: 'jorge.doicela@cnc.gob.ec', roleId: adminRole.id, authUid: 'admin-01' },
+            { nombre: 'JORGE DOICELA', ci: '1234567897', email: 'jorge.doicela@cnc.gob.ec', roleId: adminRole.id, authUid: 'admin-01' },
             { nombre: 'KAREN MENDOZA', ci: '1722334453', email: 'karen.mendoza@cnc.gob.ec', roleId: adminRole.id, authUid: 'admin-02' },
 
             // Conferencistas
