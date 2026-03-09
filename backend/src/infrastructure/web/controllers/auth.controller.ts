@@ -35,7 +35,9 @@ const registerSchema = z.object({
     nacionalidadId: z.number().optional(),
     autoridad: z.any().optional(),
     funcionarioGad: z.any().optional(),
-    institucion: z.any().optional()
+    institucion: z.any().optional(),
+    parroquiaId: z.number().optional(),
+    estado: z.number().optional()
 });
 
 const loginSchema = z.object({
@@ -90,7 +92,9 @@ export class AuthController {
                 nacionalidadId: data.nacionalidadId,
                 autoridad: data.autoridad,
                 funcionarioGad: data.funcionarioGad,
-                institucion: data.institucion
+                institucion: data.institucion,
+                parroquiaId: data.parroquiaId,
+                estado: data.estado
             });
 
             res.status(201).json({

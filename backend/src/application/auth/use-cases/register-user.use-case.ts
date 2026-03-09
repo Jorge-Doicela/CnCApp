@@ -29,6 +29,8 @@ interface RegisterDto {
     funcionarioGad?: any;
     institucion?: any;
     rolId?: number;
+    parroquiaId?: number;
+    estado?: number;
     // captchaToken?: string; // --- GOOGLE RECAPTCHA (Descomentar en Producción) ---
 }
 
@@ -139,8 +141,8 @@ export class RegisterUserUseCase {
             fechaNacimiento: data.fechaNacimiento ? new Date(data.fechaNacimiento) : undefined,
             provinciaId: data.provinciaId,
             cantonId: data.cantonId,
-            parroquiaId: data.autoridad?.parroquiaId || data.funcionarioGad?.parroquiaId || null,
-            estado: 1, // Default active
+            parroquiaId: data.parroquiaId || data.autoridad?.parroquiaId || data.funcionarioGad?.parroquiaId || null,
+            estado: data.estado !== undefined ? data.estado : 1, // Default active
             rolId: finalRolId,
             entidadId: (cncEntity ? cncEntity.id : null),
             tipoParticipanteId: data.tipoParticipanteId || null,
