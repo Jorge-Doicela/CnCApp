@@ -15,8 +15,8 @@ const prisma = new PrismaClient();
 const SALT_ROUNDS = 10;
 
 async function main() {
-    console.log('🚀 Starting PRODUCT LAUNCH database seed...');
-    console.log('💎 Generating ultra-realistic data for presentation...\n');
+    console.log('Starting PRODUCT LAUNCH database seed...');
+    console.log('Generating ultra-realistic data for presentation...\n');
 
     try {
         // ============================================
@@ -47,12 +47,12 @@ async function main() {
         await prisma.nacionalidad.deleteMany();
         await prisma.gradoOcupacional.deleteMany();
 
-        console.log('✅ System clean\n');
+        console.log('System clean\n');
 
         // ============================================
         // STEP 1: ROLES
         // ============================================
-        console.log('👥 Configuring Roles...');
+        console.log('Configuring Roles...');
         const adminRole = await prisma.rol.create({
             data: {
                 nombre: 'Administrador',
@@ -80,7 +80,7 @@ async function main() {
         // ============================================
         // STEP 2: CATALOGS (Realistic)
         // ============================================
-        console.log('📋 Loading Product Catalogs...');
+        console.log('Loading Product Catalogs...');
 
         await prisma.genero.createMany({
             data: [
@@ -197,7 +197,7 @@ async function main() {
         // ============================================
         // STEP 3: GEO DATA
         // ============================================
-        console.log('🗺️  Syncing National Geographic Model (Provinces/Cantons/Parishes)...');
+        console.log('Syncing National Geographic Model (Provinces/Cantons/Parishes)...');
         for (const prov of ecuadorData) {
             const createdProv = await prisma.provincia.create({
                 data: { nombre: prov.provincia }
@@ -225,7 +225,7 @@ async function main() {
         // ============================================
         // STEP 4: USERS (Massive & Realistic)
         // ============================================
-        console.log('👥 Generating User Ecosystem...');
+        console.log('Generating User Ecosystem...');
         const hashedPassword = await bcrypt.hash('CncSecure2025!', SALT_ROUNDS);
 
         const usersData = [
@@ -272,7 +272,7 @@ async function main() {
         // ============================================
         // STEP 5: TEMPLATES & TRAINING
         // ============================================
-        console.log('🖼️  Configuring Professional Templates...');
+        console.log('Configuring Professional Templates...');
         const templateStd = await prisma.plantilla.create({
             data: {
                 nombre: 'CERTIFICADO INSTITUCIONAL CNC - ESTÁNDAR',
@@ -289,7 +289,7 @@ async function main() {
             }
         });
 
-        console.log('🎓 Launching Training Portfolio...');
+        console.log('Launching Training Portfolio...');
         const trainingSessions = [
             {
                 nombre: 'DIPLOMADO EN GESTIÓN PÚBLICA TERRITORIAL 2025',
@@ -350,7 +350,7 @@ async function main() {
         // ============================================
         // STEP 6: REGISTRATIONS & CERTIFICATES (Massive)
         // ============================================
-        console.log('📝 Distributing Registrations and Generating Metrics...');
+        console.log('Distributing Registrations and Generating Metrics...');
 
         // Randomly register users to various trainings to populate metrics
         for (const user of createdUsers.slice(5)) { // Only participants
@@ -382,11 +382,11 @@ async function main() {
             }
         }
 
-        console.log('\n✨ FINAL PRODUCT DATA LOADED SUCCESSFULLY ✨');
-        console.log('🎯 System ready for Presentation and Launch.');
+        console.log('\nFINAL PRODUCT DATA LOADED SUCCESSFULLY');
+        console.log('System ready for Presentation and Launch.');
 
     } catch (error) {
-        console.error('❌ Error during launch seeding:', error);
+        console.error('Error during launch seeding:', error);
         process.exit(1);
     } finally {
         await prisma.$disconnect();
