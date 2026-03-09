@@ -8,10 +8,13 @@ const router = Router();
 const controller = container.resolve(InstitucionController);
 
 router.use(authenticate);
-router.use(authorize(...ADMIN_ROLES));
 
+// Publicly readable for authenticated users (required for profile/registration)
 router.get('/', controller.getAll);
 router.get('/:id', controller.getById);
+
+// Management routes (Admins only)
+router.use(authorize(...ADMIN_ROLES));
 router.post('/', controller.create);
 router.put('/:id', controller.update);
 router.delete('/:id', controller.delete);

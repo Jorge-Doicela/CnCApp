@@ -4,8 +4,10 @@ import { Certificado } from '../../../domain/certificado/entities/certificado.en
 import { CertificateGeneratorService } from '../../../infrastructure/services/certificate-generator.service';
 import { UserRepository } from '../../../domain/user/user.repository';
 import { CapacitacionRepository } from '../../../domain/capacitacion/repositories/capacitacion.repository';
+import { env } from '../../../config/env';
 import path from 'path';
 import fs from 'fs';
+import crypto from 'crypto';
 
 @injectable()
 export class GenerateCertificadoUseCase {
@@ -17,6 +19,12 @@ export class GenerateCertificadoUseCase {
     ) { }
 
     async execute(usuarioId: number, capacitacionId: number): Promise<Certificado> {
+        // 0. Check if certificate already exists to avoid duplicates
+        const existing = await this.certificadoRepository.findByUserAndCapacitacion(usuarioId, capacitacionId);
+        if (existing) {
+            return existing;
+        }
+
         // 1. Fetch User and Capacitacion
         const usuario = await this.userRepository.findById(usuarioId);
         if (!usuario) throw new Error('Usuario no encontrado');
@@ -52,21 +60,21 @@ export class GenerateCertificadoUseCase {
         };
 
         // 4. Generate Unique Hash and QR Content
-        const crypto = require('crypto');
         const hash = crypto.randomBytes(12).toString('hex'); // 24 chars, very unique
         
-        // Base URL for verification (Should ideally come from config/env)
-        const baseUrl = process.env.FRONTEND_URL || 'https://cnc-app.com';
+        // Base URL for verification
+        const baseUrl = env.FRONTEND_URL.endsWith('/') ? env.FRONTEND_URL.slice(0, -1) : env.FRONTEND_URL;
         const qrCodeUrl = `${baseUrl}/validar-certificados?hash=${hash}`;
 
         // 5. Define Output Path
         const fileName = `cert_${usuarioId}_${capacitacionId}_${hash.substring(0, 8)}.pdf`;
-        const publicDir = path.join(process.cwd(), 'public', 'certificados');
+        const uploadDir = path.resolve(process.cwd(), env.UPLOAD_DIR || 'public/uploads');
+        const certificatesDir = path.join(uploadDir, 'certificados');
 
-        if (!fs.existsSync(publicDir)) {
-            fs.mkdirSync(publicDir, { recursive: true });
+        if (!fs.existsSync(certificatesDir)) {
+            fs.mkdirSync(certificatesDir, { recursive: true });
         }
-        const outputPath = path.join(publicDir, fileName);
+        const outputPath = path.join(certificatesDir, fileName);
 
         // 6. Generate PDF
         await this.generatorService.generate(
@@ -82,7 +90,7 @@ export class GenerateCertificadoUseCase {
             usuarioId,
             capacitacionId,
             codigoQR: hash, // Store only hash for cleaner lookup
-            pdfUrl: `/certificados/${fileName}`
+            pdfUrl: `/uploads/certificados/${fileName}`
         });
     }
 }

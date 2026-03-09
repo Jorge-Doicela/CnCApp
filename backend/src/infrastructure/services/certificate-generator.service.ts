@@ -1,6 +1,7 @@
 import PDFDocument = require('pdfkit');
 import * as QRCode from 'qrcode';
 import fs from 'fs';
+import path from 'path';
 import { injectable } from 'tsyringe';
 
 interface CertificateData {
@@ -19,6 +20,8 @@ interface FieldConfig {
     y: number;
     fontSize: number;
     color: string;
+    width?: number; // Optional wrapping width
+    align?: string; // Optional alignment
 }
 
 interface PlantillaConfig {
@@ -30,7 +33,7 @@ export class CertificateGeneratorService {
     // Default font if custom not found (PDFKit has built-in fonts)
 
     async generate(
-        plantillaImagenUrl: string, // Local path or URL? Assuming local path for now or need to download
+        plantillaImagenUrl: string, 
         config: PlantillaConfig,
         data: CertificateData,
         qrCodeContent: string,
@@ -49,29 +52,28 @@ export class CertificateGeneratorService {
                 doc.pipe(stream);
 
                 // 2. Load Background Image
-                // We need to handle if imagenUrl is a remote URL or local path.
-                // For simplified MVP, assuming it's a local path or we download it first. 
-                // In production, might be stored in 'uploads/'
+                let imagePath = plantillaImagenUrl;
 
-                // If it starts with http, we might need to fetch it separately, 
-                // but PDFKit supports some image types. Safest is local file.
-                // Assuming the Controller resolves the path to a local file.
-                // 2. Load Background Image
+                // Resolve relative paths (like /assets/...) to absolute paths in 'public'
+                if (!plantillaImagenUrl.startsWith('data:image') && !path.isAbsolute(plantillaImagenUrl)) {
+                    imagePath = path.join(process.cwd(), 'public', plantillaImagenUrl);
+                }
+
                 if (plantillaImagenUrl.startsWith('data:image')) {
                     doc.image(plantillaImagenUrl, 0, 0, {
                         width: doc.page.width,
                         height: doc.page.height
                     });
-                } else if (fs.existsSync(plantillaImagenUrl)) {
-                    doc.image(plantillaImagenUrl, 0, 0, {
+                } else if (fs.existsSync(imagePath)) {
+                    doc.image(imagePath, 0, 0, {
                         width: doc.page.width,
                         height: doc.page.height
                     });
                 } else {
-                    console.warn(`Plantilla image not found at ${plantillaImagenUrl}`);
+                    console.warn(`Plantilla image not found at ${imagePath}`);
                     // Draw a placeholder or minimal border
                     doc.rect(0, 0, doc.page.width, doc.page.height).stroke();
-                    doc.text('Plantilla background missing', 100, 100);
+                    doc.fillColor('#000000').fontSize(20).text('Plantilla background missing', 100, 100);
                 }
 
                 // 3. Draw Text Fields
@@ -80,7 +82,10 @@ export class CertificateGeneratorService {
                     if (text && fieldConfig) {
                         doc.fillColor(fieldConfig.color || '#000000')
                             .fontSize(fieldConfig.fontSize || 12)
-                            .text(text, fieldConfig.x, fieldConfig.y);
+                            .text(text, fieldConfig.x, fieldConfig.y, {
+                                width: fieldConfig.width,
+                                align: fieldConfig.align as any
+                            });
                     }
                 }
 

@@ -21,27 +21,29 @@ export class UpdateUserUseCase {
 
         // Handle Image Uploads (Profile Photo)
         if (userData.fotoPerfilUrl && userData.fotoPerfilUrl.startsWith('data:image')) {
-            try {
-                // Delete old file if it was a local upload
-                if (user.fotoPerfilUrl) {
-                    await this.fileStorageService.deleteFile(user.fotoPerfilUrl);
-                }
-                userData.fotoPerfilUrl = await this.fileStorageService.saveBase64(userData.fotoPerfilUrl, 'profiles');
-            } catch (error) {
-                console.error('[UPDATE_USER] Error saving profile photo:', error);
+            // Delete old file if it was a local upload
+            if (user.fotoPerfilUrl) {
+                await this.fileStorageService.deleteFile(user.fotoPerfilUrl);
+            }
+            userData.fotoPerfilUrl = await this.fileStorageService.saveBase64(userData.fotoPerfilUrl, 'profiles');
+        } else if (userData.fotoPerfilUrl === null || userData.fotoPerfilUrl === '') {
+            // User wants to remove their photo
+            if (user.fotoPerfilUrl) {
+                await this.fileStorageService.deleteFile(user.fotoPerfilUrl);
             }
         }
 
         // Handle Image Uploads (Signature)
         if (userData.firmaUrl && userData.firmaUrl.startsWith('data:image')) {
-            try {
-                // Delete old file if it was a local upload
-                if (user.firmaUrl) {
-                    await this.fileStorageService.deleteFile(user.firmaUrl);
-                }
-                userData.firmaUrl = await this.fileStorageService.saveBase64(userData.firmaUrl, 'signatures');
-            } catch (error) {
-                console.error('[UPDATE_USER] Error saving signature:', error);
+            // Delete old file if it was a local upload
+            if (user.firmaUrl) {
+                await this.fileStorageService.deleteFile(user.firmaUrl);
+            }
+            userData.firmaUrl = await this.fileStorageService.saveBase64(userData.firmaUrl, 'signatures');
+        } else if (userData.firmaUrl === null || userData.firmaUrl === '') {
+            // User wants to remove their signature
+            if (user.firmaUrl) {
+                await this.fileStorageService.deleteFile(user.firmaUrl);
             }
         }
 

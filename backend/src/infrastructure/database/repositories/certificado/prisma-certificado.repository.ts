@@ -50,6 +50,16 @@ export class PrismaCertificadoRepository implements CertificadoRepository {
         return certificados.map(c => CertificadoMapper.toDomain(c));
     }
 
+    async findByUserAndCapacitacion(userId: number, capacitacionId: number): Promise<Certificado | null> {
+        const certificado = await prisma.certificado.findFirst({
+            where: {
+                usuarioId: userId,
+                capacitacionId: capacitacionId
+            }
+        });
+        return certificado ? CertificadoMapper.toDomain(certificado) : null;
+    }
+
     async count(): Promise<number> {
         return await prisma.certificado.count();
     }
