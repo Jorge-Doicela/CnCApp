@@ -310,6 +310,6 @@ Desarrollado por **Jorge Doicela**
 
 **[⬆ Volver arriba](#cncapp---sistema-de-gestión-de-capacitaciones)**
 
-Desarrollado por **Jorge Doicela** | © 2025 CNC Ecuador
+Desarrollado por **Jorge Doicela** | © 2026 CNC Ecuador
 
 </div>
