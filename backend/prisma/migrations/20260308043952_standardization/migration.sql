@@ -48,97 +48,97 @@
 
 */
 -- DropForeignKey
-ALTER TABLE "Autoridades" DROP CONSTRAINT "Autoridades_Id_Usuario_fkey";
+ALTER TABLE "Autoridades" DROP CONSTRAINT IF EXISTS "Autoridades_Id_Usuario_fkey";
 
 -- DropForeignKey
-ALTER TABLE "Cantones" DROP CONSTRAINT "Cantones_Id_Provincia_fkey";
+ALTER TABLE "Cantones" DROP CONSTRAINT IF EXISTS "Cantones_Id_Provincia_fkey";
 
 -- DropForeignKey
-ALTER TABLE "Capacitaciones" DROP CONSTRAINT "Capacitaciones_Id_Plantilla_fkey";
+ALTER TABLE "Capacitaciones" DROP CONSTRAINT IF EXISTS "Capacitaciones_Id_Plantilla_fkey";
 
 -- DropForeignKey
-ALTER TABLE "Certificados" DROP CONSTRAINT "Certificados_Id_Capacitacion_fkey";
+ALTER TABLE "Certificados" DROP CONSTRAINT IF EXISTS "Certificados_Id_Capacitacion_fkey";
 
 -- DropForeignKey
-ALTER TABLE "Certificados" DROP CONSTRAINT "Certificados_Id_Usuario_fkey";
+ALTER TABLE "Certificados" DROP CONSTRAINT IF EXISTS "Certificados_Id_Usuario_fkey";
 
 -- DropForeignKey
-ALTER TABLE "FuncionarioGAD" DROP CONSTRAINT "FuncionarioGAD_Id_Usuario_fkey";
+ALTER TABLE "FuncionarioGAD" DROP CONSTRAINT IF EXISTS "FuncionarioGAD_Id_Usuario_fkey";
 
 -- DropForeignKey
-ALTER TABLE "Instituciones_usuario" DROP CONSTRAINT "Instituciones_usuario_Id_Grado_Ocupacional_fkey";
+ALTER TABLE "Instituciones_usuario" DROP CONSTRAINT IF EXISTS "Instituciones_usuario_Id_Grado_Ocupacional_fkey";
 
 -- DropForeignKey
-ALTER TABLE "Instituciones_usuario" DROP CONSTRAINT "Instituciones_usuario_Id_Institucion_fkey";
+ALTER TABLE "Instituciones_usuario" DROP CONSTRAINT IF EXISTS "Instituciones_usuario_Id_Institucion_fkey";
 
 -- DropForeignKey
-ALTER TABLE "Instituciones_usuario" DROP CONSTRAINT "Instituciones_usuario_Id_Usuario_fkey";
+ALTER TABLE "Instituciones_usuario" DROP CONSTRAINT IF EXISTS "Instituciones_usuario_Id_Usuario_fkey";
 
 -- DropForeignKey
-ALTER TABLE "Usuario" DROP CONSTRAINT "Usuario_Entidad_Usuario_fkey";
+ALTER TABLE "Usuario" DROP CONSTRAINT IF EXISTS "Usuario_Entidad_Usuario_fkey";
 
 -- DropForeignKey
-ALTER TABLE "Usuario" DROP CONSTRAINT "Usuario_Id_Canton_fkey";
+ALTER TABLE "Usuario" DROP CONSTRAINT IF EXISTS "Usuario_Id_Canton_fkey";
 
 -- DropForeignKey
-ALTER TABLE "Usuario" DROP CONSTRAINT "Usuario_Id_Etnia_fkey";
+ALTER TABLE "Usuario" DROP CONSTRAINT IF EXISTS "Usuario_Id_Etnia_fkey";
 
 -- DropForeignKey
-ALTER TABLE "Usuario" DROP CONSTRAINT "Usuario_Id_Genero_fkey";
+ALTER TABLE "Usuario" DROP CONSTRAINT IF EXISTS "Usuario_Id_Genero_fkey";
 
 -- DropForeignKey
-ALTER TABLE "Usuario" DROP CONSTRAINT "Usuario_Id_Nacionalidad_fkey";
+ALTER TABLE "Usuario" DROP CONSTRAINT IF EXISTS "Usuario_Id_Nacionalidad_fkey";
 
 -- DropForeignKey
-ALTER TABLE "Usuario" DROP CONSTRAINT "Usuario_Id_Provincia_fkey";
+ALTER TABLE "Usuario" DROP CONSTRAINT IF EXISTS "Usuario_Id_Provincia_fkey";
 
 -- DropForeignKey
-ALTER TABLE "Usuario" DROP CONSTRAINT "Usuario_Id_Tipo_Participante_fkey";
+ALTER TABLE "Usuario" DROP CONSTRAINT IF EXISTS "Usuario_Id_Tipo_Participante_fkey";
 
 -- DropForeignKey
-ALTER TABLE "Usuario" DROP CONSTRAINT "Usuario_Rol_Usuario_fkey";
+ALTER TABLE "Usuario" DROP CONSTRAINT IF EXISTS "Usuario_Rol_Usuario_fkey";
 
 -- DropForeignKey
-ALTER TABLE "Usuarios_Capacitaciones" DROP CONSTRAINT "Usuarios_Capacitaciones_Id_Capacitacion_fkey";
+ALTER TABLE "Usuarios_Capacitaciones" DROP CONSTRAINT IF EXISTS "Usuarios_Capacitaciones_Id_Capacitacion_fkey";
 
 -- DropForeignKey
-ALTER TABLE "Usuarios_Capacitaciones" DROP CONSTRAINT "Usuarios_Capacitaciones_Id_Usuario_fkey";
+ALTER TABLE "Usuarios_Capacitaciones" DROP CONSTRAINT IF EXISTS "Usuarios_Capacitaciones_Id_Usuario_fkey";
 
 -- DropForeignKey
-ALTER TABLE "_FuncionarioCompetencias" DROP CONSTRAINT "_FuncionarioCompetencias_A_fkey";
+ALTER TABLE "_FuncionarioCompetencias" DROP CONSTRAINT IF EXISTS "_FuncionarioCompetencias_A_fkey";
 
 -- DropForeignKey
-ALTER TABLE "_FuncionarioCompetencias" DROP CONSTRAINT "_FuncionarioCompetencias_B_fkey";
+ALTER TABLE "_FuncionarioCompetencias" DROP CONSTRAINT IF EXISTS "_FuncionarioCompetencias_B_fkey";
 
 -- DropForeignKey
-ALTER TABLE "parroquia" DROP CONSTRAINT "parroquia_Id_Canton_fkey";
+ALTER TABLE "parroquia" DROP CONSTRAINT IF EXISTS "parroquia_Id_Canton_fkey";
 
 -- DropIndex
-DROP INDEX "cargos_Nombre_Cargo_key";
+DROP INDEX IF EXISTS "cargos_Nombre_Cargo_key";
 
 -- DropIndex
-DROP INDEX "competencias_nombre_competencias_key";
+DROP INDEX IF EXISTS "competencias_nombre_competencias_key";
 
 -- DropIndex
-DROP INDEX "grados_ocupacionales_Nombre_Grado_key";
+DROP INDEX IF EXISTS "grados_ocupacionales_Nombre_Grado_key";
 
 -- DropIndex
-DROP INDEX "instituciones_sistema_Nombre_Institucion_key";
+DROP INDEX IF EXISTS "instituciones_sistema_Nombre_Institucion_key";
 
 -- AlterTable
-ALTER TABLE "cargos" DROP CONSTRAINT "cargos_pkey",
-DROP COLUMN "Id_Cargo",
-DROP COLUMN "Nombre_Cargo",
+ALTER TABLE "cargos" DROP CONSTRAINT IF EXISTS "cargos_pkey",
+DROP COLUMN IF EXISTS "Id_Cargo",
+DROP COLUMN IF EXISTS "Nombre_Cargo",
 ADD COLUMN     "id_cargo" SERIAL NOT NULL,
 ADD COLUMN     "nombre" VARCHAR(200) NOT NULL,
 ADD CONSTRAINT "cargos_pkey" PRIMARY KEY ("id_cargo");
 
 -- AlterTable
-ALTER TABLE "competencias" DROP CONSTRAINT "competencias_pkey",
-DROP COLUMN "estado_competencia",
-DROP COLUMN "fecha_ultima_actualizacion",
-DROP COLUMN "id_competencias",
-DROP COLUMN "nombre_competencias",
+ALTER TABLE "competencias" DROP CONSTRAINT IF EXISTS "competencias_pkey",
+DROP COLUMN IF EXISTS "estado_competencia",
+DROP COLUMN IF EXISTS "fecha_ultima_actualizacion",
+DROP COLUMN IF EXISTS "id_competencias",
+DROP COLUMN IF EXISTS "nombre_competencias",
 ADD COLUMN     "estado" BOOLEAN NOT NULL DEFAULT true,
 ADD COLUMN     "id_competencia" SERIAL NOT NULL,
 ADD COLUMN     "nombre" VARCHAR(200) NOT NULL,
@@ -146,81 +146,81 @@ ADD COLUMN     "updated_at" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
 ADD CONSTRAINT "competencias_pkey" PRIMARY KEY ("id_competencia");
 
 -- AlterTable
-ALTER TABLE "grados_ocupacionales" DROP CONSTRAINT "grados_ocupacionales_pkey",
-DROP COLUMN "Id_Grado_Ocupacional",
-DROP COLUMN "Nombre_Grado",
+ALTER TABLE "grados_ocupacionales" DROP CONSTRAINT IF EXISTS "grados_ocupacionales_pkey",
+DROP COLUMN IF EXISTS "Id_Grado_Ocupacional",
+DROP COLUMN IF EXISTS "Nombre_Grado",
 ADD COLUMN     "id_grado_ocupacional" SERIAL NOT NULL,
 ADD COLUMN     "nombre" VARCHAR(200) NOT NULL,
 ADD CONSTRAINT "grados_ocupacionales_pkey" PRIMARY KEY ("id_grado_ocupacional");
 
 -- AlterTable
-ALTER TABLE "instituciones_sistema" DROP CONSTRAINT "instituciones_sistema_pkey",
-DROP COLUMN "Id_Institucion",
-DROP COLUMN "Nombre_Institucion",
-DROP COLUMN "Tipo_Institucion",
+ALTER TABLE "instituciones_sistema" DROP CONSTRAINT IF EXISTS "instituciones_sistema_pkey",
+DROP COLUMN IF EXISTS "Id_Institucion",
+DROP COLUMN IF EXISTS "Nombre_Institucion",
+DROP COLUMN IF EXISTS "Tipo_Institucion",
 ADD COLUMN     "id_institucion" SERIAL NOT NULL,
 ADD COLUMN     "nombre" VARCHAR(300) NOT NULL,
 ADD COLUMN     "tipo" VARCHAR(100),
 ADD CONSTRAINT "instituciones_sistema_pkey" PRIMARY KEY ("id_institucion");
 
 -- AlterTable
-ALTER TABLE "mancomunidades" DROP CONSTRAINT "mancomunidades_pkey",
-DROP COLUMN "Id_Mancomunidad",
-DROP COLUMN "Nombre_Mancomunidad",
+ALTER TABLE "mancomunidades" DROP CONSTRAINT IF EXISTS "mancomunidades_pkey",
+DROP COLUMN IF EXISTS "Id_Mancomunidad",
+DROP COLUMN IF EXISTS "Nombre_Mancomunidad",
 ADD COLUMN     "id_mancomunidad" SERIAL NOT NULL,
 ADD COLUMN     "nombre" VARCHAR(300) NOT NULL,
 ADD CONSTRAINT "mancomunidades_pkey" PRIMARY KEY ("id_mancomunidad");
 
 -- DropTable
-DROP TABLE "Autoridades";
+DROP TABLE IF EXISTS "Autoridades";
 
 -- DropTable
-DROP TABLE "Cantones";
+DROP TABLE IF EXISTS "Cantones";
 
 -- DropTable
-DROP TABLE "Capacitaciones";
+DROP TABLE IF EXISTS "Capacitaciones";
 
 -- DropTable
-DROP TABLE "Certificados";
+DROP TABLE IF EXISTS "Certificados";
 
 -- DropTable
-DROP TABLE "Entidades";
+DROP TABLE IF EXISTS "Entidades";
 
 -- DropTable
-DROP TABLE "Etnias";
+DROP TABLE IF EXISTS "Etnias";
 
 -- DropTable
-DROP TABLE "FuncionarioGAD";
+DROP TABLE IF EXISTS "FuncionarioGAD";
 
 -- DropTable
-DROP TABLE "Generos";
+DROP TABLE IF EXISTS "Generos";
 
 -- DropTable
-DROP TABLE "Instituciones_usuario";
+DROP TABLE IF EXISTS "Instituciones_usuario";
 
 -- DropTable
-DROP TABLE "Nacionalidades";
+DROP TABLE IF EXISTS "Nacionalidades";
 
 -- DropTable
-DROP TABLE "Plantillas";
+DROP TABLE IF EXISTS "Plantillas";
 
 -- DropTable
-DROP TABLE "Provincias";
+DROP TABLE IF EXISTS "Provincias";
 
 -- DropTable
-DROP TABLE "Rol";
+DROP TABLE IF EXISTS "Rol";
 
 -- DropTable
-DROP TABLE "TiposParticipante";
+DROP TABLE IF EXISTS "TiposParticipante";
 
 -- DropTable
-DROP TABLE "Usuario";
+DROP TABLE IF EXISTS "Usuario";
 
 -- DropTable
-DROP TABLE "Usuarios_Capacitaciones";
+DROP TABLE IF EXISTS "Usuarios_Capacitaciones";
 
 -- DropTable
-DROP TABLE "parroquia";
+DROP TABLE IF EXISTS "parroquia";
 
 -- CreateTable
 CREATE TABLE "roles" (

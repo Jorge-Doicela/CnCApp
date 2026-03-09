@@ -5,11 +5,25 @@
 
 */
 -- AlterTable
-ALTER TABLE "Instituciones_usuario" ADD COLUMN     "Id_Grado_Ocupacional" INTEGER;
+DO $$ 
+BEGIN 
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='Instituciones_usuario' AND column_name='Id_Grado_Ocupacional') THEN
+        ALTER TABLE "Instituciones_usuario" ADD COLUMN "Id_Grado_Ocupacional" INTEGER;
+    END IF;
+END $$;
 
 -- AlterTable
-ALTER TABLE "Usuario" DROP COLUMN "nacionalidad",
-ADD COLUMN     "Id_Nacionalidad" INTEGER;
+DO $$ 
+BEGIN 
+    -- Evitar error si nacionalidad ya fue eliminada o Id_Nacionalidad ya existe
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='Usuario' AND column_name='nacionalidad') THEN
+        ALTER TABLE "Usuario" DROP COLUMN "nacionalidad";
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='Usuario' AND column_name='Id_Nacionalidad') THEN
+        ALTER TABLE "Usuario" ADD COLUMN "Id_Nacionalidad" INTEGER;
+    END IF;
+END $$;
 
 -- CreateTable
 CREATE TABLE "grados_ocupacionales" (
