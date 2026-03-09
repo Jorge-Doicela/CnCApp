@@ -125,51 +125,137 @@ DROP INDEX IF EXISTS "grados_ocupacionales_Nombre_Grado_key";
 -- DropIndex
 DROP INDEX IF EXISTS "instituciones_sistema_Nombre_Institucion_key";
 
--- AlterTable
-ALTER TABLE "cargos" DROP CONSTRAINT IF EXISTS "cargos_pkey",
-DROP COLUMN IF EXISTS "Id_Cargo",
-DROP COLUMN IF EXISTS "Nombre_Cargo",
-ADD COLUMN     "id_cargo" SERIAL NOT NULL,
-ADD COLUMN     "nombre" VARCHAR(200) NOT NULL,
-ADD CONSTRAINT "cargos_pkey" PRIMARY KEY ("id_cargo");
+-- AlterTable (Safely migrate cargos)
+DO $$ 
+BEGIN 
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='cargos' AND column_name='id_cargo') THEN
+        ALTER TABLE "cargos" ADD COLUMN "id_cargo" SERIAL;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='cargos' AND column_name='nombre') THEN
+        ALTER TABLE "cargos" ADD COLUMN "nombre" VARCHAR(200);
+        IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='cargos' AND column_name='Nombre_Cargo') THEN
+            UPDATE "cargos" SET "nombre" = "Nombre_Cargo";
+        END IF;
+        UPDATE "cargos" SET "nombre" = 'Pendiente' WHERE "nombre" IS NULL;
+        ALTER TABLE "cargos" ALTER COLUMN "nombre" SET NOT NULL;
+    END IF;
+    ALTER TABLE "cargos" DROP CONSTRAINT IF EXISTS "cargos_pkey";
+    ALTER TABLE "cargos" DROP COLUMN IF EXISTS "Id_Cargo";
+    ALTER TABLE "cargos" DROP COLUMN IF EXISTS "Nombre_Cargo";
+    IF NOT EXISTS (SELECT 1 FROM information_schema.table_constraints WHERE table_name='cargos' AND constraint_name='cargos_pkey') THEN
+        ALTER TABLE "cargos" ADD CONSTRAINT "cargos_pkey" PRIMARY KEY ("id_cargo");
+    END IF;
+END $$;
 
--- AlterTable
-ALTER TABLE "competencias" DROP CONSTRAINT IF EXISTS "competencias_pkey",
-DROP COLUMN IF EXISTS "estado_competencia",
-DROP COLUMN IF EXISTS "fecha_ultima_actualizacion",
-DROP COLUMN IF EXISTS "id_competencias",
-DROP COLUMN IF EXISTS "nombre_competencias",
-ADD COLUMN     "estado" BOOLEAN NOT NULL DEFAULT true,
-ADD COLUMN     "id_competencia" SERIAL NOT NULL,
-ADD COLUMN     "nombre" VARCHAR(200) NOT NULL,
-ADD COLUMN     "updated_at" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
-ADD CONSTRAINT "competencias_pkey" PRIMARY KEY ("id_competencia");
+-- AlterTable (Safely migrate competencias)
+DO $$ 
+BEGIN 
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='competencias' AND column_name='id_competencia') THEN
+        ALTER TABLE "competencias" ADD COLUMN "id_competencia" SERIAL;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='competencias' AND column_name='nombre') THEN
+        ALTER TABLE "competencias" ADD COLUMN "nombre" VARCHAR(200);
+        IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='competencias' AND column_name='nombre_competencias') THEN
+            UPDATE "competencias" SET "nombre" = "nombre_competencias";
+        END IF;
+        UPDATE "competencias" SET "nombre" = 'Pendiente' WHERE "nombre" IS NULL;
+        ALTER TABLE "competencias" ALTER COLUMN "nombre" SET NOT NULL;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='competencias' AND column_name='estado') THEN
+        ALTER TABLE "competencias" ADD COLUMN "estado" BOOLEAN DEFAULT true;
+        IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='competencias' AND column_name='estado_competencia') THEN
+            UPDATE "competencias" SET "estado" = "estado_competencia";
+        END IF;
+        ALTER TABLE "competencias" ALTER COLUMN "estado" SET NOT NULL;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='competencias' AND column_name='updated_at') THEN
+        ALTER TABLE "competencias" ADD COLUMN "updated_at" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP;
+        IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='competencias' AND column_name='fecha_ultima_actualizacion') THEN
+            UPDATE "competencias" SET "updated_at" = "fecha_ultima_actualizacion";
+        END IF;
+    END IF;
+    ALTER TABLE "competencias" DROP CONSTRAINT IF EXISTS "competencias_pkey";
+    ALTER TABLE "competencias" DROP COLUMN IF EXISTS "estado_competencia";
+    ALTER TABLE "competencias" DROP COLUMN IF EXISTS "fecha_ultima_actualizacion";
+    ALTER TABLE "competencias" DROP COLUMN IF EXISTS "id_competencias";
+    ALTER TABLE "competencias" DROP COLUMN IF EXISTS "nombre_competencias";
+    IF NOT EXISTS (SELECT 1 FROM information_schema.table_constraints WHERE table_name='competencias' AND constraint_name='competencias_pkey') THEN
+        ALTER TABLE "competencias" ADD CONSTRAINT "competencias_pkey" PRIMARY KEY ("id_competencia");
+    END IF;
+END $$;
 
--- AlterTable
-ALTER TABLE "grados_ocupacionales" DROP CONSTRAINT IF EXISTS "grados_ocupacionales_pkey",
-DROP COLUMN IF EXISTS "Id_Grado_Ocupacional",
-DROP COLUMN IF EXISTS "Nombre_Grado",
-ADD COLUMN     "id_grado_ocupacional" SERIAL NOT NULL,
-ADD COLUMN     "nombre" VARCHAR(200) NOT NULL,
-ADD CONSTRAINT "grados_ocupacionales_pkey" PRIMARY KEY ("id_grado_ocupacional");
+-- AlterTable (Safely migrate grados_ocupacionales)
+DO $$ 
+BEGIN 
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='grados_ocupacionales' AND column_name='id_grado_ocupacional') THEN
+        ALTER TABLE "grados_ocupacionales" ADD COLUMN "id_grado_ocupacional" SERIAL;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='grados_ocupacionales' AND column_name='nombre') THEN
+        ALTER TABLE "grados_ocupacionales" ADD COLUMN "nombre" VARCHAR(200);
+        IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='grados_ocupacionales' AND column_name='Nombre_Grado') THEN
+            UPDATE "grados_ocupacionales" SET "nombre" = "Nombre_Grado";
+        END IF;
+        UPDATE "grados_ocupacionales" SET "nombre" = 'Pendiente' WHERE "nombre" IS NULL;
+        ALTER TABLE "grados_ocupacionales" ALTER COLUMN "nombre" SET NOT NULL;
+    END IF;
+    ALTER TABLE "grados_ocupacionales" DROP CONSTRAINT IF EXISTS "grados_ocupacionales_pkey";
+    ALTER TABLE "grados_ocupacionales" DROP COLUMN IF EXISTS "Id_Grado_Ocupacional";
+    ALTER TABLE "grados_ocupacionales" DROP COLUMN IF EXISTS "Nombre_Grado";
+    IF NOT EXISTS (SELECT 1 FROM information_schema.table_constraints WHERE table_name='grados_ocupacionales' AND constraint_name='grados_ocupacionales_pkey') THEN
+        ALTER TABLE "grados_ocupacionales" ADD CONSTRAINT "grados_ocupacionales_pkey" PRIMARY KEY ("id_grado_ocupacional");
+    END IF;
+END $$;
 
--- AlterTable
-ALTER TABLE "instituciones_sistema" DROP CONSTRAINT IF EXISTS "instituciones_sistema_pkey",
-DROP COLUMN IF EXISTS "Id_Institucion",
-DROP COLUMN IF EXISTS "Nombre_Institucion",
-DROP COLUMN IF EXISTS "Tipo_Institucion",
-ADD COLUMN     "id_institucion" SERIAL NOT NULL,
-ADD COLUMN     "nombre" VARCHAR(300) NOT NULL,
-ADD COLUMN     "tipo" VARCHAR(100),
-ADD CONSTRAINT "instituciones_sistema_pkey" PRIMARY KEY ("id_institucion");
+-- AlterTable (Safely migrate instituciones_sistema)
+DO $$ 
+BEGIN 
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='instituciones_sistema' AND column_name='id_institucion') THEN
+        ALTER TABLE "instituciones_sistema" ADD COLUMN "id_institucion" SERIAL;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='instituciones_sistema' AND column_name='nombre') THEN
+        ALTER TABLE "instituciones_sistema" ADD COLUMN "nombre" VARCHAR(300);
+        IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='instituciones_sistema' AND column_name='Nombre_Institucion') THEN
+            UPDATE "instituciones_sistema" SET "nombre" = "Nombre_Institucion";
+        END IF;
+        UPDATE "instituciones_sistema" SET "nombre" = 'Pendiente' WHERE "nombre" IS NULL;
+        ALTER TABLE "instituciones_sistema" ALTER COLUMN "nombre" SET NOT NULL;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='instituciones_sistema' AND column_name='tipo') THEN
+        ALTER TABLE "instituciones_sistema" ADD COLUMN "tipo" VARCHAR(100);
+        IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='instituciones_sistema' AND column_name='Tipo_Institucion') THEN
+            UPDATE "instituciones_sistema" SET "tipo" = "Tipo_Institucion";
+        END IF;
+    END IF;
+    ALTER TABLE "instituciones_sistema" DROP CONSTRAINT IF EXISTS "instituciones_sistema_pkey";
+    ALTER TABLE "instituciones_sistema" DROP COLUMN IF EXISTS "Id_Institucion";
+    ALTER TABLE "instituciones_sistema" DROP COLUMN IF EXISTS "Nombre_Institucion";
+    ALTER TABLE "instituciones_sistema" DROP COLUMN IF EXISTS "Tipo_Institucion";
+    IF NOT EXISTS (SELECT 1 FROM information_schema.table_constraints WHERE table_name='instituciones_sistema' AND constraint_name='instituciones_sistema_pkey') THEN
+        ALTER TABLE "instituciones_sistema" ADD CONSTRAINT "instituciones_sistema_pkey" PRIMARY KEY ("id_institucion");
+    END IF;
+END $$;
 
--- AlterTable
-ALTER TABLE "mancomunidades" DROP CONSTRAINT IF EXISTS "mancomunidades_pkey",
-DROP COLUMN IF EXISTS "Id_Mancomunidad",
-DROP COLUMN IF EXISTS "Nombre_Mancomunidad",
-ADD COLUMN     "id_mancomunidad" SERIAL NOT NULL,
-ADD COLUMN     "nombre" VARCHAR(300) NOT NULL,
-ADD CONSTRAINT "mancomunidades_pkey" PRIMARY KEY ("id_mancomunidad");
+-- AlterTable (Safely migrate mancomunidades)
+DO $$ 
+BEGIN 
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='mancomunidades' AND column_name='id_mancomunidad') THEN
+        ALTER TABLE "mancomunidades" ADD COLUMN "id_mancomunidad" SERIAL;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='mancomunidades' AND column_name='nombre') THEN
+        ALTER TABLE "mancomunidades" ADD COLUMN "nombre" VARCHAR(300);
+        IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='mancomunidades' AND column_name='Nombre_Mancomunidad') THEN
+            UPDATE "mancomunidades" SET "nombre" = "Nombre_Mancomunidad";
+        END IF;
+        UPDATE "mancomunidades" SET "nombre" = 'Pendiente' WHERE "nombre" IS NULL;
+        ALTER TABLE "mancomunidades" ALTER COLUMN "nombre" SET NOT NULL;
+    END IF;
+    ALTER TABLE "mancomunidades" DROP CONSTRAINT IF EXISTS "mancomunidades_pkey";
+    ALTER TABLE "mancomunidades" DROP COLUMN IF EXISTS "Id_Mancomunidad";
+    ALTER TABLE "mancomunidades" DROP COLUMN IF EXISTS "Nombre_Mancomunidad";
+    IF NOT EXISTS (SELECT 1 FROM information_schema.table_constraints WHERE table_name='mancomunidades' AND constraint_name='mancomunidades_pkey') THEN
+        ALTER TABLE "mancomunidades" ADD CONSTRAINT "mancomunidades_pkey" PRIMARY KEY ("id_mancomunidad");
+    END IF;
+END $$;
 
 -- DropTable
 DROP TABLE IF EXISTS "Autoridades";
