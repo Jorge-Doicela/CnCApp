@@ -1,25 +1,26 @@
 import { injectable } from 'tsyringe';
 import jwt from 'jsonwebtoken';
 import { TokenProvider, TokenPayload, AuthTokens } from '../../domain/auth/auth.ports';
+import { env } from '../../config/env';
 
 @injectable()
 export class JwtTokenProvider implements TokenProvider {
-    private readonly ACCESS_SECRET = process.env.JWT_SECRET || 'fallback_secret';
-    private readonly REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'fallback_refresh';
-    private readonly ACCESS_EXPIRES = '15m'; // or from env
-    private readonly REFRESH_EXPIRES = '7d';
+    private readonly ACCESS_SECRET = env.JWT_SECRET;
+    private readonly REFRESH_SECRET = env.JWT_REFRESH_SECRET;
+    private readonly ACCESS_EXPIRES = env.JWT_EXPIRES_IN;
+    private readonly REFRESH_EXPIRES = env.JWT_REFRESH_EXPIRES_IN;
 
     generateTokens(payload: TokenPayload): AuthTokens {
         const accessToken = jwt.sign(
             { userId: payload.userId, ci: payload.ci, roleId: payload.roleId, roleName: payload.roleName },
             this.ACCESS_SECRET,
-            { expiresIn: this.ACCESS_EXPIRES }
+            { expiresIn: this.ACCESS_EXPIRES as any }
         );
 
         const refreshToken = jwt.sign(
             { userId: payload.userId, ci: payload.ci, roleId: payload.roleId, roleName: payload.roleName },
             this.REFRESH_SECRET,
-            { expiresIn: this.REFRESH_EXPIRES }
+            { expiresIn: this.REFRESH_EXPIRES as any }
         );
 
         return { accessToken, refreshToken };

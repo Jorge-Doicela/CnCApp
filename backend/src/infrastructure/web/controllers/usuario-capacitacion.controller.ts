@@ -5,6 +5,8 @@ import { InscribirUsuarioUseCase } from '../../../application/usuario-capacitaci
 import { EliminarInscripcionUseCase } from '../../../application/usuario-capacitacion/use-cases/eliminar-inscripcion.use-case';
 import { ActualizarAsistenciaUseCase } from '../../../application/usuario-capacitacion/use-cases/actualizar-asistencia.use-case';
 import { UsuarioCapacitacionRepository } from '../../../domain/usuario-capacitacion/usuario-capacitacion.repository';
+import { AuthRequest } from '../middleware/auth.middleware';
+import { ROLES } from '../../../domain/shared/constants/roles.constants';
 
 @injectable()
 export class UsuarioCapacitacionController {
@@ -53,14 +55,23 @@ export class UsuarioCapacitacionController {
     };
 
     // GET /api/usuarios-capacitaciones/usuario/:idUsuario
-    getByUsuarioId = async (req: Request, res: Response, next: NextFunction) => {
+    getByUsuarioId = async (req: AuthRequest, res: Response, next: NextFunction) => {
         try {
             const { idUsuario } = req.params;
+            const targetUserId = Number(idUsuario);
+
+            // Security check: Only owner or STAFF can view history
+            const isStaff = req.userRoleName === ROLES.ADMINISTRADOR || req.userRoleName === ROLES.CONFERENCISTA;
+            if (!isStaff && req.userId !== targetUserId) {
+                res.status(403).json({ message: 'No tienes permiso para ver el historial de otro usuario' });
+                return;
+            }
+
             if (!idUsuario) {
                 res.status(400).json({ message: 'Missing idUsuario param' });
                 return;
             }
-            const data = await this.usuarioCapacitacionRepository.findByUsuarioId(Number(idUsuario));
+            const data = await this.usuarioCapacitacionRepository.findByUsuarioId(targetUserId);
             res.status(200).json(data);
         } catch (error) {
             next(error);
@@ -68,17 +79,30 @@ export class UsuarioCapacitacionController {
     };
 
     // POST /api/usuarios-capacitaciones
-    inscribir = async (req: Request, res: Response, next: NextFunction) => {
+    inscribir = async (req: AuthRequest, res: Response, next: NextFunction) => {
         try {
-            const { Id_Capacitacion, Id_Usuario, Rol_Capacitacion, Asistencia, Estado_Inscripcion } = req.body;
+            const { 
+                Id_Capacitacion, Id_Usuario, Rol_Capacitacion, Asistencia, Estado_Inscripcion,
+                capacitacionId, usuarioId, rolCapacitacion, asistio, estadoInscripcion 
+            } = req.body;
 
-            // Map frontend PascalCase to backend camelCase
+            // Support both PascalCase (legacy) and camelCase
+            const finalCapacitacionId = capacitacionId || Id_Capacitacion;
+            const finalUsuarioId = usuarioId || Id_Usuario;
+
+            // Security check: A user can only enroll themselves, unless they are STAFF
+            const isStaff = req.userRoleName === ROLES.ADMINISTRADOR || req.userRoleName === ROLES.CONFERENCISTA;
+            if (!isStaff && req.userId !== Number(finalUsuarioId)) {
+                res.status(403).json({ message: 'No puedes inscribir a otro usuario' });
+                return;
+            }
+
             const data = await this.inscribirUsuarioUseCase.execute({
-                capacitacionId: Id_Capacitacion,
-                usuarioId: Id_Usuario,
-                rolCapacitacion: Rol_Capacitacion,
-                asistio: Asistencia,
-                estadoInscripcion: Estado_Inscripcion
+                capacitacionId: finalCapacitacionId,
+                usuarioId: finalUsuarioId,
+                rolCapacitacion: rolCapacitacion || Rol_Capacitacion,
+                asistio: asistio !== undefined ? asistio : Asistencia,
+                estadoInscripcion: estadoInscripcion || Estado_Inscripcion
             });
             res.status(201).json(data);
         } catch (error) {
@@ -109,10 +133,19 @@ export class UsuarioCapacitacionController {
     };
 
     // DELETE /api/usuarios-capacitaciones/:idCapacitacion/:idUsuario
-    cancelarInscripcion = async (req: Request, res: Response, next: NextFunction) => {
+    cancelarInscripcion = async (req: AuthRequest, res: Response, next: NextFunction) => {
         try {
             const { idCapacitacion, idUsuario } = req.params;
-            await this.usuarioCapacitacionRepository.deleteByCapacitacionAndUser(Number(idCapacitacion), Number(idUsuario));
+            const targetUserId = Number(idUsuario);
+
+            // Security check: Only owner or STAFF can cancel enrollment
+            const isStaff = req.userRoleName === ROLES.ADMINISTRADOR || req.userRoleName === ROLES.CONFERENCISTA;
+            if (!isStaff && req.userId !== targetUserId) {
+                res.status(403).json({ message: 'No puedes cancelar la inscripción de otro usuario' });
+                return;
+            }
+
+            await this.usuarioCapacitacionRepository.deleteByCapacitacionAndUser(Number(idCapacitacion), targetUserId);
             res.status(200).json({ message: 'Inscripción cancelada' });
         } catch (error) {
             next(error);

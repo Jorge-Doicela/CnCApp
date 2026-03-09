@@ -16,7 +16,9 @@ const envSchema = z.object({
 
     // Security
     JWT_SECRET: z.string().min(10, { message: "JWT_SECRET must be at least 10 characters long" }),
+    JWT_REFRESH_SECRET: z.string().min(10, { message: "JWT_REFRESH_SECRET must be at least 10 characters long" }).default('default_refresh_secret_change_me'),
     JWT_EXPIRES_IN: z.string().default('24h'),
+    JWT_REFRESH_EXPIRES_IN: z.string().default('7d'),
     BCRYPT_ROUNDS: z.string().transform(Number).default('10'),
 
     // Rate Limiting
