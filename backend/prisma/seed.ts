@@ -230,13 +230,13 @@ async function main() {
 
         const usersData = [
             // Administrators
-            { nombre: 'JORGE DOICELA', ci: '1234567890', email: 'jorge.doicela@cnc.gob.ec', roleId: adminRole.id, authUid: 'admin-01' },
-            { nombre: 'KAREN MENDOZA', ci: '1722334455', email: 'karen.mendoza@cnc.gob.ec', roleId: adminRole.id, authUid: 'admin-02' },
+            { nombre: 'JORGE DOICELA', ci: '1710101011', email: 'jorge.doicela@cnc.gob.ec', roleId: adminRole.id, authUid: 'admin-01' },
+            { nombre: 'KAREN MENDOZA', ci: '1722334453', email: 'karen.mendoza@cnc.gob.ec', roleId: adminRole.id, authUid: 'admin-02' },
 
             // Conferencistas
-            { nombre: 'DR. RICARDO PAZMIÑO', ci: '0911223344', email: 'ricardo.pazmino@capacitacion.ec', roleId: conferencistaRole.id, authUid: 'conf-01' },
-            { nombre: 'MAG. ELENA VITERI', ci: '0102030405', email: 'elena.viteri@consultoria.com', roleId: conferencistaRole.id, authUid: 'conf-02' },
-            { nombre: 'ING. SEBASTIÁN NOBOA', ci: '1803040506', email: 'snoboa@expertos.org', roleId: conferencistaRole.id, authUid: 'conf-03' },
+            { nombre: 'DR. RICARDO PAZMIÑO', ci: '0911223345', email: 'ricardo.pazmino@capacitacion.ec', roleId: conferencistaRole.id, authUid: 'conf-01' },
+            { nombre: 'MAG. ELENA VITERI', ci: '0102030400', email: 'elena.viteri@consultoria.com', roleId: conferencistaRole.id, authUid: 'conf-02' },
+            { nombre: 'ING. SEBASTIÁN NOBOA', ci: '1803040502', email: 'snoboa@expertos.org', roleId: conferencistaRole.id, authUid: 'conf-03' },
 
             // Participants (Varied Regions)
             { nombre: 'FABIÁN IZQUIERDO', ci: '1755112233', email: 'fizquierdo@quito.gob.ec', roleId: usuarioRole.id, authUid: 'user-01' },
