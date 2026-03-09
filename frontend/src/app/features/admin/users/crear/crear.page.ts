@@ -2,7 +2,7 @@ import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, ChangeDetectorRef, inject, ChangeDetectionStrategy } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { ToastController, LoadingController, AlertController } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import {
@@ -24,7 +24,7 @@ import { firstValueFrom } from 'rxjs';
   templateUrl: './crear.page.html',
   styleUrls: ['./crear.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule],
+  imports: [CommonModule, FormsModule, IonicModule, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CrearPage implements OnInit {
