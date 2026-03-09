@@ -32,7 +32,6 @@ logs/
 coverage/
 
 # Prisma
-prisma/migrations/
 
 # Uploads
 uploads/
