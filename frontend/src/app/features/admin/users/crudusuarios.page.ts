@@ -15,6 +15,7 @@ import { AuthService } from 'src/app/features/auth/services/auth.service';
 import { Usuario } from '../../../core/models/usuario.interface';
 import { ErrorHandlerUtil } from 'src/app/shared/utils/error-handler.util';
 import { TipoParticipanteEnum } from 'src/app/shared/constants/enums';
+import { CatalogoService } from 'src/app/shared/services/catalogo.service';
 import { firstValueFrom } from 'rxjs';
 
 @Component({
@@ -29,6 +30,9 @@ export class CRUDUsuariosPage implements OnInit {
   usuarios: Usuario[] = [];
   filteredUsuarios: Usuario[] = [];
   searchTerm: string = '';
+  filterRol: string = 'todos';
+  filterTipo: string = 'todos';
+  roles: any[] = [];
   cargando: boolean = true;
 
   private usuarioService = inject(UsuarioService);
@@ -37,6 +41,7 @@ export class CRUDUsuariosPage implements OnInit {
   private alertController = inject(AlertController);
   private toastController = inject(ToastController);
   private loadingCtrl = inject(LoadingController);
+  private catalogoService = inject(CatalogoService);
 
   private cd = inject(ChangeDetectorRef);
 
@@ -64,6 +69,7 @@ export class CRUDUsuariosPage implements OnInit {
 
   ngOnInit() {
     this.RecuperarUsuarios();
+    this.RecuperarRoles();
   }
 
   getTipoParticipante(tipo: number | string): string {
@@ -84,6 +90,17 @@ export class CRUDUsuariosPage implements OnInit {
   getTiposUnicos(): number {
     const tipos = new Set(this.usuarios.map((u: any) => u.tipoParticipanteId || u.tipoParticipante?.id).filter(id => !!id));
     return tipos.size;
+  }
+
+  async RecuperarRoles() {
+    try {
+      const data = await firstValueFrom(this.catalogoService.getItems('rol'));
+      this.roles = data ?? [];
+    } catch (error) {
+      console.error('Error al obtener los roles:', error);
+    } finally {
+      this.cd.markForCheck();
+    }
   }
 
   async RecuperarUsuarios() {
@@ -120,19 +137,35 @@ export class CRUDUsuariosPage implements OnInit {
   }
 
   filtrarUsuarios() {
-    if (!this.searchTerm.trim()) {
-      this.filteredUsuarios = [...this.usuarios];
-      return;
+    let results = [...this.usuarios];
+
+    // Búsqueda por texto
+    if (this.searchTerm.trim()) {
+      const term = this.searchTerm.toLowerCase().trim();
+      results = results.filter((usuario: any) =>
+        (usuario.nombre || '').toLowerCase().includes(term) ||
+        (usuario.ci || '').toLowerCase().includes(term) ||
+        (usuario.email || '').toLowerCase().includes(term) ||
+        (usuario.rol?.nombre || '').toLowerCase().includes(term) ||
+        (usuario.entidad?.nombre || '').toLowerCase().includes(term)
+      );
     }
 
-    const term = this.searchTerm.toLowerCase().trim();
-    this.filteredUsuarios = this.usuarios.filter((usuario: any) =>
-      (usuario.nombre || '').toLowerCase().includes(term) ||
-      (usuario.ci || '').toLowerCase().includes(term) ||
-      (usuario.email || '').toLowerCase().includes(term) ||
-      (usuario.rol?.nombre || '').toLowerCase().includes(term) ||
-      (usuario.entidad?.nombre || '').toLowerCase().includes(term)
-    );
+    // Filtro por Rol
+    if (this.filterRol !== 'todos') {
+      results = results.filter((u: any) => u.rol?.nombre === this.filterRol);
+    }
+
+    // Filtro por Tipo de Participante
+    if (this.filterTipo !== 'todos') {
+      results = results.filter((u: any) => {
+        const tipoId = u.tipoParticipanteId || u.tipoParticipante?.id;
+        return String(tipoId) === this.filterTipo;
+      });
+    }
+
+    this.filteredUsuarios = results;
+    this.cd.markForCheck();
   }
 
   async confirmarEliminar(usuario: any) {

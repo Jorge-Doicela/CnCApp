@@ -84,6 +84,21 @@
     font-size: 0.9rem;
   }
 
+  .filter-select {
+    min-width: 160px;
+    height: 44px;
+    --background: #f8fafc;
+    --border-radius: 12px;
+    --padding-start: 12px;
+    --padding-end: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #475569;
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+    border-radius: 12px;
+  }
+
   .btn-create {
     height: 44px;
     --border-radius: 12px;
