@@ -790,7 +790,7 @@ export class CrearPage implements OnInit {
   }
 
   // Obtener cantones por provincia
-  async obtenerCantones(provinciaId: number) {
+  async obtenerCantones(provinciaId: any) {
     if (!provinciaId) return;
     try {
       const data = await firstValueFrom(this.catalogoService.getItems('cantones'));
@@ -805,7 +805,7 @@ export class CrearPage implements OnInit {
   }
 
   // Obtener parroquias por cantón
-  async obtenerParroquias(cantonId: string) {
+  async obtenerParroquias(cantonId: any) {
     if (!cantonId) return;
     try {
       const data = await firstValueFrom(this.catalogoService.getItems('parroquias'));
