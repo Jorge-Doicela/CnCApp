@@ -21,13 +21,17 @@
             <div (click)="navegarModulo('/')" class="encased-item" [class.active]="isActive('/')">Inicio</div>
             <div (click)="navegarModulo('servi-progra')" class="encased-item" [class.active]="isActive('servi-progra')">
               Servicios</div>
+            <div (click)="navegarModulo('direccion')" class="encased-item" [class.active]="isActive('direccion')">
+              Dirección</div>
             <div (click)="navegarModulo('historia')" class="encased-item" [class.active]="isActive('historia')">Historia
             </div>
+            <div (click)="navegarModulo('norma-regul')" class="encased-item" [class.active]="isActive('norma-regul')">
+              Norma</div>
             <div (click)="navegarModulo('informacion')" class="encased-item" [class.active]="isActive('informacion')">
-              Información</div>
+              Nosotros</div>
             <div class="nav-separator"></div>
             <div (click)="navegarModulo('validar-certificados')" class="encased-item"
-              [class.active]="isActive('validar-certificados')">Verificación</div>
+              [class.active]="isActive('validar-certificados')">Validar</div>
           </ng-container>
 
           <!-- ADMIN NAVIGATION: Tools -->
