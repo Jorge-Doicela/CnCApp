@@ -2,9 +2,9 @@
   <div class="main-container">
 
     <div class="top-nav animate-fade-in">
-      <ion-button fill="clear" color="medium" size="small" routerLink="/gestionar-usuarios" class="btn-back">
+      <ion-button fill="clear" class="btn-back" routerLink="/gestionar-usuarios">
         <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
-        Regresar a Gestión de Usuarios
+        REGRESAR AL PANEL
       </ion-button>
       <div class="date-display">
         <ion-icon name="calendar-outline"></ion-icon>
@@ -61,7 +61,7 @@
             <ion-item class="form-field">
               <ion-icon name="id-card-outline" slot="start"></ion-icon>
               <ion-label position="floating">Cédula (CI) <span class="required">*</span></ion-label>
-              <ion-input [(ngModel)]="usuarioGeneral.ci" (ionInput)="validarCedula()" type="text" maxlength="10" required></ion-input>
+              <ion-input [(ngModelChange)="guardarProgreso()"]="usuarioGeneral.ci" (ionInput)="validarCedula()" type="text" maxlength="10" required></ion-input>
             </ion-item>
             <div *ngIf="usuarioGeneral.ci"
               [ngClass]="{'validacion-error': !cedulaValidada, 'validacion-success': cedulaValidada}"
@@ -74,13 +74,13 @@
           <ion-item class="form-field">
             <ion-icon name="mail-outline" slot="start"></ion-icon>
             <ion-label position="floating">Correo Electrónico <span class="required">*</span></ion-label>
-            <ion-input [(ngModel)]="usuarioGeneral.email" type="email" required></ion-input>
+            <ion-input [(ngModelChange)="guardarProgreso()"]="usuarioGeneral.email" type="email" required></ion-input>
           </ion-item>
 
           <ion-item class="form-field">
             <ion-icon name="lock-closed-outline" slot="start"></ion-icon>
             <ion-label position="floating">Contraseña <span class="required">*</span></ion-label>
-            <ion-input [(ngModel)]="usuarioGeneral.password" [type]="showPassword ? 'text' : 'password'" required></ion-input>
+            <ion-input [(ngModelChange)="guardarProgreso()"]="usuarioGeneral.password" [type]="showPassword ? 'text' : 'password'" required></ion-input>
             <ion-button slot="end" fill="clear" (click)="togglePassword()" color="medium">
               <ion-icon [name]="showPassword ? 'eye-off-outline' : 'eye-outline'" slot="icon-only"></ion-icon>
             </ion-button>
@@ -91,7 +91,7 @@
           <ion-item class="form-field">
             <ion-icon name="key-outline" slot="start"></ion-icon>
             <ion-label>Rol de Usuario <span class="required">*</span></ion-label>
-            <ion-select [(ngModel)]="usuarioGeneral.rolId" placeholder="Seleccione Rol" interface="popover">
+            <ion-select [(ngModelChange)="guardarProgreso()"]="usuarioGeneral.rolId" placeholder="Seleccione Rol" interface="popover">
               <ion-select-option *ngFor="let rol of datosrecuperados.roles" [value]="rol.id">
                 {{ rol.nombre }}
               </ion-select-option>
@@ -101,7 +101,7 @@
           <ion-item class="form-field">
             <ion-icon name="people-outline" slot="start"></ion-icon>
             <ion-label>Tipo Participante <span class="required">*</span></ion-label>
-            <ion-select [(ngModel)]="usuarioGeneral.tipoParticipante" (ionChange)="onTipoParticipanteChange()"
+            <ion-select [(ngModelChange)="guardarProgreso()"]="usuarioGeneral.tipoParticipante" (ionChange)="onTipoParticipanteChange()"
               placeholder="Seleccione Tipo" interface="popover">
               <ion-select-option *ngFor="let tp of datosrecuperados.tiposParticipante" [value]="tp.id">
                 {{ tp.nombre }}
@@ -122,24 +122,24 @@
           <ion-item class="form-field">
             <ion-icon name="person-outline" slot="start"></ion-icon>
             <ion-label position="floating">Primer Nombre <span class="required">*</span></ion-label>
-            <ion-input [(ngModel)]="usuarioGeneral.primerNombre"></ion-input>
+            <ion-input [(ngModelChange)="guardarProgreso()"]="usuarioGeneral.primerNombre"></ion-input>
           </ion-item>
           <ion-item class="form-field">
             <ion-icon name="person-outline" slot="start"></ion-icon>
             <ion-label position="floating">Segundo Nombre</ion-label>
-            <ion-input [(ngModel)]="usuarioGeneral.segundoNombre"></ion-input>
+            <ion-input [(ngModelChange)="guardarProgreso()"]="usuarioGeneral.segundoNombre"></ion-input>
           </ion-item>
         </div>
         <div class="field-group">
           <ion-item class="form-field">
             <ion-icon name="person-outline" slot="start"></ion-icon>
             <ion-label position="floating">Primer Apellido <span class="required">*</span></ion-label>
-            <ion-input [(ngModel)]="usuarioGeneral.primerApellido"></ion-input>
+            <ion-input [(ngModelChange)="guardarProgreso()"]="usuarioGeneral.primerApellido"></ion-input>
           </ion-item>
           <ion-item class="form-field">
             <ion-icon name="person-outline" slot="start"></ion-icon>
             <ion-label position="floating">Segundo Apellido</ion-label>
-            <ion-input [(ngModel)]="usuarioGeneral.segundoApellido"></ion-input>
+            <ion-input [(ngModelChange)="guardarProgreso()"]="usuarioGeneral.segundoApellido"></ion-input>
           </ion-item>
         </div>
 
@@ -148,17 +148,17 @@
           <ion-item class="form-field">
             <ion-icon name="call-outline" slot="start"></ion-icon>
             <ion-label position="floating">Celular *</ion-label>
-            <ion-input [(ngModel)]="usuarioGeneral.celular" type="tel"></ion-input>
+            <ion-input [(ngModelChange)="guardarProgreso()"]="usuarioGeneral.celular" type="tel"></ion-input>
           </ion-item>
           <ion-item class="form-field">
             <ion-icon name="call-outline" slot="start"></ion-icon>
             <ion-label position="floating">Convencional</ion-label>
-            <ion-input [(ngModel)]="usuarioGeneral.convencional" type="tel"></ion-input>
+            <ion-input [(ngModelChange)="guardarProgreso()"]="usuarioGeneral.convencional" type="tel"></ion-input>
           </ion-item>
           <ion-item class="form-field">
             <ion-icon name="calendar-outline" slot="start"></ion-icon>
             <ion-label>Fecha Nacimiento *</ion-label>
-            <ion-input [(ngModel)]="usuarioGeneral.fechaNacimiento" type="date"></ion-input>
+            <ion-input [(ngModelChange)="guardarProgreso()"]="usuarioGeneral.fechaNacimiento" type="date"></ion-input>
           </ion-item>
         </div>
 
@@ -166,7 +166,7 @@
           <ion-item class="form-field">
             <ion-icon name="male-female-outline" slot="start"></ion-icon>
             <ion-label>Género *</ion-label>
-            <ion-select [(ngModel)]="usuarioGeneral.genero" placeholder="Seleccione" interface="popover">
+            <ion-select [(ngModelChange)="guardarProgreso()"]="usuarioGeneral.genero" placeholder="Seleccione" interface="popover">
               <ion-select-option value="Masculino">Masculino</ion-select-option>
               <ion-select-option value="Femenino">Femenino</ion-select-option>
               <ion-select-option value="Otro">Otro</ion-select-option>
@@ -175,7 +175,7 @@
           <ion-item class="form-field">
             <ion-icon name="people-outline" slot="start"></ion-icon>
             <ion-label>Etnia *</ion-label>
-            <ion-select [(ngModel)]="usuarioGeneral.etnia" placeholder="Seleccione" interface="popover">
+            <ion-select [(ngModelChange)="guardarProgreso()"]="usuarioGeneral.etnia" placeholder="Seleccione" interface="popover">
               <ion-select-option value="AFROECUATORIANO">Afroecuatoriano</ion-select-option>
               <ion-select-option value="BLANCO">Blanco</ion-select-option>
               <ion-select-option value="INDÍGENA">Indígena</ion-select-option>
@@ -198,7 +198,7 @@
           <ion-item class="form-field">
             <ion-icon name="globe-outline" slot="start"></ion-icon>
             <ion-label>Provincia *</ion-label>
-            <ion-select [(ngModel)]="datosbusqueda.selectedProvincia"
+            <ion-select [(ngModelChange)="guardarProgreso()"]="datosbusqueda.selectedProvincia"
               (ionChange)="obtenerCantones(datosbusqueda.selectedProvincia)" placeholder="Seleccione"
               interface="popover">
               <ion-select-option *ngFor="let provincia of datosrecuperados.provincias" [value]="provincia.id">
@@ -209,7 +209,7 @@
           <ion-item class="form-field">
             <ion-icon name="location-outline" slot="start"></ion-icon>
             <ion-label>Cantón *</ion-label>
-            <ion-select [(ngModel)]="usuarioGeneral.cantonId"
+            <ion-select [(ngModelChange)="guardarProgreso()"]="usuarioGeneral.cantonId"
               (ionChange)="obtenerParroquias(usuarioGeneral.cantonId)" placeholder="Seleccione" interface="popover"
               [disabled]="!datosrecuperados.cantones.length">
               <ion-select-option *ngFor="let canton of datosrecuperados.cantones" [value]="canton.id">
@@ -220,7 +220,7 @@
           <ion-item class="form-field">
             <ion-icon name="map-outline" slot="start"></ion-icon>
             <ion-label>Parroquia</ion-label>
-            <ion-select [(ngModel)]="usuarioGeneral.parroquiaId" placeholder="Seleccione" interface="popover"
+            <ion-select [(ngModelChange)="guardarProgreso()"]="usuarioGeneral.parroquiaId" placeholder="Seleccione" interface="popover"
               [disabled]="!datosrecuperados.parroquiasSeleccionadas.length">
               <ion-select-option *ngFor="let parroquia of datosrecuperados.parroquiasSeleccionadas"
                 [value]="parroquia.id">
@@ -239,7 +239,7 @@
           <div class="field-group">
             <ion-item class="form-field">
               <ion-label>Cargo *</ion-label>
-              <ion-select [(ngModel)]="autoridad.cargo" placeholder="Seleccione" interface="popover">
+              <ion-select [(ngModelChange)="guardarProgreso()"]="autoridad.cargo" placeholder="Seleccione" interface="popover">
                 <ion-select-option value="alcalde">Alcalde(sa)</ion-select-option>
                 <ion-select-option value="vicealcalde">Vicealcalde(sa)</ion-select-option>
                 <ion-select-option value="consejal">Consejal(a)</ion-select-option>
@@ -252,7 +252,7 @@
             </ion-item>
             <ion-item class="form-field">
               <ion-label>Nivel Gobierno *</ion-label>
-              <ion-select [(ngModel)]="autoridad.nivelGobierno" placeholder="Seleccione" interface="popover">
+              <ion-select [(ngModelChange)="guardarProgreso()"]="autoridad.nivelGobierno" placeholder="Seleccione" interface="popover">
                 <ion-select-option value="mancomunidad">Mancomunidad y Consorcios</ion-select-option>
                 <ion-select-option value="municipal">Municipal</ion-select-option>
                 <ion-select-option value="parroquial">Parroquial Rural</ion-select-option>
@@ -269,7 +269,7 @@
           <div class="field-group">
             <ion-item class="form-field">
               <ion-label>Cargo *</ion-label>
-              <ion-select [(ngModel)]="funcionarioGad.cargo" placeholder="Seleccione" interface="popover">
+              <ion-select [(ngModelChange)="guardarProgreso()"]="funcionarioGad.cargo" placeholder="Seleccione" interface="popover">
                 <ion-select-option value="asesor">Asesor(a)</ion-select-option>
                 <ion-select-option value="director">Director(a)</ion-select-option>
                 <ion-select-option value="jefe_dpto_unidad">Jefe Dpto</ion-select-option>
@@ -279,7 +279,7 @@
             </ion-item>
             <ion-item class="form-field">
               <ion-label>Nivel Gobierno *</ion-label>
-              <ion-select [(ngModel)]="funcionarioGad.nivelGobierno" placeholder="Seleccione" interface="popover">
+              <ion-select [(ngModelChange)="guardarProgreso()"]="funcionarioGad.nivelGobierno" placeholder="Seleccione" interface="popover">
                 <ion-select-option value="mancomunidad">Mancomunidad</ion-select-option>
                 <ion-select-option value="municipal">Municipal</ion-select-option>
                 <ion-select-option value="parroquial">Parroquial</ion-select-option>
@@ -295,7 +295,7 @@
           <div class="field-group">
             <ion-item class="form-field">
               <ion-label position="floating">Institución *</ion-label>
-              <ion-select [(ngModel)]="institucion.institucion" placeholder="Seleccione" interface="popover">
+              <ion-select [(ngModelChange)="guardarProgreso()"]="institucion.institucion" placeholder="Seleccione" interface="popover">
                 <ion-select-option *ngFor="let inst of datosrecuperados.instituciones" [value]="inst.id">
                   {{ inst.nombre }}
                 </ion-select-option>
@@ -303,7 +303,7 @@
             </ion-item>
             <ion-item class="form-field">
               <ion-label position="floating">Grado Ocupacional *</ion-label>
-              <ion-select [(ngModel)]="institucion.gradoOcupacional" placeholder="Seleccione" interface="popover">
+              <ion-select [(ngModelChange)="guardarProgreso()"]="institucion.gradoOcupacional" placeholder="Seleccione" interface="popover">
                 <ion-select-option *ngFor="let g of datosrecuperados.gradosOcupacionales" [value]="g.id">
                   {{ g.nombre }}
                 </ion-select-option>
@@ -313,7 +313,7 @@
           <div class="field-group" style="grid-column: span 2;">
             <ion-item class="form-field">
               <ion-label position="floating">Cargo *</ion-label>
-              <ion-select [(ngModel)]="institucion.cargo" placeholder="Seleccione" interface="popover">
+              <ion-select [(ngModelChange)="guardarProgreso()"]="institucion.cargo" placeholder="Seleccione" interface="popover">
                 <ion-select-option *ngFor="let cargo of datosrecuperados.cargos" [value]="cargo.nombre">
                   {{ cargo.nombre }}
                 </ion-select-option>
@@ -379,8 +379,8 @@
       <!-- Wizard Actions -->
       <div class="form-actions">
         <ion-button class="cancel-btn" fill="clear" color="medium" *ngIf="passoActual === 1"
-          routerLink="/gestionar-usuarios">
-          Cancelar
+          (click)="borrarBorrador(); limpiarFormulario()">
+          Limpiar Todo
         </ion-button>
 
         <ion-button class="back-btn" fill="outline" color="primary" *ngIf="passoActual > 1" (click)="passoAnterior()">
@@ -388,12 +388,12 @@
           Anterior
         </ion-button>
 
-        <ion-button color="primary" *ngIf="passoActual < 5" (click)="proximoPasso()">
+        <ion-button class="next-btn" color="primary" *ngIf="passoActual < 5" (click)="proximoPasso()">
           Siguiente
           <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
         </ion-button>
 
-        <ion-button color="success" *ngIf="passoActual === 5" (click)="crearUsuario()">
+        <ion-button class="save-btn" color="success" *ngIf="passoActual === 5" (click)="crearUsuario()">
           <ion-icon name="save-outline" slot="start"></ion-icon>
           Finalizar y Guardar
         </ion-button>

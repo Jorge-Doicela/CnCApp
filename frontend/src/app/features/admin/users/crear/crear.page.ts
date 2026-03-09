@@ -346,6 +346,46 @@ export class CrearPage implements OnInit {
     this.obtenerInstituciones();
     this.obtenerGradosOcupacionales();
     this.obtenerTiposParticipante();
+    this.cargarProgreso();
+  }
+
+  // Persistencia de formulario
+  guardarProgreso() {
+    const data = {
+      usuarioGeneral: this.usuarioGeneral,
+      autoridad: this.autoridad,
+      funcionarioGad: this.funcionarioGad,
+      institucion: this.institucion,
+      passoActual: this.passoActual,
+      datosbusqueda: this.datosbusqueda
+    };
+    localStorage.setItem('user_creation_draft', JSON.stringify(data));
+  }
+
+  cargarProgreso() {
+    const saved = localStorage.getItem('user_creation_draft');
+    if (saved) {
+      try {
+        const data = JSON.parse(saved);
+        this.usuarioGeneral = { ...this.usuarioGeneral, ...data.usuarioGeneral };
+        this.autoridad = { ...this.autoridad, ...data.autoridad };
+        this.funcionarioGad = { ...this.funcionarioGad, ...data.funcionarioGad };
+        this.institucion = { ...this.institucion, ...data.institucion };
+        this.passoActual = data.passoActual || 1;
+        this.datosbusqueda = { ...this.datosbusqueda, ...data.datosbusqueda };
+        
+        // Re-validar cédula si existe
+        if (this.usuarioGeneral.ci) {
+          this.validarCedula();
+        }
+      } catch (e) {
+        console.error('Error al cargar borrador:', e);
+      }
+    }
+  }
+
+  borrarBorrador() {
+    localStorage.removeItem('user_creation_draft');
   }
 
   // Función para obtener los roles
@@ -699,6 +739,7 @@ export class CrearPage implements OnInit {
       await firstValueFrom(this.usuarioService.createUsuario(fullUserData));
       await loading.dismiss();
       this.isLoading = false;
+      this.borrarBorrador();
       this.cdr.markForCheck();
 
       const alert = await this.alertController.create({
