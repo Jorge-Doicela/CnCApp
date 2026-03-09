@@ -2,8 +2,8 @@ import { Component, OnInit, signal, ChangeDetectionStrategy, inject } from '@ang
 import { CommonModule } from '@angular/common';
 import {
     IonHeader, IonToolbar, IonTitle, IonContent, IonButtons,
-    IonMenuButton, IonGrid, IonRow, IonCol, IonIcon,
-    IonSpinner, IonText, IonBadge, IonButton
+    IonMenuButton, IonIcon,
+    IonSpinner, IonButton
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -31,8 +31,8 @@ import { RolesChartComponent } from './components/roles-chart/roles-chart.compon
     imports: [
         CommonModule,
         IonHeader, IonToolbar, IonTitle, IonContent, IonButtons,
-        IonMenuButton, IonGrid, IonRow, IonCol, IonIcon,
-        IonSpinner, IonText, IonBadge, IonButton,
+        IonMenuButton, IonIcon,
+        IonSpinner, IonButton,
         KpiCardComponent, TrendChartComponent, RolesChartComponent,
         RouterModule
     ],

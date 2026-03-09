@@ -3,10 +3,10 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import {
-  IonContent, IonIcon, IonLabel, // IonItem from top import removed
+  IonContent, IonIcon, IonLabel,
   IonInput, IonButton, LoadingController, ToastController, IonSpinner,
   IonSelect, IonSelectOption, IonCheckbox,
-  IonDatetime, IonDatetimeButton, IonModal, IonPopover
+  IonModal
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -36,10 +36,10 @@ import { firstValueFrom } from 'rxjs';
     CommonModule,
     FormsModule,
     RouterModule,
-    IonContent, IonIcon, IonLabel, // IonItem removed from decorator, others restored
+    IonContent, IonIcon, IonLabel,
     IonInput, IonButton, IonSpinner,
     IonSelect, IonSelectOption, IonCheckbox,
-    IonDatetime, IonDatetimeButton, IonModal, IonPopover
+    IonModal
   ]
 })
 export class RegisterPage {

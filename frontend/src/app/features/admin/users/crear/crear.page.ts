@@ -1,16 +1,21 @@
-import { IonicModule } from '@ionic/angular';
-import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Component, OnInit, ChangeDetectorRef, inject, ChangeDetectionStrategy } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { ToastController, LoadingController, AlertController } from '@ionic/angular';
+import { 
+  IonContent, IonButton, IonIcon, IonItem, IonLabel, 
+  IonInput, IonSelect, IonSelectOption, IonCheckbox, 
+  ToastController, LoadingController, AlertController 
+} from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
   shieldCheckmarkOutline, keyOutline, saveOutline, checkmarkDoneOutline, checkmarkDoneCircleOutline,
   personAddOutline, searchOutline, idCardOutline, businessOutline, shieldOutline, fingerPrintOutline,
   callOutline, peopleOutline, createOutline, trashOutline, mailOutline, lockClosedOutline,
   calendarOutline, maleFemaleOutline, globeOutline, peopleCircleOutline, briefcaseOutline,
-  ribbonOutline, constructOutline, analyticsOutline, close as closeIcon, chevronBackOutline, chevronForwardOutline
+  ribbonOutline, constructOutline, analyticsOutline, close as closeIcon, chevronBackOutline, 
+  chevronForwardOutline, arrowBackOutline, arrowForwardOutline, checkmarkOutline, mapOutline,
+  locationOutline, personOutline, eyeOutline, eyeOffOutline, checkmarkCircle, alertCircle
 } from 'ionicons/icons';
 import { UsuarioService } from 'src/app/features/user/services/usuario.service';
 import { CatalogoService } from 'src/app/shared/services/catalogo.service';
@@ -24,10 +29,16 @@ import { firstValueFrom } from 'rxjs';
   templateUrl: './crear.page.html',
   styleUrls: ['./crear.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule, RouterLink],
+  imports: [
+    CommonModule, FormsModule, RouterLink,
+    IonContent, IonButton, IonIcon, IonItem, IonLabel, 
+    IonInput, IonSelect, IonSelectOption, IonCheckbox
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CrearPage implements OnInit {
+  today: Date = new Date();
+  showPassword: boolean = false;
   // Variable para mensajes de validación
   mensajeValidacionCedula: string = '';
 
@@ -183,7 +194,17 @@ export class CrearPage implements OnInit {
       'analytics-outline': analyticsOutline,
       'close': closeIcon,
       'chevron-back-outline': chevronBackOutline,
-      'chevron-forward-outline': chevronForwardOutline
+      'chevron-forward-outline': chevronForwardOutline,
+      'arrow-back-outline': arrowBackOutline,
+      'arrow-forward-outline': arrowForwardOutline,
+      'checkmark-outline': checkmarkOutline,
+      'map-outline': mapOutline,
+      'location-outline': locationOutline,
+      'person-outline': personOutline,
+      'eye-outline': eyeOutline,
+      'eye-off-outline': eyeOffOutline,
+      'checkmark-circle': checkmarkCircle,
+      'alert-circle': alertCircle
     });
   }
 
@@ -208,9 +229,17 @@ export class CrearPage implements OnInit {
     // Solo permitir ir a pasos anteriores o al siguiente si el actual es válido
     if (passo < this.passoActual) {
       this.passoActual = passo;
-    } else if (passo === this.passoActual + 1 && this.validarPassoActual()) {
-      this.passoActual = passo;
+    } else if (passo === this.passoActual + 1) {
+      if (this.validarPassoActual()) {
+        this.passoActual = passo;
+      } else {
+        this.showToast('Por favor, complete todos los campos obligatorios antes de continuar.');
+      }
     }
+  }
+
+  togglePassword() {
+    this.showPassword = !this.showPassword;
   }
 
   private scrollToTop() {
@@ -243,10 +272,6 @@ export class CrearPage implements OnInit {
       case 2: // Información Personal
         if (!this.usuarioGeneral.primerNombre || !this.usuarioGeneral.primerApellido) {
           this.showToast('Nombre y primer apellido son obligatorios');
-          return false;
-        }
-        if (!this.nombresEdited) {
-          this.showToast('Por favor confirme los nombres');
           return false;
         }
         if (!this.usuarioGeneral.celular) {
@@ -339,62 +364,77 @@ export class CrearPage implements OnInit {
     }
   }
 
-  // Función para validar la cédula ecuatoriana
+  // Función para validar la identificación (Cédula Ecuador o Documento Extranjero)
   validarCedula() {
-    const cedula = this.usuarioGeneral.ci;
-    // Verificar longitud
-    if (cedula.length !== 10) {
-      this.mensajeValidacionCedula = 'La cédula debe tener 10 dígitos';
-      this.showToast(this.mensajeValidacionCedula);
+    const identification = this.usuarioGeneral.ci;
+    
+    if (!identification) {
+      this.mensajeValidacionCedula = '';
       this.cedulaValidada = false;
+      this.cdr.markForCheck();
       return;
     }
-    // Verificar que solo contenga dígitos
-    if (!/^\d+$/.test(cedula)) {
-      this.mensajeValidacionCedula = 'La cédula debe contener solo números';
-      this.showToast(this.mensajeValidacionCedula);
-      this.cedulaValidada = false;
-      return;
-    }
-    // Verificar código de provincia
-    const codigoProvincia = cedula.substring(0, 2);
-    if (!this.provinciasCodigos[codigoProvincia]) {
-      this.mensajeValidacionCedula = `Código de provincia inválido: ${codigoProvincia}`;
-      this.showToast(this.mensajeValidacionCedula);
-      this.cedulaValidada = false;
-      return;
-    }
-    // Algoritmo de validación (Algoritmo 10)
-    const digitoVerificador = parseInt(cedula.charAt(9), 10);
-    let suma = 0;
 
-    for (let i = 0; i < 9; i++) {
-      let valor = parseInt(cedula.charAt(i), 10);
+    const isNumeric = /^\d+$/.test(identification);
+    const length = identification.length;
 
-      // Para los dígitos impares (posiciones pares 0,2,4,6,8)
-      if (i % 2 === 0) {
-        valor = valor * 2;
-        if (valor > 9) {
-          valor = valor - 9;
-        }
+    // Caso 1: Cédula Ecuatoriana (10 dígitos numéricos)
+    if (isNumeric && length === 10) {
+      const provincia = parseInt(identification.substring(0, 2), 10);
+      const tercerDigito = parseInt(identification.substring(2, 3), 10);
+
+      // Validar provincia (01-24 o 30)
+      if (!((provincia >= 1 && provincia <= 24) || provincia === 30)) {
+        this.mensajeValidacionCedula = `Provincia inválida (${provincia})`;
+        this.cedulaValidada = false;
+        this.cdr.markForCheck();
+        return;
       }
-      suma += valor;
-    }
-    const digitoCalculado = 10 - (suma % 10);
-    // Si el dígito calculado es 10, se convierte a 0
-    const digitoEsperado = (digitoCalculado === 10) ? 0 : digitoCalculado;
 
-    if (digitoVerificador === digitoEsperado) {
-      this.mensajeValidacionCedula = 'Cédula validada correctamente';
-      this.showSuccessToast(this.mensajeValidacionCedula);
-      this.cedulaValidada = true;
-      // Verificar si la cédula ya existe en la base de datos
-      this.verificarCedulaExistente(cedula);
-    } else {
-      this.mensajeValidacionCedula = 'La cédula ingresada no es válida';
-      this.showToast(this.mensajeValidacionCedula);
+      // Validar tercer dígito (debe ser < 6 para personas naturales)
+      if (tercerDigito >= 6) {
+        this.mensajeValidacionCedula = 'El tercer dígito debe ser menor a 6';
+        this.cedulaValidada = false;
+        this.cdr.markForCheck();
+        return;
+      }
+
+      // Algoritmo Modulo 10
+      const digitoVerificador = parseInt(identification.charAt(9), 10);
+      let suma = 0;
+      for (let i = 0; i < 9; i++) {
+        let valor = parseInt(identification.charAt(i), 10);
+        if (i % 2 === 0) { // Posiciones impares (0, 2, 4, 6, 8)
+          valor *= 2;
+          if (valor > 9) valor -= 9;
+        }
+        suma += valor;
+      }
+
+      const residuo = suma % 10;
+      const digitoCalculado = residuo === 0 ? 0 : 10 - residuo;
+
+      if (digitoVerificador === digitoCalculado) {
+        this.mensajeValidacionCedula = 'Cédula ecuatoriana válida';
+        this.cedulaValidada = true;
+      } else {
+        this.mensajeValidacionCedula = 'Número de cédula inválido';
+        this.cedulaValidada = false;
+      }
+    } 
+    // Caso 2: Documento Extranjero / Pasaporte
+    // Si no es numérico exacto de 10 o tiene letras, lo tratamos como extranjero
+    else if (!isNumeric || (length > 5 && length !== 10)) {
+      this.mensajeValidacionCedula = 'Documento extranjero/Pasaporte aceptado';
+      this.cedulaValidada = true; // Lo aceptamos para no bloquear extranjeros
+    } 
+    // Caso 3: Incompleto o inválido
+    else {
+      this.mensajeValidacionCedula = 'Cédula debe tener 10 dígitos o ser pasaporte';
       this.cedulaValidada = false;
     }
+
+    this.cdr.markForCheck();
   }
 
   // Verificar si la cédula ya existe en la base de datos
