@@ -58,9 +58,12 @@ model Usuario {
   certificados       Certificado[]
   funcionarios       FuncionarioGAD[]
   instituciones      InstitucionUsuario[]
+  parroquiaId        Int?                  @map("id_parroquia")
+  estado             Int                   @default(1) @map("estado")
   entidad            Entidad?              @relation(fields: [entidadId], references: [id])
   canton             Canton?               @relation(fields: [cantonId], references: [id])
   provincia          Provincia?            @relation(fields: [provinciaId], references: [id])
+  parroquia          Parroquia?            @relation(fields: [parroquiaId], references: [id])
   rol                Rol?                  @relation(fields: [rolId], references: [id])
   genero             Genero?               @relation(fields: [generoId], references: [id])
   etnia              Etnia?                @relation(fields: [etniaId], references: [id])
@@ -107,6 +110,7 @@ model Parroquia {
   nombre   String @map("nombre_parroquia") @db.VarChar(100)
   cantonId Int    @map("id_canton")
   canton   Canton @relation(fields: [cantonId], references: [id], onDelete: Cascade)
+  usuarios Usuario[]
 
   @@map("parroquias")
 }
@@ -207,9 +211,10 @@ model Cargo {
 model Autoridad {
   id        Int     @id @default(autoincrement()) @map("id_autoridad")
   usuarioId Int     @map("id_usuario")
-  cargo     String? @map("cargo") @db.VarChar(200)
-  entidad   String? @map("entidad") @db.VarChar(200)
-  usuario   Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  cargo         String? @map("cargo") @db.VarChar(200)
+  entidad       String? @map("entidad") @db.VarChar(200)
+  nivelGobierno String? @map("nivel_gobierno") @db.VarChar(50)
+  usuario       Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
 
   @@map("autoridades")
 }
@@ -217,9 +222,10 @@ model Autoridad {
 model FuncionarioGAD {
   id           Int           @id @default(autoincrement()) @map("id_funcionario")
   usuarioId    Int           @map("id_usuario")
-  cargo        String?       @map("cargo") @db.VarChar(200)
-  departamento String?       @map("departamento") @db.VarChar(200)
-  usuario      Usuario       @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  cargo         String?       @map("cargo") @db.VarChar(200)
+  departamento  String?       @map("departamento") @db.VarChar(200)
+  nivelGobierno String?       @map("nivel_gobierno") @db.VarChar(50)
+  usuario       Usuario       @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
   competencias Competencia[] @relation("FuncionarioCompetencias")
 
   @@map("funcionarios_gad")

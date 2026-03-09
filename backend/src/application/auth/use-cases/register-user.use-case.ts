@@ -6,6 +6,7 @@ import { ValidationError } from '../../../domain/shared/errors';
 import { RolRepository } from '../../../domain/user/rol.repository';
 import { EntidadRepository } from '../../../domain/user/entidad.repository';
 import prisma from '../../../config/database';
+import { RoleIdEnum, TipoParticipanteIdEnum } from '../../../domain/shared/constants/enums';
 
 interface RegisterDto {
     ci: string;
@@ -91,10 +92,7 @@ export class RegisterUserUseCase {
         let assignedRoleName = 'Usuario';
         
         if (data.tipoParticipanteId) {
-            const tipo = await prisma.tipoParticipante.findUnique({
-                where: { id: data.tipoParticipanteId }
-            });
-            if (tipo && ['Autoridad', 'Funcionario GAD', 'Institución del Sistema'].includes(tipo.nombre)) {
+            if ([TipoParticipanteIdEnum.AUTORIDAD, TipoParticipanteIdEnum.FUNCIONARIO_GAD, TipoParticipanteIdEnum.INSTITUCION].includes(data.tipoParticipanteId)) {
                 assignedRoleName = 'Conferencista';
             }
         }
@@ -141,8 +139,10 @@ export class RegisterUserUseCase {
             fechaNacimiento: data.fechaNacimiento ? new Date(data.fechaNacimiento) : undefined,
             provinciaId: data.provinciaId,
             cantonId: data.cantonId,
+            parroquiaId: data.autoridad?.parroquiaId || data.funcionarioGad?.parroquiaId || null,
+            estado: 1, // Default active
             rolId: finalRolId,
-            entidadId: data.autoridad?.nivelgobierno || data.funcionarioGad?.nivelgobierno || (cncEntity ? cncEntity.id : null),
+            entidadId: (cncEntity ? cncEntity.id : null),
             tipoParticipanteId: data.tipoParticipanteId || null,
             createdAt: now,
             updatedAt: now,

@@ -152,7 +152,7 @@
 
             <ion-item class="form-field">
               <ion-label position="stacked">Cantón</ion-label>
-              <ion-select [(ngModel)]="usuario.cantonReside" (ionChange)="cambioCanton()"
+              <ion-select [(ngModel)]="usuario.cantonId" (ionChange)="cambioCanton()"
                 placeholder="Seleccione Cantón" [disabled]="!datosbusqueda.selectedProvincia">
                 <ion-select-option *ngFor="let cant of datosrecuperados.cantones" [value]="cant.id">
                   {{ cant.nombre }}
@@ -163,8 +163,8 @@
 
           <ion-item class="form-field ion-margin-top">
             <ion-label position="stacked">Parroquia</ion-label>
-            <ion-select [(ngModel)]="usuario.parroquiaReside" placeholder="Seleccione Parroquia"
-              [disabled]="!usuario.cantonReside">
+            <ion-select [(ngModel)]="usuario.parroquiaId" placeholder="Seleccione Parroquia"
+              [disabled]="!usuario.cantonId">
               <ion-select-option *ngFor="let parr of datosrecuperados.parroquias" [value]="parr.id">
                 {{ parr.nombre }}
               </ion-select-option>
@@ -229,7 +229,7 @@
                 </ion-item>
                 <ion-item class="form-field">
                   <ion-label position="stacked">Nivel Gobierno</ion-label>
-                  <ion-select [(ngModel)]="autoridad.nivelgobierno">
+                  <ion-select [(ngModel)]="autoridad.nivelGobierno">
                     <ion-select-option value="PROVINCIAL">Provincial</ion-select-option>
                     <ion-select-option value="CANTONAL">Cantonal</ion-select-option>
                     <ion-select-option value="PARROQUIAL">Parroquial</ion-select-option>
@@ -251,7 +251,7 @@
                 </ion-item>
                 <ion-item class="form-field">
                   <ion-label position="stacked">Nivel Gobierno</ion-label>
-                  <ion-select [(ngModel)]="funcionarioGad.nivelgobierno">
+                  <ion-select [(ngModel)]="funcionarioGad.nivelGobierno">
                     <ion-select-option value="PROVINCIAL">Provincial</ion-select-option>
                     <ion-select-option value="CANTONAL">Cantonal</ion-select-option>
                     <ion-select-option value="PARROQUIAL">Parroquial</ion-select-option>

@@ -14,13 +14,15 @@ import prisma from '../../../config/database';
 const autoridadSchema = z.object({
     cargo: z.string().optional().nullable(),
     gadAutoridad: z.string().optional().nullable(),
-    nivelgobierno: z.number().int().optional().nullable()
+    nivelGobierno: z.string().optional().nullable(),
+    parroquiaId: z.number().int().optional().nullable()
 });
 
 const funcionarioGadSchema = z.object({
     cargo: z.string().optional().nullable(),
     gadFuncionarioGad: z.string().optional().nullable(),
-    nivelgobierno: z.number().int().optional().nullable(),
+    nivelGobierno: z.string().optional().nullable(),
+    parroquiaId: z.number().int().optional().nullable(),
     competencias: z.array(z.union([z.number(), z.string()])).optional().nullable()
 });
 
@@ -43,6 +45,7 @@ const updateUserSchema = z.object({
     entidadId: z.number().int().optional().nullable(),
     provinciaId: z.number().int().optional().nullable(),
     cantonId: z.number().int().optional().nullable(),
+    parroquiaId: z.number().int().optional().nullable(),
     generoId: z.number().int().optional().nullable(),
     etniaId: z.number().int().optional().nullable(),
     nacionalidadId: z.number().int().optional().nullable(),
@@ -69,6 +72,7 @@ const createUserSchema = z.object({
     tipoParticipanteId: z.number().int().optional().nullable(),
     provinciaId: z.number().optional().nullable(),
     cantonId: z.number().optional().nullable(),
+    parroquiaId: z.number().optional().nullable(),
     generoId: z.number().optional(),
     etniaId: z.number().optional(),
     nacionalidadId: z.number().optional(),

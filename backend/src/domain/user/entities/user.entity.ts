@@ -25,11 +25,17 @@ export interface User {
     fechaNacimiento?: Date | null;
     provinciaId?: number | null;
     cantonId?: number | null;
+    parroquiaId?: number | null;
+    estado: number;
     provincia?: {
         id: number;
         nombre: string;
     } | null;
     canton?: {
+        id: number;
+        nombre: string;
+    } | null;
+    parroquia?: {
         id: number;
         nombre: string;
     } | null;

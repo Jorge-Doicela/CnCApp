@@ -26,6 +26,8 @@ export class PrismaUserRepository implements UserRepository {
                     fechaNacimiento: user.fechaNacimiento,
                     provinciaId: user.provinciaId,
                     cantonId: user.cantonId,
+                    parroquiaId: user.parroquiaId,
+                    estado: user.estado ?? 1,
                     tipoParticipanteId: user.tipoParticipanteId || null,
                     rolId: user.rolId,
                     entidadId: user.entidadId,
@@ -35,7 +37,8 @@ export class PrismaUserRepository implements UserRepository {
                         autoridades: {
                             create: [{
                                 cargo: user.autoridad.cargo,
-                                entidad: user.autoridad.gadAutoridad
+                                entidad: user.autoridad.gadAutoridad,
+                                nivelGobierno: user.autoridad.nivelGobierno
                             }]
                         }
                     }),
@@ -44,6 +47,7 @@ export class PrismaUserRepository implements UserRepository {
                             create: [{
                                 cargo: user.funcionarioGad.cargo,
                                 departamento: user.funcionarioGad.gadFuncionarioGad,
+                                nivelGobierno: user.funcionarioGad.nivelGobierno,
                                 ...(user.funcionarioGad.competencias?.length > 0 && {
                                     competencias: {
                                         connect: user.funcionarioGad.competencias.map((c: any) => ({ id: Number(c) }))
@@ -141,6 +145,8 @@ export class PrismaUserRepository implements UserRepository {
                 fechaNacimiento: userData.fechaNacimiento,
                 provinciaId: userData.provinciaId,
                 cantonId: userData.cantonId,
+                parroquiaId: userData.parroquiaId,
+                estado: userData.estado,
                 tipoParticipanteId: userData.tipoParticipanteId,
                 rolId: userData.rolId,
                 entidadId: userData.entidadId,
@@ -153,7 +159,8 @@ export class PrismaUserRepository implements UserRepository {
                         ...(userData.autoridad !== null && {
                             create: [{
                                 cargo: userData.autoridad.cargo,
-                                entidad: userData.autoridad.gadAutoridad
+                                entidad: userData.autoridad.gadAutoridad,
+                                nivelGobierno: userData.autoridad.nivelGobierno
                             }]
                         })
                     }
@@ -165,6 +172,7 @@ export class PrismaUserRepository implements UserRepository {
                             create: [{
                                 cargo: userData.funcionarioGad.cargo,
                                 departamento: userData.funcionarioGad.gadFuncionarioGad,
+                                nivelGobierno: userData.funcionarioGad.nivelGobierno,
                                 ...(userData.funcionarioGad.competencias?.length > 0 && {
                                     competencias: {
                                         set: userData.funcionarioGad.competencias.map((c: any) => ({ id: Number(c) }))

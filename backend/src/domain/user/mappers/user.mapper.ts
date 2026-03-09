@@ -24,6 +24,8 @@ export class UserMapper {
             entidadId: prismaUser.entidadId,
             provinciaId: prismaUser.provinciaId,
             cantonId: prismaUser.cantonId,
+            parroquiaId: prismaUser.parroquiaId,
+            estado: prismaUser.estado ?? 1,
             fotoPerfilUrl: prismaUser.fotoPerfilUrl,
             firmaUrl: prismaUser.firmaUrl,
             createdAt: prismaUser.createdAt,
@@ -45,6 +47,10 @@ export class UserMapper {
                 id: prismaUser.canton.id,
                 nombre: prismaUser.canton.nombre
             } : null,
+            parroquia: prismaUser.parroquia ? {
+                id: prismaUser.parroquia.id,
+                nombre: prismaUser.parroquia.nombre
+            } : null,
             tipoParticipante: prismaUser.tipoParticipante ? {
                 id: prismaUser.tipoParticipante.id,
                 nombre: prismaUser.tipoParticipante.nombre
@@ -60,12 +66,14 @@ export class UserMapper {
             autoridad: prismaUser.autoridades && prismaUser.autoridades.length > 0 ? {
                 id: prismaUser.autoridades[0].id,
                 cargo: prismaUser.autoridades[0].cargo,
-                gadAutoridad: prismaUser.autoridades[0].entidad
+                gadAutoridad: prismaUser.autoridades[0].entidad,
+                nivelGobierno: prismaUser.autoridades[0].nivelGobierno
             } : null,
             funcionarioGad: prismaUser.funcionarios && prismaUser.funcionarios.length > 0 ? {
                 id: prismaUser.funcionarios[0].id,
                 cargo: prismaUser.funcionarios[0].cargo,
                 gadFuncionarioGad: prismaUser.funcionarios[0].departamento,
+                nivelGobierno: prismaUser.funcionarios[0].nivelGobierno,
                 competencias: prismaUser.funcionarios[0].competencias ? prismaUser.funcionarios[0].competencias.map((c: any) => c.id) : []
             } : null,
             institucion: prismaUser.instituciones && prismaUser.instituciones.length > 0 ? {

@@ -23,7 +23,7 @@ const capacitacionSchema = z.object({
     horaInicio: z.string().optional(),
     horaFin: z.string().optional(),
     horas: z.number().int().optional(),
-    enlaceVirtual: z.string().url().optional(),
+    enlaceVirtual: z.string().url().or(z.literal('')).optional().nullable(),
     certificado: z.boolean().optional()
 });
 

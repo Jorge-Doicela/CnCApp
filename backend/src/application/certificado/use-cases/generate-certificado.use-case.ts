@@ -8,6 +8,7 @@ import { env } from '../../../config/env';
 import path from 'path';
 import fs from 'fs';
 import crypto from 'crypto';
+import { UsuarioCapacitacionRepository } from '../../../domain/usuario-capacitacion/usuario-capacitacion.repository';
 
 @injectable()
 export class GenerateCertificadoUseCase {
@@ -15,7 +16,8 @@ export class GenerateCertificadoUseCase {
         @inject('CertificadoRepository') private certificadoRepository: CertificadoRepository,
         @inject(CertificateGeneratorService) private generatorService: CertificateGeneratorService,
         @inject('UserRepository') private userRepository: UserRepository,
-        @inject('CapacitacionRepository') private capacitacionRepository: CapacitacionRepository
+        @inject('CapacitacionRepository') private capacitacionRepository: CapacitacionRepository,
+        @inject('UsuarioCapacitacionRepository') private usuarioCapacitacionRepository: UsuarioCapacitacionRepository
     ) { }
 
     async execute(usuarioId: number, capacitacionId: number): Promise<Certificado> {
@@ -24,6 +26,11 @@ export class GenerateCertificadoUseCase {
         if (existing) {
             return existing;
         }
+        
+        // 0.5 Check Attendance
+        const inscripcion = await this.usuarioCapacitacionRepository.findByUserAndCapacitacion(usuarioId, capacitacionId);
+        if (!inscripcion) throw new Error('El usuario no está inscrito en esta capacitación');
+        if (!inscripcion.asistio) throw new Error('El usuario no marcó asistencia en esta capacitación');
 
         // 1. Fetch User and Capacitacion
         const usuario = await this.userRepository.findById(usuarioId);
@@ -55,7 +62,7 @@ export class GenerateCertificadoUseCase {
             curso: capacitacion.nombre.toUpperCase(),
             fecha: new Date().toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' }),
             cedula: usuario.ci,
-            rol: 'PARTICIPANTE',
+            rol: (inscripcion.rolCapacitacion || 'Participante').toUpperCase(),
             horas: `${capacitacion.horas || 0} HORAS`
         };
 

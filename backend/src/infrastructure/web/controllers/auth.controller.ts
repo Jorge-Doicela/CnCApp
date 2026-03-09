@@ -7,6 +7,7 @@ import { LoginUserUseCase } from '../../../application/auth/use-cases/login-user
 import { GetUserProfileUseCase } from '../../../application/user/use-cases/get-user-profile.use-case';
 import { RequestPasswordResetUseCase } from '../../../application/auth/use-cases/request-password-reset.use-case';
 import { ResetPasswordUseCase } from '../../../application/auth/use-cases/reset-password.use-case';
+import { RefreshTokenUseCase } from '../../../application/auth/use-cases/refresh-token.use-case';
 import { AuthRequest } from '../middleware/auth.middleware';
 
 // Strip password from user object before sending to client
@@ -42,6 +43,10 @@ const loginSchema = z.object({
     password: z.string().min(1, 'La contraseña es requerida')
 });
 
+const refreshTokenSchema = z.object({
+    refreshToken: z.string().min(1, 'Refresh token es requerido')
+});
+
 const requestResetSchema = z.object({
     email: z.string().email('Email inválido'),
     redirectTo: z.string()
@@ -59,7 +64,8 @@ export class AuthController {
         @inject(LoginUserUseCase) private loginUseCase: LoginUserUseCase,
         @inject(GetUserProfileUseCase) private getProfileUseCase: GetUserProfileUseCase,
         @inject(RequestPasswordResetUseCase) private requestPasswordResetUseCase: RequestPasswordResetUseCase,
-        @inject(ResetPasswordUseCase) private resetPasswordUseCase: ResetPasswordUseCase
+        @inject(ResetPasswordUseCase) private resetPasswordUseCase: ResetPasswordUseCase,
+        @inject(RefreshTokenUseCase) private refreshTokenUseCase: RefreshTokenUseCase
     ) { }
 
     register = async (req: Request, res: Response, next: NextFunction) => {
@@ -111,6 +117,24 @@ export class AuthController {
                 message: 'Inicio de sesión exitoso',
                 data: {
                     user: toDTO(result.user),
+                    accessToken: result.accessToken,
+                    refreshToken: result.refreshToken
+                }
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    refreshToken = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const data = refreshTokenSchema.parse(req.body);
+            const result = await this.refreshTokenUseCase.execute(data.refreshToken);
+
+            res.json({
+                success: true,
+                message: 'Token renovado exitosamente',
+                data: {
                     accessToken: result.accessToken,
                     refreshToken: result.refreshToken
                 }

@@ -50,8 +50,8 @@ export class EditarPage implements OnInit {
     nacionalidad: '',
     tipoParticipante: 0,
     fechaNacimiento: '',
-    cantonReside: '',
-    parroquiaReside: '',
+    cantonId: undefined as number | null | undefined,
+    parroquiaId: undefined as number | null | undefined,
     generoId: undefined as number | null | undefined,
     etniaId: undefined as number | null | undefined,
     nacionalidadId: undefined as number | null | undefined,
@@ -62,8 +62,8 @@ export class EditarPage implements OnInit {
   };
 
   // Objetos para tipos específicos
-  autoridad = { cargo: '', nivelgobierno: '', gadAutoridad: '' };
-  funcionarioGad = { cargo: '', competencias: '', nivelgobierno: '', gadFuncionarioGad: '' };
+  autoridad = { cargo: '', nivelGobierno: '', gadAutoridad: '' };
+  funcionarioGad = { cargo: '', competencias: '', nivelGobierno: '', gadFuncionarioGad: '' };
   institucion = { institucion: '', gradoOcupacional: '', cargo: '' };
 
   datosrecuperados = {
@@ -197,15 +197,15 @@ export class EditarPage implements OnInit {
         nacionalidad: data.nacionalidad || '',
         tipoParticipante: Number(data.tipoParticipanteId || data.tipoParticipante) || TipoParticipanteEnum.CIUDADANO,
         fechaNacimiento: data.fechaNacimiento || '',
-        cantonReside: data.cantonReside || '',
-        parroquiaReside: data.parroquiaReside || '',
+        cantonId: data.cantonId,
+        parroquiaId: data.parroquiaId,
         generoId: data.generoId,
         etniaId: data.etniaId,
         nacionalidadId: data.nacionalidadId,
       };
 
       // Cargar ubicación si existe
-      if (this.usuario.cantonReside) {
+      if (this.usuario.cantonId) {
         await this.detectarProvinciaDesdeCanton();
       }
 
@@ -213,16 +213,16 @@ export class EditarPage implements OnInit {
       if (data.autoridad) {
         this.autoridad = {
           cargo: data.autoridad.cargo || '',
-          nivelgobierno: data.autoridad.nivelgobierno || '',
-          gadAutoridad: data.autoridad.entidad || data.autoridad.gadAutoridad || ''
+          nivelGobierno: data.autoridad.nivelGobierno || '',
+          gadAutoridad: data.autoridad.gadAutoridad || ''
         };
       }
       if (data.funcionarioGad) {
         this.funcionarioGad = {
           cargo: data.funcionarioGad.cargo || '',
           competencias: data.funcionarioGad.competencias || '',
-          nivelgobierno: data.funcionarioGad.nivelgobierno || '',
-          gadFuncionarioGad: data.funcionarioGad.departamento || data.funcionarioGad.gadFuncionarioGad || ''
+          nivelGobierno: data.funcionarioGad.nivelGobierno || '',
+          gadFuncionarioGad: data.funcionarioGad.gadFuncionarioGad || ''
         };
       }
       if (data.institucion) {
@@ -278,8 +278,8 @@ export class EditarPage implements OnInit {
   }
 
   cambioProvincia() {
-    this.usuario.cantonReside = '';
-    this.usuario.parroquiaReside = '';
+    this.usuario.cantonId = undefined;
+    this.usuario.parroquiaId = undefined;
     this.datosrecuperados.cantones = [];
     this.datosrecuperados.parroquias = [];
 
@@ -294,8 +294,8 @@ export class EditarPage implements OnInit {
       const data = await firstValueFrom(this.catalogoService.getItems('cantones'));
       this.datosrecuperados.cantones = data.filter((c: any) => c.provinciaId == provinciaId);
       // Si ya teníamos un cantón (al cargar el usuario), cargamos sus parroquias
-      if (this.usuario.cantonReside) {
-        await this.cargarParroquias(this.usuario.cantonReside);
+      if (this.usuario.cantonId) {
+        await this.cargarParroquias(this.usuario.cantonId);
       }
     } catch (err) {
       console.error(err);
@@ -305,14 +305,14 @@ export class EditarPage implements OnInit {
   }
 
   cambioCanton() {
-    this.usuario.parroquiaReside = '';
+    this.usuario.parroquiaId = undefined;
     this.datosrecuperados.parroquias = [];
-    if (this.usuario.cantonReside) {
-      this.cargarParroquias(this.usuario.cantonReside);
+    if (this.usuario.cantonId) {
+      this.cargarParroquias(this.usuario.cantonId);
     }
   }
 
-  async cargarParroquias(cantonId: string) {
+  async cargarParroquias(cantonId: number | string) {
     if (!cantonId) return;
     try {
       const data = await firstValueFrom(this.catalogoService.getItems('parroquias'));
@@ -329,7 +329,7 @@ export class EditarPage implements OnInit {
     // For now, we load all cantones and finding the one matching user.cantonReside
     try {
       const data = await firstValueFrom(this.catalogoService.getItems('cantones'));
-      const canton = data.find((c: any) => c.id == this.usuario.cantonReside);
+      const canton = data.find((c: any) => c.id == this.usuario.cantonId);
       if (canton) {
         this.datosbusqueda.selectedProvincia = canton.provinciaId;
         await this.cargarCantones(canton.provinciaId);
@@ -448,7 +448,8 @@ export class EditarPage implements OnInit {
       nacionalidadId: this.usuario.nacionalidadId ? Number(this.usuario.nacionalidadId) : null,
       fechaNacimiento: this.usuario.fechaNacimiento || null,
       provinciaId: this.datosbusqueda.selectedProvincia ? Number(this.datosbusqueda.selectedProvincia) : null,
-      cantonId: this.usuario.cantonReside ? Number(this.usuario.cantonReside) : null,
+      cantonId: this.usuario.cantonId ? Number(this.usuario.cantonId) : null,
+      parroquiaId: this.usuario.parroquiaId ? Number(this.usuario.parroquiaId) : null,
       rolId: this.usuario.rolId ? Number(this.usuario.rolId) : undefined,
       entidadId: this.usuario.entidadId ? Number(this.usuario.entidadId) : null,
       tipoParticipanteId: this.usuario.tipoParticipante ? Number(this.usuario.tipoParticipante) : TipoParticipanteEnum.CIUDADANO,
