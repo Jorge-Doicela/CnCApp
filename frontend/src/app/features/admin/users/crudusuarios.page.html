@@ -56,6 +56,21 @@
         [(ngModel)]="searchTerm" (ionInput)="filtrarUsuarios()">
       </ion-searchbar>
 
+      <ion-select class="filter-select" interface="popover" [(ngModel)]="filterRol" (ionChange)="filtrarUsuarios()"
+        toggleIcon="shield-outline" placeholder="Rol" mode="ios">
+        <ion-select-option value="todos">Todos los Roles</ion-select-option>
+        <ion-select-option *ngFor="let rol of roles" [value]="rol.nombre">{{ rol.nombre }}</ion-select-option>
+      </ion-select>
+
+      <ion-select class="filter-select" interface="popover" [(ngModel)]="filterTipo" (ionChange)="filtrarUsuarios()"
+        toggleIcon="people-outline" placeholder="Tipo" mode="ios">
+        <ion-select-option value="todos">Todos los Tipos</ion-select-option>
+        <ion-select-option value="14">Ciudadano</ion-select-option>
+        <ion-select-option value="13">Autoridad</ion-select-option>
+        <ion-select-option value="15">Funcionario GAD</ion-select-option>
+        <ion-select-option value="16">Institución</ion-select-option>
+      </ion-select>
+
       <ion-button class="btn-create" color="primary" (click)="iraCrearUsuario()">
         <ion-icon name="add" slot="start"></ion-icon>
         Nuevo Usuario
@@ -115,18 +130,18 @@
         </div>
 
         <div class="card-footer">
-          <ion-item button (click)="iraDetallesUsuario(usuario.id); $event.stopPropagation()">
+          <ion-button fill="clear" size="small" (click)="iraDetallesUsuario(usuario.id); $event.stopPropagation()">
             <ion-icon name="person-outline" slot="start" color="primary"></ion-icon>
-            <ion-label>Ver Perfil Completo</ion-label>
-          </ion-item>
-          <ion-item button (click)="iraEditarUsuario(usuario.id); $event.stopPropagation()">
+            Perfil
+          </ion-button>
+          <ion-button fill="clear" size="small" (click)="iraEditarUsuario(usuario.id); $event.stopPropagation()">
             <ion-icon name="create-outline" slot="start" color="secondary"></ion-icon>
-            <ion-label>Editar Cuenta</ion-label>
-          </ion-item>
-          <ion-item button (click)="confirmarEliminar(usuario); $event.stopPropagation()" class="delete-item">
-            <ion-icon name="trash-outline" slot="start" color="danger"></ion-icon>
-            <ion-label color="danger">Eliminar Usuario</ion-label>
-          </ion-item>
+            Editar
+          </ion-button>
+          <ion-button fill="clear" size="small" color="danger" (click)="confirmarEliminar(usuario); $event.stopPropagation()">
+            <ion-icon name="trash-outline" slot="start"></ion-icon>
+            Eliminar
+          </ion-button>
         </div>
 
       </div>
