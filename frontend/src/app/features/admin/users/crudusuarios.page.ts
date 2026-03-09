@@ -1,14 +1,19 @@
-import { IonicModule } from '@ionic/angular';
-import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Component, OnInit, inject, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
-import { AlertController, ToastController, LoadingController } from '@ionic/angular';
+import { 
+  IonContent, IonButton, IonIcon, IonSelect, 
+  IonSelectOption, IonSpinner, AlertController, ToastController, 
+  LoadingController 
+} from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
   personAddOutline, searchOutline, search, idCardOutline,
   businessOutline, shieldOutline, shieldCheckmark, fingerPrintOutline,
-  callOutline, people, peopleOutline, person, createOutline, trashOutline, mailOutline, add
+  callOutline, people, peopleOutline, createOutline, trashOutline, mailOutline, add,
+  statsChartOutline, shieldCheckmarkOutline, filterOutline, optionsOutline, arrowBackOutline,
+  personOutline, create, trash, person
 } from 'ionicons/icons';
 import { UsuarioService } from 'src/app/features/user/services/usuario.service';
 import { AuthService } from 'src/app/features/auth/services/auth.service';
@@ -23,7 +28,13 @@ import { firstValueFrom } from 'rxjs';
   templateUrl: './crudusuarios.page.html',
   styleUrls: ['./crudusuarios.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule, RouterModule],
+  imports: [
+    CommonModule, 
+    FormsModule, 
+    RouterModule,
+    IonContent, IonButton, IonIcon, IonSelect, 
+    IonSelectOption, IonSpinner
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CRUDUsuariosPage implements OnInit {
@@ -34,6 +45,7 @@ export class CRUDUsuariosPage implements OnInit {
   filterTipo: string = 'todos';
   roles: any[] = [];
   cargando: boolean = true;
+  today: Date = new Date();
 
   private usuarioService = inject(UsuarioService);
   private authService = inject(AuthService);
@@ -63,7 +75,15 @@ export class CRUDUsuariosPage implements OnInit {
       'person': person,
       'create-outline': createOutline,
       'trash-outline': trashOutline,
-      'add': add
+      'add': add,
+      'stats-chart-outline': statsChartOutline,
+      'shield-checkmark-outline': shieldCheckmarkOutline,
+      'filter-outline': filterOutline,
+      'options-outline': optionsOutline,
+      'arrow-back-outline': arrowBackOutline,
+      'person-outline': personOutline,
+      'create': create,
+      'trash': trash
     });
   }
 
@@ -81,6 +101,27 @@ export class CRUDUsuariosPage implements OnInit {
       [TipoParticipanteEnum.INSTITUCION]: 'Institución'
     };
     return labels[t] || "Desconocido";
+  }
+
+  formatNombre(usuario: Usuario): string {
+    if (!usuario.nombre) return 'Sin Nombre';
+
+    // Remove literal "null" strings that might come from bad concatenation in backend
+    let nombre = usuario.nombre.replace(/\bnull\b/g, '').trim();
+
+    // If name is empty after removing nulls, try individual fields
+    if (!nombre) {
+      const parts = [
+        usuario.primerNombre,
+        usuario.segundoNombre,
+        usuario.primerApellido,
+        usuario.segundoApellido
+      ].filter(p => !!p && p !== 'null');
+
+      nombre = parts.join(' ').trim();
+    }
+
+    return nombre || 'Usuario';
   }
 
   getAdmins(): number {

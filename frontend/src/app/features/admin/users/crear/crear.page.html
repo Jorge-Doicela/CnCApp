@@ -1,40 +1,52 @@
 <ion-content>
   <div class="main-container">
 
-    <!-- Back Nav -->
-    <div class="page-back-nav">
-      <ion-button fill="clear" color="medium" size="small" routerLink="/gestionar-usuarios">
+    <div class="top-nav animate-fade-in">
+      <ion-button fill="clear" color="medium" size="small" routerLink="/gestionar-usuarios" class="btn-back">
         <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
-        Gestión de Usuarios
+        Regresar a Gestión de Usuarios
       </ion-button>
-    </div>
-
-    <!-- Header Section -->
-    <div class="header-section fade-in">
-      <div class="admin-header">
-        <h1>Crear Nuevo Usuario</h1>
-        <p>Paso {{ passoActual }} de 5 — {{ ['', 'Acceso', 'Personal', 'Ubicación', 'Cargo', 'Revisión'][passoActual] }}
-        </p>
+      <div class="date-display">
+        <ion-icon name="calendar-outline"></ion-icon>
+        <span>{{ today | date:'EEEE, d MMMM' }}</span>
       </div>
     </div>
 
-
-    <!-- Progress Stepper -->
-    <div class="stepper-container fade-in">
-      <div class="step" *ngFor="let s of [1,2,3,4,5]" [class.active]="passoActual === s"
-        [class.completed]="passoActual > s" (click)="irAPasso(s)">
-        <div class="step-icon">
-          <ion-icon [name]="passoActual > s ? 'checkmark-outline' : ''"></ion-icon>
-          <span *ngIf="passoActual <= s">{{ s }}</span>
+    <div class="container main-content-wrapper">
+      
+      <!-- Page Header -->
+      <header class="page-header animate-fade-up">
+        <div class="header-main">
+          <div class="title-group">
+            <span class="eyebrow">Administración</span>
+            <h1>Nuevo <span>Usuario</span></h1>
+            <p>Complete el asistente de 5 pasos para registrar un nuevo integrante en la plataforma.</p>
+          </div>
         </div>
-      </div>
-      <div class="progress-line">
-        <div class="fill" [style.width]="((passoActual - 1) / 4 * 100) + '%'"></div>
-      </div>
-    </div>
+      </header>
 
-    <!-- Form Card -->
-    <div class="form-card fade-in">
+
+      <!-- Progress Stepper -->
+      <section class="stepper-section animate-fade-up" style="animation-delay: 0.1s;">
+        <div class="stepper-container luxury">
+          <div class="step" *ngFor="let s of [1,2,3,4,5]" 
+               [class.active]="passoActual === s"
+               [class.completed]="passoActual > s" 
+               (click)="irAPasso(s)">
+            <div class="step-dot">
+              <ion-icon [name]="passoActual > s ? 'checkmark-outline' : ''"></ion-icon>
+              <span *ngIf="passoActual <= s">{{ s }}</span>
+            </div>
+            <span class="step-label">{{ ['', 'Acceso', 'Personal', 'Ubicación', 'Cargo', 'Revisión'][s] }}</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" [style.width]="((passoActual - 1) / 4 * 100) + '%'"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Form Card -->
+      <div class="form-container glass animate-fade-up" style="animation-delay: 0.2s;">
 
       <!-- Paso 1: Identificación y Credenciales -->
       <div class="form-section transition-step" *ngIf="passoActual === 1">
@@ -48,13 +60,10 @@
           <div class="ci-field-container">
             <ion-item class="form-field">
               <ion-icon name="id-card-outline" slot="start"></ion-icon>
-              <ion-label position="floating">Cédula (CI) *</ion-label>
-              <ion-input [(ngModel)]="usuarioGeneral.ci" type="text" maxlength="10" required></ion-input>
-              <ion-button slot="end" fill="clear" (click)="validarCedula()" title="Validar Cédula">
-                <ion-icon name="checkmark-done-circle-outline" slot="icon-only"></ion-icon>
-              </ion-button>
+              <ion-label position="floating">Cédula (CI) <span class="required">*</span></ion-label>
+              <ion-input [(ngModel)]="usuarioGeneral.ci" (ionInput)="validarCedula()" type="text" maxlength="10" required></ion-input>
             </ion-item>
-            <div *ngIf="mensajeValidacionCedula"
+            <div *ngIf="usuarioGeneral.ci"
               [ngClass]="{'validacion-error': !cedulaValidada, 'validacion-success': cedulaValidada}"
               class="mensaje-validacion">
               <ion-icon [name]="cedulaValidada ? 'checkmark-circle' : 'alert-circle'"></ion-icon>
@@ -64,21 +73,24 @@
 
           <ion-item class="form-field">
             <ion-icon name="mail-outline" slot="start"></ion-icon>
-            <ion-label position="floating">Correo Electrónico *</ion-label>
+            <ion-label position="floating">Correo Electrónico <span class="required">*</span></ion-label>
             <ion-input [(ngModel)]="usuarioGeneral.email" type="email" required></ion-input>
           </ion-item>
 
           <ion-item class="form-field">
             <ion-icon name="lock-closed-outline" slot="start"></ion-icon>
-            <ion-label position="floating">Contraseña *</ion-label>
-            <ion-input [(ngModel)]="usuarioGeneral.password" type="password" required></ion-input>
+            <ion-label position="floating">Contraseña <span class="required">*</span></ion-label>
+            <ion-input [(ngModel)]="usuarioGeneral.password" [type]="showPassword ? 'text' : 'password'" required></ion-input>
+            <ion-button slot="end" fill="clear" (click)="togglePassword()" color="medium">
+              <ion-icon [name]="showPassword ? 'eye-off-outline' : 'eye-outline'" slot="icon-only"></ion-icon>
+            </ion-button>
           </ion-item>
         </div>
 
         <div class="field-group">
           <ion-item class="form-field">
             <ion-icon name="key-outline" slot="start"></ion-icon>
-            <ion-label>Rol de Usuario *</ion-label>
+            <ion-label>Rol de Usuario <span class="required">*</span></ion-label>
             <ion-select [(ngModel)]="usuarioGeneral.rolId" placeholder="Seleccione Rol" interface="popover">
               <ion-select-option *ngFor="let rol of datosrecuperados.roles" [value]="rol.id">
                 {{ rol.nombre }}
@@ -88,7 +100,7 @@
 
           <ion-item class="form-field">
             <ion-icon name="people-outline" slot="start"></ion-icon>
-            <ion-label>Tipo Participante *</ion-label>
+            <ion-label>Tipo Participante <span class="required">*</span></ion-label>
             <ion-select [(ngModel)]="usuarioGeneral.tipoParticipante" (ionChange)="onTipoParticipanteChange()"
               placeholder="Seleccione Tipo" interface="popover">
               <ion-select-option *ngFor="let tp of datosrecuperados.tiposParticipante" [value]="tp.id">
@@ -109,35 +121,28 @@
         <div class="field-group">
           <ion-item class="form-field">
             <ion-icon name="person-outline" slot="start"></ion-icon>
-            <ion-label position="floating">Primer Nombre *</ion-label>
-            <ion-input [(ngModel)]="usuarioGeneral.primerNombre" [readonly]="camposNombreReadonly"></ion-input>
+            <ion-label position="floating">Primer Nombre <span class="required">*</span></ion-label>
+            <ion-input [(ngModel)]="usuarioGeneral.primerNombre"></ion-input>
           </ion-item>
           <ion-item class="form-field">
             <ion-icon name="person-outline" slot="start"></ion-icon>
             <ion-label position="floating">Segundo Nombre</ion-label>
-            <ion-input [(ngModel)]="usuarioGeneral.segundoNombre" [readonly]="camposNombreReadonly"></ion-input>
+            <ion-input [(ngModel)]="usuarioGeneral.segundoNombre"></ion-input>
           </ion-item>
         </div>
         <div class="field-group">
           <ion-item class="form-field">
             <ion-icon name="person-outline" slot="start"></ion-icon>
-            <ion-label position="floating">Primer Apellido *</ion-label>
-            <ion-input [(ngModel)]="usuarioGeneral.primerApellido" [readonly]="camposNombreReadonly"></ion-input>
+            <ion-label position="floating">Primer Apellido <span class="required">*</span></ion-label>
+            <ion-input [(ngModel)]="usuarioGeneral.primerApellido"></ion-input>
           </ion-item>
           <ion-item class="form-field">
             <ion-icon name="person-outline" slot="start"></ion-icon>
             <ion-label position="floating">Segundo Apellido</ion-label>
-            <ion-input [(ngModel)]="usuarioGeneral.segundoApellido" [readonly]="camposNombreReadonly"></ion-input>
+            <ion-input [(ngModel)]="usuarioGeneral.segundoApellido"></ion-input>
           </ion-item>
         </div>
 
-        <div class="field-group confirm-btn-container" *ngIf="!nombresEdited">
-          <ion-button expand="block" shape="round" fill="outline" color="secondary" (click)="confirmarNombres()"
-            [disabled]="!usuarioGeneral.primerNombre || !usuarioGeneral.primerApellido">
-            <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
-            Confirmar Nombres
-          </ion-button>
-        </div>
 
         <div class="field-group triple">
           <ion-item class="form-field">
@@ -394,6 +399,7 @@
         </ion-button>
       </div>
 
+      </div>
     </div>
   </div>
 </ion-content>

@@ -2,8 +2,8 @@ import { Component, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import {
-    IonContent, IonHeader, IonToolbar, IonButtons, IonButton,
-    IonIcon, IonTitle, IonBackButton
+    IonContent, IonButton,
+    IonIcon
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -20,8 +20,8 @@ import { AuthService } from '../../auth/services/auth.service';
     standalone: true,
     imports: [
         CommonModule,
-        IonContent, IonHeader, IonToolbar, IonButtons, IonButton,
-        IonIcon, IonTitle, IonBackButton
+        IonContent, IonButton,
+        IonIcon
     ]
 })
 export class ConfiguracionPage {

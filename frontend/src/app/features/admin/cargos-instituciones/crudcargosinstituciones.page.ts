@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonButtons,
-  IonMenuButton, IonCard, IonCardHeader, IonCardTitle,
+  IonCard, IonCardHeader, IonCardTitle,
   IonCardContent, IonItem, IonLabel, IonButton, IonIcon,
   IonList, IonInput, AlertController, ToastController,
   IonCardSubtitle
@@ -25,7 +25,7 @@ import { firstValueFrom } from 'rxjs';
   imports: [
     CommonModule, FormsModule,
     IonHeader, IonToolbar, IonTitle, IonContent, IonButtons,
-    IonMenuButton, IonCard, IonCardHeader, IonCardTitle,
+    IonCard, IonCardHeader, IonCardTitle,
     IonCardContent, IonItem, IonLabel, IonButton, IonIcon,
     IonList, IonInput, IonCardSubtitle
   ],

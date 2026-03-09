@@ -5,8 +5,8 @@ import { Router } from '@angular/router';
 import {
     IonHeader, IonToolbar, IonTitle, IonContent, IonButtons,
     IonMenuButton, IonCard, IonCardHeader, IonCardTitle,
-    IonCardContent, IonItem, IonLabel, IonButton, IonIcon,
-    IonList, IonInput, AlertController, ToastController,
+    IonCardContent, IonItem, IonButton, IonIcon,
+    IonInput, AlertController, ToastController,
     IonCardSubtitle
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
@@ -25,8 +25,8 @@ import { firstValueFrom } from 'rxjs';
         CommonModule, FormsModule,
         IonHeader, IonToolbar, IonTitle, IonContent, IonButtons,
         IonMenuButton, IonCard, IonCardHeader, IonCardTitle,
-        IonCardContent, IonItem, IonLabel, IonButton, IonIcon,
-        IonList, IonInput, IonCardSubtitle
+        IonCardContent, IonItem, IonButton, IonIcon,
+        IonInput, IonCardSubtitle
     ],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
