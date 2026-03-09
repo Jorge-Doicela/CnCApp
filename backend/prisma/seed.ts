@@ -159,14 +159,14 @@ async function main() {
 
         await prisma.competencia.createMany({
             data: [
-                { nombre_competencias: 'PLANIFICACIÓN Y ORDENAMIENTO TERRITORIAL', descripcion: 'Gestión integral del desarrollo del territorio' },
-                { nombre_competencias: 'GESTIÓN AMBIENTAL Y ÁREAS PROTEGIDAS', descripcion: 'Preservación de la biodiversidad y recursos' },
-                { nombre_competencias: 'VIALIDAD Y TRANSPORTE PROVINCIAL', descripcion: 'Infraestructura y movilidad rural' },
-                { nombre_competencias: 'COOPERACIÓN INTERNACIONAL', descripcion: 'Gestión de recursos externos y hermanamientos' },
-                { nombre_competencias: 'FOMENTO PRODUCTIVO Y AGROPECUARIO', descripcion: 'Impulso a la economía local y seguridad alimentaria' },
-                { nombre_competencias: 'SISTEMAS DE RIEGO Y DRENAJE', descripcion: 'Infraestructura para la producción agrícola' },
-                { nombre_competencias: 'RECURSOS NATURALES Y MINERÍA', descripcion: 'Gestión técnica de recursos del subsuelo' },
-                { nombre_competencias: 'FORTALECIMIENTO INSTITUCIONAL', descripcion: 'Mejora continua y modernización de los GAD' },
+                { nombre: 'PLANIFICACIÓN Y ORDENAMIENTO TERRITORIAL', descripcion: 'Gestión integral del desarrollo del territorio' },
+                { nombre: 'GESTIÓN AMBIENTAL Y ÁREAS PROTEGIDAS', descripcion: 'Preservación de la biodiversidad y recursos' },
+                { nombre: 'VIALIDAD Y TRANSPORTE PROVINCIAL', descripcion: 'Infraestructura y movilidad rural' },
+                { nombre: 'COOPERACIÓN INTERNACIONAL', descripcion: 'Gestión de recursos externos y hermanamientos' },
+                { nombre: 'FOMENTO PRODUCTIVO Y AGROPECUARIO', descripcion: 'Impulso a la economía local y seguridad alimentaria' },
+                { nombre: 'SISTEMAS DE RIEGO Y DRENAJE', descripcion: 'Infraestructura para la producción agrícola' },
+                { nombre: 'RECURSOS NATURALES Y MINERÍA', descripcion: 'Gestión técnica de recursos del subsuelo' },
+                { nombre: 'FORTALECIMIENTO INSTITUCIONAL', descripcion: 'Mejora continua y modernización de los GAD' },
             ]
         });
 
