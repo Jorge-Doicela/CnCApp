@@ -4,7 +4,7 @@ import { IonicModule } from '@ionic/angular';
 import { Component, OnInit, inject, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { ToastController, AlertController, LoadingController } from '@ionic/angular';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { addIcons } from 'ionicons';
 import {
   personOutline, idCardOutline, callOutline, calendarOutline, maleFemaleOutline,
@@ -23,7 +23,7 @@ import { TipoParticipanteEnum } from 'src/app/shared/constants/enums';
   templateUrl: './editar.page.html',
   styleUrls: ['./editar.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule],
+  imports: [CommonModule, FormsModule, IonicModule, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class EditarPage implements OnInit {
@@ -542,6 +542,39 @@ export class EditarPage implements OnInit {
       await this.loadingController.dismiss();
     } catch (error) {
       console.log('No hay cargando que cerrar');
+    }
+  }
+
+  // Navigation between segments
+  proximoPasso() {
+    if (this.segmentoActual === 'personal') {
+      this.segmentoActual = 'ubicacion';
+    } else if (this.segmentoActual === 'ubicacion') {
+      this.segmentoActual = 'sistema';
+    }
+    this.scrollToTop();
+  }
+
+  passoAnterior() {
+    if (this.segmentoActual === 'sistema') {
+      this.segmentoActual = 'ubicacion';
+    } else if (this.segmentoActual === 'ubicacion') {
+      this.segmentoActual = 'personal';
+    }
+    this.scrollToTop();
+  }
+
+  private scrollToTop() {
+    const content = document.querySelector('ion-content');
+    if (content) {
+      (content as any).scrollToTop(500);
+    }
+  }
+
+  triggerSignatureUpload(event: Event) {
+    const input = (event.currentTarget as HTMLElement).querySelector('input[type="file"]') as HTMLInputElement;
+    if (input) {
+      input.click();
     }
   }
 }
