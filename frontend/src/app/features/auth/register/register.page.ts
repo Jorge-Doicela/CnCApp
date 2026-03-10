@@ -163,6 +163,25 @@ export class RegisterPage {
       this.gradosOcupacionales.set(gradosOcupacionalesResp || []);
       this.instituciones.set(institucionesResp || []);
 
+      // Resolve Dynamic IDs
+      const findIdByCodigo = (list: any[], codigo: string, fallback: number) => {
+        const match = list.find((i: any) => i.codigo === codigo);
+        return match ? match.id : fallback;
+      };
+
+      const newResolvedIds = {
+        tipoAutoridad: findIdByCodigo(tiposParticipanteResp, 'AUTORIDAD', TipoParticipanteEnum.AUTORIDAD),
+        tipoCiudadano: findIdByCodigo(tiposParticipanteResp, 'CIUDADANO', TipoParticipanteEnum.CIUDADANO),
+        tipoFuncionario: findIdByCodigo(tiposParticipanteResp, 'FUNCIONARIO_GAD', TipoParticipanteEnum.FUNCIONARIO_GAD),
+        tipoInstitucion: findIdByCodigo(tiposParticipanteResp, 'INSTITUCION', TipoParticipanteEnum.INSTITUCION),
+        nivelProvincial: findIdByCodigo(entidadesResp, 'NIVEL_PROVINCIAL', NivelGobiernoEnum.PROVINCIAL),
+        nivelMunicipal: findIdByCodigo(entidadesResp, 'NIVEL_MUNICIPAL', NivelGobiernoEnum.MUNICIPAL),
+        nivelParroquial: findIdByCodigo(entidadesResp, 'NIVEL_PARROQUIAL', NivelGobiernoEnum.PARROQUIAL),
+        nivelMancomunidad: findIdByCodigo(entidadesResp, 'MANCOMUNIDADES', NivelGobiernoEnum.MANCOMUNIDADES),
+      };
+
+      this.state.updateUserData({ resolvedIds: newResolvedIds } as any);
+
       // If reloading from session and we already had a provinciaId, restore the filtered cantones list immediately.
       const currentProv = this.userData().provinciaId;
       if (currentProv) {
@@ -326,22 +345,24 @@ export class RegisterPage {
 
   validateStep4(): boolean {
     const data = this.laborData();
+    const resIds = this.state.resolvedIds();
+
     if (data.tipoParticipanteId === undefined) {
       this.presentToast('Seleccione un tipo de participante', 'warning');
       return false;
     }
 
-    if (data.tipoParticipanteId === TipoParticipanteEnum.AUTORIDAD) { // Autoridad
+    if (data.tipoParticipanteId === resIds.tipoAutoridad) { // Autoridad
       if (!data.autoridad?.cargo || !data.autoridad?.nivelgobierno || !data.autoridad?.gadAutoridad) {
         this.presentToast('Complete todos los campos para Autoridad', 'warning');
         return false;
       }
-    } else if (data.tipoParticipanteId === TipoParticipanteEnum.FUNCIONARIO_GAD) { // Funcionario
+    } else if (data.tipoParticipanteId === resIds.tipoFuncionario) { // Funcionario
       if (!data.funcionarioGad?.cargo || !data.funcionarioGad?.nivelgobierno || !data.funcionarioGad?.gadFuncionarioGad || !data.funcionarioGad?.competencias || data.funcionarioGad.competencias.length === 0) {
         this.presentToast('Complete todos los campos para Funcionario GAD, incluyendo competencias', 'warning');
         return false;
       }
-    } else if (data.tipoParticipanteId === TipoParticipanteEnum.INSTITUCION) { // Institucion
+    } else if (data.tipoParticipanteId === resIds.tipoInstitucion) { // Institucion
       if (!data.institucion?.institucion || !data.institucion?.gradoOcupacional || !data.institucion?.cargo) {
         this.presentToast('Complete todos los campos para Institución (institución, grado ocupacional y cargo)', 'warning');
         return false;

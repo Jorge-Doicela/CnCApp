@@ -32,6 +32,7 @@ export class PrismaRolRepository implements RolRepository {
         const newRol = await prisma.rol.create({
             data: {
                 nombre: rol.nombre,
+                codigo: rol.codigo,
                 descripcion: rol.descripcion,
                 modulos: rol.modulos || []
             }
@@ -44,6 +45,7 @@ export class PrismaRolRepository implements RolRepository {
             where: { id },
             data: {
                 ...(rol.nombre && { nombre: rol.nombre }),
+                ...(rol.codigo !== undefined && { codigo: rol.codigo }),
                 ...(rol.descripcion !== undefined && { descripcion: rol.descripcion }),
                 ...(rol.modulos !== undefined && { modulos: rol.modulos }),
             }

@@ -14,6 +14,7 @@ model Rol {
   modulos     Json?     @default("[]") @map("modulos")
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime  @updatedAt @map("updated_at")
+  codigo      String?   @unique @map("codigo") @db.VarChar(50)
   usuarios    Usuario[]
 
   @@map("roles")
@@ -23,6 +24,7 @@ model Entidad {
   id        Int       @id @default(autoincrement()) @map("id_entidad")
   nombre    String    @map("nombre_entidad") @db.VarChar(200)
   createdAt DateTime  @default(now()) @map("created_at")
+  codigo    String?   @unique @map("codigo") @db.VarChar(50)
   usuarios  Usuario[]
 
   @@map("entidades")
@@ -290,6 +292,7 @@ model Etnia {
 model TipoParticipante {
   id        Int       @id @default(autoincrement()) @map("id_tipo_participante")
   nombre    String    @unique @map("nombre") @db.VarChar(100)
+  codigo    String?   @unique @map("codigo") @db.VarChar(50)
   usuarios  Usuario[]
 
   @@map("tipos_participante")

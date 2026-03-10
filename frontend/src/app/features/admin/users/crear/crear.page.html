@@ -13,7 +13,7 @@
     </div>
 
     <div class="container main-content-wrapper">
-      
+
       <!-- Page Header -->
       <header class="page-header animate-fade-up">
         <div class="header-main">
@@ -29,10 +29,8 @@
       <!-- Progress Stepper -->
       <section class="stepper-section animate-fade-up" style="animation-delay: 0.1s;">
         <div class="stepper-container luxury">
-          <div class="step" *ngFor="let s of [1,2,3,4,5]" 
-               [class.active]="passoActual === s"
-               [class.completed]="passoActual > s" 
-               (click)="irAPasso(s)">
+          <div class="step" *ngFor="let s of [1,2,3,4,5]" [class.active]="passoActual === s"
+            [class.completed]="passoActual > s" (click)="irAPasso(s)">
             <div class="step-dot">
               <ion-icon [name]="passoActual > s ? 'checkmark-outline' : ''"></ion-icon>
               <span *ngIf="passoActual <= s">{{ s }}</span>
@@ -48,409 +46,434 @@
       <!-- Form Card -->
       <div class="form-container glass animate-fade-up" style="animation-delay: 0.2s;">
 
-      <!-- Paso 1: Identificación y Credenciales -->
-      <div class="form-section transition-step" *ngIf="passoActual === 1">
-        <h3 class="section-title">
-          <ion-icon name="shield-checkmark-outline"></ion-icon>
-          Credenciales y Acceso
-        </h3>
-        <p class="section-description">Configure los datos de acceso y el rol del nuevo usuario.</p>
+        <!-- Paso 1: Identificación y Credenciales -->
+        <div class="form-section transition-step" *ngIf="passoActual === 1">
+          <h3 class="section-title">
+            <ion-icon name="shield-checkmark-outline"></ion-icon>
+            Credenciales y Acceso
+          </h3>
+          <p class="section-description">Configure los datos de acceso y el rol del nuevo usuario.</p>
 
-        <div class="field-group triple">
-          <div class="ci-field-container">
+          <div class="field-group triple">
+            <div class="ci-field-container">
+              <ion-item class="form-field">
+                <ion-icon name="id-card-outline" slot="start"></ion-icon>
+                <ion-label position="floating">Cédula (CI) <span class="required">*</span></ion-label>
+                <ion-input [(ngModel)]="usuarioGeneral.ci" (ngModelChange)="guardarProgreso(); validarCedula()"
+                  type="text" maxlength="10" required></ion-input>
+              </ion-item>
+              <div *ngIf="usuarioGeneral.ci"
+                [ngClass]="{'validacion-error': !cedulaValidada, 'validacion-success': cedulaValidada}"
+                class="mensaje-validacion">
+                <ion-icon [name]="cedulaValidada ? 'checkmark-circle' : 'alert-circle'"></ion-icon>
+                <span>{{ mensajeValidacionCedula }}</span>
+              </div>
+            </div>
+
             <ion-item class="form-field">
-              <ion-icon name="id-card-outline" slot="start"></ion-icon>
-              <ion-label position="floating">Cédula (CI) <span class="required">*</span></ion-label>
-              <ion-input [(ngModel)]="usuarioGeneral.ci" (ngModelChange)="guardarProgreso(); validarCedula()" type="text" maxlength="10" required></ion-input>
+              <ion-icon name="mail-outline" slot="start"></ion-icon>
+              <ion-label position="floating">Correo Electrónico <span class="required">*</span></ion-label>
+              <ion-input [(ngModel)]="usuarioGeneral.email" (ngModelChange)="guardarProgreso()" type="email"
+                required></ion-input>
             </ion-item>
-            <div *ngIf="usuarioGeneral.ci"
-              [ngClass]="{'validacion-error': !cedulaValidada, 'validacion-success': cedulaValidada}"
-              class="mensaje-validacion">
-              <ion-icon [name]="cedulaValidada ? 'checkmark-circle' : 'alert-circle'"></ion-icon>
-              <span>{{ mensajeValidacionCedula }}</span>
+
+            <ion-item class="form-field">
+              <ion-icon name="lock-closed-outline" slot="start"></ion-icon>
+              <ion-label position="floating">Contraseña <span class="required">*</span></ion-label>
+              <ion-input [(ngModel)]="usuarioGeneral.password" (ngModelChange)="guardarProgreso()"
+                [type]="showPassword ? 'text' : 'password'" required></ion-input>
+              <ion-button slot="end" fill="clear" (click)="togglePassword()" color="medium">
+                <ion-icon [name]="showPassword ? 'eye-off-outline' : 'eye-outline'" slot="icon-only"></ion-icon>
+              </ion-button>
+            </ion-item>
+          </div>
+
+          <div class="field-group">
+            <ion-item class="form-field">
+              <ion-icon name="key-outline" slot="start"></ion-icon>
+              <ion-label>Rol de Usuario <span class="required">*</span></ion-label>
+              <ion-select [(ngModel)]="usuarioGeneral.rolId" (ngModelChange)="guardarProgreso()"
+                placeholder="Seleccione Rol" interface="popover">
+                <ion-select-option *ngFor="let rol of datosrecuperados.roles" [value]="rol.id">
+                  {{ rol.nombre }}
+                </ion-select-option>
+              </ion-select>
+            </ion-item>
+
+            <ion-item class="form-field">
+              <ion-icon name="people-outline" slot="start"></ion-icon>
+              <ion-label>Tipo Participante <span class="required">*</span></ion-label>
+              <ion-select [(ngModel)]="usuarioGeneral.tipoParticipante" (ngModelChange)="guardarProgreso()"
+                (ionChange)="onTipoParticipanteChange()" placeholder="Seleccione Tipo" interface="popover">
+                <ion-select-option *ngFor="let tp of datosrecuperados.tiposParticipante" [value]="tp.id">
+                  {{ tp.nombre }}
+                </ion-select-option>
+              </ion-select>
+            </ion-item>
+          </div>
+        </div>
+
+        <!-- Paso 2: Datos Personales -->
+        <div class="form-section transition-step" *ngIf="passoActual === 2">
+          <h3 class="section-title">
+            <ion-icon name="person-outline"></ion-icon>
+            Información Personal
+          </h3>
+
+          <div class="field-group">
+            <ion-item class="form-field">
+              <ion-icon name="person-outline" slot="start"></ion-icon>
+              <ion-label position="floating">Primer Nombre <span class="required">*</span></ion-label>
+              <ion-input [(ngModel)]="usuarioGeneral.primerNombre" (ngModelChange)="guardarProgreso()"></ion-input>
+            </ion-item>
+            <ion-item class="form-field">
+              <ion-icon name="person-outline" slot="start"></ion-icon>
+              <ion-label position="floating">Segundo Nombre <span class="optional">(Opcional)</span></ion-label>
+              <ion-input [(ngModel)]="usuarioGeneral.segundoNombre" (ngModelChange)="guardarProgreso()"></ion-input>
+            </ion-item>
+          </div>
+          <div class="field-group">
+            <ion-item class="form-field">
+              <ion-icon name="person-outline" slot="start"></ion-icon>
+              <ion-label position="floating">Primer Apellido <span class="required">*</span></ion-label>
+              <ion-input [(ngModel)]="usuarioGeneral.primerApellido" (ngModelChange)="guardarProgreso()"></ion-input>
+            </ion-item>
+            <ion-item class="form-field">
+              <ion-icon name="person-outline" slot="start"></ion-icon>
+              <ion-label position="floating">Segundo Apellido <span class="optional">(Opcional)</span></ion-label>
+              <ion-input [(ngModel)]="usuarioGeneral.segundoApellido" (ngModelChange)="guardarProgreso()"></ion-input>
+            </ion-item>
+          </div>
+
+
+          <div class="field-group triple">
+            <ion-item class="form-field">
+              <ion-icon name="call-outline" slot="start"></ion-icon>
+              <ion-label position="floating">Celular *</ion-label>
+              <ion-input [(ngModel)]="usuarioGeneral.celular" (ngModelChange)="guardarProgreso()"
+                type="tel"></ion-input>
+            </ion-item>
+            <ion-item class="form-field">
+              <ion-icon name="flag-outline" slot="start"></ion-icon>
+              <ion-label>Nacionalidad *</ion-label>
+              <ion-select [(ngModel)]="usuarioGeneral.nacionalidadId" (ngModelChange)="guardarProgreso()"
+                placeholder="Seleccione" interface="popover">
+                <ion-select-option *ngFor="let nac of datosrecuperados.nacionalidades" [value]="nac.id">
+                  {{ nac.nombre }}
+                </ion-select-option>
+              </ion-select>
+            </ion-item>
+            <ion-item class="form-field">
+              <ion-icon name="calendar-outline" slot="start"></ion-icon>
+              <ion-label>Fecha Nacimiento *</ion-label>
+              <ion-input [(ngModel)]="usuarioGeneral.fechaNacimiento" (ngModelChange)="guardarProgreso()"
+                type="date"></ion-input>
+            </ion-item>
+          </div>
+
+          <div class="field-group">
+            <ion-item class="form-field">
+              <ion-icon name="male-female-outline" slot="start"></ion-icon>
+              <ion-label>Género *</ion-label>
+              <ion-select [(ngModel)]="usuarioGeneral.generoId" (ngModelChange)="guardarProgreso()"
+                placeholder="Seleccione" interface="popover">
+                <ion-select-option *ngFor="let gen of datosrecuperados.generos" [value]="gen.id">
+                  {{ gen.nombre }}
+                </ion-select-option>
+              </ion-select>
+            </ion-item>
+            <ion-item class="form-field">
+              <ion-icon name="people-outline" slot="start"></ion-icon>
+              <ion-label>Etnia *</ion-label>
+              <ion-select [(ngModel)]="usuarioGeneral.etniaId" (ngModelChange)="guardarProgreso()"
+                placeholder="Seleccione" interface="popover">
+                <ion-select-option *ngFor="let et of datosrecuperados.etnias" [value]="et.id">
+                  {{ et.nombre }}
+                </ion-select-option>
+              </ion-select>
+            </ion-item>
+          </div>
+        </div>
+
+        <!-- Paso 3: Ubicación -->
+        <div class="form-section transition-step" *ngIf="passoActual === 3">
+          <h3 class="section-title">
+            <ion-icon name="map-outline"></ion-icon>
+            Ubicación
+          </h3>
+
+          <div class="field-group triple">
+            <ion-item class="form-field">
+              <ion-icon name="globe-outline" slot="start"></ion-icon>
+              <ion-label>Provincia *</ion-label>
+              <ion-select [(ngModel)]="datosbusqueda.selectedProvincia"
+                (ngModelChange)="guardarProgreso(); obtenerCantones(datosbusqueda.selectedProvincia)"
+                placeholder="Seleccione" interface="popover">
+                <ion-select-option *ngFor="let provincia of datosrecuperados.provincias" [value]="provincia.id">
+                  {{ provincia.nombre }}
+                </ion-select-option>
+              </ion-select>
+            </ion-item>
+            <ion-item class="form-field">
+              <ion-icon name="location-outline" slot="start"></ion-icon>
+              <ion-label>Cantón *</ion-label>
+              <ion-select [(ngModel)]="usuarioGeneral.cantonId"
+                (ngModelChange)="guardarProgreso(); obtenerParroquias(usuarioGeneral.cantonId)" placeholder="Seleccione"
+                interface="popover" [disabled]="!datosrecuperados.cantones.length">
+                <ion-select-option *ngFor="let canton of datosrecuperados.cantones" [value]="canton.id">
+                  {{ canton.nombre }}
+                </ion-select-option>
+              </ion-select>
+            </ion-item>
+            <ion-item class="form-field">
+              <ion-icon name="map-outline" slot="start"></ion-icon>
+              <ion-label>Parroquia</ion-label>
+              <ion-select [(ngModel)]="usuarioGeneral.parroquiaId" (ngModelChange)="guardarProgreso()"
+                placeholder="Seleccione" interface="popover"
+                [disabled]="!datosrecuperados.parroquiasSeleccionadas.length">
+                <ion-select-option *ngFor="let parroquia of datosrecuperados.parroquiasSeleccionadas"
+                  [value]="parroquia.id">
+                  {{ parroquia.nombre }}
+                </ion-select-option>
+              </ion-select>
+            </ion-item>
+          </div>
+        </div>
+
+        <!-- Paso 4: Datos Específicos -->
+        <div class="form-section transition-step" *ngIf="passoActual === 4">
+          <!-- Autoridad -->
+          <div *ngIf="usuarioGeneral.tipoParticipante == resolvedIds.tipoAutoridad">
+            <h3 class="section-title">Datos Autoridad</h3>
+            <div class="field-group">
+              <ion-item class="form-field">
+                <ion-label>Cargo *</ion-label>
+                <ion-select [(ngModel)]="autoridad.cargo" (ngModelChange)="guardarProgreso()" placeholder="Seleccione"
+                  interface="popover">
+                  <ion-select-option *ngFor="let c of datosrecuperados.cargos" [value]="c.nombre">
+                    {{ c.nombre }}
+                  </ion-select-option>
+                </ion-select>
+              </ion-item>
+              <ion-item class="form-field">
+                <ion-label>Nivel Gobierno *</ion-label>
+                <ion-select [(ngModel)]="autoridad.nivelGobierno" (ngModelChange)="guardarProgreso()"
+                  placeholder="Seleccione" interface="popover">
+                  <ion-select-option *ngFor="let e of datosrecuperados.entidades" [value]="e.id">
+                    {{ e.nombre }}
+                  </ion-select-option>
+                </ion-select>
+              </ion-item>
+            </div>
+            <div class="field-group">
+              <ion-item class="form-field">
+                <ion-label>GAD *</ion-label>
+                <ion-select [(ngModel)]="autoridad.gadAutoridad" (ngModelChange)="guardarProgreso()"
+                  placeholder="Seleccione un GAD" interface="popover">
+                  <ng-container *ngIf="autoridad.nivelGobierno == resolvedIds.nivelMancomunidad">
+                    <ion-select-option *ngFor="let m of datosrecuperados.mancomunidades" [value]="m.nombre">
+                      {{ m.nombre }}
+                    </ion-select-option>
+                  </ng-container>
+                  <ng-container
+                    *ngIf="autoridad.nivelGobierno == resolvedIds.nivelMunicipal || autoridad.nivelGobierno == resolvedIds.nivelParroquial">
+                    <ion-select-option *ngFor="let c of datosrecuperados.cantones" [value]="c.nombre">
+                      {{ c.nombre }}
+                    </ion-select-option>
+                  </ng-container>
+                  <ng-container *ngIf="autoridad.nivelGobierno == resolvedIds.nivelProvincial">
+                    <ion-select-option *ngFor="let p of datosrecuperados.provincias" [value]="p.nombre">
+                      {{ p.nombre }}
+                    </ion-select-option>
+                  </ng-container>
+                  <ng-container *ngIf="getInstitucionesPorNivel(autoridad.nivelGobierno).length > 0">
+                    <ion-select-option *ngFor="let i of getInstitucionesPorNivel(autoridad.nivelGobierno)"
+                      [value]="i.nombre">
+                      {{ i.nombre }}
+                    </ion-select-option>
+                  </ng-container>
+                </ion-select>
+              </ion-item>
             </div>
           </div>
 
-          <ion-item class="form-field">
-            <ion-icon name="mail-outline" slot="start"></ion-icon>
-            <ion-label position="floating">Correo Electrónico <span class="required">*</span></ion-label>
-            <ion-input [(ngModel)]="usuarioGeneral.email" (ngModelChange)="guardarProgreso()" type="email" required></ion-input>
-          </ion-item>
-
-          <ion-item class="form-field">
-            <ion-icon name="lock-closed-outline" slot="start"></ion-icon>
-            <ion-label position="floating">Contraseña <span class="required">*</span></ion-label>
-            <ion-input [(ngModel)]="usuarioGeneral.password" (ngModelChange)="guardarProgreso()" [type]="showPassword ? 'text' : 'password'" required></ion-input>
-            <ion-button slot="end" fill="clear" (click)="togglePassword()" color="medium">
-              <ion-icon [name]="showPassword ? 'eye-off-outline' : 'eye-outline'" slot="icon-only"></ion-icon>
-            </ion-button>
-          </ion-item>
-        </div>
-
-        <div class="field-group">
-          <ion-item class="form-field">
-            <ion-icon name="key-outline" slot="start"></ion-icon>
-            <ion-label>Rol de Usuario <span class="required">*</span></ion-label>
-            <ion-select [(ngModel)]="usuarioGeneral.rolId" (ngModelChange)="guardarProgreso()" placeholder="Seleccione Rol" interface="popover">
-              <ion-select-option *ngFor="let rol of datosrecuperados.roles" [value]="rol.id">
-                {{ rol.nombre }}
-              </ion-select-option>
-            </ion-select>
-          </ion-item>
-
-          <ion-item class="form-field">
-            <ion-icon name="people-outline" slot="start"></ion-icon>
-            <ion-label>Tipo Participante <span class="required">*</span></ion-label>
-            <ion-select [(ngModel)]="usuarioGeneral.tipoParticipante" (ngModelChange)="guardarProgreso()" (ionChange)="onTipoParticipanteChange()"
-              placeholder="Seleccione Tipo" interface="popover">
-              <ion-select-option *ngFor="let tp of datosrecuperados.tiposParticipante" [value]="tp.id">
-                {{ tp.nombre }}
-              </ion-select-option>
-            </ion-select>
-          </ion-item>
-        </div>
-      </div>
-
-      <!-- Paso 2: Datos Personales -->
-      <div class="form-section transition-step" *ngIf="passoActual === 2">
-        <h3 class="section-title">
-          <ion-icon name="person-outline"></ion-icon>
-          Información Personal
-        </h3>
-
-        <div class="field-group">
-          <ion-item class="form-field">
-            <ion-icon name="person-outline" slot="start"></ion-icon>
-            <ion-label position="floating">Primer Nombre <span class="required">*</span></ion-label>
-            <ion-input [(ngModel)]="usuarioGeneral.primerNombre" (ngModelChange)="guardarProgreso()"></ion-input>
-          </ion-item>
-          <ion-item class="form-field">
-            <ion-icon name="person-outline" slot="start"></ion-icon>
-            <ion-label position="floating">Segundo Nombre <span class="optional">(Opcional)</span></ion-label>
-            <ion-input [(ngModel)]="usuarioGeneral.segundoNombre" (ngModelChange)="guardarProgreso()"></ion-input>
-          </ion-item>
-        </div>
-        <div class="field-group">
-          <ion-item class="form-field">
-            <ion-icon name="person-outline" slot="start"></ion-icon>
-            <ion-label position="floating">Primer Apellido <span class="required">*</span></ion-label>
-            <ion-input [(ngModel)]="usuarioGeneral.primerApellido" (ngModelChange)="guardarProgreso()"></ion-input>
-          </ion-item>
-          <ion-item class="form-field">
-            <ion-icon name="person-outline" slot="start"></ion-icon>
-            <ion-label position="floating">Segundo Apellido <span class="optional">(Opcional)</span></ion-label>
-            <ion-input [(ngModel)]="usuarioGeneral.segundoApellido" (ngModelChange)="guardarProgreso()"></ion-input>
-          </ion-item>
-        </div>
-
-
-        <div class="field-group triple">
-          <ion-item class="form-field">
-            <ion-icon name="call-outline" slot="start"></ion-icon>
-            <ion-label position="floating">Celular *</ion-label>
-            <ion-input [(ngModel)]="usuarioGeneral.celular" (ngModelChange)="guardarProgreso()" type="tel"></ion-input>
-          </ion-item>
-          <ion-item class="form-field">
-            <ion-icon name="flag-outline" slot="start"></ion-icon>
-            <ion-label>Nacionalidad *</ion-label>
-            <ion-select [(ngModel)]="usuarioGeneral.nacionalidadId" (ngModelChange)="guardarProgreso()" placeholder="Seleccione" interface="popover">
-              <ion-select-option *ngFor="let nac of datosrecuperados.nacionalidades" [value]="nac.id">
-                {{ nac.nombre }}
-              </ion-select-option>
-            </ion-select>
-          </ion-item>
-          <ion-item class="form-field">
-            <ion-icon name="calendar-outline" slot="start"></ion-icon>
-            <ion-label>Fecha Nacimiento *</ion-label>
-            <ion-input [(ngModel)]="usuarioGeneral.fechaNacimiento" (ngModelChange)="guardarProgreso()" type="date"></ion-input>
-          </ion-item>
-        </div>
-
-        <div class="field-group">
-          <ion-item class="form-field">
-            <ion-icon name="male-female-outline" slot="start"></ion-icon>
-            <ion-label>Género *</ion-label>
-            <ion-select [(ngModel)]="usuarioGeneral.generoId" (ngModelChange)="guardarProgreso()" placeholder="Seleccione" interface="popover">
-              <ion-select-option *ngFor="let gen of datosrecuperados.generos" [value]="gen.id">
-                {{ gen.nombre }}
-              </ion-select-option>
-            </ion-select>
-          </ion-item>
-          <ion-item class="form-field">
-            <ion-icon name="people-outline" slot="start"></ion-icon>
-            <ion-label>Etnia *</ion-label>
-            <ion-select [(ngModel)]="usuarioGeneral.etniaId" (ngModelChange)="guardarProgreso()" placeholder="Seleccione" interface="popover">
-              <ion-select-option *ngFor="let et of datosrecuperados.etnias" [value]="et.id">
-                {{ et.nombre }}
-              </ion-select-option>
-            </ion-select>
-          </ion-item>
-        </div>
-      </div>
-
-      <!-- Paso 3: Ubicación -->
-      <div class="form-section transition-step" *ngIf="passoActual === 3">
-        <h3 class="section-title">
-          <ion-icon name="map-outline"></ion-icon>
-          Ubicación
-        </h3>
-
-        <div class="field-group triple">
-          <ion-item class="form-field">
-            <ion-icon name="globe-outline" slot="start"></ion-icon>
-            <ion-label>Provincia *</ion-label>
-            <ion-select [(ngModel)]="datosbusqueda.selectedProvincia"
-              (ngModelChange)="guardarProgreso(); obtenerCantones(datosbusqueda.selectedProvincia)" placeholder="Seleccione"
-              interface="popover">
-              <ion-select-option *ngFor="let provincia of datosrecuperados.provincias" [value]="provincia.id">
-                {{ provincia.nombre }}
-              </ion-select-option>
-            </ion-select>
-          </ion-item>
-          <ion-item class="form-field">
-            <ion-icon name="location-outline" slot="start"></ion-icon>
-            <ion-label>Cantón *</ion-label>
-            <ion-select [(ngModel)]="usuarioGeneral.cantonId"
-              (ngModelChange)="guardarProgreso(); obtenerParroquias(usuarioGeneral.cantonId)" placeholder="Seleccione" interface="popover"
-              [disabled]="!datosrecuperados.cantones.length">
-              <ion-select-option *ngFor="let canton of datosrecuperados.cantones" [value]="canton.id">
-                {{ canton.nombre }}
-              </ion-select-option>
-            </ion-select>
-          </ion-item>
-          <ion-item class="form-field">
-            <ion-icon name="map-outline" slot="start"></ion-icon>
-            <ion-label>Parroquia</ion-label>
-            <ion-select [(ngModel)]="usuarioGeneral.parroquiaId" (ngModelChange)="guardarProgreso()" placeholder="Seleccione" interface="popover"
-              [disabled]="!datosrecuperados.parroquiasSeleccionadas.length">
-              <ion-select-option *ngFor="let parroquia of datosrecuperados.parroquiasSeleccionadas"
-                [value]="parroquia.id">
-                {{ parroquia.nombre }}
-              </ion-select-option>
-            </ion-select>
-          </ion-item>
-        </div>
-      </div>
-
-      <!-- Paso 4: Datos Específicos -->
-      <div class="form-section transition-step" *ngIf="passoActual === 4">
-        <!-- Autoridad -->
-        <div *ngIf="usuarioGeneral.tipoParticipante == TipoParticipanteEnum.AUTORIDAD">
-          <h3 class="section-title">Datos Autoridad</h3>
-          <div class="field-group">
-            <ion-item class="form-field">
-              <ion-label>Cargo *</ion-label>
-              <ion-select [(ngModel)]="autoridad.cargo" (ngModelChange)="guardarProgreso()" placeholder="Seleccione" interface="popover">
-                <ion-select-option *ngFor="let c of datosrecuperados.cargos" [value]="c.nombre">
-                  {{ c.nombre }}
-                </ion-select-option>
-              </ion-select>
-            </ion-item>
-            <ion-item class="form-field">
-              <ion-label>Nivel Gobierno *</ion-label>
-              <ion-select [(ngModel)]="autoridad.nivelGobierno" (ngModelChange)="guardarProgreso()" placeholder="Seleccione" interface="popover">
-                <ion-select-option *ngFor="let e of datosrecuperados.entidades" [value]="e.id">
-                  {{ e.nombre }}
-                </ion-select-option>
-              </ion-select>
-            </ion-item>
-          </div>
-          <div class="field-group">
-            <ion-item class="form-field">
-              <ion-label>GAD *</ion-label>
-              <ion-select [(ngModel)]="autoridad.gadAutoridad" (ngModelChange)="guardarProgreso()" placeholder="Seleccione un GAD" interface="popover">
-                <ng-container *ngIf="autoridad.nivelGobierno == NivelGobiernoEnum.MANCOMUNIDADES">
-                  <ion-select-option *ngFor="let m of datosrecuperados.mancomunidades" [value]="m.nombre">
-                    {{ m.nombre }}
-                  </ion-select-option>
-                </ng-container>
-                <ng-container *ngIf="autoridad.nivelGobierno == NivelGobiernoEnum.MUNICIPAL || autoridad.nivelGobierno == NivelGobiernoEnum.PARROQUIAL">
-                  <ion-select-option *ngFor="let c of datosrecuperados.cantones" [value]="c.nombre">
+          <!-- Funcionario GAD -->
+          <div *ngIf="usuarioGeneral.tipoParticipante == resolvedIds.tipoFuncionario">
+            <h3 class="section-title">Datos Funcionario GAD</h3>
+            <div class="field-group">
+              <ion-item class="form-field">
+                <ion-label>Cargo *</ion-label>
+                <ion-select [(ngModel)]="funcionarioGad.cargo" (ngModelChange)="guardarProgreso()"
+                  placeholder="Seleccione" interface="popover">
+                  <ion-select-option *ngFor="let c of datosrecuperados.cargos" [value]="c.nombre">
                     {{ c.nombre }}
                   </ion-select-option>
-                </ng-container>
-                <ng-container *ngIf="autoridad.nivelGobierno == NivelGobiernoEnum.PROVINCIAL">
-                  <ion-select-option *ngFor="let p of datosrecuperados.provincias" [value]="p.nombre">
-                    {{ p.nombre }}
+                </ion-select>
+              </ion-item>
+              <ion-item class="form-field">
+                <ion-label>Nivel Gobierno *</ion-label>
+                <ion-select [(ngModel)]="funcionarioGad.nivelGobierno" (ngModelChange)="guardarProgreso()"
+                  placeholder="Seleccione" interface="popover">
+                  <ion-select-option *ngFor="let e of datosrecuperados.entidades" [value]="e.id">
+                    {{ e.nombre }}
                   </ion-select-option>
-                </ng-container>
-                <ng-container *ngIf="getInstitucionesPorNivel(autoridad.nivelGobierno).length > 0">
-                  <ion-select-option *ngFor="let i of getInstitucionesPorNivel(autoridad.nivelGobierno)" [value]="i.nombre">
-                    {{ i.nombre }}
+                </ion-select>
+              </ion-item>
+            </div>
+            <div class="field-group">
+              <ion-item class="form-field">
+                <ion-label>GAD *</ion-label>
+                <ion-select [(ngModel)]="funcionarioGad.gadFuncionarioGad" (ngModelChange)="guardarProgreso()"
+                  placeholder="Seleccione un GAD" interface="popover">
+                  <ng-container *ngIf="funcionarioGad.nivelGobierno == resolvedIds.nivelMancomunidad">
+                    <ion-select-option *ngFor="let m of datosrecuperados.mancomunidades" [value]="m.nombre">
+                      {{ m.nombre }}
+                    </ion-select-option>
+                  </ng-container>
+                  <ng-container
+                    *ngIf="funcionarioGad.nivelGobierno == resolvedIds.nivelMunicipal || funcionarioGad.nivelGobierno == resolvedIds.nivelParroquial">
+                    <ion-select-option *ngFor="let c of datosrecuperados.cantones" [value]="c.nombre">
+                      {{ c.nombre }}
+                    </ion-select-option>
+                  </ng-container>
+                  <ng-container *ngIf="funcionarioGad.nivelGobierno == resolvedIds.nivelProvincial">
+                    <ion-select-option *ngFor="let p of datosrecuperados.provincias" [value]="p.nombre">
+                      {{ p.nombre }}
+                    </ion-select-option>
+                  </ng-container>
+                  <ng-container *ngIf="getInstitucionesPorNivel(funcionarioGad.nivelGobierno).length > 0">
+                    <ion-select-option *ngFor="let i of getInstitucionesPorNivel(funcionarioGad.nivelGobierno)"
+                      [value]="i.nombre">
+                      {{ i.nombre }}
+                    </ion-select-option>
+                  </ng-container>
+                </ion-select>
+              </ion-item>
+              <ion-item class="form-field">
+                <ion-label>Competencias *</ion-label>
+                <ion-select [(ngModel)]="funcionarioGad.competencias" (ngModelChange)="guardarProgreso()"
+                  [multiple]="true" placeholder="Seleccione" interface="popover">
+                  <ion-select-option *ngFor="let comp of datosrecuperados.competencias" [value]="comp.id">
+                    {{ comp.nombre }}
                   </ion-select-option>
-                </ng-container>
-              </ion-select>
+                </ion-select>
+              </ion-item>
+            </div>
+          </div>
+
+          <!-- Institución -->
+          <div *ngIf="usuarioGeneral.tipoParticipante == resolvedIds.tipoInstitucion">
+            <h3 class="section-title">Datos Institucionales</h3>
+            <div class="field-group">
+              <ion-item class="form-field">
+                <ion-label position="floating">Institución *</ion-label>
+                <ion-select [(ngModel)]="institucion.institucion" (ngModelChange)="guardarProgreso()"
+                  placeholder="Seleccione" interface="popover">
+                  <ion-select-option *ngFor="let inst of datosrecuperados.instituciones" [value]="inst.id">
+                    {{ inst.nombre }}
+                  </ion-select-option>
+                </ion-select>
+              </ion-item>
+              <ion-item class="form-field">
+                <ion-label position="floating">Grado Ocupacional *</ion-label>
+                <ion-select [(ngModel)]="institucion.gradoOcupacional" (ngModelChange)="guardarProgreso()"
+                  placeholder="Seleccione" interface="popover">
+                  <ion-select-option *ngFor="let g of datosrecuperados.gradosOcupacionales" [value]="g.id">
+                    {{ g.nombre }}
+                  </ion-select-option>
+                </ion-select>
+              </ion-item>
+            </div>
+            <div class="field-group" style="grid-column: span 2;">
+              <ion-item class="form-field">
+                <ion-label position="floating">Cargo *</ion-label>
+                <ion-select [(ngModel)]="institucion.cargo" (ngModelChange)="guardarProgreso()" placeholder="Seleccione"
+                  interface="popover">
+                  <ion-select-option *ngFor="let cargo of datosrecuperados.cargos" [value]="cargo.nombre">
+                    {{ cargo.nombre }}
+                  </ion-select-option>
+                </ion-select>
+              </ion-item>
+            </div>
+          </div>
+
+          <div *ngIf="usuarioGeneral.tipoParticipante == resolvedIds.tipoCiudadano" class="empty-state">
+            <ion-icon name="people-outline"></ion-icon>
+            <p>No se requieren datos específicos adicionales para Ciudadanos.</p>
+          </div>
+        </div>
+
+        <!-- Paso 5: Revisión -->
+        <div class="form-section transition-step" *ngIf="passoActual === 5">
+          <h3 class="section-title">
+            <ion-icon name="analytics-outline"></ion-icon>
+            Resumen de Registro
+          </h3>
+
+          <div class="review-grid">
+            <div class="review-item">
+              <span class="label">Nombre Completo:</span>
+              <span class="value">{{ concatenarNombreCompleto() }}</span>
+            </div>
+            <div class="review-item">
+              <span class="label">Cédula:</span>
+              <span class="value">{{ usuarioGeneral.ci }}</span>
+            </div>
+            <div class="review-item">
+              <span class="label">Email:</span>
+              <span class="value">{{ usuarioGeneral.email }}</span>
+            </div>
+            <div class="review-item">
+              <span class="label">Rol en Plataforma:</span>
+              <span class="value">{{ getNombreRolSeleccionado() }}</span>
+            </div>
+            <div class="review-item">
+              <span class="label">Ubicación:</span>
+              <span class="value">{{ getNombreProvincia() }} - {{ getNombreCanton() }}</span>
+            </div>
+            <div class="review-item">
+              <span class="label">Tipo Participante:</span>
+              <span class="value">{{
+                usuarioGeneral.tipoParticipante == resolvedIds.tipoCiudadano ? 'Ciudadano' :
+                usuarioGeneral.tipoParticipante == resolvedIds.tipoAutoridad ? 'Autoridad' :
+                usuarioGeneral.tipoParticipante == resolvedIds.tipoFuncionario ? 'Funcionario GAD' :
+                usuarioGeneral.tipoParticipante == resolvedIds.tipoInstitucion ? 'Institución' : 'Desconocido'
+                }}</span>
+            </div>
+          </div>
+
+          <div class="confirmation-check">
+            <ion-item lines="none">
+              <ion-checkbox slot="start" color="primary" [(ngModel)]="infoVeridica"
+                (ngModelChange)="guardarProgreso()"></ion-checkbox>
+              <ion-label>Confirmo que toda la información ingresada es verídica.</ion-label>
             </ion-item>
           </div>
         </div>
 
-        <!-- Funcionario GAD -->
-        <div *ngIf="usuarioGeneral.tipoParticipante == TipoParticipanteEnum.FUNCIONARIO_GAD">
-          <h3 class="section-title">Datos Funcionario GAD</h3>
-          <div class="field-group">
-            <ion-item class="form-field">
-              <ion-label>Cargo *</ion-label>
-              <ion-select [(ngModel)]="funcionarioGad.cargo" (ngModelChange)="guardarProgreso()" placeholder="Seleccione" interface="popover">
-                <ion-select-option *ngFor="let c of datosrecuperados.cargos" [value]="c.nombre">
-                  {{ c.nombre }}
-                </ion-select-option>
-              </ion-select>
-            </ion-item>
-            <ion-item class="form-field">
-              <ion-label>Nivel Gobierno *</ion-label>
-              <ion-select [(ngModel)]="funcionarioGad.nivelGobierno" (ngModelChange)="guardarProgreso()" placeholder="Seleccione" interface="popover">
-                <ion-select-option *ngFor="let e of datosrecuperados.entidades" [value]="e.id">
-                  {{ e.nombre }}
-                </ion-select-option>
-              </ion-select>
-            </ion-item>
-          </div>
-          <div class="field-group">
-            <ion-item class="form-field">
-              <ion-label>GAD *</ion-label>
-              <ion-select [(ngModel)]="funcionarioGad.gadFuncionarioGad" (ngModelChange)="guardarProgreso()" placeholder="Seleccione un GAD" interface="popover">
-                <ng-container *ngIf="funcionarioGad.nivelGobierno == NivelGobiernoEnum.MANCOMUNIDADES">
-                  <ion-select-option *ngFor="let m of datosrecuperados.mancomunidades" [value]="m.nombre">
-                    {{ m.nombre }}
-                  </ion-select-option>
-                </ng-container>
-                <ng-container *ngIf="funcionarioGad.nivelGobierno == NivelGobiernoEnum.MUNICIPAL || funcionarioGad.nivelGobierno == NivelGobiernoEnum.PARROQUIAL">
-                  <ion-select-option *ngFor="let c of datosrecuperados.cantones" [value]="c.nombre">
-                    {{ c.nombre }}
-                  </ion-select-option>
-                </ng-container>
-                <ng-container *ngIf="funcionarioGad.nivelGobierno == NivelGobiernoEnum.PROVINCIAL">
-                  <ion-select-option *ngFor="let p of datosrecuperados.provincias" [value]="p.nombre">
-                    {{ p.nombre }}
-                  </ion-select-option>
-                </ng-container>
-                <ng-container *ngIf="getInstitucionesPorNivel(funcionarioGad.nivelGobierno).length > 0">
-                  <ion-select-option *ngFor="let i of getInstitucionesPorNivel(funcionarioGad.nivelGobierno)" [value]="i.nombre">
-                    {{ i.nombre }}
-                  </ion-select-option>
-                </ng-container>
-              </ion-select>
-            </ion-item>
-            <ion-item class="form-field">
-              <ion-label>Competencias *</ion-label>
-              <ion-select [(ngModel)]="funcionarioGad.competencias" (ngModelChange)="guardarProgreso()" [multiple]="true" placeholder="Seleccione" interface="popover">
-                <ion-select-option *ngFor="let comp of datosrecuperados.competencias" [value]="comp.id">
-                  {{ comp.nombre }}
-                </ion-select-option>
-              </ion-select>
-            </ion-item>
-          </div>
+
+        <!-- Wizard Actions -->
+        <div class="form-actions">
+          <ion-button class="cancel-btn" fill="clear" color="medium" *ngIf="passoActual === 1"
+            (click)="borrarBorrador(); limpiarFormulario()">
+            Limpiar Todo
+          </ion-button>
+
+          <ion-button class="back-btn" fill="outline" color="primary" *ngIf="passoActual > 1" (click)="passoAnterior()">
+            <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
+            Anterior
+          </ion-button>
+
+          <ion-button class="next-btn" color="primary" *ngIf="passoActual < 5" (click)="proximoPasso()">
+            Siguiente
+            <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
+          </ion-button>
+
+          <ion-button class="save-btn" color="success" *ngIf="passoActual === 5" (click)="crearUsuario()">
+            <ion-icon name="save-outline" slot="start"></ion-icon>
+            Finalizar y Guardar
+          </ion-button>
         </div>
-
-        <!-- Institución -->
-        <div *ngIf="usuarioGeneral.tipoParticipante == TipoParticipanteEnum.INSTITUCION">
-          <h3 class="section-title">Datos Institucionales</h3>
-          <div class="field-group">
-            <ion-item class="form-field">
-              <ion-label position="floating">Institución *</ion-label>
-              <ion-select [(ngModel)]="institucion.institucion" (ngModelChange)="guardarProgreso()" placeholder="Seleccione" interface="popover">
-                <ion-select-option *ngFor="let inst of datosrecuperados.instituciones" [value]="inst.id">
-                  {{ inst.nombre }}
-                </ion-select-option>
-              </ion-select>
-            </ion-item>
-            <ion-item class="form-field">
-              <ion-label position="floating">Grado Ocupacional *</ion-label>
-              <ion-select [(ngModel)]="institucion.gradoOcupacional" (ngModelChange)="guardarProgreso()" placeholder="Seleccione" interface="popover">
-                <ion-select-option *ngFor="let g of datosrecuperados.gradosOcupacionales" [value]="g.id">
-                  {{ g.nombre }}
-                </ion-select-option>
-              </ion-select>
-            </ion-item>
-          </div>
-          <div class="field-group" style="grid-column: span 2;">
-            <ion-item class="form-field">
-              <ion-label position="floating">Cargo *</ion-label>
-              <ion-select [(ngModel)]="institucion.cargo" (ngModelChange)="guardarProgreso()" placeholder="Seleccione" interface="popover">
-                <ion-select-option *ngFor="let cargo of datosrecuperados.cargos" [value]="cargo.nombre">
-                  {{ cargo.nombre }}
-                </ion-select-option>
-              </ion-select>
-            </ion-item>
-          </div>
-        </div>
-
-        <div *ngIf="usuarioGeneral.tipoParticipante == TipoParticipanteEnum.CIUDADANO" class="empty-state">
-          <ion-icon name="people-outline"></ion-icon>
-          <p>No se requieren datos específicos adicionales para Ciudadanos.</p>
-        </div>
-      </div>
-
-      <!-- Paso 5: Revisión -->
-      <div class="form-section transition-step" *ngIf="passoActual === 5">
-        <h3 class="section-title">
-          <ion-icon name="analytics-outline"></ion-icon>
-          Resumen de Registro
-        </h3>
-
-        <div class="review-grid">
-          <div class="review-item">
-            <span class="label">Nombre Completo:</span>
-            <span class="value">{{ concatenarNombreCompleto() }}</span>
-          </div>
-          <div class="review-item">
-            <span class="label">Cédula:</span>
-            <span class="value">{{ usuarioGeneral.ci }}</span>
-          </div>
-          <div class="review-item">
-            <span class="label">Email:</span>
-            <span class="value">{{ usuarioGeneral.email }}</span>
-          </div>
-          <div class="review-item">
-            <span class="label">Rol en Plataforma:</span>
-            <span class="value">{{ getNombreRolSeleccionado() }}</span>
-          </div>
-          <div class="review-item">
-            <span class="label">Ubicación:</span>
-            <span class="value">{{ getNombreProvincia() }} - {{ getNombreCanton() }}</span>
-          </div>
-          <div class="review-item">
-            <span class="label">Tipo Participante:</span>
-            <span class="value">{{
-              usuarioGeneral.tipoParticipante == TipoParticipanteEnum.CIUDADANO ? 'Ciudadano' :
-              usuarioGeneral.tipoParticipante == TipoParticipanteEnum.AUTORIDAD ? 'Autoridad' :
-              usuarioGeneral.tipoParticipante == TipoParticipanteEnum.FUNCIONARIO_GAD ? 'Funcionario GAD' :
-              usuarioGeneral.tipoParticipante == TipoParticipanteEnum.INSTITUCION ? 'Institución' : 'Desconocido'
-              }}</span>
-          </div>
-        </div>
-
-        <div class="confirmation-check">
-          <ion-item lines="none">
-            <ion-checkbox slot="start" color="primary" [(ngModel)]="infoVeridica" (ngModelChange)="guardarProgreso()"></ion-checkbox>
-            <ion-label>Confirmo que toda la información ingresada es verídica.</ion-label>
-          </ion-item>
-        </div>
-      </div>
-
-
-      <!-- Wizard Actions -->
-      <div class="form-actions">
-        <ion-button class="cancel-btn" fill="clear" color="medium" *ngIf="passoActual === 1"
-          (click)="borrarBorrador(); limpiarFormulario()">
-          Limpiar Todo
-        </ion-button>
-
-        <ion-button class="back-btn" fill="outline" color="primary" *ngIf="passoActual > 1" (click)="passoAnterior()">
-          <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
-          Anterior
-        </ion-button>
-
-        <ion-button class="next-btn" color="primary" *ngIf="passoActual < 5" (click)="proximoPasso()">
-          Siguiente
-          <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
-        </ion-button>
-
-        <ion-button class="save-btn" color="success" *ngIf="passoActual === 5" (click)="crearUsuario()">
-          <ion-icon name="save-outline" slot="start"></ion-icon>
-          Finalizar y Guardar
-        </ion-button>
-      </div>
 
       </div>
     </div>

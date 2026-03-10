@@ -11,6 +11,7 @@ import { z } from 'zod';
 
 const roleSchema = z.object({
     nombre: z.string().min(3, 'El nombre del rol debe tener al menos 3 caracteres'),
+    codigo: z.string().optional().nullable(),
     descripcion: z.string().optional().nullable(),
     estado: z.boolean().optional(),
     modulos: z.union([z.array(z.string()), z.string()]).optional().nullable()
