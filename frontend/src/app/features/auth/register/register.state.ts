@@ -1,5 +1,5 @@
-
 import { Injectable, signal, computed } from '@angular/core';
+import { TipoParticipanteEnum } from 'src/app/shared/constants/enums';
 
 export interface RegisterStateModel {
     // Step 1: Welcome
@@ -91,6 +91,20 @@ export class RegisterStateService {
         if (saved) {
             try {
                 const parsed = JSON.parse(saved);
+                
+                // Normalizar tipos al cargar (asegurar que IDs sean números)
+                const numericFields: (keyof RegisterStateModel)[] = [
+                    'tipoParticipanteId', 'provinciaId', 'cantonId', 
+                    'generoId', 'etniaId', 'nacionalidadId',
+                    'autoridadNivelGobiernoId', 'funcionarioNivelGobiernoId',
+                    'institucionId', 'institucionCargoId', 'institucionGradoOcupacionalId'
+                ];
+                numericFields.forEach(f => {
+                    if (parsed[f] !== undefined && parsed[f] !== null) {
+                        parsed[f] = Number(parsed[f]);
+                    }
+                });
+
                 this.state.set({ ...initialState, ...parsed });
             } catch (e) {
                 console.error('Error parsing saved register state', e);
@@ -137,18 +151,18 @@ export class RegisterStateService {
 
     laborData = computed(() => ({
         tipoParticipanteId: this.state().tipoParticipanteId,
-        autoridad: this.state().tipoParticipanteId == 13 ? {
+        autoridad: this.state().tipoParticipanteId == TipoParticipanteEnum.AUTORIDAD ? {
             cargo: this.state().autoridadCargo,
             nivelgobierno: this.state().autoridadNivelGobiernoId,
             gadAutoridad: this.state().autoridadGad
         } : undefined,
-        funcionarioGad: this.state().tipoParticipanteId == 15 ? {
+        funcionarioGad: this.state().tipoParticipanteId == TipoParticipanteEnum.FUNCIONARIO_GAD ? {
             cargo: this.state().funcionarioCargo,
             nivelgobierno: this.state().funcionarioNivelGobiernoId,
             gadFuncionarioGad: this.state().funcionarioGad,
             competencias: this.state().funcionarioCompetencias
         } : undefined,
-        institucion: this.state().tipoParticipanteId == 16 ? {
+        institucion: this.state().tipoParticipanteId == TipoParticipanteEnum.INSTITUCION ? {
             institucion: this.state().institucionId,
             cargo: this.state().institucionCargoId,
             gradoOcupacional: this.state().institucionGradoOcupacionalId
@@ -188,7 +202,23 @@ export class RegisterStateService {
 
     updateUserData(data: Partial<RegisterStateModel>) {
         this.state.update(s => {
-            const newState = { ...s, ...data };
+            // Normalización de tipos (Strings de ion-select a Numbers para validación estricta)
+            const normalizedData = { ...data };
+            
+            const numericFields: (keyof RegisterStateModel)[] = [
+                'tipoParticipanteId', 'provinciaId', 'cantonId', 
+                'generoId', 'etniaId', 'nacionalidadId',
+                'autoridadNivelGobiernoId', 'funcionarioNivelGobiernoId',
+                'institucionId', 'institucionCargoId', 'institucionGradoOcupacionalId'
+            ];
+
+            numericFields.forEach(field => {
+                if (data[field] !== undefined && typeof data[field] === 'string') {
+                    (normalizedData as any)[field] = Number(data[field]);
+                }
+            });
+
+            const newState = { ...s, ...normalizedData };
             this.saveState(newState);
             return newState;
         });

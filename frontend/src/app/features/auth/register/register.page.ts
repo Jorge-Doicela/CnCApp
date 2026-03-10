@@ -25,6 +25,7 @@ import { Canton } from 'src/app/shared/models/canton.model';
 import { Genero } from 'src/app/shared/models/genero.model';
 import { Etnia } from 'src/app/shared/models/etnia.model';
 import { TipoParticipante } from 'src/app/shared/models/tipo-participante.model';
+import { TipoParticipanteEnum, NivelGobiernoEnum } from 'src/app/shared/constants/enums';
 import { firstValueFrom } from 'rxjs';
 
 @Component({
@@ -43,6 +44,8 @@ import { firstValueFrom } from 'rxjs';
   ]
 })
 export class RegisterPage {
+  TipoParticipanteEnum = TipoParticipanteEnum;
+  NivelGobiernoEnum = NivelGobiernoEnum;
   // Expose state signals
   step = this.state.step;
   userData = this.state.userData;
@@ -163,7 +166,7 @@ export class RegisterPage {
       // If reloading from session and we already had a provinciaId, restore the filtered cantones list immediately.
       const currentProv = this.userData().provinciaId;
       if (currentProv) {
-        this.filteredCantones.set(activeCantones.filter((c: any) => c.provinciaId === currentProv));
+        this.filteredCantones.set(activeCantones.filter((c: any) => Number(c.provinciaId) === Number(currentProv)));
       }
 
     } catch (e) {
@@ -328,17 +331,17 @@ export class RegisterPage {
       return false;
     }
 
-    if (data.tipoParticipanteId === 1) { // Autoridad
+    if (data.tipoParticipanteId === TipoParticipanteEnum.AUTORIDAD) { // Autoridad
       if (!data.autoridad?.cargo || !data.autoridad?.nivelgobierno || !data.autoridad?.gadAutoridad) {
         this.presentToast('Complete todos los campos para Autoridad', 'warning');
         return false;
       }
-    } else if (data.tipoParticipanteId === 3) { // Funcionario
+    } else if (data.tipoParticipanteId === TipoParticipanteEnum.FUNCIONARIO_GAD) { // Funcionario
       if (!data.funcionarioGad?.cargo || !data.funcionarioGad?.nivelgobierno || !data.funcionarioGad?.gadFuncionarioGad || !data.funcionarioGad?.competencias || data.funcionarioGad.competencias.length === 0) {
         this.presentToast('Complete todos los campos para Funcionario GAD, incluyendo competencias', 'warning');
         return false;
       }
-    } else if (data.tipoParticipanteId === 4) { // Institucion
+    } else if (data.tipoParticipanteId === TipoParticipanteEnum.INSTITUCION) { // Institucion
       if (!data.institucion?.institucion || !data.institucion?.gradoOcupacional || !data.institucion?.cargo) {
         this.presentToast('Complete todos los campos para Institución (institución, grado ocupacional y cargo)', 'warning');
         return false;
