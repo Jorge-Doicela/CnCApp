@@ -2,10 +2,10 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Component, OnInit, ChangeDetectorRef, inject, ChangeDetectionStrategy } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { 
-  IonContent, IonButton, IonIcon, IonItem, IonLabel, 
-  IonInput, IonSelect, IonSelectOption, IonCheckbox, 
-  ToastController, LoadingController, AlertController 
+import {
+  IonContent, IonButton, IonIcon, IonItem, IonLabel,
+  IonInput, IonSelect, IonSelectOption, IonCheckbox,
+  ToastController, LoadingController, AlertController
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -13,7 +13,7 @@ import {
   personAddOutline, searchOutline, idCardOutline, businessOutline, shieldOutline, fingerPrintOutline,
   callOutline, peopleOutline, createOutline, trashOutline, mailOutline, lockClosedOutline,
   calendarOutline, maleFemaleOutline, globeOutline, peopleCircleOutline, briefcaseOutline,
-  ribbonOutline, constructOutline, analyticsOutline, close as closeIcon, chevronBackOutline, 
+  ribbonOutline, constructOutline, analyticsOutline, close as closeIcon, chevronBackOutline,
   chevronForwardOutline, arrowBackOutline, arrowForwardOutline, checkmarkOutline, mapOutline,
   locationOutline, personOutline, eyeOutline, eyeOffOutline, checkmarkCircle, alertCircle
 } from 'ionicons/icons';
@@ -31,7 +31,7 @@ import { firstValueFrom } from 'rxjs';
   standalone: true,
   imports: [
     CommonModule, FormsModule, RouterLink,
-    IonContent, IonButton, IonIcon, IonItem, IonLabel, 
+    IonContent, IonButton, IonIcon, IonItem, IonLabel,
     IonInput, IonSelect, IonSelectOption, IonCheckbox
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -43,6 +43,19 @@ export class CrearPage implements OnInit {
   showPassword: boolean = false;
   // Variable para mensajes de validación
   mensajeValidacionCedula: string = '';
+
+  // Mapas para evitar IDs quemados
+  resolvedIds = {
+    tipoAutoridad: TipoParticipanteEnum.AUTORIDAD,
+    tipoCiudadano: TipoParticipanteEnum.CIUDADANO,
+    tipoFuncionario: TipoParticipanteEnum.FUNCIONARIO_GAD,
+    tipoInstitucion: TipoParticipanteEnum.INSTITUCION,
+    nivelProvincial: NivelGobiernoEnum.PROVINCIAL,
+    nivelMunicipal: NivelGobiernoEnum.MUNICIPAL,
+    nivelParroquial: NivelGobiernoEnum.PARROQUIAL,
+    nivelMancomunidad: NivelGobiernoEnum.MANCOMUNIDADES,
+    rolAdmin: 1 // Default Admin Role ID fallback
+  };
 
   usuarioGeneral = {
     // Datos para la validación de supabase
@@ -307,17 +320,17 @@ export class CrearPage implements OnInit {
         return true;
 
       case 4: // Datos Específicos
-        if (this.usuarioGeneral.tipoParticipante == TipoParticipanteEnum.AUTORIDAD) {
+        if (this.usuarioGeneral.tipoParticipante == this.resolvedIds.tipoAutoridad) {
           if (!this.autoridad.cargo || !this.autoridad.nivelGobierno || !this.autoridad.gadAutoridad) {
             this.showToast('Complete todos los campos obligatorios para Autoridad');
             return false;
           }
-        } else if (this.usuarioGeneral.tipoParticipante == TipoParticipanteEnum.FUNCIONARIO_GAD) {
+        } else if (this.usuarioGeneral.tipoParticipante == this.resolvedIds.tipoFuncionario) {
           if (!this.funcionarioGad.cargo || !this.funcionarioGad.nivelGobierno || !this.funcionarioGad.gadFuncionarioGad || !this.funcionarioGad.competencias || this.funcionarioGad.competencias.length === 0) {
             this.showToast('Complete todos los campos obligatorios para Funcionario GAD, incluyendo competencias');
             return false;
           }
-        } else if (this.usuarioGeneral.tipoParticipante == TipoParticipanteEnum.INSTITUCION) {
+        } else if (this.usuarioGeneral.tipoParticipante == this.resolvedIds.tipoInstitucion) {
           if (!this.institucion.institucion || !this.institucion.gradoOcupacional || !this.institucion.cargo) {
             this.showToast('Complete todos los campos obligatorios para Institución');
             return false;
@@ -362,7 +375,9 @@ export class CrearPage implements OnInit {
       this.obtenerCompetencias(),
       this.obtenerNacionalidades()
     ]);
-    
+
+    this.resolveStaticIds();
+
     // Restauramos el borrador (una vez cargados los catálogos principales)
     await this.cargarProgreso();
   }
@@ -387,7 +402,7 @@ export class CrearPage implements OnInit {
     if (saved) {
       try {
         const data = JSON.parse(saved);
-        
+
         // Asignamos datos base
         this.usuarioGeneral = { ...this.usuarioGeneral, ...data.usuarioGeneral };
         this.autoridad = { ...this.autoridad, ...data.autoridad };
@@ -416,13 +431,13 @@ export class CrearPage implements OnInit {
         if (this.datosbusqueda.selectedProvincia) {
           // Cargamos cantones SIN resetear para no borrar el Id recuperado
           await this.obtenerCantones(this.datosbusqueda.selectedProvincia, true);
-          
+
           if (this.usuarioGeneral.cantonId) {
             // Cargamos parroquias para ese cantón
             await this.obtenerParroquias(this.usuarioGeneral.cantonId);
           }
         }
-        
+
         // Re-validar cédula si existe
         if (this.usuarioGeneral.ci) {
           this.validarCedula();
@@ -458,7 +473,7 @@ export class CrearPage implements OnInit {
   // Función para validar la identificación (Cédula Ecuador o Documento Extranjero)
   validarCedula() {
     const identification = this.usuarioGeneral.ci;
-    
+
     if (!identification) {
       this.mensajeValidacionCedula = '';
       this.cedulaValidada = false;
@@ -512,13 +527,13 @@ export class CrearPage implements OnInit {
         this.mensajeValidacionCedula = 'Número de cédula inválido';
         this.cedulaValidada = false;
       }
-    } 
+    }
     // Caso 2: Documento Extranjero / Pasaporte
     // Si no es numérico exacto de 10 o tiene letras, lo tratamos como extranjero
     else if (!isNumeric || (length > 5 && length !== 10)) {
       this.mensajeValidacionCedula = 'Documento extranjero/Pasaporte aceptado';
       this.cedulaValidada = true; // Lo aceptamos para no bloquear extranjeros
-    } 
+    }
     // Caso 3: Incompleto o inválido
     else {
       this.mensajeValidacionCedula = 'Cédula debe tener 10 dígitos o ser pasaporte';
@@ -717,7 +732,7 @@ export class CrearPage implements OnInit {
     }
 
     // Validar según tipo de participante
-    if (this.usuarioGeneral.tipoParticipante == TipoParticipanteEnum.AUTORIDAD) {
+    if (this.usuarioGeneral.tipoParticipante == this.resolvedIds.tipoAutoridad) {
       if (!this.autoridad.cargo) {
         this.showToast('Por favor seleccione el cargo de la autoridad');
         return false;
@@ -730,7 +745,7 @@ export class CrearPage implements OnInit {
         this.showToast('Por favor seleccione el GAD');
         return false;
       }
-    } else if (this.usuarioGeneral.tipoParticipante == TipoParticipanteEnum.FUNCIONARIO_GAD) {
+    } else if (this.usuarioGeneral.tipoParticipante == this.resolvedIds.tipoFuncionario) {
       if (!this.funcionarioGad.cargo) {
         this.showToast('Por favor seleccione el cargo del funcionario');
         return false;
@@ -747,7 +762,7 @@ export class CrearPage implements OnInit {
         this.showToast('Por favor seleccione el GAD');
         return false;
       }
-    } else if (this.usuarioGeneral.tipoParticipante == TipoParticipanteEnum.INSTITUCION) {
+    } else if (this.usuarioGeneral.tipoParticipante == this.resolvedIds.tipoInstitucion) {
       if (!this.institucion.institucion) {
         this.showToast('Por favor seleccione la institución');
         return false;
@@ -787,17 +802,17 @@ export class CrearPage implements OnInit {
       etniaId: this.usuarioGeneral.etniaId ? Number(this.usuarioGeneral.etniaId) : undefined,
       nacionalidadId: this.usuarioGeneral.nacionalidadId ? Number(this.usuarioGeneral.nacionalidadId) : undefined,
       rolId: this.usuarioGeneral.rolId ? Number(this.usuarioGeneral.rolId) : undefined,
-      autoridad: this.usuarioGeneral.tipoParticipante == TipoParticipanteEnum.AUTORIDAD ? { 
-        ...this.autoridad, 
+      autoridad: this.usuarioGeneral.tipoParticipante == this.resolvedIds.tipoAutoridad ? {
+        ...this.autoridad,
         nivelGobierno: this.autoridad.nivelGobierno ? String(this.autoridad.nivelGobierno) : undefined,
-        parroquiaId: this.usuarioGeneral.parroquiaId ? Number(this.usuarioGeneral.parroquiaId) : undefined 
+        parroquiaId: this.usuarioGeneral.parroquiaId ? Number(this.usuarioGeneral.parroquiaId) : undefined
       } : undefined,
-      funcionarioGad: this.usuarioGeneral.tipoParticipante == TipoParticipanteEnum.FUNCIONARIO_GAD ? { 
-        ...this.funcionarioGad, 
+      funcionarioGad: this.usuarioGeneral.tipoParticipante == this.resolvedIds.tipoFuncionario ? {
+        ...this.funcionarioGad,
         nivelGobierno: this.funcionarioGad.nivelGobierno ? String(this.funcionarioGad.nivelGobierno) : undefined,
-        parroquiaId: this.usuarioGeneral.parroquiaId ? Number(this.usuarioGeneral.parroquiaId) : undefined 
+        parroquiaId: this.usuarioGeneral.parroquiaId ? Number(this.usuarioGeneral.parroquiaId) : undefined
       } : undefined,
-      institucion: this.usuarioGeneral.tipoParticipante == TipoParticipanteEnum.INSTITUCION ? {
+      institucion: this.usuarioGeneral.tipoParticipante == this.resolvedIds.tipoInstitucion ? {
         ...this.institucion,
         institucion: Number(this.institucion.institucion),
         gradoOcupacional: this.institucion.gradoOcupacional ? Number(this.institucion.gradoOcupacional) : undefined
@@ -946,18 +961,18 @@ export class CrearPage implements OnInit {
       this.datosrecuperados.cantones = [];
       return;
     }
-    
+
     try {
       const data = await firstValueFrom(this.catalogoService.getItems('cantones'));
       const filtered = data.filter((c: any) => Number(c.provinciaId) === Number(provinciaId));
       this.datosrecuperados.cantones = filtered;
-      
+
       // Solo reseteamos si es un cambio manual del usuario (no restauración de borrador)
       if (!skipReset) {
         // Solo resetear si el cantón actual ya no pertenece a la nueva provincia
-        const stillValid = this.usuarioGeneral.cantonId && 
-                          filtered.some((c: any) => Number(c.id) === Number(this.usuarioGeneral.cantonId));
-        
+        const stillValid = this.usuarioGeneral.cantonId &&
+          filtered.some((c: any) => Number(c.id) === Number(this.usuarioGeneral.cantonId));
+
         if (!stillValid) {
           this.datosrecuperados.parroquiasSeleccionadas = [];
           this.usuarioGeneral.parroquiaId = undefined;
@@ -977,7 +992,7 @@ export class CrearPage implements OnInit {
       this.datosrecuperados.parroquiasSeleccionadas = [];
       return;
     }
-    
+
     try {
       const data = await firstValueFrom(this.catalogoService.getItems('parroquias'));
       const filtered = data.filter((p: any) => Number(p.cantonId) === Number(cantonId));
@@ -985,8 +1000,8 @@ export class CrearPage implements OnInit {
 
       // Si no es omisión por restauración, verificar si la parroquia actual sigue siendo válida
       if (!skipReset) {
-        const stillValid = this.usuarioGeneral.parroquiaId && 
-                          filtered.some((p: any) => Number(p.id) === Number(this.usuarioGeneral.parroquiaId));
+        const stillValid = this.usuarioGeneral.parroquiaId &&
+          filtered.some((p: any) => Number(p.id) === Number(this.usuarioGeneral.parroquiaId));
         if (!stillValid) {
           this.usuarioGeneral.parroquiaId = undefined;
         }
@@ -1085,24 +1100,67 @@ export class CrearPage implements OnInit {
   // Filtrar instituciones por nivel de gobierno
   getInstitucionesPorNivel(nivelId: any): any[] {
     if (!nivelId) return [];
-    
+
     const entidadNombre = this.getNombreEntidad(nivelId);
     if (!entidadNombre) return [];
 
     // Si es uno de los niveles territoriales, el componente ya usa cantones/provincias directamente
     const nivelesTerritoriales = [
-      this.NivelGobiernoEnum.PROVINCIAL,
-      this.NivelGobiernoEnum.MUNICIPAL,
-      this.NivelGobiernoEnum.PARROQUIAL,
-      this.NivelGobiernoEnum.MANCOMUNIDADES
+      this.resolvedIds.nivelProvincial,
+      this.resolvedIds.nivelMunicipal,
+      this.resolvedIds.nivelParroquial,
+      this.resolvedIds.nivelMancomunidad
     ];
     if (nivelesTerritoriales.includes(Number(nivelId))) return [];
 
     // Para los demás, buscamos en el catálogo de instituciones filtrando por tipo/entidad
     // Si el catálogo tiene el campo 'tipo' o 'nombreEntidad' que coincida
-    return this.datosrecuperados.instituciones.filter(i => 
+    return this.datosrecuperados.instituciones.filter(i =>
       i.tipo === entidadNombre || i.entidadNombre === entidadNombre
     );
+  }
+
+  resolveStaticIds() {
+    const findIdByCodigo = (list: any[], codigo: string) => {
+      const match = list.find(i => i.codigo === codigo);
+      return match ? match.id : undefined;
+    };
+
+    // Resolver Roles (para auto-asignar tipo participante si es admin)
+    this.resolvedIds.rolAdmin = findIdByCodigo(this.datosrecuperados.roles, 'ADMIN') || 1;
+
+    // Resolver Tipos de Participante
+    this.resolvedIds.tipoAutoridad = findIdByCodigo(this.datosrecuperados.tiposParticipante, 'AUTORIDAD') || TipoParticipanteEnum.AUTORIDAD;
+    this.resolvedIds.tipoCiudadano = findIdByCodigo(this.datosrecuperados.tiposParticipante, 'CIUDADANO') || TipoParticipanteEnum.CIUDADANO;
+    this.resolvedIds.tipoFuncionario = findIdByCodigo(this.datosrecuperados.tiposParticipante, 'FUNCIONARIO_GAD') || TipoParticipanteEnum.FUNCIONARIO_GAD;
+    this.resolvedIds.tipoInstitucion = findIdByCodigo(this.datosrecuperados.tiposParticipante, 'INSTITUCION') || TipoParticipanteEnum.INSTITUCION;
+
+    // Resolver Niveles de Gobierno (Entidades)
+    this.resolvedIds.nivelProvincial = findIdByCodigo(this.datosrecuperados.entidades, 'NIVEL_PROVINCIAL') || NivelGobiernoEnum.PROVINCIAL;
+    this.resolvedIds.nivelMunicipal = findIdByCodigo(this.datosrecuperados.entidades, 'NIVEL_MUNICIPAL') || NivelGobiernoEnum.MUNICIPAL;
+    this.resolvedIds.nivelParroquial = findIdByCodigo(this.datosrecuperados.entidades, 'NIVEL_PARROQUIAL') || NivelGobiernoEnum.PARROQUIAL;
+    this.resolvedIds.nivelMancomunidad = findIdByCodigo(this.datosrecuperados.entidades, 'MANCOMUNIDADES') || NivelGobiernoEnum.MANCOMUNIDADES;
+
+    console.log('[ADMIN_CREAR_DEBUG] IDs Dinámicos Resueltos:', this.resolvedIds);
+  }
+
+  getGadsParaNivel(nivel: any) {
+    const n = Number(nivel);
+    if (n === this.resolvedIds.nivelMancomunidad) {
+      return this.datosrecuperados.mancomunidades;
+    } else if (n === this.resolvedIds.nivelMunicipal || n === this.resolvedIds.nivelParroquial) {
+      return this.datosrecuperados.cantones;
+    } else {
+      // PROVINCIAL or others
+      return this.datosrecuperados.provincias;
+    }
+  }
+
+  onRolChange() {
+    // Si elige Admin, forzamos TipoParticipante Autoridad (ID dinámico) para fines prácticos
+    if (this.usuarioGeneral.rolId === this.resolvedIds.rolAdmin) {
+      this.usuarioGeneral.tipoParticipante = this.resolvedIds.tipoAutoridad;
+    }
   }
 
   recuperarCompetencias() { }

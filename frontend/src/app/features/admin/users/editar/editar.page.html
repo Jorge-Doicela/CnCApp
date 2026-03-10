@@ -249,9 +249,9 @@
         </ion-item>
 
         <!-- Dynamic Fields Based on Participant Type -->
-        <div [ngSwitch]="usuario.tipoParticipante" class="animate-fade-in">
+        <div class="animate-fade-in">
           <!-- Autoridad -->
-          <div *ngSwitchCase="resolvedIds.tipoAutoridad" class="field-groups-container">
+          <div *ngIf="usuario.tipoParticipante == resolvedIds.tipoAutoridad" class="field-groups-container">
             <div class="field-group">
               <ion-label>Cargo de Autoridad</ion-label>
               <div class="custom-input-wrapper">
@@ -289,7 +289,7 @@
           </div>
 
           <!-- Funcionario GAD -->
-          <div *ngSwitchCase="resolvedIds.tipoFuncionario" class="field-groups-container">
+          <div *ngIf="usuario.tipoParticipante == resolvedIds.tipoFuncionario" class="field-groups-container">
             <div class="form-grid">
               <div class="field-group">
                 <ion-label>Cargo Funcionario</ion-label>
@@ -342,7 +342,7 @@
           </div>
 
           <!-- Institución -->
-          <div *ngSwitchCase="resolvedIds.tipoInstitucion" class="field-groups-container">
+          <div *ngIf="usuario.tipoParticipante == resolvedIds.tipoInstitucion" class="field-groups-container">
             <div class="field-group">
               <ion-label>Institución</ion-label>
               <div class="custom-input-wrapper">
@@ -382,7 +382,7 @@
           </div>
 
           <!-- Ciudadano -->
-          <div *ngSwitchCase="resolvedIds.tipoCiudadano" class="empty-state-info animate-fade-in">
+          <div *ngIf="usuario.tipoParticipante == resolvedIds.tipoCiudadano" class="empty-state-info animate-fade-in">
             <ion-icon name="people-outline" color="primary"></ion-icon>
             <p>Perfil de Ciudadano: No se requiere información laboral adicional.</p>
           </div>

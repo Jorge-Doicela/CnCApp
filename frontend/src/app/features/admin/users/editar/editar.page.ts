@@ -627,24 +627,24 @@ export class EditarPage implements OnInit {
   }
 
   resolveStaticIds() {
-    const findId = (list: any[], name: string) => {
-      const match = list.find(i => i.nombre?.toUpperCase().includes(name.toUpperCase()));
+    const findIdByCodigo = (list: any[], codigo: string) => {
+      const match = list.find(i => i.codigo === codigo);
       return match ? match.id : undefined;
     };
 
     // Resolver Tipos de Participante
-    this.resolvedIds.tipoAutoridad = findId(this.datosrecuperados.tiposParticipante, 'AUTORIDAD') || TipoParticipanteEnum.AUTORIDAD;
-    this.resolvedIds.tipoCiudadano = findId(this.datosrecuperados.tiposParticipante, 'CIUDADANO') || TipoParticipanteEnum.CIUDADANO;
-    this.resolvedIds.tipoFuncionario = findId(this.datosrecuperados.tiposParticipante, 'FUNCIONARIO') || TipoParticipanteEnum.FUNCIONARIO_GAD;
-    this.resolvedIds.tipoInstitucion = findId(this.datosrecuperados.tiposParticipante, 'INSTITUCI') || TipoParticipanteEnum.INSTITUCION;
+    this.resolvedIds.tipoAutoridad = findIdByCodigo(this.datosrecuperados.tiposParticipante, 'AUTORIDAD') || TipoParticipanteEnum.AUTORIDAD;
+    this.resolvedIds.tipoCiudadano = findIdByCodigo(this.datosrecuperados.tiposParticipante, 'CIUDADANO') || TipoParticipanteEnum.CIUDADANO;
+    this.resolvedIds.tipoFuncionario = findIdByCodigo(this.datosrecuperados.tiposParticipante, 'FUNCIONARIO_GAD') || TipoParticipanteEnum.FUNCIONARIO_GAD;
+    this.resolvedIds.tipoInstitucion = findIdByCodigo(this.datosrecuperados.tiposParticipante, 'INSTITUCION') || TipoParticipanteEnum.INSTITUCION;
 
     // Resolver Niveles de Gobierno (Entidades)
-    this.resolvedIds.nivelProvincial = findId(this.datosrecuperados.entidades, 'PROVINCIAL') || NivelGobiernoEnum.PROVINCIAL;
-    this.resolvedIds.nivelMunicipal = findId(this.datosrecuperados.entidades, 'MUNICIPAL') || NivelGobiernoEnum.MUNICIPAL;
-    this.resolvedIds.nivelParroquial = findId(this.datosrecuperados.entidades, 'PARROQUIAL') || NivelGobiernoEnum.PARROQUIAL;
-    this.resolvedIds.nivelMancomunidad = findId(this.datosrecuperados.entidades, 'MANCOMUNIDAD') || NivelGobiernoEnum.MANCOMUNIDADES;
+    this.resolvedIds.nivelProvincial = findIdByCodigo(this.datosrecuperados.entidades, 'NIVEL_PROVINCIAL') || NivelGobiernoEnum.PROVINCIAL;
+    this.resolvedIds.nivelMunicipal = findIdByCodigo(this.datosrecuperados.entidades, 'NIVEL_MUNICIPAL') || NivelGobiernoEnum.MUNICIPAL;
+    this.resolvedIds.nivelParroquial = findIdByCodigo(this.datosrecuperados.entidades, 'NIVEL_PARROQUIAL') || NivelGobiernoEnum.PARROQUIAL;
+    this.resolvedIds.nivelMancomunidad = findIdByCodigo(this.datosrecuperados.entidades, 'MANCOMUNIDADES') || NivelGobiernoEnum.MANCOMUNIDADES;
 
-    console.log('[ADMIN_EDITAR_DEBUG] IDs Dinámicos Resueltos:', this.resolvedIds);
+    console.log('[ADMIN_EDITAR_DEBUG] IDs Dinámicos Resueltos (por código):', this.resolvedIds);
   }
 
   getGadsParaNivel(nivel: any) {

@@ -1,6 +1,7 @@
 export interface Rol {
     id: number;
     nombre: string;
+    codigo?: string | null;
     descripcion?: string | null;
     modulos?: any;
     estado?: boolean; // Adding state based on frontend usage

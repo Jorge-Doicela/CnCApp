@@ -44,6 +44,18 @@ export interface RegisterStateModel {
     termsAccepted: boolean;
     captchaVerified: boolean;
     // captchaToken?: string; // --- GOOGLE RECAPTCHA (Descomentar en Producción) ---
+
+    // IDs dinámicos
+    resolvedIds: {
+        tipoAutoridad: number;
+        tipoCiudadano: number;
+        tipoFuncionario: number;
+        tipoInstitucion: number;
+        nivelProvincial: number;
+        nivelMunicipal: number;
+        nivelParroquial: number;
+        nivelMancomunidad: number;
+    };
 }
 
 const initialState: RegisterStateModel = {
@@ -78,6 +90,16 @@ const initialState: RegisterStateModel = {
     termsAccepted: false,
     captchaVerified: false, // In dev we might mock this
     // captchaToken: undefined // --- GOOGLE RECAPTCHA (Descomentar en Producción) ---
+    resolvedIds: {
+        tipoAutoridad: TipoParticipanteEnum.AUTORIDAD,
+        tipoCiudadano: TipoParticipanteEnum.CIUDADANO,
+        tipoFuncionario: TipoParticipanteEnum.FUNCIONARIO_GAD,
+        tipoInstitucion: TipoParticipanteEnum.INSTITUCION,
+        nivelProvincial: 1, // Fallbacks
+        nivelMunicipal: 2,
+        nivelParroquial: 3,
+        nivelMancomunidad: 4
+    }
 };
 
 @Injectable({
@@ -91,10 +113,10 @@ export class RegisterStateService {
         if (saved) {
             try {
                 const parsed = JSON.parse(saved);
-                
+
                 // Normalizar tipos al cargar (asegurar que IDs sean números)
                 const numericFields: (keyof RegisterStateModel)[] = [
-                    'tipoParticipanteId', 'provinciaId', 'cantonId', 
+                    'tipoParticipanteId', 'provinciaId', 'cantonId',
                     'generoId', 'etniaId', 'nacionalidadId',
                     'autoridadNivelGobiernoId', 'funcionarioNivelGobiernoId',
                     'institucionId', 'institucionCargoId', 'institucionGradoOcupacionalId'
@@ -149,31 +171,36 @@ export class RegisterStateService {
         telefono: this.state().telefono
     }));
 
-    laborData = computed(() => ({
-        tipoParticipanteId: this.state().tipoParticipanteId,
-        autoridad: this.state().tipoParticipanteId == TipoParticipanteEnum.AUTORIDAD ? {
-            cargo: this.state().autoridadCargo,
-            nivelgobierno: this.state().autoridadNivelGobiernoId,
-            gadAutoridad: this.state().autoridadGad
-        } : undefined,
-        funcionarioGad: this.state().tipoParticipanteId == TipoParticipanteEnum.FUNCIONARIO_GAD ? {
-            cargo: this.state().funcionarioCargo,
-            nivelgobierno: this.state().funcionarioNivelGobiernoId,
-            gadFuncionarioGad: this.state().funcionarioGad,
-            competencias: this.state().funcionarioCompetencias
-        } : undefined,
-        institucion: this.state().tipoParticipanteId == TipoParticipanteEnum.INSTITUCION ? {
-            institucion: this.state().institucionId,
-            cargo: this.state().institucionCargoId,
-            gradoOcupacional: this.state().institucionGradoOcupacionalId
-        } : undefined
-    }));
+    laborData = computed(() => {
+        const tpid = this.state().tipoParticipanteId;
+        const resIds = this.state().resolvedIds;
+        return {
+            tipoParticipanteId: tpid,
+            autoridad: tpid == resIds.tipoAutoridad ? {
+                cargo: this.state().autoridadCargo,
+                nivelgobierno: this.state().autoridadNivelGobiernoId,
+                gadAutoridad: this.state().autoridadGad
+            } : undefined,
+            funcionarioGad: tpid == resIds.tipoFuncionario ? {
+                cargo: this.state().funcionarioCargo,
+                nivelgobierno: this.state().funcionarioNivelGobiernoId,
+                gadFuncionarioGad: this.state().funcionarioGad,
+                competencias: this.state().funcionarioCompetencias
+            } : undefined,
+            institucion: tpid == resIds.tipoInstitucion ? {
+                institucion: this.state().institucionId,
+                cargo: this.state().institucionCargoId,
+                gradoOcupacional: this.state().institucionGradoOcupacionalId
+            } : undefined
+        };
+    });
 
     termsData = computed(() => ({
         termsAccepted: this.state().termsAccepted,
         captchaVerified: this.state().captchaVerified,
-        // captchaToken: this.state().captchaToken // --- GOOGLE RECAPTCHA (Descomentar en Producción) ---
     }));
+
+    resolvedIds = computed(() => this.state().resolvedIds);
 
     // Actions
     setStep(step: number) {
@@ -204,9 +231,9 @@ export class RegisterStateService {
         this.state.update(s => {
             // Normalización de tipos (Strings de ion-select a Numbers para validación estricta)
             const normalizedData = { ...data };
-            
+
             const numericFields: (keyof RegisterStateModel)[] = [
-                'tipoParticipanteId', 'provinciaId', 'cantonId', 
+                'tipoParticipanteId', 'provinciaId', 'cantonId',
                 'generoId', 'etniaId', 'nacionalidadId',
                 'autoridadNivelGobiernoId', 'funcionarioNivelGobiernoId',
                 'institucionId', 'institucionCargoId', 'institucionGradoOcupacionalId'

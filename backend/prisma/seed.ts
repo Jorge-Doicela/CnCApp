@@ -56,6 +56,7 @@ async function main() {
         const adminRole = await prisma.rol.create({
             data: {
                 nombre: 'Administrador',
+                codigo: 'ADMIN',
                 descripcion: 'Control total de la plataforma y reportes gerenciales',
                 modulos: ['usuarios', 'capacitaciones', 'certificados', 'reportes', 'configuracion', 'plantillas', 'competencias'],
             },
@@ -64,6 +65,7 @@ async function main() {
         const conferencistaRole = await prisma.rol.create({
             data: {
                 nombre: 'Conferencista',
+                codigo: 'CONFERENCISTA',
                 descripcion: 'Gestión de contenidos académicos y certificación masiva',
                 modulos: ['capacitaciones', 'certificados', 'inscripciones'],
             },
@@ -72,6 +74,7 @@ async function main() {
         const usuarioRole = await prisma.rol.create({
             data: {
                 nombre: 'Usuario',
+                codigo: 'USUARIO',
                 descripcion: 'Participante en programas de formación territorial',
                 modulos: ['inscripciones', 'certificados'],
             },
@@ -107,28 +110,24 @@ async function main() {
             ]
         });
 
-        const tipoAutoridad = await prisma.tipoParticipante.create({ data: { nombre: 'Autoridad' } });
-        const tipoCiudadano = await prisma.tipoParticipante.create({ data: { nombre: 'Ciudadano' } });
-        await prisma.tipoParticipante.createMany({
+        const tipoAutoridad = await prisma.tipoParticipante.create({ data: { nombre: 'Autoridad', codigo: 'AUTORIDAD' } });
+        const tipoCiudadano = await prisma.tipoParticipante.create({ data: { nombre: 'Ciudadano', codigo: 'CIUDADANO' } });
+        const tipoFuncionario = await prisma.tipoParticipante.create({ data: { nombre: 'Funcionario de GAD', codigo: 'FUNCIONARIO_GAD' } });
+        const tipoInstitucion = await prisma.tipoParticipante.create({ data: { nombre: 'Institución', codigo: 'INSTITUCION' } });
+        await prisma.entidad.createMany({
             data: [
-                { nombre: 'Funcionario de GAD' },
-                { nombre: 'Institución' }
-            ]
-        });
-        const entidades = await prisma.entidad.createMany({
-            data: [
-                { nombre: 'INSTITUCIÓN — NIVEL PROVINCIAL' },
-                { nombre: 'INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)' },
-                { nombre: 'INSTITUCIÓN — NIVEL PARROQUIAL RURAL' },
-                { nombre: 'GREMIOS' },
-                { nombre: 'INSTITUCIÓN — NIVEL CENTRAL' },
-                { nombre: 'COOPERANTES' },
-                { nombre: 'ACADEMIA' },
-                { nombre: 'EDUCACIÓN GENERAL BÁSICA Y BACHILLERATO' },
-                { nombre: 'PRIVADO' },
-                { nombre: 'CIUDADANÍA' },
-                { nombre: 'MANCOMUNIDADES Y CONSORCIOS' },
-                { nombre: 'RÉGIMEN ESPECIAL' }
+                { nombre: 'INSTITUCIÓN — NIVEL PROVINCIAL', codigo: 'NIVEL_PROVINCIAL' },
+                { nombre: 'INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)', codigo: 'NIVEL_MUNICIPAL' },
+                { nombre: 'INSTITUCIÓN — NIVEL PARROQUIAL RURAL', codigo: 'NIVEL_PARROQUIAL' },
+                { nombre: 'GREMIOS', codigo: 'GREMIOS' },
+                { nombre: 'INSTITUCIÓN — NIVEL CENTRAL', codigo: 'NIVEL_CENTRAL' },
+                { nombre: 'COOPERANTES', codigo: 'COOPERANTES' },
+                { nombre: 'ACADEMIA', codigo: 'ACADEMIA' },
+                { nombre: 'EDUCACIÓN GENERAL BÁSICA Y BACHILLERATO', codigo: 'EDUCACION' },
+                { nombre: 'PRIVADO', codigo: 'PRIVADO' },
+                { nombre: 'CIUDADANÍA', codigo: 'CIUDADANIA' },
+                { nombre: 'MANCOMUNIDADES Y CONSORCIOS', codigo: 'MANCOMUNIDADES' },
+                { nombre: 'RÉGIMEN ESPECIAL', codigo: 'REGIMEN_ESPECIAL' }
             ]
         });
 
@@ -264,6 +263,7 @@ async function main() {
                     rolId: u.roleId,
                     authUid: u.authUid,
                     tipoParticipanteId: u.roleId === adminRole.id ? tipoAutoridad.id : tipoCiudadano.id,
+                    estado: 1
                 }
             });
             createdUsers.push(user);
