@@ -161,21 +161,108 @@ ion-content {
   align-items: center;
   flex-wrap: wrap;
 
-  .search-input {
-    flex: 1;
-    min-width: 200px;
-    --background: #f1f5f9;
-    --border-radius: 10px;
-    --box-shadow: none;
-    --padding-start: 0;
-    --padding-end: 0;
-    padding: 0;
+  .search-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    margin-bottom: 8px;
+
+    .search-input {
+      flex: 1;
+      --background: #f1f5f9;
+      --border-radius: 12px;
+      --box-shadow: none;
+      padding: 0;
+    }
+
+    .toggle-filters-btn {
+      --color: var(--text-secondary);
+      --padding-start: 8px;
+      --padding-end: 8px;
+      height: 48px;
+      margin: 0;
+
+      &::part(native) {
+        border-radius: 12px;
+      }
+
+      &:hover {
+        --color: var(--primary);
+      }
+    }
   }
 
   .filter-chips {
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
+    padding: 4px 0;
+  }
+}
+
+.advanced-filters-panel {
+  width: 100%;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #f1f5f9;
+  animation: slideDown 0.3s ease-out;
+
+  .filters-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+    align-items: flex-end;
+  }
+
+  .filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    label {
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #94a3b8;
+      padding-left: 4px;
+    }
+
+    ion-select,
+    ion-input {
+      --background: #f8fafc;
+      --border-radius: 10px;
+      --padding-start: 12px;
+      --padding-end: 12px;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      height: 44px;
+      color: var(--text-primary);
+
+      &::part(container) {
+        border: none;
+      }
+    }
+
+    &.action-group {
+      justify-content: center;
+      height: 44px;
+    }
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 

@@ -25,9 +25,14 @@ export class CrudcapacitacionesPage implements OnInit {
 
   // Filtros
   filtroEstado: string = 'todos';
+  filtroModalidad: string = 'todos';
+  filtroCertificados: string = 'todos';
+  fechaDesde: string = '';
+  fechaHasta: string = '';
   ordenarPor: string = 'fecha_desc';
   terminoBusqueda: string = '';
   cargando: boolean = false;
+  mostrarFiltrosAvanzados: boolean = false;
 
   private capacitacionesService = inject(CapacitacionesService);
   private authService = inject(AuthService);
@@ -76,12 +81,33 @@ export class CrudcapacitacionesPage implements OnInit {
   aplicarFiltros() {
     let resultado = [...this.Capacitaciones];
 
-    // Filtrar por estado
+    // 1. Filtrar por estado
     if (this.filtroEstado !== 'todos') {
       resultado = resultado.filter(cap => cap.estado === this.filtroEstado);
     }
 
-    // Filtrar por término de búsqueda
+    // 2. Filtrar por modalidad
+    if (this.filtroModalidad !== 'todos') {
+      resultado = resultado.filter(cap => cap.modalidad === this.filtroModalidad);
+    }
+
+    // 3. Filtrar por certificados emitidos
+    if (this.filtroCertificados !== 'todos') {
+      const emitido = this.filtroCertificados === 'si';
+      resultado = resultado.filter(cap => cap.certificado === emitido);
+    }
+
+    // 4. Filtrar por rango de fechas
+    if (this.fechaDesde) {
+      const d = new Date(this.fechaDesde).getTime();
+      resultado = resultado.filter(cap => new Date(cap.fechaInicio || 0).getTime() >= d);
+    }
+    if (this.fechaHasta) {
+      const h = new Date(this.fechaHasta).getTime();
+      resultado = resultado.filter(cap => new Date(cap.fechaInicio || 0).getTime() <= h);
+    }
+
+    // 5. Filtrar por término de búsqueda
     if (this.terminoBusqueda && this.terminoBusqueda.trim() !== '') {
       const termino = this.terminoBusqueda.toLowerCase().trim();
       resultado = resultado.filter(cap =>
@@ -91,7 +117,7 @@ export class CrudcapacitacionesPage implements OnInit {
       );
     }
 
-    // Ordenar resultados
+    // 6. Ordenar resultados
     switch (this.ordenarPor) {
       case 'fecha_asc':
         resultado.sort((a, b) => new Date(a.fechaInicio || 0).getTime() - new Date(b.fechaInicio || 0).getTime());
@@ -102,14 +128,22 @@ export class CrudcapacitacionesPage implements OnInit {
       case 'nombre':
         resultado.sort((a, b) => a.nombre.localeCompare(b.nombre));
         break;
+      case 'cupos':
+        resultado.sort((a, b) => (b.cuposDisponibles || 0) - (a.cuposDisponibles || 0));
+        break;
     }
 
     this.capacitacionesFiltradas = resultado;
+    this.cdr.markForCheck();
   }
 
   // Limpiar todos los filtros
   limpiarFiltros() {
     this.filtroEstado = 'todos';
+    this.filtroModalidad = 'todos';
+    this.filtroCertificados = 'todos';
+    this.fechaDesde = '';
+    this.fechaHasta = '';
     this.ordenarPor = 'fecha_desc';
     this.terminoBusqueda = '';
     this.aplicarFiltros();
