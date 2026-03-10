@@ -44,8 +44,9 @@ export const errorHandler = (
 
     // Error de validación de Zod
     if (err instanceof ZodError) {
+        const errorMessages = err.errors.map(e => e.message).join(', ');
         res.status(400).json({
-            message: 'Datos inválidos',
+            message: `Datos inválidos: ${errorMessages}`,
             details: err.errors
         });
         return;
