@@ -70,7 +70,10 @@ export class PrismaUserRepository implements UserRepository {
                     entidad: true,
                     provincia: true,
                     canton: true,
+                    parroquia: true,
                     tipoParticipante: true,
+                    genero: true,
+                    etnia: true,
                     nacionalidad: true
                 }
             });
@@ -88,6 +91,9 @@ export class PrismaUserRepository implements UserRepository {
                 entidad: true,
                 provincia: true,
                 canton: true,
+                parroquia: true,
+                genero: true,
+                etnia: true,
                 nacionalidad: true
             }
         });
@@ -102,7 +108,10 @@ export class PrismaUserRepository implements UserRepository {
                 entidad: true,
                 provincia: true,
                 canton: true,
+                parroquia: true,
                 tipoParticipante: true,
+                genero: true,
+                etnia: true,
                 nacionalidad: true,
                 autoridades: true,
                 funcionarios: {
@@ -199,7 +208,10 @@ export class PrismaUserRepository implements UserRepository {
                 entidad: true,
                 provincia: true,
                 canton: true,
+                parroquia: true,
                 tipoParticipante: true,
+                genero: true,
+                etnia: true,
                 nacionalidad: true
             }
         });
@@ -212,6 +224,8 @@ export class PrismaUserRepository implements UserRepository {
                 rol: true,
                 entidad: true,
                 tipoParticipante: true,
+                genero: true,
+                etnia: true,
                 nacionalidad: true
             },
             orderBy: {
@@ -235,7 +249,10 @@ export class PrismaUserRepository implements UserRepository {
                 entidad: true,
                 provincia: true,
                 canton: true,
+                parroquia: true,
                 tipoParticipante: true,
+                genero: true,
+                etnia: true,
                 nacionalidad: true,
                 autoridades: true,
                 funcionarios: {
@@ -268,7 +285,10 @@ export class PrismaUserRepository implements UserRepository {
                 entidad: true,
                 provincia: true,
                 canton: true,
+                parroquia: true,
                 tipoParticipante: true,
+                genero: true,
+                etnia: true,
                 nacionalidad: true,
                 autoridades: true,
                 funcionarios: {

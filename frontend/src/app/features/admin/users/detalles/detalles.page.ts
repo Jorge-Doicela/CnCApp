@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule, NavController } from '@ionic/angular';
+import { IonicModule, NavController, ToastController } from '@ionic/angular';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { timeout, finalize } from 'rxjs';
 import { addIcons } from 'ionicons';
@@ -9,11 +9,12 @@ import {
     personOutline, locationOutline, shieldCheckmarkOutline, mailOutline,
     callOutline, calendarOutline, globeOutline, idCardOutline,
     businessOutline, createOutline, arrowBackOutline, personCircleOutline,
-    fingerPrintOutline, timeOutline, alertCircleOutline
+    fingerPrintOutline, timeOutline, alertCircleOutline, lockClosedOutline, lockOpenOutline
 } from 'ionicons/icons';
 import { UsuarioService } from 'src/app/features/user/services/usuario.service';
 import { Usuario } from 'src/app/core/models/usuario.interface';
-import { TipoParticipanteEnum } from 'src/app/shared/constants/enums';
+import { RolEnum, TipoParticipanteEnum, NivelGobiernoEnum } from 'src/app/shared/constants/enums';
+import { AlertController } from '@ionic/angular/standalone';
 
 @Component({
     selector: 'app-detalles',
@@ -27,9 +28,14 @@ export class DetallesPage implements OnInit {
     private usuarioService = inject(UsuarioService);
     private navCtrl = inject(NavController);
     private cdr = inject(ChangeDetectorRef);
+    private alertCtrl = inject(AlertController);
+    private toastCtrl = inject(ToastController);
 
     usuario: Usuario | null = null;
     cargando = true;
+    actualizando = false; // Add this for localized loading
+    today = new Date();
+    TipoParticipanteEnum = TipoParticipanteEnum;
 
     constructor() {
         addIcons({
@@ -47,7 +53,9 @@ export class DetallesPage implements OnInit {
             'person-circle-outline': personCircleOutline,
             'finger-print-outline': fingerPrintOutline,
             'time-outline': timeOutline,
-            'alert-circle-outline': alertCircleOutline
+            'alert-circle-outline': alertCircleOutline,
+            'lock-closed-outline': lockClosedOutline,
+            'lock-open-outline': lockOpenOutline
         });
     }
 
@@ -79,20 +87,123 @@ export class DetallesPage implements OnInit {
         });
     }
 
+    getNivelGobiernoLabel(nivel: any): string {
+        if (!nivel) return 'No definido';
+        const n = Number(nivel);
+        const labels: { [key: number]: string } = {
+            [NivelGobiernoEnum.PROVINCIAL]: 'PROVINCIAL',
+            [NivelGobiernoEnum.MUNICIPAL]: 'MUNICIPAL',
+            [NivelGobiernoEnum.PARROQUIAL]: 'PARROQUIAL',
+            [NivelGobiernoEnum.MANCOMUNIDADES]: 'MANCOMUNIDADES',
+            [NivelGobiernoEnum.GREMIOS]: 'GREMIOS',
+            [NivelGobiernoEnum.CENTRAL]: 'GOBIERNO CENTRAL',
+            [NivelGobiernoEnum.COOPERANTES]: 'COOPERANTES',
+            [NivelGobiernoEnum.ACADEMIA]: 'ACADEMIA',
+            [NivelGobiernoEnum.EDUCACION]: 'EDUCACIÓN',
+            [NivelGobiernoEnum.PRIVADO]: 'SECTOR PRIVADO',
+            [NivelGobiernoEnum.CIUDADANIA]: 'CIUDADANÍA',
+            [NivelGobiernoEnum.REGIMEN_ESPECIAL]: 'RÉGIMEN ESPECIAL'
+        };
+        return labels[n] || String(nivel);
+    }
 
-    getTipoParticipanteLabel(tipo: number | string): string {
+    getTipoParticipanteLabel(tipo: any): string {
+        if (!tipo) return 'SIN TIPO';
+
+        // Si es un objeto de la relación mapeada
+        if (typeof tipo === 'object' && tipo.nombre) {
+            return tipo.nombre.toUpperCase();
+        }
+
         const t = Number(tipo);
         const labels: { [key: number]: string } = {
-            [TipoParticipanteEnum.CIUDADANO]: 'Ciudadano',
-            [TipoParticipanteEnum.AUTORIDAD]: 'Autoridad',
-            [TipoParticipanteEnum.FUNCIONARIO_GAD]: 'Funcionario GAD',
-            [TipoParticipanteEnum.INSTITUCION]: 'Institución'
+            [TipoParticipanteEnum.CIUDADANO]: 'CIUDADANO',
+            [TipoParticipanteEnum.AUTORIDAD]: 'AUTORIDAD',
+            [TipoParticipanteEnum.FUNCIONARIO_GAD]: 'FUNCIONARIO GAD',
+            [TipoParticipanteEnum.INSTITUCION]: 'INSTITUCIÓN'
         };
-        return labels[t] || 'No definido';
+        return labels[t] || 'SIN TIPO';
+    }
+
+    formatName(nombre: string | null | undefined, extra?: string | null | undefined): string {
+        const parts = [nombre, extra].filter(val => val && val.toString().trim() !== '' && val !== 'null' && val !== 'undefined');
+        return parts.length > 0 ? parts.join(' ') : '';
+    }
+
+    formatIdentification(ci: string): string {
+        if (!ci) return '-';
+        return ci;
     }
 
     getInicial(nombre: string): string {
-        return nombre ? nombre.charAt(0).toUpperCase() : '?';
+        if (!nombre && this.usuario) nombre = this.getCleanFullName();
+        if (!nombre) return 'J';
+        const clean = nombre.replace(/\s*null\s*/g, ' ').trim();
+        return clean ? clean.charAt(0).toUpperCase() : 'J';
+    }
+
+    getCleanFullName(): string {
+        if (!this.usuario) return '';
+        const user = this.usuario;
+        if (user.primerNombre && user.primerApellido) {
+            return [
+                user.primerNombre,
+                user.segundoNombre,
+                user.primerApellido,
+                user.segundoApellido
+            ].filter(val => val && val.toString().trim() !== '' && val !== 'null' && val !== 'undefined').join(' ');
+        }
+        return (user.nombre || '').replace(/\s*null\s*/g, ' ').trim();
+    }
+
+    async toggleEstado() {
+        if (!this.usuario) return;
+
+        const nuevoEstado = this.usuario.estado === 1 ? 0 : 1;
+        const msg = nuevoEstado === 1 ? '¿Desea activar esta cuenta?' : '¿Desea bloquear esta cuenta? El usuario no podrá iniciar sesión.';
+
+        const alert = await this.alertCtrl.create({
+            header: 'Cambiar Estado',
+            message: msg,
+            buttons: [
+                { text: 'Cancelar', role: 'cancel' },
+                {
+                    text: nuevoEstado === 1 ? 'Activar' : 'Bloquear',
+                    handler: () => {
+                        this.actualizando = true;
+                        this.cdr.detectChanges(); // Local update
+
+                        this.usuarioService.updateUsuario(this.usuario!.id, { estado: nuevoEstado })
+                            .pipe(finalize(() => {
+                                this.actualizando = false;
+                                this.cdr.detectChanges();
+                            }))
+                            .subscribe({
+                                next: (res) => {
+                                    this.usuario!.estado = nuevoEstado;
+                                    this.showToast(nuevoEstado === 1 ? 'Cuenta activada' : 'Cuenta bloqueada');
+                                },
+                                error: (err) => {
+                                    console.error('Error al actualizar estado:', err);
+                                    this.showToast('Error al actualizar el estado', 'danger');
+                                }
+                            });
+                    }
+                }
+            ]
+        });
+
+        await alert.present();
+    }
+
+    private async showToast(message: string, color: string = 'success') {
+        const toast = await this.toastCtrl.create({
+            message,
+            duration: 2000,
+            color,
+            position: 'bottom'
+        });
+        toast.present();
     }
 
     regresar() {

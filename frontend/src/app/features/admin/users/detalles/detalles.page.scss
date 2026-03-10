@@ -1,14 +1,15 @@
 :host {
     --page-bg: #f8fafc;
     --card-bg: #ffffff;
-    --text-primary: #1e293b;
-    --text-secondary: #64748b;
-    --primary-color: #3b82f6;
-    --success-color: #10b981;
-    --danger-color: #ef4444;
-    --border-radius: 20px;
-    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --primary: #1e3a8a; // Dark blue for the button
+    --primary-alt: #2563eb;
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+    --border-color: #f1f5f9;
+    --radius-xl: 32px;
+    --radius-lg: 20px;
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
 }
 
 ion-content {
@@ -16,300 +17,406 @@ ion-content {
 }
 
 .main-container {
-    max-width: 900px;
+    max-width: 1100px;
     margin: 0 auto;
-    padding: 20px 24px 60px;
+    padding: 32px 40px 100px;
+
+    @media (max-width: 600px) {
+        padding: 20px 16px;
+    }
 }
 
-// Back Navigation
-.page-back-nav {
+// ── Top Navigation ──
+.page-header-nav {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 8px 0 16px;
-    margin-bottom: 4px;
+    margin-bottom: 24px;
 
-    ion-button {
-        --color: #64748b;
-        font-size: 0.9rem;
-        font-weight: 600;
+    .nav-left {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+
+        ion-button {
+            --color: #64748b;
+            margin: 0;
+
+            ion-icon {
+                font-size: 20px;
+            }
+        }
+
+        .nav-title {
+            font-size: 14px;
+            font-weight: 800;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+    }
+
+    .nav-actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+
+        .status-toggle-btn {
+            --border-radius: 12px;
+            --border-width: 1.5px;
+            height: 48px;
+            font-weight: 700;
+            margin: 0;
+            text-transform: none;
+            font-size: 14px;
+        }
+    }
+
+    .edit-action-btn {
+        --background: #1e3a8a;
+        --background-activated: #172554;
+        --color: white;
+        --border-radius: 12px;
+        --padding-start: 16px;
+        --padding-end: 20px;
+        height: 48px;
+        font-weight: 700;
+        font-size: 15px;
+        text-transform: none;
+        margin: 0;
+        box-shadow: 0 10px 15px -3px rgba(30, 58, 138, 0.2);
+
+        ion-icon {
+            font-size: 18px;
+            margin-right: 8px;
+        }
     }
 }
 
-
-// Hero Profile Section
-.profile-hero {
+// ── Profile Hero Card (Large Header) ──
+.profile-hero-card {
     background: white;
-    border-radius: var(--border-radius);
-    padding: 32px 24px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    box-shadow: var(--shadow-md);
+    border-radius: var(--radius-xl);
+    padding: 48px;
     margin-bottom: 24px;
-    border: 1px solid rgba(0, 0, 0, 0.05);
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    align-items: center;
+    gap: 32px;
 
-    .avatar-container {
+    @media (max-width: 600px) {
+        flex-direction: column;
+        padding: 40px 24px;
+        text-align: center;
+        gap: 20px;
+    }
+
+    .avatar-wrap {
         position: relative;
-        margin-bottom: 16px;
 
-        .avatar {
-            width: 80px;
-            height: 80px;
-            background: #eff6ff;
-            color: var(--primary-color);
-            border-radius: 50%;
+        .avatar-circle {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+            border-radius: 40px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 32px;
+            font-size: 48px;
             font-weight: 800;
-            border: 3px solid #ffffff;
-            box-shadow: var(--shadow-sm);
+            box-shadow: 0 20px 40px -10px rgba(37, 99, 235, 0.4);
         }
 
-        .status-indicator {
+        .online-indicator {
             position: absolute;
             bottom: 4px;
             right: 4px;
-            width: 16px;
-            height: 16px;
+            width: 18px;
+            height: 18px;
             border-radius: 50%;
-            border: 3px solid #ffffff;
+            border: 3px solid white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 
             &.active {
-                background: var(--success-color);
+                background: #10b981;
             }
 
+            // Green for active
             &.inactive {
-                background: var(--danger-color);
+                background: #ef4444;
             }
+
+            // Red for inactive
         }
     }
 
-    .profile-info {
-        h1 {
-            font-size: 24px;
-            font-weight: 800;
-            color: var(--text-primary);
-            margin: 0 0 4px 0;
-            letter-spacing: -0.025em;
+    .profile-main {
+        .user-full-name {
+            font-size: 40px;
+            font-weight: 950;
+            color: #0f172a;
+            margin: 0 0 12px 0;
+            letter-spacing: -0.05em;
         }
 
-        .subtitle {
-            font-size: 14px;
-            color: var(--text-secondary);
-            font-weight: 600;
-            margin-bottom: 16px;
-        }
-
-        .badges {
-            display: flex;
+        .user-id-badge {
+            display: inline-flex;
+            align-items: center;
             gap: 8px;
-            justify-content: center;
+            padding: 6px 14px;
+            background: #f1f5f9;
+            border-radius: 100px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #64748b;
+            margin-bottom: 24px;
 
-            .badge {
-                padding: 4px 12px;
+            ion-icon {
+                font-size: 15px;
+                opacity: 0.6;
+            }
+        }
+
+        .type-pills {
+            display: flex;
+            gap: 12px;
+
+            @media (max-width: 600px) {
+                justify-content: center;
+            }
+
+            .type-pill {
+                padding: 6px 16px;
                 border-radius: 100px;
                 font-size: 11px;
-                font-weight: 700;
+                font-weight: 800;
                 text-transform: uppercase;
                 letter-spacing: 0.05em;
 
                 &.role {
                     background: #eff6ff;
-                    color: var(--primary-color);
+                    color: #2563eb;
                 }
 
-                &.type {
-                    background: #f1f5f9;
-                    color: var(--text-secondary);
+                &.participant {
+                    background: #fefce8;
+                    color: #ca8a04;
                 }
             }
         }
     }
 }
 
-// Details Grid
-.details-grid {
+// ── Details Cards ──
+.details-layout {
     display: grid;
-    grid-template-columns: 1fr;
-    gap: 16px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
 
-    @media (min-width: 768px) {
-        grid-template-columns: 1fr 1fr;
+    @media (max-width: 850px) {
+        grid-template-columns: 1fr;
     }
 }
 
-.info-card {
+.detail-card {
     background: white;
-    border-radius: 16px;
-    padding: 24px;
+    border-radius: var(--radius-lg);
+    padding: 32px;
     box-shadow: var(--shadow-sm);
-    border: 1px solid rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
 
     &.full-width {
         grid-column: 1 / -1;
     }
 
-    .card-title {
-        font-size: 15px;
-        font-weight: 700;
-        color: var(--text-primary);
-        margin: 0 0 20px 0;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-
-        ion-icon {
-            font-size: 20px;
-            color: var(--primary-color);
-        }
-    }
-}
-
-// Data Lists
-.data-list {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-
-    .data-item {
-        display: flex;
-        flex-direction: column;
-
-        .label {
-            font-size: 11px;
-            font-weight: 700;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: 2px;
-        }
-
-        .value {
-            font-size: 15px;
-            font-weight: 600;
-            color: var(--text-primary);
-
-            &.mail {
-                color: var(--primary-color);
-            }
-        }
-    }
-}
-
-// System Stats Section
-.system-stats {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 24px;
-
-    @media (min-width: 768px) {
-        grid-template-columns: 1fr 1fr 1fr;
-    }
-
-    .stat-item {
+    .card-header {
         display: flex;
         align-items: center;
         gap: 16px;
+        margin-bottom: 32px;
 
-        ion-icon {
-            font-size: 24px;
-            color: var(--text-secondary);
-            opacity: 0.5;
-        }
-
-        .stat-content {
+        .header-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
             display: flex;
-            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
 
-            .stat-label {
-                font-size: 12px;
-                color: var(--text-secondary);
-                font-weight: 500;
+            &.personal {
+                background: #f0fdf4;
+                color: #16a34a;
             }
 
-            .stat-value {
-                font-size: 15px;
-                font-weight: 700;
-                color: var(--text-primary);
+            &.location {
+                background: #fff1f2;
+                color: #e11d48;
+            }
+
+            &.pro {
+                background: #fefce8;
+                color: #ca8a04;
+            }
+
+            &.signature {
+                background: #f5f3ff;
+                color: #7c3aed;
+            }
+        }
+
+        h3 {
+            font-size: 19px;
+            font-weight: 900;
+            margin: 0;
+            color: #0f172a;
+            letter-spacing: -0.02em;
+        }
+    }
+}
+
+// ── Information Grid ──
+.data-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 8px;
+
+    .data-group {
+        &.full {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            display: block;
+            font-size: 11px;
+            font-weight: 800;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 6px;
+        }
+
+        p {
+            font-size: 16px;
+            font-weight: 700;
+            margin: 0;
+            color: #1e293b;
+
+            &.email-link {
+                color: #3b82f6;
+                text-decoration: none;
             }
         }
     }
 }
 
-// Signature Display
-.signature-display {
+// ── Metadata Footer ──
+.system-stats-compact {
+    margin-top: auto;
+    padding-top: 24px;
+    border-top: 1px solid #f1f5f9;
+    display: flex;
+    gap: 32px;
+
+    .stat-mini {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+
+        ion-icon {
+            font-size: 20px;
+            color: #94a3b8;
+        }
+
+        div {
+            span {
+                display: block;
+                font-size: 10px;
+                color: #94a3b8;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+            }
+
+            strong {
+                display: block;
+                font-size: 14px;
+                font-weight: 700;
+                color: #334155;
+            }
+        }
+    }
+}
+
+// ── Professional Section ──
+.pro-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 32px;
+
+    .pro-item {
+        label {
+            display: block;
+            font-size: 11px;
+            font-weight: 800;
+            color: #94a3b8;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+
+        p {
+            font-size: 18px;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0;
+        }
+    }
+}
+
+// ── Signature Canvas ──
+.signature-canvas {
     background: #f8fafc;
-    border: 2px dashed #e2e8f0;
-    border-radius: 12px;
+    border-radius: 16px;
     padding: 24px;
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
+    border: 2px dashed #e2e8f0;
 
-    .signature-img {
+    .firm-img {
         max-height: 120px;
-        mix-blend-mode: multiply;
-    }
-
-    .no-signature {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 8px;
-        color: var(--text-secondary);
-        font-size: 14px;
-        text-align: center;
-
-        ion-icon {
-            font-size: 32px;
-            opacity: 0.3;
-        }
+        filter: grayscale(1) contrast(1.2);
     }
 }
 
-// Actions Section
-.actions-section {
-    margin-top: 32px;
-    display: flex;
-    justify-content: center;
-
-    .edit-btn {
-        --border-radius: 12px;
-        height: 54px;
-        font-weight: 700;
-        width: 100%;
-        max-width: 300px;
-    }
-}
-
-// Loading & Transitions
-.loading-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 60vh;
-    gap: 16px;
-    color: var(--text-secondary);
-}
-
+// ── Utils ──
 .fade-in {
-    animation: fadeIn 0.4s ease-out forwards;
-    opacity: 0;
+    animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 @keyframes fadeIn {
     from {
         opacity: 0;
-        transform: translateY(10px);
+        transform: translateY(16px);
     }
 
     to {
         opacity: 1;
         transform: translateY(0);
+    }
+}
+
+.hover-scale {
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    &:hover {
+        transform: scale(1.05);
+    }
+
+    &:active {
+        transform: scale(0.95);
     }
 }

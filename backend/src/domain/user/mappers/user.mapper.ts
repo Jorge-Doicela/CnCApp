@@ -55,6 +55,14 @@ export class UserMapper {
                 id: prismaUser.tipoParticipante.id,
                 nombre: prismaUser.tipoParticipante.nombre
             } : null,
+            genero: prismaUser.genero ? {
+                id: prismaUser.genero.id,
+                nombre: prismaUser.genero.nombre
+            } : null,
+            etnia: prismaUser.etnia ? {
+                id: prismaUser.etnia.id,
+                nombre: prismaUser.etnia.nombre
+            } : null,
             nacionalidad: prismaUser.nacionalidad ? {
                 id: prismaUser.nacionalidad.id,
                 nombre: prismaUser.nacionalidad.nombre

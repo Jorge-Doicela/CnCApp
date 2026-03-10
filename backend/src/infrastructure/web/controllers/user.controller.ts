@@ -76,6 +76,7 @@ const createUserSchema = z.object({
     generoId: z.number().optional(),
     etniaId: z.number().optional(),
     nacionalidadId: z.number().optional(),
+    fechaNacimiento: z.string().optional().nullable(),
     rolId: z.number().optional().nullable(),
     autoridad: autoridadSchema.optional().nullable(),
     funcionarioGad: funcionarioGadSchema.optional().nullable(),
@@ -133,6 +134,8 @@ export class UserController {
                 etniaId: data.etniaId || undefined,
                 nacionalidadId: data.nacionalidadId || undefined,
                 rolId: data.rolId || undefined,
+                parroquiaId: data.parroquiaId || undefined,
+                fechaNacimiento: data.fechaNacimiento || undefined,
                 autoridad: data.autoridad,
                 funcionarioGad: data.funcionarioGad,
                 institucion: data.institucion
