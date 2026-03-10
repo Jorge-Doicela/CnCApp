@@ -1,0 +1,211 @@
+<ion-content class="qr-confirm-content">
+  <div class="qr-confirm-container">
+
+    <!-- Back Nav -->
+    <div class="page-back-nav">
+      <ion-button fill="clear" color="medium" size="small" (click)="volver()">
+        <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
+        Mis Capacitaciones
+      </ion-button>
+    </div>
+
+    <!-- Header -->
+    <div class="page-header">
+      <div class="header-icon">
+        <ion-icon name="qr-code-outline"></ion-icon>
+      </div>
+      <h1>Confirmar Asistencia</h1>
+      <p>Escanea el código QR que muestre el organizador del evento</p>
+    </div>
+
+    <!-- ===== ESTADO INICIAL ===== -->
+    <ng-container *ngIf="estado === 'inicial'">
+
+      <!-- Botón principal: Abrir cámara -->
+      <div class="scan-card">
+        <div class="scan-illustration">
+          <div class="scan-frame">
+            <div class="corner tl"></div>
+            <div class="corner tr"></div>
+            <div class="corner bl"></div>
+            <div class="corner br"></div>
+            <ion-icon name="qr-code-outline" class="scan-icon-placeholder"></ion-icon>
+          </div>
+          <p class="scan-hint">Apunta la cámara hacia el código QR del evento</p>
+        </div>
+
+        <ion-button
+          expand="block"
+          color="primary"
+          (click)="iniciarEscaner()"
+          class="scan-button"
+          [disabled]="!camaraDisponible">
+          <ion-icon name="camera-outline" slot="start"></ion-icon>
+          Escanear QR con la cámara
+        </ion-button>
+
+        <div class="camera-unavailable" *ngIf="!camaraDisponible">
+          <ion-icon name="camera-off-outline" color="warning"></ion-icon>
+          <p>Cámara no disponible o permiso denegado</p>
+        </div>
+
+        <div class="divider-row">
+          <div class="divider-line"></div>
+          <span class="divider-text">o ingresa el código manualmente</span>
+          <div class="divider-line"></div>
+        </div>
+
+        <!-- Entrada manual como alternativa -->
+        <div class="manual-entry">
+          <ion-item class="code-input-item">
+            <ion-icon name="key-outline" slot="start" color="medium"></ion-icon>
+            <ion-input
+              #manualCodeInput
+              placeholder="Código del evento (ej: A3F7B2C8)"
+              maxlength="8"
+              (keyup.enter)="procesarCodigo(manualCodeInput.value?.toString() || '')"
+              [clearInput]="true"
+              inputmode="text"
+              autocomplete="off"
+              autocorrect="off"
+              autocapitalize="characters">
+            </ion-input>
+          </ion-item>
+          <p class="manual-hint">
+            <ion-icon name="keypad-outline"></ion-icon>
+            El organizador mostrará un código de <strong>8 letras/números</strong> junto al QR
+          </p>
+          <ion-button
+            expand="block"
+            fill="outline"
+            color="medium"
+            class="manual-button"
+            (click)="procesarCodigo(manualCodeInput.value?.toString() || '')">
+            <ion-icon name="checkmark-outline" slot="start"></ion-icon>
+            Confirmar con código
+          </ion-button>
+        </div>
+      </div>
+
+    </ng-container>
+
+    <!-- ===== ESTADO ESCANEANDO: Visor de cámara ===== -->
+    <ng-container *ngIf="estado === 'escaneando'">
+      <div class="scanner-container">
+        <div class="scanner-info">
+          <ion-icon name="scan-outline" color="primary"></ion-icon>
+          <p>Apunta la cámara al código QR del evento</p>
+        </div>
+
+        <!-- El div donde se monta html5-qrcode -->
+        <div id="qr-reader-element" class="qr-reader-box"></div>
+
+        <ion-button
+          expand="block"
+          fill="outline"
+          color="danger"
+          class="cancel-scan-button"
+          (click)="cancelarEscaneo()">
+          <ion-icon name="close-outline" slot="start"></ion-icon>
+          Cancelar escaneo
+        </ion-button>
+      </div>
+    </ng-container>
+
+    <!-- ===== ESTADO ÉXITO ===== -->
+    <div class="result-card success-card" *ngIf="estado === 'exito'">
+      <div class="result-icon-wrap success">
+        <ion-icon name="checkmark-circle"></ion-icon>
+      </div>
+      <h2>¡Asistencia Confirmada!</h2>
+      <p class="result-subtitle">Tu presencia ha sido registrada exitosamente</p>
+
+      <div class="capacitacion-info" *ngIf="resultadoCapacitacion">
+        <div class="info-row">
+          <ion-icon name="school-outline" color="primary"></ion-icon>
+          <span>{{ resultadoCapacitacion.nombre }}</span>
+        </div>
+        <div class="info-row" *ngIf="resultadoCapacitacion.fechaInicio">
+          <ion-icon name="calendar-outline" color="primary"></ion-icon>
+          <span>{{ resultadoCapacitacion.fechaInicio | date:'dd/MM/yyyy' }}</span>
+        </div>
+        <div class="info-row" *ngIf="resultadoCapacitacion.lugar">
+          <ion-icon name="location-outline" color="primary"></ion-icon>
+          <span>{{ resultadoCapacitacion.lugar }}</span>
+        </div>
+      </div>
+
+      <div class="result-actions">
+        <ion-button expand="block" fill="outline" color="primary" (click)="reiniciar()">
+          <ion-icon name="qr-code-outline" slot="start"></ion-icon>
+          Confirmar otra capacitación
+        </ion-button>
+        <ion-button expand="block" color="primary" (click)="volver()">
+          <ion-icon name="home-outline" slot="start"></ion-icon>
+          Ver mis capacitaciones
+        </ion-button>
+      </div>
+    </div>
+
+    <!-- ===== ESTADO YA CONFIRMADO ===== -->
+    <div class="result-card already-card" *ngIf="estado === 'ya_confirmado'">
+      <div class="result-icon-wrap already">
+        <ion-icon name="checkmark-done-circle"></ion-icon>
+      </div>
+      <h2>Ya Registrado</h2>
+      <p class="result-subtitle">Tu asistencia ya estaba confirmada para esta capacitación</p>
+
+      <div class="capacitacion-info" *ngIf="resultadoCapacitacion">
+        <div class="info-row">
+          <ion-icon name="school-outline" color="primary"></ion-icon>
+          <span>{{ resultadoCapacitacion.nombre }}</span>
+        </div>
+        <div class="info-row" *ngIf="resultadoCapacitacion.fechaInicio">
+          <ion-icon name="calendar-outline" color="primary"></ion-icon>
+          <span>{{ resultadoCapacitacion.fechaInicio | date:'dd/MM/yyyy' }}</span>
+        </div>
+      </div>
+
+      <div class="result-actions">
+        <ion-button expand="block" fill="outline" color="medium" (click)="reiniciar()">
+          Escanear otro QR
+        </ion-button>
+        <ion-button expand="block" color="primary" (click)="volver()">
+          Ver mis capacitaciones
+        </ion-button>
+      </div>
+    </div>
+
+    <!-- ===== ESTADO ERROR ===== -->
+    <div class="result-card error-card" *ngIf="estado === 'error'">
+      <div class="result-icon-wrap error">
+        <ion-icon name="close-circle"></ion-icon>
+      </div>
+      <h2>No se pudo confirmar</h2>
+      <p class="result-subtitle">{{ mensajeError }}</p>
+
+      <div class="error-tips">
+        <div class="tip-item">
+          <ion-icon name="information-circle-outline" color="primary"></ion-icon>
+          <span>Verifica que el QR corresponde a esta capacitación</span>
+        </div>
+        <div class="tip-item">
+          <ion-icon name="information-circle-outline" color="primary"></ion-icon>
+          <span>Asegúrate de estar inscrito en la capacitación</span>
+        </div>
+        <div class="tip-item">
+          <ion-icon name="information-circle-outline" color="primary"></ion-icon>
+          <span>Contacta al organizador si el problema persiste</span>
+        </div>
+      </div>
+
+      <div class="result-actions">
+        <ion-button expand="block" color="primary" (click)="reiniciar()">
+          <ion-icon name="camera-outline" slot="start"></ion-icon>
+          Intentar de nuevo
+        </ion-button>
+      </div>
+    </div>
+
+  </div>
+</ion-content>

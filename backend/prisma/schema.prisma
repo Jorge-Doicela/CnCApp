@@ -135,6 +135,7 @@ model Capacitacion {
   horas            Int?                  @map("horas")
   enlaceVirtual    String?               @map("enlace_virtual") @db.VarChar(500)
   certificado      Boolean               @default(false) @map("certificado")
+  codigoQrEvento   String?               @unique @map("codigo_qr_evento") @db.VarChar(100)
   plantilla        Plantilla?            @relation(fields: [plantillaId], references: [id])
   certificados     Certificado[]
   inscripciones    UsuarioCapacitacion[]

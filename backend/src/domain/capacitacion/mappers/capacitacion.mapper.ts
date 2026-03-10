@@ -29,6 +29,7 @@ export class CapacitacionMapper {
             horas: (prismaCapacitacion as any).horas,
             enlaceVirtual: (prismaCapacitacion as any).enlaceVirtual,
             certificado: (prismaCapacitacion as any).certificado,
+            codigoQrEvento: (prismaCapacitacion as any).codigoQrEvento,
             plantilla: (prismaCapacitacion as any).plantilla
         };
     }

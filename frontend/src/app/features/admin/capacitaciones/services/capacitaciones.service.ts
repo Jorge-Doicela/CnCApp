@@ -5,6 +5,27 @@ import { environment } from 'src/environments/environment';
 import { Capacitacion, UsuarioCapacitacion } from '../../../../core/models/capacitacion.interface';
 import { Certificado } from '../../../../core/models/certificado.interface';
 
+export interface InscritoInfo {
+    id: number;           // ID de la inscripción (junction table PK)
+    usuarioId: number;    // ID del usuario
+    nombre: string;
+    rolCapacitacion: string;
+    asistio: boolean;
+    email?: string;
+    entidad?: string;
+}
+
+export interface ConfirmarAsistenciaQRResult {
+    message: string;
+    capacitacion: {
+        id: number;
+        nombre: string;
+        fechaInicio: string;
+        lugar: string;
+    };
+    yaConfirmado: boolean;
+}
+
 @Injectable({
     providedIn: 'root'
 })
@@ -13,6 +34,8 @@ export class CapacitacionesService {
     private usuariosCapacitacionesUrl = `${environment.apiUrl}/usuarios-capacitaciones`;
 
     constructor(private http: HttpClient) { }
+
+    // --- CRUD Capacitaciones ---
 
     getCapacitaciones(): Observable<Capacitacion[]> {
         return this.http.get<Capacitacion[]>(this.apiUrl);
@@ -34,76 +57,79 @@ export class CapacitacionesService {
         return this.http.delete<void>(`${this.apiUrl}/${id}`);
     }
 
-    // Métodos específicos para Usuarios_Capacitaciones logic
-
-    getUsuariosNoAsistieron(idCapacitacion: number): Observable<UsuarioCapacitacion[]> {
-        // Assuming backend endpoint support filtering via query params
-        return this.http.get<UsuarioCapacitacion[]>(`${this.usuariosCapacitacionesUrl}?idCapacitacion=${idCapacitacion}&asistencia=false`);
+    countCapacitaciones(): Observable<{ count: number }> {
+        return this.http.get<{ count: number }>(`${this.apiUrl}/count`);
     }
 
-    deleteUsuariosNoAsistieron(idCapacitacion: number): Observable<any> {
-        return this.http.delete<any>(`${this.usuariosCapacitacionesUrl}/no-asistieron/${idCapacitacion}`);
-    }
+    // --- Gestión de Inscritos ---
 
-    assignUser(capacitacionId: number, userId: number, role: string): Observable<UsuarioCapacitacion> {
-        return this.http.post<UsuarioCapacitacion>(this.usuariosCapacitacionesUrl, {
-            Id_Capacitacion: capacitacionId,
-            Id_Usuario: userId,
-            Rol_Capacitacion: role,
-            Fecha_Asignacion: new Date().toISOString(),
-            Asistencia: false
-        });
-    }
-
-    // Obtener usuarios inscritos
+    /** Obtiene la lista de inscritos de una capacitación (solo staff) */
     getInscritos(idCapacitacion: number): Observable<any[]> {
-        // Returns mixed User + Junction data, keeping any[] for now until joined interface is defined
         return this.http.get<any[]>(`${this.usuariosCapacitacionesUrl}/${idCapacitacion}`);
     }
 
-    // Actualizar asistencia individual
-    updateAttendance(idUsuarioConferencia: number, asistencia: boolean): Observable<any> {
-        return this.http.put<any>(`${this.usuariosCapacitacionesUrl}/asistencia/${idUsuarioConferencia}`, { asistencia });
+    /** Inscribir a un usuario en una capacitación */
+    inscribirse(idUsuario: number, idCapacitacion: number): Observable<UsuarioCapacitacion> {
+        return this.http.post<UsuarioCapacitacion>(this.usuariosCapacitacionesUrl, {
+            capacitacionId: idCapacitacion,
+            usuarioId: idUsuario,
+            rolCapacitacion: 'Participante',
+            asistio: false
+        });
     }
 
-    // Actualizar asistencia masiva (todos los participantes)
+    /** Agregar usuario a una capacitación con un rol específico (staff) */
+    assignUser(capacitacionId: number, userId: number, role: string): Observable<UsuarioCapacitacion> {
+        return this.http.post<UsuarioCapacitacion>(this.usuariosCapacitacionesUrl, {
+            capacitacionId,
+            usuarioId: userId,
+            rolCapacitacion: role,
+            asistio: false
+        });
+    }
+
+    /** Cancelar inscripción de un usuario */
+    cancelarInscripcion(idUsuario: number, idCapacitacion: number): Observable<any> {
+        return this.http.delete<any>(`${this.usuariosCapacitacionesUrl}/${idCapacitacion}/${idUsuario}`);
+    }
+
+    /** Eliminar inscripción por ID de relación (junction PK) */
+    deleteUsuarioCapacitacion(idRelacion: number): Observable<any> {
+        return this.http.delete<any>(`${this.usuariosCapacitacionesUrl}/relacion/${idRelacion}`);
+    }
+
+    // --- Asistencia ---
+
+    /** Actualizar asistencia individual por ID de inscripción */
+    updateAttendance(idInscripcion: number, asistencia: boolean): Observable<any> {
+        return this.http.put<any>(`${this.usuariosCapacitacionesUrl}/asistencia/${idInscripcion}`, { asistencia });
+    }
+
+    /** Marcar asistencia de todos los participantes de una capacitación */
     updateAllAttendance(idCapacitacion: number, asistencia: boolean): Observable<any> {
         return this.http.put<any>(`${this.usuariosCapacitacionesUrl}/asistencia-masiva/${idCapacitacion}`, { asistencia });
     }
 
-    // Eliminar asignación por ID de relación (Id_Usuario_Conferencia)
-    deleteUsuarioCapacitacion(idUsuarioConferencia: number): Observable<any> {
-        return this.http.delete<any>(`${this.usuariosCapacitacionesUrl}/relacion/${idUsuarioConferencia}`);
+    /**
+     * Confirmar asistencia mediante QR del evento.
+     * El usuario escanea el QR y este endpoint registra su asistencia automáticamente.
+     * @param codigoQrEvento El UUID codificado en el QR del evento
+     */
+    confirmarAsistenciaQR(codigoQrEvento: string): Observable<ConfirmarAsistenciaQRResult> {
+        return this.http.post<ConfirmarAsistenciaQRResult>(
+            `${this.usuariosCapacitacionesUrl}/confirmar-asistencia-qr`,
+            { codigoQrEvento }
+        );
     }
 
-    // Método para eliminar asignación (opcional si se requiere)
-    removeUserAssignment(capacitacionId: number, userId: number): Observable<any> {
-        // Assuming endpoint supports query params or specific path
-        return this.http.delete<any>(`${this.usuariosCapacitacionesUrl}/${capacitacionId}/${userId}`);
-    }
+    // --- Inscripciones del usuario ---
 
-    // New methods for Home Page
+    /** Historial de inscripciones de un usuario */
     getInscripcionesUsuario(idUsuario: number): Observable<UsuarioCapacitacion[]> {
         return this.http.get<UsuarioCapacitacion[]>(`${this.usuariosCapacitacionesUrl}/usuario/${idUsuario}`);
     }
 
-    inscribirse(idUsuario: number, idCapacitacion: number): Observable<UsuarioCapacitacion> {
-        return this.http.post<UsuarioCapacitacion>(this.usuariosCapacitacionesUrl, {
-            Id_Capacitacion: idCapacitacion,
-            Id_Usuario: idUsuario,
-            Rol_Capacitacion: 'Participante',
-            Asistencia: false
-        });
-    }
-
-    cancelarInscripcion(idUsuario: number, idCapacitacion: number): Observable<any> {
-        // Dedicated endpoint or use generic delete
-        return this.http.delete<any>(`${this.usuariosCapacitacionesUrl}/${idCapacitacion}/${idUsuario}`);
-    }
-
-    countCapacitaciones(): Observable<{ count: number }> {
-        return this.http.get<{ count: number }>(`${this.apiUrl}/count`);
-    }
+    // --- Certificados ---
 
     countCertificados(): Observable<{ count: number }> {
         return this.http.get<{ count: number }>(`${environment.apiUrl}/certificados/count`);
@@ -115,4 +141,3 @@ export class CapacitacionesService {
         });
     }
 }
-

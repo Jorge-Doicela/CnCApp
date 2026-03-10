@@ -438,3 +438,280 @@ ion-content {
     }
   }
 }
+
+// ===== SECCIÓN QR DEL EVENTO =====
+.qr-section {
+  margin-bottom: 30px;
+
+  .qr-card {
+    background: linear-gradient(135deg, #EFF6FF, #DBEAFE);
+    border-radius: 16px;
+    padding: 20px;
+    border: 1.5px solid rgba(59, 130, 246, 0.3);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+
+    .qr-description {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 20px;
+
+      ion-icon {
+        flex-shrink: 0;
+        margin-top: 2px;
+      }
+
+      p {
+        margin: 0 0 6px;
+        font-size: 15px;
+        color: #1e40af;
+        line-height: 1.5;
+
+        &.qr-hint {
+          font-size: 13px;
+          color: #3b82f6;
+          margin: 0;
+        }
+      }
+    }
+  }
+}
+
+// ===== MODAL QR =====
+.qr-modal-content {
+  .qr-modal-body {
+    padding: 24px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    .qr-event-info {
+      text-align: center;
+      margin-bottom: 24px;
+
+      h3 {
+        font-size: 20px;
+        font-weight: 700;
+        color: #1e293b;
+        margin: 0 0 8px;
+      }
+
+      p {
+        color: #64748b;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        margin: 0;
+      }
+    }
+
+    .qr-image-container {
+      margin-bottom: 20px;
+
+      .qr-loading {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 40px;
+        color: #64748b;
+
+        ion-spinner {
+          margin-bottom: 12px;
+        }
+      }
+
+      .qr-wrapper {
+        padding: 16px;
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+
+        .qr-image {
+          width: 240px;
+          height: 240px;
+          display: block;
+        }
+      }
+    }
+
+    // ===== CÓDIGO CORTO DE ACCESO =====
+    .codigo-acceso-section {
+      width: 100%;
+      margin-bottom: 20px;
+
+      .codigo-label {
+        margin: 0 0 10px;
+        font-size: 11px;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        font-weight: 700;
+        text-align: center;
+      }
+
+      .codigo-display {
+        background: #1e293b;
+        border-radius: 16px;
+        padding: 18px 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+        margin-bottom: 10px;
+
+        .codigo-text {
+          font-family: 'Courier New', 'Consolas', monospace;
+          font-size: 36px;
+          font-weight: 900;
+          color: #38bdf8;
+          letter-spacing: 10px;
+          text-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
+        }
+      }
+
+      .codigo-hint {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        margin: 0;
+        font-size: 12px;
+        color: #94a3b8;
+        text-align: center;
+        line-height: 1.4;
+
+        ion-icon {
+          font-size: 16px;
+          flex-shrink: 0;
+        }
+      }
+    }
+
+    .qr-instructions {
+      width: 100%;
+      margin-bottom: 20px;
+
+      .instruction-step {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 12px 0;
+        border-bottom: 1px solid #f1f5f9;
+
+        &:last-child {
+          border-bottom: none;
+        }
+
+        .step-number {
+          width: 28px;
+          height: 28px;
+          border-radius: 50%;
+          background: var(--ion-color-primary);
+          color: white;
+          font-size: 14px;
+          font-weight: 700;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+        }
+
+        p {
+          margin: 0;
+          font-size: 14px;
+          color: #475569;
+        }
+      }
+    }
+
+    .qr-code-text {
+      text-align: center;
+      padding: 12px 20px;
+      background: #f8fafc;
+      border-radius: 8px;
+      width: 100%;
+
+      p {
+        margin: 0 0 6px;
+        font-size: 12px;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      code {
+        font-size: 11px;
+        color: #475569;
+        background: #e2e8f0;
+        padding: 4px 8px;
+        border-radius: 4px;
+        word-break: break-all;
+      }
+    }
+  }
+}
+
+// ===== MODAL AGREGAR PARTICIPANTE =====
+.agregar-modal-body {
+  padding: 16px;
+
+  .form-section {
+    margin-bottom: 20px;
+
+    h4 {
+      font-size: 15px;
+      font-weight: 600;
+      color: #374151;
+      margin: 0 0 12px;
+    }
+  }
+
+  .selected-user {
+    --background: rgba(var(--ion-color-primary-rgb), 0.08);
+  }
+
+  .empty-state-sm {
+    text-align: center;
+    padding: 32px 16px;
+    color: #94a3b8;
+
+    ion-icon {
+      font-size: 40px;
+      margin-bottom: 12px;
+    }
+
+    p {
+      margin: 0;
+      font-size: 14px;
+    }
+  }
+}
+
+// Estilos para action-row y badge
+.action-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+
+  ion-button {
+    flex: 1;
+    min-width: 150px;
+  }
+}
+
+.badge-success-sm {
+  background: rgba(var(--ion-color-success-rgb), 0.15);
+  color: var(--ion-color-success);
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.attendance-control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}

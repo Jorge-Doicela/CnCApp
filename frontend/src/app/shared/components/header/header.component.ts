@@ -4,7 +4,7 @@ import { Router, RouterModule } from '@angular/router';
 import { IonHeader, IonToolbar, IonButtons, IonButton, IonIcon, IonMenuButton, MenuController } from '@ionic/angular/standalone';
 import { AuthService } from '../../../features/auth/services/auth.service';
 import { addIcons } from 'ionicons';
-import { menuOutline, arrowForward, logOutOutline, menu, logInOutline, personAddOutline, people, statsChartOutline, easel, searchOutline, ribbon, gridOutline, globeOutline, chevronForward, homeOutline } from 'ionicons/icons';
+import { menuOutline, arrowForward, logOutOutline, menu, logInOutline, personAddOutline, people, statsChartOutline, easel, searchOutline, ribbon, gridOutline, globeOutline, chevronForward, homeOutline, qrCodeOutline } from 'ionicons/icons';
 
 @Component({
     selector: 'app-header',
@@ -51,7 +51,8 @@ export class HeaderComponent {
             'grid-outline': gridOutline,
             'globe-outline': globeOutline,
             'chevron-forward': chevronForward,
-            'home-outline': homeOutline
+            'home-outline': homeOutline,
+            'qr-code-outline': qrCodeOutline
         });
     }
 
@@ -73,7 +74,8 @@ export class HeaderComponent {
             'conferencista/gestionar-capacitaciones': 'conferencista/gestionar-capacitaciones',
             'conferencista/gestionar-plantillas': 'conferencista/gestionar-plantillas',
             'ver-conferencias': 'ver-conferencias',
-            'ver-certificaciones': 'ver-certificaciones'
+            'ver-certificaciones': 'ver-certificaciones',
+            'confirmar-asistencia': 'confirmar-asistencia'
         };
 
         const target = rutasModulos[modulo] || modulo;
@@ -107,7 +109,8 @@ export class HeaderComponent {
             'conferencista/gestionar-capacitaciones': 'conferencista/gestionar-capacitaciones',
             'conferencista/gestionar-plantillas': 'conferencista/gestionar-plantillas',
             'ver-conferencias': 'ver-conferencias',
-            'ver-certificaciones': 'ver-certificaciones'
+            'ver-certificaciones': 'ver-certificaciones',
+            'confirmar-asistencia': 'confirmar-asistencia'
         };
 
         let ruta = rutasModulos[modulo] || modulo;

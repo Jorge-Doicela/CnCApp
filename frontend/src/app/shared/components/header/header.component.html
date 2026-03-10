@@ -81,6 +81,10 @@
               [class.active]="isActive('ver-conferencias')">
               <ion-icon name="search" style="margin-right: 6px;"></ion-icon> Explorar
             </div>
+            <div (click)="navegarModulo('confirmar-asistencia')" class="encased-item"
+              [class.active]="isActive('confirmar-asistencia')">
+              <ion-icon name="qr-code-outline" style="margin-right: 6px;"></ion-icon> Asistencia QR
+            </div>
             <div (click)="navegarModulo('ver-certificaciones')" class="encased-item"
               [class.active]="isActive('ver-certificaciones')">
               <ion-icon name="ribbon" style="margin-right: 6px;"></ion-icon> Mis Títulos

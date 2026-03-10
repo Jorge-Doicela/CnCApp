@@ -26,5 +26,10 @@ export const USER_ROUTES: Routes = [
         path: 'ver-certificaciones',
         loadComponent: () => import('./certificaciones/certificaciones.page').then(m => m.CertificacionesPage),
         canActivate: [AuthGuard]
+    },
+    {
+        path: 'confirmar-asistencia',
+        loadComponent: () => import('./confirmar-asistencia-qr/confirmar-asistencia-qr.page').then(m => m.ConfirmarAsistenciaQrPage),
+        canActivate: [AuthGuard]
     }
 ];
