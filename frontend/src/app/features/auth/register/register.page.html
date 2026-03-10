@@ -307,8 +307,8 @@
             </div>
           </div>
 
-          <!-- Autoridad (ID=13) -->
-          @if (state.laborData().tipoParticipanteId === 13) {
+          <!-- Autoridad -->
+          @if (state.laborData().tipoParticipanteId === TipoParticipanteEnum.AUTORIDAD) {
           <div class="form-grid" style="margin-top: 20px;">
             <!-- Cargos y Nivel de gobierno -->
             <div class="input-group" style="grid-column: span 2;">
@@ -343,12 +343,12 @@
                 <ion-select interface="popover" [value]="state.laborData().autoridad?.gadAutoridad"
                   (ionChange)="state.updateUserData({autoridadGad: $event.detail.value})"
                   placeholder="[Seleccione un GAD]" class="custom-select w-full" style="width: 100%;">
-                  @if (state.laborData().autoridad?.nivelgobierno === 11) {
+                  @if (state.laborData().autoridad?.nivelgobierno === NivelGobiernoEnum.MANCOMUNIDADES) {
                   @for (m of mancomunidades(); track m.id) {
                   <ion-select-option [value]="m.nombre">{{ m.nombre }}</ion-select-option>
                   }
-                  } @else if (state.laborData().autoridad?.nivelgobierno === 2 ||
-                  state.laborData().autoridad?.nivelgobierno === 3) {
+                  } @else if (state.laborData().autoridad?.nivelgobierno === NivelGobiernoEnum.MUNICIPAL ||
+                  state.laborData().autoridad?.nivelgobierno === NivelGobiernoEnum.PARROQUIAL) {
                   @for (c of cantones(); track c.id) {
                   <ion-select-option [value]="c.nombre">{{ c.nombre }}</ion-select-option>
                   }
@@ -363,8 +363,8 @@
           </div>
           }
 
-          <!-- Funcionario GAD (ID=15) -->
-          @if (state.laborData().tipoParticipanteId === 15) {
+          <!-- Funcionario GAD -->
+          @if (state.laborData().tipoParticipanteId === TipoParticipanteEnum.FUNCIONARIO_GAD) {
           <div class="form-grid" style="margin-top: 20px;">
             <div class="input-group">
               <ion-label>Cargos *</ion-label>
@@ -412,12 +412,12 @@
                 <ion-select interface="popover" [value]="state.laborData().funcionarioGad?.gadFuncionarioGad"
                   (ionChange)="state.updateUserData({funcionarioGad: $event.detail.value})"
                   placeholder="[Seleccione un GAD]" class="custom-select w-full" style="width: 100%;">
-                  @if (state.laborData().funcionarioGad?.nivelgobierno === 11) {
+                  @if (state.laborData().funcionarioGad?.nivelgobierno === NivelGobiernoEnum.MANCOMUNIDADES) {
                   @for (m of mancomunidades(); track m.id) {
                   <ion-select-option [value]="m.nombre">{{ m.nombre }}</ion-select-option>
                   }
-                  } @else if (state.laborData().funcionarioGad?.nivelgobierno === 2 ||
-                  state.laborData().funcionarioGad?.nivelgobierno === 3) {
+                  } @else if (state.laborData().funcionarioGad?.nivelgobierno === NivelGobiernoEnum.MUNICIPAL ||
+                  state.laborData().funcionarioGad?.nivelgobierno === NivelGobiernoEnum.PARROQUIAL) {
                   @for (c of cantones(); track c.id) {
                   <ion-select-option [value]="c.nombre">{{ c.nombre }}</ion-select-option>
                   }
@@ -432,8 +432,8 @@
           </div>
           }
 
-          <!-- Institución (ID=16) -->
-          @if (state.laborData().tipoParticipanteId === 16) {
+          <!-- Institución -->
+          @if (state.laborData().tipoParticipanteId === TipoParticipanteEnum.INSTITUCION) {
           <div class="form-grid" style="margin-top: 20px;">
 
             <!-- Fila 1: Instituciones | Grados Ocupacionales -->
@@ -476,8 +476,15 @@
                 </ion-select>
               </div>
             </div>
-
           </div>
+          }
+
+          @if (state.laborData().tipoParticipanteId === TipoParticipanteEnum.CIUDADANO) {
+            <div class="empty-state-card" style="margin-top: 30px; text-align: center; padding: 40px; background: #f8fafc; border-radius: 16px; border: 1px dashed #cbd5e1;">
+              <ion-icon name="people-circle-outline" style="font-size: 48px; color: var(--ion-color-primary); margin-bottom: 15px;"></ion-icon>
+              <h3 style="color: #1e293b; margin-bottom: 8px;">Perfil Ciudadano</h3>
+              <p style="color: #64748b;">No se requiere información laboral adicional para este tipo de registro. Puede continuar al siguiente paso.</p>
+            </div>
           }
 
         </div>

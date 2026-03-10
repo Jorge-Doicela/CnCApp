@@ -20,7 +20,7 @@ import {
 import { UsuarioService } from 'src/app/features/user/services/usuario.service';
 import { CatalogoService } from 'src/app/shared/services/catalogo.service';
 import { ErrorHandlerUtil } from 'src/app/shared/utils/error-handler.util';
-import { TipoParticipanteEnum } from 'src/app/shared/constants/enums';
+import { TipoParticipanteEnum, NivelGobiernoEnum } from 'src/app/shared/constants/enums';
 import { map } from 'rxjs/operators';
 import { firstValueFrom } from 'rxjs';
 
@@ -37,6 +37,8 @@ import { firstValueFrom } from 'rxjs';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CrearPage implements OnInit {
+  TipoParticipanteEnum = TipoParticipanteEnum;
+  NivelGobiernoEnum = NivelGobiernoEnum;
   today: Date = new Date();
   showPassword: boolean = false;
   // Variable para mensajes de validación
@@ -61,10 +63,10 @@ export class CrearPage implements OnInit {
     firmaUrl: '',
     celular: '',
     convencional: '',
-    genero: '',
-    etnia: '',
+    generoId: undefined as number | undefined,
+    etniaId: undefined as number | undefined,
     nacionalidadId: undefined as number | undefined,
-    tipoParticipante: 0, // Por defecto ciudadano
+    tipoParticipante: undefined as number | undefined,
     fechaNacimiento: '',
     cantonId: undefined as number | undefined,
     parroquiaId: undefined as number | undefined,
@@ -72,22 +74,22 @@ export class CrearPage implements OnInit {
 
   autoridad = {
     cargo: '',
-    nivelGobierno: '',
+    nivelGobierno: undefined as number | undefined,
     gadAutoridad: '',
     idUsuario: '',
   };
 
   funcionarioGad = {
     cargo: '',
-    competencias: '',
-    nivelGobierno: '',
+    competencias: [] as number[],
+    nivelGobierno: undefined as number | undefined,
     gadFuncionarioGad: '',
     idUsuario: ''
   };
 
   institucion = {
-    institucion: '',
-    gradoOcupacional: '',
+    institucion: undefined as number | undefined,
+    gradoOcupacional: undefined as number | undefined,
     cargo: '',
     idUsuario: ''
   };
@@ -105,6 +107,11 @@ export class CrearPage implements OnInit {
     competencias: [] as any[],
     gradosOcupacionales: [] as any[],
     tiposParticipante: [] as any[],
+    generos: [] as any[],
+    etnias: [] as any[],
+    entidades: [] as any[],
+    mancomunidades: [] as any[],
+    nacionalidades: [] as any[],
   }
 
   datosconcatenar = {
@@ -152,6 +159,7 @@ export class CrearPage implements OnInit {
 
   cedulaValidada: boolean = false;
   nombresEdited: boolean = false;
+  infoVeridica: boolean = false;
 
   // Wizard State
   passoActual: number = 1;
@@ -282,8 +290,8 @@ export class CrearPage implements OnInit {
           this.showToast('La fecha de nacimiento es obligatoria');
           return false;
         }
-        if (!this.usuarioGeneral.genero || !this.usuarioGeneral.etnia) {
-          this.showToast('Género y etnia son obligatorios');
+        if (!this.usuarioGeneral.generoId || !this.usuarioGeneral.etniaId || !this.usuarioGeneral.nacionalidadId) {
+          this.showToast('Género, etnia y nacionalidad son obligatorios');
           return false;
         }
         return true;
@@ -300,19 +308,19 @@ export class CrearPage implements OnInit {
         return true;
 
       case 4: // Datos Específicos
-        if (this.usuarioGeneral.tipoParticipante == TipoParticipanteEnum.AUTORIDAD) { // Autoridad
-          if (!this.autoridad.cargo || !this.autoridad.nivelGobierno) {
-            this.showToast('Complete los datos de autoridad');
+        if (this.usuarioGeneral.tipoParticipante == TipoParticipanteEnum.AUTORIDAD) {
+          if (!this.autoridad.cargo || !this.autoridad.nivelGobierno || !this.autoridad.gadAutoridad) {
+            this.showToast('Complete todos los campos obligatorios para Autoridad');
             return false;
           }
-        } else if (this.usuarioGeneral.tipoParticipante == TipoParticipanteEnum.FUNCIONARIO_GAD) { // Funcionario
-          if (!this.funcionarioGad.cargo || !this.funcionarioGad.nivelGobierno) {
-            this.showToast('Complete los datos de funcionario');
+        } else if (this.usuarioGeneral.tipoParticipante == TipoParticipanteEnum.FUNCIONARIO_GAD) {
+          if (!this.funcionarioGad.cargo || !this.funcionarioGad.nivelGobierno || !this.funcionarioGad.gadFuncionarioGad || !this.funcionarioGad.competencias || this.funcionarioGad.competencias.length === 0) {
+            this.showToast('Complete todos los campos obligatorios para Funcionario GAD, incluyendo competencias');
             return false;
           }
-        } else if (this.usuarioGeneral.tipoParticipante == TipoParticipanteEnum.INSTITUCION) { // Institución
-          if (!this.institucion.institucion || !this.institucion.cargo) {
-            this.showToast('Complete los datos institucionales');
+        } else if (this.usuarioGeneral.tipoParticipante == TipoParticipanteEnum.INSTITUCION) {
+          if (!this.institucion.institucion || !this.institucion.gradoOcupacional || !this.institucion.cargo) {
+            this.showToast('Complete todos los campos obligatorios para Institución');
             return false;
           }
         }
@@ -339,14 +347,25 @@ export class CrearPage implements OnInit {
     return c ? c.nombre : 'No seleccionado';
   }
 
-  ngOnInit() {
-    this.obtenerRoles();
-    this.obtenerProvincias();
-    this.obtenerCargos();
-    this.obtenerInstituciones();
-    this.obtenerGradosOcupacionales();
-    this.obtenerTiposParticipante();
-    this.cargarProgreso();
+  async ngOnInit() {
+    // Carga inicial en paralelo de catálogos base
+    await Promise.all([
+      this.obtenerRoles(),
+      this.obtenerProvincias(),
+      this.obtenerCargos(),
+      this.obtenerInstituciones(),
+      this.obtenerGradosOcupacionales(),
+      this.obtenerTiposParticipante(),
+      this.obtenerGeneros(),
+      this.obtenerEtnias(),
+      this.obtenerEntidades(),
+      this.obtenerMancomunidades(),
+      this.obtenerCompetencias(),
+      this.obtenerNacionalidades()
+    ]);
+    
+    // Restauramos el borrador (una vez cargados los catálogos principales)
+    await this.cargarProgreso();
   }
 
   // Persistencia de formulario
@@ -357,27 +376,60 @@ export class CrearPage implements OnInit {
       funcionarioGad: this.funcionarioGad,
       institucion: this.institucion,
       passoActual: this.passoActual,
-      datosbusqueda: this.datosbusqueda
+      datosbusqueda: this.datosbusqueda,
+      infoVeridica: this.infoVeridica,
+      nombresEdited: this.nombresEdited
     };
     localStorage.setItem('user_creation_draft', JSON.stringify(data));
   }
 
-  cargarProgreso() {
+  async cargarProgreso() {
     const saved = localStorage.getItem('user_creation_draft');
     if (saved) {
       try {
         const data = JSON.parse(saved);
+        
+        // Asignamos datos base
         this.usuarioGeneral = { ...this.usuarioGeneral, ...data.usuarioGeneral };
         this.autoridad = { ...this.autoridad, ...data.autoridad };
         this.funcionarioGad = { ...this.funcionarioGad, ...data.funcionarioGad };
         this.institucion = { ...this.institucion, ...data.institucion };
         this.passoActual = data.passoActual || 1;
         this.datosbusqueda = { ...this.datosbusqueda, ...data.datosbusqueda };
+        this.infoVeridica = data.infoVeridica || false;
+        this.nombresEdited = data.nombresEdited !== undefined ? data.nombresEdited : true;
+
+        // Normalización de tipos (Asegurar que IDs sean números para comparaciones estrictas)
+        if (this.datosbusqueda.selectedProvincia) this.datosbusqueda.selectedProvincia = Number(this.datosbusqueda.selectedProvincia);
+        if (this.usuarioGeneral.cantonId) this.usuarioGeneral.cantonId = Number(this.usuarioGeneral.cantonId);
+        if (this.usuarioGeneral.parroquiaId) this.usuarioGeneral.parroquiaId = Number(this.usuarioGeneral.parroquiaId);
+        if (this.usuarioGeneral.nacionalidadId) this.usuarioGeneral.nacionalidadId = Number(this.usuarioGeneral.nacionalidadId);
+        if (this.usuarioGeneral.tipoParticipante) this.usuarioGeneral.tipoParticipante = Number(this.usuarioGeneral.tipoParticipante);
+        if (this.usuarioGeneral.rolId) this.usuarioGeneral.rolId = Number(this.usuarioGeneral.rolId);
+        if (this.usuarioGeneral.generoId) this.usuarioGeneral.generoId = Number(this.usuarioGeneral.generoId);
+        if (this.usuarioGeneral.etniaId) this.usuarioGeneral.etniaId = Number(this.usuarioGeneral.etniaId);
+
+        // Normalización de niveles de gobierno
+        if (this.autoridad.nivelGobierno) this.autoridad.nivelGobierno = Number(this.autoridad.nivelGobierno);
+        if (this.funcionarioGad.nivelGobierno) this.funcionarioGad.nivelGobierno = Number(this.funcionarioGad.nivelGobierno);
+
+        // Restauración secuencial y profunda de catálogos dinámicos
+        if (this.datosbusqueda.selectedProvincia) {
+          // Cargamos cantones SIN resetear para no borrar el Id recuperado
+          await this.obtenerCantones(this.datosbusqueda.selectedProvincia, true);
+          
+          if (this.usuarioGeneral.cantonId) {
+            // Cargamos parroquias para ese cantón
+            await this.obtenerParroquias(this.usuarioGeneral.cantonId);
+          }
+        }
         
         // Re-validar cédula si existe
         if (this.usuarioGeneral.ci) {
           this.validarCedula();
         }
+
+        this.cdr.markForCheck();
       } catch (e) {
         console.error('Error al cargar borrador:', e);
       }
@@ -582,6 +634,11 @@ export class CrearPage implements OnInit {
 
   // Validar formulario completo
   validateForm(): boolean {
+    if (this.passoActual === 5 && !this.infoVeridica) {
+      this.showToast('Por favor, confirme que la información ingresada es verídica.');
+      return false;
+    }
+
     // Validar datos básicos
     if (!this.usuarioGeneral.ci || !this.cedulaValidada) {
       this.showToast('Por favor ingrese y valide su cédula de identidad');
@@ -617,28 +674,18 @@ export class CrearPage implements OnInit {
       return false;
     }
 
-    if (!this.nombresEdited) {
-      this.showToast('Por favor confirme los nombres del usuario');
-      return false;
-    }
-
-    if (!this.usuarioGeneral.genero) {
+    if (!this.usuarioGeneral.generoId) {
       this.showToast('Por favor seleccione el género');
       return false;
     }
 
-    if (!this.usuarioGeneral.etnia) {
+    if (!this.usuarioGeneral.etniaId) {
       this.showToast('Por favor seleccione la autodefinición étnica');
       return false;
     }
 
     if (!this.usuarioGeneral.nacionalidadId) {
       this.showToast('Por favor seleccione la nacionalidad');
-      return false;
-    }
-
-    if (!this.usuarioGeneral.etnia) {
-      this.showToast('Por favor seleccione la autodefinición étnica');
       return false;
     }
 
@@ -727,10 +774,28 @@ export class CrearPage implements OnInit {
     const fullUserData = {
       ...this.usuarioGeneral,
       tipoParticipanteId: Number(this.usuarioGeneral.tipoParticipante),
-      provinciaId: this.datosbusqueda.selectedProvincia,
-      autoridad: this.usuarioGeneral.tipoParticipante == TipoParticipanteEnum.AUTORIDAD ? { ...this.autoridad, parroquiaId: this.usuarioGeneral.parroquiaId } : undefined,
-      funcionarioGad: this.usuarioGeneral.tipoParticipante == TipoParticipanteEnum.FUNCIONARIO_GAD ? { ...this.funcionarioGad, parroquiaId: this.usuarioGeneral.parroquiaId } : undefined,
-      institucion: this.usuarioGeneral.tipoParticipante == TipoParticipanteEnum.INSTITUCION ? this.institucion : undefined
+      provinciaId: Number(this.datosbusqueda.selectedProvincia),
+      cantonId: this.usuarioGeneral.cantonId ? Number(this.usuarioGeneral.cantonId) : undefined,
+      parroquiaId: this.usuarioGeneral.parroquiaId ? Number(this.usuarioGeneral.parroquiaId) : undefined,
+      generoId: this.usuarioGeneral.generoId ? Number(this.usuarioGeneral.generoId) : undefined,
+      etniaId: this.usuarioGeneral.etniaId ? Number(this.usuarioGeneral.etniaId) : undefined,
+      nacionalidadId: this.usuarioGeneral.nacionalidadId ? Number(this.usuarioGeneral.nacionalidadId) : undefined,
+      rolId: this.usuarioGeneral.rolId ? Number(this.usuarioGeneral.rolId) : undefined,
+      autoridad: this.usuarioGeneral.tipoParticipante == TipoParticipanteEnum.AUTORIDAD ? { 
+        ...this.autoridad, 
+        nivelGobierno: this.autoridad.nivelGobierno ? String(this.autoridad.nivelGobierno) : undefined,
+        parroquiaId: this.usuarioGeneral.parroquiaId ? Number(this.usuarioGeneral.parroquiaId) : undefined 
+      } : undefined,
+      funcionarioGad: this.usuarioGeneral.tipoParticipante == TipoParticipanteEnum.FUNCIONARIO_GAD ? { 
+        ...this.funcionarioGad, 
+        nivelGobierno: this.funcionarioGad.nivelGobierno ? String(this.funcionarioGad.nivelGobierno) : undefined,
+        parroquiaId: this.usuarioGeneral.parroquiaId ? Number(this.usuarioGeneral.parroquiaId) : undefined 
+      } : undefined,
+      institucion: this.usuarioGeneral.tipoParticipante == TipoParticipanteEnum.INSTITUCION ? {
+        ...this.institucion,
+        institucion: Number(this.institucion.institucion),
+        gradoOcupacional: this.institucion.gradoOcupacional ? Number(this.institucion.gradoOcupacional) : undefined
+      } : undefined
     };
 
     console.log('Sending user data:', fullUserData);
@@ -784,10 +849,10 @@ export class CrearPage implements OnInit {
       firmaUrl: '',
       celular: '',
       convencional: '',
-      genero: '',
-      etnia: '',
+      generoId: undefined,
+      etniaId: undefined,
       nacionalidadId: undefined,
-      tipoParticipante: 0,
+      tipoParticipante: undefined,
       fechaNacimiento: '',
       cantonId: undefined,
       parroquiaId: undefined,
@@ -795,22 +860,22 @@ export class CrearPage implements OnInit {
 
     this.autoridad = {
       cargo: '',
-      nivelGobierno: '',
+      nivelGobierno: undefined,
       gadAutoridad: '',
       idUsuario: '',
     };
 
     this.funcionarioGad = {
       cargo: '',
-      competencias: '',
-      nivelGobierno: '',
+      competencias: [],
+      nivelGobierno: undefined,
       gadFuncionarioGad: '',
       idUsuario: ''
     };
 
     this.institucion = {
-      institucion: '',
-      gradoOcupacional: '',
+      institucion: undefined,
+      gradoOcupacional: undefined,
       cargo: '',
       idUsuario: ''
     };
@@ -871,13 +936,68 @@ export class CrearPage implements OnInit {
   }
 
   // Obtener cantones por provincia
-  async obtenerCantones(provinciaId: any) {
-    if (!provinciaId) return;
+  async obtenerCantones(provinciaId: any, skipReset: boolean = false) {
+    if (!provinciaId) {
+      this.datosrecuperados.cantones = [];
+      return;
+    }
+    
     try {
       const data = await firstValueFrom(this.catalogoService.getItems('cantones'));
-      this.datosrecuperados.cantones = data.filter((c: any) => c.provinciaId == provinciaId);
+      const filtered = data.filter((c: any) => Number(c.provinciaId) === Number(provinciaId));
+      this.datosrecuperados.cantones = filtered;
+      
+      // Solo reseteamos si es un cambio manual del usuario (no restauración de borrador)
+      if (!skipReset) {
+        // Solo resetear si el cantón actual ya no pertenece a la nueva provincia
+        const stillValid = this.usuarioGeneral.cantonId && 
+                          filtered.some((c: any) => Number(c.id) === Number(this.usuarioGeneral.cantonId));
+        
+        if (!stillValid) {
+          this.datosrecuperados.parroquiasSeleccionadas = [];
+          this.usuarioGeneral.parroquiaId = undefined;
+          this.usuarioGeneral.cantonId = undefined;
+        }
+      }
+    } catch (err) {
+      console.error('Error al obtener cantones:', err);
+    } finally {
+      this.cdr.markForCheck();
+    }
+  }
+
+  // Obtener parroquias por cantón
+  async obtenerParroquias(cantonId: any, skipReset: boolean = false) {
+    if (!cantonId) {
       this.datosrecuperados.parroquiasSeleccionadas = [];
-      this.usuarioGeneral.parroquiaId = undefined;
+      return;
+    }
+    
+    try {
+      const data = await firstValueFrom(this.catalogoService.getItems('parroquias'));
+      const filtered = data.filter((p: any) => Number(p.cantonId) === Number(cantonId));
+      this.datosrecuperados.parroquiasSeleccionadas = filtered;
+
+      // Si no es omisión por restauración, verificar si la parroquia actual sigue siendo válida
+      if (!skipReset) {
+        const stillValid = this.usuarioGeneral.parroquiaId && 
+                          filtered.some((p: any) => Number(p.id) === Number(this.usuarioGeneral.parroquiaId));
+        if (!stillValid) {
+          this.usuarioGeneral.parroquiaId = undefined;
+        }
+      }
+    } catch (err) {
+      console.error('Error al obtener parroquias:', err);
+    } finally {
+      this.cdr.markForCheck();
+    }
+  }
+
+  // Obtener generos
+  async obtenerGeneros() {
+    try {
+      const data = await firstValueFrom(this.catalogoService.getItems('generos'));
+      this.datosrecuperados.generos = data || [];
     } catch (err) {
       console.error(err);
     } finally {
@@ -885,12 +1005,59 @@ export class CrearPage implements OnInit {
     }
   }
 
-  // Obtener parroquias por cantón
-  async obtenerParroquias(cantonId: any) {
-    if (!cantonId) return;
+  // Obtener etnias
+  async obtenerEtnias() {
     try {
-      const data = await firstValueFrom(this.catalogoService.getItems('parroquias'));
-      this.datosrecuperados.parroquiasSeleccionadas = data.filter((p: any) => p.cantonId == cantonId);
+      const data = await firstValueFrom(this.catalogoService.getItems('etnias'));
+      this.datosrecuperados.etnias = data || [];
+    } catch (err) {
+      console.error(err);
+    } finally {
+      this.cdr.markForCheck();
+    }
+  }
+
+  // Obtener entidades
+  async obtenerEntidades() {
+    try {
+      const data = await firstValueFrom(this.catalogoService.getItems('public/entidades'));
+      this.datosrecuperados.entidades = data || [];
+    } catch (err) {
+      console.error(err);
+    } finally {
+      this.cdr.markForCheck();
+    }
+  }
+
+  // Obtener mancomunidades
+  async obtenerMancomunidades() {
+    try {
+      const data = await firstValueFrom(this.catalogoService.getItems('public/mancomunidades'));
+      this.datosrecuperados.mancomunidades = data || [];
+    } catch (err) {
+      console.error(err);
+    } finally {
+      this.cdr.markForCheck();
+    }
+  }
+
+  // Obtener competencias
+  async obtenerCompetencias() {
+    try {
+      const data = await firstValueFrom(this.catalogoService.getItems('public/competencias'));
+      this.datosrecuperados.competencias = data || [];
+    } catch (err) {
+      console.error(err);
+    } finally {
+      this.cdr.markForCheck();
+    }
+  }
+
+  // Obtener nacionalidades
+  async obtenerNacionalidades() {
+    try {
+      const data = await firstValueFrom(this.catalogoService.getItems('nacionalidades'));
+      this.datosrecuperados.nacionalidades = data || [];
     } catch (err) {
       console.error(err);
     } finally {
@@ -900,9 +1067,37 @@ export class CrearPage implements OnInit {
 
   // Manejar cambio en nivel de gobierno
   onNivelGobiernoChange(nivelGobierno: string) {
-    // Este método se llama cuando cambia el nivel de gobierno
-    // Aquí puedes agregar lógica adicional si es necesario
     console.log('Nivel de gobierno seleccionado:', nivelGobierno);
+  }
+
+  // Obtener nombre de la entidad por ID
+  getNombreEntidad(id: any): string {
+    if (!id) return '';
+    const ent = this.datosrecuperados.entidades.find(e => Number(e.id) === Number(id));
+    return ent ? ent.nombre : '';
+  }
+
+  // Filtrar instituciones por nivel de gobierno
+  getInstitucionesPorNivel(nivelId: any): any[] {
+    if (!nivelId) return [];
+    
+    const entidadNombre = this.getNombreEntidad(nivelId);
+    if (!entidadNombre) return [];
+
+    // Si es uno de los niveles territoriales, el componente ya usa cantones/provincias directamente
+    const nivelesTerritoriales = [
+      this.NivelGobiernoEnum.PROVINCIAL,
+      this.NivelGobiernoEnum.MUNICIPAL,
+      this.NivelGobiernoEnum.PARROQUIAL,
+      this.NivelGobiernoEnum.MANCOMUNIDADES
+    ];
+    if (nivelesTerritoriales.includes(Number(nivelId))) return [];
+
+    // Para los demás, buscamos en el catálogo de instituciones filtrando por tipo/entidad
+    // Si el catálogo tiene el campo 'tipo' o 'nombreEntidad' que coincida
+    return this.datosrecuperados.instituciones.filter(i => 
+      i.tipo === entidadNombre || i.entidadNombre === entidadNombre
+    );
   }
 
   recuperarCompetencias() { }
