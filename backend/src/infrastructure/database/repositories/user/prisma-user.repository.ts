@@ -223,10 +223,7 @@ export class PrismaUserRepository implements UserRepository {
             include: {
                 rol: true,
                 entidad: true,
-                tipoParticipante: true,
-                genero: true,
-                etnia: true,
-                nacionalidad: true
+                tipoParticipante: true
             },
             orderBy: {
                 createdAt: 'desc'

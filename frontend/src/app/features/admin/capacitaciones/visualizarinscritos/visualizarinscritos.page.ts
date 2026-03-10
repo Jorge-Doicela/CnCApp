@@ -67,21 +67,16 @@ export class VisualizarinscritosPage implements OnInit {
 
   // Función para cargar todos los datos necesarios
   async cargarDatos() {
-    let loading: HTMLIonLoadingElement | null = null;
+    this.cargando = true;
+    this.cd.markForCheck();
     try {
-      loading = await this.loadingController.create({
-        message: 'Cargando datos...',
-        spinner: 'crescent'
-      });
-      await loading.present();
-
       // 1. Cargar información de la capacitación primero (Fundamental)
       await this.cargarInfoCapacitacion();
 
       // 2. Cargar usuarios inscritos (Necesario para filtrar disponibles)
       await this.cargarUsuariosInscritos();
 
-      // 3. Cargar el resto en paralelo (Entidades y Disponibles - este ultimo usa inscritos)
+      // 3. Cargar el resto en paralelo (Entidades y Disponibles)
       await Promise.all([
         this.cargarEntidadesEncargadas(),
         this.cargarUsuariosDisponibles()
@@ -93,16 +88,7 @@ export class VisualizarinscritosPage implements OnInit {
       this.mostrarToast(ErrorHandlerUtil.getErrorMessage(error), 'danger');
     } finally {
       this.cargando = false;
-      this.cd.detectChanges(); // Forzar actualización de la vista
-      if (loading) {
-        await loading.dismiss();
-      } else {
-        // Fallback incase loading wasn't assigned but created
-        const topLoading = await this.loadingController.getTop();
-        if (topLoading) {
-          await topLoading.dismiss();
-        }
-      }
+      this.cd.detectChanges();
     }
   }
 
