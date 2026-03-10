@@ -4,6 +4,7 @@ import { Capacitacion } from '../../../../domain/capacitacion/entities/capacitac
 import { CapacitacionRepository } from '../../../../domain/capacitacion/repositories/capacitacion.repository';
 import { CapacitacionMapper } from '../../../../domain/capacitacion/mappers/capacitacion.mapper';
 import { EstadoCapacitacionEnum, RolCapacitacionEnum } from '../../../../domain/shared/constants/enums';
+import { randomUUID } from 'crypto';
 
 @injectable()
 export class PrismaCapacitacionRepository implements CapacitacionRepository {
@@ -44,6 +45,7 @@ export class PrismaCapacitacionRepository implements CapacitacionRepository {
                 horas: data.horas,
                 enlaceVirtual: data.enlaceVirtual,
                 certificado: data.certificado,
+                codigoQrEvento: randomUUID(),
                 inscripciones: inscripciones.length > 0 ? {
                     create: inscripciones
                 } : undefined
@@ -79,19 +81,16 @@ export class PrismaCapacitacionRepository implements CapacitacionRepository {
 
         // 2. Actualizar relaciones si se proporcionan idsUsuarios o expositores
         if (data.idsUsuarios !== undefined || data.expositores !== undefined) {
-            // Obtener IDs existentes para cada rol
             const currentInscripciones = await prisma.usuarioCapacitacion.findMany({
                 where: { capacitacionId: id }
             });
 
-            // Unir todos los IDs que se quieren mantener/agregar
             const targetInscripciones: { usuarioId: number, rol: string }[] = [];
 
             if (data.expositores) {
                 targetInscripciones.push(...data.expositores.map(uId => ({ usuarioId: uId, rol: RolCapacitacionEnum.EXPOSITOR })));
             }
             if (data.idsUsuarios) {
-                // Un usuario no puede ser ambos, prevalece expositor si está en ambos
                 data.idsUsuarios.forEach(uId => {
                     if (!targetInscripciones.some(t => t.usuarioId === uId)) {
                         targetInscripciones.push({ usuarioId: uId, rol: RolCapacitacionEnum.PARTICIPANTE });
@@ -102,7 +101,6 @@ export class PrismaCapacitacionRepository implements CapacitacionRepository {
             const targetIds = targetInscripciones.map(t => t.usuarioId);
             const currentIds = currentInscripciones.map(i => i.usuarioId);
 
-            // Identificar los que se van
             const toRemove = currentIds.filter(cid => !targetIds.includes(cid));
             if (toRemove.length > 0) {
                 await prisma.usuarioCapacitacion.deleteMany({
@@ -113,7 +111,6 @@ export class PrismaCapacitacionRepository implements CapacitacionRepository {
                 });
             }
 
-            // Identificar los que se quedan pero tal vez con rol diferente
             const toUpdateRole = targetInscripciones.filter(t => {
                 const current = currentInscripciones.find(ci => ci.usuarioId === t.usuarioId);
                 return current && current.rolCapacitacion !== t.rol;
@@ -133,7 +130,6 @@ export class PrismaCapacitacionRepository implements CapacitacionRepository {
                 });
             }
 
-            // Identificar los nuevos para agregar
             const toAdd = targetInscripciones.filter(t => !currentIds.includes(t.usuarioId));
             if (toAdd.length > 0) {
                 await prisma.usuarioCapacitacion.createMany({
@@ -147,7 +143,6 @@ export class PrismaCapacitacionRepository implements CapacitacionRepository {
             }
         }
 
-        // 3. Volver a cargar para devolver estructura completa actualizada
         return this.findById(id) as Promise<Capacitacion>;
     }
 

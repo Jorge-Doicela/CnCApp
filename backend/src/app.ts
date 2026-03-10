@@ -30,6 +30,9 @@ import { gradoOcupacionalRoutes } from './infrastructure/web/routes/grado-ocupac
 import { errorHandler } from './infrastructure/web/middleware/error.middleware';
 import { notFound } from './infrastructure/web/middleware/notFound.middleware';
 
+// Importar scheduler
+import { initCapacitacionScheduler } from './infrastructure/scheduler/capacitacion.scheduler';
+
 const app: Application = express();
 const PORT = env.PORT;
 
@@ -154,6 +157,9 @@ app.use(errorHandler);
 app.listen(PORT, () => {
     logger.info(`Server running on port ${PORT} in ${env.NODE_ENV} mode`);
     logger.info(`URL: http://localhost:${PORT}`);
+
+    // Iniciar el scheduler de finalización automática de capacitaciones
+    initCapacitacionScheduler();
 });
 
 export default app;

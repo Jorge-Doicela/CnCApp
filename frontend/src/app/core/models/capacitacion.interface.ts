@@ -7,12 +7,13 @@ export interface Capacitacion {
     lugar?: string;
     cuposDisponibles: number;
     modalidad?: string;
-    estado: string; // 'Activa', 'Finalizada', 'Cancelada'
+    estado: string; // 'Activa', 'Pendiente', 'Realizada', 'Cancelada'
     horaInicio?: string;
     horaFin?: string;
     horas?: number;
     enlaceVirtual?: string;
     certificado?: boolean;
+    codigoQrEvento?: string; // UUID único por evento, usada para QR de asistencia
     entidadesEncargadas?: number[]; // For form
     idsUsuarios?: number[]; // For form
     expositores?: number[]; // For form

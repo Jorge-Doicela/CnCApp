@@ -1,47 +1,76 @@
 import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
-import { AlertController, ToastController, NavController, LoadingController } from '@ionic/angular';
+import { AlertController, ToastController, NavController, LoadingController, ModalController } from '@ionic/angular';
 import { CapacitacionesService } from 'src/app/features/admin/capacitaciones/services/capacitaciones.service';
-import { CatalogoService } from 'src/app/shared/services/catalogo.service';
 import { UsuarioService } from 'src/app/features/user/services/usuario.service';
 import { ErrorHandlerUtil } from 'src/app/shared/utils/error-handler.util';
 import { EstadoCapacitacionEnum, RolCapacitacionEnum } from 'src/app/shared/constants/enums';
 import { firstValueFrom } from 'rxjs';
 import { AuthService } from 'src/app/features/auth/services/auth.service';
 import { Router } from '@angular/router';
+import { Capacitacion } from 'src/app/core/models/capacitacion.interface';
+
+interface ParticipanteInfo {
+  id: number;
+  usuarioId: number;
+  nombre: string;
+  rolCapacitacion: string;
+  asistio: boolean;
+  email?: string;
+  entidad?: string;
+}
 
 @Component({
   selector: 'app-visualizarinscritos',
   templateUrl: './visualizarinscritos.page.html',
   styleUrls: ['./visualizarinscritos.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule, RouterModule]
+  imports: [CommonModule, FormsModule, IonicModule, RouterModule],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class VisualizarinscritosPage implements OnInit {
   idCapacitacion: number | null = null;
-  usuariosInscritos: any[] = [];
-  participantesFiltrados: any[] = [];
-  expositores: any[] = []; // Lista específica para expositores
-  infoCapacitacion: any = null;
-  entidadesEncargadas: any[] = []; // Lista de entidades encargadas
-  cargando: boolean = true;
+  infoCapacitacion: Capacitacion | null = null;
+
+  /** Todos los inscritos excepto expositores */
+  participantes: ParticipanteInfo[] = [];
+  /** Solo expositores/ponentes */
+  expositores: ParticipanteInfo[] = [];
+  /** Resultado filtrado para mostrar en la tabla */
+  participantesFiltrados: ParticipanteInfo[] = [];
+
+  cargando = true;
 
   // Filtros
-  terminoBusqueda: string = '';
-  filtroAsistencia: string = 'todos';
+  terminoBusqueda = '';
+  filtroAsistencia = 'todos';
 
-  // Lista de usuarios disponibles para agregar
+  // QR modal
+  mostrarQREvento = false;
+  qrDataUrl = '';
+  generandoQR = false;
+
+  // Modal agregar participante
+  mostrandoModalAgregar = false;
   usuariosDisponibles: any[] = [];
+  cargandoUsuariosDisponibles = false;
+  busquedaUsuarioDisponible = '';
+  usuariosDisponiblesFiltrados: any[] = [];
+  usuarioSeleccionadoId: number | null = null;
+  rolSeleccionado: string = RolCapacitacionEnum.PARTICIPANTE;
 
   private capacitacionesService = inject(CapacitacionesService);
-  private catalogoService = inject(CatalogoService);
   private usuarioService = inject(UsuarioService);
   private authService = inject(AuthService);
+  private cdr = inject(ChangeDetectorRef);
 
   isConferencista = this.authService.roleName() === 'Conferencista';
+
+  readonly RolCapacitacionEnum = RolCapacitacionEnum;
+  readonly EstadoCapacitacionEnum = EstadoCapacitacionEnum;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -49,7 +78,6 @@ export class VisualizarinscritosPage implements OnInit {
     private toastController: ToastController,
     private navController: NavController,
     private loadingController: LoadingController,
-    private cd: ChangeDetectorRef,
     private router: Router
   ) { }
 
@@ -65,118 +93,56 @@ export class VisualizarinscritosPage implements OnInit {
     }
   }
 
-  // Función para cargar todos los datos necesarios
   async cargarDatos() {
     this.cargando = true;
-    this.cd.markForCheck();
+    this.cdr.markForCheck();
     try {
-      // 1. Cargar información de la capacitación primero (Fundamental)
-      await this.cargarInfoCapacitacion();
-
-      // 2. Cargar usuarios inscritos (Necesario para filtrar disponibles)
-      await this.cargarUsuariosInscritos();
-
-      // 3. Cargar el resto en paralelo (Entidades y Disponibles)
-      await Promise.all([
-        this.cargarEntidadesEncargadas(),
-        this.cargarUsuariosDisponibles()
+      // Carga paralela: info de capacitación + inscritos
+      const [capacitacion, inscritos] = await Promise.all([
+        firstValueFrom(this.capacitacionesService.getCapacitacion(this.idCapacitacion!)),
+        firstValueFrom(this.capacitacionesService.getInscritos(this.idCapacitacion!))
       ]);
 
+      this.infoCapacitacion = capacitacion;
+      this.procesarInscritos(inscritos);
       this.filtrarParticipantes();
     } catch (error) {
-      console.error('Error al cargar datos:', error);
       this.mostrarToast(ErrorHandlerUtil.getErrorMessage(error), 'danger');
     } finally {
       this.cargando = false;
-      this.cd.detectChanges();
+      this.cdr.detectChanges();
     }
   }
 
-  // Cargar información de la capacitación
-  async cargarInfoCapacitacion() {
-    if (!this.idCapacitacion) return;
-    try {
-      const data = await firstValueFrom(this.capacitacionesService.getCapacitacion(this.idCapacitacion));
-      this.infoCapacitacion = data;
-      console.log('Información de capacitación cargada:', this.infoCapacitacion);
-    } catch (error) {
-      console.error('Error al cargar info de capacitación:', error);
-      throw error;
-    }
+  private procesarInscritos(inscritos: any[]) {
+    const mappedUsuarios: ParticipanteInfo[] = inscritos.map((u: any) => ({
+      id: u.id,
+      usuarioId: u.usuarioId,
+      nombre: u.usuario?.nombre || 'Sin nombre',
+      rolCapacitacion: u.rolCapacitacion,
+      asistio: u.asistio,
+      email: u.usuario?.email,
+      entidad: u.usuario?.entidad?.nombre
+    }));
+
+    this.expositores = mappedUsuarios.filter(u => u.rolCapacitacion === RolCapacitacionEnum.EXPOSITOR);
+    this.participantes = mappedUsuarios.filter(u => u.rolCapacitacion !== RolCapacitacionEnum.EXPOSITOR);
   }
 
-  // Cargar las entidades encargadas
-  async cargarEntidadesEncargadas() {
-    this.entidadesEncargadas = [];
-  }
+  // --- Filtros ---
 
-  // Cargar usuarios inscritos y expositores
-  async cargarUsuariosInscritos() {
-    if (!this.idCapacitacion) return;
-    try {
-      const todosUsuarios = await firstValueFrom(this.capacitacionesService.getInscritos(this.idCapacitacion));
-
-      // Mapear respuesta del backend a la estructura que espera la vista
-      const mappedUsuarios = todosUsuarios.map((u: any) => ({
-        id: u.id, // ID de la inscripción (Relación)
-        usuarioId: u.usuarioId, // ID del Usuario
-        nombre: u.usuario?.nombre,
-        rolCapacitacion: u.rolCapacitacion,
-        asistio: u.asistio,
-        email: u.usuario?.email,
-        cargo: u.usuario?.cargo,
-        entidad: u.usuario?.entidad?.nombre
-      }));
-
-      this.expositores = mappedUsuarios.filter((u: any) => u.rolCapacitacion === RolCapacitacionEnum.EXPOSITOR);
-      this.usuariosInscritos = mappedUsuarios.filter((u: any) => u.rolCapacitacion !== RolCapacitacionEnum.EXPOSITOR);
-
-    } catch (error) {
-      console.error('Error al cargar usuarios inscritos:', error);
-      throw error;
-    }
-  }
-
-  async cargarUsuariosDisponibles() {
-    try {
-      const todosUsuarios = await firstValueFrom(this.usuarioService.getUsuarios());
-
-      // Obtener IDs de los usuarios ya inscritos (tanto participantes como expositores)
-      const idsInscritos: number[] = [];
-
-      // Add already loaded identifiers (User IDs)
-      this.expositores.forEach(u => idsInscritos.push(u.usuarioId));
-      this.usuariosInscritos.forEach(u => idsInscritos.push(u.usuarioId));
-
-      // Filtrar los usuarios que NO están en la lista de inscritos
-      this.usuariosDisponibles = todosUsuarios.filter((u: any) => !idsInscritos.includes(u.id));
-
-      // Sort
-      this.usuariosDisponibles.sort((a, b) =>
-        a.nombre.localeCompare(b.nombre)
-      );
-
-      console.log('Usuarios disponibles cargados:', this.usuariosDisponibles);
-    } catch (error) {
-      console.error('Error al cargar usuarios disponibles:', error);
-      throw error;
-    }
-  }
-
-  // Filtrar participantes según los criterios
   filtrarParticipantes() {
-    let resultado = [...this.usuariosInscritos];
+    let resultado = [...this.participantes];
 
-    // Filtrar por término de búsqueda
-    if (this.terminoBusqueda && this.terminoBusqueda.trim() !== '') {
+    if (this.terminoBusqueda?.trim()) {
       const termino = this.terminoBusqueda.toLowerCase().trim();
       resultado = resultado.filter(u =>
-        (u.nombre?.toLowerCase().includes(termino) || false) ||
-        (u.rolCapacitacion?.toLowerCase().includes(termino) || false)
+        u.nombre?.toLowerCase().includes(termino) ||
+        u.rolCapacitacion?.toLowerCase().includes(termino) ||
+        u.entidad?.toLowerCase().includes(termino)
       );
     }
 
-    // Filtrar por asistencia
     if (this.filtroAsistencia === 'asistentes') {
       resultado = resultado.filter(u => u.asistio === true);
     } else if (this.filtroAsistencia === 'ausentes') {
@@ -184,16 +150,295 @@ export class VisualizarinscritosPage implements OnInit {
     }
 
     this.participantesFiltrados = resultado;
+    this.cdr.markForCheck();
   }
 
-  // Limpiar filtros
   limpiarFiltros() {
     this.terminoBusqueda = '';
     this.filtroAsistencia = 'todos';
     this.filtrarParticipantes();
   }
 
-  // Obtener texto del estado
+  // --- Estadísticas ---
+
+  get totalAsistentes(): number {
+    return this.participantes.filter(u => u.asistio).length;
+  }
+
+  get porcentajeAsistencia(): number {
+    if (this.participantes.length === 0) return 0;
+    return Math.round((this.totalAsistentes / this.participantes.length) * 100);
+  }
+
+  /** Código corto legible: primeros 8 chars del UUID en mayúsculas (sin guiones) */
+  get codigoAcceso(): string {
+    if (!this.infoCapacitacion?.codigoQrEvento) return '';
+    return this.infoCapacitacion.codigoQrEvento.replace(/-/g, '').substring(0, 8).toUpperCase();
+  }
+
+  // --- Asistencia manual ---
+
+  async actualizarAsistencia(participante: ParticipanteInfo) {
+    try {
+      await firstValueFrom(this.capacitacionesService.updateAttendance(participante.id, participante.asistio));
+      this.filtrarParticipantes();
+      this.mostrarToast(`Asistencia ${participante.asistio ? 'confirmada' : 'removida'} para ${participante.nombre}`, 'success');
+    } catch (error) {
+      // Revertir el toggle si falló
+      participante.asistio = !participante.asistio;
+      this.cdr.markForCheck();
+      this.mostrarToast(ErrorHandlerUtil.getErrorMessage(error), 'danger');
+    }
+  }
+
+  async marcarTodosAsistieron() {
+    if (!this.idCapacitacion) return;
+    const alert = await this.alertController.create({
+      header: 'Confirmar acción',
+      message: `¿Confirmar asistencia para los ${this.participantes.length} participantes?`,
+      buttons: [
+        { text: 'Cancelar', role: 'cancel' },
+        {
+          text: 'Confirmar todos',
+          handler: async () => {
+            try {
+              await firstValueFrom(this.capacitacionesService.updateAllAttendance(this.idCapacitacion!, true));
+              this.participantes.forEach(p => p.asistio = true);
+              this.filtrarParticipantes();
+              this.mostrarToast('Todos los participantes marcados como asistentes', 'success');
+            } catch (error) {
+              this.mostrarToast('Error al actualizar asistencia masiva', 'danger');
+            }
+          }
+        }
+      ]
+    });
+    await alert.present();
+  }
+
+  // --- QR del evento ---
+
+  async mostrarQRDelEvento() {
+    if (!this.infoCapacitacion?.codigoQrEvento) {
+      this.mostrarToast('Esta capacitación no tiene un código QR generado', 'warning');
+      return;
+    }
+
+    this.generandoQR = true;
+    this.mostrarQREvento = true;
+    this.cdr.markForCheck();
+
+    try {
+      // Generar QR usando API externa (QR code server)
+      const qrContent = this.infoCapacitacion.codigoQrEvento;
+      const qrSize = 300;
+      this.qrDataUrl = `https://api.qrserver.com/v1/create-qr-code/?size=${qrSize}x${qrSize}&data=${encodeURIComponent(qrContent)}&margin=10&format=png`;
+    } finally {
+      this.generandoQR = false;
+      this.cdr.markForCheck();
+    }
+  }
+
+  cerrarQRModal() {
+    this.mostrarQREvento = false;
+    this.cdr.markForCheck();
+  }
+
+  // --- Modal Agregar Participante ---
+
+  async abrirModalAgregar() {
+    // Solo cargar usuarios disponibles cuando se abre el modal
+    this.mostrandoModalAgregar = true;
+    this.usuarioSeleccionadoId = null;
+    this.rolSeleccionado = RolCapacitacionEnum.PARTICIPANTE;
+    this.busquedaUsuarioDisponible = '';
+    this.cdr.markForCheck();
+
+    await this.cargarUsuariosDisponibles();
+  }
+
+  cerrarModalAgregar() {
+    this.mostrandoModalAgregar = false;
+    this.usuariosDisponibles = [];
+    this.usuariosDisponiblesFiltrados = [];
+    this.cdr.markForCheck();
+  }
+
+  private async cargarUsuariosDisponibles() {
+    this.cargandoUsuariosDisponibles = true;
+    this.cdr.markForCheck();
+    try {
+      const todosUsuarios = await firstValueFrom(this.usuarioService.getUsuarios());
+      const idsInscritos = new Set([
+        ...this.expositores.map(u => u.usuarioId),
+        ...this.participantes.map(u => u.usuarioId)
+      ]);
+      this.usuariosDisponibles = (todosUsuarios || [])
+        .filter((u: any) => !idsInscritos.has(u.id))
+        .sort((a: any, b: any) => a.nombre.localeCompare(b.nombre));
+      this.filtrarUsuariosDisponibles();
+    } catch (error) {
+      this.mostrarToast('Error al cargar usuarios disponibles', 'warning');
+    } finally {
+      this.cargandoUsuariosDisponibles = false;
+      this.cdr.markForCheck();
+    }
+  }
+
+  filtrarUsuariosDisponibles() {
+    if (!this.busquedaUsuarioDisponible?.trim()) {
+      this.usuariosDisponiblesFiltrados = [...this.usuariosDisponibles];
+    } else {
+      const termino = this.busquedaUsuarioDisponible.toLowerCase();
+      this.usuariosDisponiblesFiltrados = this.usuariosDisponibles.filter((u: any) =>
+        u.nombre?.toLowerCase().includes(termino) ||
+        u.ci?.toLowerCase().includes(termino)
+      );
+    }
+    this.cdr.markForCheck();
+  }
+
+  async guardarNuevoParticipante() {
+    if (!this.idCapacitacion || !this.usuarioSeleccionadoId) {
+      this.mostrarToast('Selecciona un usuario para continuar', 'warning');
+      return;
+    }
+
+    const loading = await this.loadingController.create({
+      message: 'Agregando participante...',
+      spinner: 'crescent'
+    });
+    await loading.present();
+
+    try {
+      await firstValueFrom(
+        this.capacitacionesService.assignUser(this.idCapacitacion, this.usuarioSeleccionadoId, this.rolSeleccionado)
+      );
+
+      // Recargar la lista de inscritos desde el servidor para tener datos frescos
+      const inscritos = await firstValueFrom(this.capacitacionesService.getInscritos(this.idCapacitacion));
+      this.procesarInscritos(inscritos);
+      this.filtrarParticipantes();
+
+      this.cerrarModalAgregar();
+      this.mostrarToast('Participante agregado correctamente', 'success');
+    } catch (error) {
+      this.mostrarToast(ErrorHandlerUtil.getErrorMessage(error), 'danger');
+    } finally {
+      loading.dismiss();
+    }
+  }
+
+  // --- Eliminar participante ---
+
+  async confirmarEliminar(participante: ParticipanteInfo) {
+    const alert = await this.alertController.create({
+      header: 'Confirmar eliminación',
+      message: `¿Eliminar a ${participante.nombre} de la lista de participantes?`,
+      buttons: [
+        { text: 'Cancelar', role: 'cancel' },
+        {
+          text: 'Eliminar',
+          role: 'destructive',
+          handler: () => this.eliminarParticipante(participante)
+        }
+      ]
+    });
+    await alert.present();
+  }
+
+  private async eliminarParticipante(participante: ParticipanteInfo) {
+    try {
+      await firstValueFrom(this.capacitacionesService.deleteUsuarioCapacitacion(participante.id));
+      this.participantes = this.participantes.filter(u => u.id !== participante.id);
+      this.filtrarParticipantes();
+      this.mostrarToast('Participante eliminado correctamente', 'success');
+    } catch (error) {
+      this.mostrarToast(ErrorHandlerUtil.getErrorMessage(error), 'danger');
+    }
+  }
+
+  // --- Certificados ---
+
+  async mostrarConfirmacionCertificados() {
+    const noAsistieron = this.participantes.filter(u => !u.asistio).length;
+    const alert = await this.alertController.create({
+      header: 'Emitir Certificados',
+      message: `Se emitirán certificados para <strong>${this.totalAsistentes} asistentes</strong>. ${noAsistieron > 0 ? `Los ${noAsistieron} participantes que no asistieron no recibirán certificado.` : ''} Esta acción no se puede deshacer.`,
+      buttons: [
+        { text: 'Cancelar', role: 'cancel' },
+        {
+          text: 'Emitir certificados',
+          handler: () => this.emitirCertificados()
+        }
+      ]
+    });
+    await alert.present();
+  }
+
+  async emitirCertificados() {
+    if (!this.idCapacitacion) return;
+    const loading = await this.loadingController.create({
+      message: 'Generando certificados y códigos QR...',
+      spinner: 'crescent'
+    });
+    await loading.present();
+
+    try {
+      // Marcar certificado emitido y generar todos en paralelo
+      await Promise.all([
+        firstValueFrom(this.capacitacionesService.updateCapacitacion(this.idCapacitacion, { certificado: true })),
+        firstValueFrom(this.capacitacionesService.generateAllCertificates(this.idCapacitacion))
+      ]);
+
+      if (this.infoCapacitacion) {
+        this.infoCapacitacion = { ...this.infoCapacitacion, certificado: true };
+      }
+      this.cdr.markForCheck();
+      this.mostrarToast('Certificados emitidos correctamente', 'success');
+    } catch (error) {
+      this.mostrarToast(ErrorHandlerUtil.getErrorMessage(error), 'danger');
+    } finally {
+      loading.dismiss();
+    }
+  }
+
+  // --- Exportar lista ---
+
+  exportarLista() {
+    if (this.participantesFiltrados.length === 0) return;
+
+    try {
+      const headers = ['Nombre', 'Asistencia', 'Rol', 'Email', 'Entidad'];
+      const rows = this.participantesFiltrados.map(u => [
+        u.nombre,
+        u.asistio ? 'Asistió' : 'No asistió',
+        u.rolCapacitacion || 'Participante',
+        u.email || '-',
+        u.entidad || '-'
+      ]);
+
+      let csv = 'data:text/csv;charset=utf-8,\uFEFF';
+      csv += headers.join(',') + '\r\n';
+      rows.forEach(row => {
+        csv += row.map(cell => `"${(cell || '').toString().replace(/"/g, '""')}"`).join(',') + '\r\n';
+      });
+
+      const link = document.createElement('a');
+      link.setAttribute('href', encodeURI(csv));
+      link.setAttribute('download', `participantes-${this.infoCapacitacion?.nombre || 'capacitacion'}-${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      this.mostrarToast('Lista exportada correctamente', 'success');
+    } catch (error) {
+      this.mostrarToast('Error al exportar la lista', 'danger');
+    }
+  }
+
+  // --- Estado ---
+
   getEstadoTexto(estado: string): string {
     switch (estado) {
       case EstadoCapacitacionEnum.PENDIENTE: return 'Pendiente';
@@ -203,346 +448,7 @@ export class VisualizarinscritosPage implements OnInit {
     }
   }
 
-  // Obtener total de asistentes
-  obtenerTotalAsistentes(): number {
-    return this.usuariosInscritos.filter(u => u.asistio === true).length;
-  }
-
-  // Actualizar asistencia de un usuario
-  async actualizarAsistencia(usuario: any) {
-    try {
-      // Assuming 'id' is the PK of the junction table (UsuarioCapacitacion)
-      await firstValueFrom(this.capacitacionesService.updateAttendance(usuario.id, usuario.asistio));
-      this.mostrarToast(`Asistencia actualizada correctamente`, 'success');
-    } catch (error) {
-      console.error('Error inesperado:', error);
-      this.mostrarToast(ErrorHandlerUtil.getErrorMessage(error), 'danger');
-      // Revert change in UI if failed? Angular binding might keep it checked.
-      // Ideally we reload or revert.
-    }
-  }
-
-  // Marcar a todos como asistentes
-  async marcarTodosAsistieron() {
-    if (!this.idCapacitacion) return;
-    try {
-      const alert = await this.alertController.create({
-        header: 'Confirmar acción',
-        message: '¿Está seguro de marcar a todos los participantes como asistentes?',
-        buttons: [
-          {
-            text: 'Cancelar',
-            role: 'cancel'
-          },
-          {
-            text: 'Confirmar',
-            handler: async () => {
-              if (this.idCapacitacion) {
-                this.usuariosInscritos.forEach(usuario => usuario.asistio = true);
-
-                await firstValueFrom(this.capacitacionesService.updateAllAttendance(this.idCapacitacion, true));
-
-                this.mostrarToast('Todos los participantes fueron marcados como asistentes', 'success');
-                this.filtrarParticipantes();
-              }
-            }
-          }
-        ]
-      });
-
-      await alert.present();
-    } catch (error) {
-      console.error('Error inesperado:', error);
-      this.mostrarToast('Error al actualizar asistencia masiva', 'danger');
-    }
-  }
-
-  // Mostrar confirmación para emitir certificados
-  async mostrarConfirmacion() {
-    // Obtener usuarios que no asistieron
-    const usuariosNoAsistieron = this.usuariosInscritos.filter(u => u.asistio === false);
-
-    const alert = await this.alertController.create({
-      header: 'Confirmar emisión de certificados',
-      message: `Se va a emitir el certificado para esta capacitación. Los usuarios que no asistieron (${usuariosNoAsistieron.length}) <strong>no recibirán certificados</strong>, pero se mantendrán en el registro histórico. Esta acción no se puede deshacer.`,
-      buttons: [
-        {
-          text: 'Cancelar',
-          role: 'cancel'
-        },
-        {
-          text: 'Emitir certificados',
-          handler: () => {
-            this.emitirCertificados();
-          }
-        }
-      ]
-    });
-
-    await alert.present();
-  }
-
-  // Emitir certificados
-  async emitirCertificados() {
-    if (!this.idCapacitacion) return;
-    try {
-      // 1. Marcar capacitación con certificado emitido
-      const updatedCap = { ...this.infoCapacitacion, certificado: true };
-      await firstValueFrom(this.capacitacionesService.updateCapacitacion(this.idCapacitacion, updatedCap));
-
-      // 2. Generar todos los certificados en masa en el backend
-      // El backend solo genera para los que marcaron asistencia (asistio === true)
-      await firstValueFrom(this.capacitacionesService.generateAllCertificates(this.idCapacitacion));
-
-      // 3. Actualizar datos locales
-      this.infoCapacitacion.certificado = true;
-      this.filtrarParticipantes();
-
-      // 4. Mostrar mensaje de éxito
-      this.mostrarToast('Certificados emitidos correctamente', 'success');
-
-    } catch (error) {
-      console.error('Error al emitir certificados:', error);
-      this.mostrarToast('Error al procesar certificados', 'danger');
-    }
-  }
-
-  // Confirmar eliminación de participante
-  async confirmarEliminar(usuario: any) {
-    const alert = await this.alertController.create({
-      header: 'Confirmar eliminación',
-      message: `¿Está seguro de eliminar a ${usuario.nombre} de la lista de participantes?`,
-      buttons: [
-        {
-          text: 'Cancelar',
-          role: 'cancel'
-        },
-        {
-          text: 'Eliminar',
-          role: 'destructive',
-          handler: () => {
-            this.eliminarParticipante(usuario);
-          }
-        }
-      ]
-    });
-
-    await alert.present();
-  }
-
-  // Eliminar participante
-  async eliminarParticipante(usuario: any) {
-    try {
-      await firstValueFrom(this.capacitacionesService.deleteUsuarioCapacitacion(usuario.id));
-
-      // Actualizar listas locales
-      this.usuariosInscritos = this.usuariosInscritos.filter(
-        u => u.id !== usuario.id
-      );
-      this.filtrarParticipantes();
-
-      // Actualizar la lista de disponibles - asegurarse de que el usuario eliminado esté allí
-      this.actualizarListadoDisponibles(usuario.usuarioId); // Assuming junction has usuarioId
-
-      this.mostrarToast('Participante eliminado correctamente', 'success');
-    } catch (error) {
-      console.error('Error inesperado:', error);
-      this.mostrarToast('Error al eliminar participante', 'danger');
-    }
-  }
-
-  // Actualizar la lista de usuarios disponibles
-  async actualizarListadoDisponibles(idUsuario: number) {
-    // Verificar si el usuario ya está en la lista de disponibles
-    const usuarioExistente = this.usuariosDisponibles.find(u => u.id === idUsuario);
-
-    if (!usuarioExistente) {
-      try {
-        const data = await firstValueFrom(this.usuarioService.getUsuario(idUsuario));
-
-        if (data) {
-          this.usuariosDisponibles.push(data);
-          // Ordenar alfabéticamente
-          this.usuariosDisponibles.sort((a, b) =>
-            a.nombre.localeCompare(b.nombre)
-          );
-        }
-      } catch (error) {
-        console.error('Error al actualizar usuarios disponibles:', error);
-      }
-    }
-  }
-
-  // Agregar nuevo participante
-  async agregarParticipante() {
-    if (this.usuariosDisponibles.length === 0) {
-      this.mostrarToast('No hay usuarios disponibles para agregar', 'warning');
-      return;
-    }
-
-    // Crear inputs con los tipos correctos
-    const radioInputs = this.usuariosDisponibles.map(u => ({
-      name: 'usuario',
-      type: 'radio' as const,
-      label: u.nombre,
-      value: u.id.toString()
-    }));
-
-    // Create alert with correct input configuration
-    const alert = await this.alertController.create({
-      header: 'Agregar Participante',
-      inputs: radioInputs,
-      buttons: [
-        {
-          text: 'Cancelar',
-          role: 'cancel'
-        },
-        {
-          text: 'Agregar',
-          handler: async (data) => {
-            if (!data.usuario) {
-              this.mostrarToast('Debe seleccionar un usuario', 'warning');
-              return false;
-            }
-
-            // Show a second alert for role selection after user is selected
-            const roleAlert = await this.alertController.create({
-              header: 'Seleccionar Rol',
-              inputs: [
-                {
-                  name: 'rol',
-                  type: 'radio',
-                  label: 'Participante',
-                  value: RolCapacitacionEnum.PARTICIPANTE,
-                  checked: true
-                },
-                {
-                  name: 'rol',
-                  type: 'radio',
-                  label: 'Expositor',
-                  value: RolCapacitacionEnum.EXPOSITOR
-                }
-              ],
-              buttons: [
-                {
-                  text: 'Cancelar',
-                  role: 'cancel'
-                },
-                {
-                  text: 'Confirmar',
-                  handler: async (roleData) => {
-                    const idUsuario = parseInt(data.usuario);
-                    const rol = roleData.rol || 'Participante';
-                    await this.guardarNuevoParticipante(idUsuario, rol);
-                  }
-                }
-              ]
-            });
-
-            await roleAlert.present();
-            return true;
-          }
-        }
-      ]
-    });
-
-    await alert.present();
-  }
-
-  // Guardar nuevo participante en la base de datos
-  async guardarNuevoParticipante(idUsuario: number, rolCapacitacion: string) {
-    if (!this.idCapacitacion) return;
-    const loading = await this.loadingController.create({
-      message: 'Agregando participante...',
-      spinner: 'crescent'
-    });
-    await loading.present();
-
-    try {
-      // Insertar nuevo participante en la base de datos
-      await firstValueFrom(this.capacitacionesService.assignUser(this.idCapacitacion, idUsuario, rolCapacitacion));
-
-      // Obtener información completa del usuario
-      const infoUsuario = await firstValueFrom(this.usuarioService.getUsuario(idUsuario));
-
-      // Actualizar las listas locales
-      if (infoUsuario) {
-        // We need the ID of the new relationship (Id_Usuario_Conferencia).
-        // Ideally the service 'assignUser' returns the created object with the ID.
-        // Assuming it does.
-        // For now, reload the list to be safe and get the ID? 
-        // Or just fetch the list again is safer to get the PK.
-        await this.cargarUsuariosInscritos();
-        this.filtrarParticipantes();
-
-        // Quitar de la lista de disponibles
-        this.usuariosDisponibles = this.usuariosDisponibles.filter(u => u.id !== idUsuario);
-      }
-
-      this.mostrarToast('Participante agregado correctamente', 'success');
-    } catch (error) {
-      console.error('Error inesperado:', error);
-      this.mostrarToast('Error al agregar participante', 'danger');
-    } finally {
-      loading.dismiss();
-    }
-  }
-
-  // Exportar lista de participantes a CSV
-  exportarLista() {
-    if (this.participantesFiltrados.length === 0) return;
-
-    try {
-      const headers = ['Nombre', 'Asistencia', 'Rol', 'Email', 'Cargo', 'Entidad'];
-      const data = this.participantesFiltrados.map(u => [
-        u.nombre,
-        u.asistio ? 'Asistió' : 'No asistió',
-        u.rolCapacitacion || 'Participante',
-        u.email || '-',
-        u.cargo || '-',
-        u.entidad || '-'
-      ]);
-
-      let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; // Include BOM for Excel Spanish characters
-      csvContent += headers.join(',') + "\r\n";
-
-      data.forEach(row => {
-        csvContent += row.map(cell => `"${cell.toString().replace(/"/g, '""')}"`).join(',') + "\r\n";
-      });
-
-      const encodedUri = encodeURI(csvContent);
-      const link = document.createElement("a");
-      link.setAttribute("href", encodedUri);
-      const fileName = `participantes-${this.infoCapacitacion?.nombre || 'capacitacion'}-${new Date().toISOString().split('T')[0]}.csv`;
-      link.setAttribute("download", fileName);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-
-      this.mostrarToast('Lista exportada correctamente', 'success');
-    } catch (error) {
-      console.error('Error al exportar lista:', error);
-      this.mostrarToast('Error al exportar la lista', 'danger');
-    }
-  }
-
-  // Función para mostrar un mensaje de toast
-  async mostrarToast(mensaje: string, color: string = 'primary') {
-    const toast = await this.toastController.create({
-      message: mensaje,
-      duration: 3000,
-      position: 'top',
-      color: color,
-      buttons: [
-        {
-          text: 'Cerrar',
-          role: 'cancel'
-        }
-      ]
-    });
-
-    await toast.present();
-  }
+  // --- Navegación ---
 
   volver() {
     if (this.isConferencista) {
@@ -550,5 +456,18 @@ export class VisualizarinscritosPage implements OnInit {
     } else {
       this.router.navigate(['/gestionar-capacitaciones']);
     }
+  }
+
+  // --- Toast ---
+
+  async mostrarToast(mensaje: string, color: string = 'primary') {
+    const toast = await this.toastController.create({
+      message: mensaje,
+      duration: 3000,
+      position: 'top',
+      color,
+      buttons: [{ text: 'Cerrar', role: 'cancel' }]
+    });
+    await toast.present();
   }
 }

@@ -18,5 +18,6 @@ export interface Capacitacion {
     horas?: number | null;
     enlaceVirtual?: string | null;
     certificado?: boolean;
+    codigoQrEvento?: string | null;
     plantilla?: any;
 }
