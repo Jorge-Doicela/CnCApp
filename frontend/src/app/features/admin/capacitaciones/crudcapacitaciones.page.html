@@ -2,7 +2,7 @@
   <div class="main-container">
     <!-- Back Nav -->
     <div class="page-back-nav" style="padding: 10px 0;">
-      <ion-button fill="clear" color="medium" size="small" routerLink="/home">
+      <ion-button fill="clear" color="medium" size="small" (click)="volver()">
         <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
         Volver al Panel
       </ion-button>
@@ -14,7 +14,7 @@
         <h1>Gestión de Capacitaciones</h1>
         <p>Administra los eventos de formación y sus participantes</p>
       </div>
-      <ion-button class="new-btn" (click)="iraCrearCapacitacion()">
+      <ion-button class="new-btn" (click)="iraCrearCapacitacion()" *ngIf="!isConferencista">
         <ion-icon name="add-outline" slot="start"></ion-icon>
         Nueva Capacitación
       </ion-button>
@@ -148,12 +148,13 @@
           </div>
           <div class="meta-item">
             <ion-icon name="people-outline"></ion-icon>
-            <span>{{ cap.limiteParticipantes }} cupos</span>
+            <span>{{ cap.cuposDisponibles }} cupos</span>
           </div>
         </div>
 
         <div class="card-actions">
-          <ion-button fill="clear" size="small" color="primary" (click)="iraEditarCapacitacion(cap.id)">
+          <ion-button fill="clear" size="small" color="primary" (click)="iraEditarCapacitacion(cap.id)"
+            *ngIf="!isConferencista">
             <ion-icon name="create-outline" slot="start"></ion-icon>
             Editar
           </ion-button>
@@ -161,16 +162,18 @@
             <ion-icon name="people-outline" slot="start"></ion-icon>
             Participantes
           </ion-button>
-          <ion-button fill="clear" size="small" color="success" (click)="finalizarCapacitacion(cap.id)" *ngIf="cap.estado === 'Activa'">
+          <ion-button fill="clear" size="small" color="success" (click)="finalizarCapacitacion(cap.id)"
+            *ngIf="cap.estado === 'Activa' && !isConferencista">
             <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
             Finalizar
           </ion-button>
           <ion-button fill="clear" size="small" color="warning" (click)="mostrarConfirmacion(cap.id)"
-            *ngIf="cap.estado === 'Finalizada' && !cap.certificado">
+            *ngIf="cap.estado === 'Finalizada' && !cap.certificado && !isConferencista">
             <ion-icon name="ribbon-outline" slot="start"></ion-icon>
             Certificados
           </ion-button>
-          <ion-button fill="clear" size="small" color="danger" (click)="confirmarEliminar(cap.id)">
+          <ion-button fill="clear" size="small" color="danger" (click)="confirmarEliminar(cap.id)"
+            *ngIf="!isConferencista">
             <ion-icon name="trash-outline" slot="start"></ion-icon>
             Eliminar
           </ion-button>

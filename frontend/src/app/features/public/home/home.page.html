@@ -221,7 +221,7 @@
           </div>
 
           <div class="dashboard-grid">
-            <div class="dash-card highlight-card" (click)="navegarModulo('ver-conferencias')">
+            <div class="dash-card highlight-card" (click)="irACatalogo()">
               <div class="icon-box amber"><ion-icon name="search-outline"></ion-icon></div>
               <div class="card-info">
                 <h4>Explorar Red</h4>
@@ -274,7 +274,7 @@
           </div>
 
           <div class="dashboard-grid bento-layout">
-            <div class="dash-card featured-card" (click)="navegarModulo('ver-conferencias')">
+            <div class="dash-card featured-card" (click)="irACatalogo()">
               <div class="card-icon-main"><ion-icon name="school-outline"></ion-icon></div>
               <div class="card-info">
                 <h4>Explorar Cursos</h4>
@@ -347,14 +347,85 @@
             <ion-icon name="sparkles-outline"></ion-icon>
             <span>¡Continúa aprendiendo para fortalecer al sector público!</span>
           </div>
-          <button class="portal-btn" (click)="navegarModulo('ver-conferencias')">
-            Explorar Cursos
+          <button class="portal-btn" (click)="irACatalogo()">
+            Explorar Catálogo
           </button>
         </div>
       </div>
 
     </div>
   </ng-container>
+
+  <!-- ========================================== -->
+  <!-- 3. PUBLIC CATALOG (Oferta Académica)      -->
+  <!-- ========================================== -->
+  <div class="container section-padding" id="oferta-publica">
+    <div class="catalog-header fade-in">
+      <div class="header-line"></div>
+      <h2 class="dash-section-title">Explora nuestra Oferta Académica</h2>
+      <p class="section-subtitle">Capacitaciones oficiales disponibles para tu formación continua</p>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="cargandoCapacitaciones" class="catalog-loading">
+      <ion-spinner name="crescent" color="primary"></ion-spinner>
+      <p>Consultando catálogo oficial...</p>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!cargandoCapacitaciones && capacitacionesDisponibles.length === 0" class="empty-catalog fade-in">
+      <ion-icon name="calendar-clear-outline"></ion-icon>
+      <h3>Próximamente nuevas fechas</h3>
+      <p>Actualmente no hay capacitaciones con cupos disponibles. Vuelve pronto.</p>
+    </div>
+
+    <!-- Dynamic Grid -->
+    <div class="courses-grid" *ngIf="!cargandoCapacitaciones && capacitacionesDisponibles.length > 0">
+      <div class="course-card fade-in" *ngFor="let cap of capacitacionesDisponibles; let i = index"
+        [style.animation-delay]="(0.1 * i) + 's'">
+        <div class="card-badge">{{ cap.modalidad }}</div>
+
+        <div class="card-body">
+          <div class="category">Capacitación CNC</div>
+          <h3 class="course-title">{{ cap.nombre }}</h3>
+          <p class="course-desc">{{ cap.descripcion }}</p>
+
+          <div class="course-meta">
+            <div class="meta-item">
+              <ion-icon name="calendar-outline"></ion-icon>
+              <span>{{ cap.fechaInicio | date:'mediumDate' }}</span>
+            </div>
+            <div class="meta-item">
+              <ion-icon name="time-outline"></ion-icon>
+              <span>{{ cap.horas }} horas</span>
+            </div>
+            <div class="meta-item">
+              <ion-icon name="location-outline"></ion-icon>
+              <span>{{ cap.lugar }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-footer">
+          <!-- Ya inscrito -->
+          <div *ngIf="isInscrito(cap.id || cap.Id)" class="enrolled-status">
+            <ion-icon name="checkmark-circle"></ion-icon>
+            <span>Ya estás inscrito</span>
+            <ion-button fill="clear" color="primary" class="go-btn" (click)="navegarModulo('ver-conferencias')">
+              Ver detalles
+              <ion-icon name="chevron-forward" slot="end"></ion-icon>
+            </ion-button>
+          </div>
+
+          <!-- Disponible para inscripción -->
+          <button *ngIf="!isInscrito(cap.id || cap.Id)" class="enroll-btn" (click)="inscribirse(cap.id || cap.Id)">
+            <span>Inscribirme ahora</span>
+            <ion-icon name="sparkles-outline"></ion-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Footer Simple -->
   <div class="dashboard-footer">

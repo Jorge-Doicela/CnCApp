@@ -3,19 +3,20 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { AlertController, LoadingController, ToastController } from '@ionic/angular';
 import { CapacitacionesService } from './services/capacitaciones.service';
 import { Capacitacion } from '../../../core/models/capacitacion.interface';
 import { ErrorHandlerUtil } from 'src/app/shared/utils/error-handler.util';
 import { EstadoCapacitacionEnum } from 'src/app/shared/constants/enums';
+import { AuthService } from 'src/app/features/auth/services/auth.service';
 
 @Component({
   selector: 'app-crudcapacitaciones',
   templateUrl: './crudcapacitaciones.page.html',
   styleUrls: ['./crudcapacitaciones.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule],
+  imports: [CommonModule, FormsModule, IonicModule, RouterModule],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CrudcapacitacionesPage implements OnInit {
@@ -29,7 +30,10 @@ export class CrudcapacitacionesPage implements OnInit {
   cargando: boolean = false;
 
   private capacitacionesService = inject(CapacitacionesService);
+  private authService = inject(AuthService);
   private cdr = inject(ChangeDetectorRef);
+
+  isConferencista = this.authService.roleName() === 'Conferencista';
 
   constructor(
     private router: Router,
@@ -264,10 +268,10 @@ export class CrudcapacitacionesPage implements OnInit {
     try {
       // 1. Llamar al servicio de generación masiva (Backend real)
       await firstValueFrom(this.capacitacionesService.generateAllCertificates(Id_Capacitacion));
-      
+
       // 2. Marcar la capacitación como que ya tiene certificados (Actualización de flag)
       await firstValueFrom(this.capacitacionesService.updateCapacitacion(Id_Capacitacion, { certificado: true }));
-      
+
       this.presentToast('Certificados generados correctamente', 'success');
       this.RecuperarCapacitaciones();
     } catch (error) {
@@ -294,5 +298,8 @@ export class CrudcapacitacionesPage implements OnInit {
     });
 
     await toast.present();
+  }
+  volver() {
+    this.router.navigate(['/home']);
   }
 }

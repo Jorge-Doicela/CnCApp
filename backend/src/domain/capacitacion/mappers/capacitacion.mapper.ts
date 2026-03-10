@@ -1,8 +1,11 @@
 import { Capacitacion as PrismaCapacitacion } from '@prisma/client';
 import { Capacitacion } from '../entities/capacitacion.entity';
+import { RolCapacitacionEnum } from '../../shared/constants/enums';
 
 export class CapacitacionMapper {
     static toDomain(prismaCapacitacion: PrismaCapacitacion): Capacitacion {
+        const inscripciones = (prismaCapacitacion as any).inscripciones || [];
+
         return {
             id: prismaCapacitacion.id,
             nombre: prismaCapacitacion.nombre,
@@ -14,7 +17,12 @@ export class CapacitacionMapper {
             modalidad: prismaCapacitacion.modalidad,
             estado: prismaCapacitacion.estado,
             createdAt: prismaCapacitacion.createdAt,
-            idsUsuarios: (prismaCapacitacion as any).inscripciones?.map((i: any) => i.usuarioId) || [],
+            idsUsuarios: inscripciones
+                .filter((i: any) => i.rolCapacitacion === RolCapacitacionEnum.PARTICIPANTE || !i.rolCapacitacion)
+                .map((i: any) => i.usuarioId),
+            expositores: inscripciones
+                .filter((i: any) => i.rolCapacitacion === RolCapacitacionEnum.EXPOSITOR)
+                .map((i: any) => i.usuarioId),
             plantillaId: (prismaCapacitacion as any).plantillaId,
             horaInicio: (prismaCapacitacion as any).horaInicio,
             horaFin: (prismaCapacitacion as any).horaFin,

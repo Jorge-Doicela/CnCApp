@@ -5,6 +5,7 @@ import { Component, OnInit, ViewChild, inject, ChangeDetectorRef, ChangeDetectio
 import { firstValueFrom } from 'rxjs';
 import { NgForm } from '@angular/forms';
 import { ToastController, AlertController, NavController } from '@ionic/angular';
+import { RouterModule } from '@angular/router';
 import { CapacitacionesService } from 'src/app/features/admin/capacitaciones/services/capacitaciones.service';
 import { CatalogoService } from 'src/app/shared/services/catalogo.service';
 import { UsuarioService } from 'src/app/features/user/services/usuario.service';
@@ -16,7 +17,7 @@ import { EstadoCapacitacionEnum, RolCapacitacionEnum } from 'src/app/shared/cons
   templateUrl: './crear.page.html',
   styleUrls: ['./crear.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule],
+  imports: [CommonModule, FormsModule, IonicModule, RouterModule],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CrearPage implements OnInit {
@@ -34,7 +35,7 @@ export class CrearPage implements OnInit {
     horaInicio: '',
     horaFin: '',
     horas: 0,
-    limiteParticipantes: 30,
+    cuposDisponibles: 30,
     entidadesEncargadas: [] as number[],
     idsUsuarios: [] as number[],
     expositores: [] as number[]
@@ -153,7 +154,7 @@ export class CrearPage implements OnInit {
     if (this.capacitacion.horaFin) completados++;
     if (this.capacitacion.horas > 0) completados++;
     if (this.capacitacion.lugar) completados++;
-    if (this.capacitacion.limiteParticipantes > 0) completados++;
+    if (this.capacitacion.cuposDisponibles > 0) completados++;
     if (this.capacitacion.expositores?.length > 0) completados++;
     if (this.capacitacion.entidadesEncargadas?.length > 0) completados++;
 
@@ -207,7 +208,7 @@ export class CrearPage implements OnInit {
       this.capacitacion.enlaceVirtual = 'https://' + this.capacitacion.enlaceVirtual;
     }
 
-    // Crear capacitación
+    // Crear capacitación (Ahora con participantes y expositores incluidos)
     try {
       const response: any = await firstValueFrom(this.capacitacionesService.createCapacitacion(this.capacitacion));
       const created = Array.isArray(response) ? response[0] : (response.data || response);
@@ -220,17 +221,6 @@ export class CrearPage implements OnInit {
         return;
       }
 
-      // Asignar expositores
-      await this.asignarUsuarios(capacitacionId, this.capacitacion.expositores, RolCapacitacionEnum.EXPOSITOR);
-
-      // Asignar participantes
-      if (this.capacitacion.idsUsuarios?.length > 0) {
-        const participantes = this.capacitacion.idsUsuarios.filter(
-          id => !this.capacitacion.expositores.includes(id)
-        );
-        await this.asignarUsuarios(capacitacionId, participantes, RolCapacitacionEnum.PARTICIPANTE);
-      }
-
       this.guardando = false;
       this.mostrarExito();
     } catch (error: any) {
@@ -240,18 +230,6 @@ export class CrearPage implements OnInit {
     } finally {
       this.cdr.markForCheck();
     }
-  }
-
-  async asignarUsuarios(capacitacionId: number, usuarioIds: number[], rol: string): Promise<void> {
-    const promesas = usuarioIds.map(async (usuarioId) => {
-      try {
-        await firstValueFrom(this.capacitacionesService.assignUser(capacitacionId, usuarioId, rol));
-      } catch (err) {
-        console.error(`Error asignando ${rol}:`, err);
-      }
-    });
-
-    await Promise.all(promesas);
   }
 
   async mostrarExito() {
@@ -317,7 +295,7 @@ export class CrearPage implements OnInit {
       horaInicio: '',
       horaFin: '',
       horas: 0,
-      limiteParticipantes: 30,
+      cuposDisponibles: 30,
       entidadesEncargadas: entidadesSeleccionadas,
       idsUsuarios: [],
       expositores: []
@@ -418,7 +396,7 @@ export class CrearPage implements OnInit {
         return true;
 
       case 3: // Modalidad y Ubicación
-        if (!this.capacitacion.lugar || !this.capacitacion.limiteParticipantes) {
+        if (!this.capacitacion.lugar || !this.capacitacion.cuposDisponibles) {
           this.mostrarToast('Complete el lugar y límite de participantes', 'warning');
           return false;
         }

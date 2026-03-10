@@ -24,7 +24,10 @@ const capacitacionSchema = z.object({
     horaFin: z.string().optional(),
     horas: z.number().int().optional(),
     enlaceVirtual: z.string().url().or(z.literal('')).optional().nullable(),
-    certificado: z.boolean().optional()
+    certificado: z.boolean().optional(),
+    idsUsuarios: z.array(z.number()).optional(), // Participantes
+    expositores: z.array(z.number()).optional(), // Expositores/Ponentes
+    entidadesEncargadas: z.array(z.number()).optional() // IDs Entidades (Wait, if I add this, I need to handle it in repository)
 });
 
 // Schema para updates parciales (todos los campos son opcionales)
@@ -50,9 +53,13 @@ export class CapacitacionController {
         }
     };
 
-    getAll = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
+    getAll = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
-            const capacitaciones = await this.getAllUseCase.execute();
+            const authReq = req as any;
+            const isConferencista = authReq.userRoleName === 'Conferencista';
+            const expositorId = isConferencista ? authReq.userId : undefined;
+
+            const capacitaciones = await this.getAllUseCase.execute(expositorId);
             res.json(capacitaciones);
         } catch (error) {
             next(error);

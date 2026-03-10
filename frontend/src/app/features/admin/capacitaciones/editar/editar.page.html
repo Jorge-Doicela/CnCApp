@@ -149,9 +149,9 @@
         <div class="form-group">
           <ion-item class="form-item item-label-floating" lines="none">
             <ion-icon name="people-outline" slot="start"></ion-icon>
-            <ion-label position="floating">Cupo Máximo</ion-label>
-            <ion-input type="number" [(ngModel)]="capacitacion.limiteParticipantes" name="limiteParticipantes" required
-              min="1" #limiteParticipantes="ngModel"></ion-input>
+            <ion-label position="floating">Cupo Máximo de Participantes</ion-label>
+            <ion-input type="number" [(ngModel)]="capacitacion.cuposDisponibles" name="cuposDisponibles" required
+              min="1" #cuposDisponibles="ngModel"></ion-input>
           </ion-item>
         </div>
       </div>
@@ -160,7 +160,7 @@
       <div class="form-section">
         <h3 class="section-title">
           <ion-icon name="people-circle-outline"></ion-icon>
-          Involucrados
+          Involucrados y Responsables
         </h3>
 
         <div class="form-group">
@@ -178,18 +178,32 @@
 
         <div class="form-group">
           <ion-item class="form-item" lines="none">
+            <ion-icon name="person-outline" slot="start"></ion-icon>
+            <ion-label position="stacked">Responsables/Expositores</ion-label>
+            <ion-select [(ngModel)]="capacitacion.expositores" name="expositores" multiple="true" required
+              #expositoresModel="ngModel" interface="action-sheet" placeholder="Seleccionar expositores">
+              <ion-select-option *ngFor="let usuario of usuariosList" [value]="usuario.id">
+                {{ usuario.nombre }} {{ usuario.firmaUrl ? '✓' : '' }}
+              </ion-select-option>
+            </ion-select>
+          </ion-item>
+          <ion-note color="danger"
+            *ngIf="expositoresModel.invalid && (expositoresModel.dirty || expositoresModel.touched)">
+            Debe seleccionar al menos un responsable
+          </ion-note>
+        </div>
+
+        <div class="form-group">
+          <ion-item class="form-item" lines="none">
             <ion-icon name="person-add-outline" slot="start"></ion-icon>
             <ion-label position="stacked">Lista de Participantes</ion-label>
-            <ion-select [(ngModel)]="capacitacion.idsUsuarios" name="idsUsuarios" multiple="true" required
+            <ion-select [(ngModel)]="capacitacion.idsUsuarios" name="idsUsuarios" multiple="true"
               #usuariosModel="ngModel" interface="action-sheet" placeholder="Seleccionar usuarios">
               <ion-select-option *ngFor="let usuario of usuariosList" [value]="usuario.id">
                 {{ usuario.nombre }}
               </ion-select-option>
             </ion-select>
           </ion-item>
-          <ion-note color="danger" *ngIf="usuariosModel.invalid && (usuariosModel.dirty || usuariosModel.touched)">
-            Debe seleccionar al menos un participante
-          </ion-note>
         </div>
       </div>
 
@@ -230,7 +244,8 @@
           </ion-button>
         </div>
 
-        <div class="action-extension" *ngIf="capacitacion.estado === EstadoCapacitacion.REALIZADA && !capacitacion.certificado">
+        <div class="action-extension"
+          *ngIf="capacitacion.estado === EstadoCapacitacion.REALIZADA && !capacitacion.certificado">
           <ion-button color="success" (click)="irAEmitirCertificados()" expand="block"
             style="--box-shadow: 0 8px 20px rgba(46, 204, 113, 0.25);">
             <ion-icon name="ribbon-outline" slot="start"></ion-icon>

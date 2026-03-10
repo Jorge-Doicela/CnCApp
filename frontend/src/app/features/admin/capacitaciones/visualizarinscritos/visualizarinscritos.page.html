@@ -3,7 +3,7 @@
 
     <!-- Back Nav -->
     <div class="page-back-nav">
-      <ion-button fill="clear" color="medium" size="small" routerLink="/gestionar-capacitaciones">
+      <ion-button fill="clear" color="medium" size="small" (click)="volver()">
         <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
         Gestión de Capacitaciones
       </ion-button>
@@ -60,7 +60,7 @@
 
                 <div class="detail-item">
                   <ion-icon name="people-outline" color="primary"></ion-icon>
-                  <span>{{ usuariosInscritos.length }} / {{ infoCapacitacion.limiteParticipantes }} participantes</span>
+                  <span>{{ usuariosInscritos.length }} / {{ infoCapacitacion.cuposDisponibles }} participantes</span>
                 </div>
 
                 <!-- Mostrar enlace de reunión virtual -->
@@ -214,7 +214,7 @@
             </div>
 
             <ion-button expand="block" color="primary" (click)="marcarTodosAsistieron()"
-              *ngIf="!infoCapacitacion?.certificado" class="action-button">
+              *ngIf="!infoCapacitacion?.certificado && !isConferencista" class="action-button">
               <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
               Marcar a todos como asistentes
             </ion-button>
@@ -291,13 +291,13 @@
 
               <div class="participant-actions">
                 <ion-toggle [(ngModel)]="usuario.asistio" (ionChange)="actualizarAsistencia(usuario)"
-                  [disabled]="infoCapacitacion?.certificado" color="success">
+                  [disabled]="infoCapacitacion?.certificado || isConferencista" color="success">
                 </ion-toggle>
                 <span class="toggle-label" [class.success]="usuario.asistio">
                   {{ usuario.asistio ? 'Asistió' : 'Pendiente' }}
                 </span>
                 <ion-button fill="clear" color="danger" (click)="confirmarEliminar(usuario)"
-                  *ngIf="!infoCapacitacion?.certificado">
+                  *ngIf="!infoCapacitacion?.certificado && !isConferencista">
                   <ion-icon name="trash-outline"></ion-icon>
                   Eliminar
                 </ion-button>

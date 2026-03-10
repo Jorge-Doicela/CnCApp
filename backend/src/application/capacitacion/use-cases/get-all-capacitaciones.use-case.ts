@@ -8,7 +8,7 @@ export class GetAllCapacitacionesUseCase {
         @inject('CapacitacionRepository') private capacitacionRepository: CapacitacionRepository
     ) { }
 
-    async execute(): Promise<Capacitacion[]> {
-        return this.capacitacionRepository.findAll();
+    async execute(expositorId?: number): Promise<Capacitacion[]> {
+        return this.capacitacionRepository.findAll(expositorId);
     }
 }

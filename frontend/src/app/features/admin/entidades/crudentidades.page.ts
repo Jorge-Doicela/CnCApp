@@ -2,7 +2,7 @@ import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { AlertController, ModalController, ToastController } from '@ionic/angular';
 import { CatalogoService } from 'src/app/shared/services/catalogo.service';
 import { addIcons } from 'ionicons';
@@ -28,7 +28,7 @@ import { firstValueFrom } from 'rxjs';
   templateUrl: './crudentidades.page.html',
   styleUrls: ['./crudentidades.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule],
+  imports: [CommonModule, FormsModule, IonicModule, RouterModule],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CrudentidadesPage implements OnInit {
