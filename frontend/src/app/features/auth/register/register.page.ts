@@ -384,6 +384,12 @@ export class RegisterPage {
       return;
     }
 
+    // Doble validación final por si hubo recarga de página (ej. se borró la contraseña)
+    if (!this.validateStep2() || !this.validateStep3() || !this.validateStep4()) {
+      this.presentToast('Faltan datos requeridos. Por favor revise los pasos anteriores.', 'danger');
+      return;
+    }
+
     const LOADING = await this.loadingController.create({ message: 'Registrando...', spinner: 'crescent' });
     await LOADING.present();
     this.isLoading.set(true);
