@@ -3,7 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
   IonContent, IonIcon,
-  ToastController, LoadingController, MenuController
+  ToastController, LoadingController, MenuController,
+  IonSpinner, IonButton
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -38,7 +39,7 @@ import { firstValueFrom } from 'rxjs';
   standalone: true,
   imports: [
     CommonModule, FormsModule,
-    IonContent, IonIcon
+    IonContent, IonIcon, IonSpinner, IonButton
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -63,7 +64,7 @@ export class HomePage implements OnInit {
   });
 
   isInscrito = (id: number) => {
-    return this.ConferenciasInscritas.some(c => (c.id === id || (c as any).Id === id));
+    return this.ConferenciasInscritas.some(c => c.id === id);
   };
   // Greeting Logic
   saludo = computed(() => {

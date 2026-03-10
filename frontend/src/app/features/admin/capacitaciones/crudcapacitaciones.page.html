@@ -62,10 +62,17 @@
 
     <!-- Actions Bar -->
     <div class="actions-bar fade-in" style="animation-delay: 0.1s;">
-      <ion-searchbar [(ngModel)]="terminoBusqueda" (ionInput)="aplicarFiltros()" placeholder="Buscar capacitaciones..."
-        class="search-input" [debounce]="200">
-      </ion-searchbar>
+      <div class="search-row">
+        <ion-searchbar [(ngModel)]="terminoBusqueda" (ionInput)="aplicarFiltros()"
+          placeholder="Buscar por nombre, lugar..." class="search-input" [debounce]="200">
+        </ion-searchbar>
+        <ion-button fill="clear" class="toggle-filters-btn"
+          (click)="mostrarFiltrosAvanzados = !mostrarFiltrosAvanzados">
+          <ion-icon [name]="mostrarFiltrosAvanzados ? 'options' : 'options-outline'" slot="icon-only"></ion-icon>
+        </ion-button>
+      </div>
 
+      <!-- Quick Status Chips -->
       <div class="filter-chips">
         <div class="chip" [class.active]="filtroEstado === 'todos'" (click)="filtroEstado = 'todos'; aplicarFiltros()">
           Todas
@@ -78,9 +85,64 @@
           (click)="filtroEstado = 'Finalizada'; aplicarFiltros()">
           <ion-icon name="checkmark-circle-outline"></ion-icon> Finalizadas
         </div>
-        <div class="chip" [class.active]="filtroEstado === 'Cancelada'"
-          (click)="filtroEstado = 'Cancelada'; aplicarFiltros()">
-          <ion-icon name="close-circle-outline"></ion-icon> Canceladas
+      </div>
+
+      <!-- Advanced Filters Panel -->
+      <div class="advanced-filters-panel" *ngIf="mostrarFiltrosAvanzados">
+        <div class="filters-grid">
+
+          <!-- Modality Select -->
+          <div class="filter-group">
+            <label>Modalidad</label>
+            <ion-select [(ngModel)]="filtroModalidad" (ionChange)="aplicarFiltros()" interface="popover">
+              <ion-select-option value="todos">Cualquier Modalidad</ion-select-option>
+              <ion-select-option value="Presencial">Presencial</ion-select-option>
+              <ion-select-option value="Virtual">Virtual</ion-select-option>
+              <ion-select-option value="Híbrida">Híbrida</ion-select-option>
+            </ion-select>
+          </div>
+
+          <!-- Certificates Select -->
+          <div class="filter-group">
+            <label>Certificados</label>
+            <ion-select [(ngModel)]="filtroCertificados" (ionChange)="aplicarFiltros()" interface="popover">
+              <ion-select-option value="todos">Todos los registros</ion-select-option>
+              <ion-select-option value="si">Emitidos</ion-select-option>
+              <ion-select-option value="no">Pendientes de emisión</ion-select-option>
+            </ion-select>
+          </div>
+
+          <!-- Date Starts After -->
+          <div class="filter-group">
+            <label>Desde (Fecha)</label>
+            <ion-input type="date" [(ngModel)]="fechaDesde" (ionChange)="aplicarFiltros()"></ion-input>
+          </div>
+
+          <!-- Date Starts Before -->
+          <div class="filter-group">
+            <label>Hasta (Fecha)</label>
+            <ion-input type="date" [(ngModel)]="fechaHasta" (ionChange)="aplicarFiltros()"></ion-input>
+          </div>
+
+          <!-- Sort Order -->
+          <div class="filter-group">
+            <label>Ordenar por</label>
+            <ion-select [(ngModel)]="ordenarPor" (ionChange)="aplicarFiltros()" interface="popover">
+              <ion-select-option value="fecha_desc">Más recientes primero</ion-select-option>
+              <ion-select-option value="fecha_asc">Más antiguos primero</ion-select-option>
+              <ion-select-option value="nombre">Orden alfabético (A-Z)</ion-select-option>
+              <ion-select-option value="cupos">Mayor disponibilidad</ion-select-option>
+            </ion-select>
+          </div>
+
+          <!-- Clear Action -->
+          <div class="filter-group action-group">
+            <ion-button fill="clear" color="danger" size="small" (click)="limpiarFiltros()">
+              <ion-icon name="refresh-outline" slot="start"></ion-icon>
+              Limpiar Filtros
+            </ion-button>
+          </div>
+
         </div>
       </div>
     </div>

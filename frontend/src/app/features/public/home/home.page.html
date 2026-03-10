@@ -408,7 +408,7 @@
 
         <div class="card-footer">
           <!-- Ya inscrito -->
-          <div *ngIf="isInscrito(cap.id || cap.Id)" class="enrolled-status">
+          <div *ngIf="isInscrito(cap.id)" class="enrolled-status">
             <ion-icon name="checkmark-circle"></ion-icon>
             <span>Ya estás inscrito</span>
             <ion-button fill="clear" color="primary" class="go-btn" (click)="navegarModulo('ver-conferencias')">
@@ -418,7 +418,7 @@
           </div>
 
           <!-- Disponible para inscripción -->
-          <button *ngIf="!isInscrito(cap.id || cap.Id)" class="enroll-btn" (click)="inscribirse(cap.id || cap.Id)">
+          <button *ngIf="!isInscrito(cap.id)" class="enroll-btn" (click)="inscribirse(cap.id)">
             <span>Inscribirme ahora</span>
             <ion-icon name="sparkles-outline"></ion-icon>
           </button>
