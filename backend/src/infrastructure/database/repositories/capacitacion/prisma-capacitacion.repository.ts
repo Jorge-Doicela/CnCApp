@@ -3,11 +3,31 @@ import prisma from '../../../../config/database';
 import { Capacitacion } from '../../../../domain/capacitacion/entities/capacitacion.entity';
 import { CapacitacionRepository } from '../../../../domain/capacitacion/repositories/capacitacion.repository';
 import { CapacitacionMapper } from '../../../../domain/capacitacion/mappers/capacitacion.mapper';
-import { EstadoCapacitacionEnum } from '../../../../domain/shared/constants/enums';
+import { EstadoCapacitacionEnum, RolCapacitacionEnum } from '../../../../domain/shared/constants/enums';
 
 @injectable()
 export class PrismaCapacitacionRepository implements CapacitacionRepository {
     async create(data: Partial<Capacitacion>): Promise<Capacitacion> {
+        const inscripciones = [];
+
+        // Agregar expositores
+        if (data.expositores) {
+            inscripciones.push(...data.expositores.map(id => ({
+                usuarioId: id,
+                rolCapacitacion: RolCapacitacionEnum.EXPOSITOR,
+                estadoInscripcion: 'Activa'
+            })));
+        }
+
+        // Agregar participantes
+        if (data.idsUsuarios) {
+            inscripciones.push(...data.idsUsuarios.map(id => ({
+                usuarioId: id,
+                rolCapacitacion: RolCapacitacionEnum.PARTICIPANTE,
+                estadoInscripcion: 'Activa'
+            })));
+        }
+
         const capacitacion = await prisma.capacitacion.create({
             data: {
                 nombre: data.nombre!,
@@ -23,7 +43,10 @@ export class PrismaCapacitacionRepository implements CapacitacionRepository {
                 horaFin: data.horaFin,
                 horas: data.horas,
                 enlaceVirtual: data.enlaceVirtual,
-                certificado: data.certificado
+                certificado: data.certificado,
+                inscripciones: inscripciones.length > 0 ? {
+                    create: inscripciones
+                } : undefined
             }
         });
         return CapacitacionMapper.toDomain(capacitacion);
@@ -54,19 +77,33 @@ export class PrismaCapacitacionRepository implements CapacitacionRepository {
             }
         });
 
-        // 2. Actualizar relaciones si se proporcionan idsUsuarios
-        if (data.idsUsuarios) {
-            const currentIds = capacitacion.inscripciones.map(i => i.usuarioId);
-            const newIds = data.idsUsuarios;
+        // 2. Actualizar relaciones si se proporcionan idsUsuarios o expositores
+        if (data.idsUsuarios !== undefined || data.expositores !== undefined) {
+            // Obtener IDs existentes para cada rol
+            const currentInscripciones = await prisma.usuarioCapacitacion.findMany({
+                where: { capacitacionId: id }
+            });
 
-            // Identificar cambios
-            const toAdd = newIds.filter(id => !currentIds.includes(id));
-            const toRemove = currentIds.filter(id => !newIds.includes(id));
+            // Unir todos los IDs que se quieren mantener/agregar
+            const targetInscripciones: { usuarioId: number, rol: string }[] = [];
 
-            // Eliminar los que ya no están (respetando integridad referencial si es necesario, 
-            // pero normalmente en una edición de lista se asume eliminación)
-            // Nota: Esto borrará metadata como asistencia. Si se quiere preservar historial, la lógica sería diferente.
-            // Para "edición de participantes", eliminar la inscripción parece correcto si se desmarca.
+            if (data.expositores) {
+                targetInscripciones.push(...data.expositores.map(uId => ({ usuarioId: uId, rol: RolCapacitacionEnum.EXPOSITOR })));
+            }
+            if (data.idsUsuarios) {
+                // Un usuario no puede ser ambos, prevalece expositor si está en ambos
+                data.idsUsuarios.forEach(uId => {
+                    if (!targetInscripciones.some(t => t.usuarioId === uId)) {
+                        targetInscripciones.push({ usuarioId: uId, rol: RolCapacitacionEnum.PARTICIPANTE });
+                    }
+                });
+            }
+
+            const targetIds = targetInscripciones.map(t => t.usuarioId);
+            const currentIds = currentInscripciones.map(i => i.usuarioId);
+
+            // Identificar los que se van
+            const toRemove = currentIds.filter(cid => !targetIds.includes(cid));
             if (toRemove.length > 0) {
                 await prisma.usuarioCapacitacion.deleteMany({
                     where: {
@@ -76,16 +113,36 @@ export class PrismaCapacitacionRepository implements CapacitacionRepository {
                 });
             }
 
-            // Agregar nuevos
+            // Identificar los que se quedan pero tal vez con rol diferente
+            const toUpdateRole = targetInscripciones.filter(t => {
+                const current = currentInscripciones.find(ci => ci.usuarioId === t.usuarioId);
+                return current && current.rolCapacitacion !== t.rol;
+            });
+
+            for (const item of toUpdateRole) {
+                await prisma.usuarioCapacitacion.update({
+                    where: {
+                        usuarioId_capacitacionId: {
+                            usuarioId: item.usuarioId,
+                            capacitacionId: id
+                        }
+                    },
+                    data: {
+                        rolCapacitacion: item.rol
+                    }
+                });
+            }
+
+            // Identificar los nuevos para agregar
+            const toAdd = targetInscripciones.filter(t => !currentIds.includes(t.usuarioId));
             if (toAdd.length > 0) {
-                const dataToCreate = toAdd.map(usuarioId => ({
-                    usuarioId,
-                    capacitacionId: id,
-                    fechaInscripcion: new Date(),
-                    estadoInscripcion: 'Activa'
-                }));
                 await prisma.usuarioCapacitacion.createMany({
-                    data: dataToCreate
+                    data: toAdd.map(t => ({
+                        usuarioId: t.usuarioId,
+                        capacitacionId: id,
+                        rolCapacitacion: t.rol,
+                        estadoInscripcion: 'Activa'
+                    }))
                 });
             }
         }
@@ -105,10 +162,21 @@ export class PrismaCapacitacionRepository implements CapacitacionRepository {
         return capacitacion ? CapacitacionMapper.toDomain(capacitacion) : null;
     }
 
-    async findAll(): Promise<Capacitacion[]> {
+    async findAll(expositorId?: number): Promise<Capacitacion[]> {
         const capacitaciones = await prisma.capacitacion.findMany({
+            where: expositorId ? {
+                inscripciones: {
+                    some: {
+                        usuarioId: expositorId,
+                        rolCapacitacion: RolCapacitacionEnum.EXPOSITOR
+                    }
+                }
+            } : undefined,
             orderBy: {
                 createdAt: 'desc'
+            },
+            include: {
+                inscripciones: true
             }
         });
         return capacitaciones.map(c => CapacitacionMapper.toDomain(c));

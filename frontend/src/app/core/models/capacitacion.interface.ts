@@ -11,7 +11,6 @@ export interface Capacitacion {
     horaInicio?: string;
     horaFin?: string;
     horas?: number;
-    limiteParticipantes?: number;
     enlaceVirtual?: string;
     certificado?: boolean;
     entidadesEncargadas?: number[]; // For form

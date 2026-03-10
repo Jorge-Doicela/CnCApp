@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, ViewChild, inject, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { NgForm } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { ToastController, AlertController, NavController, LoadingController } from '@ionic/angular';
 import { CapacitacionesService } from 'src/app/features/admin/capacitaciones/services/capacitaciones.service';
 import { CatalogoService } from 'src/app/shared/services/catalogo.service';
@@ -17,7 +17,7 @@ import { EstadoCapacitacionEnum } from 'src/app/shared/constants/enums';
   templateUrl: './editar.page.html',
   styleUrls: ['./editar.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule],
+  imports: [CommonModule, FormsModule, IonicModule, RouterModule],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class EditarPage implements OnInit {
@@ -34,9 +34,10 @@ export class EditarPage implements OnInit {
     modalidad: '',
     tipoEvento: '',
     horas: 0,
-    limiteParticipantes: 0,
+    cuposDisponibles: 0,
     entidadesEncargadas: [] as number[],
     idsUsuarios: [] as number[],
+    expositores: [] as number[],
     certificado: false
   };
 
@@ -91,6 +92,7 @@ export class EditarPage implements OnInit {
       // This ensures the form doesn't crash on undefined properties
       if (!this.capacitacion.idsUsuarios) this.capacitacion.idsUsuarios = [];
       if (!this.capacitacion.entidadesEncargadas) this.capacitacion.entidadesEncargadas = [];
+      if (!this.capacitacion.expositores) this.capacitacion.expositores = [];
 
       this.capacitacionOriginal = JSON.parse(JSON.stringify(this.capacitacion));
     } catch (error: any) {

@@ -10,6 +10,7 @@ export interface Capacitacion {
     estado: string;
     createdAt: Date;
     idsUsuarios?: number[];
+    expositores?: number[];
     entidadesEncargadas?: number[];
     plantillaId?: number;
     horaInicio?: string | null;

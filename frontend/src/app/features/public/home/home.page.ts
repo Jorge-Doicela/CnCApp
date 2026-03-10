@@ -61,6 +61,10 @@ export class HomePage implements OnInit {
     const r = this.roleName()?.toLowerCase();
     return r?.includes('creador') || r?.includes('conferencista') || r?.includes('conferencia');
   });
+
+  isInscrito = (id: number) => {
+    return this.ConferenciasInscritas.some(c => (c.id === id || (c as any).Id === id));
+  };
   // Greeting Logic
   saludo = computed(() => {
     const hour = new Date().getHours();
@@ -314,6 +318,11 @@ export class HomePage implements OnInit {
     } finally {
       loading.dismiss();
     }
+  }
+
+  irACatalogo() {
+    const el = document.getElementById('oferta-publica');
+    if (el) { el.scrollIntoView({ behavior: 'smooth' }); }
   }
 
   // --- Navigation & Auth Wrappers ---

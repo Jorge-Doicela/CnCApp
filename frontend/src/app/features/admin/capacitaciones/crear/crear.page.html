@@ -285,20 +285,20 @@
           </div>
 
           <!-- Límite de Participantes -->
-          <div class="field-group" [class.has-error]="limiteParticipantes.invalid && limiteParticipantes.touched">
+          <div class="field-group" [class.has-error]="cuposDisponibles.invalid && cuposDisponibles.touched">
             <label class="field-label">
               Límite de Participantes
               <span class="required">*</span>
             </label>
             <div class="input-wrapper">
               <ion-icon name="people-outline" class="field-icon"></ion-icon>
-              <input type="number" class="field-input" [(ngModel)]="capacitacion.limiteParticipantes"
-                name="limiteParticipantes" #limiteParticipantes="ngModel" required min="1" max="500" placeholder="50" />
+              <input type="number" class="field-input" [(ngModel)]="capacitacion.cuposDisponibles"
+                name="cuposDisponibles" #cuposDisponibles="ngModel" required min="1" max="500" placeholder="50" />
             </div>
             <div class="field-hint">
               Número máximo de participantes permitidos
             </div>
-            <div class="field-error" *ngIf="limiteParticipantes.invalid && limiteParticipantes.touched">
+            <div class="field-error" *ngIf="cuposDisponibles.invalid && cuposDisponibles.touched">
               <ion-icon name="alert-circle"></ion-icon>
               Ingrese un límite válido (1-500)
             </div>

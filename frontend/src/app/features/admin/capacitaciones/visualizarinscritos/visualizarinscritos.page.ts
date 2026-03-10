@@ -2,7 +2,7 @@ import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { AlertController, ToastController, NavController, LoadingController } from '@ionic/angular';
 import { CapacitacionesService } from 'src/app/features/admin/capacitaciones/services/capacitaciones.service';
 import { CatalogoService } from 'src/app/shared/services/catalogo.service';
@@ -10,13 +10,15 @@ import { UsuarioService } from 'src/app/features/user/services/usuario.service';
 import { ErrorHandlerUtil } from 'src/app/shared/utils/error-handler.util';
 import { EstadoCapacitacionEnum, RolCapacitacionEnum } from 'src/app/shared/constants/enums';
 import { firstValueFrom } from 'rxjs';
+import { AuthService } from 'src/app/features/auth/services/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-visualizarinscritos',
   templateUrl: './visualizarinscritos.page.html',
   styleUrls: ['./visualizarinscritos.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule]
+  imports: [CommonModule, FormsModule, IonicModule, RouterModule]
 })
 export class VisualizarinscritosPage implements OnInit {
   idCapacitacion: number | null = null;
@@ -37,6 +39,9 @@ export class VisualizarinscritosPage implements OnInit {
   private capacitacionesService = inject(CapacitacionesService);
   private catalogoService = inject(CatalogoService);
   private usuarioService = inject(UsuarioService);
+  private authService = inject(AuthService);
+
+  isConferencista = this.authService.roleName() === 'Conferencista';
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -44,7 +49,8 @@ export class VisualizarinscritosPage implements OnInit {
     private toastController: ToastController,
     private navController: NavController,
     private loadingController: LoadingController,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
+    private router: Router
   ) { }
 
   ngOnInit() {
@@ -550,5 +556,13 @@ export class VisualizarinscritosPage implements OnInit {
     });
 
     await toast.present();
+  }
+
+  volver() {
+    if (this.isConferencista) {
+      this.router.navigate(['/conferencista/gestionar-capacitaciones']);
+    } else {
+      this.router.navigate(['/gestionar-capacitaciones']);
+    }
   }
 }

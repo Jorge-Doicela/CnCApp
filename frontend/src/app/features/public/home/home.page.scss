@@ -901,3 +901,223 @@ ion-header {
     font-size: 1rem;
   }
 }
+
+// ------------------------------------------
+// 3. CATALOG SECTION STYLES (Premium)
+// ------------------------------------------
+
+#oferta-publica {
+  padding-top: 80px;
+  padding-bottom: 120px;
+}
+
+.catalog-header {
+  text-align: center;
+  margin-bottom: 50px;
+
+  .header-line {
+    width: 40px;
+    height: 4px;
+    background: var(--ion-color-primary);
+    margin: 0 auto 16px;
+    border-radius: 2px;
+  }
+
+  .dash-section-title {
+    margin: 0 0 8px !important;
+    border: none !important;
+    padding: 0 !important;
+    font-size: 2.2rem !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.03em;
+  }
+
+  .section-subtitle {
+    font-size: 1.1rem;
+    color: #64748b;
+    font-weight: 500;
+  }
+}
+
+.catalog-loading,
+.empty-catalog {
+  display: flex;
+  flex-direction: column;
+  padding: 80px 20px;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  border: 1px dashed #cbd5e1;
+  border-radius: 24px;
+  color: #64748b;
+  text-align: center;
+
+  ion-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    opacity: 0.5;
+  }
+
+  h3 {
+    color: #1e293b;
+    font-weight: 750;
+    margin-bottom: 8px;
+  }
+}
+
+.courses-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 30px;
+}
+
+.course-card {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 24px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  height: 100%;
+
+  &:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08);
+    border-color: rgba(30, 58, 138, 0.2);
+  }
+
+  .card-badge {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(30, 58, 138, 0.9);
+    backdrop-filter: blur(4px);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 99px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    z-index: 2;
+  }
+
+  .card-body {
+    padding: 32px;
+    flex: 1;
+
+    .category {
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: var(--ion-color-primary);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 12px;
+    }
+
+    .course-title {
+      font-size: 1.35rem !important;
+      font-weight: 800;
+      color: #0f172a;
+      line-height: 1.2;
+      margin-bottom: 14px;
+      letter-spacing: -0.02em;
+    }
+
+    .course-desc {
+      font-size: 0.95rem;
+      color: #64748b;
+      line-height: 1.6;
+      margin-bottom: 24px;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .course-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding-top: 16px;
+      border-top: 1px solid #f1f5f9;
+
+      .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #475569;
+        font-size: 0.88rem;
+        font-weight: 600;
+
+        ion-icon {
+          color: #94a3b8;
+          font-size: 1.1rem;
+        }
+      }
+    }
+  }
+
+  .card-footer {
+    padding: 0 32px 32px;
+  }
+
+  .enroll-btn {
+    width: 100%;
+    background: #0f172a;
+    color: white;
+    border: none;
+    height: 54px;
+    border-radius: 16px;
+    font-weight: 800;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
+
+    &:hover {
+      background: #1e293b;
+      transform: scale(1.02);
+    }
+
+    ion-icon {
+      font-size: 1.2rem;
+    }
+  }
+
+  .enrolled-status {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    background: #f0fdf4;
+    padding: 16px;
+    border-radius: 16px;
+    border: 1px solid #dcfce7;
+
+    ion-icon {
+      color: #16a34a;
+      font-size: 1.5rem;
+    }
+
+    span {
+      color: #166534;
+      font-weight: 750;
+      font-size: 0.9rem;
+    }
+
+    .go-btn {
+      --padding-top: 0;
+      --padding-bottom: 0;
+      height: 32px;
+      font-weight: 800;
+      font-size: 0.85rem;
+    }
+  }
+}
