@@ -100,6 +100,13 @@
                 <span class="info-value">{{ datosUsuario.Genero_Usuario }}</span>
               </div>
             </div>
+            <div class="info-item" *ngIf="datosUsuario.Fecha_Nacimiento">
+              <ion-icon name="calendar-outline" color="primary"></ion-icon>
+              <div class="info-content">
+                <span class="info-label">Fecha de Nacimiento</span>
+                <span class="info-value">{{ datosUsuario.Fecha_Nacimiento }}</span>
+              </div>
+            </div>
             <div class="info-item" *ngIf="datosUsuario.Nacionalidad_Usuario">
               <ion-icon name="flag-outline" color="primary"></ion-icon>
               <div class="info-content">

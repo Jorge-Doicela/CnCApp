@@ -91,6 +91,7 @@ export class PerfilPage implements OnInit {
           // Ubicación desde objetos anidados del backend
           Provincia_Nombre: usuario.provincia?.nombre || '',
           Canton_Nombre: usuario.canton?.nombre || '',
+          Fecha_Nacimiento: usuario.fechaNacimiento ? new Date(usuario.fechaNacimiento).toISOString().split('T')[0] : null,
         };
 
         this.provinciaUsuario = this.datosUsuario.Provincia_Nombre;
