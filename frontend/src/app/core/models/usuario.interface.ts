@@ -40,6 +40,7 @@ export interface Usuario {
     tipoParticipante?: any;
     provincia?: any;
     canton?: any;
+    parroquia?: any;
     genero?: any;
     etnia?: any;
     nacionalidad?: any;

@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { Component, OnInit, inject, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, timeout } from 'rxjs';
 import { ToastController, AlertController, LoadingController } from '@ionic/angular';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { addIcons } from 'ionicons';
@@ -16,7 +16,7 @@ import {
 import { UsuarioService } from 'src/app/features/user/services/usuario.service';
 import { CatalogoService } from 'src/app/shared/services/catalogo.service';
 import { ErrorHandlerUtil } from 'src/app/shared/utils/error-handler.util';
-import { TipoParticipanteEnum } from 'src/app/shared/constants/enums';
+import { TipoParticipanteEnum, NivelGobiernoEnum } from 'src/app/shared/constants/enums';
 
 @Component({
   selector: 'app-editar',
@@ -28,6 +28,21 @@ import { TipoParticipanteEnum } from 'src/app/shared/constants/enums';
 })
 export class EditarPage implements OnInit {
   segmentoActual: string = 'personal';
+  today: Date = new Date();
+  TipoParticipanteEnum = TipoParticipanteEnum;
+  NivelGobiernoEnum = NivelGobiernoEnum;
+
+  // Mapas para evitar IDs quemados
+  resolvedIds = {
+    tipoAutoridad: TipoParticipanteEnum.AUTORIDAD,
+    tipoCiudadano: TipoParticipanteEnum.CIUDADANO,
+    tipoFuncionario: TipoParticipanteEnum.FUNCIONARIO_GAD,
+    tipoInstitucion: TipoParticipanteEnum.INSTITUCION,
+    nivelProvincial: NivelGobiernoEnum.PROVINCIAL,
+    nivelMunicipal: NivelGobiernoEnum.MUNICIPAL,
+    nivelParroquial: NivelGobiernoEnum.PARROQUIAL,
+    nivelMancomunidad: NivelGobiernoEnum.MANCOMUNIDADES
+  };
 
   usuario = {
     id: '',
@@ -44,7 +59,6 @@ export class EditarPage implements OnInit {
     estado: 1,
     firmaUrl: '',
     celular: '',
-    convencional: '',
     genero: '',
     etnia: '',
     nacionalidad: '',
@@ -63,7 +77,7 @@ export class EditarPage implements OnInit {
 
   // Objetos para tipos específicos
   autoridad = { cargo: '', nivelGobierno: '', gadAutoridad: '' };
-  funcionarioGad = { cargo: '', competencias: '', nivelGobierno: '', gadFuncionarioGad: '' };
+  funcionarioGad = { cargo: '', competencias: [] as any[], nivelGobierno: '', gadFuncionarioGad: '' };
   institucion = { institucion: '', gradoOcupacional: '', cargo: '' };
 
   datosrecuperados = {
@@ -77,6 +91,10 @@ export class EditarPage implements OnInit {
     etnias: [] as any[],
     nacionalidades: [] as any[],
     tiposParticipante: [] as any[],
+    entidades: [] as any[], // Nivel de gobierno
+    mancomunidades: [] as any[],
+    competencias: [] as any[],
+    gradosOcupacionales: [] as any[],
   };
 
   datosbusqueda = {
@@ -124,41 +142,47 @@ export class EditarPage implements OnInit {
   async ngOnInit() {
     console.log('[ADMIN_EDITAR_DEBUG] ngOnInit iniciado');
 
-    // Don't await - let it run in background
-    this.mostrarCargando('Cargando información...').then(() => {
-      console.log('[ADMIN_EDITAR_DEBUG] Loading dialog shown');
-    }).catch(err => {
-      console.error('[ADMIN_EDITAR_DEBUG] Error showing loading:', err);
-    });
+    try {
+      await this.mostrarCargando('Cargando información...');
 
-    console.log('[ADMIN_EDITAR_DEBUG] After mostrarCargando call');
+      const userId = +this.activatedRoute.snapshot.params['id'];
+      if (isNaN(userId)) {
+        this.presentToast('ID de usuario inválido', 'danger');
+        this.router.navigate(['/gestionar-usuarios']);
+        return;
+      }
 
-    this.obtenerRoles();
-    console.log('[ADMIN_EDITAR_DEBUG] After obtenerRoles');
-    this.obtenerProvincias();
-    console.log('[ADMIN_EDITAR_DEBUG] After obtenerProvincias');
-    this.obtenerCargos();
-    console.log('[ADMIN_EDITAR_DEBUG] After obtenerCargos');
-    this.obtenerInstituciones();
-    console.log('[ADMIN_EDITAR_DEBUG] After obtenerInstituciones');
-    this.obtenerGeneros();
-    this.obtenerEtnias();
-    this.obtenerNacionalidades();
-    this.obtenerTiposParticipante();
+      this.usuario.id = userId.toString();
 
-    const userId = +this.activatedRoute.snapshot.params['id'];
-    console.log('[ADMIN_EDITAR_DEBUG] userId from route:', userId);
-    if (isNaN(userId)) {
-      console.log('[ADMIN_EDITAR_DEBUG] userId is NaN - showing error');
-      this.ocultarCargando();
-      this.presentToast('ID de usuario inválido', 'danger');
-      return;
+      // Load all catalogs in parallel first
+      await Promise.all([
+        this.obtenerRoles(),
+        this.obtenerProvincias(),
+        this.obtenerCargos(),
+        this.obtenerInstituciones(),
+        this.obtenerGeneros(),
+        this.obtenerEtnias(),
+        this.obtenerNacionalidades(),
+        this.obtenerTiposParticipante(),
+        this.obtenerEntidades(),
+        this.obtenerMancomunidades(),
+        this.obtenerCompetencias(),
+        this.obtenerGradosOcupacionales()
+      ]);
+
+      // Then resolve IDs dynamically based on names to avoid issues if IDs change in DB
+      this.resolveStaticIds();
+
+      // Then load user data
+      await this.cargarUsuario(userId);
+
+    } catch (error) {
+      console.error('[ADMIN_EDITAR_DEBUG] Error en inicialización:', error);
+      this.presentToast('Error al cargar la página', 'danger');
+    } finally {
+      await this.ocultarCargando();
+      this.cdr.markForCheck();
     }
-
-    this.usuario.id = userId.toString();
-    console.log('[ADMIN_EDITAR_DEBUG] Calling cargarUsuario with ID:', userId);
-    this.cargarUsuario(userId);
-    console.log('[ADMIN_EDITAR_DEBUG] ngOnInit completed');
   }
 
   private cdr = inject(ChangeDetectorRef);
@@ -166,11 +190,10 @@ export class EditarPage implements OnInit {
   async cargarUsuario(id: number) {
     console.log('[ADMIN_EDITAR_DEBUG] cargarUsuario called with ID:', id);
     try {
-      const data = await firstValueFrom(this.usuarioService.getUsuario(id));
-      console.log('[ADMIN_EDITAR_DEBUG] Usuario data received:', data);
+      const data: any = await firstValueFrom(
+        this.usuarioService.getUsuario(id).pipe(timeout(10000))
+      );
       if (!data) {
-        console.log('[ADMIN_EDITAR_DEBUG] No data received');
-        this.ocultarCargando();
         this.presentToast('No se encontró el usuario', 'warning');
         return;
       }
@@ -191,11 +214,10 @@ export class EditarPage implements OnInit {
         estado: (data as any).estado ?? 1,
         firmaUrl: data.firmaUrl || '',
         celular: data.celular || '',
-        convencional: data.convencional || '',
         genero: data.genero || '',
         etnia: data.etnia || '',
         nacionalidad: data.nacionalidad || '',
-        tipoParticipante: Number(data.tipoParticipanteId || data.tipoParticipante) || TipoParticipanteEnum.CIUDADANO,
+        tipoParticipante: Number(data.tipoParticipanteId || (data as any).tipoParticipante) || TipoParticipanteEnum.CIUDADANO,
         fechaNacimiento: data.fechaNacimiento || '',
         cantonId: data.cantonId,
         parroquiaId: data.parroquiaId,
@@ -220,8 +242,8 @@ export class EditarPage implements OnInit {
       if (data.funcionarioGad) {
         this.funcionarioGad = {
           cargo: data.funcionarioGad.cargo || '',
-          competencias: data.funcionarioGad.competencias || '',
-          nivelGobierno: data.funcionarioGad.nivelGobierno || '',
+          competencias: Array.isArray(data.funcionarioGad.competencias) ? data.funcionarioGad.competencias : [],
+          nivelGobierno: data.funcionarioGad.nivelGobierno || data.funcionarioGad.nivelGobiernoId || '',
           gadFuncionarioGad: data.funcionarioGad.gadFuncionarioGad || ''
         };
       }
@@ -233,14 +255,10 @@ export class EditarPage implements OnInit {
         };
       }
 
-      console.log('[ADMIN_EDITAR_DEBUG] Usuario loaded successfully, hiding loading');
-      this.ocultarCargando();
+      console.log('[ADMIN_EDITAR_DEBUG] Usuario loaded successfully');
     } catch (error) {
       console.error('[ADMIN_EDITAR_DEBUG] Error al cargar usuario:', error);
-      this.ocultarCargando();
-      this.presentToast(ErrorHandlerUtil.getErrorMessage(error), 'danger');
-    } finally {
-      this.cdr.markForCheck();
+      throw error; // Let ngOnInit handle it
     }
   }
 
@@ -358,6 +376,50 @@ export class EditarPage implements OnInit {
       this.datosrecuperados.instituciones = data || [];
     } catch (error) {
       console.error('Error instituciones:', error);
+    } finally {
+      this.cdr.markForCheck();
+    }
+  }
+
+  async obtenerEntidades() {
+    try {
+      const data = await firstValueFrom(this.catalogoService.getItems('public/entidades'));
+      this.datosrecuperados.entidades = data || [];
+    } catch (error) {
+      console.error('Error entidades:', error);
+    } finally {
+      this.cdr.markForCheck();
+    }
+  }
+
+  async obtenerMancomunidades() {
+    try {
+      const data = await firstValueFrom(this.catalogoService.getItems('public/mancomunidades'));
+      this.datosrecuperados.mancomunidades = data || [];
+    } catch (error) {
+      console.error('Error mancomunidades:', error);
+    } finally {
+      this.cdr.markForCheck();
+    }
+  }
+
+  async obtenerCompetencias() {
+    try {
+      const data = await firstValueFrom(this.catalogoService.getItems('public/competencias'));
+      this.datosrecuperados.competencias = data || [];
+    } catch (error) {
+      console.error('Error competencias:', error);
+    } finally {
+      this.cdr.markForCheck();
+    }
+  }
+
+  async obtenerGradosOcupacionales() {
+    try {
+      const data = await firstValueFrom(this.catalogoService.getItems('public/grados-ocupacionales'));
+      this.datosrecuperados.gradosOcupacionales = data || [];
+    } catch (error) {
+      console.error('Error grados:', error);
     } finally {
       this.cdr.markForCheck();
     }
@@ -562,6 +624,40 @@ export class EditarPage implements OnInit {
       this.segmentoActual = 'personal';
     }
     this.scrollToTop();
+  }
+
+  resolveStaticIds() {
+    const findId = (list: any[], name: string) => {
+      const match = list.find(i => i.nombre?.toUpperCase().includes(name.toUpperCase()));
+      return match ? match.id : undefined;
+    };
+
+    // Resolver Tipos de Participante
+    this.resolvedIds.tipoAutoridad = findId(this.datosrecuperados.tiposParticipante, 'AUTORIDAD') || TipoParticipanteEnum.AUTORIDAD;
+    this.resolvedIds.tipoCiudadano = findId(this.datosrecuperados.tiposParticipante, 'CIUDADANO') || TipoParticipanteEnum.CIUDADANO;
+    this.resolvedIds.tipoFuncionario = findId(this.datosrecuperados.tiposParticipante, 'FUNCIONARIO') || TipoParticipanteEnum.FUNCIONARIO_GAD;
+    this.resolvedIds.tipoInstitucion = findId(this.datosrecuperados.tiposParticipante, 'INSTITUCI') || TipoParticipanteEnum.INSTITUCION;
+
+    // Resolver Niveles de Gobierno (Entidades)
+    this.resolvedIds.nivelProvincial = findId(this.datosrecuperados.entidades, 'PROVINCIAL') || NivelGobiernoEnum.PROVINCIAL;
+    this.resolvedIds.nivelMunicipal = findId(this.datosrecuperados.entidades, 'MUNICIPAL') || NivelGobiernoEnum.MUNICIPAL;
+    this.resolvedIds.nivelParroquial = findId(this.datosrecuperados.entidades, 'PARROQUIAL') || NivelGobiernoEnum.PARROQUIAL;
+    this.resolvedIds.nivelMancomunidad = findId(this.datosrecuperados.entidades, 'MANCOMUNIDAD') || NivelGobiernoEnum.MANCOMUNIDADES;
+
+    console.log('[ADMIN_EDITAR_DEBUG] IDs Dinámicos Resueltos:', this.resolvedIds);
+  }
+
+  getGadsParaNivel(nivel: any) {
+    const n = Number(nivel);
+
+    if (n === this.resolvedIds.nivelMancomunidad) {
+      return this.datosrecuperados.mancomunidades;
+    } else if (n === this.resolvedIds.nivelMunicipal || n === this.resolvedIds.nivelParroquial) {
+      return this.datosrecuperados.cantones;
+    } else {
+      // PROVINCIAL or others
+      return this.datosrecuperados.provincias;
+    }
   }
 
   private scrollToTop() {

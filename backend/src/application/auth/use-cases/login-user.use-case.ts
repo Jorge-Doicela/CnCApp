@@ -41,6 +41,12 @@ export class LoginUserUseCase {
             }
         }
 
+        // Verificación de estado de cuenta (Funcionalidad de bloqueo)
+        if (user.estado === 0) {
+            console.log(`[LOGIN_DEBUG] Intento de login en cuenta inactiva/bloqueada ID=${user.id}`);
+            throw new AuthenticationError('Su cuenta se encuentra inactiva o bloqueada. Contacte al administrador.');
+        }
+
         console.log(`[LOGIN_DEBUG] Login exitoso para usuario ID=${user.id}. Generando tokens...`);
 
         const tokens = this.tokenProvider.generateTokens({

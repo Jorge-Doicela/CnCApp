@@ -1,203 +1,210 @@
 <ion-content>
 
     <div class="main-container" *ngIf="!cargando && usuario">
+        <!-- Modern Header Navigation -->
+        <div class="page-header-nav">
+            <div class="nav-left">
+                <ion-button fill="clear" (click)="regresar()" class="hover-scale">
+                    <ion-icon name="arrow-back-outline"></ion-icon>
+                </ion-button>
+                <span class="nav-title">GESTIÓN DE USUARIOS</span>
+            </div>
 
-        <!-- Back Nav -->
-        <div class="page-back-nav">
-            <ion-button fill="clear" color="medium" size="small" (click)="regresar()">
-                <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
-                Gestión de Usuarios
-            </ion-button>
+            <div class="nav-actions">
+                <ion-button fill="outline" [color]="usuario.estado === 1 ? 'danger' : 'success'"
+                    class="status-toggle-btn hover-scale" (click)="toggleEstado()" [disabled]="actualizando">
+                    <ion-spinner name="crescent" slot="start" *ngIf="actualizando" size="small"></ion-spinner>
+                    <ion-icon [name]="usuario.estado === 1 ? 'lock-closed-outline' : 'lock-open-outline'" slot="start"
+                        *ngIf="!actualizando"></ion-icon>
+                    {{ actualizando ? 'Actualizando...' : (usuario.estado === 1 ? 'Bloquear' : 'Activar') }}
+                </ion-button>
 
-            <ion-button fill="clear" color="primary" size="small"
-                [routerLink]="['/gestionar-usuarios/editar', usuario.id]" *ngIf="usuario">
-                <ion-icon name="create-outline" slot="start"></ion-icon>
-                Editar
-            </ion-button>
+                <ion-button mode="ios" [routerLink]="['/gestionar-usuarios/editar', usuario.id]"
+                    class="edit-action-btn hover-scale">
+                    <ion-icon name="create-outline" slot="start"></ion-icon>
+                    Editar Perfil
+                </ion-button>
+            </div>
         </div>
 
-        <div class="profile-hero fade-in">
-            <div class="avatar-container">
-                <div class="avatar">
+        <!-- Premium Profile Hero -->
+        <div class="profile-hero-card fade-in">
+            <div class="avatar-wrap">
+                <div class="avatar-circle">
                     {{ getInicial(usuario.nombre) }}
                 </div>
-                <div class="status-indicator" [ngClass]="usuario.estado === 1 ? 'active' : 'inactive'"></div>
+                <!-- Online dot reflecting account status -->
+                <div class="online-indicator" [ngClass]="usuario.estado === 1 ? 'active' : 'inactive'"></div>
             </div>
 
-            <div class="profile-info">
-                <h1>{{ usuario.nombre }}</h1>
-                <p class="subtitle">{{ usuario.ci }}</p>
-                <div class="badges">
-                    <span class="badge role">{{ usuario.rol?.nombre || 'Sin Rol' }}</span>
-                    <span class="badge type">{{ getTipoParticipanteLabel(usuario.tipoParticipante) }}</span>
+            <div class="profile-main">
+                <h1 class="user-full-name">{{ getCleanFullName() || 'Nombre de Usuario' }}</h1>
+
+                <div class="user-id-badge">
+                    <ion-icon name="finger-print-outline"></ion-icon>
+                    <span>{{ usuario.ci }}</span>
+                </div>
+
+                <div class="type-pills">
+                    <span class="type-pill role">USUARIO</span>
+                    <span class="type-pill participant">{{ getTipoParticipanteLabel(usuario.tipoParticipanteId)
+                        }}</span>
                 </div>
             </div>
         </div>
 
-        <!-- Details Grid -->
-        <div class="details-grid fade-in" style="animation-delay: 0.1s;">
+        <!-- Bento Grid Details -->
+        <div class="details-layout fade-in" style="animation-delay: 0.1s;">
 
-            <!-- Personal Info Card -->
-            <div class="info-card">
-                <h3 class="card-title">
-                    <ion-icon name="person-outline"></ion-icon>
-                    Datos Personales
-                </h3>
-                <div class="data-list">
-                    <div class="data-item">
-                        <span class="label">Nombres completos</span>
-                        <span class="value">{{ usuario.primerNombre || '-' }} {{ usuario.segundoNombre }}</span>
+            <!-- Card: Datos Personales -->
+            <div class="detail-card">
+                <div class="card-header">
+                    <div class="header-icon personal"><ion-icon name="person-outline"></ion-icon></div>
+                    <h3>Datos Personales</h3>
+                </div>
+
+                <div class="data-grid">
+                    <div class="data-group">
+                        <label>Nombres</label>
+                        <p>{{ usuario.primerNombre }}</p>
                     </div>
-                    <div class="data-item">
-                        <span class="label">Apellidos completos</span>
-                        <span class="value">{{ usuario.primerApellido || '-' }} {{ usuario.segundoApellido }}</span>
+                    <div class="data-group">
+                        <label>Apellidos</label>
+                        <p>{{ usuario.primerApellido }}</p>
                     </div>
-                    <div class="data-item">
-                        <span class="label">Correo Electrónico</span>
-                        <span class="value mail">{{ usuario.email || 'Sin correo' }}</span>
+                    <div class="data-group full">
+                        <label>Correo Electrónico</label>
+                        <p class="email-link">{{ usuario.email }}</p>
                     </div>
-                    <div class="data-item">
-                        <span class="label">Género / Etnia</span>
-                        <span class="value">{{ usuario.genero || '-' }} • {{ usuario.etnia || '-' }}</span>
+                    <div class="data-group">
+                        <label>Género</label>
+                        <p>{{ usuario.genero?.nombre || '-' }}</p>
                     </div>
-                    <div class="data-item">
-                        <span class="label">Nacionalidad</span>
-                        <span class="value">{{ usuario.nacionalidad || 'Ecuatoriana' }}</span>
+                    <div class="data-group">
+                        <label>Etnia</label>
+                        <p>{{ usuario.etnia?.nombre || '-' }}</p>
+                    </div>
+                    <div class="data-group">
+                        <label>Nacionalidad</label>
+                        <p>{{ usuario.nacionalidad?.nombre || 'Ecuatoriana' }}</p>
+                    </div>
+                    <div class="data-group">
+                        <label>Fecha Nacimiento</label>
+                        <p>{{ (usuario.fechaNacimiento | date:'dd MMM, yyyy') || '-' }}</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Contact & Location Card -->
-            <div class="info-card">
-                <h3 class="card-title">
-                    <ion-icon name="location-outline"></ion-icon>
-                    Contacto y Ubicación
-                </h3>
-                <div class="data-list">
-                    <div class="data-item">
-                        <span class="label">Teléfono Celular</span>
-                        <span class="value">{{ usuario.celular || '-' }}</span>
+            <!-- Card: Ubicación y Contacto -->
+            <div class="detail-card">
+                <div class="card-header">
+                    <div class="header-icon location"><ion-icon name="location-outline"></ion-icon></div>
+                    <h3>Ubicación y Contacto</h3>
+                </div>
+
+                <div class="data-grid">
+                    <div class="data-group full">
+                        <label>Celular</label>
+                        <p>{{ usuario.celular || '-' }}</p>
                     </div>
-                    <div class="data-item">
-                        <span class="label">Teléfono Convencional</span>
-                        <span class="value">{{ usuario.convencional || '-' }}</span>
+                    <div class="data-group full">
+                        <label>Cantón / Parroquia</label>
+                        <p>{{ usuario.canton?.nombre || '-' }} {{ usuario.parroquia?.nombre ? '• ' +
+                            (usuario.parroquia.nombre | uppercase) : '' }}</p>
                     </div>
-                    <div class="data-item">
-                        <span class="label">Cantón de Residencia</span>
-                        <span class="value">{{ usuario.cantonReside || 'No especificado' }}</span>
-                    </div>
-                    <div class="data-item">
-                        <span class="label">Parroquia</span>
-                        <span class="value">{{ usuario.parroquiaReside || '-' }}</span>
+                    <div class="data-group full">
+                        <label>Provincia</label>
+                        <p>{{ usuario.provincia?.nombre || '-' | uppercase }}</p>
                     </div>
                 </div>
-            </div>
 
-            <!-- System Data Card -->
-            <div class="info-card full-width">
-                <h3 class="card-title">
-                    <ion-icon name="shield-checkmark-outline"></ion-icon>
-                    Información del Sistema
-                </h3>
-                <div class="system-stats">
-                    <div class="stat-item">
+                <div class="system-stats-compact">
+                    <div class="stat-mini">
                         <ion-icon name="business-outline"></ion-icon>
-                        <div class="stat-content">
-                            <span class="stat-label">Entidad / Institución</span>
-                            <span class="stat-value">{{ usuario.entidad?.nombre || 'Particular' }}</span>
+                        <div>
+                            <span>Entidad</span>
+                            <strong>{{ usuario.entidad?.nombre || 'Particular' }}</strong>
                         </div>
                     </div>
-                    <div class="stat-item">
-                        <ion-icon name="time-outline"></ion-icon>
-                        <div class="stat-content">
-                            <span class="stat-label">Miembro desde</span>
-                            <span class="stat-value">{{ usuario.createdAt | date:'mediumDate' }}</span>
-                        </div>
-                    </div>
-                    <div class="stat-item">
-                        <ion-icon name="finger-print-outline"></ion-icon>
-                        <div class="stat-content">
-                            <span class="stat-label">Estado de Cuenta</span>
-                            <span class="stat-value"
-                                [style.color]="usuario.estado === 1 ? 'var(--ion-color-success)' : 'var(--ion-color-danger)'">
-                                {{ usuario.estado === 1 ? 'Habilitado' : 'Deshabilitado' }}
-                            </span>
+                    <div class="stat-mini">
+                        <ion-icon name="calendar-outline"></ion-icon>
+                        <div>
+                            <span>Registro</span>
+                            <strong>{{ (usuario.createdAt | date:'d MMM yyyy') || (today | date:'d MMM yyyy')
+                                }}</strong>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Professional Data (Contextual) -->
-            <div class="info-card full-width" *ngIf="usuario.tipoParticipante?.nombre !== 'Ciudadano'">
-                <h3 class="card-title">
-                    <ion-icon name="briefcase-outline"></ion-icon>
-                    Perfil Profesional
-                </h3>
-
-                <!-- Autoridad -->
-                <div class="data-list" *ngIf="usuario.tipoParticipante?.nombre === 'Autoridad' && usuario.autoridad">
-                    <div class="data-item">
-                        <span class="label">Cargo de Autoridad</span>
-                        <span class="value">{{ usuario.autoridad.cargo }}</span>
-                    </div>
+            <!-- Card: Perfil Profesional (If applicable) -->
+            <div class="detail-card full-width"
+                *ngIf="usuario.tipoParticipanteId && usuario.tipoParticipanteId != TipoParticipanteEnum.CIUDADANO">
+                <div class="card-header">
+                    <div class="header-icon pro"><ion-icon name="briefcase-outline"></ion-icon></div>
+                    <h3>Perfil Profesional</h3>
                 </div>
 
-                <!-- Funcionario -->
-                <div class="data-list" *ngIf="usuario.tipoParticipante?.nombre === 'Funcionario GAD' && usuario.funcionarioGad">
-                    <div class="data-item">
-                        <span class="label">Cargo Funcional</span>
-                        <span class="value">{{ usuario.funcionarioGad.cargo }}</span>
-                    </div>
-                    <div class="data-item">
-                        <span class="label">Entidad GAD</span>
-                        <span class="value">{{ usuario.funcionarioGad.gadFuncionarioGad }}</span>
-                    </div>
-                </div>
+                <div class="pro-grid">
+                    <!-- Autoridad -->
+                    <ng-container *ngIf="usuario.autoridad">
+                        <div class="pro-item">
+                            <label>Cargo</label>
+                            <p>{{ usuario.autoridad.cargo }}</p>
+                        </div>
+                        <div class="pro-item">
+                            <label>Jurisdicción</label>
+                            <p>{{ usuario.autoridad.gadAutoridad }}</p>
+                        </div>
+                    </ng-container>
 
-                <!-- Institucion -->
-                <div class="data-list" *ngIf="usuario.tipoParticipante?.nombre === 'Institución del Sistema' && usuario.institucion">
-                    <div class="data-item">
-                        <span class="label">Institución</span>
-                        <span class="value">{{ usuario.institucion.institucionNombre || usuario.institucion.institucion }}</span>
-                    </div>
-                    <div class="data-item">
-                        <span class="label">Cargo Institucional</span>
-                        <span class="value">{{ usuario.institucion.gradoOcupacionalNombre || usuario.institucion.gradoOcupacional }}</span>
-                    </div>
-                </div>
-            </div>
+                    <!-- Funcionario -->
+                    <ng-container *ngIf="usuario.funcionarioGad">
+                        <div class="pro-item">
+                            <label>Puesto</label>
+                            <p>{{ usuario.funcionarioGad.cargo }}</p>
+                        </div>
+                        <div class="pro-item">
+                            <label>Unidad/GAD</label>
+                            <p>{{ usuario.funcionarioGad.gadFuncionarioGad }}</p>
+                        </div>
+                    </ng-container>
 
-            <!-- Signature Section -->
-            <div class="info-card signature-card full-width">
-                <h3 class="card-title">
-                    <ion-icon name="create-outline"></ion-icon>
-                    Firma Digital Registrada
-                </h3>
-                <div class="signature-display">
-                    <img [src]="usuario.firmaUrl" alt="Firma Digital" *ngIf="usuario.firmaUrl" class="signature-img">
-                    <div class="no-signature" *ngIf="!usuario.firmaUrl">
-                        <ion-icon name="alert-circle-outline"></ion-icon>
-                        <span>No se ha registrado una firma digital para este usuario.</span>
-                    </div>
+                    <!-- Institucional -->
+                    <ng-container *ngIf="usuario.institucion">
+                        <div class="pro-item">
+                            <label>Institución</label>
+                            <p>{{ usuario.institucion.institucionNombre || usuario.institucion.institucion }}</p>
+                        </div>
+                        <div class="pro-item">
+                            <label>Cargo</label>
+                            <p>{{ usuario.institucion.cargo }}</p>
+                        </div>
+                    </ng-container>
                 </div>
             </div>
 
+            <!-- Card: Firma Digital -->
+            <div class="detail-card full-width">
+                <div class="card-header">
+                    <div class="header-icon signature"><ion-icon name="create-outline"></ion-icon></div>
+                    <h3>Firma Digital</h3>
+                </div>
+
+                <div class="signature-canvas">
+                    <img [src]="usuario.firmaUrl" alt="Firma" *ngIf="usuario.firmaUrl" class="firm-img">
+                    <div class="empty-state" *ngIf="!usuario.firmaUrl" style="text-align: center; color: #94a3b8;">
+                        <p style="font-weight: 700;">No se ha cargado una firma digital</p>
+                    </div>
+                </div>
+            </div>
         </div>
-
-        <!-- Actions -->
-        <div class="actions-section fade-in">
-            <ion-button color="primary" fill="outline" class="edit-btn"
-                [routerLink]="['/gestionar-usuarios/editar', usuario.id]">
-                <ion-icon name="create-outline" slot="start"></ion-icon>
-                Editar Todo el Perfil
-            </ion-button>
-        </div>
-
     </div>
 
     <!-- Loading State -->
-    <div class="loading-state" *ngIf="cargando">
-        <ion-spinner name="crescent"></ion-spinner>
-        <p>Cargando perfil...</p>
+    <div class="loading-state" *ngIf="cargando"
+        style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
+        <ion-spinner name="crescent" color="primary"></ion-spinner>
+        <p style="margin-top: 16px; color: #64748b; font-weight: 600;">Cargando perfil...</p>
     </div>
 </ion-content>

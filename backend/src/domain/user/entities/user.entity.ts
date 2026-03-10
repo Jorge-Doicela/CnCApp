@@ -52,6 +52,14 @@ export interface User {
         id: number;
         nombre: string;
     } | null;
+    genero?: {
+        id: number;
+        nombre: string;
+    } | null;
+    etnia?: {
+        id: number;
+        nombre: string;
+    } | null;
     nacionalidad?: {
         id: number;
         nombre: string;

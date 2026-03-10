@@ -62,7 +62,6 @@ export class CrearPage implements OnInit {
     entidadId: undefined as number | undefined,
     firmaUrl: '',
     celular: '',
-    convencional: '',
     generoId: undefined as number | undefined,
     etniaId: undefined as number | undefined,
     nacionalidadId: undefined as number | undefined,
@@ -567,7 +566,14 @@ export class CrearPage implements OnInit {
 
   // Concatenar nombre completo
   concatenarNombreCompleto(): string {
-    return `${this.usuarioGeneral.primerNombre} ${this.usuarioGeneral.segundoNombre || ''} ${this.usuarioGeneral.primerApellido} ${this.usuarioGeneral.segundoApellido || ''}`.trim().replace(/\s+/g, ' ');
+    // Prepare full name correctly without "null" strings
+    this.usuarioGeneral.nombre = [
+      this.usuarioGeneral.primerNombre,
+      this.usuarioGeneral.segundoNombre,
+      this.usuarioGeneral.primerApellido,
+      this.usuarioGeneral.segundoApellido
+    ].filter(val => val && val.toString().trim() !== '' && val !== 'null').join(' ');
+    return this.usuarioGeneral.nombre;
   }
 
   // Manejar cambio en tipo de participante
@@ -848,7 +854,6 @@ export class CrearPage implements OnInit {
       entidadId: undefined,
       firmaUrl: '',
       celular: '',
-      convencional: '',
       generoId: undefined,
       etniaId: undefined,
       nacionalidadId: undefined,
