@@ -48,7 +48,6 @@ export class CrudcapacitacionesPage implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.RecuperarCapacitaciones();
   }
 
   ionViewWillEnter() {
@@ -56,12 +55,8 @@ export class CrudcapacitacionesPage implements OnInit {
   }
 
   async RecuperarCapacitaciones() {
-    const loading = await this.loadingController.create({
-      message: 'Cargando capacitaciones...',
-      spinner: 'crescent'
-    });
-    await loading.present();
     this.cargando = true;
+    this.cdr.markForCheck();
 
     try {
       const data = await firstValueFrom(this.capacitacionesService.getCapacitaciones());
@@ -72,7 +67,6 @@ export class CrudcapacitacionesPage implements OnInit {
       this.presentToast(ErrorHandlerUtil.getErrorMessage(error), 'danger');
     } finally {
       this.cargando = false;
-      loading.dismiss();
       this.cdr.markForCheck();
     }
   }

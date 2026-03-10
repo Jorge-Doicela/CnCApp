@@ -174,9 +174,6 @@ export class PrismaCapacitacionRepository implements CapacitacionRepository {
             } : undefined,
             orderBy: {
                 createdAt: 'desc'
-            },
-            include: {
-                inscripciones: true
             }
         });
         return capacitaciones.map(c => CapacitacionMapper.toDomain(c));
