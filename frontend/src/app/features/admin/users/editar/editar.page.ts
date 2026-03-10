@@ -218,7 +218,7 @@ export class EditarPage implements OnInit {
         etnia: data.etnia || '',
         nacionalidad: data.nacionalidad || '',
         tipoParticipante: Number(data.tipoParticipanteId || (data as any).tipoParticipante) || TipoParticipanteEnum.CIUDADANO,
-        fechaNacimiento: data.fechaNacimiento || '',
+        fechaNacimiento: data.fechaNacimiento ? new Date(data.fechaNacimiento).toISOString().split('T')[0] : '',
         cantonId: data.cantonId,
         parroquiaId: data.parroquiaId,
         generoId: data.generoId,

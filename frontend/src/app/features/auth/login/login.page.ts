@@ -112,7 +112,11 @@ export class LoginPage implements OnInit {
         if (error.status === 0) {
           msg = 'No se pudo conectar con el servidor. Verifique que el backend esté en ejecución.';
         } else if (error.status === 401 || error.status === 403) {
-          msg = 'Cédula o contraseña incorrectos. Verifique sus datos.';
+          msg = error.error?.message || 'Cédula o contraseña incorrectos. Verifique sus datos.';
+          // Si el backend envía "Credenciales inválidas", lo ponemos un poco más amigable:
+          if (msg === 'Credenciales inválidas') {
+            msg = 'Cédula o contraseña incorrectos. Verifique sus datos.';
+          }
         } else if (error.error && error.error.message) {
           msg = error.error.message;
         }
