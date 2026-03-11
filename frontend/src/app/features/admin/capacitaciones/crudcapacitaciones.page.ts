@@ -11,6 +11,16 @@ import { ErrorHandlerUtil } from 'src/app/shared/utils/error-handler.util';
 import { EstadoCapacitacionEnum } from 'src/app/shared/constants/enums';
 import { AuthService } from 'src/app/features/auth/services/auth.service';
 
+import { addIcons } from 'ionicons';
+import { 
+  chevronBackOutline, shieldCheckmark, addCircleOutline, school, 
+  trendingUpOutline, calendar, timeOutline, checkmarkDoneCircle, 
+  ribbonOutline, ribbon, sparklesOutline, searchOutline, options, 
+  optionsOutline, chevronDownOutline, locationOutline, calendarClearOutline, 
+  videocamOutline, people, createOutline, peopleOutline, checkmarkDoneOutline, 
+  trashBinOutline, ellipse, checkmarkCircle 
+} from 'ionicons/icons';
+
 @Component({
   selector: 'app-crudcapacitaciones',
   templateUrl: './crudcapacitaciones.page.html',
@@ -45,7 +55,16 @@ export class CrudcapacitacionesPage implements OnInit {
     private alertController: AlertController,
     private loadingController: LoadingController,
     private toastController: ToastController
-  ) { }
+  ) {
+    addIcons({
+      chevronBackOutline, shieldCheckmark, addCircleOutline, school,
+      trendingUpOutline, calendar, timeOutline, checkmarkDoneCircle,
+      ribbonOutline, ribbon, sparklesOutline, searchOutline, options,
+      optionsOutline, chevronDownOutline, locationOutline, calendarClearOutline,
+      videocamOutline, people, createOutline, peopleOutline, checkmarkDoneOutline,
+      trashBinOutline, ellipse, checkmarkCircle
+    });
+  }
 
   ngOnInit() {
   }
