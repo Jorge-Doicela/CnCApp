@@ -33,7 +33,7 @@
 
 ion-content {
   --background: var(--bg-main);
-  --padding-bottom: 120px;
+  // Eliminamos el padding excesivo porque ion-footer lo maneja
 }
 
 // ── Glassmorphism Helper ────────────────────
@@ -48,10 +48,10 @@ ion-content {
 .content-wrapper {
   max-width: 900px;
   margin: 0 auto;
-  padding: 40px 24px 120px;
+  padding: 40px 24px 60px; // Reducido de 120px
 
   @media (max-width: 768px) {
-    padding: 24px 16px 120px;
+    padding: 24px 16px 40px;
   }
 }
 
@@ -221,11 +221,13 @@ ion-content {
 
   .field-label {
     display: block;
-    font-size: 0.85rem;
+    font-size: 0.9rem;
     font-weight: 800;
     color: var(--text-primary);
-    margin-bottom: 12px;
+    margin-bottom: 16px; // Aumentado para mejor separación
     letter-spacing: -0.01em;
+    position: relative; // Asegurar flujo normal
+    z-index: 1;
 
     .required { color: var(--accent-rose); margin-left: 4px; }
     .optional-text { color: var(--text-muted); font-weight: 600; font-size: 0.75rem; }
@@ -253,6 +255,7 @@ ion-content {
       font-size: 1.4rem;
       color: var(--text-muted);
       margin-right: 16px;
+      transition: var(--transition-premium);
     }
 
     .field-input, .field-textarea, .field-select {
@@ -264,14 +267,18 @@ ion-content {
       font-weight: 700;
       color: var(--text-primary);
       width: 100%;
+      margin: 0;
+      padding: 0;
+      display: block; // Asegurar comportamiento de bloque en flex
 
       &::placeholder { color: var(--text-muted); font-weight: 500; }
     }
     
     .field-textarea {
-      height: 120px;
+      min-height: 120px;
       padding: 20px 0;
       resize: none;
+      line-height: 1.5;
     }
   }
 
@@ -301,8 +308,32 @@ ion-content {
 }
 
 .input-wrapper.auto-height {
-  height: auto;
-  .field-textarea { height: 150px; }
+  height: auto !important; // Forzar anulación del height: 64px base
+  min-height: 160px;
+  align-items: flex-start; 
+  padding: 16px 20px; // Reducido un poco para balancear
+  overflow: visible;
+
+  .field-icon {
+    margin-top: 4px;
+  }
+
+  .field-textarea { 
+    height: auto;
+    min-height: 140px;
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.5;
+    padding: 0 !important;
+    margin: 0;
+    width: 100%;
+    outline: none;
+    resize: none;
+  }
 }
 
 .field-row {
@@ -385,17 +416,15 @@ ion-content {
 
 // ── Navigation Buttons ──────────────────────
 .wizard-navigation {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  // Ya no requiere fixed porque está en ion-footer
   @extend .glass-effect;
-  background: rgba(255, 255, 255, 0.9);
-  padding: 24px;
+  background: white;
+  padding: 20px 24px calc(20px + var(--ion-safe-area-bottom, 0px));
   display: flex;
   justify-content: center;
   gap: 16px;
   z-index: 1000;
+  border-top: 1px solid var(--glass-border);
 
   .btn {
     height: 56px;

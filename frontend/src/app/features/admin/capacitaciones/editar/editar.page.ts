@@ -41,6 +41,7 @@ export class EditarPage implements OnInit {
     fechaInicio: '',
     lugar: '',
     estado: EstadoCapacitacionEnum.PENDIENTE,
+    plantillaId: null as number | null,
     modalidad: '',
     tipoEvento: '',
     enlaceVirtual: '',
@@ -228,33 +229,34 @@ export class EditarPage implements OnInit {
     }
 
     try {
-      // Sanitización de Datos antes de enviar
-      const payload = JSON.parse(JSON.stringify(this.capacitacion));
-      
-      // 1. Quitar el ID del cuerpo (ya va en la URL)
-      delete payload.id;
+      // --- LIMPIEZA PROFUNDA DEL PAYLOAD ---
+      // Solo enviamos los campos que el backend espera para evitar errores de validación
+      const cleanPayload = {
+        nombre: this.capacitacion.nombre,
+        descripcion: this.capacitacion.descripcion || null,
+        tipoEvento: this.capacitacion.tipoEvento || 'CAPACITACIÓN',
+        fechaInicio: this.capacitacion.fechaInicio || null,
+        lugar: this.capacitacion.lugar || null,
+        cuposDisponibles: Number(this.capacitacion.cuposDisponibles || 0),
+        modalidad: this.capacitacion.modalidad || 'PRESENCIAL',
+        estado: this.capacitacion.estado,
+        plantillaId: this.capacitacion.plantillaId || null,
+        horaInicio: this.capacitacion.horaInicio || null,
+        horaFin: this.capacitacion.horaFin || null,
+        horas: (this.capacitacion.horas !== null) ? Number(this.capacitacion.horas) : null,
+        enlaceVirtual: this.capacitacion.enlaceVirtual || '',
+        certificado: !!this.capacitacion.certificado,
+        idsUsuarios: this.capacitacion.idsUsuarios || [],
+        expositores: this.capacitacion.expositores || [],
+        entidadesEncargadas: this.capacitacion.entidadesEncargadas || []
+      };
 
-      // 2. Formatear URL del enlace virtual
-      if (payload.enlaceVirtual) {
-        if (!payload.enlaceVirtual.startsWith('http://') && !payload.enlaceVirtual.startsWith('https://')) {
-          payload.enlaceVirtual = 'https://' + payload.enlaceVirtual;
-        }
-      } else {
-        payload.enlaceVirtual = ''; // Asegurar string vacío si es null/undefined para Zod
+      // Sanitización final de URL
+      if (cleanPayload.enlaceVirtual && !cleanPayload.enlaceVirtual.startsWith('http')) {
+        cleanPayload.enlaceVirtual = 'https://' + cleanPayload.enlaceVirtual;
       }
 
-      // 3. Asegurar tipos numéricos y manejar nulos
-      payload.horas = (payload.horas !== null && payload.horas !== undefined) ? Number(payload.horas) : null;
-      payload.cuposDisponibles = (payload.cuposDisponibles !== null && payload.cuposDisponibles !== undefined) ? Number(payload.cuposDisponibles) : 0;
-
-      // 4. Asegurar que las horas no sean nulas si el backend lo requiere como string
-      payload.horaInicio = payload.horaInicio || null;
-      payload.horaFin = payload.horaFin || null;
-      payload.lugar = payload.lugar || null;
-      payload.descripcion = payload.descripcion || null;
-      payload.tipoEvento = payload.tipoEvento || 'CAPACITACIÓN';
-
-      await firstValueFrom(this.capacitacionesService.updateCapacitacion(this.capacitacion.id!, payload as any));
+      await firstValueFrom(this.capacitacionesService.updateCapacitacion(this.capacitacion.id!, cleanPayload as any));
       this.capacitacionOriginal = JSON.parse(JSON.stringify(this.capacitacion));
       this.mostrarToast('Capacitación actualizada correctamente', 'success');
 

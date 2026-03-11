@@ -72,7 +72,8 @@ export class PrismaCapacitacionRepository implements CapacitacionRepository {
                 horaFin: data.horaFin,
                 horas: data.horas,
                 enlaceVirtual: data.enlaceVirtual,
-                certificado: data.certificado
+                certificado: data.certificado,
+                tipoEvento: data.tipoEvento
             },
             include: {
                 inscripciones: true

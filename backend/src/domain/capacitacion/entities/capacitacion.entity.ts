@@ -1,18 +1,19 @@
 export interface Capacitacion {
     id: number;
     nombre: string;
+    tipoEvento?: string | null;
     descripcion?: string | null;
     fechaInicio?: Date | null;
     fechaFin?: Date | null;
     lugar?: string | null;
-    cuposDisponibles: number;
+    cuposDisponibles: number | null;
     modalidad?: string | null;
-    estado: string;
+    estado: string | null;
     createdAt: Date;
     idsUsuarios?: number[];
     expositores?: number[];
     entidadesEncargadas?: number[];
-    plantillaId?: number;
+    plantillaId?: number | null;
     horaInicio?: string | null;
     horaFin?: string | null;
     horas?: number | null;
