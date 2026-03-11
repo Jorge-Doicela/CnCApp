@@ -17,6 +17,13 @@ export interface DashboardStatsData {
     certificadosEsteMes: number;
     usuariosRegistradosEsteMes: number;
     tendencias: DashboardStatsTrend[];
+    // Nuevas estadísticas avanzadas
+    tasaAsistencia: number;
+    totalHorasCapacitacion: number;
+    participantesInscritos: number;
+    tasaCertificacion: number;
+    usuariosPorGenero: Array<{ nombre: string; cantidad: number; }>;
+    topProvincias: Array<{ nombre: string; cantidad: number; }>;
 }
 
 export interface ReportesRepository {

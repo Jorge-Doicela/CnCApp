@@ -20,6 +20,13 @@ export interface DashboardStats {
         usuarios: number;
         certificados: number;
     }>;
+    // Nuevas métricas avanzadas
+    tasaAsistencia: number;
+    totalHorasCapacitacion: number;
+    participantesInscritos: number;
+    tasaCertificacion: number;
+    usuariosPorGenero: Array<{ nombre: string; cantidad: number; }>;
+    topProvincias: Array<{ nombre: string; cantidad: number; }>;
 }
 
 @Injectable({
