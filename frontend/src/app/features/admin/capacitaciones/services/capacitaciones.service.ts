@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { Capacitacion, UsuarioCapacitacion } from '../../../../core/models/capacitacion.interface';
@@ -62,9 +62,11 @@ export class CapacitacionesService {
     }
 
     checkNombreUniqueness(nombre: string, excludeId?: number): Observable<{ exists: boolean }> {
-        const params: any = { nombre };
-        if (excludeId) params.excludeId = excludeId;
-        return this.http.get<{ exists: boolean }>(`${this.apiUrl}/check-nombre`, { params });
+        let params = new HttpParams().set('nombre', nombre);
+        if (excludeId) {
+            params = params.set('excludeId', excludeId.toString());
+        }
+        return this.http.get<{ exists: boolean }>(`${this.apiUrl}/validar-nombre`, { params });
     }
 
     // --- Gestión de Inscritos ---

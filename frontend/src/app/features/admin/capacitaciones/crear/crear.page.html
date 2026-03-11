@@ -46,23 +46,12 @@
 
       <!-- PASO 1: Identidad del Evento -->
       <div class="form-card" *ngIf="currentStep === 1">
-        <div class="field-group" [class.has-error]="(nombre.invalid && nombre.touched) || nombreEnUso">
+        <div class="field-group" [class.has-error]="nombre.invalid && nombre.touched">
           <label class="field-label">Nombre de la Capacitación <span class="required">*</span></label>
           <div class="input-wrapper">
             <ion-icon name="text-outline" class="field-icon"></ion-icon>
             <input type="text" class="field-input" [(ngModel)]="capacitacion.nombre" name="nombre" #nombre="ngModel"
-              required maxlength="200" placeholder="Ej: Taller de Liderazgo Estratégico" 
-              (ngModelChange)="onNombreChange($event)" />
-            
-            <ion-spinner name="crescent" *ngIf="validandoNombre" class="validation-spinner"></ion-spinner>
-            
-            <ion-icon *ngIf="nombre.valid && nombre.touched && !nombreEnUso && !validandoNombre" name="checkmark-circle"
-              class="validation-icon success"></ion-icon>
-            <ion-icon *ngIf="nombreEnUso" name="close-circle" class="validation-icon error"></ion-icon>
-          </div>
-          <div class="error-message" *ngIf="nombreEnUso">
-            <ion-icon name="alert-circle-outline"></ion-icon>
-            Este nombre ya está registrado en otra capacitación.
+              required maxlength="200" placeholder="Ej: Taller de Liderazgo Estratégico" />
           </div>
         </div>
 

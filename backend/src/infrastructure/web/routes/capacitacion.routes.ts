@@ -9,9 +9,9 @@ const controller = container.resolve(CapacitacionController);
 
 const STAFF_ROLES = [ROLES.ADMINISTRADOR, ROLES.CONFERENCISTA];
 
-// Public routes (Lectura)
+// --- Rutas de Lectura (Públicas o Propias) ---
+router.get('/validar-nombre', authenticate, controller.checkNombre);
 router.get('/count', controller.count);
-router.get('/check-nombre', [authenticate], controller.checkNombre);
 router.get('/', [authenticate], controller.getAll);
 router.get('/:id', controller.getById);
 

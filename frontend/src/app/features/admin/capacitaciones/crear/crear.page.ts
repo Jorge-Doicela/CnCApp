@@ -3,8 +3,8 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, ViewChild, inject, ChangeDetectorRef, ChangeDetectionStrategy, AfterViewInit } from '@angular/core';
 import * as L from 'leaflet';
-import { firstValueFrom, Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
+import { firstValueFrom, Subject, of } from 'rxjs';
+import { debounceTime, distinctUntilChanged, switchMap, catchError } from 'rxjs/operators';
 import { NgForm } from '@angular/forms';
 import { ToastController, AlertController, NavController } from '@ionic/angular';
 import { RouterModule } from '@angular/router';
@@ -87,9 +87,7 @@ export class CrearPage implements OnInit {
   tempLugar: string = '';
   buscandoDireccion = false;
 
-  // Real-time Validation for Name
-  nombreEnUso = false;
-  validandoNombre = false;
+  // No validation needed
   private nameSubject = new Subject<string>();
 
   constructor(
@@ -115,40 +113,11 @@ export class CrearPage implements OnInit {
   ngOnInit() {
     this.inicializarFormulario();
     this.cargarDatos();
-    this.setupNameValidation();
   }
 
-  setupNameValidation() {
-    this.nameSubject.pipe(
-      debounceTime(500),
-      distinctUntilChanged(),
-      switchMap(nombre => {
-        if (!nombre || nombre.length < 3) {
-          this.nombreEnUso = false;
-          this.validandoNombre = false;
-          this.cdr.markForCheck();
-          return [];
-        }
-        this.validandoNombre = true;
-        this.cdr.markForCheck();
-        return this.capacitacionesService.checkNombreUniqueness(nombre);
-      })
-    ).subscribe({
-      next: (res: any) => {
-        this.nombreEnUso = res.exists;
-        this.validandoNombre = false;
-        this.cdr.markForCheck();
-      },
-      error: () => {
-        this.validandoNombre = false;
-        this.cdr.markForCheck();
-      }
-    });
-  }
 
   onNombreChange(nombre: string) {
-    this.nombreEnUso = false; // Reset while typing
-    this.nameSubject.next(nombre);
+    // Validation disabled
   }
 
   inicializarFormulario() {
@@ -272,11 +241,6 @@ export class CrearPage implements OnInit {
     if (!this.capacitacionForm.valid) {
       this.mostrarToast('Complete todos los campos obligatorios', 'warning');
       this.marcarCamposComoTocados();
-      return;
-    }
-
-    if (this.nombreEnUso) {
-      this.mostrarToast('El nombre de la capacitación ya está en uso', 'danger');
       return;
     }
 
@@ -576,10 +540,6 @@ export class CrearPage implements OnInit {
           this.mostrarToast('Complete el nombre y descripción', 'warning');
           return false;
         }
-        if (this.nombreEnUso) {
-          this.mostrarToast('El nombre de la capacitación ya está en uso', 'danger');
-          return false;
-        }
         return true;
 
       case 2: // Fecha y Horario
@@ -630,7 +590,7 @@ export class CrearPage implements OnInit {
       'Información Básica',
       'Fecha y Horario',
       'Modalidad y Ubicación',
-      'Responsables y Participantes'
+      'Equipo y Participantes'
     ];
     return titles[step - 1] || '';
   }
