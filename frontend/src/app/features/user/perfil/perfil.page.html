@@ -153,14 +153,11 @@
           </div>
         </div>
 
-        <!-- Recompensas y Logros -->
+        <!-- Recompensas y Logros (Estilo Github) -->
         <div class="profile-section fade-in" style="animation-delay: 0.25s;" *ngIf="logros.length > 0">
           <h3 class="section-title">Logros y Recompensas</h3>
           <div class="badges-container">
-            <div class="badge-item" *ngFor="let logro of logros">
-              <div class="badge-level-tag" [ngClass]="'level-' + logro.level.toLowerCase()">
-                {{ logro.level }}
-              </div>
+            <div class="badge-item" *ngFor="let logro of logros" [ngClass]="'tier-' + logro.level.toLowerCase()">
               <div class="badge-icon-wrapper">
                 <ion-icon [name]="logro.icon" [color]="logro.color"></ion-icon>
               </div>
