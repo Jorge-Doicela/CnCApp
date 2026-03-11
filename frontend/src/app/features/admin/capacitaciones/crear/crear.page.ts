@@ -156,9 +156,10 @@ export class CrearPage implements OnInit {
         this.capacitacion.entidadesEncargadas = [cnc.id];
       }
 
-      // Usuarios
-      this.usuarios = usuariosResult || [];
-      this.usuariosDisponibles = [...this.usuarios];
+      // Usuarios: Mostrar todos en ambas listas pero con indicador visual
+      const todosLosUsuarios = usuariosResult || [];
+      this.usuarios = [...todosLosUsuarios];
+      this.usuariosDisponibles = [...todosLosUsuarios];
 
     } catch (error) {
       console.error('Error cargando datos requeridos:', error);
@@ -171,9 +172,12 @@ export class CrearPage implements OnInit {
   }
 
   onModalidadChange() {
-    // Limpiar enlace virtual si no es necesario
     if (this.capacitacion.modalidad === 'PRESENCIAL') {
       this.capacitacion.enlaceVirtual = '';
+    } else if (this.capacitacion.modalidad === 'VIRTUAL') {
+      this.capacitacion.lugar = '';
+      this.capacitacion.latitud = undefined;
+      this.capacitacion.longitud = undefined;
     }
   }
 
@@ -384,24 +388,32 @@ export class CrearPage implements OnInit {
       const defaultLat = this.capacitacion.latitud || -0.1807; // Quito
       const defaultLng = this.capacitacion.longitud || -78.4678;
 
-      if (!this.pickerMap) {
-        this.pickerMap = L.map('mapPicker').setView([defaultLat, defaultLng], 13);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          attribution: '© OpenStreetMap contributors'
-        }).addTo(this.pickerMap);
-
-        this.pickerMap.on('click', (e: L.LeafletMouseEvent) => {
-          this.setPickerMarker(e.latlng.lat, e.latlng.lng);
-        });
-      } else {
-        this.pickerMap.setView([defaultLat, defaultLng], 13);
-        this.pickerMap.invalidateSize();
+      // Importante: Eliminar instancia previa si existe porque el DOM es recreado por ion-modal
+      if (this.pickerMap) {
+        this.pickerMap.remove();
+        (this as any).pickerMap = null;
+      }
+      if (this.pickerMarker) {
+        this.pickerMarker.remove();
+        (this as any).pickerMarker = null;
       }
 
+      this.pickerMap = L.map('mapPicker').setView([defaultLat, defaultLng], 13);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+      }).addTo(this.pickerMap);
+
+      this.pickerMap.on('click', (e: L.LeafletMouseEvent) => {
+        this.setPickerMarker(e.latlng.lat, e.latlng.lng);
+      });
+
+      // Si ya hay coordenadas, poner el marcador
       if (this.capacitacion.latitud && this.capacitacion.longitud) {
         this.setPickerMarker(this.capacitacion.latitud, this.capacitacion.longitud);
       }
-    }, 200);
+      
+      this.pickerMap.invalidateSize();
+    }, 300); // Un poco más de tiempo para que el modal esté fijo
   }
 
   async setPickerMarker(lat: number, lng: number) {
@@ -535,8 +547,12 @@ export class CrearPage implements OnInit {
         return true;
 
       case 3: // Modalidad y Ubicación
-        if (!this.capacitacion.lugar || !this.capacitacion.cuposDisponibles) {
-          this.mostrarToast('Complete el lugar y límite de participantes', 'warning');
+        if (this.capacitacion.modalidad !== 'VIRTUAL' && !this.capacitacion.lugar) {
+          this.mostrarToast('Complete el lugar de la sede física', 'warning');
+          return false;
+        }
+        if (!this.capacitacion.cuposDisponibles) {
+          this.mostrarToast('Complete el límite de participantes', 'warning');
           return false;
         }
         if (this.capacitacion.modalidad === 'VIRTUAL' && !this.capacitacion.enlaceVirtual) {

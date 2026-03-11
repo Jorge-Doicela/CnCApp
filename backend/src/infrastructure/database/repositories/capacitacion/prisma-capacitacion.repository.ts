@@ -11,23 +11,26 @@ export class PrismaCapacitacionRepository implements CapacitacionRepository {
     async create(data: Partial<Capacitacion>): Promise<Capacitacion> {
         const inscripciones = [];
 
+        // Obtener IDs únicos de expositores y participantes
+        const expositoresSet = new Set(data.expositores || []);
+        const participantesSet = new Set(data.idsUsuarios || []);
+
+        // Si un usuario es expositor, no debe estar en participantes
+        expositoresSet.forEach(id => participantesSet.delete(id));
+
         // Agregar expositores
-        if (data.expositores) {
-            inscripciones.push(...data.expositores.map(id => ({
-                usuarioId: id,
-                rolCapacitacion: RolCapacitacionEnum.EXPOSITOR,
-                estadoInscripcion: 'Activa'
-            })));
-        }
+        inscripciones.push(...Array.from(expositoresSet).map(id => ({
+            usuarioId: id,
+            rolCapacitacion: RolCapacitacionEnum.EXPOSITOR,
+            estadoInscripcion: 'Activa'
+        })));
 
         // Agregar participantes
-        if (data.idsUsuarios) {
-            inscripciones.push(...data.idsUsuarios.map(id => ({
-                usuarioId: id,
-                rolCapacitacion: RolCapacitacionEnum.PARTICIPANTE,
-                estadoInscripcion: 'Activa'
-            })));
-        }
+        inscripciones.push(...Array.from(participantesSet).map(id => ({
+            usuarioId: id,
+            rolCapacitacion: RolCapacitacionEnum.PARTICIPANTE,
+            estadoInscripcion: 'Activa'
+        })));
 
         const capacitacion = await prisma.capacitacion.create({
             data: {
@@ -64,9 +67,9 @@ export class PrismaCapacitacionRepository implements CapacitacionRepository {
                 fechaInicio: data.fechaInicio,
                 fechaFin: data.fechaFin,
                 lugar: data.lugar,
-                cuposDisponibles: data.cuposDisponibles,
+                cuposDisponibles: data.cuposDisponibles ?? undefined,
                 modalidad: data.modalidad,
-                estado: data.estado,
+                estado: data.estado ?? undefined,
                 plantillaId: data.plantillaId,
                 horaInicio: data.horaInicio,
                 horaFin: data.horaFin,

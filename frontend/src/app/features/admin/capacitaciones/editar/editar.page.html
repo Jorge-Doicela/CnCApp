@@ -71,7 +71,7 @@
               <ion-item class="form-item" lines="none">
                 <ion-icon name="wifi-outline" slot="start"></ion-icon>
                 <ion-label position="floating">Modalidad</ion-label>
-                <ion-select [(ngModel)]="capacitacion.modalidad" name="modalidad" required interface="popover">
+                <ion-select [(ngModel)]="capacitacion.modalidad" name="modalidad" required interface="popover" (ionChange)="onModalidadChange()">
                   <ion-select-option value="VIRTUAL">Virtual</ion-select-option>
                   <ion-select-option value="PRESENCIAL Y VIRTUAL">Presencial y Virtual</ion-select-option>
                   <ion-select-option value="PRESENCIAL">Presencial</ion-select-option>
@@ -122,16 +122,16 @@
             </div>
           </div>
 
-          <div class="form-group">
+          <div class="form-group" *ngIf="capacitacion.modalidad !== 'VIRTUAL'">
             <ion-item class="form-item" lines="none">
               <ion-icon name="location-outline" slot="start"></ion-icon>
               <ion-label position="floating">Sede Física o Enlace Virtual</ion-label>
-              <ion-input [(ngModel)]="capacitacion.lugar" name="lugar" required #lugar="ngModel"></ion-input>
+              <ion-input [(ngModel)]="capacitacion.lugar" name="lugar" [required]="capacitacion.modalidad !== 'VIRTUAL'" #lugar="ngModel"></ion-input>
               <div slot="end" class="input-actions-row" style="display: flex; gap: 5px; margin-top: 25px;">
-                <ion-button fill="clear" (click)="abrirMapa()" title="Ver en Google Maps" *ngIf="capacitacion.lugar">
+                <ion-button fill="clear" (click)="abrirMapa()" title="Ver ubicación en Google Maps" *ngIf="capacitacion.lugar">
                   <ion-icon name="map-outline" slot="icon-only"></ion-icon>
                 </ion-button>
-                <ion-button fill="clear" (click)="abrirSelectorMapa()" title="Seleccionar en Mapa" class="map-picker-btn">
+                <ion-button fill="clear" (click)="abrirSelectorMapa()" title="Abrir selector de mapa interactivo" class="map-picker-btn">
                   <ion-icon name="locate-outline" slot="icon-only"></ion-icon>
                 </ion-button>
               </div>
@@ -187,8 +187,8 @@
           <div class="select-wrapper">
             <label class="select-label"><ion-icon name="person-outline"></ion-icon> Expositores y Responsables</label>
             <ion-select [(ngModel)]="capacitacion.expositores" name="expositores" multiple="true" required
-              #expositoresModel="ngModel" interface="action-sheet" placeholder="Seleccionar ponentes">
-              <ion-select-option *ngFor="let usuario of usuariosList" [value]="usuario.id">
+              #expositoresModel="ngModel" interface="action-sheet" placeholder="Seleccionar ponentes responsables">
+              <ion-select-option *ngFor="let usuario of expositoresList" [value]="usuario.id">
                 {{ usuario.nombre }} {{ usuario.firmaUrl ? '✓' : '' }}
               </ion-select-option>
             </ion-select>
@@ -200,8 +200,8 @@
           <div class="select-wrapper">
             <label class="select-label"><ion-icon name="person-add-outline"></ion-icon> Nómina de Inscritos</label>
             <ion-select [(ngModel)]="capacitacion.idsUsuarios" name="idsUsuarios" multiple="true"
-              interface="action-sheet" placeholder="Gestionar alumnos">
-              <ion-select-option *ngFor="let usuario of usuariosList" [value]="usuario.id">
+              interface="action-sheet" placeholder="Gestionar inscritos">
+              <ion-select-option *ngFor="let usuario of participantesList" [value]="usuario.id">
                 {{ usuario.nombre }}
               </ion-select-option>
             </ion-select>
