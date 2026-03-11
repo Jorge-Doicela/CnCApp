@@ -11,6 +11,16 @@ import { CatalogoService } from 'src/app/shared/services/catalogo.service';
 import { UsuarioService } from 'src/app/features/user/services/usuario.service';
 import { ErrorHandlerUtil } from 'src/app/shared/utils/error-handler.util';
 import { EstadoCapacitacionEnum } from 'src/app/shared/constants/enums';
+import { addIcons } from 'ionicons';
+import { 
+  arrowBackOutline, schoolOutline, informationCircleOutline, 
+  textOutline, optionsOutline, documentTextOutline, calendarOutline, 
+  timeOutline, hourglassOutline, locationOutline, toggleOutline, 
+  wifiOutline, peopleOutline, briefcaseOutline, personOutline, 
+  personAddOutline, lockClosedOutline, ribbon, ribbonOutline, 
+  checkmarkDoneOutline, trashOutline, checkmarkCircle, time, closeCircle,
+  sparklesOutline, shieldCheckmarkOutline
+} from 'ionicons/icons';
 
 @Component({
   selector: 'app-editar',
@@ -33,6 +43,9 @@ export class EditarPage implements OnInit {
     estado: EstadoCapacitacionEnum.PENDIENTE,
     modalidad: '',
     tipoEvento: '',
+    enlaceVirtual: '',
+    horaInicio: '',
+    horaFin: '',
     horas: 0,
     cuposDisponibles: 0,
     entidadesEncargadas: [] as number[],
@@ -58,7 +71,17 @@ export class EditarPage implements OnInit {
     private navController: NavController,
     private loadingController: LoadingController,
     private cd: ChangeDetectorRef
-  ) { }
+  ) { 
+    addIcons({
+      arrowBackOutline, schoolOutline, informationCircleOutline, 
+      textOutline, optionsOutline, documentTextOutline, calendarOutline, 
+      timeOutline, hourglassOutline, locationOutline, toggleOutline, 
+      wifiOutline, peopleOutline, briefcaseOutline, personOutline, 
+      personAddOutline, lockClosedOutline, ribbon, ribbonOutline, 
+      checkmarkDoneOutline, trashOutline, checkmarkCircle, time, closeCircle,
+      sparklesOutline, shieldCheckmarkOutline
+    });
+  }
 
   ngOnInit() {
     const idCapacitacion = this.activatedRoute.snapshot.paramMap.get('id');
@@ -115,7 +138,32 @@ export class EditarPage implements OnInit {
       this.navController.navigateBack('/gestionar-capacitaciones');
       throw new Error('No data');
     }
-    this.capacitacion = { ...data } as any;
+    
+    // --- Normalización de Datos para Consistencia UI/UX ---
+    const normalizedData = { ...data } as any;
+
+    // 1. Normalizar Estados (Seed vs Enum)
+    if (normalizedData.estado === 'Programada' || normalizedData.estado === 'Activa') {
+      normalizedData.estado = EstadoCapacitacionEnum.PENDIENTE; // 'Activa'
+    } else if (normalizedData.estado === 'Finalizada' || normalizedData.estado === 'REALIZADA') {
+      normalizedData.estado = EstadoCapacitacionEnum.REALIZADA; // 'Finalizada'
+    }
+
+    // 2. Normalizar Modalidades
+    if (normalizedData.modalidad === 'Híbrida' || normalizedData.modalidad === 'Semipresencial') {
+      normalizedData.modalidad = 'PRESENCIAL Y VIRTUAL';
+    } else {
+      normalizedData.modalidad = normalizedData.modalidad?.toUpperCase() || 'PRESENCIAL';
+    }
+
+    // 3. Normalizar Tipo de Evento
+    if (!normalizedData.tipoEvento) {
+      normalizedData.tipoEvento = 'CAPACITACIÓN';
+    } else {
+      normalizedData.tipoEvento = normalizedData.tipoEvento.toUpperCase();
+    }
+
+    this.capacitacion = normalizedData;
   }
 
   async cargarEntidades() {
@@ -180,7 +228,33 @@ export class EditarPage implements OnInit {
     }
 
     try {
-      await firstValueFrom(this.capacitacionesService.updateCapacitacion(this.capacitacion.id!, this.capacitacion as any));
+      // Sanitización de Datos antes de enviar
+      const payload = JSON.parse(JSON.stringify(this.capacitacion));
+      
+      // 1. Quitar el ID del cuerpo (ya va en la URL)
+      delete payload.id;
+
+      // 2. Formatear URL del enlace virtual
+      if (payload.enlaceVirtual) {
+        if (!payload.enlaceVirtual.startsWith('http://') && !payload.enlaceVirtual.startsWith('https://')) {
+          payload.enlaceVirtual = 'https://' + payload.enlaceVirtual;
+        }
+      } else {
+        payload.enlaceVirtual = ''; // Asegurar string vacío si es null/undefined para Zod
+      }
+
+      // 3. Asegurar tipos numéricos y manejar nulos
+      payload.horas = (payload.horas !== null && payload.horas !== undefined) ? Number(payload.horas) : null;
+      payload.cuposDisponibles = (payload.cuposDisponibles !== null && payload.cuposDisponibles !== undefined) ? Number(payload.cuposDisponibles) : 0;
+
+      // 4. Asegurar que las horas no sean nulas si el backend lo requiere como string
+      payload.horaInicio = payload.horaInicio || null;
+      payload.horaFin = payload.horaFin || null;
+      payload.lugar = payload.lugar || null;
+      payload.descripcion = payload.descripcion || null;
+      payload.tipoEvento = payload.tipoEvento || 'CAPACITACIÓN';
+
+      await firstValueFrom(this.capacitacionesService.updateCapacitacion(this.capacitacion.id!, payload as any));
       this.capacitacionOriginal = JSON.parse(JSON.stringify(this.capacitacion));
       this.mostrarToast('Capacitación actualizada correctamente', 'success');
 

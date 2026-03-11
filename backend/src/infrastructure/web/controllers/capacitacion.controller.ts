@@ -12,22 +12,23 @@ import prisma from '../../../config/database';
 
 const capacitacionSchema = z.object({
     nombre: z.string().min(3, 'El nombre es obligatorio'),
-    descripcion: z.string().optional(),
-    fechaInicio: z.string().or(z.date()).optional().transform(str => str ? new Date(str) : undefined),
-    fechaFin: z.string().or(z.date()).optional().transform(str => str ? new Date(str) : undefined),
-    lugar: z.string().optional(),
-    cuposDisponibles: z.number().int().min(0).optional(),
-    modalidad: z.string().optional(),
-    estado: z.string().optional(),
-    plantillaId: z.number().int().optional(),
-    horaInicio: z.string().optional(),
-    horaFin: z.string().optional(),
-    horas: z.number().int().optional(),
+    descripcion: z.string().optional().nullable(),
+    tipoEvento: z.string().optional().nullable(),
+    fechaInicio: z.string().or(z.date()).optional().nullable().transform(str => str ? new Date(str) : undefined),
+    fechaFin: z.string().or(z.date()).optional().nullable().transform(str => str ? new Date(str) : undefined),
+    lugar: z.string().optional().nullable(),
+    cuposDisponibles: z.number().int().min(0).optional().nullable(),
+    modalidad: z.string().optional().nullable(),
+    estado: z.string().optional().nullable(),
+    plantillaId: z.number().int().optional().nullable(),
+    horaInicio: z.string().optional().nullable(),
+    horaFin: z.string().optional().nullable(),
+    horas: z.number().int().optional().nullable(),
     enlaceVirtual: z.string().url().or(z.literal('')).optional().nullable(),
     certificado: z.boolean().optional(),
-    idsUsuarios: z.array(z.number()).optional(), // Participantes
-    expositores: z.array(z.number()).optional(), // Expositores/Ponentes
-    entidadesEncargadas: z.array(z.number()).optional() // IDs Entidades (Wait, if I add this, I need to handle it in repository)
+    idsUsuarios: z.array(z.number()).optional(),
+    expositores: z.array(z.number()).optional(),
+    entidadesEncargadas: z.array(z.number()).optional()
 });
 
 // Schema para updates parciales (todos los campos son opcionales)

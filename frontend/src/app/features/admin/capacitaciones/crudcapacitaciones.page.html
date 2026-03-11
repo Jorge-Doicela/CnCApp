@@ -114,10 +114,12 @@
       <span class="results-count">{{ capacitacionesFiltradas.length }} resultados encontrados</span>
     </div>
 
-    <!-- Cards List -->
     <div class="list-container" *ngIf="!cargando">
       <div class="capacitacion-card fade-up" *ngFor="let cap of capacitacionesFiltradas; let i = index"
-        [style.animation-delay]="(0.4 + i * 0.08) + 's'">
+        [style.animation-delay]="(0.4 + i * 0.08) + 's'"
+        [class.state-active]="cap.estado.toLowerCase() === 'activa' || cap.estado.toLowerCase() === 'en progreso' || cap.estado.toLowerCase() === 'programada' || cap.estado.toLowerCase() === 'pendiente'"
+        [class.state-done]="cap.estado.toLowerCase() === 'finalizada' || cap.estado.toLowerCase() === 'realizada'"
+        [class.state-canceled]="cap.estado.toLowerCase() === 'cancelada'">
         
         <div class="card-header">
           <div class="title-area">
