@@ -13,6 +13,7 @@ import { Request, Response } from 'express';
  */
 export function parseIdParam(req: Request, res: Response, paramName = 'id'): number | null {
     const raw = req.params[paramName];
+    console.log(`[PARSE_ID_DEBUG] Path: ${req.originalUrl}, Param: ${paramName}, Value: "${raw}"`);
     const id = parseInt(raw as string, 10);
     if (isNaN(id) || id <= 0) {
         res.status(400).json({ message: `Parámetro '${paramName}' debe ser un número entero positivo` });

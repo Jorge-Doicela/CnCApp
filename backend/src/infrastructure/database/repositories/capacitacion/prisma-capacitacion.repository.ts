@@ -165,7 +165,7 @@ export class PrismaCapacitacionRepository implements CapacitacionRepository {
         const capacitacion = await prisma.capacitacion.findFirst({
             where: {
                 nombre: {
-                    equals: nombre,
+                    equals: nombre.trim(),
                     mode: 'insensitive'
                 },
                 id: excludeId ? { not: excludeId } : undefined
