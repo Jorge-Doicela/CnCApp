@@ -514,30 +514,32 @@ ion-content {
   
   .input-actions {
     display: flex;
-    gap: 4px;
+    gap: 0; // Pegados para que parezcan una sola unidad de acción
     align-items: center;
+    background: rgba(0, 0, 0, 0.03); // Fondo sutil para agruparlos
+    border-radius: 12px;
+    padding: 2px;
+    margin-right: -10px; // Acercar al borde derecho
   }
 
   .input-action-btn {
-    --color: var(--accent-indigo);
-    --padding-start: 8px;
-    --padding-end: 8px;
-    margin: 0;
-    height: 48px;
-    min-height: 48px;
+    background: transparent;
+    border: none;
+    color: var(--accent-indigo);
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
     transition: var(--transition-pop);
+    border-radius: 10px;
     
-    ion-icon { font-size: 1.5rem; }
-    &:hover { --color: var(--accent-blue); transform: scale(1.1); }
+    ion-icon { font-size: 1.4rem; }
+    &:hover { background: white; transform: scale(1.05); color: var(--accent-blue); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
 
     &.highlighted {
-      --color: var(--accent-indigo);
-      background: rgba(99, 102, 241, 0.08);
-      border-radius: 12px;
-      &:hover {
-        background: var(--accent-indigo);
-        --color: white;
-      }
+      color: var(--accent-indigo);
     }
   }
 }

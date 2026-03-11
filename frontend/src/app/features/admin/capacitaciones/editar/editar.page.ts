@@ -60,7 +60,8 @@ export class EditarPage implements OnInit {
 
   capacitacionOriginal: any = {};
   entidadesList: any[] = [];
-  usuariosList: any[] = [];
+  expositoresList: any[] = [];
+  participantesList: any[] = [];
 
   private capacitacionesService = inject(CapacitacionesService);
   private catalogoService = inject(CatalogoService);
@@ -186,7 +187,20 @@ export class EditarPage implements OnInit {
 
   async cargarUsuarios() {
     const data = await firstValueFrom(this.usuarioService.getUsuarios());
-    this.usuariosList = data || [];
+    const todos = data || [];
+    this.expositoresList = [...todos];
+    this.participantesList = [...todos];
+  }
+
+  onModalidadChange() {
+    if (this.capacitacion.modalidad === 'PRESENCIAL') {
+      this.capacitacion.enlaceVirtual = '';
+    } else if (this.capacitacion.modalidad === 'VIRTUAL') {
+      this.capacitacion.lugar = '';
+      this.capacitacion.latitud = undefined;
+      this.capacitacion.longitud = undefined;
+    }
+    this.cd.markForCheck();
   }
 
   async actualizarCapacitacion() {
@@ -436,24 +450,30 @@ export class EditarPage implements OnInit {
       const defaultLat = this.capacitacion.latitud || -0.1807;
       const defaultLng = this.capacitacion.longitud || -78.4678;
 
-      if (!this.pickerMap) {
-        this.pickerMap = L.map('mapPickerEdit').setView([defaultLat, defaultLng], 13);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          attribution: '© OpenStreetMap contributors'
-        }).addTo(this.pickerMap);
-
-        this.pickerMap.on('click', (e: L.LeafletMouseEvent) => {
-          this.setPickerMarker(e.latlng.lat, e.latlng.lng);
-        });
-      } else {
-        this.pickerMap.setView([defaultLat, defaultLng], 13);
-        this.pickerMap.invalidateSize();
+      if (this.pickerMap) {
+        this.pickerMap.remove();
+        (this as any).pickerMap = null;
       }
+      if (this.pickerMarker) {
+        this.pickerMarker.remove();
+        (this as any).pickerMarker = null;
+      }
+
+      this.pickerMap = L.map('mapPickerEdit').setView([defaultLat, defaultLng], 13);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+      }).addTo(this.pickerMap);
+
+      this.pickerMap.on('click', (e: L.LeafletMouseEvent) => {
+        this.setPickerMarker(e.latlng.lat, e.latlng.lng);
+      });
 
       if (this.capacitacion.latitud && this.capacitacion.longitud) {
         this.setPickerMarker(this.capacitacion.latitud, this.capacitacion.longitud);
       }
-    }, 200);
+      
+      this.pickerMap.invalidateSize();
+    }, 300);
   }
 
   async setPickerMarker(lat: number, lng: number) {
