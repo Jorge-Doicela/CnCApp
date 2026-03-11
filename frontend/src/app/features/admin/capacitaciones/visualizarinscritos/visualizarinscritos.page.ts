@@ -12,6 +12,36 @@ import { firstValueFrom } from 'rxjs';
 import { AuthService } from 'src/app/features/auth/services/auth.service';
 import { Router } from '@angular/router';
 import { Capacitacion } from 'src/app/core/models/capacitacion.interface';
+import { addIcons } from 'ionicons';
+import { 
+  arrowBackOutline, 
+  informationCircle, 
+  calendarClearOutline, 
+  locationOutline, 
+  timeOutline, 
+  peopleOutline, 
+  desktopOutline, 
+  linkOutline, 
+  barChart, 
+  people, 
+  checkmarkDoneCircle, 
+  closeCircle, 
+  analytics, 
+  qrCodeOutline, 
+  searchOutline, 
+  checkmarkDoneOutline, 
+  personAddOutline, 
+  cloudDownloadOutline, 
+  person, 
+  business, 
+  mailOutline, 
+  trashOutline, 
+  ribbon, 
+  shieldCheckmark, 
+  checkmarkCircle,
+  micOutline,
+  personCircle
+} from 'ionicons/icons';
 
 interface ParticipanteInfo {
   id: number;
@@ -79,7 +109,37 @@ export class VisualizarinscritosPage implements OnInit {
     private navController: NavController,
     private loadingController: LoadingController,
     private router: Router
-  ) { }
+  ) {
+    addIcons({
+      arrowBackOutline,
+      informationCircle,
+      calendarClearOutline,
+      locationOutline,
+      timeOutline,
+      peopleOutline,
+      desktopOutline,
+      linkOutline,
+      barChart,
+      people,
+      checkmarkDoneCircle,
+      closeCircle,
+      analytics,
+      qrCodeOutline,
+      searchOutline,
+      checkmarkDoneOutline,
+      personAddOutline,
+      cloudDownloadOutline,
+      person,
+      business,
+      mailOutline,
+      trashOutline,
+      ribbon,
+      shieldCheckmark,
+      checkmarkCircle,
+      micOutline,
+      personCircle
+    });
+  }
 
   ngOnInit() {
     const idCapacitacion = +this.activatedRoute.snapshot.params['id'];
