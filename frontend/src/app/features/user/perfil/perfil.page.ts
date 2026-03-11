@@ -7,10 +7,12 @@ import { AlertController, LoadingController, ToastController, ActionSheetControl
 import { Router } from '@angular/router';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { environment } from 'src/environments/environment';
+import { Capacitor } from '@capacitor/core';
 import { firstValueFrom, timeout, finalize } from 'rxjs';
 import { AuthService } from 'src/app/features/auth/services/auth.service';
 import { Preferences } from '@capacitor/preferences';
 import { FingerprintAIO } from '@awesome-cordova-plugins/fingerprint-aio/ngx';
+import { WebAuthnUtil } from 'src/app/core/utils/webauthn.util';
 
 @Component({
   selector: 'app-perfil',
@@ -65,9 +67,17 @@ export class PerfilPage implements OnInit {
     // Si el usuario lo está activando
     if (isChecked) {
       try {
-        // Verificar si la biometría está disponible en el dispositivo
-        const result = await this.fingerprintAIO.isAvailable({ requireStrongBiometrics: false });
-        if (result !== 'biometric' && result !== 'finger' && result !== 'face') {
+        const isNative = Capacitor.isNativePlatform();
+        let isBiometricAvailable = false;
+
+        if (isNative) {
+           const result = await this.fingerprintAIO.isAvailable({ requireStrongBiometrics: false });
+           isBiometricAvailable = (result === 'biometric' || result === 'finger' || result === 'face');
+        } else {
+           isBiometricAvailable = await WebAuthnUtil.isAvailable();
+        }
+
+        if (!isBiometricAvailable) {
            this.presentToast('Biometría no disponible en este dispositivo.', 'warning');
            this.biometriaActiva = false;
            return;
@@ -103,13 +113,19 @@ export class PerfilPage implements OnInit {
                   await loading.dismiss();
 
                   if (loginResponse.success) {
-                      // Solicitar la huella o rostro para confirmar propiedad
-                      await this.fingerprintAIO.show({
-                         title: 'Confirmar Seguridad',
-                         subtitle: 'Active la biometría usando su dispositivo',
-                         description: 'Escanee su huella o rostro para completar el registro',
-                         disableBackup: true
-                      });
+                      if (isNative) {
+                          // Solicitar la huella o rostro para confirmar propiedad en móvil
+                          await this.fingerprintAIO.show({
+                             title: 'Confirmar Seguridad',
+                             subtitle: 'Active la biometría usando su dispositivo',
+                             description: 'Escanee su huella o rostro para completar el registro',
+                             disableBackup: true
+                          });
+                      } else {
+                          // Crear la credencial WebAuthn
+                          const credentialId = await WebAuthnUtil.registerBiometric(this.datosUsuario.Nombre_Usuario);
+                          await Preferences.set({ key: 'bio_credential_id', value: credentialId });
+                      }
 
                       // Guardar credenciales de forma segura
                       await Preferences.set({ key: 'biometria_activada', value: 'true' });
@@ -144,6 +160,7 @@ export class PerfilPage implements OnInit {
       await Preferences.remove({ key: 'biometria_activada' });
       await Preferences.remove({ key: 'bio_ci' });
       await Preferences.remove({ key: 'bio_pwd' });
+      await Preferences.remove({ key: 'bio_credential_id' });
       this.biometriaActiva = false;
       this.presentToast('Biometría desactivada.', 'secondary');
     }

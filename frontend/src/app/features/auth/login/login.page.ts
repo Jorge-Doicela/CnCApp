@@ -12,9 +12,11 @@ import {
   close, arrowBack, arrowBackOutline, personOutline, arrowForwardOutline,
   eyeOutline, eyeOffOutline, fingerPrintOutline
 } from 'ionicons/icons';
+import { Capacitor } from '@capacitor/core';
 import { AuthService } from '../services/auth.service';
 import { Preferences } from '@capacitor/preferences';
 import { FingerprintAIO } from '@awesome-cordova-plugins/fingerprint-aio/ngx';
+import { WebAuthnUtil } from 'src/app/core/utils/webauthn.util';
 
 
 @Component({
@@ -94,17 +96,30 @@ export class LoginPage implements OnInit {
 
   async loginWithBiometrics() {
     try {
-      const result = await this.fingerprintAIO.isAvailable({ requireStrongBiometrics: false });
-      if (result !== 'biometric' && result !== 'finger' && result !== 'face') {
-         return;
+      const isNative = Capacitor.isNativePlatform();
+
+      if (isNative) {
+          const result = await this.fingerprintAIO.isAvailable({ requireStrongBiometrics: false });
+          if (result !== 'biometric' && result !== 'finger' && result !== 'face') {
+             return;
+          }
+          
+          await this.fingerprintAIO.show({
+              title: 'Iniciar Sesión',
+              subtitle: 'Use su biometría para acceder a su cuenta',
+              description: 'Escanee su huella o rostro',
+              disableBackup: true
+          });
+      } else {
+          const { value: credentialId } = await Preferences.get({ key: 'bio_credential_id' });
+          if (!credentialId) {
+             throw new Error("No hay credencial biométrica guardada en Web.");
+          }
+          const success = await WebAuthnUtil.verifyBiometric(credentialId);
+          if (!success) {
+            throw new Error("Autenticación WebAuthn fallida.");
+          }
       }
-      
-      await this.fingerprintAIO.show({
-          title: 'Iniciar Sesión',
-          subtitle: 'Use su biometría para acceder a su cuenta',
-          description: 'Escanee su huella o rostro',
-          disableBackup: true
-      });
 
       // Si el escaneo es exitoso (no arroja error), hacemos login con los datos
       await this.loginUser();
