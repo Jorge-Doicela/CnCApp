@@ -277,6 +277,26 @@ ion-content {
     border-color: var(--accent-glow);
   }
 
+  // Status Modifiers (Pilar: Jerarquía Visual Dinámica)
+  &.status-active-card {
+    border-left: 6px solid var(--accent-blue);
+    .status-badge { background: #eff6ff; color: var(--accent-blue); border: 1px solid #2563eb20; }
+    .card-top h3 { color: var(--text-primary); }
+  }
+
+  &.status-done-card {
+    border-left: 6px solid #10b981;
+    .status-badge { background: #ecfdf5; color: #059669; border: 1px solid #10b98120; }
+    .card-top h3 { color: #064e3b; }
+  }
+
+  &.status-canceled-card {
+    border-left: 6px solid #ef4444;
+    .status-badge { background: #fef2f2; color: #991b1b; border: 1px solid #ef444420; }
+    .card-top h3 { color: #7f1d1d; }
+    opacity: 0.8;
+  }
+
   .card-top {
     margin-bottom: 32px;
     h3 { font-size: 1.8rem; font-weight: 900; color: var(--text-primary); margin: 0; line-height: 1.1; letter-spacing: -0.04em; }
@@ -336,17 +356,18 @@ ion-content {
 
 // ── Professional Badges ─────────────────────
 .status-badge {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 900;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
-  padding: 8px 16px;
+  letter-spacing: 0.15em;
+  padding: 8px 18px;
   border-radius: 100px;
   @extend .glass-effect;
   backdrop-filter: blur(8px);
-  
-  &.status-active { background: #ecfdf5; color: #059669; border: 1px solid #10b98130; }
-  &.status-done { background: #eff6ff; color: #2563eb; border: 1px solid #2563eb30; }
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 120px;
 }
 
 .cert-badge {
