@@ -1,18 +1,19 @@
 <ion-content>
   <div class="main-container">
-    <!-- Back Nav -->
-    <div class="page-back-nav" style="padding: 10px 0;">
-      <ion-button fill="clear" color="medium" size="small" (click)="volver()">
+    <!-- Navegación Superior -->
+    <div class="page-back-nav" style="padding: 10px 0; margin-bottom: 20px;">
+      <ion-button fill="clear" color="medium" size="small" (click)="volver()" style="font-weight: 700;">
         <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
         Volver al Panel
       </ion-button>
     </div>
 
-    <!-- Page Header -->
-    <div class="admin-header fade-in">
+    <!-- Page Header (Pilar: Jerarquía de Lujo) -->
+    <div class="admin-header fade-up">
       <div class="header-text">
+        <span class="eyebrow">ADMINISTRACIÓN CENTRAL</span>
         <h1>Gestión de Capacitaciones</h1>
-        <p>Administra los eventos de formación y sus participantes</p>
+        <p>Control maestro de eventos académicos y emisión de certificados.</p>
       </div>
       <ion-button class="new-btn" (click)="iraCrearCapacitacion()" *ngIf="!isConferencista">
         <ion-icon name="add-outline" slot="start"></ion-icon>
@@ -20,8 +21,8 @@
       </ion-button>
     </div>
 
-    <!-- Stats Strip -->
-    <div class="stats-strip fade-in" style="animation-delay: 0.05s;">
+    <!-- Stats Strip (Pilar: Glassmorphism Individual) -->
+    <div class="stats-strip fade-up delay-1">
       <div class="stat-box">
         <div class="stat-icon blue">
           <ion-icon name="school-outline"></ion-icon>
@@ -60,11 +61,11 @@
       </div>
     </div>
 
-    <!-- Actions Bar -->
-    <div class="actions-bar fade-in" style="animation-delay: 0.1s;">
+    <!-- Actions Bar (Glass Section) -->
+    <div class="actions-bar fade-up delay-2">
       <div class="search-row">
         <ion-searchbar [(ngModel)]="terminoBusqueda" (ionInput)="aplicarFiltros()"
-          placeholder="Buscar por nombre, lugar..." class="search-input" [debounce]="200">
+          placeholder="Filtrar por nombre, lugar o descripción..." class="search-input" [debounce]="200">
         </ion-searchbar>
         <ion-button fill="clear" class="toggle-filters-btn"
           (click)="mostrarFiltrosAvanzados = !mostrarFiltrosAvanzados">
@@ -72,119 +73,69 @@
         </ion-button>
       </div>
 
-      <!-- Quick Status Chips -->
       <div class="filter-chips">
         <div class="chip" [class.active]="filtroEstado === 'todos'" (click)="filtroEstado = 'todos'; aplicarFiltros()">
-          Todas
+          Todos los Registros
         </div>
-        <div class="chip" [class.active]="filtroEstado === 'Activa'"
-          (click)="filtroEstado = 'Activa'; aplicarFiltros()">
-          <ion-icon name="time-outline"></ion-icon> Activas
+        <div class="chip" [class.active]="filtroEstado === 'Activa'" (click)="filtroEstado = 'Activa'; aplicarFiltros()">
+          Eventos Activos
         </div>
-        <div class="chip" [class.active]="filtroEstado === 'Finalizada'"
-          (click)="filtroEstado = 'Finalizada'; aplicarFiltros()">
-          <ion-icon name="checkmark-circle-outline"></ion-icon> Finalizadas
+        <div class="chip" [class.active]="filtroEstado === 'Finalizada'" (click)="filtroEstado = 'Finalizada'; aplicarFiltros()">
+          Finalizados
         </div>
       </div>
 
-      <!-- Advanced Filters Panel -->
-      <div class="advanced-filters-panel" *ngIf="mostrarFiltrosAvanzados">
-        <div class="filters-grid">
-
-          <!-- Modality Select -->
+      <!-- Filtros Avanzados Panel -->
+      <div class="advanced-filters-panel" *ngIf="mostrarFiltrosAvanzados" style="padding-top: 24px; margin-top: 20px; border-top: 1px solid rgba(0,0,0,0.05); animation: fadeUp 0.4s ease-out;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
           <div class="filter-group">
-            <label>Modalidad</label>
-            <ion-select [(ngModel)]="filtroModalidad" (ionChange)="aplicarFiltros()" interface="popover">
-              <ion-select-option value="todos">Cualquier Modalidad</ion-select-option>
+            <label style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); display: block; margin-bottom: 8px;">Modalidad</label>
+            <ion-select [(ngModel)]="filtroModalidad" (ionChange)="aplicarFiltros()" interface="popover" style="background: white; border-radius: 12px; border: 1px solid rgba(0,0,0,0.05); height: 44px; padding: 0 12px;">
+              <ion-select-option value="todos">Cualquiera</ion-select-option>
               <ion-select-option value="Presencial">Presencial</ion-select-option>
               <ion-select-option value="Virtual">Virtual</ion-select-option>
               <ion-select-option value="Híbrida">Híbrida</ion-select-option>
             </ion-select>
           </div>
-
-          <!-- Certificates Select -->
           <div class="filter-group">
-            <label>Certificados</label>
-            <ion-select [(ngModel)]="filtroCertificados" (ionChange)="aplicarFiltros()" interface="popover">
-              <ion-select-option value="todos">Todos los registros</ion-select-option>
-              <ion-select-option value="si">Emitidos</ion-select-option>
-              <ion-select-option value="no">Pendientes de emisión</ion-select-option>
+            <label style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); display: block; margin-bottom: 8px;">Ordenar</label>
+            <ion-select [(ngModel)]="ordenarPor" (ionChange)="aplicarFiltros()" interface="popover" style="background: white; border-radius: 12px; border: 1px solid rgba(0,0,0,0.05); height: 44px; padding: 0 12px;">
+              <ion-select-option value="fecha_desc">Más recientes</ion-select-option>
+              <ion-select-option value="fecha_asc">Más antiguos</ion-select-option>
+              <ion-select-option value="nombre">Por nombre (A-Z)</ion-select-option>
             </ion-select>
           </div>
-
-          <!-- Date Starts After -->
-          <div class="filter-group">
-            <label>Desde (Fecha)</label>
-            <ion-input type="date" [(ngModel)]="fechaDesde" (ionChange)="aplicarFiltros()"></ion-input>
-          </div>
-
-          <!-- Date Starts Before -->
-          <div class="filter-group">
-            <label>Hasta (Fecha)</label>
-            <ion-input type="date" [(ngModel)]="fechaHasta" (ionChange)="aplicarFiltros()"></ion-input>
-          </div>
-
-          <!-- Sort Order -->
-          <div class="filter-group">
-            <label>Ordenar por</label>
-            <ion-select [(ngModel)]="ordenarPor" (ionChange)="aplicarFiltros()" interface="popover">
-              <ion-select-option value="fecha_desc">Más recientes primero</ion-select-option>
-              <ion-select-option value="fecha_asc">Más antiguos primero</ion-select-option>
-              <ion-select-option value="nombre">Orden alfabético (A-Z)</ion-select-option>
-              <ion-select-option value="cupos">Mayor disponibilidad</ion-select-option>
-            </ion-select>
-          </div>
-
-          <!-- Clear Action -->
-          <div class="filter-group action-group">
-            <ion-button fill="clear" color="danger" size="small" (click)="limpiarFiltros()">
-              <ion-icon name="refresh-outline" slot="start"></ion-icon>
+          <div style="display: flex; align-items: flex-end;">
+            <ion-button fill="clear" color="danger" (click)="limpiarFiltros()" style="font-weight: 700;">
               Limpiar Filtros
             </ion-button>
           </div>
-
         </div>
       </div>
     </div>
 
     <!-- Section Title -->
-    <div class="section-header fade-in" style="animation-delay:0.15s;">
-      <h2>Capacitaciones</h2>
-      <span class="count-badge">{{ capacitacionesFiltradas.length }}</span>
-    </div>
-
-    <!-- Empty State -->
-    <div *ngIf="capacitacionesFiltradas.length === 0 && !cargando" class="empty-state fade-in">
-      <ion-icon name="school-outline"></ion-icon>
-      <h3>No hay capacitaciones</h3>
-      <p>No se encontraron capacitaciones con los filtros actuales.</p>
-      <ion-button fill="outline" size="small" (click)="limpiarFiltros()">
-        <ion-icon name="refresh-outline" slot="start"></ion-icon>
-        Mostrar todas
-      </ion-button>
-    </div>
-
-    <!-- Loading -->
-    <div *ngIf="cargando" class="loading-state fade-in">
-      <ion-spinner name="crescent" color="primary"></ion-spinner>
-      <p>Cargando capacitaciones...</p>
+    <div class="section-header fade-up delay-3">
+      <h2>Catálogo Maestro</h2>
+      <span class="count-badge">{{ capacitacionesFiltradas.length }} items</span>
     </div>
 
     <!-- Cards List -->
     <div class="capacitaciones-list" *ngIf="!cargando">
-      <div class="capacitacion-card fade-in" *ngFor="let cap of capacitacionesFiltradas; let i = index"
-        [style.animation-delay]="(0.2 + i * 0.04) + 's'">
+      <div class="capacitacion-card fade-up" *ngFor="let cap of capacitacionesFiltradas; let i = index"
+        [style.animation-delay]="(0.4 + i * 0.08) + 's'">
 
         <div class="card-top">
-          <div class="card-title-row">
+          <div class="card-title-row" style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;">
             <h3>{{ cap.nombre }}</h3>
-            <div class="badges">
+            <div class="badges" style="display: flex; gap: 8px;">
               <span class="status-badge" [class.status-active]="cap.estado === 'Activa'"
-                [class.status-done]="cap.estado === 'Finalizada'" [class.status-canceled]="cap.estado === 'Cancelada'">
+                [class.status-done]="cap.estado === 'Finalizada'">
                 {{ cap.estado }}
               </span>
               <span class="cert-badge" *ngIf="cap.certificado">
-                <ion-icon name="ribbon"></ion-icon>
+                <ion-icon name="ribbon" style="margin-right: 4px;"></ion-icon>
+                Certificado Emitido
               </span>
             </div>
           </div>
@@ -198,7 +149,7 @@
           </div>
           <div class="meta-item">
             <ion-icon name="calendar-outline"></ion-icon>
-            <span>{{ cap.fechaInicio | date:'dd/MM/yyyy' }}</span>
+            <span>{{ cap.fechaInicio | date:'dd / MM / yyyy' }}</span>
           </div>
           <div class="meta-item">
             <ion-icon name="laptop-outline"></ion-icon>
@@ -206,42 +157,53 @@
           </div>
           <div class="meta-item">
             <ion-icon name="time-outline"></ion-icon>
-            <span>{{ cap.horas }}h</span>
+            <span>{{ cap.horas }} Horas Lectivas</span>
           </div>
           <div class="meta-item">
             <ion-icon name="people-outline"></ion-icon>
-            <span>{{ cap.cuposDisponibles }} cupos</span>
+            <span>{{ cap.cuposDisponibles }} Cupos</span>
           </div>
         </div>
 
         <div class="card-actions">
-          <ion-button fill="clear" size="small" color="primary" (click)="iraEditarCapacitacion(cap.id)"
-            *ngIf="!isConferencista">
+          <ion-button fill="clear" (click)="iraEditarCapacitacion(cap.id)" *ngIf="!isConferencista">
             <ion-icon name="create-outline" slot="start"></ion-icon>
-            Editar
+            Editar Registro
           </ion-button>
-          <ion-button fill="clear" size="small" color="secondary" (click)="iraVisualizarinscritos(cap.id)">
+          <ion-button fill="clear" (click)="iraVisualizarinscritos(cap.id)">
             <ion-icon name="people-outline" slot="start"></ion-icon>
             Participantes
           </ion-button>
-          <ion-button fill="clear" size="small" color="success" (click)="finalizarCapacitacion(cap.id)"
+          <ion-button fill="clear" color="success" (click)="finalizarCapacitacion(cap.id)"
             *ngIf="cap.estado === 'Activa' && !isConferencista">
             <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
-            Finalizar
+            Finalizar Evento
           </ion-button>
-          <ion-button fill="clear" size="small" color="warning" (click)="mostrarConfirmacion(cap.id)"
+          <ion-button fill="clear" color="warning" (click)="mostrarConfirmacion(cap.id)"
             *ngIf="cap.estado === 'Finalizada' && !cap.certificado && !isConferencista">
             <ion-icon name="ribbon-outline" slot="start"></ion-icon>
-            Certificados
+            Emitir Certificados
           </ion-button>
-          <ion-button fill="clear" size="small" color="danger" (click)="confirmarEliminar(cap.id)"
-            *ngIf="!isConferencista">
+          <ion-button fill="clear" color="danger" (click)="confirmarEliminar(cap.id)" *ngIf="!isConferencista">
             <ion-icon name="trash-outline" slot="start"></ion-icon>
             Eliminar
           </ion-button>
         </div>
 
       </div>
+    </div>
+
+    <!-- Empty/Loading States -->
+    <div *ngIf="capacitacionesFiltradas.length === 0 && !cargando" class="empty-state fade-up">
+      <ion-icon name="school-outline"></ion-icon>
+      <h3>Sin Resultados</h3>
+      <p>No se encontraron capacitaciones bajo los criterios de filtrado seleccionados.</p>
+      <ion-button fill="solid" (click)="limpiarFiltros()" class="new-btn">Restablecer Catálogo</ion-button>
+    </div>
+
+    <div *ngIf="cargando" class="loading-state fade-up">
+      <ion-spinner name="crescent" color="primary"></ion-spinner>
+      <p style="margin-top: 16px; font-weight: 700;">Sincronizando con el servidor...</p>
     </div>
 
   </div>
