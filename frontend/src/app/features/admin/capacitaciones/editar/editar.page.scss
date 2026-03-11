@@ -407,3 +407,74 @@ ion-select::part(container), ion-datetime::part(native) {
   from { opacity: 0; transform: translateY(40px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+// Map Modal Styles (Luxury Suite consistent)
+.map-modal-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: white;
+
+  .map-modal-header {
+    padding: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #f1f5f9;
+
+    .header-info {
+      h3 { margin: 0; font-size: 1.25rem; font-weight: 900; color: var(--text-primary); }
+      p { margin: 4px 0 0; font-size: 0.85rem; color: var(--text-muted); 
+          &.address-preview { color: var(--accent-blue); font-weight: 700; }
+      }
+    }
+
+    .close-modal-btn {
+      background: #f1f5f9; border: none; width: 44px; height: 44px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem; color: var(--text-secondary); cursor: pointer;
+      transition: var(--transition-pop);
+      &:hover { background: var(--accent-rose); color: white; transform: rotate(90deg); }
+    }
+  }
+
+  .map-container { 
+    flex: 1; 
+    position: relative; 
+    min-height: 400px; 
+    background: #f1f5f9;
+    #mapPickerEdit { 
+      width: 100%;
+      height: 100%;
+      z-index: 1; 
+    } 
+  }
+
+  .map-modal-footer {
+    padding: 24px; border-top: 1px solid #f1f5f9; background: #f8fafc;
+    .btn { font-weight: 800; --padding-top: 20px; --padding-bottom: 20px; }
+  }
+}
+
+.map-picker-btn {
+  --color: var(--accent-indigo);
+  --background: rgba(99, 102, 241, 0.1);
+  --border-radius: 12px;
+  margin-top: 25px !important;
+  &:hover { transform: scale(1.1); }
+}
+
+.full-width { width: 100%; }
+
+.btn-primary {
+  --background: linear-gradient(135deg, var(--accent-blue), var(--accent-indigo));
+  --border-radius: 16px;
+  color: white;
+  padding: 18px 24px;
+  font-weight: 800;
+  border: none;
+  cursor: pointer;
+  transition: var(--transition-pop);
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+  &:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 10px 20px -5px rgba(37, 99, 235, 0.3); }
+}

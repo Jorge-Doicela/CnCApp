@@ -2,6 +2,7 @@ import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, ViewChild, inject, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
+import * as L from 'leaflet';
 import { firstValueFrom } from 'rxjs';
 import { NgForm } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
@@ -19,7 +20,7 @@ import {
   wifiOutline, peopleOutline, briefcaseOutline, personOutline, 
   personAddOutline, lockClosedOutline, ribbon, ribbonOutline, 
   checkmarkDoneOutline, trashOutline, checkmarkCircle, time, closeCircle,
-  sparklesOutline, shieldCheckmarkOutline
+  sparklesOutline, shieldCheckmarkOutline, locateOutline, mapOutline
 } from 'ionicons/icons';
 
 @Component({
@@ -52,7 +53,9 @@ export class EditarPage implements OnInit {
     entidadesEncargadas: [] as number[],
     idsUsuarios: [] as number[],
     expositores: [] as number[],
-    certificado: false
+    certificado: false,
+    latitud: undefined as number | undefined,
+    longitud: undefined as number | undefined
   };
 
   capacitacionOriginal: any = {};
@@ -80,9 +83,18 @@ export class EditarPage implements OnInit {
       wifiOutline, peopleOutline, briefcaseOutline, personOutline, 
       personAddOutline, lockClosedOutline, ribbon, ribbonOutline, 
       checkmarkDoneOutline, trashOutline, checkmarkCircle, time, closeCircle,
-      sparklesOutline, shieldCheckmarkOutline
+      sparklesOutline, shieldCheckmarkOutline, locateOutline, mapOutline
     });
   }
+
+  // Map Picker State
+  isMapModalOpen = false;
+  private pickerMap!: L.Map;
+  private pickerMarker!: L.Marker;
+  tempLat: number | null = null;
+  tempLng: number | null = null;
+  tempLugar: string = '';
+  buscandoDireccion = false;
 
   ngOnInit() {
     const idCapacitacion = this.activatedRoute.snapshot.paramMap.get('id');
@@ -248,7 +260,9 @@ export class EditarPage implements OnInit {
         certificado: !!this.capacitacion.certificado,
         idsUsuarios: this.capacitacion.idsUsuarios || [],
         expositores: this.capacitacion.expositores || [],
-        entidadesEncargadas: this.capacitacion.entidadesEncargadas || []
+        entidadesEncargadas: this.capacitacion.entidadesEncargadas || [],
+        latitud: this.capacitacion.latitud,
+        longitud: this.capacitacion.longitud
       };
 
       // Sanitización final de URL
@@ -409,5 +423,90 @@ export class EditarPage implements OnInit {
       ]
     });
     await toast.present();
+  }
+
+  // --- MAP PICKER LOGIC ---
+  abrirSelectorMapa() {
+    this.isMapModalOpen = true;
+    this.cd.markForCheck();
+  }
+
+  initPickerMap() {
+    setTimeout(() => {
+      const defaultLat = this.capacitacion.latitud || -0.1807;
+      const defaultLng = this.capacitacion.longitud || -78.4678;
+
+      if (!this.pickerMap) {
+        this.pickerMap = L.map('mapPickerEdit').setView([defaultLat, defaultLng], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '© OpenStreetMap contributors'
+        }).addTo(this.pickerMap);
+
+        this.pickerMap.on('click', (e: L.LeafletMouseEvent) => {
+          this.setPickerMarker(e.latlng.lat, e.latlng.lng);
+        });
+      } else {
+        this.pickerMap.setView([defaultLat, defaultLng], 13);
+        this.pickerMap.invalidateSize();
+      }
+
+      if (this.capacitacion.latitud && this.capacitacion.longitud) {
+        this.setPickerMarker(this.capacitacion.latitud, this.capacitacion.longitud);
+      }
+    }, 200);
+  }
+
+  async setPickerMarker(lat: number, lng: number) {
+    this.tempLat = lat;
+    this.tempLng = lng;
+
+    if (!this.pickerMarker) {
+      this.pickerMarker = L.marker([lat, lng], { draggable: true }).addTo(this.pickerMap);
+      this.pickerMarker.on('dragend', () => {
+        const pos = this.pickerMarker.getLatLng();
+        this.setPickerMarker(pos.lat, pos.lng);
+      });
+    } else {
+      this.pickerMarker.setLatLng([lat, lng]);
+    }
+
+    this.buscandoDireccion = true;
+    this.cd.markForCheck();
+    try {
+      const resp = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`);
+      const data = await resp.json();
+      this.tempLugar = data.display_name || `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+    } catch (e) {
+      this.tempLugar = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+    } finally {
+      this.buscandoDireccion = false;
+      this.cd.markForCheck();
+    }
+  }
+
+  confirmarUbicacion() {
+    if (this.tempLat && this.tempLng) {
+      this.capacitacion.latitud = this.tempLat;
+      this.capacitacion.longitud = this.tempLng;
+      this.capacitacion.lugar = this.tempLugar;
+      this.isMapModalOpen = false;
+      this.mostrarToast('Ubicación establecida', 'success');
+      this.cd.markForCheck();
+    }
+  }
+
+  abrirMapa() {
+    if (this.capacitacion.latitud && this.capacitacion.longitud) {
+      const url = `https://www.google.com/maps/search/?api=1&query=${this.capacitacion.latitud},${this.capacitacion.longitud}`;
+      window.open(url, '_blank');
+      return;
+    }
+
+    if (!this.capacitacion.lugar) {
+      this.mostrarToast('Por favor, ingrese un lugar o use el mapa', 'warning');
+      return;
+    }
+    const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(this.capacitacion.lugar)}`;
+    window.open(url, '_blank');
   }
 }

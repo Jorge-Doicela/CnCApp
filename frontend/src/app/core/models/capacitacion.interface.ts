@@ -12,6 +12,8 @@ export interface Capacitacion {
     horaFin?: string;
     horas?: number;
     enlaceVirtual?: string;
+    latitud?: number;
+    longitud?: number;
     certificado?: boolean;
     codigoQrEvento?: string; // UUID único por evento, usada para QR de asistencia
     entidadesEncargadas?: number[]; // For form

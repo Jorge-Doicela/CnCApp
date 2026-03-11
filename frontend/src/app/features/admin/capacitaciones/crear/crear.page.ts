@@ -1,7 +1,8 @@
 import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ViewChild, inject, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, ViewChild, inject, ChangeDetectorRef, ChangeDetectionStrategy, AfterViewInit } from '@angular/core';
+import * as L from 'leaflet';
 import { firstValueFrom } from 'rxjs';
 import { NgForm } from '@angular/forms';
 import { ToastController, AlertController, NavController } from '@ionic/angular';
@@ -22,7 +23,7 @@ import {
   sparklesOutline, shieldCheckmarkOutline, arrowForwardOutline, checkmark,
   checkmarkOutline, closeOutline, constructOutline, laptopOutline,
   gitMergeOutline, linkOutline, openOutline, alertCircle, alertCircleOutline,
-  businessOutline
+  businessOutline, locateOutline, mapOutline
 } from 'ionicons/icons';
 
 @Component({
@@ -51,7 +52,9 @@ export class CrearPage implements OnInit {
     cuposDisponibles: 30,
     entidadesEncargadas: [] as number[],
     idsUsuarios: [] as number[],
-    expositores: [] as number[]
+    expositores: [] as number[],
+    latitud: undefined as number | undefined,
+    longitud: undefined as number | undefined
   };
 
   entidades: any[] = [];
@@ -61,6 +64,8 @@ export class CrearPage implements OnInit {
   cargandoDatos = true;
   guardando = false;
   fechaMinima: string = '';
+  duracionHoras: number = 0;
+  duracionMinutos: number = 0;
 
   // Wizard steps
   currentStep = 1;
@@ -69,6 +74,15 @@ export class CrearPage implements OnInit {
   private capacitacionesService = inject(CapacitacionesService);
   private catalogoService = inject(CatalogoService);
   private usuarioService = inject(UsuarioService);
+
+  // Map Picker State
+  isMapModalOpen = false;
+  private pickerMap!: L.Map;
+  private pickerMarker!: L.Marker;
+  tempLat: number | null = null;
+  tempLng: number | null = null;
+  tempLugar: string = '';
+  buscandoDireccion = false;
 
   constructor(
     private toastController: ToastController,
@@ -86,7 +100,7 @@ export class CrearPage implements OnInit {
       sparklesOutline, shieldCheckmarkOutline, arrowForwardOutline, checkmark,
       checkmarkOutline, closeOutline, constructOutline, laptopOutline,
       gitMergeOutline, linkOutline, openOutline, alertCircle, alertCircleOutline,
-      businessOutline
+      businessOutline, locateOutline, mapOutline
     });
   }
 
@@ -111,6 +125,14 @@ export class CrearPage implements OnInit {
     this.capacitacion.horaFin = horaFin.toTimeString().substring(0, 5);
 
     this.capacitacion.horas = 2;
+    this.duracionHoras = 2;
+    this.duracionMinutos = 0;
+  }
+
+  actualizarHorasTotales() {
+    this.capacitacion.horas = Number(this.duracionHoras || 0) + (Number(this.duracionMinutos || 0) / 60);
+    // Redondear a 2 decimales si es necesario
+    this.capacitacion.horas = Math.round(this.capacitacion.horas * 100) / 100;
   }
 
   async cargarDatos() {
@@ -324,9 +346,13 @@ export class CrearPage implements OnInit {
       cuposDisponibles: 30,
       entidadesEncargadas: entidadesSeleccionadas,
       idsUsuarios: [],
-      expositores: []
+      expositores: [],
+      latitud: undefined,
+      longitud: undefined
     };
 
+    this.duracionHoras = 2;
+    this.duracionMinutos = 0;
     this.inicializarFormulario();
 
     if (this.capacitacionForm) {
@@ -342,8 +368,80 @@ export class CrearPage implements OnInit {
       this.capacitacion.enlaceVirtual ||
       this.capacitacion.horas > 0 ||
       this.capacitacion.expositores?.length > 0 ||
-      this.capacitacion.idsUsuarios?.length > 0
+      this.capacitacion.idsUsuarios?.length > 0 ||
+      this.capacitacion.latitud
     );
+  }
+
+  // --- MAP PICKER LOGIC ---
+  abrirSelectorMapa() {
+    this.isMapModalOpen = true;
+    this.cdr.markForCheck();
+  }
+
+  initPickerMap() {
+    setTimeout(() => {
+      const defaultLat = this.capacitacion.latitud || -0.1807; // Quito
+      const defaultLng = this.capacitacion.longitud || -78.4678;
+
+      if (!this.pickerMap) {
+        this.pickerMap = L.map('mapPicker').setView([defaultLat, defaultLng], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '© OpenStreetMap contributors'
+        }).addTo(this.pickerMap);
+
+        this.pickerMap.on('click', (e: L.LeafletMouseEvent) => {
+          this.setPickerMarker(e.latlng.lat, e.latlng.lng);
+        });
+      } else {
+        this.pickerMap.setView([defaultLat, defaultLng], 13);
+        this.pickerMap.invalidateSize();
+      }
+
+      if (this.capacitacion.latitud && this.capacitacion.longitud) {
+        this.setPickerMarker(this.capacitacion.latitud, this.capacitacion.longitud);
+      }
+    }, 200);
+  }
+
+  async setPickerMarker(lat: number, lng: number) {
+    this.tempLat = lat;
+    this.tempLng = lng;
+
+    if (!this.pickerMarker) {
+      this.pickerMarker = L.marker([lat, lng], { draggable: true }).addTo(this.pickerMap);
+      this.pickerMarker.on('dragend', () => {
+        const pos = this.pickerMarker.getLatLng();
+        this.setPickerMarker(pos.lat, pos.lng);
+      });
+    } else {
+      this.pickerMarker.setLatLng([lat, lng]);
+    }
+
+    // Reverse Geocoding
+    this.buscandoDireccion = true;
+    this.cdr.markForCheck();
+    try {
+      const resp = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`);
+      const data = await resp.json();
+      this.tempLugar = data.display_name || `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+    } catch (e) {
+      this.tempLugar = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+    } finally {
+      this.buscandoDireccion = false;
+      this.cdr.markForCheck();
+    }
+  }
+
+  confirmarUbicacion() {
+    if (this.tempLat && this.tempLng) {
+      this.capacitacion.latitud = this.tempLat;
+      this.capacitacion.longitud = this.tempLng;
+      this.capacitacion.lugar = this.tempLugar;
+      this.isMapModalOpen = false;
+      this.mostrarToast('Ubicación establecida', 'success');
+      this.cdr.markForCheck();
+    }
   }
 
   marcarCamposComoTocados() {
@@ -356,6 +454,21 @@ export class CrearPage implements OnInit {
     if (!enlace) return;
 
     const url = enlace.startsWith('http') ? enlace : 'https://' + enlace;
+    window.open(url, '_blank');
+  }
+
+  abrirMapa() {
+    if (this.capacitacion.latitud && this.capacitacion.longitud) {
+      const url = `https://www.google.com/maps/search/?api=1&query=${this.capacitacion.latitud},${this.capacitacion.longitud}`;
+      window.open(url, '_blank');
+      return;
+    }
+    
+    if (!this.capacitacion.lugar) {
+      this.mostrarToast('Por favor, seleccione una ubicación en el mapa o ingrese un lugar', 'warning');
+      return;
+    }
+    const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(this.capacitacion.lugar)}`;
     window.open(url, '_blank');
   }
 

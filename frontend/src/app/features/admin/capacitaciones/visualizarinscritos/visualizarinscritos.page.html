@@ -52,9 +52,10 @@
                   </span>
                 </div>
 
-                <div class="detail-item" *ngIf="infoCapacitacion.lugar">
+                <div class="detail-item tooltip-trigger" *ngIf="infoCapacitacion.lugar" (click)="abrirMapa(infoCapacitacion.lugar)" style="cursor: pointer;" title="Ver en Google Maps">
                   <ion-icon name="location-outline" color="primary"></ion-icon>
                   <span>{{ infoCapacitacion.lugar }}</span>
+                  <ion-icon name="map-outline" size="small" style="margin-left: 5px; opacity: 0.7;"></ion-icon>
                 </div>
 
                 <div class="detail-item">

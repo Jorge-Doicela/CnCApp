@@ -142,7 +142,7 @@
         </div>
 
         <div class="card-content">
-          <div class="info-item">
+          <div class="info-item" [class.clickable]="cap.lugar" (click)="cap.lugar ? abrirMapa(cap.lugar) : null" [title]="cap.lugar ? 'Ver en Google Maps' : ''">
             <div class="icon-box"><ion-icon name="location-outline"></ion-icon></div>
             <div class="info-text">
               <span class="label">Ubicación / Sede</span>
@@ -252,9 +252,9 @@
 
         <div class="modal-body">
           <section class="info-grid">
-            <div class="detail-group">
+            <div class="detail-group" [class.clickable]="selectedCapacitacion.lugar" (click)="selectedCapacitacion.lugar ? abrirMapa(selectedCapacitacion.lugar) : null">
               <label><ion-icon name="location-outline"></ion-icon> Ubicación / Sede</label>
-              <p>{{ selectedCapacitacion.lugar }}</p>
+              <p>{{ selectedCapacitacion.lugar }} <ion-icon name="map-outline" *ngIf="selectedCapacitacion.lugar" style="margin-left: 5px; color: var(--accent-indigo);"></ion-icon></p>
             </div>
             <div class="detail-group">
               <label><ion-icon name="calendar-clear-outline"></ion-icon> Periodo</label>
