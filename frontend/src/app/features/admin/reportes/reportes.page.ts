@@ -11,7 +11,8 @@ import {
     trendingUpOutline, checkmarkCircleOutline, timeOutline,
     statsChartOutline, schoolOutline, ribbonOutline,
     arrowUpOutline, arrowDownOutline, playOutline,
-    checkmarkDoneOutline, downloadOutline, arrowBackOutline
+    checkmarkDoneOutline, downloadOutline, arrowBackOutline,
+    mapOutline, podiumOutline, maleFemaleOutline
 } from 'ionicons/icons';
 import { firstValueFrom } from 'rxjs';
 import { ReportesService, DashboardStats } from './services/reportes.service';
@@ -61,8 +62,15 @@ export class ReportesPage implements OnInit {
             'arrow-down-outline': arrowDownOutline,
             'play-outline': playOutline,
             'checkmark-done-outline': checkmarkDoneOutline,
-            'arrow-back-outline': arrowBackOutline
+            'arrow-back-outline': arrowBackOutline,
+            'map-outline': mapOutline,
+            'podium-outline': podiumOutline,
+            'male-female-outline': maleFemaleOutline
         });
+    }
+
+    round(value: number): number {
+        return Math.round(value);
     }
 
     ngOnInit() {

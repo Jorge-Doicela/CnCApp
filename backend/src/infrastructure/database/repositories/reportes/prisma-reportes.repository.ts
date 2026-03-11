@@ -22,34 +22,44 @@ export class PrismaReportesRepository implements ReportesRepository {
             capacitacionesFinalizadas,
             certificadosEsteMes,
             usuariosRegistradosEsteMes,
-            tendencias
+            tendencias,
+            totalHorasData,
+            statsInscripciones,
+            statsAsistencia,
+            userGeneros,
+            userProvincias
         ] = await Promise.all([
             this.prisma.usuario.count(),
             this.prisma.capacitacion.count(),
             this.prisma.certificado.count(),
             this.getUsuariosPorRolData(),
             this.prisma.capacitacion.count({
-                where: {
-                    estado: EstadoCapacitacionEnum.PENDIENTE
-                }
+                where: { estado: EstadoCapacitacionEnum.PENDIENTE }
             }),
             this.prisma.capacitacion.count({
-                where: {
-                    estado: EstadoCapacitacionEnum.REALIZADA
-                }
+                where: { estado: EstadoCapacitacionEnum.REALIZADA }
             }),
             this.prisma.certificado.count({
-                where: {
-                    fechaEmision: { gte: firstDayOfMonth }
-                }
+                where: { fechaEmision: { gte: firstDayOfMonth } }
             }),
             this.prisma.usuario.count({
-                where: {
-                    createdAt: { gte: firstDayOfMonth }
-                }
+                where: { createdAt: { gte: firstDayOfMonth } }
             }),
-            this.getTendenciasData()
+            this.getTendenciasData(),
+            this.prisma.capacitacion.aggregate({ _sum: { horas: true }, where: { estado: EstadoCapacitacionEnum.REALIZADA } }),
+            this.prisma.usuarioCapacitacion.count(),
+            this.prisma.usuarioCapacitacion.count({ where: { asistio: true } }),
+            this.prisma.genero.findMany({ include: { _count: { select: { usuarios: true } } } }),
+            this.prisma.provincia.findMany({ include: { _count: { select: { usuarios: true } } }, orderBy: { usuarios: { _count: 'desc' } }, take: 5 })
         ]);
+
+        const participantesInscritos = statsInscripciones;
+        const totalHorasCapacitacion = totalHorasData._sum.horas || 0;
+        const tasaAsistencia = participantesInscritos > 0 ? (statsAsistencia / participantesInscritos) * 100 : 0;
+        const tasaCertificacion = participantesInscritos > 0 ? (totalCertificados / participantesInscritos) * 100 : 0;
+
+        const usuariosPorGenero = userGeneros.map(g => ({ nombre: g.nombre, cantidad: g._count.usuarios }));
+        const topProvincias = userProvincias.map(p => ({ nombre: p.nombre, cantidad: p._count.usuarios }));
 
         return {
             totalUsuarios,
@@ -60,7 +70,13 @@ export class PrismaReportesRepository implements ReportesRepository {
             capacitacionesFinalizadas,
             certificadosEsteMes,
             usuariosRegistradosEsteMes,
-            tendencias
+            tendencias,
+            tasaAsistencia,
+            totalHorasCapacitacion,
+            participantesInscritos,
+            tasaCertificacion,
+            usuariosPorGenero,
+            topProvincias
         };
     }
 
