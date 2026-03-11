@@ -247,27 +247,30 @@
         </div>
       </div>
 
-      <!-- Navegación del Wizard -->
-      <footer class="wizard-navigation">
-        <button type="button" class="btn btn-secondary" (click)="previousStep()" *ngIf="currentStep > 1">
-          <ion-icon name="arrow-back-outline"></ion-icon> Anterior
-        </button>
-
-        <button type="button" class="btn btn-secondary" (click)="cancelar()" *ngIf="currentStep === 1">
-          Cancelar
-        </button>
-
-        <button type="button" class="btn btn-primary" (click)="nextStep()" *ngIf="currentStep < totalSteps">
-          Continuar <ion-icon name="arrow-forward-outline"></ion-icon>
-        </button>
-
-        <button type="button" class="btn btn-primary" (click)="guardarCapacitacion()" [disabled]="guardando"
-          *ngIf="currentStep === totalSteps">
-          <ion-spinner name="crescent" *ngIf="guardando"></ion-spinner>
-          <ion-icon name="checkmark-outline" *ngIf="!guardando"></ion-icon>
-          {{ guardando ? 'Finalizando...' : 'Crear Capacitación' }}
-        </button>
-      </footer>
     </form>
   </div>
 </ion-content>
+
+<!-- Navegación del Wizard — Movida a Footer para evitar solapamiento -->
+<ion-footer class="ion-no-border">
+  <div class="wizard-navigation">
+    <button type="button" class="btn btn-secondary" (click)="previousStep()" *ngIf="currentStep > 1">
+      <ion-icon name="arrow-back-outline"></ion-icon> Anterior
+    </button>
+
+    <button type="button" class="btn btn-secondary" (click)="cancelar()" *ngIf="currentStep === 1">
+      Cancelar
+    </button>
+
+    <button type="button" class="btn btn-primary" (click)="nextStep()" *ngIf="currentStep < totalSteps">
+      Continuar <ion-icon name="arrow-forward-outline"></ion-icon>
+    </button>
+
+    <button type="button" class="btn btn-primary" (click)="guardarCapacitacion()" [disabled]="guardando"
+      *ngIf="currentStep === totalSteps">
+      <ion-spinner name="crescent" *ngIf="guardando"></ion-spinner>
+      <ion-icon name="checkmark-outline" *ngIf="!guardando"></ion-icon>
+      {{ guardando ? 'Finalizando...' : 'Crear Capacitación' }}
+    </button>
+  </div>
+</ion-footer>
