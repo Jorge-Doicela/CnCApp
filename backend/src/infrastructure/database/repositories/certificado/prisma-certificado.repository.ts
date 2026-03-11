@@ -45,6 +45,9 @@ export class PrismaCertificadoRepository implements CertificadoRepository {
     async findByUser(userId: number): Promise<Certificado[]> {
         const certificados = await prisma.certificado.findMany({
             where: { usuarioId: userId },
+            include: {
+                capacitacion: true
+            },
             orderBy: { fechaEmision: 'desc' }
         });
         return certificados.map(c => CertificadoMapper.toDomain(c));
