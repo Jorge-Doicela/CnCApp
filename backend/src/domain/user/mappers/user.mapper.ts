@@ -33,6 +33,7 @@ export class UserMapper {
             rol: prismaUser.rol ? {
                 id: prismaUser.rol.id,
                 nombre: prismaUser.rol.nombre,
+                codigo: prismaUser.rol.codigo,
                 modulos: prismaUser.rol.modulos
             } : null,
             entidad: prismaUser.entidad ? {

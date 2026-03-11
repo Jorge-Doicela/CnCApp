@@ -188,8 +188,16 @@ export class EditarPage implements OnInit {
   async cargarUsuarios() {
     const data = await firstValueFrom(this.usuarioService.getUsuarios());
     const todos = data || [];
-    this.expositoresList = [...todos];
-    this.participantesList = [...todos];
+    
+    // Responsables: Solo ADMIN y CONFERENCISTA
+    this.expositoresList = todos.filter(u => 
+      u.rol?.codigo === 'ADMIN' || u.rol?.codigo === 'CONFERENCISTA'
+    );
+    
+    // Participantes: Solo USUARIO
+    this.participantesList = todos.filter(u => 
+      u.rol?.codigo === 'USUARIO'
+    );
   }
 
   onModalidadChange() {

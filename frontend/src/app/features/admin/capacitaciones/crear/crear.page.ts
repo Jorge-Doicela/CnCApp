@@ -156,10 +156,16 @@ export class CrearPage implements OnInit {
         this.capacitacion.entidadesEncargadas = [cnc.id];
       }
 
-      // Usuarios: Mostrar todos en ambas listas pero con indicador visual
+      // Usuarios: Filtrar por Rol (Seguro)
       const todosLosUsuarios = usuariosResult || [];
-      this.usuarios = [...todosLosUsuarios];
-      this.usuariosDisponibles = [...todosLosUsuarios];
+      // Responsables: Solo Administradores y Conferencistas
+      this.usuarios = todosLosUsuarios.filter(u => 
+        u.rol?.codigo === 'ADMIN' || u.rol?.codigo === 'CONFERENCISTA'
+      );
+      // Participantes: Solo usuarios normales
+      this.usuariosDisponibles = todosLosUsuarios.filter(u => 
+        u.rol?.codigo === 'USUARIO'
+      );
 
     } catch (error) {
       console.error('Error cargando datos requeridos:', error);
