@@ -42,6 +42,7 @@ export interface User {
     rol?: {
         id: number;
         nombre: string;
+        codigo?: string;
         modulos?: any;
     } | null;
     entidad?: {

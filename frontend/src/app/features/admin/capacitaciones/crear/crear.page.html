@@ -229,9 +229,9 @@
           <label class="field-label">Expositores y Responsables <span class="required">*</span></label>
           <div class="select-wrapper">
             <ion-select [(ngModel)]="capacitacion.expositores" name="expositores"
-              #expositoresModel="ngModel" required multiple="true" interface="action-sheet" placeholder="Seleccionar ponentes responsables">
+              #expositoresModel="ngModel" required multiple="true" interface="popover" placeholder="Seleccionar ponentes responsables">
               <ion-select-option *ngFor="let usuario of usuarios" [value]="usuario.id">
-                {{ usuario.nombre }} {{ usuario.firmaUrl ? '✓' : '' }}
+                {{ usuario.nombre }} {{ usuario.rol?.codigo === 'CONFERENCISTA' ? '✓' : '' }}
               </ion-select-option>
             </ion-select>
           </div>
@@ -244,7 +244,7 @@
           <label class="field-label">Entidades Organizadoras <span class="required">*</span></label>
           <div class="select-wrapper">
             <ion-select [(ngModel)]="capacitacion.entidadesEncargadas" name="entidadesEncargadas"
-              #entidadesModel="ngModel" required multiple="true" interface="action-sheet" placeholder="Instituciones que avalan">
+              #entidadesModel="ngModel" required multiple="true" interface="popover" placeholder="Instituciones que avalan">
               <ion-select-option *ngFor="let entidad of entidades" [value]="entidad.id">
                 {{ entidad.nombre }}
               </ion-select-option>
@@ -255,7 +255,7 @@
         <div class="field-group">
           <label class="field-label">Pre-Inscribir Participantes <span class="optional-text">(Opcional)</span></label>
           <div class="select-wrapper">
-            <ion-select [(ngModel)]="capacitacion.idsUsuarios" name="idsUsuarios" multiple="true" interface="action-sheet" placeholder="Usuarios a invitar automáticamente">
+            <ion-select [(ngModel)]="capacitacion.idsUsuarios" name="idsUsuarios" multiple="true" interface="popover" placeholder="Usuarios a invitar automáticamente">
               <ion-select-option *ngFor="let usuario of usuariosDisponibles" [value]="usuario.id">
                 {{ usuario.nombre }}
               </ion-select-option>
