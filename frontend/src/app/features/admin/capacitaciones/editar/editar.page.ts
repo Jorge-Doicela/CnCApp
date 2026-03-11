@@ -3,7 +3,8 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, ViewChild, inject, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import * as L from 'leaflet';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { NgForm } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { ToastController, AlertController, NavController, LoadingController } from '@ionic/angular';
@@ -58,6 +59,11 @@ export class EditarPage implements OnInit {
     longitud: undefined as number | undefined
   };
 
+  // Validación de nombre
+  nombreEnUso: boolean = false;
+  validandoNombre: boolean = false;
+  private nameSubject = new Subject<string>();
+
   capacitacionOriginal: any = {};
   entidadesList: any[] = [];
   expositoresList: any[] = [];
@@ -107,6 +113,34 @@ export class EditarPage implements OnInit {
       this.mostrarToast('ID de capacitación no válido', 'danger');
       this.navController.navigateBack('/gestionar-capacitaciones');
     }
+    this.setupNameValidation();
+  }
+
+  setupNameValidation() {
+    this.nameSubject.pipe(
+      debounceTime(500),
+      distinctUntilChanged(),
+      switchMap(nombre => {
+        if (!nombre || nombre.length < 3) {
+          this.validandoNombre = false;
+          return [ { exists: false } ];
+        }
+        this.validandoNombre = true;
+        this.cd.markForCheck();
+        return this.capacitacionesService.checkNombreUniqueness(nombre, this.capacitacion.id || undefined);
+      })
+    ).subscribe({
+      next: (res) => {
+        this.nombreEnUso = res.exists;
+        this.validandoNombre = false;
+        this.cd.markForCheck();
+      }
+    });
+  }
+
+  onNombreChange(nombre: string) {
+    this.nombreEnUso = false;
+    this.nameSubject.next(nombre);
   }
 
   async cargarDatos() {

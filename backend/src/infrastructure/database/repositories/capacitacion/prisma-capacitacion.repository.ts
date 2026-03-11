@@ -161,6 +161,19 @@ export class PrismaCapacitacionRepository implements CapacitacionRepository {
         return capacitacion ? CapacitacionMapper.toDomain(capacitacion) : null;
     }
 
+    async findByNombre(nombre: string, excludeId?: number): Promise<Capacitacion | null> {
+        const capacitacion = await prisma.capacitacion.findFirst({
+            where: {
+                nombre: {
+                    equals: nombre,
+                    mode: 'insensitive'
+                },
+                id: excludeId ? { not: excludeId } : undefined
+            }
+        });
+        return capacitacion ? CapacitacionMapper.toDomain(capacitacion) : null;
+    }
+
     async findAll(expositorId?: number): Promise<Capacitacion[]> {
         const capacitaciones = await prisma.capacitacion.findMany({
             where: expositorId ? {

@@ -210,6 +210,13 @@ ion-content {
       font-weight: 700;
       color: var(--text-primary);
     }
+
+    .validation-spinner {
+      width: 20px;
+      height: 20px;
+      --color: var(--accent-indigo);
+      margin-right: 12px;
+    }
   }
 
   ion-note {
@@ -264,17 +271,12 @@ ion-content {
   overflow: hidden;
   margin-bottom: 32px;
 
-  .locked-banner {
-    background: #fffbeb;
-    color: #92400e;
-    padding: 16px 24px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-size: 0.85rem;
-    font-weight: 700;
+  .warning-message {
+    margin: 0;
+    border-radius: 0;
+    border: none;
     border-bottom: 1px solid #fef3c7;
-    ion-icon { font-size: 1.25rem; }
+    animation: none;
   }
 
   .cert-preview-box {
