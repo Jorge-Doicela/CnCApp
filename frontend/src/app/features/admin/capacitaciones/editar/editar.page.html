@@ -48,16 +48,9 @@
             <ion-item class="form-item" lines="none">
               <ion-icon name="text-outline" slot="start"></ion-icon>
               <ion-label position="floating">Título del Evento</ion-label>
-              <ion-input [(ngModel)]="capacitacion.nombre" name="nombre" required #nombre="ngModel" (ngModelChange)="onNombreChange($event)"></ion-input>
-              <ion-spinner slot="end" *ngIf="validandoNombre" class="validation-spinner"></ion-spinner>
-              <ion-icon slot="end" name="checkmark-circle" color="success" *ngIf="!validandoNombre && !nombreEnUso && !nombre.invalid && nombre.touched"></ion-icon>
-              <ion-icon slot="end" name="close-circle" color="danger" *ngIf="nombreEnUso"></ion-icon>
+              <ion-input [(ngModel)]="capacitacion.nombre" name="nombre" required #nombre="ngModel"></ion-input>
             </ion-item>
-            <div class="error-message" *ngIf="nombreEnUso">
-              <ion-icon name="alert-circle-outline"></ion-icon>
-              Este nombre ya está registrado en otra capacitación.
-            </div>
-            <div class="error-message" *ngIf="nombre.invalid && (nombre.dirty || nombre.touched) && !nombreEnUso">
+            <div class="error-message" *ngIf="nombre.invalid && (nombre.dirty || nombre.touched)">
               <ion-icon name="alert-circle-outline"></ion-icon>
               El nombre es obligatorio para la certificación.
             </div>
@@ -246,7 +239,7 @@
               Descartar
             </ion-button>
 
-            <ion-button type="submit" class="save-btn" [disabled]="!capacitacionForm.valid || capacitacionForm.pristine || nombreEnUso || validandoNombre">
+            <ion-button type="submit" class="save-btn" [disabled]="!capacitacionForm.valid || capacitacionForm.pristine">
               Guardar Cambios
             </ion-button>
           </div>

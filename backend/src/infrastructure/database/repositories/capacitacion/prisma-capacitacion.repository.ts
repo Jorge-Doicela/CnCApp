@@ -51,6 +51,9 @@ export class PrismaCapacitacionRepository implements CapacitacionRepository {
                 codigoQrEvento: randomUUID(),
                 inscripciones: inscripciones.length > 0 ? {
                     create: inscripciones
+                } : undefined,
+                entidadesEncargadas: data.entidadesEncargadas && data.entidadesEncargadas.length > 0 ? {
+                    connect: data.entidadesEncargadas.map(id => ({ id }))
                 } : undefined
             }
         });
@@ -76,7 +79,10 @@ export class PrismaCapacitacionRepository implements CapacitacionRepository {
                 horas: data.horas,
                 enlaceVirtual: data.enlaceVirtual,
                 certificado: data.certificado,
-                tipoEvento: data.tipoEvento
+                tipoEvento: data.tipoEvento,
+                entidadesEncargadas: data.entidadesEncargadas ? {
+                    set: data.entidadesEncargadas.map(id => ({ id }))
+                } : undefined
             },
             include: {
                 inscripciones: true
@@ -155,7 +161,8 @@ export class PrismaCapacitacionRepository implements CapacitacionRepository {
             where: { id },
             include: {
                 inscripciones: true,
-                plantilla: true
+                plantilla: true,
+                entidadesEncargadas: true
             }
         });
         return capacitacion ? CapacitacionMapper.toDomain(capacitacion) : null;
