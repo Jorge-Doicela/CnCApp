@@ -1,5 +1,5 @@
 <ion-content>
-  <div class="content-wrapper">
+  <div class="content-wrapper" *ngIf="!guardadoExitoso">
 
     <!-- Navegación Superior -->
     <div class="page-back-nav fade-up">
@@ -46,14 +46,23 @@
 
       <!-- PASO 1: Identidad del Evento -->
       <div class="form-card" *ngIf="currentStep === 1">
-        <div class="field-group" [class.has-error]="nombre.invalid && nombre.touched">
+        <div class="field-group" [class.has-error]="(nombre.invalid && nombre.touched) || nombreEnUso">
           <label class="field-label">Nombre de la Capacitación <span class="required">*</span></label>
           <div class="input-wrapper">
             <ion-icon name="text-outline" class="field-icon"></ion-icon>
             <input type="text" class="field-input" [(ngModel)]="capacitacion.nombre" name="nombre" #nombre="ngModel"
-              required maxlength="200" placeholder="Ej: Taller de Liderazgo Estratégico" />
-            <ion-icon *ngIf="nombre.valid && nombre.touched" name="checkmark-circle"
+              required maxlength="200" placeholder="Ej: Taller de Liderazgo Estratégico" 
+              (ngModelChange)="onNombreChange($event)" />
+            
+            <ion-spinner name="crescent" *ngIf="validandoNombre" class="validation-spinner"></ion-spinner>
+            
+            <ion-icon *ngIf="nombre.valid && nombre.touched && !nombreEnUso && !validandoNombre" name="checkmark-circle"
               class="validation-icon success"></ion-icon>
+            <ion-icon *ngIf="nombreEnUso" name="close-circle" class="validation-icon error"></ion-icon>
+          </div>
+          <div class="error-message" *ngIf="nombreEnUso">
+            <ion-icon name="alert-circle-outline"></ion-icon>
+            Este nombre ya está registrado en otra capacitación.
           </div>
         </div>
 
@@ -223,8 +232,36 @@
         </div>
       </div>
 
-      <!-- PASO 4: Involucrados -->
+      <!-- PASO 4: Equipo y Participantes -->
       <div class="form-card" *ngIf="currentStep === 4">
+        
+        <!-- Header de Sección -->
+        <div class="section-header">
+          <div class="section-icon-wrapper">
+            <ion-icon name="people-circle"></ion-icon>
+          </div>
+          <h2 class="section-title">Equipo y Participantes</h2>
+          <div class="section-line"></div>
+        </div>
+
+        <!-- Entidades Organizadoras -->
+        <div class="field-group subsection-box">
+          <div class="subsection-header">
+            <ion-icon name="briefcase-outline"></ion-icon>
+            <span>ENTIDADES ORGANIZADORAS</span>
+          </div>
+          
+          <div class="select-wrapper no-border">
+            <ion-select [(ngModel)]="capacitacion.entidadesEncargadas" name="entidadesEncargadas"
+              #entidadesModel="ngModel" required multiple="true" interface="popover" placeholder="Asignar instituciones">
+              <ion-select-option *ngFor="let entidad of entidades" [value]="entidad.id">
+                {{ entidad.nombre }}
+              </ion-select-option>
+            </ion-select>
+          </div>
+        </div>
+
+        <!-- Expositores y Responsables -->
         <div class="field-group">
           <label class="field-label">Expositores y Responsables <span class="required">*</span></label>
           <div class="select-wrapper">
@@ -240,18 +277,7 @@
           </div>
         </div>
 
-        <div class="field-group">
-          <label class="field-label">Entidades Organizadoras <span class="required">*</span></label>
-          <div class="select-wrapper">
-            <ion-select [(ngModel)]="capacitacion.entidadesEncargadas" name="entidadesEncargadas"
-              #entidadesModel="ngModel" required multiple="true" interface="popover" placeholder="Instituciones que avalan">
-              <ion-select-option *ngFor="let entidad of entidades" [value]="entidad.id">
-                {{ entidad.nombre }}
-              </ion-select-option>
-            </ion-select>
-          </div>
-        </div>
-
+        <!-- Participantes -->
         <div class="field-group">
           <label class="field-label">Pre-Inscribir Participantes <span class="optional-text">(Opcional)</span></label>
           <div class="select-wrapper">
@@ -301,10 +327,68 @@
       </div>
     </ng-template>
   </ion-modal>
+
+  <!-- Pantalla de Éxito Premium -->
+  <div class="success-container fade-in" *ngIf="guardadoExitoso">
+    <div class="success-card">
+      <div class="success-icon-section">
+        <div class="success-icon-circle">
+          <ion-icon name="checkmark-done-outline" class="icon-draw"></ion-icon>
+        </div>
+        <div class="confetti-particles"></div>
+      </div>
+
+      <div class="success-content">
+        <h1 class="success-title">¡Capacitación Registrada!</h1>
+        <p class="success-subtitle">El taller se ha guardado correctamente en el ecosistema.</p>
+
+        <div class="success-details-card">
+          <h2 class="details-name">{{ capacitacion.nombre }}</h2>
+          <div class="details-meta">
+            <div class="meta-item">
+              <ion-icon name="calendar-outline"></ion-icon>
+              <span>{{ capacitacion.fechaInicio | date:'dd/MM/yyyy' }}</span>
+            </div>
+            <div class="meta-item">
+              <ion-icon name="location-outline"></ion-icon>
+              <span>{{ capacitacion.modalidad }}</span>
+            </div>
+            <div class="meta-item">
+              <ion-icon name="people-outline"></ion-icon>
+              <span>{{ capacitacion.idsUsuarios.length }} Participantes</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="success-info-alert">
+          <ion-icon name="information-circle-outline"></ion-icon>
+          <p>Los participantes seleccionados han sido pre-inscritos automáticamente.</p>
+        </div>
+
+        <div class="success-actions">
+          <ion-button class="action-btn-primary" (click)="irAVerDetalle()">
+            <ion-icon name="people-outline" slot="start"></ion-icon>
+            Gestionar Inscritos
+          </ion-button>
+          
+          <div class="actions-secondary">
+            <ion-button fill="clear" (click)="reiniciarFormulario()">
+              <ion-icon name="add-circle-outline" slot="start"></ion-icon>
+              Crear Otra
+            </ion-button>
+            <ion-button fill="clear" (click)="cancelar()">
+              <ion-icon name="grid-outline" slot="start"></ion-icon>
+              Volver al Listado
+            </ion-button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </ion-content>
 
 <!-- Navegación del Wizard — Movida a Footer para evitar solapamiento -->
-<ion-footer class="ion-no-border">
+<ion-footer class="ion-no-border" *ngIf="!guardadoExitoso">
   <div class="wizard-navigation">
     <button type="button" class="btn btn-secondary" (click)="previousStep()" *ngIf="currentStep > 1">
       <ion-icon name="arrow-back-outline"></ion-icon> Anterior

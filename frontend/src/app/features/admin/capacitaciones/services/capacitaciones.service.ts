@@ -61,6 +61,12 @@ export class CapacitacionesService {
         return this.http.get<{ count: number }>(`${this.apiUrl}/count`);
     }
 
+    checkNombreUniqueness(nombre: string, excludeId?: number): Observable<{ exists: boolean }> {
+        const params: any = { nombre };
+        if (excludeId) params.excludeId = excludeId;
+        return this.http.get<{ exists: boolean }>(`${this.apiUrl}/check-nombre`, { params });
+    }
+
     // --- Gestión de Inscritos ---
 
     /** Obtiene la lista de inscritos de una capacitación (solo staff) */

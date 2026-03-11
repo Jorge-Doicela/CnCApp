@@ -48,11 +48,19 @@
             <ion-item class="form-item" lines="none">
               <ion-icon name="text-outline" slot="start"></ion-icon>
               <ion-label position="floating">Título del Evento</ion-label>
-              <ion-input [(ngModel)]="capacitacion.nombre" name="nombre" required #nombre="ngModel"></ion-input>
+              <ion-input [(ngModel)]="capacitacion.nombre" name="nombre" required #nombre="ngModel" (ngModelChange)="onNombreChange($event)"></ion-input>
+              <ion-spinner slot="end" *ngIf="validandoNombre" class="validation-spinner"></ion-spinner>
+              <ion-icon slot="end" name="checkmark-circle" color="success" *ngIf="!validandoNombre && !nombreEnUso && !nombre.invalid && nombre.touched"></ion-icon>
+              <ion-icon slot="end" name="close-circle" color="danger" *ngIf="nombreEnUso"></ion-icon>
             </ion-item>
-            <ion-note color="danger" *ngIf="nombre.invalid && (nombre.dirty || nombre.touched)">
+            <div class="error-message" *ngIf="nombreEnUso">
+              <ion-icon name="alert-circle-outline"></ion-icon>
+              Este nombre ya está registrado en otra capacitación.
+            </div>
+            <div class="error-message" *ngIf="nombre.invalid && (nombre.dirty || nombre.touched) && !nombreEnUso">
+              <ion-icon name="alert-circle-outline"></ion-icon>
               El nombre es obligatorio para la certificación.
-            </ion-note>
+            </div>
           </div>
 
           <div class="form-row">
@@ -87,9 +95,10 @@
               <ion-textarea [(ngModel)]="capacitacion.descripcion" name="descripcion" required rows="4"
                 #descripcion="ngModel"></ion-textarea>
             </ion-item>
-            <ion-note color="danger" *ngIf="descripcion.invalid && (descripcion.dirty || descripcion.touched)">
+            <div class="error-message" *ngIf="descripcion.invalid && (descripcion.dirty || descripcion.touched)">
+              <ion-icon name="alert-circle-outline"></ion-icon>
               Describe los objetivos del curso.
-            </ion-note>
+            </div>
           </div>
         </section>
 
@@ -108,9 +117,10 @@
                 <ion-datetime presentation="date-time" [(ngModel)]="capacitacion.fechaInicio" name="fechaInicio" required #fecha="ngModel">
                 </ion-datetime>
               </ion-item>
-              <ion-note color="danger" *ngIf="fecha.invalid && (fecha.dirty || fecha.touched)">
+              <div class="error-message" *ngIf="fecha.invalid && (fecha.dirty || fecha.touched)">
+                <ion-icon name="alert-circle-outline"></ion-icon>
                 Fecha requerida.
-              </ion-note>
+              </div>
             </div>
 
             <div class="form-group">
@@ -136,12 +146,14 @@
                 </ion-button>
               </div>
             </ion-item>
-            <ion-note color="success" *ngIf="capacitacion.latitud">
-              <ion-icon name="checkmark-circle"></ion-icon> Ubicación georreferenciada
-            </ion-note>
-            <ion-note color="danger" *ngIf="lugar.invalid && (lugar.dirty || lugar.touched)">
+            <div class="info-message" *ngIf="capacitacion.latitud" style="margin-top: 8px;">
+              <ion-icon name="checkmark-circle"></ion-icon>
+              Ubicación georreferenciada correctamente
+            </div>
+            <div class="error-message" *ngIf="lugar.invalid && (lugar.dirty || lugar.touched)">
+              <ion-icon name="alert-circle-outline"></ion-icon>
               La ubicación es indispensable.
-            </ion-note>
+            </div>
           </div>
 
           <div class="form-row">
@@ -192,9 +204,10 @@
                 {{ usuario.nombre }} {{ usuario.firmaUrl ? '✓' : '' }}
               </ion-select-option>
             </ion-select>
-            <ion-note color="danger" *ngIf="expositoresModel.invalid && (expositoresModel.dirty || expositoresModel.touched)">
+            <div class="error-message" *ngIf="expositoresModel.invalid && (expositoresModel.dirty || expositoresModel.touched)">
+              <ion-icon name="alert-circle-outline"></ion-icon>
               Define quién impartirá el curso.
-            </ion-note>
+            </div>
           </div>
 
           <div class="select-wrapper">
@@ -210,7 +223,7 @@
 
         <!-- VISTA PREVIA DE CERTIFICADO (BLOQUEADA SI EXISTE) -->
         <section class="certificate-locked" *ngIf="capacitacion.certificado">
-          <div class="locked-banner">
+          <div class="warning-message">
             <ion-icon name="shield-checkmark-outline"></ion-icon>
             EMISIÓN BLOQUEADA: Los certificados ya han sido generados para este evento.
           </div>
@@ -233,7 +246,7 @@
               Descartar
             </ion-button>
 
-            <ion-button type="submit" class="save-btn" [disabled]="!capacitacionForm.valid || capacitacionForm.pristine">
+            <ion-button type="submit" class="save-btn" [disabled]="!capacitacionForm.valid || capacitacionForm.pristine || nombreEnUso || validandoNombre">
               Guardar Cambios
             </ion-button>
           </div>

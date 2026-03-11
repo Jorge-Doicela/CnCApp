@@ -1,12 +1,124 @@
+:host {
+  // Paleta de Colores Curada
+  --bg-main: #f8fafc;
+  --glass-bg: rgba(255, 255, 255, 0.75);
+  --glass-border: rgba(255, 255, 255, 0.5);
+  --glass-shadow: 0 10px 40px -10px rgba(31, 38, 135, 0.12);
+  
+  --text-primary: #0f172a; // High Contrast
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  
+  --accent-blue: #2563eb;
+  --accent-indigo: #6366f1;
+  --accent-teal: #0d9488;
+  --accent-amber: #d97706;
+  --accent-rose: #e11d48;
+  
+  // Bordes Generosos
+  --radius-xl: 32px; 
+  --radius-lg: 24px;
+  --radius-md: 16px;
+  --radius-sm: 12px;
+  
+  // Animaciones Dinámicas
+  --transition-premium: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-pop: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
 // Styles optimized using shared.scss
 ion-content {
-  --background: #f8fafc;
+  --background: var(--bg-main);
 }
 
 .main-container {
   max-width: 1000px;
   margin: 0 auto;
   padding: 16px 16px 60px;
+}
+
+// ... existing styles ...
+
+.loader-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 0;
+  
+  .loader-circle {
+    width: 80px;
+    height: 80px;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    box-shadow: 0 10px 20px -5px rgba(0,0,0,0.08);
+
+    ion-spinner {
+      width: 36px;
+      height: 36px;
+      --color: var(--accent-blue);
+    }
+  }
+
+  span {
+    font-size: 0.8rem;
+    font-weight: 900;
+    color: var(--text-muted);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+}
+
+.state-container {
+  background: white;
+  border: 1px solid rgba(0,0,0,0.05);
+  border-radius: var(--radius-lg);
+  text-align: center;
+  box-shadow: var(--glass-shadow);
+
+  .empty-icon-wrapper {
+    background: #f8fafc;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+
+    ion-icon {
+      color: var(--accent-indigo);
+      opacity: 0.7;
+    }
+  }
+
+  h3 {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+    letter-spacing: -0.02em;
+  }
+
+  p {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    max-width: 350px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+.fade-up {
+  animation: f-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes f-up {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .page-back-nav {

@@ -3,7 +3,8 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, ViewChild, inject, ChangeDetectorRef, ChangeDetectionStrategy, AfterViewInit } from '@angular/core';
 import * as L from 'leaflet';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { NgForm } from '@angular/forms';
 import { ToastController, AlertController, NavController } from '@ionic/angular';
 import { RouterModule } from '@angular/router';
@@ -23,7 +24,7 @@ import {
   sparklesOutline, shieldCheckmarkOutline, arrowForwardOutline, checkmark,
   checkmarkOutline, closeOutline, constructOutline, laptopOutline,
   gitMergeOutline, linkOutline, openOutline, alertCircle, alertCircleOutline,
-  businessOutline, locateOutline, mapOutline
+  businessOutline, locateOutline, mapOutline, gridOutline, peopleCircle
 } from 'ionicons/icons';
 
 @Component({
@@ -70,6 +71,8 @@ export class CrearPage implements OnInit {
   // Wizard steps
   currentStep = 1;
   totalSteps = 4;
+  guardadoExitoso = false;
+  capacitacionIdCreada?: number;
 
   private capacitacionesService = inject(CapacitacionesService);
   private catalogoService = inject(CatalogoService);
@@ -83,6 +86,11 @@ export class CrearPage implements OnInit {
   tempLng: number | null = null;
   tempLugar: string = '';
   buscandoDireccion = false;
+
+  // Real-time Validation for Name
+  nombreEnUso = false;
+  validandoNombre = false;
+  private nameSubject = new Subject<string>();
 
   constructor(
     private toastController: ToastController,
@@ -100,13 +108,47 @@ export class CrearPage implements OnInit {
       sparklesOutline, shieldCheckmarkOutline, arrowForwardOutline, checkmark,
       checkmarkOutline, closeOutline, constructOutline, laptopOutline,
       gitMergeOutline, linkOutline, openOutline, alertCircle, alertCircleOutline,
-      businessOutline, locateOutline, mapOutline
+      businessOutline, locateOutline, mapOutline, gridOutline, peopleCircle
     });
   }
 
   ngOnInit() {
     this.inicializarFormulario();
     this.cargarDatos();
+    this.setupNameValidation();
+  }
+
+  setupNameValidation() {
+    this.nameSubject.pipe(
+      debounceTime(500),
+      distinctUntilChanged(),
+      switchMap(nombre => {
+        if (!nombre || nombre.length < 3) {
+          this.nombreEnUso = false;
+          this.validandoNombre = false;
+          this.cdr.markForCheck();
+          return [];
+        }
+        this.validandoNombre = true;
+        this.cdr.markForCheck();
+        return this.capacitacionesService.checkNombreUniqueness(nombre);
+      })
+    ).subscribe({
+      next: (res: any) => {
+        this.nombreEnUso = res.exists;
+        this.validandoNombre = false;
+        this.cdr.markForCheck();
+      },
+      error: () => {
+        this.validandoNombre = false;
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
+  onNombreChange(nombre: string) {
+    this.nombreEnUso = false; // Reset while typing
+    this.nameSubject.next(nombre);
   }
 
   inicializarFormulario() {
@@ -233,6 +275,11 @@ export class CrearPage implements OnInit {
       return;
     }
 
+    if (this.nombreEnUso) {
+      this.mostrarToast('El nombre de la capacitación ya está en uso', 'danger');
+      return;
+    }
+
     // Validación de horarios
     if (!this.validarHorarios()) {
       this.mostrarToast('La hora de fin debe ser posterior a la hora de inicio', 'warning');
@@ -270,9 +317,9 @@ export class CrearPage implements OnInit {
     try {
       const response: any = await firstValueFrom(this.capacitacionesService.createCapacitacion(this.capacitacion));
       const created = Array.isArray(response) ? response[0] : (response.data || response);
-      const capacitacionId = created?.id || created?.Id_Capacitacion;
+      this.capacitacionIdCreada = created?.id || created?.Id_Capacitacion;
 
-      if (!capacitacionId) {
+      if (!this.capacitacionIdCreada) {
         this.guardando = false;
         this.mostrarToast('Error: No se recibió confirmación del servidor (ID faltante)', 'danger');
         this.cdr.markForCheck();
@@ -291,26 +338,15 @@ export class CrearPage implements OnInit {
   }
 
   async mostrarExito() {
-    const alert = await this.alertController.create({
-      header: '¡Éxito!',
-      message: 'La capacitación se ha creado correctamente.',
-      buttons: [
-        {
-          text: 'Ver lista',
-          handler: () => {
-            this.navController.navigateBack('/gestionar-capacitaciones');
-          }
-        },
-        {
-          text: 'Crear otra',
-          handler: () => {
-            this.reiniciarFormulario();
-          }
-        }
-      ]
-    });
+    this.guardadoExitoso = true;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    this.cdr.markForCheck();
+  }
 
-    await alert.present();
+  irAVerDetalle() {
+    if (this.capacitacionIdCreada) {
+      this.navController.navigateForward(`/gestionar-capacitaciones/visualizar-inscritos/${this.capacitacionIdCreada}`);
+    }
   }
 
   async cancelar() {
@@ -339,6 +375,8 @@ export class CrearPage implements OnInit {
   }
 
   reiniciarFormulario() {
+    this.guardadoExitoso = false;
+    this.currentStep = 1;
     const entidadesSeleccionadas = [...this.capacitacion.entidadesEncargadas];
 
     this.capacitacion = {
@@ -536,6 +574,10 @@ export class CrearPage implements OnInit {
       case 1: // Información Básica
         if (!this.capacitacion.nombre || !this.capacitacion.descripcion) {
           this.mostrarToast('Complete el nombre y descripción', 'warning');
+          return false;
+        }
+        if (this.nombreEnUso) {
+          this.mostrarToast('El nombre de la capacitación ya está en uso', 'danger');
           return false;
         }
         return true;

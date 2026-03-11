@@ -5,6 +5,7 @@ import { GetAllCapacitacionesUseCase } from '../../../application/capacitacion/u
 import { UpdateCapacitacionUseCase } from '../../../application/capacitacion/use-cases/update-capacitacion.use-case';
 import { GetCapacitacionByIdUseCase } from '../../../application/capacitacion/use-cases/get-capacitacion-by-id.use-case';
 import { DeleteCapacitacionUseCase } from '../../../application/capacitacion/use-cases/delete-capacitacion.use-case';
+import { CheckNombreCapacitacionUseCase } from '../../../application/capacitacion/use-cases/check-nombre-capacitacion.use-case';
 import { parseIdParam } from '../middleware/parse-id.helper';
 import { NotFoundError } from '../../../domain/shared/errors';
 import { z } from 'zod';
@@ -43,7 +44,8 @@ export class CapacitacionController {
         @inject(GetAllCapacitacionesUseCase) private getAllUseCase: GetAllCapacitacionesUseCase,
         @inject(GetCapacitacionByIdUseCase) private getByIdUseCase: GetCapacitacionByIdUseCase,
         @inject(UpdateCapacitacionUseCase) private updateUseCase: UpdateCapacitacionUseCase,
-        @inject(DeleteCapacitacionUseCase) private deleteUseCase: DeleteCapacitacionUseCase
+        @inject(DeleteCapacitacionUseCase) private deleteUseCase: DeleteCapacitacionUseCase,
+        @inject(CheckNombreCapacitacionUseCase) private checkNombreUseCase: CheckNombreCapacitacionUseCase
     ) { }
 
     create = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -108,6 +110,20 @@ export class CapacitacionController {
             if (id === null) return;
             await this.deleteUseCase.execute(id);
             res.status(204).send();
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    checkNombre = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+        try {
+            const { nombre, excludeId } = req.query;
+            if (!nombre) {
+                res.status(400).json({ message: 'El nombre es requerido' });
+                return;
+            }
+            const exists = await this.checkNombreUseCase.execute(nombre as string, excludeId ? Number(excludeId) : undefined);
+            res.json({ exists });
         } catch (error) {
             next(error);
         }

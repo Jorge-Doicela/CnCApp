@@ -14,10 +14,11 @@
         <img src="../../../../assets/cnc.png" alt="Logo" class="logo">
       </div>
 
-      <!-- Estado de carga -->
-      <div *ngIf="cargando" class="loading-container">
-        <ion-spinner name="crescent" color="primary"></ion-spinner>
-        <p>Cargando participantes...</p>
+      <div *ngIf="cargando" class="loader-wrapper fade-up" style="padding: 60px 0;">
+        <div class="loader-circle">
+          <ion-spinner name="crescent"></ion-spinner>
+        </div>
+        <span>CONSULTANDO NÓMINA...</span>
       </div>
 
       <ion-card-content *ngIf="!cargando">
@@ -98,12 +99,12 @@
             QR de Asistencia
           </h3>
           <div class="qr-card">
-            <div class="qr-description">
-              <ion-icon name="information-circle-outline" color="primary" size="large"></ion-icon>
+            <div class="info-message">
+              <ion-icon name="information-circle-outline"></ion-icon>
               <div>
                 <p><strong>Muestra este código QR</strong> durante la capacitación para que los participantes
                   confirmen su asistencia escaneándolo desde la app.</p>
-                <p class="qr-hint">Cada participante solo necesita escanearlo una vez.</p>
+                <p class="qr-hint" style="font-size: 0.75rem; opacity: 0.8; margin-top: 4px;">Cada participante solo necesita escanearlo una vez.</p>
               </div>
             </div>
             <ion-button expand="block" color="primary" (click)="mostrarQRDelEvento()" class="action-button">
@@ -248,13 +249,16 @@
             </div>
           </div>
 
-          <div *ngIf="participantesFiltrados.length === 0" class="empty-state">
-            <ion-icon name="people"></ion-icon>
-            <h3>No hay participantes</h3>
-            <p *ngIf="terminoBusqueda">Sin resultados para "{{ terminoBusqueda }}"</p>
-            <p *ngIf="!terminoBusqueda && participantes.length === 0">Aún no hay participantes inscritos</p>
-            <p *ngIf="!terminoBusqueda && participantes.length > 0">No hay participantes con este filtro</p>
-            <ion-button fill="clear" (click)="limpiarFiltros()" *ngIf="terminoBusqueda || filtroAsistencia !== 'todos'">
+          <div *ngIf="participantesFiltrados.length === 0" class="state-container fade-up" style="margin: 30px auto; padding: 40px 20px;">
+            <div class="empty-icon-wrapper" style="width: 80px; height: 80px;">
+              <ion-icon name="people" style="font-size: 40px;"></ion-icon>
+            </div>
+            <h3>Sin participantes</h3>
+            <p *ngIf="terminoBusqueda">No hay resultados para "{{ terminoBusqueda }}"</p>
+            <p *ngIf="!terminoBusqueda && participantes.length === 0">Aún no hay participantes inscritos en este evento.</p>
+            <p *ngIf="!terminoBusqueda && participantes.length > 0">No hay participantes que coincidan con el filtro seleccionado.</p>
+            <ion-button fill="clear" (click)="limpiarFiltros()" *ngIf="terminoBusqueda || filtroAsistencia !== 'todos'" style="font-weight: 800; color: var(--accent-indigo);">
+              <ion-icon name="refresh-outline" slot="start"></ion-icon>
               Limpiar filtros
             </ion-button>
           </div>
@@ -318,10 +322,10 @@
           <div class="certificate-card">
             <div class="certificate-content">
               <p>Emita los certificados de participación para todos los asistentes confirmados.</p>
-              <div class="certificate-alert">
-                <ion-icon name="information-circle-outline" color="primary"></ion-icon>
+              <div class="info-message">
+                <ion-icon name="information-circle-outline"></ion-icon>
                 <p>Solo los participantes marcados como <strong>asistentes ({{ totalAsistentes }})</strong>
-                  recibirán certificado.</p>
+                  recibirán certificado de aprobación.</p>
               </div>
               <ion-button
                 expand="block"
@@ -484,9 +488,9 @@
 
           <!-- Lista de usuarios -->
           <div *ngIf="!cargandoUsuariosDisponibles">
-            <div *ngIf="usuariosDisponiblesFiltrados.length === 0" class="empty-state-sm">
+            <div *ngIf="usuariosDisponiblesFiltrados.length === 0" class="info-message" style="margin: 20px 0;">
               <ion-icon name="person-outline"></ion-icon>
-              <p>{{ busquedaUsuarioDisponible ? 'Sin resultados para "' + busquedaUsuarioDisponible + '"' : 'Todos los usuarios ya están inscritos' }}</p>
+              <p>{{ busquedaUsuarioDisponible ? 'Sin resultados para "' + busquedaUsuarioDisponible + '"' : 'Todos los usuarios elegibles ya están inscritos en esta capacitación.' }}</p>
             </div>
 
             <ion-radio-group [(ngModel)]="usuarioSeleccionadoId">
