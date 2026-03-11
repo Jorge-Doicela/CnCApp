@@ -123,14 +123,16 @@
     <!-- Cards List -->
     <div class="capacitaciones-list" *ngIf="!cargando">
       <div class="capacitacion-card fade-up" *ngFor="let cap of capacitacionesFiltradas; let i = index"
+        [class.status-active-card]="cap.estado?.toLowerCase() === 'activa' || cap.estado?.toLowerCase() === 'en progreso' || cap.estado?.toLowerCase() === 'programada'"
+        [class.status-done-card]="cap.estado?.toLowerCase() === 'finalizada' || cap.estado?.toLowerCase() === 'realizada'"
+        [class.status-canceled-card]="cap.estado?.toLowerCase() === 'cancelada'"
         [style.animation-delay]="(0.4 + i * 0.08) + 's'">
 
         <div class="card-top">
           <div class="card-title-row" style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;">
             <h3>{{ cap.nombre }}</h3>
             <div class="badges" style="display: flex; gap: 8px;">
-              <span class="status-badge" [class.status-active]="cap.estado === 'Activa'"
-                [class.status-done]="cap.estado === 'Finalizada'">
+              <span class="status-badge">
                 {{ cap.estado }}
               </span>
               <span class="cert-badge" *ngIf="cap.certificado">
