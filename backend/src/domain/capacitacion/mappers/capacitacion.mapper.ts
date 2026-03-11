@@ -23,6 +23,7 @@ export class CapacitacionMapper {
             expositores: inscripciones
                 .filter((i: any) => i.rolCapacitacion === RolCapacitacionEnum.EXPOSITOR)
                 .map((i: any) => i.usuarioId),
+            entidadesEncargadas: (prismaCapacitacion as any).entidadesEncargadas?.map((e: any) => e.id) || [],
             plantillaId: (prismaCapacitacion as any).plantillaId,
             horaInicio: (prismaCapacitacion as any).horaInicio,
             horaFin: (prismaCapacitacion as any).horaFin,

@@ -59,9 +59,7 @@ export class EditarPage implements OnInit {
     longitud: undefined as number | undefined
   };
 
-  // Validación de nombre
-  nombreEnUso: boolean = false;
-  validandoNombre: boolean = false;
+  // No validation needed
   private nameSubject = new Subject<string>();
 
   capacitacionOriginal: any = {};
@@ -113,34 +111,10 @@ export class EditarPage implements OnInit {
       this.mostrarToast('ID de capacitación no válido', 'danger');
       this.navController.navigateBack('/gestionar-capacitaciones');
     }
-    this.setupNameValidation();
-  }
-
-  setupNameValidation() {
-    this.nameSubject.pipe(
-      debounceTime(500),
-      distinctUntilChanged(),
-      switchMap(nombre => {
-        if (!nombre || nombre.length < 3) {
-          this.validandoNombre = false;
-          return [ { exists: false } ];
-        }
-        this.validandoNombre = true;
-        this.cd.markForCheck();
-        return this.capacitacionesService.checkNombreUniqueness(nombre, this.capacitacion.id || undefined);
-      })
-    ).subscribe({
-      next: (res) => {
-        this.nombreEnUso = res.exists;
-        this.validandoNombre = false;
-        this.cd.markForCheck();
-      }
-    });
   }
 
   onNombreChange(nombre: string) {
-    this.nombreEnUso = false;
-    this.nameSubject.next(nombre);
+    // Validation disabled
   }
 
   async cargarDatos() {

@@ -21,11 +21,12 @@ model Rol {
 }
 
 model Entidad {
-  id        Int       @id @default(autoincrement()) @map("id_entidad")
-  nombre    String    @map("nombre_entidad") @db.VarChar(200)
-  createdAt DateTime  @default(now()) @map("created_at")
-  codigo    String?   @unique @map("codigo") @db.VarChar(50)
-  usuarios  Usuario[]
+  id             Int            @id @default(autoincrement()) @map("id_entidad")
+  nombre         String         @map("nombre_entidad") @db.VarChar(200)
+  createdAt      DateTime       @default(now()) @map("created_at")
+  codigo         String?        @unique @map("codigo") @db.VarChar(50)
+  usuarios       Usuario[]
+  capacitaciones Capacitacion[] @relation("CapacitacionEntidades")
 
   @@map("entidades")
 }
@@ -132,7 +133,7 @@ model Capacitacion {
   plantillaId      Int?                  @map("id_plantilla")
   horaInicio       String?               @map("hora_inicio") @db.VarChar(50)
   horaFin          String?               @map("hora_fin") @db.VarChar(50)
-  horas            Float?                  @map("horas")
+  horas            Float?                @map("horas")
   enlaceVirtual    String?               @map("enlace_virtual") @db.VarChar(500)
   latitud          Float?                @map("latitud")
   longitud         Float?                @map("longitud")
@@ -141,6 +142,7 @@ model Capacitacion {
   plantilla        Plantilla?            @relation(fields: [plantillaId], references: [id])
   certificados     Certificado[]
   inscripciones    UsuarioCapacitacion[]
+  entidadesEncargadas Entidad[]             @relation("CapacitacionEntidades")
 
   @@index([estado])
   @@index([fechaInicio])
