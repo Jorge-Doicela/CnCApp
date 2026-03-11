@@ -60,29 +60,29 @@
                 <!-- KPI Section -->
                 <h3 class="dash-section-title">Indicadores Clave (KPIs)</h3>
                 <div class="kpi-grid">
-                    <app-kpi-card label="Usuarios Totales" [value]="stats()!.totalUsuarios" icon="people-outline"
+                    <app-kpi-card label="Usuarios Totales" [value]="stats()?.totalUsuarios ?? 0" icon="people-outline"
                         type="primary" trendText="+12% este mes" [trendPositive]="true"></app-kpi-card>
 
-                    <app-kpi-card label="Certificados" [value]="stats()!.totalCertificados" icon="ribbon-outline"
+                    <app-kpi-card label="Certificados" [value]="stats()?.totalCertificados ?? 0" icon="ribbon-outline"
                         type="success" trendText="+5% este mes" [trendPositive]="true"></app-kpi-card>
 
-                    <app-kpi-card label="Capacitaciones" [value]="stats()!.totalCapacitaciones" icon="school-outline"
+                    <app-kpi-card label="Capacitaciones" [value]="stats()?.totalCapacitaciones ?? 0" icon="school-outline"
                         type="warning" trendText="8 activas" trendIcon="time-outline"
                         [trendPositive]="false"></app-kpi-card>
 
-                    <app-kpi-card label="Asistencia Promedio" [value]="round(stats()!.tasaAsistencia) + '%'"
+                    <app-kpi-card label="Asistencia Promedio" [value]="round(stats()?.tasaAsistencia ?? 0) + '%'"
                         icon="checkmark-circle-outline" type="primary" trendText="De todo el historial"
                         [trendPositive]="true"></app-kpi-card>
 
-                    <app-kpi-card label="Inscripciones Totales" [value]="stats()!.participantesInscritos"
+                    <app-kpi-card label="Inscripciones Totales" [value]="stats()?.participantesInscritos ?? 0"
                         icon="people-outline" type="warning" trendText="Cupos tomados" trendIcon="time-outline"
                         [trendPositive]="true"></app-kpi-card>
 
-                    <app-kpi-card label="Total Horas Impartidas" [value]="stats()!.totalHorasCapacitacion + ' hrs'"
+                    <app-kpi-card label="Total Horas Impartidas" [value]="(stats()?.totalHorasCapacitacion ?? 0) + ' hrs'"
                         icon="time-outline" type="success" trendText="Acumulado Histórico"
                         [trendPositive]="true"></app-kpi-card>
 
-                    <app-kpi-card label="Tasa de Certificación" [value]="round(stats()!.tasaCertificacion) + '%'"
+                    <app-kpi-card label="Tasa de Certificación" [value]="round(stats()?.tasaCertificacion ?? 0) + '%'"
                         icon="ribbon-outline" type="info" trendText="Eficacia" trendIcon="stats-chart-outline"
                         [trendPositive]="true"></app-kpi-card>
                 </div>
@@ -137,7 +137,7 @@
                             </div>
                             <div class="item-data">
                                 <span class="label">Registros Este Mes</span>
-                                <span class="val">{{ stats()!.usuariosRegistradosEsteMes }}</span>
+                                <span class="val">{{ stats()?.usuariosRegistradosEsteMes ?? 0 }}</span>
                             </div>
                         </div>
                     </div>
@@ -160,7 +160,7 @@
                             <ion-icon name="map-outline" style="font-size: 24px; color: var(--ion-color-primary)"></ion-icon>
                         </div>
                         <div class="summary-list">
-                            <div class="summary-item" *ngFor="let prov of stats()!.topProvincias; let i = index">
+                            <div class="summary-item" *ngFor="let prov of (stats()?.topProvincias ?? []); let i = index">
                                 <div class="item-visual">
                                     <div class="icon-circle" [class.active]="i === 0" [class.completed]="i === 1" [class.new]="i > 1">
                                        <ion-icon name="podium-outline"></ion-icon>
@@ -171,7 +171,7 @@
                                     <span class="val">{{ prov.cantidad }} Usuarios</span>
                                 </div>
                             </div>
-                            <div *ngIf="stats()!.topProvincias.length === 0" style="padding: 10px; opacity: 0.6">No hay datos regionales todavía.</div>
+                            <div *ngIf="!stats()?.topProvincias || stats()?.topProvincias?.length === 0" style="padding: 10px; opacity: 0.6">No hay datos regionales todavía.</div>
                         </div>
                     </div>
                 </div>
