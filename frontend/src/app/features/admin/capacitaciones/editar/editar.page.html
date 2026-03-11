@@ -127,7 +127,18 @@
               <ion-icon name="location-outline" slot="start"></ion-icon>
               <ion-label position="floating">Sede Física o Enlace Virtual</ion-label>
               <ion-input [(ngModel)]="capacitacion.lugar" name="lugar" required #lugar="ngModel"></ion-input>
+              <div slot="end" class="input-actions-row" style="display: flex; gap: 5px; margin-top: 25px;">
+                <ion-button fill="clear" (click)="abrirMapa()" title="Ver en Google Maps" *ngIf="capacitacion.lugar">
+                  <ion-icon name="map-outline" slot="icon-only"></ion-icon>
+                </ion-button>
+                <ion-button fill="clear" (click)="abrirSelectorMapa()" title="Seleccionar en Mapa" class="map-picker-btn">
+                  <ion-icon name="locate-outline" slot="icon-only"></ion-icon>
+                </ion-button>
+              </div>
             </ion-item>
+            <ion-note color="success" *ngIf="capacitacion.latitud">
+              <ion-icon name="checkmark-circle"></ion-icon> Ubicación georreferenciada
+            </ion-note>
             <ion-note color="danger" *ngIf="lugar.invalid && (lugar.dirty || lugar.touched)">
               La ubicación es indispensable.
             </ion-note>
@@ -251,4 +262,32 @@
       </form>
     </div>
   </div>
+
+  <!-- Modal Selector de Mapa -->
+  <ion-modal [isOpen]="isMapModalOpen" (didDismiss)="isMapModalOpen = false" (didPresent)="initPickerMap()">
+    <ng-template>
+      <div class="map-modal-wrapper">
+        <header class="map-modal-header">
+          <div class="header-info">
+            <h3>Actualizar Ubicación</h3>
+            <p *ngIf="buscandoDireccion"><ion-spinner name="dots"></ion-spinner> Obteniendo dirección...</p>
+            <p *ngIf="!buscandoDireccion && tempLugar" class="address-preview">{{ tempLugar }}</p>
+          </div>
+          <button class="close-modal-btn" (click)="isMapModalOpen = false">
+            <ion-icon name="close-outline"></ion-icon>
+          </button>
+        </header>
+        
+        <div class="map-container">
+          <div id="mapPickerEdit" style="width: 100%; height: 100%;"></div>
+        </div>
+
+        <footer class="map-modal-footer">
+          <button class="btn btn-primary full-width" (click)="confirmarUbicacion()" [disabled]="!tempLat || buscandoDireccion">
+            Confirmar Ubicación
+          </button>
+        </footer>
+      </div>
+    </ng-template>
+  </ion-modal>
 </ion-content>

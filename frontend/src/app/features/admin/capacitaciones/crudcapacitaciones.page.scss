@@ -777,3 +777,12 @@ ion-content {
     .modal-wrapper .modal-header h2 { font-size: 1.75rem; }
   }
 }
+
+.clickable {
+  cursor: pointer;
+  transition: all 0.3s ease;
+  &:hover {
+    opacity: 0.8;
+    transform: translateY(-2px);
+  }
+}

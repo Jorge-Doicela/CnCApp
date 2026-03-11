@@ -365,4 +365,10 @@ export class CrudcapacitacionesPage implements OnInit {
     this.selectedCapacitacion = null;
     this.cdr.markForCheck();
   }
+
+  abrirMapa(lugar: string) {
+    if (!lugar) return;
+    const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(lugar)}`;
+    window.open(url, '_blank');
+  }
 }

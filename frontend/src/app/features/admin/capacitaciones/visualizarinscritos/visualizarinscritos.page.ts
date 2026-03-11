@@ -470,4 +470,10 @@ export class VisualizarinscritosPage implements OnInit {
     });
     await toast.present();
   }
+
+  abrirMapa(lugar: string) {
+    if (!lugar) return;
+    const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(lugar)}`;
+    window.open(url, '_blank');
+  }
 }
