@@ -1,3 +1,4 @@
+//backend/src/infrastructure/database/repositories/capacitacion/prisma-capacitacion.repository.ts
 import { injectable } from 'tsyringe';
 import prisma from '../../../../config/database';
 import { Capacitacion } from '../../../../domain/capacitacion/entities/capacitacion.entity';
