@@ -346,9 +346,30 @@ ion-content {
 
   &:hover {
     transform: translateY(-12px) scale(1.005);
-    box-shadow: 0 40px 80px -20px rgba(0,0,0,0.12);
-    &::after {
-      border-color: rgba(37, 99, 235, 0.1);
+  }
+
+  // Refined Hover Effects (Balanced State Awareness)
+  &.state-active:hover {
+    box-shadow: 0 40px 80px -15px rgba(37, 99, 235, 0.25);
+    &::after { 
+      border-color: rgba(37, 99, 235, 0.4);
+      border-width: 2px;
+    }
+  }
+
+  &.state-done:hover {
+    box-shadow: 0 40px 80px -15px rgba(13, 148, 136, 0.25);
+    &::after { 
+      border-color: rgba(13, 148, 136, 0.4);
+      border-width: 2px;
+    }
+  }
+
+  &.state-canceled:hover {
+    box-shadow: 0 40px 80px -15px rgba(225, 29, 72, 0.25);
+    &::after { 
+      border-color: rgba(225, 29, 72, 0.4);
+      border-width: 2px;
     }
   }
 

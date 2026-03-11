@@ -1,28 +1,25 @@
 <ion-content>
   <div class="content-wrapper">
 
-    <!-- Back Nav -->
-    <div class="page-back-nav">
-      <ion-button fill="clear" color="medium" size="small" routerLink="/gestionar-capacitaciones">
+    <!-- Navegación Superior -->
+    <div class="page-back-nav fade-up">
+      <ion-button fill="clear" (click)="cancelar()">
         <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
-        Gestión de Capacitaciones
+        Volver a la Gestión
       </ion-button>
     </div>
 
-    <!-- Header Section -->
-    <div class="page-header">
+    <!-- Encabezado de Página -->
+    <header class="page-header fade-up">
       <div class="header-icon">
         <ion-icon name="school-outline"></ion-icon>
       </div>
-      <h1>{{ getStepTitle(currentStep) }}</h1>
-      <p *ngIf="currentStep === 1">Información general de la capacitación</p>
-      <p *ngIf="currentStep === 2">Cuándo se realizará la capacitación</p>
-      <p *ngIf="currentStep === 3">Dónde y cómo se realizará</p>
-      <p *ngIf="currentStep === 4">Quiénes participarán y organizarán</p>
-    </div>
+      <h1>Nueva Capacitación</h1>
+      <p>{{ getStepTitle(currentStep) }}</p>
+    </header>
 
-    <!-- Step Indicator -->
-    <div class="step-indicator" *ngIf="!cargandoDatos">
+    <!-- Indicador de Pasos Premium -->
+    <div class="step-indicator fade-up" *ngIf="!cargandoDatos" style="animation-delay: 0.1s;">
       <div class="steps">
         <div class="step" *ngFor="let step of [1,2,3,4]" [class.active]="currentStep === step"
           [class.completed]="currentStep > step" (click)="goToStep(step)">
@@ -38,378 +35,239 @@
       </div>
     </div>
 
-    <!-- Loading State -->
-    <div class="loading-state" *ngIf="cargandoDatos">
-      <ion-spinner name="crescent" color="primary"></ion-spinner>
-      <p>Cargando datos del formulario...</p>
+    <!-- Estado de Carga -->
+    <div class="loading-state fade-up" *ngIf="cargandoDatos">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>Sincronizando Catálogos...</p>
     </div>
 
-    <!-- Form -->
-    <form #capacitacionForm="ngForm" *ngIf="!cargandoDatos">
+    <!-- Formulario Principal -->
+    <form #capacitacionForm="ngForm" *ngIf="!cargandoDatos" class="fade-up" style="animation-delay: 0.2s;">
 
-      <!-- PASO 1: Información Básica -->
+      <!-- PASO 1: Identidad del Evento -->
       <div class="form-card" *ngIf="currentStep === 1">
-        <div class="form-fields">
-          <!-- Nombre -->
-          <div class="field-group" [class.has-error]="nombre.invalid && nombre.touched">
-            <label class="field-label">
-              Nombre de la Capacitación
-              <span class="required">*</span>
-            </label>
-            <div class="input-wrapper">
-              <ion-icon name="text-outline" class="field-icon"></ion-icon>
-              <input type="text" class="field-input" [(ngModel)]="capacitacion.nombre" name="nombre" #nombre="ngModel"
-                required minlength="5" maxlength="200" placeholder="Ej: Taller de Liderazgo y Gestión" />
-              <ion-icon *ngIf="nombre.valid && nombre.touched" name="checkmark-circle"
-                class="validation-icon success"></ion-icon>
-            </div>
-            <div class="field-hint" *ngIf="!nombre.touched || nombre.valid">
-              Ingrese un nombre descriptivo (mínimo 5 caracteres)
-            </div>
-            <div class="field-error" *ngIf="nombre.invalid && nombre.touched">
-              <ion-icon name="alert-circle"></ion-icon>
-              <span *ngIf="nombre.errors?.['required']">El nombre es obligatorio</span>
-              <span *ngIf="nombre.errors?.['minlength']">Mínimo 5 caracteres</span>
-            </div>
+        <div class="field-group" [class.has-error]="nombre.invalid && nombre.touched">
+          <label class="field-label">Nombre de la Capacitación <span class="required">*</span></label>
+          <div class="input-wrapper">
+            <ion-icon name="text-outline" class="field-icon"></ion-icon>
+            <input type="text" class="field-input" [(ngModel)]="capacitacion.nombre" name="nombre" #nombre="ngModel"
+              required minlength="5" maxlength="200" placeholder="Ej: Taller de Liderazgo Estratégico" />
+            <ion-icon *ngIf="nombre.valid && nombre.touched" name="checkmark-circle"
+              class="validation-icon success"></ion-icon>
           </div>
-
-          <!-- Tipo de Evento -->
-          <div class="field-group">
-            <label class="field-label">
-              Tipo de Evento
-              <span class="required">*</span>
-            </label>
-            <div class="radio-group">
-              <label class="radio-option" [class.selected]="capacitacion.tipoEvento === 'CAPACITACIÓN'">
-                <input type="radio" name="tipoEvento" value="CAPACITACIÓN" [(ngModel)]="capacitacion.tipoEvento" />
-                <div class="radio-content">
-                  <ion-icon name="school-outline"></ion-icon>
-                  <span>Capacitación</span>
-                </div>
-              </label>
-              <label class="radio-option" [class.selected]="capacitacion.tipoEvento === 'ASISTENCIA TÉCNICA'">
-                <input type="radio" name="tipoEvento" value="ASISTENCIA TÉCNICA"
-                  [(ngModel)]="capacitacion.tipoEvento" />
-                <div class="radio-content">
-                  <ion-icon name="construct-outline"></ion-icon>
-                  <span>Asistencia Técnica</span>
-                </div>
-              </label>
-            </div>
+          <div class="field-error" *ngIf="nombre.invalid && nombre.touched">
+            <ion-icon name="alert-circle"></ion-icon>
+            Debe tener al menos 5 caracteres.
           </div>
+        </div>
 
-          <!-- Descripción -->
-          <div class="field-group" [class.has-error]="descripcion.invalid && descripcion.touched">
-            <label class="field-label">
-              Descripción
-              <span class="required">*</span>
+        <div class="field-group">
+          <label class="field-label">Naturaleza del Evento <span class="required">*</span></label>
+          <div class="radio-group">
+            <label class="radio-option" [class.selected]="capacitacion.tipoEvento === 'CAPACITACIÓN'">
+              <input type="radio" name="tipoEvento" value="CAPACITACIÓN" [(ngModel)]="capacitacion.tipoEvento" />
+              <div class="radio-content">
+                <ion-icon name="school-outline"></ion-icon>
+                <span>Capacitación</span>
+              </div>
             </label>
-            <div class="input-wrapper">
-              <ion-icon name="document-text-outline" class="field-icon"></ion-icon>
-              <textarea class="field-textarea" [(ngModel)]="capacitacion.descripcion" name="descripcion"
-                #descripcion="ngModel" required minlength="20" maxlength="500" rows="5"
-                placeholder="Describa los objetivos, contenido y beneficios de la capacitación..."></textarea>
-            </div>
-            <div class="field-hint" *ngIf="!descripcion.touched || descripcion.valid">
-              {{ capacitacion.descripcion.length || 0 }}/500 caracteres
-            </div>
-            <div class="field-error" *ngIf="descripcion.invalid && descripcion.touched">
-              <ion-icon name="alert-circle"></ion-icon>
-              <span *ngIf="descripcion.errors?.['required']">La descripción es obligatoria</span>
-              <span *ngIf="descripcion.errors?.['minlength']">Mínimo 20 caracteres</span>
-            </div>
+            <label class="radio-option" [class.selected]="capacitacion.tipoEvento === 'ASISTENCIA TÉCNICA'">
+              <input type="radio" name="tipoEvento" value="ASISTENCIA TÉCNICA" [(ngModel)]="capacitacion.tipoEvento" />
+              <div class="radio-content">
+                <ion-icon name="construct-outline"></ion-icon>
+                <span>Asistencia Técnica</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <div class="field-group" [class.has-error]="descripcion.invalid && descripcion.touched">
+          <label class="field-label">Resumen Académico <span class="required">*</span></label>
+          <div class="input-wrapper auto-height">
+            <ion-icon name="document-text-outline" class="field-icon"></ion-icon>
+            <textarea class="field-textarea" [(ngModel)]="capacitacion.descripcion" name="descripcion"
+              #descripcion="ngModel" required minlength="20" maxlength="500"
+              placeholder="Define los objetivos y alcances del curso..."></textarea>
+          </div>
+          <div class="field-hint">
+            {{ capacitacion.descripcion.length || 0 }}/500 caracteres
           </div>
         </div>
       </div>
 
-      <!-- PASO 2: Fecha y Horario -->
+      <!-- PASO 2: Cronograma -->
       <div class="form-card" *ngIf="currentStep === 2">
-        <div class="form-fields">
-          <div class="field-row">
-            <!-- Fecha -->
-            <div class="field-group" [class.has-error]="fecha.invalid && fecha.touched">
-              <label class="field-label">
-                Fecha
-                <span class="required">*</span>
-              </label>
-              <div class="input-wrapper">
-                <ion-icon name="calendar-outline" class="field-icon"></ion-icon>
-                <input type="date" class="field-input" [(ngModel)]="capacitacion.fechaInicio" name="fechaInicio"
-                  #fecha="ngModel" required [min]="fechaMinima" />
-              </div>
-              <div class="field-error" *ngIf="fecha.invalid && fecha.touched">
-                <ion-icon name="alert-circle"></ion-icon>
-                La fecha es obligatoria
-              </div>
-            </div>
-
-            <!-- Duración -->
-            <div class="field-group" [class.has-error]="horas.invalid && horas.touched">
-              <label class="field-label">
-                Duración (horas)
-                <span class="required">*</span>
-              </label>
-              <div class="input-wrapper">
-                <ion-icon name="time" class="field-icon"></ion-icon>
-                <input type="number" class="field-input" [(ngModel)]="capacitacion.horas" name="horas" #horas="ngModel"
-                  required min="1" max="500" placeholder="8" />
-              </div>
-              <div class="field-error" *ngIf="horas.invalid && horas.touched">
-                <ion-icon name="alert-circle"></ion-icon>
-                Ingrese las horas (1-40)
-              </div>
+        <div class="field-row">
+          <div class="field-group" [class.has-error]="fecha.invalid && fecha.touched">
+            <label class="field-label">Fecha del Evento <span class="required">*</span></label>
+            <div class="input-wrapper">
+              <ion-icon name="calendar-outline" class="field-icon"></ion-icon>
+              <input type="date" class="field-input" [(ngModel)]="capacitacion.fechaInicio" name="fechaInicio"
+                #fecha="ngModel" required [min]="fechaMinima" />
             </div>
           </div>
 
-          <div class="field-row">
-            <!-- Hora Inicio -->
-            <div class="field-group" [class.has-error]="horaInicio.invalid && horaInicio.touched">
-              <label class="field-label">
-                Hora de Inicio
-                <span class="required">*</span>
-              </label>
-              <div class="input-wrapper">
-                <ion-icon name="time-outline" class="field-icon"></ion-icon>
-                <input type="time" class="field-input" [(ngModel)]="capacitacion.horaInicio" name="horaInicio"
-                  #horaInicio="ngModel" required />
-              </div>
-              <div class="field-error" *ngIf="horaInicio.invalid && horaInicio.touched">
-                <ion-icon name="alert-circle"></ion-icon>
-                Hora de inicio requerida
-              </div>
+          <div class="field-group" [class.has-error]="horas.invalid && horas.touched">
+            <label class="field-label">Certificación (Horas) <span class="required">*</span></label>
+            <div class="input-wrapper">
+              <ion-icon name="hourglass-outline" class="field-icon"></ion-icon>
+              <input type="number" class="field-input" [(ngModel)]="capacitacion.horas" name="horas" #horas="ngModel"
+                required min="1" placeholder="Ej: 40" />
             </div>
+          </div>
+        </div>
 
-            <!-- Hora Fin -->
-            <div class="field-group" [class.has-error]="horaFin.invalid && horaFin.touched">
-              <label class="field-label">
-                Hora de Fin
-                <span class="required">*</span>
-              </label>
-              <div class="input-wrapper">
-                <ion-icon name="time-outline" class="field-icon"></ion-icon>
-                <input type="time" class="field-input" [(ngModel)]="capacitacion.horaFin" name="horaFin"
-                  #horaFin="ngModel" required />
-              </div>
-              <div class="field-error" *ngIf="horaFin.invalid && horaFin.touched">
-                <ion-icon name="alert-circle"></ion-icon>
-                Hora de fin requerida
-              </div>
+        <div class="field-row">
+          <div class="field-group" [class.has-error]="horaInicio.invalid && horaInicio.touched">
+            <label class="field-label">Hora Inicio <span class="required">*</span></label>
+            <div class="input-wrapper">
+              <ion-icon name="time-outline" class="field-icon"></ion-icon>
+              <input type="time" class="field-input" [(ngModel)]="capacitacion.horaInicio" name="horaInicio"
+                #horaInicio="ngModel" required />
             </div>
           </div>
 
-          <div class="info-message" *ngIf="validarHorarios() === false">
-            <ion-icon name="alert-circle-outline"></ion-icon>
-            La hora de fin debe ser posterior a la hora de inicio
+          <div class="field-group" [class.has-error]="horaFin.invalid && horaFin.touched">
+            <label class="field-label">Hora Fin <span class="required">*</span></label>
+            <div class="input-wrapper">
+              <ion-icon name="time-outline" class="field-icon"></ion-icon>
+              <input type="time" class="field-input" [(ngModel)]="capacitacion.horaFin" name="horaFin"
+                #horaFin="ngModel" required />
+            </div>
           </div>
+        </div>
+
+        <div class="info-message" *ngIf="validarHorarios() === false">
+          <ion-icon name="alert-circle-outline"></ion-icon>
+          La hora de cierre debe ser posterior a la de apertura.
         </div>
       </div>
 
-      <!-- PASO 3: Modalidad y Ubicación -->
+      <!-- PASO 3: Logística -->
       <div class="form-card" *ngIf="currentStep === 3">
-        <div class="form-fields">
-          <!-- Modalidad -->
-          <div class="field-group">
-            <label class="field-label">
-              Modalidad
-              <span class="required">*</span>
+        <div class="field-group">
+          <label class="field-label">Canal de Impartición <span class="required">*</span></label>
+          <div class="radio-group">
+            <label class="radio-option" [class.selected]="capacitacion.modalidad === 'PRESENCIAL'">
+              <input type="radio" name="modalidad" value="PRESENCIAL" [(ngModel)]="capacitacion.modalidad"
+                (change)="onModalidadChange()" />
+              <div class="radio-content">
+                <ion-icon name="people"></ion-icon>
+                <span>Sede Física</span>
+              </div>
             </label>
-            <div class="radio-group">
-              <label class="radio-option" [class.selected]="capacitacion.modalidad === 'PRESENCIAL'">
-                <input type="radio" name="modalidad" value="PRESENCIAL" [(ngModel)]="capacitacion.modalidad"
-                  (change)="onModalidadChange()" />
-                <div class="radio-content">
-                  <ion-icon name="people"></ion-icon>
-                  <span>Presencial</span>
-                </div>
-              </label>
-              <label class="radio-option" [class.selected]="capacitacion.modalidad === 'VIRTUAL'">
-                <input type="radio" name="modalidad" value="VIRTUAL" [(ngModel)]="capacitacion.modalidad"
-                  (change)="onModalidadChange()" />
-                <div class="radio-content">
-                  <ion-icon name="laptop-outline"></ion-icon>
-                  <span>Virtual</span>
-                </div>
-              </label>
-              <label class="radio-option" [class.selected]="capacitacion.modalidad === 'PRESENCIAL Y VIRTUAL'">
-                <input type="radio" name="modalidad" value="PRESENCIAL Y VIRTUAL" [(ngModel)]="capacitacion.modalidad"
-                  (change)="onModalidadChange()" />
-                <div class="radio-content">
-                  <ion-icon name="git-merge-outline"></ion-icon>
-                  <span>Presencial y Virtual</span>
-                </div>
-              </label>
-            </div>
+            <label class="radio-option" [class.selected]="capacitacion.modalidad === 'VIRTUAL'">
+              <input type="radio" name="modalidad" value="VIRTUAL" [(ngModel)]="capacitacion.modalidad"
+                (change)="onModalidadChange()" />
+              <div class="radio-content">
+                <ion-icon name="laptop-outline"></ion-icon>
+                <span>Aula Virtual</span>
+              </div>
+            </label>
+            <label class="radio-option" [class.selected]="capacitacion.modalidad === 'PRESENCIAL Y VIRTUAL'">
+              <input type="radio" name="modalidad" value="PRESENCIAL Y VIRTUAL" [(ngModel)]="capacitacion.modalidad"
+                (change)="onModalidadChange()" />
+              <div class="radio-content">
+                <ion-icon name="git-merge-outline"></ion-icon>
+                <span>Híbrido</span>
+              </div>
+            </label>
           </div>
+        </div>
 
-          <!-- Lugar -->
-          <div class="field-group" [class.has-error]="lugar.invalid && lugar.touched">
-            <label class="field-label">
-              Lugar
-              <span class="required">*</span>
-            </label>
-            <div class="input-wrapper">
-              <ion-icon name="location-outline" class="field-icon"></ion-icon>
-              <input type="text" class="field-input" [(ngModel)]="capacitacion.lugar" name="lugar" #lugar="ngModel"
-                required placeholder="Ej: Auditorio Principal, Sala de Conferencias A" />
-            </div>
-            <div class="field-error" *ngIf="lugar.invalid && lugar.touched">
-              <ion-icon name="alert-circle"></ion-icon>
-              El lugar es obligatorio
-            </div>
+        <div class="field-group" [class.has-error]="lugar.invalid && lugar.touched">
+          <label class="field-label">Ubicación / Sede <span class="required">*</span></label>
+          <div class="input-wrapper">
+            <ion-icon name="location-outline" class="field-icon"></ion-icon>
+            <input type="text" class="field-input" [(ngModel)]="capacitacion.lugar" name="lugar" #lugar="ngModel"
+              required placeholder="Ej: Auditorio CNC - Quito" />
           </div>
+        </div>
 
-          <!-- Enlace Virtual (condicional) -->
-          <div class="field-group"
-            *ngIf="capacitacion.modalidad === 'VIRTUAL' || capacitacion.modalidad === 'PRESENCIAL Y VIRTUAL'">
-            <label class="field-label">
-              Enlace de Reunión Virtual
-              <span class="required" *ngIf="capacitacion.modalidad === 'VIRTUAL'">*</span>
-            </label>
-            <div class="input-wrapper">
-              <ion-icon name="link-outline" class="field-icon"></ion-icon>
-              <input type="url" class="field-input" [(ngModel)]="capacitacion.enlaceVirtual" name="enlaceVirtual"
-                #enlaceVirtual="ngModel" [required]="capacitacion.modalidad === 'VIRTUAL'"
-                placeholder="https://zoom.us/j/... o https://meet.google.com/..." />
-              <button type="button" class="link-button" *ngIf="capacitacion.enlaceVirtual"
-                (click)="abrirEnlace(capacitacion.enlaceVirtual)">
-                <ion-icon name="open-outline"></ion-icon>
-              </button>
-            </div>
-            <div class="field-hint">
-              Ingrese el enlace completo de Zoom, Teams, Google Meet, etc.
-            </div>
-            <div class="field-error" *ngIf="enlaceVirtual.invalid && enlaceVirtual.touched">
-              <ion-icon name="alert-circle"></ion-icon>
-              El enlace es obligatorio para modalidad virtual
-            </div>
+        <div class="field-group" *ngIf="capacitacion.modalidad !== 'PRESENCIAL'">
+          <label class="field-label">Enlace de Videoconferencia <span class="required" *ngIf="capacitacion.modalidad === 'VIRTUAL'">*</span></label>
+          <div class="input-wrapper">
+            <ion-icon name="link-outline" class="field-icon"></ion-icon>
+            <input type="url" class="field-input" [(ngModel)]="capacitacion.enlaceVirtual" name="enlaceVirtual"
+              #enlaceVirtual="ngModel" [required]="capacitacion.modalidad === 'VIRTUAL'"
+              placeholder="https://zoom.us/..." />
           </div>
+        </div>
 
-          <!-- Límite de Participantes -->
-          <div class="field-group" [class.has-error]="cuposDisponibles.invalid && cuposDisponibles.touched">
-            <label class="field-label">
-              Límite de Participantes
-              <span class="required">*</span>
-            </label>
-            <div class="input-wrapper">
-              <ion-icon name="people-outline" class="field-icon"></ion-icon>
-              <input type="number" class="field-input" [(ngModel)]="capacitacion.cuposDisponibles"
-                name="cuposDisponibles" #cuposDisponibles="ngModel" required min="1" max="500" placeholder="50" />
-            </div>
-            <div class="field-hint">
-              Número máximo de participantes permitidos
-            </div>
-            <div class="field-error" *ngIf="cuposDisponibles.invalid && cuposDisponibles.touched">
-              <ion-icon name="alert-circle"></ion-icon>
-              Ingrese un límite válido (1-500)
-            </div>
+        <div class="field-group">
+          <label class="field-label">Cupo de Participantes <span class="required">*</span></label>
+          <div class="input-wrapper">
+            <ion-icon name="people-outline" class="field-icon"></ion-icon>
+            <input type="number" class="field-input" [(ngModel)]="capacitacion.cuposDisponibles"
+              name="cuposDisponibles" required min="1" max="500" />
           </div>
         </div>
       </div>
 
-      <!-- PASO 4: Responsables y Participantes -->
+      <!-- PASO 4: Involucrados -->
       <div class="form-card" *ngIf="currentStep === 4">
-        <div class="form-fields">
-          <!-- Expositores -->
-          <div class="field-group" [class.has-error]="expositoresModel.invalid && expositoresModel.touched">
-            <label class="field-label">
-              Responsables/Expositores
-              <span class="required">*</span>
-            </label>
-            <div class="select-wrapper">
-              <ion-icon name="person-outline" class="field-icon"></ion-icon>
-              <select class="field-select" [(ngModel)]="capacitacion.expositores" name="expositores"
-                #expositoresModel="ngModel" required multiple size="5">
+        <div class="field-group">
+          <label class="field-label">Expositores y Responsables <span class="required">*</span></label>
+          <div class="select-wrapper">
+            <select class="field-select" [(ngModel)]="capacitacion.expositores" name="expositores"
+              #expositoresModel="ngModel" required multiple size="5">
+              <optgroup label="Usuarios con Firma Registrada">
                 <option *ngFor="let usuario of usuarios" [value]="usuario.id">
-                  {{ usuario.nombre }} {{ usuario.firmaUrl ? '✓ Con firma' : '' }}
+                  {{ usuario.nombre }} {{ usuario.firmaUrl ? '✓' : '' }}
                 </option>
-              </select>
-            </div>
-            <div class="field-hint">
-              Seleccione uno o más responsables (aparecerán en certificados)
-            </div>
-            <div class="field-error" *ngIf="expositoresModel.invalid && expositoresModel.touched">
-              <ion-icon name="alert-circle"></ion-icon>
-              Debe seleccionar al menos un responsable
-            </div>
-            <div class="selected-items" *ngIf="(capacitacion.expositores?.length ?? 0) > 0">
-              <span class="selected-count">{{ capacitacion.expositores.length }} seleccionado(s)</span>
-            </div>
+              </optgroup>
+            </select>
           </div>
-
-          <!-- Entidades -->
-          <div class="field-group" [class.has-error]="entidadesModel.invalid && entidadesModel.touched">
-            <label class="field-label">
-              Entidades Organizadoras
-              <span class="required">*</span>
-            </label>
-            <div class="select-wrapper">
-              <ion-icon name="business-outline" class="field-icon"></ion-icon>
-              <select class="field-select" [(ngModel)]="capacitacion.entidadesEncargadas" name="entidadesEncargadas"
-                #entidadesModel="ngModel" required multiple size="5">
-                <option *ngFor="let entidad of entidades" [value]="entidad.id">
-                  {{ entidad.nombre }}
-                </option>
-              </select>
-            </div>
-            <div class="field-hint">
-              Logos de entidades aparecerán en certificados
-            </div>
-            <div class="field-error" *ngIf="entidadesModel.invalid && entidadesModel.touched">
-              <ion-icon name="alert-circle"></ion-icon>
-              Debe seleccionar al menos una entidad
-            </div>
-            <div class="selected-items" *ngIf="(capacitacion.entidadesEncargadas?.length ?? 0) > 0">
-              <span class="selected-count">{{ capacitacion.entidadesEncargadas.length }} seleccionada(s)</span>
-            </div>
+          <div class="selected-items" *ngIf="(capacitacion.expositores?.length ?? 0) > 0">
+            <span class="selected-count">{{ capacitacion.expositores.length }} Responsable(s) seleccionado(s)</span>
           </div>
+        </div>
 
-          <!-- Participantes (Opcional) -->
-          <div class="field-group">
-            <label class="field-label">
-              Pre-inscribir Participantes <span class="optional-text">(Opcional)</span>
-            </label>
-            <div class="select-wrapper">
-              <ion-icon name="person-add-outline" class="field-icon"></ion-icon>
-              <select class="field-select" [(ngModel)]="capacitacion.idsUsuarios" name="idsUsuarios" multiple size="5">
-                <option *ngFor="let usuario of usuariosDisponibles" [value]="usuario.id">
-                  {{ usuario.nombre }}
-                </option>
-              </select>
-            </div>
-            <div class="field-hint">
-              Puede añadir participantes ahora o después
-            </div>
-            <div class="selected-items" *ngIf="(capacitacion.idsUsuarios?.length ?? 0) > 0">
-              <span class="selected-count">{{ capacitacion.idsUsuarios.length }} participante(s)</span>
-            </div>
+        <div class="field-group">
+          <label class="field-label">Entidades Organizadoras <span class="required">*</span></label>
+          <div class="select-wrapper">
+            <select class="field-select" [(ngModel)]="capacitacion.entidadesEncargadas" name="entidadesEncargadas"
+              #entidadesModel="ngModel" required multiple size="5">
+              <option *ngFor="let entidad of entidades" [value]="entidad.id">
+                {{ entidad.nombre }}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Pre-Inscribir Participantes <span class="optional-text">(Opcional)</span></label>
+          <div class="select-wrapper">
+            <select class="field-select" [(ngModel)]="capacitacion.idsUsuarios" name="idsUsuarios" multiple size="5">
+              <option *ngFor="let usuario of usuariosDisponibles" [value]="usuario.id">
+                {{ usuario.nombre }}
+              </option>
+            </select>
           </div>
         </div>
       </div>
 
-      <!-- Navigation Buttons -->
-      <div class="wizard-navigation">
+      <!-- Navegación del Wizard -->
+      <footer class="wizard-navigation">
         <button type="button" class="btn btn-secondary" (click)="previousStep()" *ngIf="currentStep > 1">
-          <ion-icon name="arrow-back-outline"></ion-icon>
-          Anterior
+          <ion-icon name="arrow-back-outline"></ion-icon> Anterior
         </button>
 
-        <button type="button" class="btn btn-secondary" (click)="cancelar()">
-          <ion-icon name="close-outline"></ion-icon>
+        <button type="button" class="btn btn-secondary" (click)="cancelar()" *ngIf="currentStep === 1">
           Cancelar
         </button>
 
         <button type="button" class="btn btn-primary" (click)="nextStep()" *ngIf="currentStep < totalSteps">
-          Siguiente
-          <ion-icon name="arrow-forward-outline"></ion-icon>
+          Continuar <ion-icon name="arrow-forward-outline"></ion-icon>
         </button>
 
         <button type="button" class="btn btn-primary" (click)="guardarCapacitacion()" [disabled]="guardando"
           *ngIf="currentStep === totalSteps">
           <ion-spinner name="crescent" *ngIf="guardando"></ion-spinner>
           <ion-icon name="checkmark-outline" *ngIf="!guardando"></ion-icon>
-          {{ guardando ? 'Guardando...' : 'Crear Capacitación' }}
+          {{ guardando ? 'Finalizando...' : 'Crear Capacitación' }}
         </button>
-      </div>
+      </footer>
     </form>
   </div>
 </ion-content>

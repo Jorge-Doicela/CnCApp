@@ -11,6 +11,19 @@ import { CatalogoService } from 'src/app/shared/services/catalogo.service';
 import { UsuarioService } from 'src/app/features/user/services/usuario.service';
 import { ErrorHandlerUtil } from 'src/app/shared/utils/error-handler.util';
 import { EstadoCapacitacionEnum, RolCapacitacionEnum } from 'src/app/shared/constants/enums';
+import { addIcons } from 'ionicons';
+import { 
+  arrowBackOutline, schoolOutline, informationCircleOutline, 
+  textOutline, optionsOutline, documentTextOutline, calendarOutline, 
+  timeOutline, hourglassOutline, locationOutline, toggleOutline, 
+  wifiOutline, peopleOutline, briefcaseOutline, personOutline, 
+  personAddOutline, lockClosedOutline, ribbon, ribbonOutline, 
+  checkmarkDoneOutline, trashOutline, checkmarkCircle, time, closeCircle,
+  sparklesOutline, shieldCheckmarkOutline, arrowForwardOutline, checkmark,
+  checkmarkOutline, closeOutline, constructOutline, laptopOutline,
+  gitMergeOutline, linkOutline, openOutline, alertCircle, alertCircleOutline,
+  businessOutline
+} from 'ionicons/icons';
 
 @Component({
   selector: 'app-crear',
@@ -62,7 +75,20 @@ export class CrearPage implements OnInit {
     private alertController: AlertController,
     private navController: NavController,
     private cdr: ChangeDetectorRef
-  ) { }
+  ) { 
+    addIcons({
+      arrowBackOutline, schoolOutline, informationCircleOutline, 
+      textOutline, optionsOutline, documentTextOutline, calendarOutline, 
+      timeOutline, hourglassOutline, locationOutline, toggleOutline, 
+      wifiOutline, peopleOutline, briefcaseOutline, personOutline, 
+      personAddOutline, lockClosedOutline, ribbon, ribbonOutline, 
+      checkmarkDoneOutline, trashOutline, checkmarkCircle, time, closeCircle,
+      sparklesOutline, shieldCheckmarkOutline, arrowForwardOutline, checkmark,
+      checkmarkOutline, closeOutline, constructOutline, laptopOutline,
+      gitMergeOutline, linkOutline, openOutline, alertCircle, alertCircleOutline,
+      businessOutline
+    });
+  }
 
   ngOnInit() {
     this.inicializarFormulario();
