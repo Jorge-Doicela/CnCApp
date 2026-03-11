@@ -31,6 +31,8 @@ export class PerfilPage implements OnInit {
   cantonUsuario: string = '';
   parroquiaUsuario: string = '';
   biometriaActiva: boolean = false;
+  // Recompensas / Logros
+  logros: any[] = [];
 
   constructor(
     private alertController: AlertController,
@@ -61,6 +63,10 @@ export class PerfilPage implements OnInit {
     }
   }
 
+  verificarDisponibilidadBiometria() {
+     // Stub in case checking state logic needs expansion later
+  }
+
   async toggleBiometria(event: any) {
     const isChecked = event.detail.checked;
     
@@ -76,6 +82,8 @@ export class PerfilPage implements OnInit {
         } else {
            isBiometricAvailable = await WebAuthnUtil.isAvailable();
         }
+
+        this.calcularLogros();
 
         if (!isBiometricAvailable) {
            this.presentToast('Biometría no disponible en este dispositivo.', 'warning');
@@ -176,6 +184,7 @@ export class PerfilPage implements OnInit {
     this.http.get<any>(url).pipe(
       timeout(10000),
       finalize(() => {
+        this.calcularLogros(); // Se calculan los logros al final de recargar
         this.cargando = false;
         this.cdr.detectChanges();
       })
@@ -375,5 +384,74 @@ export class PerfilPage implements OnInit {
       buttons: [{ side: 'end', icon: 'close', role: 'cancel' }]
     });
     await toast.present();
+  }
+
+  // ==== SISTEMA DE LOGROS ====
+  calcularLogros() {
+    this.logros = [];
+
+    // Logro por Asistencia (Participante)
+    if (this.capacitacionesInscritas > 0) {
+      if (this.capacitacionesInscritas >= 5) {
+         this.logros.push({
+           icon: 'school',
+           color: 'warning',
+           title: 'Estudiante Dedicado',
+           description: 'Te has inscrito en 5 o más capacitaciones.',
+           level: 'Oro'
+         });
+      } else {
+         this.logros.push({
+           icon: 'book',
+           color: 'primary',
+           title: 'Aprendiz',
+           description: 'Te has inscrito en al menos una capacitación.',
+           level: 'Bronce'
+         });
+      }
+    }
+
+    // Logro por Certificados
+    if (this.certificadosObtenidos > 0) {
+      if (this.certificadosObtenidos >= 3) {
+         this.logros.push({
+           icon: 'medal',
+           color: 'warning',
+           title: 'Experto Certificado',
+           description: 'Has obtenido 3 o más certificados.',
+           level: 'Oro'
+         });
+      } else {
+         this.logros.push({
+           icon: 'ribbon',
+           color: 'secondary',
+           title: 'Primer Certificado',
+           description: 'Has obtenido tu primer certificado.',
+           level: 'Plata'
+         });
+      }
+    }
+
+    // Logro por Perfil Completo
+    if (this.datosUsuario && (this.datosUsuario.firmaUrl || this.datosUsuario.Firma_Usuario)) {
+      this.logros.push({
+        icon: 'shield-checkmark',
+        color: 'success',
+        title: 'Perfil Verificado',
+        description: 'Has configurado tu firma digital.',
+        level: 'Plata'
+      });
+    }
+
+    // Si aún no tiene logros
+    if (this.logros.length === 0) {
+      this.logros.push({
+        icon: 'footsteps',
+        color: 'medium',
+        title: 'Primeros Pasos',
+        description: 'Comienza a participar en capacitaciones para ganar logros.',
+        level: 'Inicio'
+      });
+    }
   }
 }
