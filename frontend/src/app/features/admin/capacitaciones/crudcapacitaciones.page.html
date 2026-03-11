@@ -8,7 +8,6 @@
       </ion-button>
     </div>
 
-    <!-- Page Header -->
     <header class="admin-header fade-up">
       <div class="header-left">
         <span class="eyebrow">
@@ -16,9 +15,29 @@
           ADMINISTRACIÓN CENTRAL
         </span>
         <h1>Gestión de Capacitaciones</h1>
-        <p>Centro de control para la gestión de eventos académicos, registro de asistentes y emisión automatizada de certificados con validez legal.</p>
+        <p>Centro de control para la gestión académica y certificación automatizada.</p>
       </div>
       <div class="header-actions" *ngIf="!isConferencista">
+        <!-- Integrated Compact Stats (Moved above button) -->
+        <div class="compact-stats">
+          <div class="mini-stat">
+            <span class="val">{{ Capacitaciones.length }}</span>
+            <span class="lab">Reg.</span>
+          </div>
+          <div class="mini-stat">
+            <span class="val teal-text">{{ obtenerCapacitacionesPendientes() }}</span>
+            <span class="lab">Act.</span>
+          </div>
+          <div class="mini-stat">
+            <span class="val indigo-text">{{ obtenerCapacitacionesRealizadas() }}</span>
+            <span class="lab">Fin.</span>
+          </div>
+          <div class="mini-stat">
+            <span class="val amber-text">{{ obtenerCertificadosEmitidos() }}</span>
+            <span class="lab">Cert.</span>
+          </div>
+        </div>
+
         <ion-button class="new-btn" (click)="iraCrearCapacitacion()">
           <ion-icon name="add-circle-outline" slot="start"></ion-icon>
           Nueva Capacitación
@@ -26,63 +45,6 @@
       </div>
     </header>
 
-    <!-- Stats Grid -->
-    <div class="stats-grid fade-up delay-1">
-      <div class="stat-card">
-        <div class="stat-header">
-          <div class="stat-icon-wrapper blue">
-            <ion-icon name="school"></ion-icon>
-          </div>
-          <ion-icon name="trending-up-outline" color="medium"></ion-icon>
-        </div>
-        <div class="stat-body">
-          <span class="stat-value">{{ Capacitaciones.length }}</span>
-          <span class="stat-label">Total Registros</span>
-        </div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-header">
-          <div class="stat-icon-wrapper teal">
-            <ion-icon name="calendar"></ion-icon>
-          </div>
-          <ion-icon name="time-outline" color="medium"></ion-icon>
-        </div>
-        <div class="stat-body">
-          <span class="stat-value">{{ obtenerCapacitacionesPendientes() }}</span>
-          <span class="stat-label">Eventos Activos</span>
-        </div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-header">
-          <div class="stat-icon-wrapper indigo">
-            <ion-icon name="checkmark-done-circle"></ion-icon>
-          </div>
-          <ion-icon name="ribbon-outline" color="medium"></ion-icon>
-        </div>
-        <div class="stat-body">
-          <span class="stat-value">{{ obtenerCapacitacionesRealizadas() }}</span>
-          <span class="stat-label">Completados</span>
-        </div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-header">
-          <div class="stat-icon-wrapper amber">
-            <div style="position: relative;">
-              <ion-icon name="ribbon"></ion-icon>
-              <div style="position: absolute; top: -5px; right: -5px; width: 10px; height: 10px; background: #ef4444; border-radius: 50%; border: 2px solid white;"></div>
-            </div>
-          </div>
-          <ion-icon name="sparkles-outline" color="medium"></ion-icon>
-        </div>
-        <div class="stat-body">
-          <span class="stat-value">{{ obtenerCertificadosEmitidos() }}</span>
-          <span class="stat-label">Certificados</span>
-        </div>
-      </div>
-    </div>
 
     <!-- Control Center -->
     <div class="control-center fade-up delay-2">
