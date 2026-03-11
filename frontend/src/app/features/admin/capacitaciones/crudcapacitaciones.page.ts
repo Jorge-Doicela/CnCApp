@@ -18,7 +18,8 @@ import {
   ribbonOutline, ribbon, sparklesOutline, searchOutline, options, 
   optionsOutline, chevronDownOutline, locationOutline, calendarClearOutline, 
   videocamOutline, people, createOutline, peopleOutline, checkmarkDoneOutline, 
-  trashBinOutline, ellipse, checkmarkCircle 
+  trashBinOutline, ellipse, checkmarkCircle, eyeOutline, closeOutline,
+  linkOutline, time, businessOutline
 } from 'ionicons/icons';
 
 @Component({
@@ -32,6 +33,8 @@ import {
 export class CrudcapacitacionesPage implements OnInit {
   Capacitaciones: Capacitacion[] = [];
   capacitacionesFiltradas: Capacitacion[] = [];
+  selectedCapacitacion: Capacitacion | null = null;
+  isModalOpen: boolean = false;
 
   // Filtros
   filtroEstado: string = 'todos';
@@ -62,7 +65,8 @@ export class CrudcapacitacionesPage implements OnInit {
       ribbonOutline, ribbon, sparklesOutline, searchOutline, options,
       optionsOutline, chevronDownOutline, locationOutline, calendarClearOutline,
       videocamOutline, people, createOutline, peopleOutline, checkmarkDoneOutline,
-      trashBinOutline, ellipse, checkmarkCircle
+      trashBinOutline, ellipse, checkmarkCircle, eyeOutline, closeOutline,
+      linkOutline, time, businessOutline
     });
   }
 
@@ -348,5 +352,17 @@ export class CrudcapacitacionesPage implements OnInit {
   }
   volver() {
     this.router.navigate(['/home']);
+  }
+
+  verDetalles(cap: Capacitacion) {
+    this.selectedCapacitacion = cap;
+    this.isModalOpen = true;
+    this.cdr.markForCheck();
+  }
+
+  cerrarModal() {
+    this.isModalOpen = false;
+    this.selectedCapacitacion = null;
+    this.cdr.markForCheck();
   }
 }

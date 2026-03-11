@@ -186,6 +186,10 @@
               <ion-icon name="create-outline" slot="start"></ion-icon>
               Editar
             </ion-button>
+            <ion-button fill="clear" class="action-btn" (click)="verDetalles(cap)">
+              <ion-icon name="eye-outline" slot="start"></ion-icon>
+              Ver Detalles
+            </ion-button>
             <ion-button fill="clear" class="action-btn" (click)="iraVisualizarinscritos(cap.id)">
               <ion-icon name="people-outline" slot="start"></ion-icon>
               Ver Participantes
@@ -228,4 +232,73 @@
     </div>
 
   </div>
-</ion-content>
+
+  <!-- Luxury Modal: Training Details -->
+  <ion-modal [isOpen]="isModalOpen" (didDismiss)="cerrarModal()" class="details-modal">
+    <ng-template>
+      <div class="modal-wrapper" *ngIf="selectedCapacitacion">
+        <header class="modal-header">
+          <div class="header-overlay"></div>
+          <div class="header-content">
+            <span class="eyebrow">DETALLES DE CAPACITACIÓN</span>
+            <h2>{{ selectedCapacitacion.nombre }}</h2>
+            <ion-button fill="clear" class="close-btn" (click)="cerrarModal()">
+              <ion-icon name="close-outline"></ion-icon>
+            </ion-button>
+          </div>
+        </header>
+
+        <div class="modal-body">
+          <section class="info-grid">
+            <div class="detail-group">
+              <label><ion-icon name="location-outline"></ion-icon> Ubicación / Sede</label>
+              <p>{{ selectedCapacitacion.lugar }}</p>
+            </div>
+            <div class="detail-group">
+              <label><ion-icon name="calendar-clear-outline"></ion-icon> Periodo</label>
+              <p>{{ (selectedCapacitacion.fechaInicio | date:'dd MMM') || 'N/A' }} - {{ (selectedCapacitacion.fechaFin | date:'dd MMM, yyyy') || 'N/A' }}</p>
+            </div>
+            <div class="detail-group">
+              <label><ion-icon name="time-outline"></ion-icon> Horario</label>
+              <p *ngIf="selectedCapacitacion.horaInicio && selectedCapacitacion.horaFin">
+                {{ selectedCapacitacion.horaInicio }} - {{ selectedCapacitacion.horaFin }}
+              </p>
+              <p *ngIf="!selectedCapacitacion.horaInicio || !selectedCapacitacion.horaFin">
+                Horario por confirmar
+              </p>
+            </div>
+            <div class="detail-group">
+              <label><ion-icon name="videocam-outline"></ion-icon> Modalidad</label>
+              <p>{{ selectedCapacitacion.modalidad }}</p>
+            </div>
+          </section>
+
+          <section class="description-box">
+            <label>Descripción del Evento</label>
+            <p>{{ selectedCapacitacion.descripcion }}</p>
+          </section>
+
+          <footer class="modal-footer">
+            <div class="footer-stats">
+              <div class="f-stat">
+                <ion-icon name="people-outline"></ion-icon>
+                <span>{{ selectedCapacitacion.cuposDisponibles }} Disponibles</span>
+              </div>
+              <div class="f-stat">
+                <ion-icon name="time"></ion-icon>
+                <span>{{ selectedCapacitacion.horas }} Horas Académicas</span>
+              </div>
+            </div>
+            
+            <div class="virtual-link" *ngIf="selectedCapacitacion.enlaceVirtual">
+              <ion-button fill="solid" [href]="selectedCapacitacion.enlaceVirtual" target="_blank" class="link-btn">
+                <ion-icon name="link-outline" slot="start"></ion-icon>
+                Acceder al Aula Virtual
+              </ion-button>
+            </div>
+          </footer>
+        </div>
+      </div>
+    </ng-template>
+  </ion-modal>
+</ion-content>
