@@ -49,7 +49,11 @@
     "stream-browserify": "^3.0.0",
     "swiper": "^11.2.6",
     "tslib": "^2.3.0",
-    "zone.js": "~0.15.0"
+    "zone.js": "~0.15.0",
+    "@awesome-cordova-plugins/core": "^6.10.0",
+    "@awesome-cordova-plugins/fingerprint-aio": "^6.10.0",
+    "@capacitor/preferences": "^7.0.0",
+    "cordova-plugin-fingerprint-aio": "^5.0.1"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^19.0.0",

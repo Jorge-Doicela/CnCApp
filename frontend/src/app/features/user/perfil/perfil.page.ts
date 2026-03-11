@@ -9,13 +9,16 @@ import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { environment } from 'src/environments/environment';
 import { firstValueFrom, timeout, finalize } from 'rxjs';
 import { AuthService } from 'src/app/features/auth/services/auth.service';
+import { Preferences } from '@capacitor/preferences';
+import { FingerprintAIO } from '@awesome-cordova-plugins/fingerprint-aio/ngx';
 
 @Component({
   selector: 'app-perfil',
   templateUrl: './perfil.page.html',
   styleUrls: ['./perfil.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule]
+  imports: [CommonModule, FormsModule, IonicModule],
+  providers: [FingerprintAIO]
 })
 export class PerfilPage implements OnInit {
   datosUsuario: any = null;
@@ -25,6 +28,7 @@ export class PerfilPage implements OnInit {
   provinciaUsuario: string = '';
   cantonUsuario: string = '';
   parroquiaUsuario: string = '';
+  biometriaActiva: boolean = false;
 
   constructor(
     private alertController: AlertController,
@@ -35,13 +39,114 @@ export class PerfilPage implements OnInit {
     private navController: NavController,
     private http: HttpClient,
     private authService: AuthService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private fingerprintAIO: FingerprintAIO
   ) { }
 
   ngOnInit() { }
 
   ionViewWillEnter() {
     this.cargarPerfil();
+    this.verificarBiometria();
+  }
+
+  async verificarBiometria() {
+    try {
+      const { value } = await Preferences.get({ key: 'biometria_activada' });
+      this.biometriaActiva = value === 'true';
+    } catch (e) {
+      console.error('Error al verificar biometría:', e);
+    }
+  }
+
+  async toggleBiometria(event: any) {
+    const isChecked = event.detail.checked;
+    
+    // Si el usuario lo está activando
+    if (isChecked) {
+      try {
+        // Verificar si la biometría está disponible en el dispositivo
+        const result = await this.fingerprintAIO.isAvailable({ requireStrongBiometrics: false });
+        if (result !== 'biometric' && result !== 'finger' && result !== 'face') {
+           this.presentToast('Biometría no disponible en este dispositivo.', 'warning');
+           this.biometriaActiva = false;
+           return;
+        }
+
+        const alert = await this.alertController.create({
+          header: 'Activar Biometría',
+          message: 'Para activar el inicio de sesión con FaceID/Huella, ingrese su contraseña actual.',
+          inputs: [
+            { name: 'password', type: 'password', placeholder: 'Contraseña' }
+          ],
+          buttons: [
+            { 
+              text: 'Cancelar', 
+              role: 'cancel',
+              handler: () => {
+                this.biometriaActiva = false;
+              }
+            },
+            {
+              text: 'Verificar y Activar',
+              handler: async (data) => {
+                const pass = data.password;
+                if (!pass) return false;
+                
+                const ci = this.datosUsuario.CI_Usuario;
+                const loading = await this.loadingController.create({ message: 'Verificando...' });
+                await loading.present();
+
+                try {
+                  // Verificamos si la contraseña es correcta haciendo un login en background
+                  const loginResponse = await firstValueFrom(this.authService.login(ci, pass));
+                  await loading.dismiss();
+
+                  if (loginResponse.success) {
+                      // Solicitar la huella o rostro para confirmar propiedad
+                      await this.fingerprintAIO.show({
+                         title: 'Confirmar Seguridad',
+                         subtitle: 'Active la biometría usando su dispositivo',
+                         description: 'Escanee su huella o rostro para completar el registro',
+                         disableBackup: true
+                      });
+
+                      // Guardar credenciales de forma segura
+                      await Preferences.set({ key: 'biometria_activada', value: 'true' });
+                      await Preferences.set({ key: 'bio_ci', value: ci });
+                      await Preferences.set({ key: 'bio_pwd', value: pass });
+
+                      this.presentToast('Biometría configurada correctamente', 'success');
+                      this.biometriaActiva = true;
+                  } else {
+                     this.presentToast('Contraseña incorrecta', 'danger');
+                     this.biometriaActiva = false;
+                  }
+                } catch (e) {
+                  await loading.dismiss();
+                  this.presentToast('Error al verificar las credenciales', 'danger');
+                  this.biometriaActiva = false;
+                }
+                return true;
+              }
+            }
+          ]
+        });
+        await alert.present();
+
+      } catch (error) {
+        console.error('Biometría error:', error);
+        this.presentToast('No se pudo usar la biometría del dispositivo', 'danger');
+        this.biometriaActiva = false;
+      }
+    } else {
+      // Si la está desactivando
+      await Preferences.remove({ key: 'biometria_activada' });
+      await Preferences.remove({ key: 'bio_ci' });
+      await Preferences.remove({ key: 'bio_pwd' });
+      this.biometriaActiva = false;
+      this.presentToast('Biometría desactivada.', 'secondary');
+    }
   }
 
   cargarPerfil() {

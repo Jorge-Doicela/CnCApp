@@ -10,9 +10,11 @@ import { addIcons } from 'ionicons';
 import {
   cardOutline, lockClosedOutline, logInOutline, personAddOutline,
   close, arrowBack, arrowBackOutline, personOutline, arrowForwardOutline,
-  eyeOutline, eyeOffOutline
+  eyeOutline, eyeOffOutline, fingerPrintOutline
 } from 'ionicons/icons';
 import { AuthService } from '../services/auth.service';
+import { Preferences } from '@capacitor/preferences';
+import { FingerprintAIO } from '@awesome-cordova-plugins/fingerprint-aio/ngx';
 
 
 @Component({
@@ -23,9 +25,10 @@ import { AuthService } from '../services/auth.service';
   imports: [
     CommonModule,
     FormsModule,
-    IonContent, IonIcon, IonLabel, // IonItem removed from decorator, others restored
+    IonContent, IonIcon, IonLabel, 
     IonInput, IonButton, RouterLink
-  ]
+  ],
+  providers: [FingerprintAIO]
 })
 export class LoginPage implements OnInit {
   private authService = inject(AuthService);
@@ -40,7 +43,8 @@ export class LoginPage implements OnInit {
     private router: Router,
     private loadingController: LoadingController,
     private toastController: ToastController,
-    private alertController: AlertController
+    private alertController: AlertController,
+    private fingerprintAIO: FingerprintAIO
   ) {
     addIcons({
       cardOutline,
@@ -53,12 +57,61 @@ export class LoginPage implements OnInit {
       personOutline,
       arrowForwardOutline,
       eyeOutline,
-      eyeOffOutline
+      eyeOffOutline,
+      fingerPrintOutline
     });
   }
 
   ngOnInit() {
-    // Session state is automatically loaded by AuthService
+    this.checkBiometricLogin();
+  }
+
+  async checkBiometricLogin() {
+    try {
+      const { value: isActive } = await Preferences.get({ key: 'biometria_activada' });
+      const { value: ci } = await Preferences.get({ key: 'bio_ci' });
+      const { value: pwd } = await Preferences.get({ key: 'bio_pwd' });
+
+      if (isActive === 'true' && ci && pwd) {
+         // Biometria está activada, mostramos el botón o animamos auto log in
+         this.ci.set(ci);
+         this.password.set(pwd);
+         await this.loginWithBiometrics();
+      }
+    } catch (e) {
+      console.error('Error al detectar biometría', e);
+    }
+  }
+
+  async triggerManualBiometricLogin() {
+    const { value: isActive } = await Preferences.get({ key: 'biometria_activada' });
+    if (isActive === 'true') {
+        await this.loginWithBiometrics();
+    } else {
+        this.presentToast('La biometría no está configurada, inicie sesión y configúrela en su perfil.', 'warning');
+    }
+  }
+
+  async loginWithBiometrics() {
+    try {
+      const result = await this.fingerprintAIO.isAvailable({ requireStrongBiometrics: false });
+      if (result !== 'biometric' && result !== 'finger' && result !== 'face') {
+         return;
+      }
+      
+      await this.fingerprintAIO.show({
+          title: 'Iniciar Sesión',
+          subtitle: 'Use su biometría para acceder a su cuenta',
+          description: 'Escanee su huella o rostro',
+          disableBackup: true
+      });
+
+      // Si el escaneo es exitoso (no arroja error), hacemos login con los datos
+      await this.loginUser();
+
+    } catch (e) {
+      console.error('Autenticación biométrica fallida o cancelada.', e);
+    }
   }
 
   togglePassword() {

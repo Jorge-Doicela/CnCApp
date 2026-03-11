@@ -167,6 +167,15 @@
 
         <!-- Acciones de perfil -->
         <div class="profile-actions fade-in" style="animation-delay: 0.3s;">
+          <ion-item class="biometric-toggle" lines="none">
+            <ion-icon name="finger-print-outline" slot="start" color="primary"></ion-icon>
+            <ion-label>
+              <h2>Inicio con Biometría</h2>
+              <p>FaceID/Huella o Patrón del dispositivo</p>
+            </ion-label>
+            <ion-toggle slot="end" [checked]="biometriaActiva" (ionChange)="toggleBiometria($event)"></ion-toggle>
+          </ion-item>
+          
           <ion-button expand="block" color="primary" (click)="editarPerfil()">
             <ion-icon name="create-outline" slot="start"></ion-icon>
             Editar Perfil
