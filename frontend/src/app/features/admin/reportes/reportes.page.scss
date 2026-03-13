@@ -29,6 +29,45 @@
     min-height: 100vh;
 }
 
+.luxury-toolbar {
+    --background: var(--bg-main);
+    --border-width: 0;
+    --min-height: 70px;
+    padding: 0 16px;
+}
+
+.status-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: white;
+    padding: 8px 16px;
+    border-radius: 99px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: var(--text-secondary);
+    border: 1px solid rgba(0,0,0,0.05);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+
+    .dot {
+        width: 8px;
+        height: 8px;
+        background: var(--accent-teal);
+        border-radius: 50%;
+        
+        &.pulse {
+            box-shadow: 0 0 0 0 rgba(13, 148, 136, 0.4);
+            animation: pulse-dot 2s infinite;
+        }
+    }
+}
+
+@keyframes pulse-dot {
+    0% { box-shadow: 0 0 0 0 rgba(13, 148, 136, 0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(13, 148, 136, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(13, 148, 136, 0); }
+}
+
 .container {
     max-width: 1300px;
     margin: 0 auto;
