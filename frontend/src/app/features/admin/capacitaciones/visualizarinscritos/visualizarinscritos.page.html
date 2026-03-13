@@ -2,269 +2,244 @@
   <div class="main-container">
 
     <!-- Back Nav -->
-    <div class="page-back-nav fade-in">
+    <div class="page-back-nav fade-up">
       <ion-button fill="clear" (click)="volver()">
-        <ion-icon name="arrow-back-outline"></ion-icon>
-        Gestión de Capacitaciones
+        <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
+        Volver a la Gestión
       </ion-button>
     </div>
 
-    <ion-card class="main-card-premium fade-in delay-1">
-      <div class="logo-container ion-text-center">
-        <img src="../../../../assets/cnc.png" alt="Logo" class="logo">
-      </div>
+    <!-- Estado de Carga -->
+    <div *ngIf="cargando" class="loading-wrapper fade-up">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>Consultando Nómina...</p>
+    </div>
 
-      <!-- Loader Luxury -->
-      <div *ngIf="cargando" class="loader-lux">
-        <div class="lux-spinner"></div>
-        <span>Consultando Nómina...</span>
-      </div>
+    <div *ngIf="!cargando" class="fade-up">
+      <!-- Encabezado de Página (Premium Pattern) -->
+      <header class="admin-header">
+        <span class="eyebrow">
+          <ion-icon name="people-circle-outline"></ion-icon> Panel de Control
+        </span>
+        <h1>Control de Asistencia</h1>
+        <p>Gestione los inscritos, registre asistencias y emita certificaciones oficiales para este evento.</p>
 
-      <div class="card-content-wrapper" *ngIf="!cargando">
+        <div class="status-badge" [ngClass]="{
+          'badge-active': infoCapacitacion?.estado === EstadoCapacitacionEnum.REALIZADA, 
+          'badge-pending': infoCapacitacion?.estado === EstadoCapacitacionEnum.PENDIENTE, 
+          'badge-canceled': infoCapacitacion?.estado === EstadoCapacitacionEnum.CANCELADA
+        }">
+          <ion-icon [name]="infoCapacitacion?.estado === EstadoCapacitacionEnum.REALIZADA ? 'checkmark-circle' : (infoCapacitacion?.estado === EstadoCapacitacionEnum.PENDIENTE ? 'time' : 'close-circle')"></ion-icon>
+          {{ getEstadoTexto(infoCapacitacion?.estado || '') }}
+        </div>
+      </header>
+
+      <!-- SECCIÓN 1: IDENTIDAD DE LA CAPACITACIÓN -->
+      <section class="form-section info-section">
+        <h3 class="section-title">
+          <ion-icon name="information-circle-outline"></ion-icon>
+          Detalles de la Capacitación
+        </h3>
         
-        <!-- ===== INFORMACIÓN DE LA CAPACITACIÓN ===== -->
-        <div class="capacitacion-section fade-in" *ngIf="infoCapacitacion">
-          <h3 class="section-title">
-            <ion-icon name="information-circle"></ion-icon>
-            Detalles de la Capacitación
-          </h3>
-          
-          <div class="capacitacion-card">
-            <div class="capacitacion-header" [ngClass]="{
-              'header-pending': infoCapacitacion.estado === 'Activa' || infoCapacitacion.estado === 'Pendiente',
-              'header-completed': infoCapacitacion.estado === 'Finalizada',
-              'header-canceled': infoCapacitacion.estado === 'Cancelada'
-            }">
-              <div class="header-info">
-                <h2>{{ infoCapacitacion.nombre }}</h2>
-                <span class="capacitacion-badge">
-                  {{ getEstadoTexto(infoCapacitacion.estado) }}
+        <div class="capacitacion-card-premium" *ngIf="infoCapacitacion">
+          <div class="premium-glow"></div>
+          <div class="card-body">
+            <h2 class="event-title">{{ infoCapacitacion.nombre }}</h2>
+            <p class="event-description">{{ infoCapacitacion.descripcion || 'Sin descripción académica disponible.' }}</p>
+            
+            <div class="event-meta-grid">
+              <div class="meta-item">
+                <ion-icon name="calendar-outline"></ion-icon>
+                <div class="meta-content">
+                  <span class="meta-label">Fecha y Hora</span>
+                  <span class="meta-value">{{ infoCapacitacion.fechaInicio | date:'dd MMMM, yyyy' }} • {{ infoCapacitacion.horaInicio || '--:--' }}</span>
+                </div>
+              </div>
+
+              <div class="meta-item clickable" *ngIf="infoCapacitacion.lugar" (click)="abrirMapa(infoCapacitacion.lugar)">
+                <ion-icon name="location-outline"></ion-icon>
+                <div class="meta-content">
+                  <span class="meta-label">Ubicación</span>
+                  <span class="meta-value">{{ infoCapacitacion.lugar }}</span>
+                </div>
+              </div>
+
+              <div class="meta-item">
+                <ion-icon name="hourglass-outline"></ion-icon>
+                <div class="meta-content">
+                  <span class="meta-label">Duración</span>
+                  <span class="meta-value">{{ infoCapacitacion.horas }} horas académicas</span>
+                </div>
+              </div>
+
+              <div class="meta-item" *ngIf="infoCapacitacion.modalidad">
+                <ion-icon name="desktop-outline"></ion-icon>
+                <div class="meta-content">
+                  <span class="meta-label">Modalidad</span>
+                  <span class="meta-value">{{ infoCapacitacion.modalidad }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECCIÓN 2: MÉTRICAS DE ASISTENCIA -->
+      <section class="form-section metrics-section">
+        <h3 class="section-title">
+          <ion-icon name="analytics-outline"></ion-icon>
+          Métricas de Participación
+        </h3>
+        <div class="stats-grid-premium">
+          <div class="stat-card-premium">
+            <div class="stat-icon-box primary"><ion-icon name="people"></ion-icon></div>
+            <div class="stat-info">
+              <span class="stat-num">{{ participantes.length }}</span>
+              <span class="stat-desc">Inscritos Totales</span>
+            </div>
+          </div>
+          <div class="stat-card-premium">
+            <div class="stat-icon-box success"><ion-icon name="checkmark-done"></ion-icon></div>
+            <div class="stat-info">
+              <span class="stat-num">{{ totalAsistentes }}</span>
+              <span class="stat-desc">Confirmados</span>
+            </div>
+          </div>
+          <div class="stat-card-premium">
+            <div class="stat-icon-box danger"><ion-icon name="close"></ion-icon></div>
+            <div class="stat-info">
+              <span class="stat-num">{{ participantes.length - totalAsistentes }}</span>
+              <span class="stat-desc">Ausentes</span>
+            </div>
+          </div>
+          <div class="stat-card-premium">
+            <div class="stat-icon-box warning"><ion-icon name="speedometer-outline"></ion-icon></div>
+            <div class="stat-info">
+              <span class="stat-num">{{ porcentajeAsistencia }}%</span>
+              <span class="stat-desc">Ratio Asistencia</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECCIÓN 3: CONTROL DE ACCESO (QR) -->
+      <section class="form-section qr-section" *ngIf="infoCapacitacion && !infoCapacitacion.certificado && (infoCapacitacion.estado === EstadoCapacitacionEnum.PENDIENTE)">
+        <div class="qr-banner-premium">
+          <div class="banner-content">
+            <h3>Registro Digital</h3>
+            <p>Habilite el escaneo dinámico para que los participantes registren su entrada automáticamente.</p>
+          </div>
+          <ion-button (click)="mostrarQRDelEvento()" class="premium-action-btn">
+            <ion-icon name="qr-code-outline" slot="start"></ion-icon>
+            EXPANDIR QR
+          </ion-button>
+        </div>
+      </section>
+
+      <!-- SECCIÓN 4: GESTIÓN DE PARTICIPANTES -->
+      <section class="form-section management-section">
+        <h3 class="section-title">
+          <ion-icon name="list-outline"></ion-icon>
+          Listado de Inscritos
+        </h3>
+
+        <div class="management-controls">
+          <div class="search-row-premium">
+            <div class="search-bar">
+              <ion-icon name="search-outline"></ion-icon>
+              <input type="text" placeholder="Filtrar por nombre, cédula o entidad..." [(ngModel)]="terminoBusqueda" (input)="filtrarParticipantes()">
+            </div>
+            
+            <div class="filter-pills-premium">
+              <button [class.active]="filtroAsistencia === 'todos'" (click)="filtroAsistencia = 'todos'; filtrarParticipantes()">
+                Todos ({{ participantes.length }})
+              </button>
+              <button [class.active]="filtroAsistencia === 'asistentes'" (click)="filtroAsistencia = 'asistentes'; filtrarParticipantes()">
+                Asistentes ({{ totalAsistentes }})
+              </button>
+              <button [class.active]="filtroAsistencia === 'ausentes'" (click)="filtroAsistencia = 'ausentes'; filtrarParticipantes()">
+                Ausentes ({{ participantes.length - totalAsistentes }})
+              </button>
+            </div>
+          </div>
+
+          <div class="action-buttons-premium">
+            <ion-button fill="clear" (click)="exportarLista()" class="export-btn" [disabled]="participantesFiltrados.length === 0">
+              <ion-icon name="cloud-download-outline" slot="start"></ion-icon>
+              Exportar CSV
+            </ion-button>
+            
+            <div class="main-actions" *ngIf="!infoCapacitacion?.certificado && !isConferencista">
+              <ion-button class="mass-btn" (click)="marcarTodosAsistieron()" [disabled]="participantes.length === 0">
+                <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
+                Asistencia Total
+              </ion-button>
+              <ion-button class="invite-btn" (click)="abrirModalAgregar()">
+                <ion-icon name="person-add-outline" slot="start"></ion-icon>
+                Invitar Usuario
+              </ion-button>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="participantesFiltrados.length === 0" class="empty-state-premium">
+          <div class="empty-icon-box">
+            <ion-icon name="search-outline"></ion-icon>
+          </div>
+          <h4>Sin coincidencias</h4>
+          <p>No encontramos registros que coincidan con sus criterios de búsqueda.</p>
+        </div>
+
+        <div class="participants-grid-premium">
+          <div class="participant-card-premium" *ngFor="let usuario of participantesFiltrados" [class.attended]="usuario.asistio">
+            <div class="card-header-user">
+              <div class="avatar-box">
+                <ion-icon name="person"></ion-icon>
+              </div>
+              <div class="user-info">
+                <h4>{{ usuario.nombre }}</h4>
+                <span class="user-entidad">
+                  <ion-icon name="business-outline"></ion-icon>
+                  {{ usuario.entidad || 'Sin Entidad' }}
                 </span>
               </div>
             </div>
 
-            <div class="capacitacion-content">
-              <p class="capacitacion-description">{{ infoCapacitacion.descripcion || 'Sin descripción disponible.' }}</p>
-
-              <div class="capacitacion-details">
-                <div class="detail-item">
-                  <ion-icon name="calendar-clear-outline"></ion-icon>
-                  <div class="item-text">
-                    <span class="label">Fecha y Hora</span>
-                    <span class="value">{{ infoCapacitacion.fechaInicio | date:'dd MMMM, yyyy' }} {{ infoCapacitacion.horaInicio ? '— ' + infoCapacitacion.horaInicio : '' }}</span>
-                  </div>
-                </div>
-
-                <div class="detail-item clickable" *ngIf="infoCapacitacion.lugar" (click)="abrirMapa(infoCapacitacion.lugar)">
-                  <ion-icon name="location-outline"></ion-icon>
-                  <div class="item-text">
-                    <span class="label">Ubicación</span>
-                    <span class="value">{{ infoCapacitacion.lugar }}</span>
-                  </div>
-                </div>
-
-                <div class="detail-item">
-                  <ion-icon name="time-outline"></ion-icon>
-                  <div class="item-text">
-                    <span class="label">Duración</span>
-                    <span class="value">{{ infoCapacitacion.horas }} horas lectivas</span>
-                  </div>
-                </div>
-
-                <div class="detail-item">
-                  <ion-icon name="people-outline"></ion-icon>
-                  <div class="item-text">
-                    <span class="label">Aforo Actual</span>
-                    <span class="value">{{ participantes.length }} / {{ infoCapacitacion.cuposDisponibles }} registrados</span>
-                  </div>
-                </div>
-
-                <div class="detail-item" *ngIf="infoCapacitacion.modalidad">
-                  <ion-icon name="desktop-outline"></ion-icon>
-                  <div class="item-text">
-                    <span class="label">Modalidad</span>
-                    <span class="value">{{ infoCapacitacion.modalidad }}</span>
-                  </div>
-                </div>
-
-                <div class="detail-item clickable" *ngIf="infoCapacitacion.enlaceVirtual">
-                  <ion-icon name="link-outline"></ion-icon>
-                  <div class="item-text">
-                    <span class="label">Acceso Virtual</span>
-                    <a [href]="infoCapacitacion.enlaceVirtual" target="_blank" class="value" style="text-decoration: none;">Link de Reunión ↗</a>
-                  </div>
-                </div>
+            <div class="card-footer-user">
+              <div class="status-chip" [class.confirmed]="usuario.asistio">
+                <ion-toggle [(ngModel)]="usuario.asistio" (ionChange)="actualizarAsistencia(usuario)" [disabled]="!!infoCapacitacion?.certificado || isConferencista" mode="ios"></ion-toggle>
+                <span>{{ usuario.asistio ? 'Asistió' : 'Ausente' }}</span>
               </div>
+              
+              <button class="delete-user-btn" (click)="confirmarEliminar(usuario)" *ngIf="!infoCapacitacion?.certificado && !isConferencista">
+                <ion-icon name="trash-outline"></ion-icon>
+              </button>
             </div>
           </div>
         </div>
+      </section>
 
-        <!-- ===== ESTADÍSTICAS LUXURY ===== -->
-        <div class="stats-section fade-in delay-1">
-          <h3 class="section-title">
-            <ion-icon name="bar-chart"></ion-icon>
-            Métricas de Asistencia
-          </h3>
-          <div class="stats-container">
-            <div class="stat-card">
-              <div class="stat-icon primary"><ion-icon name="people"></ion-icon></div>
-              <div class="stat-details">
-                <span class="stat-value">{{ participantes.length }}</span>
-                <span class="stat-label">Inscritos</span>
-              </div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-icon success"><ion-icon name="checkmark-done-circle"></ion-icon></div>
-              <div class="stat-details">
-                <span class="stat-value">{{ totalAsistentes }}</span>
-                <span class="stat-label">Asistieron</span>
-              </div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-icon danger"><ion-icon name="close-circle"></ion-icon></div>
-              <div class="stat-details">
-                <span class="stat-value">{{ participantes.length - totalAsistentes }}</span>
-                <span class="stat-label">Ausentes</span>
-              </div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-icon tertiary"><ion-icon name="analytics"></ion-icon></div>
-              <div class="stat-details">
-                <span class="stat-value">{{ porcentajeAsistencia }}%</span>
-                <span class="stat-label">Rate</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- ===== QR DE ASISTENCIA ===== -->
-        <div class="qr-info-section fade-in delay-1"
-          *ngIf="infoCapacitacion && !infoCapacitacion.certificado && (infoCapacitacion.estado === 'Activa' || infoCapacitacion.estado === 'Pendiente')">
-          <div class="premium-banner" style="background: var(--primary-lux); padding: 30px; border-radius: var(--radius-lg); color: white; margin-bottom: 40px; display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap;">
-            <div style="flex: 1; min-width: 250px;">
-              <h3 style="margin: 0 0 10px; font-weight: 800; font-size: 1.4rem;">Confirmación de Asistencia</h3>
-              <p style="margin: 0; opacity: 0.9;">Muestre el código QR dinámico para que los asistentes registren su participación al instante desde la app móvil.</p>
-            </div>
-            <ion-button (click)="mostrarQRDelEvento()" style="--background: white; --color: var(--primary-lux); --border-radius: 12px; font-weight: 800; height: 50px;">
-              <ion-icon name="qr-code-outline" slot="start"></ion-icon>
-              EXPANDIR QR
-            </ion-button>
-          </div>
-        </div>
-
-        <!-- ===== BUSQUEDA Y FILTROS ===== -->
-        <div class="search-section fade-in delay-2">
-          <div class="search-container">
-            <div class="search-row">
-              <ion-item class="search-item" lines="none">
-                <ion-icon name="search-outline"></ion-icon>
-                <ion-input placeholder="Filtrar por nombre o entidad..." [(ngModel)]="terminoBusqueda" (ionInput)="filtrarParticipantes()"></ion-input>
-              </ion-item>
-            </div>
-
-            <div class="filter-pills">
-              <div class="pill" [class.active]="filtroAsistencia === 'todos'" (click)="filtroAsistencia = 'todos'; filtrarParticipantes()">
-                Todos ({{ participantes.length }})
-              </div>
-              <div class="pill" [class.active]="filtroAsistencia === 'asistentes'" (click)="filtroAsistencia = 'asistentes'; filtrarParticipantes()">
-                Asistentes ({{ totalAsistentes }})
-              </div>
-              <div class="pill" [class.active]="filtroAsistencia === 'ausentes'" (click)="filtroAsistencia = 'ausentes'; filtrarParticipantes()">
-                Ausentes ({{ participantes.length - totalAsistentes }})
-              </div>
-            </div>
-
-            <div class="action-row">
-              <ion-button class="btn-primary" (click)="marcarTodosAsistieron()" *ngIf="!infoCapacitacion?.certificado && !isConferencista" [disabled]="participantes.length === 0">
-                <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
-                ASISTENCIA MASIVA
-              </ion-button>
-              <ion-button class="btn-success" (click)="abrirModalAgregar()" *ngIf="!infoCapacitacion?.certificado && !isConferencista">
-                <ion-icon name="person-add-outline" slot="start"></ion-icon>
-                INVITAR USUARIO
-              </ion-button>
-            </div>
-          </div>
-        </div>
-
-        <!-- ===== LISTADO DE PARTICIPANTES ===== -->
-        <div class="participants-section fade-in delay-3">
-          <div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 20px;">
-            <h3 class="section-title" style="margin: 0;">Inscritos Reales</h3>
-            <ion-button fill="clear" color="primary" size="small" (click)="exportarLista()" style="font-weight: 700;">
-              <ion-icon name="cloud-download-outline" slot="start"></ion-icon>
-              EXPORTAR CSV
-            </ion-button>
-          </div>
-
-          <div *ngIf="participantesFiltrados.length === 0" class="empty-state-lux">
-            <ion-icon name="search-outline"></ion-icon>
-            <p>No se encontraron registros activos bajo estos criterios.</p>
-          </div>
-
-          <div class="participants-grid">
-            <div class="participant-card" *ngFor="let usuario of participantesFiltrados" [class.status-attended]="usuario.asistio">
-              <div class="card-top">
-                <div class="avatar"><ion-icon name="person"></ion-icon></div>
-                <div class="basic-info">
-                  <h3>{{ usuario.nombre }}</h3>
-                  <div class="entidad">
-                    <ion-icon name="business"></ion-icon>
-                    {{ usuario.entidad || 'Institución No Definida' }}
-                  </div>
-                </div>
-              </div>
-
-              <div class="contact-info" *ngIf="usuario.email">
-                <ion-icon name="mail-outline"></ion-icon>
-                {{ usuario.email }}
-              </div>
-
-              <div class="card-actions">
-                <div class="status-toggle">
-                  <ion-toggle [(ngModel)]="usuario.asistio" (ionChange)="actualizarAsistencia(usuario)" [disabled]="!!infoCapacitacion?.certificado || isConferencista"></ion-toggle>
-                  <span class="toggle-text" [class.confirmed]="usuario.asistio" [class.pending]="!usuario.asistio">
-                    {{ usuario.asistio ? 'Asistió' : 'Pendiente' }}
-                  </span>
-                </div>
-                <ion-button fill="clear" color="danger" class="btn-delete" (click)="confirmarEliminar(usuario)" *ngIf="!infoCapacitacion?.certificado && !isConferencista">
-                  <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
-                </ion-button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- ===== CERTIFICADOS - PREMIUM STYLE ===== -->
-        <div class="certificate-section-premium fade-in delay-3"
-          *ngIf="infoCapacitacion && infoCapacitacion.estado === 'Finalizada' && !infoCapacitacion.certificado && !isConferencista">
-          <ion-icon name="ribbon" class="cert-icon"></ion-icon>
-          <h4>Protocolo de Certificación</h4>
-          <p>La capacitación ha concluido. Puede proceder a emitir los certificados oficiales a los usuarios confirmados.</p>
+      <!-- SECCIÓN 5: PROTOCOLO DE CERTIFICACIÓN -->
+      <section class="form-section certification-section" *ngIf="infoCapacitacion && infoCapacitacion.estado === EstadoCapacitacionEnum.REALIZADA && !isConferencista">
+        <div class="certification-card-premium" [class.completed]="infoCapacitacion.certificado">
+          <div class="cert-glow"></div>
+          <ion-icon [name]="infoCapacitacion.certificado ? 'shield-checkmark' : 'ribbon-outline'" class="cert-icon-large"></ion-icon>
           
-          <div class="cert-stats">
-            <ion-icon name="shield-checkmark"></ion-icon>
-            {{ totalAsistentes }} Usuarios Certificables
-          </div>
+          <div class="cert-content">
+            <h4>{{ infoCapacitacion.certificado ? 'Ciclo de Certificación Completado' : 'Protocolo de Certificación' }}</h4>
+            <p>{{ infoCapacitacion.certificado ? 'Los certificados digitales han sido generados y enviados a los buzones privados de los participantes confirmados.' : 'El evento ha finalizado. Puede proceder a la emisión de certificados oficiales para los participantes que asistieron.' }}</p>
+            
+            <div class="cert-summary" *ngIf="!infoCapacitacion.certificado">
+              <span><ion-icon name="people-outline"></ion-icon> {{ totalAsistentes }} Certificables</span>
+            </div>
 
-          <ion-button expand="block" class="btn-emit" (click)="mostrarConfirmacionCertificados()" [disabled]="totalAsistentes === 0">
-            EMITIR TODOS LOS CERTIFICADOS
-          </ion-button>
-        </div>
-
-        <!-- Ya emitidos -->
-        <div class="certificate-section-premium fade-in delay-3" *ngIf="infoCapacitacion?.certificado">
-          <ion-icon name="ribbon" class="cert-icon" style="color: #10b981;"></ion-icon>
-          <h4>Ciclo Completado</h4>
-          <p>Los certificados digitales han sido generados y están disponibles para los participantes en sus buzones personales.</p>
-          <div class="cert-stats" style="background: #ecfdf5; color: #059669; border: 1px solid #d1fae5;">
-            <ion-icon name="checkmark-circle"></ion-icon>
-            Proceso de Certificación Finalizado
+            <ion-button expand="block" class="emit-btn" (click)="mostrarConfirmacionCertificados()" *ngIf="!infoCapacitacion.certificado" [disabled]="totalAsistentes === 0">
+              EMITIR CERTIFICADOS AHORA
+            </ion-button>
           </div>
         </div>
-
-      </div>
-    </ion-card>
+      </section>
+    </div>
   </div>
 
   <!-- ===== MODAL QR LUXURY ===== -->

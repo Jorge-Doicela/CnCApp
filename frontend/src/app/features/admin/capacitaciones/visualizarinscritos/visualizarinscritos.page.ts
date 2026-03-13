@@ -15,8 +15,8 @@ import { Capacitacion } from 'src/app/core/models/capacitacion.interface';
 import { addIcons } from 'ionicons';
 import { 
   arrowBackOutline, 
-  informationCircle, 
-  calendarClearOutline, 
+  informationCircleOutline, 
+  calendarOutline, 
   locationOutline, 
   timeOutline, 
   peopleOutline, 
@@ -24,23 +24,27 @@ import {
   linkOutline, 
   barChart, 
   people, 
-  checkmarkDoneCircle, 
+  checkmarkDone, 
+  close, 
   closeCircle, 
-  analytics, 
+  analyticsOutline, 
   qrCodeOutline, 
   searchOutline, 
   checkmarkDoneOutline, 
   personAddOutline, 
   cloudDownloadOutline, 
   person, 
-  business, 
-  mailOutline, 
+  businessOutline, 
   trashOutline, 
-  ribbon, 
+  ribbonOutline, 
   shieldCheckmark, 
   checkmarkCircle,
   micOutline,
-  personCircle
+  peopleCircleOutline,
+  hourglassOutline,
+  speedometerOutline,
+  listOutline,
+  time
 } from 'ionicons/icons';
 
 interface ParticipanteInfo {
@@ -112,8 +116,8 @@ export class VisualizarinscritosPage implements OnInit {
   ) {
     addIcons({
       arrowBackOutline,
-      informationCircle,
-      calendarClearOutline,
+      informationCircleOutline,
+      calendarOutline,
       locationOutline,
       timeOutline,
       peopleOutline,
@@ -121,23 +125,27 @@ export class VisualizarinscritosPage implements OnInit {
       linkOutline,
       barChart,
       people,
-      checkmarkDoneCircle,
+      checkmarkDone,
+      close,
       closeCircle,
-      analytics,
+      analyticsOutline,
       qrCodeOutline,
       searchOutline,
       checkmarkDoneOutline,
       personAddOutline,
       cloudDownloadOutline,
       person,
-      business,
-      mailOutline,
+      businessOutline,
       trashOutline,
-      ribbon,
+      ribbonOutline,
       shieldCheckmark,
       checkmarkCircle,
       micOutline,
-      personCircle
+      peopleCircleOutline,
+      hourglassOutline,
+      speedometerOutline,
+      listOutline,
+      time
     });
   }
 
