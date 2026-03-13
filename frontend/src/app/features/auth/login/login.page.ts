@@ -14,9 +14,10 @@ import {
 } from 'ionicons/icons';
 import { Capacitor } from '@capacitor/core';
 import { AuthService } from '../services/auth.service';
-import { Preferences } from '@capacitor/preferences';
+import { SecureStorageService } from 'src/app/core/services/secure-storage.service';
 import { FingerprintAIO } from '@awesome-cordova-plugins/fingerprint-aio/ngx';
 import { WebAuthnUtil } from 'src/app/core/utils/webauthn.util';
+import { Preferences } from '@capacitor/preferences';
 
 
 @Component({
@@ -33,6 +34,7 @@ import { WebAuthnUtil } from 'src/app/core/utils/webauthn.util';
 })
 export class LoginPage implements OnInit {
   private authService = inject(AuthService);
+  private secureStorage = inject(SecureStorageService);
 
   // Signals for form state
   ci = signal<string>('');
@@ -75,12 +77,11 @@ export class LoginPage implements OnInit {
 
   async checkBiometricLogin() {
     try {
-      const { value: isActive } = await Preferences.get({ key: 'biometria_activada' });
+      const isActive = await this.secureStorage.get('biometria_activada');
       // Si la biometría está activa, simplemente disparamos el proceso manual 
       // para que el usuario decida si usarla o escribir, pero sin dejar la clave expuesta.
       if (isActive === 'true') {
          // Opcional: Podrías disparar el trigger directamente aquí si quieres auto-login
-         // pero lo más seguro es dejar que el usuario use el botón.
       }
     } catch (e) {
       console.error('Error al detectar biometría', e);
@@ -88,7 +89,7 @@ export class LoginPage implements OnInit {
   }
 
   async triggerManualBiometricLogin() {
-    const { value: isActive } = await Preferences.get({ key: 'biometria_activada' });
+    const isActive = await this.secureStorage.get('biometria_activada');
 
     if (isActive === 'true') {
         await this.loginWithBiometrics();
@@ -115,7 +116,7 @@ export class LoginPage implements OnInit {
               disableBackup: true
           });
       } else {
-          const { value: credentialId } = await Preferences.get({ key: 'bio_credential_id' });
+          const credentialId = await this.secureStorage.get('bio_credential_id');
           if (!credentialId) {
              throw new Error("No hay credencial biométrica guardada.");
           }
@@ -125,8 +126,8 @@ export class LoginPage implements OnInit {
 
       // --- ÉXITO BIOMÉTRICO (Solo llegamos aquí si el usuario pasó la huella/rostro) ---
       
-      const { value: ci } = await Preferences.get({ key: 'bio_ci' });
-      const { value: pwd } = await Preferences.get({ key: 'bio_pwd' });
+      const ci = await this.secureStorage.get('bio_ci');
+      const pwd = await this.secureStorage.get('bio_pwd');
 
       if (ci && pwd) {
           // Cargamos los datos en los inputs del formulario justo antes de disparar el login

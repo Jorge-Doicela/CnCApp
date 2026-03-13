@@ -154,13 +154,13 @@
     --background: #ffffff;
     --border-width: 0;
     height: auto;
-    min-height: calc(72px + env(safe-area-inset-top, 0px));
+    min-height: calc(88px + env(safe-area-inset-top, 0px));
     padding-top: env(safe-area-inset-top, 0px);
   }
 
   .header-content-wrapper {
     width: 100%;
-    min-height: 72px;
+    min-height: 88px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -203,6 +203,7 @@
     margin: 0;
     --padding-start: 0;
     display: none;
+    font-size: 1.2rem; /* Reduced size */
 
     @media (max-width: 992px) {
       display: block;
@@ -368,20 +369,20 @@
   .user-avatar-circle {
     background: #1e3a8a;
     color: white;
-    width: 28px;
-    height: 28px;
+    width: 26px;
+    height: 26px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 800;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     box-shadow: 0 2px 4px rgba(30, 58, 138, 0.2);
   }
 
   .user-label {
     font-weight: 800;
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     color: #1e3a8a;
     text-transform: uppercase;
     letter-spacing: 0.03em;
@@ -400,7 +401,7 @@
     transition: all 0.2s;
 
     ion-icon {
-      font-size: 1.15rem;
+      font-size: 1rem;
     }
 
     &:hover {
