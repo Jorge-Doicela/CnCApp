@@ -136,13 +136,26 @@ export class PerfilPage implements OnInit {
                           await this.secureStorage.set('bio_credential_id', credentialId);
                       }
 
-                      // Guardar credenciales de forma segura
-                      await this.secureStorage.set('biometria_activada', 'true');
-                      await this.secureStorage.set('bio_ci', ci);
-                      await this.secureStorage.set('bio_pwd', pass);
+                      // --- CONFIGURACIÓN NIVEL 2: TOKENIZACIÓN ---
+                      // Ya no guardamos la contraseña. Pedimos al servidor un token único.
+                      const setupResponse = await firstValueFrom(this.authService.setupBiometric());
+                      
+                      if (setupResponse.success && setupResponse.data.biometricToken) {
+                          // Guardamos el TOKEN, no la contraseña
+                          await this.secureStorage.set('biometria_activada', 'true');
+                          await this.secureStorage.set('bio_ci', ci);
+                          await this.secureStorage.set('bio_token', setupResponse.data.biometricToken);
+                          
+                          if (!isNative) {
+                              const credentialId = await WebAuthnUtil.registerBiometric(this.datosUsuario.Nombre_Usuario);
+                              await this.secureStorage.set('bio_credential_id', credentialId);
+                          }
 
-                      this.presentToast('Biometría configurada correctamente', 'success');
-                      this.biometriaActiva = true;
+                          this.presentToast('Biometría configurada correctamente (Nivel 2)', 'success');
+                          this.biometriaActiva = true;
+                      } else {
+                          throw new Error('No se pudo generar el token biométrico');
+                      }
                   } else {
                      this.presentToast('Contraseña incorrecta', 'danger');
                      this.biometriaActiva = false;
@@ -169,9 +182,10 @@ export class PerfilPage implements OnInit {
       await this.secureStorage.remove('biometria_activada');
       await this.secureStorage.remove('bio_ci');
       await this.secureStorage.remove('bio_pwd');
+      await this.secureStorage.remove('bio_token');
       await this.secureStorage.remove('bio_credential_id');
       this.biometriaActiva = false;
-      this.presentToast('Biometría desactivada.', 'secondary');
+      this.presentToast('Biometría desactivada y llaves eliminadas.', 'secondary');
     }
   }
 

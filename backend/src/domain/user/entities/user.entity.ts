@@ -11,6 +11,7 @@ export interface User {
     entidadId?: number | null;
     fotoPerfilUrl?: string | null;
     firmaUrl?: string | null;
+    biometricToken?: string | null;
     createdAt: Date;
     updatedAt: Date;
     // Extended profile fields

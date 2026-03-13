@@ -28,6 +28,7 @@ export class UserMapper {
             estado: prismaUser.estado ?? 1,
             fotoPerfilUrl: prismaUser.fotoPerfilUrl,
             firmaUrl: prismaUser.firmaUrl,
+            biometricToken: prismaUser.biometricToken,
             createdAt: prismaUser.createdAt,
             updatedAt: prismaUser.updatedAt,
             rol: prismaUser.rol ? {

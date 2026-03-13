@@ -8,6 +8,7 @@ import { GetUserProfileUseCase } from '../../../application/user/use-cases/get-u
 import { RequestPasswordResetUseCase } from '../../../application/auth/use-cases/request-password-reset.use-case';
 import { ResetPasswordUseCase } from '../../../application/auth/use-cases/reset-password.use-case';
 import { RefreshTokenUseCase } from '../../../application/auth/use-cases/refresh-token.use-case';
+import { StoreBiometricTokenUseCase } from '../../../application/auth/use-cases/store-biometric-token.use-case';
 import { AuthRequest } from '../middleware/auth.middleware';
 
 // Strip password from user object before sending to client
@@ -42,7 +43,8 @@ const registerSchema = z.object({
 
 const loginSchema = z.object({
     ci: z.string().length(10, 'La cédula debe tener 10 dígitos').refine(validarCedula, 'Cédula ecuatoriana inválida'),
-    password: z.string().min(1, 'La contraseña es requerida')
+    password: z.string().min(1, 'La contraseña es requerida').optional(),
+    biometricToken: z.string().optional()
 });
 
 const refreshTokenSchema = z.object({
@@ -67,7 +69,8 @@ export class AuthController {
         @inject(GetUserProfileUseCase) private getProfileUseCase: GetUserProfileUseCase,
         @inject(RequestPasswordResetUseCase) private requestPasswordResetUseCase: RequestPasswordResetUseCase,
         @inject(ResetPasswordUseCase) private resetPasswordUseCase: ResetPasswordUseCase,
-        @inject(RefreshTokenUseCase) private refreshTokenUseCase: RefreshTokenUseCase
+        @inject(RefreshTokenUseCase) private refreshTokenUseCase: RefreshTokenUseCase,
+        @inject(StoreBiometricTokenUseCase) private storeBiometricTokenUseCase: StoreBiometricTokenUseCase
     ) { }
 
     register = async (req: Request, res: Response, next: NextFunction) => {
@@ -114,7 +117,7 @@ export class AuthController {
     login = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const data = loginSchema.parse(req.body);
-            const result = await this.loginUseCase.execute(data.ci, data.password);
+            const result = await this.loginUseCase.execute(data.ci, data.password, data.biometricToken);
 
             res.json({
                 success: true,
@@ -123,6 +126,27 @@ export class AuthController {
                     user: toDTO(result.user),
                     accessToken: result.accessToken,
                     refreshToken: result.refreshToken
+                }
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    setupBiometric = async (req: AuthRequest, res: Response, next: NextFunction) => {
+        try {
+            if (!req.userId) {
+                res.status(401).json({ success: false, error: 'Usuario no autenticado' });
+                return;
+            }
+            
+            const biometricToken = await this.storeBiometricTokenUseCase.execute(req.userId);
+
+            res.json({
+                success: true,
+                message: 'Biometría configurada exitosamente',
+                data: {
+                    biometricToken
                 }
             });
         } catch (error) {
