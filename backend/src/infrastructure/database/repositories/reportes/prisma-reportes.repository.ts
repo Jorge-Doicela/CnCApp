@@ -141,7 +141,7 @@ export class PrismaReportesRepository implements ReportesRepository {
 
         // Optimizamos obteniendo rangos de fechas de antemano
         const queries = [];
-        for (let i = 5; i >= 0; i--) {
+        for (let i = 11; i >= 0; i--) {
             const fecha = new Date();
             fecha.setMonth(fecha.getMonth() - i);
             const mesIndex = fecha.getMonth();

@@ -42,22 +42,32 @@ export type ChartOptions = {
                 </div>
                 
                 <div class="card-footer">
-                    <div class="trend-wrapper" *ngIf="trendText">
-                        <span class="trend" [ngClass]="{'positive': trendPositive}">
-                            <ion-icon [name]="trendIcon"></ion-icon>
-                            {{ trendText }}
-                        </span>
+                    <div class="footer-info">
+                        <div class="trend-wrapper" *ngIf="trendText">
+                            <span class="trend" [ngClass]="{'positive': trendPositive}">
+                                <ion-icon [name]="trendIcon"></ion-icon>
+                                {{ trendText }}
+                            </span>
+                        </div>
+                        <div class="detail-wrapper" *ngIf="detailText">
+                            <span class="detail-badge">
+                                <ion-icon name="time-outline" class="detail-icon"></ion-icon>
+                                {{ detailText }}
+                            </span>
+                        </div>
                     </div>
                     
                     <div class="micro-chart" *ngIf="chartData && chartData.length > 0">
                         <apx-chart
-                            [series]="[{ name: label, data: chartData }]"
+                            [series]="chartOptions.series"
                             [chart]="chartOptions.chart"
                             [stroke]="chartOptions.stroke"
                             [fill]="chartOptions.fill"
                             [tooltip]="chartOptions.tooltip"
                             [xaxis]="chartOptions.xaxis"
                             [yaxis]="chartOptions.yaxis"
+                            [colors]="chartOptions.colors"
+                            [markers]="chartOptions.markers"
                             [dataLabels]="chartOptions.dataLabels">
                         </apx-chart>
                     </div>
@@ -65,119 +75,7 @@ export type ChartOptions = {
             </div>
         </div>
     `,
-    styles: [`
-        .kpi-card {
-            position: relative;
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            border-radius: 28px;
-            box-shadow: 0 10px 40px -10px rgba(31, 38, 135, 0.08);
-            padding: 1.5rem;
-            min-height: 160px;
-            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-            overflow: hidden;
-
-            &:hover {
-                transform: translateY(-8px) scale(1.01);
-                box-shadow: 0 25px 60px -15px rgba(31, 38, 135, 0.15);
-                background: rgba(255, 255, 255, 0.9);
-                border-color: rgba(255, 255, 255, 0.9);
-
-                .card-icon {
-                    transform: scale(1.05) rotate(3deg);
-                }
-            }
-        }
-
-        .card-header {
-            display: flex;
-            align-items: center;
-            gap: 1.25rem;
-            margin-bottom: 1rem;
-        }
-
-        .card-icon {
-            width: 52px;
-            height: 52px;
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            flex-shrink: 0;
-            background: #ffffff;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-            transition: all 0.4s ease;
-        }
-
-        .card-data {
-            .label {
-                display: block;
-                font-size: 0.7rem;
-                font-weight: 800;
-                color: #64748b;
-                text-transform: uppercase;
-                letter-spacing: 0.05em;
-                margin-bottom: 2px;
-                opacity: 0.8;
-            }
-            .value {
-                font-size: 1.75rem;
-                font-weight: 950;
-                color: #0f172a;
-                margin: 0;
-                line-height: 1;
-                letter-spacing: -0.04em;
-            }
-        }
-
-        .card-footer {
-            display: flex;
-            align-items: flex-end;
-            justify-content: space-between;
-            gap: 1rem;
-            min-height: 45px;
-        }
-
-        .trend-wrapper {
-            flex-shrink: 0;
-        }
-
-        .trend {
-            display: flex;
-            align-items: center;
-            gap: 0.35rem;
-            font-size: 0.75rem;
-            font-weight: 700;
-            color: #94a3b8;
-            padding: 4px 10px;
-            background: #f1f5f9;
-            border-radius: 100px;
-            &.positive { 
-                color: #0d9488; 
-                background: #f0fdf4;
-            }
-        }
-
-        .micro-chart {
-            flex: 1;
-            max-width: 120px;
-            height: 45px;
-            margin-bottom: -10px;
-            margin-right: -10px;
-
-            apx-chart {
-                min-height: 45px !important;
-            }
-        }
-
-        .primary .card-icon { color: var(--ion-color-primary); background: rgba(var(--ion-color-primary-rgb), 0.1); }
-        .success .card-icon { color: var(--ion-color-success); background: rgba(var(--ion-color-success-rgb), 0.1); }
-        .warning .card-icon { color: var(--ion-color-warning); background: rgba(var(--ion-color-warning-rgb), 0.1); }
-        .info .card-icon { color: var(--ion-color-secondary); background: rgba(var(--ion-color-secondary-rgb), 0.1); }
-    `],
+    styleUrls: ['./kpi-card.component.scss'],
     standalone: true,
     imports: [CommonModule, IonIcon, NgApexchartsModule]
 })
@@ -190,40 +88,84 @@ export class KpiCardComponent {
     @Input() trendIcon: string = 'stats-chart-outline';
     @Input() trendPositive: boolean = false;
     @Input() chartData: number[] = [];
+    @Input() detailText: string = ''; // New: details like "8 activas"
 
-    public chartOptions: ChartOptions;
+    public chartOptions: any;
 
     constructor() {
+        this.initChartOptions();
+    }
+
+    ngOnChanges() {
+        this.updateChartData();
+    }
+
+    private initChartOptions() {
         this.chartOptions = {
             series: [{ name: '', data: [] }],
             chart: {
                 type: "area",
-                height: 45,
+                height: 50,
                 sparkline: { enabled: true },
                 animations: { 
                     enabled: true, 
-                    speed: 800,
+                    easing: 'easeinout',
+                    speed: 1000,
+                    animateGradually: { enabled: true, delay: 150 },
                     dynamicAnimation: { enabled: true, speed: 350 }
-                }
+                },
+                toolbar: { show: false }
             },
+            colors: [this.getChartColor()],
             stroke: {
                 curve: "smooth",
-                width: 2
+                width: 3,
+                lineCap: 'round'
             },
             fill: {
                 type: 'gradient',
                 gradient: {
                     shadeIntensity: 1,
-                    opacityFrom: 0.45,
-                    opacityTo: 0.05,
-                    stops: [20, 100]
+                    opacityFrom: 0.5,
+                    opacityTo: 0,
+                    stops: [0, 90, 100]
                 }
             },
-            tooltip: { enabled: false },
+            markers: {
+                size: 0,
+                hover: { size: 5 }
+            },
+            tooltip: {
+                enabled: true,
+                fixed: { enabled: false },
+                x: { show: false },
+                y: { title: { formatter: () => '' } },
+                marker: { show: false }
+            },
             xaxis: { crosshairs: { show: false } },
             yaxis: { show: false },
             dataLabels: { enabled: false },
             theme: { mode: 'light' }
         };
+    }
+
+    private updateChartData() {
+        if (this.chartOptions) {
+            this.chartOptions.colors = [this.getChartColor()];
+            this.chartOptions.series = [{
+                name: this.label,
+                data: this.chartData
+            }];
+        }
+    }
+
+    private getChartColor(): string {
+        switch(this.type) {
+            case 'success': return '#10b981';
+            case 'warning': return '#f59e0b';
+            case 'info': return '#3b82f6';
+            case 'primary': 
+            default: return '#6366f1';
+        }
     }
 }

@@ -138,41 +138,73 @@
                 </div>
 
                 <div class="kpi-grid">
-                    <app-kpi-card label="Usuarios Totales" 
-                        [value]="stats()!.totalUsuarios" 
-                        icon="people-outline" 
-                        type="primary"
-                        trendText="+12% este mes"
-                        [trendPositive]="true"
-                        [chartData]="getUsuariosTrends()"></app-kpi-card>
-                    
-                    <app-kpi-card label="Certificados" 
-                        [value]="stats()!.totalCertificados" 
-                        icon="ribbon-outline" 
-                        type="success"
-                        trendText="+5% este mes"
-                        [trendPositive]="true"
-                        [chartData]="getCertificadosTrends()"></app-kpi-card>
+            <!-- Usuarios Totales -->
+            <app-kpi-card 
+                label="Usuarios Totales" 
+                [value]="stats()?.totalUsuarios || 0" 
+                icon="people-outline"
+                type="primary"
+                [trendText]="'+' + (stats()?.usuariosRegistradosEsteMes || 0) + ' este mes'" 
+                [trendPositive]="true"
+                [chartData]="getUsuariosTrends()">
+            </app-kpi-card>
 
-                    <app-kpi-card label="Capacitaciones" [value]="stats()?.totalCapacitaciones ?? 0" icon="school-outline"
-                        type="warning" trendText="8 activas" trendIcon="time-outline"
-                        [trendPositive]="false"></app-kpi-card>
+            <!-- Certificados -->
+            <app-kpi-card 
+                label="Certificados" 
+                [value]="stats()?.totalCertificados || 0" 
+                icon="ribbon-outline"
+                type="success"
+                [trendText]="'+' + (stats()?.certificadosEsteMes || 0) + ' este mes'" 
+                [trendPositive]="true"
+                [chartData]="getCertificadosTrends()">
+            </app-kpi-card>
 
-                    <app-kpi-card label="Asistencia Promedio" [value]="round(stats()?.tasaAsistencia ?? 0) + '%'"
-                        icon="checkmark-circle-outline" type="primary" trendText="Eficacia Global"
-                        [trendPositive]="true"></app-kpi-card>
+            <!-- Capacitaciones -->
+            <app-kpi-card 
+                label="Capacitaciones" 
+                [value]="stats()?.totalCapacitaciones || 0" 
+                icon="calendar-outline"
+                type="warning"
+                [trendText]="stats()?.capacitacionesFinalizadas + ' finalizadas'"
+                [detailText]="(stats()?.capacitacionesActivas || 0) + ' activas'">
+            </app-kpi-card>
 
-                    <app-kpi-card label="Inscripciones" [value]="stats()?.participantesInscritos ?? 0"
-                        icon="people-outline" type="warning" trendText="Cupos Totales" trendIcon="time-outline"
-                        [trendPositive]="true"></app-kpi-card>
+            <!-- Asistencia Promedio -->
+            <app-kpi-card 
+                label="Asistencia Promedio" 
+                [value]="round(stats()?.tasaAsistencia || 0) + '%'" 
+                icon="checkmark-done-outline"
+                type="info"
+                trendText="Eficacia Global">
+            </app-kpi-card>
 
-                    <app-kpi-card label="Horas Impartidas" [value]="(stats()?.totalHorasCapacitacion ?? 0) + ' hrs'"
-                        icon="time-outline" type="success" trendText="Acumulado Histórico"
-                        [trendPositive]="true"></app-kpi-card>
+            <!-- Inscripciones -->
+            <app-kpi-card 
+                label="Inscripciones" 
+                [value]="stats()?.participantesInscritos || 0" 
+                icon="people-outline"
+                type="warning"
+                trendText="Cupos Totales">
+            </app-kpi-card>
 
-                    <app-kpi-card label="Tasa de Certificación" [value]="round(stats()?.tasaCertificacion ?? 0) + '%'"
-                        icon="ribbon-outline" type="info" trendText="Conversión" trendIcon="stats-chart-outline"
-                        [trendPositive]="true"></app-kpi-card>
+            <!-- Horas Impartidas -->
+            <app-kpi-card 
+                label="Horas Impartidas" 
+                [value]="stats()?.totalHorasCapacitacion || 0 + ' hrs'" 
+                icon="time-outline"
+                type="success"
+                trendText="Acumulado Histórico">
+            </app-kpi-card>
+
+            <!-- Tasa de Certificación -->
+            <app-kpi-card 
+                label="Tasa de Certificación" 
+                [value]="round(stats()?.tasaCertificacion || 0) + '%'" 
+                icon="ribbon-outline"
+                type="primary"
+                trendText="Conversión">
+            </app-kpi-card>
                 </div>
 
                 <!-- Visual Analytics -->
