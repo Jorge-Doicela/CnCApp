@@ -139,6 +139,35 @@ ion-content {
       border-radius: 12px;
     }
   }
+
+  .section-header-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 30px 0 15px;
+    
+    .subsection-title {
+      margin: 0;
+      padding-left: 5px;
+    }
+
+    .add-speaker-btn {
+      --color: var(--primary-lux);
+      font-weight: 800;
+      font-size: 0.75rem;
+      margin: 0;
+    }
+  }
+
+  .subsection-title {
+    font-size: 0.9rem;
+    font-weight: 800;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin: 30px 0 15px;
+    padding-left: 5px;
+  }
 }
 
 /* Capacitacion Brand Card */
@@ -368,6 +397,12 @@ ion-content {
       border-left: 4px solid var(--success-lux);
     }
 
+    &.speaker-highlight {
+      border: 1px solid #dbeafe;
+      background: #f8faff;
+      .speaker-box { background: var(--primary-lux); color: white; }
+    }
+
     .card-header-user {
       display: flex;
       align-items: center;
@@ -409,6 +444,15 @@ ion-content {
         &.confirmed span { color: var(--success-lux); }
       }
 
+      .role-badge {
+        font-size: 0.75rem;
+        font-weight: 800;
+        color: var(--primary-lux);
+        background: #dbeafe;
+        padding: 4px 12px;
+        border-radius: 6px;
+      }
+
       .delete-user-btn {
         width: 40px; height: 40px;
         border-radius: 10px;
@@ -426,6 +470,37 @@ ion-content {
       }
     }
   }
+}
+
+/* Lifecycle Bridge */
+.lifecycle-bridge {
+  margin-top: 40px;
+  background: #f8fafc;
+  border: 1px dashed var(--primary-lux);
+  border-radius: 20px;
+  padding: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+
+  .bridge-content {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    ion-icon { font-size: 2rem; color: var(--primary-lux); opacity: 0.6; }
+    h4 { margin: 0 0 4px; font-weight: 800; color: var(--primary-lux); }
+    p { margin: 0; font-size: 0.9rem; color: var(--text-muted); }
+  }
+
+  .finish-btn {
+    --background: var(--primary-lux);
+    --border-radius: 12px;
+    height: 48px;
+    font-weight: 800;
+  }
+
+  @media (max-width: 600px) { flex-direction: column; text-align: center; .bridge-content { flex-direction: column; } }
 }
 
 /* Certification Card Brand */

@@ -140,8 +140,43 @@
       <section class="form-section management-section">
         <h3 class="section-title">
           <ion-icon name="list-outline"></ion-icon>
-          Listado de Inscritos
+          Nómina Registrada
         </h3>
+
+        <!-- PONENTE / EXPOSITOR (Highlight) -->
+        <div class="expositores-section" *ngIf="expositores.length > 0 || !infoCapacitacion?.certificado">
+          <div class="section-header-flex">
+            <h4 class="subsection-title">Ponentes y Expositores</h4>
+            <ion-button fill="clear" size="small" (click)="abrirModalAgregar(RolCapacitacionEnum.EXPOSITOR)" *ngIf="!infoCapacitacion?.certificado && !isConferencista" class="add-speaker-btn">
+              <ion-icon name="person-add-outline" slot="start"></ion-icon>
+              AGREGAR PONENTE
+            </ion-button>
+          </div>
+          <div class="participants-grid-premium">
+            <div class="participant-card-premium speaker-highlight" *ngFor="let speaker of expositores">
+              <div class="card-header-user">
+                <div class="avatar-box speaker-box">
+                  <ion-icon name="mic-outline"></ion-icon>
+                </div>
+                <div class="user-info">
+                  <h4>{{ speaker.nombre }}</h4>
+                  <span class="user-entidad">
+                    <ion-icon name="ribbon-outline"></ion-icon>
+                    Responsable Académico
+                  </span>
+                </div>
+              </div>
+              <div class="card-footer-user" *ngIf="!infoCapacitacion?.certificado && !isConferencista">
+                <span class="role-badge">EXPOSITOR</span>
+                <button class="delete-user-btn" (click)="confirmarEliminar(speaker)">
+                  <ion-icon name="trash-outline"></ion-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <h4 class="subsection-title" *ngIf="expositores.length > 0">Participantes Inscritos</h4>
 
         <div class="management-controls">
           <div class="search-row-premium">
@@ -216,6 +251,20 @@
               </button>
             </div>
           </div>
+        </div>
+
+        <!-- ACCIÓN DE CIERRE (UX Bridge) -->
+        <div class="lifecycle-bridge fade-up" *ngIf="infoCapacitacion?.estado === EstadoCapacitacionEnum.PENDIENTE && !isConferencista && (participantes.length > 0)">
+          <div class="bridge-content">
+            <ion-icon name="flag-outline"></ion-icon>
+            <div class="text">
+              <h4>¿Terminó el evento?</h4>
+              <p>Finalice la capacitación para proceder con la generación de certificados oficiales.</p>
+            </div>
+          </div>
+          <ion-button (click)="finalizarCapacitacion()" class="finish-btn">
+            FINALIZAR EVENTO
+          </ion-button>
         </div>
       </section>
 

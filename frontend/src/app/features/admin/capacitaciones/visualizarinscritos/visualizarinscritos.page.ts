@@ -44,7 +44,8 @@ import {
   hourglassOutline,
   speedometerOutline,
   listOutline,
-  time
+  time,
+  flagOutline
 } from 'ionicons/icons';
 
 interface ParticipanteInfo {
@@ -145,7 +146,8 @@ export class VisualizarinscritosPage implements OnInit {
       hourglassOutline,
       speedometerOutline,
       listOutline,
-      time
+      time,
+      flagOutline
     });
   }
 
@@ -315,11 +317,11 @@ export class VisualizarinscritosPage implements OnInit {
 
   // --- Modal Agregar Participante ---
 
-  async abrirModalAgregar() {
+  async abrirModalAgregar(rol: string = RolCapacitacionEnum.PARTICIPANTE) {
     // Solo cargar usuarios disponibles cuando se abre el modal
     this.mostrandoModalAgregar = true;
     this.usuarioSeleccionadoId = null;
-    this.rolSeleccionado = RolCapacitacionEnum.PARTICIPANTE;
+    this.rolSeleccionado = rol;
     this.busquedaUsuarioDisponible = '';
     this.cdr.markForCheck();
 
@@ -472,6 +474,44 @@ export class VisualizarinscritosPage implements OnInit {
     }
   }
 
+  async finalizarCapacitacion() {
+    if (!this.idCapacitacion) return;
+
+    const alert = await this.alertController.create({
+      header: 'Finalizar Evento',
+      subHeader: '¿Está seguro de cerrar este evento?',
+      message: 'Esta acción cambiará el estado a "Finalizada" y habilitará la emisión de certificados. No podrá registrar más asistencias digitales después de esto.',
+      buttons: [
+        { text: 'Cancelar', role: 'cancel' },
+        {
+          text: 'Sí, finalizar ahora',
+          cssClass: 'alert-button-confirm',
+          handler: async () => {
+            const loading = await this.loadingController.create({ message: 'Cerrando evento...' });
+            await loading.present();
+            try {
+              await firstValueFrom(this.capacitacionesService.updateCapacitacion(this.idCapacitacion!, { 
+                estado: EstadoCapacitacionEnum.REALIZADA 
+              }));
+              
+              if (this.infoCapacitacion) {
+                this.infoCapacitacion.estado = EstadoCapacitacionEnum.REALIZADA;
+              }
+              this.mostrarToast('Evento finalizado con éxito. Ahora puede emitir certificados.', 'success');
+              this.cdr.markForCheck();
+            } catch (error) {
+              this.mostrarToast('Error al cerrar el evento', 'danger');
+            } finally {
+              loading.dismiss();
+            }
+          }
+        }
+      ]
+    });
+
+    await alert.present();
+  }
+
   // --- Exportar lista ---
 
   exportarLista() {
@@ -520,11 +560,8 @@ export class VisualizarinscritosPage implements OnInit {
   // --- Navegación ---
 
   volver() {
-    if (this.isConferencista) {
-      this.router.navigate(['/conferencista/gestionar-capacitaciones']);
-    } else {
-      this.router.navigate(['/gestionar-capacitaciones']);
-    }
+    const prefix = this.router.url.includes('/conferencista/') ? '/conferencista' : '';
+    this.navController.navigateBack(`${prefix}/gestionar-capacitaciones`);
   }
 
   // --- Toast ---
