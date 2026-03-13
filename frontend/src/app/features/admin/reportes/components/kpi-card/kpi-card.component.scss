@@ -1,0 +1,198 @@
+:host {
+    display: block;
+}
+
+.kpi-card {
+    position: relative;
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 32px;
+    box-shadow: 
+        0 10px 40px -10px rgba(31, 38, 135, 0.05),
+        0 2px 4px rgba(0,0,0,0.01);
+    padding: 1.75rem;
+    min-height: 180px;
+    transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: transparent;
+        transition: all 0.4s ease;
+    }
+
+    &:hover {
+        transform: translateY(-10px) scale(1.02);
+        box-shadow: 0 30px 70px -15px rgba(31, 38, 135, 0.12);
+        background: rgba(255, 255, 255, 0.95);
+        border-color: rgba(255, 255, 255, 0.8);
+
+        &::before {
+            background: var(--card-color);
+        }
+
+        .card-icon {
+            transform: scale(1.1) rotate(5deg);
+            background: var(--card-color-light);
+            color: #fff;
+        }
+
+        .value {
+            transform: scale(1.02);
+            color: var(--card-color);
+        }
+    }
+}
+
+.card-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+
+.card-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    flex-shrink: 0;
+    background: #fff;
+    color: var(--card-color);
+    box-shadow: 0 8px 16px -4px rgba(0,0,0,0.05);
+    transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    border: 1px solid rgba(0,0,0,0.03);
+}
+
+.card-data {
+    .label {
+        display: block;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 4px;
+    }
+    .value {
+        font-size: 2rem;
+        font-weight: 900;
+        color: #0f172a;
+        margin: 0;
+        line-height: 1;
+        letter-spacing: -0.05em;
+        transition: all 0.4s ease;
+    }
+}
+
+.card-footer {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1.5rem;
+    margin-top: auto;
+}
+
+.footer-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.trend {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: #94a3b8;
+    padding: 6px 12px;
+    background: #f8fafc;
+    border-radius: 100px;
+    border: 1px solid #f1f5f9;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    
+    ion-icon {
+        font-size: 1rem;
+    }
+
+    &.positive { 
+        color: #059669; 
+        background: #ecfdf5;
+        border-color: #d1fae5;
+    }
+}
+
+.detail-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #64748b;
+    opacity: 0.85;
+
+    .detail-icon {
+        font-size: 0.9rem;
+    }
+}
+
+.micro-chart {
+    flex: 1;
+    max-width: 140px;
+    height: 50px;
+    margin-bottom: -5px;
+    margin-right: -5px;
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.05));
+
+    apx-chart {
+        min-height: 50px !important;
+    }
+}
+
+// Color logic
+.primary {
+    --card-color: #6366f1;
+    --card-color-light: rgba(99, 102, 241, 0.1);
+    &.kpi-card:hover .card-icon { background: var(--card-color); }
+}
+
+.success {
+    --card-color: #10b981;
+    --card-color-light: rgba(16, 185, 129, 0.1);
+    &.kpi-card:hover .card-icon { background: var(--card-color); }
+}
+
+.warning {
+    --card-color: #f59e0b;
+    --card-color-light: rgba(245, 158, 11, 0.1);
+    &.kpi-card:hover .card-icon { background: var(--card-color); }
+}
+
+.info {
+    --card-color: #3b82f6;
+    --card-color-light: rgba(59, 130, 246, 0.1);
+    &.kpi-card:hover .card-icon { background: var(--card-color); }
+}
+
+.card-icon {
+    background: var(--card-color-light);
+}

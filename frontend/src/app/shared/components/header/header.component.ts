@@ -47,7 +47,7 @@ export class HeaderComponent {
         addIcons({
             menuOutline, arrowForward, logOutOutline, menu, logInOutline, personAddOutline,
             people, statsChartOutline, easel, ribbon,
-            'search': searchOutline,
+            searchOutline,
             'grid-outline': gridOutline,
             'globe-outline': globeOutline,
             'chevron-forward': chevronForward,
