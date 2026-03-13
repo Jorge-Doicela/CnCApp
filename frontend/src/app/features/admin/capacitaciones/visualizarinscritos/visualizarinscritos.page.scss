@@ -78,12 +78,28 @@ ion-content {
     line-height: 1.1;
   }
 
-  p {
-    font-size: 1.1rem;
-    color: var(--text-muted);
-    max-width: 600px;
-    margin: 0;
-    line-height: 1.6;
+  .header-desc-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    max-width: 800px;
+    
+    p {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      margin: 0;
+      line-height: 1.6;
+    }
+
+    .refresh-btn-top {
+      --color: var(--text-muted);
+      --padding-start: 10px;
+      --padding-end: 10px;
+      margin: 0;
+      transition: 0.3s;
+      &:hover { --color: var(--accent-lux); transform: rotate(180deg); }
+    }
   }
 
   .status-badge {
@@ -265,8 +281,25 @@ ion-content {
     }
 
     .stat-info {
+      flex: 1;
       .stat-num { font-size: 1.8rem; font-weight: 900; color: var(--primary-lux); display: block; line-height: 1; }
       .stat-desc { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
+      
+      .progress-container {
+        width: 100%;
+        height: 6px;
+        background: #e2e8f0;
+        border-radius: 100px;
+        margin-top: 8px;
+        overflow: hidden;
+        
+        .progress-bar {
+          height: 100%;
+          background: var(--success-lux);
+          border-radius: 100px;
+          transition: width 1s ease-out;
+        }
+      }
     }
   }
 }
@@ -326,6 +359,17 @@ ion-content {
 
       ion-icon { font-size: 1.3rem; color: var(--text-muted); }
       input { border: none; background: transparent; width: 100%; font-size: 1rem; font-weight: 600; color: var(--text-pure); outline: none; }
+      
+      .results-badge {
+        font-size: 0.7rem;
+        font-weight: 800;
+        color: white;
+        background: var(--accent-lux);
+        padding: 4px 10px;
+        border-radius: 6px;
+        white-space: nowrap;
+        animation: fadeUp 0.3s ease-out;
+      }
     }
 
     .filter-pills-premium {
@@ -578,4 +622,134 @@ ion-content {
   }
   h4 { font-size: 1.4rem; font-weight: 850; color: var(--primary-lux); margin-bottom: 8px; }
   p { color: var(--text-muted); }
-}
+}
+
+/* --- QR MODAL LUXURY REFINED --- */
+.qr-modal-body {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: white;
+  position: relative;
+
+  .modal-header-accent {
+    height: 6px;
+    background: linear-gradient(to right, var(--primary-lux), var(--accent-lux));
+    width: 100%;
+  }
+
+  .qr-content-wrapper {
+    flex: 1;
+    padding: 40px 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    overflow-y: auto;
+
+    .modal-title {
+      font-size: 1.8rem;
+      font-weight: 900;
+      color: var(--primary-lux);
+      margin: 0 0 8px;
+      letter-spacing: -0.02em;
+    }
+
+    .modal-subtitle {
+      color: var(--text-muted);
+      font-size: 1rem;
+      margin: 0 0 35px;
+    }
+
+    .qr-frame {
+      width: 260px;
+      height: 260px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 24px;
+      padding: 20px;
+      margin-bottom: 35px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.03);
+
+      .qr-loader { padding: 80px 0; ion-spinner { --color: var(--primary-lux); } }
+      .qr-image { width: 100%; height: 100%; object-fit: contain; }
+    }
+
+    .manual-code-section {
+      width: 100%;
+      max-width: 340px;
+
+      .code-label {
+        font-size: 0.75rem;
+        font-weight: 800;
+        color: var(--text-muted);
+        letter-spacing: 0.1em;
+        display: block;
+        margin-bottom: 12px;
+      }
+
+      .code-display-card {
+        background: #f1f5f9;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 12px 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 15px;
+        transition: 0.3s;
+        &:hover { border-color: var(--primary-lux); }
+
+        .access-code {
+          font-family: 'Courier New', monospace;
+          font-size: 1.6rem;
+          font-weight: 900;
+          color: var(--primary-lux);
+          letter-spacing: 0.2em;
+        }
+
+        .copy-icon-btn {
+          --color: var(--text-muted);
+          margin: 0;
+          font-size: 1.2rem;
+          &:hover { --color: var(--primary-lux); }
+        }
+      }
+
+      .usage-hint {
+        font-size: 0.85rem;
+        color: var(--text-soft);
+        line-height: 1.5;
+        margin: 0;
+      }
+    }
+  }
+
+  .modal-actions-footer {
+    padding: 25px 30px 40px;
+    display: flex;
+    gap: 15px;
+    border-top: 1px solid #f1f5f9;
+    background: #fafafa;
+
+    .close-btn {
+      flex: 1;
+      height: 52px;
+      font-weight: 800;
+      --color: var(--text-muted);
+    }
+
+    .print-action-btn {
+      flex: 1.8;
+      height: 52px;
+      --background: var(--primary-lux);
+      --border-radius: 14px;
+      font-weight: 800;
+      --box-shadow: 0 8px 20px rgba(30, 58, 138, 0.2);
+    }
+  }
+}
