@@ -14,30 +14,30 @@ import { Router } from '@angular/router';
 import { Capacitacion } from 'src/app/core/models/capacitacion.interface';
 import { addIcons } from 'ionicons';
 import { 
-  arrowBackOutline, 
-  informationCircleOutline, 
-  calendarOutline, 
-  locationOutline, 
-  timeOutline, 
-  peopleOutline, 
-  desktopOutline, 
-  linkOutline, 
-  barChart, 
-  people, 
-  checkmarkDone, 
-  close, 
-  closeCircle, 
-  analyticsOutline, 
-  qrCodeOutline, 
-  searchOutline, 
-  checkmarkDoneOutline, 
-  personAddOutline, 
-  cloudDownloadOutline, 
-  person, 
-  businessOutline, 
-  trashOutline, 
-  ribbonOutline, 
-  shieldCheckmark, 
+  arrowBackOutline,
+  informationCircleOutline,
+  calendarOutline,
+  locationOutline,
+  timeOutline,
+  peopleOutline,
+  desktopOutline,
+  linkOutline,
+  barChart,
+  people,
+  checkmarkDone,
+  close,
+  closeCircle,
+  analyticsOutline,
+  qrCodeOutline,
+  searchOutline,
+  checkmarkDoneOutline,
+  personAddOutline,
+  cloudDownloadOutline,
+  person,
+  businessOutline,
+  trashOutline,
+  ribbonOutline,
+  shieldCheckmark,
   checkmarkCircle,
   micOutline,
   peopleCircleOutline,
@@ -48,7 +48,10 @@ import {
   flagOutline,
   copyOutline,
   refreshOutline,
-  printOutline
+  printOutline,
+  statsChartOutline,
+  shieldCheckmarkOutline,
+  personRemoveOutline
 } from 'ionicons/icons';
 
 interface ParticipanteInfo {
@@ -153,7 +156,10 @@ export class VisualizarinscritosPage implements OnInit {
       flagOutline,
       copyOutline,
       refreshOutline,
-      printOutline
+      printOutline,
+      statsChartOutline,
+      shieldCheckmarkOutline,
+      personRemoveOutline
     });
   }
 
