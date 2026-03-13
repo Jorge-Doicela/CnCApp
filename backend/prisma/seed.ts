@@ -251,7 +251,11 @@ async function main() {
         ];
 
         const createdUsers = [];
-        for (const u of usersData) {
+        const generos = await prisma.genero.findMany();
+        const etnias = await prisma.etnia.findMany();
+        const provincias = await prisma.provincia.findMany();
+
+        for (const [index, u] of usersData.entries()) {
             const user = await prisma.usuario.create({
                 data: {
                     nombre: u.nombre,
@@ -263,6 +267,9 @@ async function main() {
                     rolId: u.roleId,
                     authUid: u.authUid,
                     tipoParticipanteId: u.roleId === adminRole.id ? tipoAutoridad.id : tipoCiudadano.id,
+                    generoId: generos[index % generos.length].id,
+                    etniaId: etnias[index % etnias.length].id,
+                    provinciaId: provincias[index % provincias.length].id,
                     estado: 1
                 }
             });
@@ -330,7 +337,8 @@ async function main() {
         ];
 
         const createdTrainings = [];
-        for (const t of trainingSessions) {
+        const mods = ['Presencial', 'Virtual', 'Híbrido'];
+        for (const [index, t] of trainingSessions.entries()) {
             const session = await prisma.capacitacion.create({
                 data: {
                     nombre: t.nombre,
@@ -339,9 +347,10 @@ async function main() {
                     fechaFin: t.fechaFin,
                     lugar: t.lugar,
                     cuposDisponibles: t.cupos,
-                    modalidad: t.modalidad,
+                    modalidad: mods[index % mods.length],
                     estado: t.estado,
-                    plantillaId: t.pId
+                    plantillaId: t.pId,
+                    horas: Math.floor(Math.random() * 40) + 5
                 }
             });
             createdTrainings.push(session);

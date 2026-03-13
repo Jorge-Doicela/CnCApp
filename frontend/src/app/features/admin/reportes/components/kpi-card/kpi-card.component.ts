@@ -29,59 +29,42 @@ import { IonIcon } from '@ionic/angular/standalone';
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.5);
-            border-radius: 24px;
+            border-radius: 28px;
             box-shadow: 0 10px 40px -10px rgba(31, 38, 135, 0.08);
-            padding: 1.5rem;
-            height: 100%;
+            padding: 1.75rem 2rem;
+            min-height: 130px;
             transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
             display: flex;
             align-items: center;
-            gap: 1.25rem;
+            gap: 1.5rem;
             overflow: hidden;
 
             &:hover {
                 transform: translateY(-8px) scale(1.02);
-                box-shadow: 0 20px 60px -15px rgba(31, 38, 135, 0.15);
-                background: rgba(255, 255, 255, 0.85);
-                border-color: rgba(255, 255, 255, 0.8);
-
-                .card-glass-reveal {
-                    opacity: 1;
-                    transform: scale(2);
-                }
+                box-shadow: 0 25px 60px -15px rgba(31, 38, 135, 0.15);
+                background: rgba(255, 255, 255, 0.9);
+                border-color: rgba(255, 255, 255, 0.9);
 
                 .card-icon {
                     transform: scale(1.1) rotate(5deg);
+                    box-shadow: 0 10px 20px rgba(0,0,0,0.05);
                 }
             }
-        }
-
-        .card-glass-reveal {
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle, rgba(255,255,255,0.4) 0%, transparent 70%);
-            opacity: 0;
-            transition: all 0.8s ease;
-            pointer-events: none;
-            z-index: 0;
         }
 
         .card-icon {
             position: relative;
             z-index: 1;
-            width: 64px;
-            height: 64px;
-            border-radius: 18px;
+            width: 70px;
+            height: 70px;
+            border-radius: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.75rem;
+            font-size: 2rem;
             flex-shrink: 0;
-            background: #f8fafc;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+            background: #ffffff;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
@@ -92,33 +75,34 @@ import { IonIcon } from '@ionic/angular/standalone';
 
             .label {
                 display: block;
-                font-size: 0.7rem;
+                font-size: 0.75rem;
                 font-weight: 800;
                 color: #64748b;
                 text-transform: uppercase;
                 letter-spacing: 0.1em;
-                margin-bottom: 4px;
+                margin-bottom: 6px;
+                opacity: 0.8;
             }
             .value {
-                font-size: 2rem;
+                font-size: 2.25rem;
                 font-weight: 950;
                 color: #0f172a;
                 margin: 0;
-                line-height: 1;
-                letter-spacing: -0.04em;
+                line-height: 1.1;
+                letter-spacing: -0.05em;
             }
             .trend-wrapper {
-                margin-top: 8px;
+                margin-top: 10px;
                 display: flex;
             }
             .trend {
                 display: flex;
                 align-items: center;
-                gap: 0.25rem;
-                font-size: 0.75rem;
+                gap: 0.35rem;
+                font-size: 0.8rem;
                 font-weight: 700;
                 color: #94a3b8;
-                padding: 4px 10px;
+                padding: 5px 12px;
                 background: #f1f5f9;
                 border-radius: 100px;
                 &.positive { 
