@@ -29,8 +29,7 @@ import { WebAuthnUtil } from 'src/app/core/utils/webauthn.util';
     FormsModule,
     IonContent, IonIcon, IonLabel, 
     IonInput, IonButton, RouterLink
-  ],
-  providers: [FingerprintAIO]
+  ]
 })
 export class LoginPage implements OnInit {
   private authService = inject(AuthService);
@@ -65,20 +64,23 @@ export class LoginPage implements OnInit {
   }
 
   ngOnInit() {
+  }
+
+  ionViewWillEnter() {
+    // Limpiamos los campos al entrar para evitar que se queden guardados tras cerrar sesión
+    this.ci.set('');
+    this.password.set('');
     this.checkBiometricLogin();
   }
 
   async checkBiometricLogin() {
     try {
       const { value: isActive } = await Preferences.get({ key: 'biometria_activada' });
-      const { value: ci } = await Preferences.get({ key: 'bio_ci' });
-      const { value: pwd } = await Preferences.get({ key: 'bio_pwd' });
-
-      if (isActive === 'true' && ci && pwd) {
-         // Biometria está activada, mostramos el botón o animamos auto log in
-         this.ci.set(ci);
-         this.password.set(pwd);
-         await this.loginWithBiometrics();
+      // Si la biometría está activa, simplemente disparamos el proceso manual 
+      // para que el usuario decida si usarla o escribir, pero sin dejar la clave expuesta.
+      if (isActive === 'true') {
+         // Opcional: Podrías disparar el trigger directamente aquí si quieres auto-login
+         // pero lo más seguro es dejar que el usuario use el botón.
       }
     } catch (e) {
       console.error('Error al detectar biometría', e);
@@ -87,6 +89,7 @@ export class LoginPage implements OnInit {
 
   async triggerManualBiometricLogin() {
     const { value: isActive } = await Preferences.get({ key: 'biometria_activada' });
+
     if (isActive === 'true') {
         await this.loginWithBiometrics();
     } else {
@@ -101,6 +104,7 @@ export class LoginPage implements OnInit {
       if (isNative) {
           const result = await this.fingerprintAIO.isAvailable({ requireStrongBiometrics: false });
           if (result !== 'biometric' && result !== 'finger' && result !== 'face') {
+             this.presentToast('Biometría no disponible en este dispositivo', 'warning');
              return;
           }
           
@@ -113,19 +117,29 @@ export class LoginPage implements OnInit {
       } else {
           const { value: credentialId } = await Preferences.get({ key: 'bio_credential_id' });
           if (!credentialId) {
-             throw new Error("No hay credencial biométrica guardada en Web.");
+             throw new Error("No hay credencial biométrica guardada.");
           }
           const success = await WebAuthnUtil.verifyBiometric(credentialId);
-          if (!success) {
-            throw new Error("Autenticación WebAuthn fallida.");
-          }
+          if (!success) return; 
       }
 
-      // Si el escaneo es exitoso (no arroja error), hacemos login con los datos
-      await this.loginUser();
+      // --- ÉXITO BIOMÉTRICO (Solo llegamos aquí si el usuario pasó la huella/rostro) ---
+      
+      const { value: ci } = await Preferences.get({ key: 'bio_ci' });
+      const { value: pwd } = await Preferences.get({ key: 'bio_pwd' });
+
+      if (ci && pwd) {
+          // Cargamos los datos en los inputs del formulario justo antes de disparar el login
+          this.ci.set(ci);
+          this.password.set(pwd);
+          await this.loginUser();
+      } else {
+          this.presentToast('Error al recuperar credenciales guardadas', 'danger');
+      }
 
     } catch (e) {
       console.error('Autenticación biométrica fallida o cancelada.', e);
+      // No cargamos nada en los inputs, el formulario se mantiene limpio
     }
   }
 

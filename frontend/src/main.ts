@@ -12,12 +12,15 @@ registerLocaleData(localeEs);
 import { AppComponent } from './app/app.component';
 import { routes } from './app/app.routes';
 
+import { FingerprintAIO } from '@awesome-cordova-plugins/fingerprint-aio/ngx';
+
 bootstrapApplication(AppComponent, {
   providers: [
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     provideIonicAngular(),
     provideRouter(routes, withPreloading(PreloadAllModules)),
     provideHttpClient(withInterceptors([authInterceptor])),
-    { provide: LOCALE_ID, useValue: 'es' }
+    { provide: LOCALE_ID, useValue: 'es' },
+    FingerprintAIO
   ],
 }).catch(err => console.log(err));
