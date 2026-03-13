@@ -151,27 +151,27 @@ export class CapacitacionController {
         console.log('[CapacitacionController] checkNombre method REACHED');
         try {
             const { nombre, excludeId } = req.query;
-            
+
             console.log(`[CapacitacionController] RAW req.query:`, req.query);
             console.log(`[CapacitacionController] nombre: "${nombre}" (type: ${typeof nombre})`);
-            
-            const nombreStr = typeof nombre === 'string' ? nombre : 
-                             (Array.isArray(nombre) ? nombre[0] as string : undefined);
+
+            const nombreStr = typeof nombre === 'string' ? nombre :
+                (Array.isArray(nombre) ? nombre[0] as string : undefined);
 
             if (!nombreStr || nombreStr.trim() === '') {
                 console.warn(`[CapacitacionController] Validation FAILED: nombreStr is "${nombreStr}"`);
-                res.status(400).json({ 
+                res.status(400).json({
                     message: 'El nombre es requerido',
                     debug: { query: req.query, receivedNombre: nombre, type: typeof nombre }
                 });
                 return;
             }
-            
+
             const excludeIdParsed = excludeId ? Number(excludeId) : undefined;
             const exists = await this.checkNombreUseCase.execute(nombreStr, excludeIdParsed);
 
             console.log(`[CapacitacionController] Result for "${nombreStr}": ${exists ? 'CONFLICT' : 'FREE'}`);
-            
+
             res.json({ exists });
         } catch (error) {
             console.error('[CapacitacionController] Error checking name:', error);
