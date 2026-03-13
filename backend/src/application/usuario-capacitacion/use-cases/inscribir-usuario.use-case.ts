@@ -1,4 +1,5 @@
 import { injectable, inject } from 'tsyringe';
+import prisma from '../../../config/database';
 import { UsuarioCapacitacionRepository } from '../../../domain/usuario-capacitacion/usuario-capacitacion.repository';
 import { UsuarioCapacitacion } from '../../../domain/usuario-capacitacion/entities/usuario-capacitacion.entity';
 import { CapacitacionRepository } from '../../../domain/capacitacion/repositories/capacitacion.repository';
@@ -17,34 +18,64 @@ export class InscribirUsuarioUseCase {
             throw new ValidationError('ID de usuario y capacitación son obligatorios');
         }
 
-        // 1. Verificar existencia y cupos de la capacitación
-        const capacitacion = await this.capacitacionRepository.findById(data.capacitacionId);
-        if (!capacitacion) {
-            throw new ValidationError('La capacitación no existe');
-        }
+        return await prisma.$transaction(async (tx) => {
+            // 1. Obtener capacitación con bloqueo (o al menos leer datos frescos en la transacción)
+            const capacitacion = await tx.capacitacion.findUnique({
+                where: { id: data.capacitacionId }
+            });
 
-        if (capacitacion.estado === EstadoCapacitacionEnum.REALIZADA || capacitacion.estado === EstadoCapacitacionEnum.CANCELADA) {
-            throw new ValidationError(`No es posible inscribirse: la capacitación se encuentra ${capacitacion.estado}`);
-        }
+            if (!capacitacion) {
+                throw new ValidationError('La capacitación no existe');
+            }
 
-        if (capacitacion.cuposDisponibles !== null && capacitacion.cuposDisponibles <= 0) {
-            throw new ValidationError('Lo sentimos, ya no quedan cupos disponibles para esta capacitación');
-        }
+            if (capacitacion.estado === EstadoCapacitacionEnum.REALIZADA || capacitacion.estado === EstadoCapacitacionEnum.CANCELADA) {
+                throw new ValidationError(`No es posible inscribirse: la capacitación se encuentra ${capacitacion.estado}`);
+            }
 
-        // 2. Verificar duplicidad
-        const existing = await this.repository.findByUserAndCapacitacion(data.usuarioId, data.capacitacionId);
-        if (existing) {
-            throw new ValidationError('Usted ya se encuentra inscrito en esta capacitación');
-        }
+            if (capacitacion.cuposDisponibles !== null && capacitacion.cuposDisponibles <= 0) {
+                throw new ValidationError('Lo sentimos, ya no quedan cupos disponibles para esta capacitación');
+            }
 
-        // 3. Crear inscripción
-        const result = await this.repository.create(data);
+            // 2. Verificar duplicidad
+            const existing = await tx.usuarioCapacitacion.findUnique({
+                where: {
+                    usuarioId_capacitacionId: {
+                        usuarioId: data.usuarioId!,
+                        capacitacionId: data.capacitacionId!
+                    }
+                }
+            });
 
-        // 4. Actualizar cupos (decremento atómico)
-        if (capacitacion.cuposDisponibles !== null && capacitacion.cuposDisponibles > 0) {
-            await this.capacitacionRepository.decrementarCupo(capacitacion.id!);
-        }
+            if (existing) {
+                throw new ValidationError('Usted ya se encuentra inscrito en esta capacitación');
+            }
 
-        return result;
+            // 3. Crear inscripción
+            const result = await tx.usuarioCapacitacion.create({
+                data: {
+                    usuarioId: data.usuarioId!,
+                    capacitacionId: data.capacitacionId!,
+                    rolCapacitacion: data.rolCapacitacion || 'Participante',
+                    asistio: data.asistio || false,
+                    estadoInscripcion: data.estadoInscripcion || 'Activa'
+                },
+                include: {
+                    usuario: true,
+                    capacitacion: true
+                }
+            });
+
+            // 4. Decrementar cupo de forma atómica
+            await tx.capacitacion.update({
+                where: { id: data.capacitacionId },
+                data: {
+                    cuposDisponibles: {
+                        decrement: 1
+                    }
+                }
+            });
+
+            return result;
+        });
     }
 }
