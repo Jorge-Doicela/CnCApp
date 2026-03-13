@@ -22,7 +22,12 @@
           <ion-icon name="people-circle-outline"></ion-icon> Panel de Control
         </span>
         <h1>Control de Asistencia</h1>
-        <p>Gestione los inscritos, registre asistencias y emita certificaciones oficiales para este evento.</p>
+        <div class="header-desc-row">
+          <p>Gestione los inscritos, registre asistencias y emita certificaciones oficiales para este evento.</p>
+          <ion-button fill="clear" (click)="refreshData()" class="refresh-btn-top">
+            <ion-icon name="refresh-outline" slot="icon-only"></ion-icon>
+          </ion-button>
+        </div>
 
         <div class="status-badge" [ngClass]="{
           'badge-active': infoCapacitacion?.estado === EstadoCapacitacionEnum.REALIZADA, 
@@ -117,6 +122,9 @@
             <div class="stat-info">
               <span class="stat-num">{{ porcentajeAsistencia }}%</span>
               <span class="stat-desc">Ratio Asistencia</span>
+              <div class="progress-container">
+                <div class="progress-bar" [style.width.%]="porcentajeAsistencia"></div>
+              </div>
             </div>
           </div>
         </div>
@@ -183,6 +191,7 @@
             <div class="search-bar">
               <ion-icon name="search-outline"></ion-icon>
               <input type="text" placeholder="Filtrar por nombre, cédula o entidad..." [(ngModel)]="terminoBusqueda" (input)="filtrarParticipantes()">
+              <span class="results-badge" *ngIf="terminoBusqueda">{{ participantesFiltrados.length }} encontrados</span>
             </div>
             
             <div class="filter-pills-premium">
@@ -295,24 +304,40 @@
   <ion-modal [isOpen]="mostrarQREvento" (ionModalDidDismiss)="cerrarQRModal()" [breakpoints]="[0, 0.9]" [initialBreakpoint]="0.9">
     <ng-template>
       <div class="qr-modal-body">
-        <h2 style="font-weight: 900; letter-spacing: -0.02em; margin-bottom: 8px;">Asistencia Digital</h2>
-        <p style="color: var(--text-muted); margin-bottom: 30px;">Escanea para registrar entrada instantánea</p>
-
-        <div class="qr-frame">
-          <div *ngIf="generandoQR" style="padding: 100px 0;"><ion-spinner name="crescent"></ion-spinner></div>
-          <img *ngIf="!generandoQR && qrDataUrl" [src]="qrDataUrl" alt="QR" />
+        <div class="modal-header-accent"></div>
+        
+        <div class="qr-content-wrapper">
+          <h2 class="modal-title">Asistencia Digital</h2>
+          <p class="modal-subtitle">Escanea para registrar entrada instantánea</p>
+  
+          <div class="qr-frame">
+            <div *ngIf="generandoQR" class="qr-loader">
+              <ion-spinner name="crescent"></ion-spinner>
+            </div>
+            <img *ngIf="!generandoQR && qrDataUrl" [src]="qrDataUrl" alt="QR" class="qr-image" />
+          </div>
+  
+          <div class="manual-code-section">
+            <span class="code-label">CLAVE DE ACCESO MANUAL</span>
+            <div class="code-display-card">
+              <span class="access-code">{{ codigoAcceso }}</span>
+              <ion-button fill="clear" (click)="copiarCodigoAcceso()" class="copy-icon-btn">
+                <ion-icon name="copy-outline"></ion-icon>
+              </ion-button>
+            </div>
+            <p class="usage-hint">Los participantes pueden usar el lector de la App o ingresar el código alfanumérico.</p>
+          </div>
         </div>
 
-        <div class="code-title">Clave de Acceso Manual</div>
-        <div class="access-code">{{ codigoAcceso }}</div>
-        
-        <p style="font-size: 0.85rem; color: var(--text-soft); line-height: 1.4; max-width: 250px; margin: 0 auto;">
-          Los participantes pueden usar el lector de la App o ingresar el código alfanumérico.
-        </p>
-
-        <ion-button expand="block" fill="clear" color="medium" (click)="cerrarQRModal()" style="margin-top: 30px; font-weight: 700;">
-          CERRAR VENTANA
-        </ion-button>
+        <div class="modal-actions-footer">
+          <ion-button fill="clear" color="medium" (click)="cerrarQRModal()" class="close-btn">
+            CERRAR
+          </ion-button>
+          <ion-button (click)="imprimirQR()" class="print-action-btn">
+            <ion-icon name="print-outline" slot="start"></ion-icon>
+            IMPRIMIR QR
+          </ion-button>
+        </div>
       </div>
     </ng-template>
   </ion-modal>

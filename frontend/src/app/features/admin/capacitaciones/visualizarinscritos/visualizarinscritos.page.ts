@@ -45,7 +45,10 @@ import {
   speedometerOutline,
   listOutline,
   time,
-  flagOutline
+  flagOutline,
+  copyOutline,
+  refreshOutline,
+  printOutline
 } from 'ionicons/icons';
 
 interface ParticipanteInfo {
@@ -147,7 +150,10 @@ export class VisualizarinscritosPage implements OnInit {
       speedometerOutline,
       listOutline,
       time,
-      flagOutline
+      flagOutline,
+      copyOutline,
+      refreshOutline,
+      printOutline
     });
   }
 
@@ -183,6 +189,18 @@ export class VisualizarinscritosPage implements OnInit {
       this.cargando = false;
       this.cdr.detectChanges();
     }
+  }
+
+  async refreshData() {
+    const loading = await this.loadingController.create({
+      message: 'Actualizando datos...',
+      duration: 2000,
+      spinner: 'dots'
+    });
+    await loading.present();
+    await this.cargarDatos();
+    loading.dismiss();
+    this.mostrarToast('Información actualizada', 'success');
   }
 
   private procesarInscritos(inscritos: any[]) {
@@ -581,5 +599,59 @@ export class VisualizarinscritosPage implements OnInit {
     if (!lugar) return;
     const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(lugar)}`;
     window.open(url, '_blank');
+  }
+
+  async copiarCodigoAcceso() {
+    const codigo = this.codigoAcceso;
+    if (!codigo) return;
+    
+    try {
+      await navigator.clipboard.writeText(codigo);
+      this.mostrarToast('Código copiado al portapapeles', 'success');
+    } catch (err) {
+      this.mostrarToast('No se pudo copiar el código', 'danger');
+    }
+  }
+
+  imprimirQR() {
+    if (!this.qrDataUrl || !this.infoCapacitacion) return;
+
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) return;
+
+    const html = `
+      <html>
+        <head>
+          <title>Imprimir QR - ${this.infoCapacitacion.nombre}</title>
+          <style>
+            body { font-family: 'Inter', sans-serif; text-align: center; padding: 40px; }
+            .container { max-width: 500px; margin: 0 auto; border: 2px solid #e2e8f0; padding: 40px; border-radius: 30px; }
+            h2 { color: #1e3a8a; margin-bottom: 5px; font-size: 24px; }
+            p { color: #64748b; margin-bottom: 30px; }
+            .qr-img { width: 300px; height: 300px; margin-bottom: 30px; }
+            .code-box { background: #f1f5f9; padding: 15px; border-radius: 12px; font-size: 20px; font-weight: bold; letter-spacing: 5px; color: #1e3a8a; }
+            .footer { margin-top: 40px; font-size: 12px; color: #94a3b8; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <h2>${this.infoCapacitacion.nombre}</h2>
+            <p>Registro de Asistencia Digital</p>
+            <img src="${this.qrDataUrl}" class="qr-img" />
+            <div class="code-box">${this.codigoAcceso}</div>
+            <div class="footer">Generado por Plataforma CNC - ${new Date().toLocaleDateString()}</div>
+          </div>
+          <script>
+            window.onload = function() {
+              window.print();
+              setTimeout(() => { window.close(); }, 500);
+            }
+          </script>
+        </body>
+      </html>
+    `;
+
+    printWindow.document.write(html);
+    printWindow.document.close();
   }
 }
