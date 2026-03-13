@@ -191,15 +191,18 @@ export class CrudcapacitacionesPage implements OnInit {
 
   // Navegación
   iraCrearCapacitacion() {
-    this.router.navigate(['/gestionar-capacitaciones/crear']);
+    const prefix = this.router.url.includes('/conferencista/') ? '/conferencista' : '';
+    this.router.navigate([`${prefix}/gestionar-capacitaciones/crear`]);
   }
 
   iraEditarCapacitacion(id: number) {
-    this.router.navigate(['/gestionar-capacitaciones/editar', id]);
+    const prefix = this.router.url.includes('/conferencista/') ? '/conferencista' : '';
+    this.router.navigate([`${prefix}/gestionar-capacitaciones/editar`, id]);
   }
 
   iraVisualizarinscritos(id: number) {
-    this.router.navigate(['/gestionar-capacitaciones/visualizar-inscritos', id]);
+    const prefix = this.router.url.includes('/conferencista/') ? '/conferencista' : '';
+    this.router.navigate([`${prefix}/gestionar-capacitaciones/visualizar-inscritos`, id]);
   }
 
   // Finalizar capacitación (nueva funcionalidad)

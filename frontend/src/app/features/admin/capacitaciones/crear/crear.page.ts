@@ -7,7 +7,7 @@ import { firstValueFrom, Subject, of } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap, catchError } from 'rxjs/operators';
 import { NgForm } from '@angular/forms';
 import { ToastController, AlertController, NavController } from '@ionic/angular';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { CapacitacionesService } from 'src/app/features/admin/capacitaciones/services/capacitaciones.service';
 import { CatalogoService } from 'src/app/shared/services/catalogo.service';
 import { UsuarioService } from 'src/app/features/user/services/usuario.service';
@@ -77,6 +77,7 @@ export class CrearPage implements OnInit {
   private capacitacionesService = inject(CapacitacionesService);
   private catalogoService = inject(CatalogoService);
   private usuarioService = inject(UsuarioService);
+  private router = inject(Router);
 
   // Map Picker State
   isMapModalOpen = false;
@@ -309,11 +310,13 @@ export class CrearPage implements OnInit {
 
   irAVerDetalle() {
     if (this.capacitacionIdCreada) {
-      this.navController.navigateForward(`/gestionar-capacitaciones/visualizar-inscritos/${this.capacitacionIdCreada}`);
+      const prefix = this.router.url.includes('/conferencista/') ? '/conferencista' : '';
+      this.navController.navigateForward(`${prefix}/gestionar-capacitaciones/visualizar-inscritos/${this.capacitacionIdCreada}`);
     }
   }
 
   async cancelar() {
+    const prefix = this.router.url.includes('/conferencista/') ? '/conferencista' : '';
     if (this.hayDatosIngresados()) {
       const alert = await this.alertController.create({
         header: 'Cancelar creación',
@@ -326,7 +329,7 @@ export class CrearPage implements OnInit {
           {
             text: 'Sí, cancelar',
             handler: () => {
-              this.navController.navigateBack('/gestionar-capacitaciones');
+              this.navController.navigateBack(`${prefix}/gestionar-capacitaciones`);
             }
           }
         ]
@@ -334,7 +337,7 @@ export class CrearPage implements OnInit {
 
       await alert.present();
     } else {
-      this.navController.navigateBack('/gestionar-capacitaciones');
+      this.navController.navigateBack(`${prefix}/gestionar-capacitaciones`);
     }
   }
 
