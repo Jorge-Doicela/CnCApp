@@ -480,3 +480,64 @@ ion-select::part(container), ion-datetime::part(native) {
   &:disabled { opacity: 0.5; cursor: not-allowed; }
   &:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 10px 20px -5px rgba(37, 99, 235, 0.3); }
 }
+
+// ── Duration Split Edit Style ────────────────
+.form-label-standalone {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+  padding-left: 12px;
+}
+
+.duration-split-edit {
+  display: flex;
+  gap: 12px;
+  background: #f8fafc;
+  padding: 8px 16px;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  height: 64px;
+  align-items: center;
+  transition: var(--transition-premium);
+
+  &:focus-within {
+    border-color: var(--accent-blue);
+    background: white;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.08);
+  }
+
+  .duration-input-box {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex: 1;
+
+    input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      outline: none;
+      font-weight: 700;
+      color: var(--text-primary);
+      text-align: right;
+      font-size: 1rem;
+      
+      &::-webkit-inner-spin-button { display: none; }
+    }
+
+    span {
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    &:first-child {
+      border-right: 1px solid #e2e8f0;
+      padding-right: 12px;
+    }
+  }
+}

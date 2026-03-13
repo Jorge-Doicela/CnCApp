@@ -12,6 +12,8 @@ export interface Capacitacion {
     horaFin?: string;
     horas?: number;
     enlaceVirtual?: string;
+    tipoEvento?: string;
+    plantillaId?: number | null;
     latitud?: number;
     longitud?: number;
     certificado?: boolean;

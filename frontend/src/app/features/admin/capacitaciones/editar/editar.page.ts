@@ -13,6 +13,7 @@ import { CatalogoService } from 'src/app/shared/services/catalogo.service';
 import { UsuarioService } from 'src/app/features/user/services/usuario.service';
 import { ErrorHandlerUtil } from 'src/app/shared/utils/error-handler.util';
 import { EstadoCapacitacionEnum } from 'src/app/shared/constants/enums';
+import { Capacitacion } from 'src/app/core/models/capacitacion.interface';
 import { addIcons } from 'ionicons';
 import { 
   arrowBackOutline, schoolOutline, informationCircleOutline, 
@@ -36,33 +37,41 @@ export class EditarPage implements OnInit {
   @ViewChild('capacitacionForm') capacitacionForm!: NgForm;
 
   cargando: boolean = true;
-  capacitacion = {
-    id: null as number | null,
+  capacitacion: Capacitacion = {
+    id: 0,
     nombre: '',
     descripcion: '',
     fechaInicio: '',
     lugar: '',
     estado: EstadoCapacitacionEnum.PENDIENTE,
-    plantillaId: null as number | null,
-    modalidad: '',
-    tipoEvento: '',
+    plantillaId: null,
+    modalidad: 'PRESENCIAL',
+    tipoEvento: 'CAPACITACIÓN',
     enlaceVirtual: '',
     horaInicio: '',
     horaFin: '',
     horas: 0,
     cuposDisponibles: 0,
-    entidadesEncargadas: [] as number[],
-    idsUsuarios: [] as number[],
-    expositores: [] as number[],
+    entidadesEncargadas: [],
+    idsUsuarios: [],
+    expositores: [],
     certificado: false,
-    latitud: undefined as number | undefined,
-    longitud: undefined as number | undefined
+    latitud: undefined,
+    longitud: undefined
   };
+
+  capacitacionOriginal: any;
+  
+  // Variables Virtuales para UX
+  aforoMaximo: number = 0;
+  inscritosActuales: number = 0;
+  duracionHoras: number = 0;
+  duracionMinutos: number = 0;
+  fechaMinima: string = '';
 
   // No validation needed
   private nameSubject = new Subject<string>();
 
-  capacitacionOriginal: any = {};
   entidadesList: any[] = [];
   expositoresList: any[] = [];
   participantesList: any[] = [];
@@ -131,11 +140,17 @@ export class EditarPage implements OnInit {
         this.cargarUsuarios()
       ]);
 
-      if (!this.capacitacion.idsUsuarios) this.capacitacion.idsUsuarios = [];
-      if (!this.capacitacion.entidadesEncargadas) this.capacitacion.entidadesEncargadas = [];
-      if (!this.capacitacion.expositores) this.capacitacion.expositores = [];
+      // Inyectar datos en variables de UX
+      this.inscritosActuales = this.capacitacion.idsUsuarios?.length || 0;
+      this.aforoMaximo = (this.capacitacion.cuposDisponibles || 0) + this.inscritosActuales;
+      
+      this.duracionHoras = Math.floor(this.capacitacion.horas || 0);
+      this.duracionMinutos = Math.round(((this.capacitacion.horas || 0) - this.duracionHoras) * 60);
 
       this.capacitacionOriginal = JSON.parse(JSON.stringify(this.capacitacion));
+      this.fechaMinima = new Date().toISOString().split('T')[0];
+      
+      this.cd.markForCheck();
     } catch (error: any) {
       console.error('Error al cargar datos:', error);
       if (error?.status === 404 || error === 'No ID') {
@@ -262,7 +277,24 @@ export class EditarPage implements OnInit {
     );
   }
 
+  actualizarHorasTotales() {
+    this.capacitacion.horas = Number(this.duracionHoras || 0) + (Number(this.duracionMinutos || 0) / 60);
+    this.capacitacion.horas = Math.round(this.capacitacion.horas * 100) / 100;
+  }
+
+  validarHorarios(): boolean {
+    if (!this.capacitacion.horaInicio || !this.capacitacion.horaFin) return true;
+    const [hI, mI] = this.capacitacion.horaInicio.split(':').map(Number);
+    const [hF, mF] = this.capacitacion.horaFin.split(':').map(Number);
+    return (hF * 60 + mF) > (hI * 60 + mI);
+  }
+
   async guardarCambios() {
+    if (!this.validarHorarios()) {
+      this.mostrarToast('La hora de fin debe ser posterior a la de inicio', 'warning');
+      return;
+    }
+
     const loading = await this.loadingController.create({
       message: 'Guardando cambios...',
       spinner: 'crescent'
@@ -275,15 +307,17 @@ export class EditarPage implements OnInit {
     }
 
     try {
-      // --- LIMPIEZA PROFUNDA DEL PAYLOAD ---
-      // Solo enviamos los campos que el backend espera para evitar errores de validación
+      // Sincronizar Cupos Disponibles basándose en el nuevo Aforo Máximo
+      // Cupos Disponibles = Nuevo Aforo - Inscritos actuales
+      const nuevosCupos = Math.max(0, this.aforoMaximo - this.inscritosActuales);
+
       const cleanPayload = {
         nombre: this.capacitacion.nombre,
         descripcion: this.capacitacion.descripcion || null,
         tipoEvento: this.capacitacion.tipoEvento || 'CAPACITACIÓN',
         fechaInicio: this.capacitacion.fechaInicio || null,
         lugar: this.capacitacion.lugar || null,
-        cuposDisponibles: Number(this.capacitacion.cuposDisponibles || 0),
+        cuposDisponibles: nuevosCupos,
         modalidad: this.capacitacion.modalidad || 'PRESENCIAL',
         estado: this.capacitacion.estado,
         plantillaId: this.capacitacion.plantillaId || null,
@@ -299,7 +333,6 @@ export class EditarPage implements OnInit {
         longitud: this.capacitacion.longitud
       };
 
-      // Sanitización final de URL
       if (cleanPayload.enlaceVirtual && !cleanPayload.enlaceVirtual.startsWith('http')) {
         cleanPayload.enlaceVirtual = 'https://' + cleanPayload.enlaceVirtual;
       }
@@ -349,27 +382,6 @@ export class EditarPage implements OnInit {
       const prefix = this.router.url.includes('/conferencista/') ? '/conferencista' : '';
       this.navController.navigateBack(`${prefix}/gestionar-capacitaciones`);
     }
-  }
-
-  async finalizarCapacitacion() {
-    const alert = await this.alertController.create({
-      header: 'Finalizar capacitación',
-      message: '¿Está seguro que desea marcar esta capacitación como realizada? Esto permitirá emitir certificados.',
-      buttons: [
-        {
-          text: 'Cancelar',
-          role: 'cancel'
-        },
-        {
-          text: 'Finalizar',
-          handler: async () => {
-            this.capacitacion.estado = EstadoCapacitacionEnum.REALIZADA;
-            await this.guardarCambios();
-          }
-        }
-      ]
-    });
-    await alert.present();
   }
 
   async confirmarEliminar() {
