@@ -19,8 +19,7 @@ import { WebAuthnUtil } from 'src/app/core/utils/webauthn.util';
   templateUrl: './perfil.page.html',
   styleUrls: ['./perfil.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule],
-  providers: [FingerprintAIO]
+  imports: [CommonModule, FormsModule, IonicModule]
 })
 export class PerfilPage implements OnInit {
   datosUsuario: any = null;
