@@ -117,6 +117,28 @@ export class AuthService {
         );
     }
 
+    loginBiometric(ci: string, biometricToken: string): Observable<LoginResponse> {
+        console.log('[AUTH_SERVICE] Biometric Login attempt for CI:', ci);
+
+        return this.http.post<LoginResponse>(`${this.apiUrl}/auth/login`, { ci, biometricToken }).pipe(
+            tap({
+                next: (response) => {
+                    console.log('[AUTH_SERVICE] Biometric Login successful:', response);
+                    if (response.success && response.data) {
+                        this.setAuthData(
+                            response.data.user,
+                            response.data.accessToken,
+                            response.data.refreshToken
+                        );
+                    }
+                },
+                error: (error) => {
+                    console.error('[AUTH_SERVICE] Biometric Login failed:', error);
+                }
+            })
+        );
+    }
+
     refresh(): Observable<RefreshResponse> {
         const currentRefreshToken = this.refreshToken();
         if (!currentRefreshToken) {
@@ -233,5 +255,9 @@ export class AuthService {
         return this.http.post(`${this.apiUrl}/auth/update-password`, { password }, {
             headers: { Authorization: `Bearer ${authToken}` }
         });
+    }
+
+    setupBiometric(): Observable<any> {
+        return this.http.post(`${this.apiUrl}/auth/setup-biometric`, {});
     }
 }

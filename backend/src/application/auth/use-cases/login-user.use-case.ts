@@ -18,8 +18,8 @@ export class LoginUserUseCase {
         @inject('TokenProvider') private readonly tokenProvider: TokenProvider
     ) { }
 
-    async execute(ci: string, password: string): Promise<LoginResult> {
-        console.log(`[LOGIN_DEBUG] Iniciando intento de login para CI: "${ci}"`);
+    async execute(ci: string, password?: string, biometricToken?: string): Promise<LoginResult> {
+        console.log(`[LOGIN_DEBUG] Iniciando intento de login para CI: "${ci}" (Modo: ${biometricToken ? 'Biométrico' : 'Password'})`);
         const user = await this.userRepository.findByCi(ci);
         if (!user) {
             console.log(`[LOGIN_DEBUG] Usuario NO encontrado para CI: "${ci}"`);
@@ -28,17 +28,28 @@ export class LoginUserUseCase {
 
         console.log(`[LOGIN_DEBUG] Usuario encontrado: ID=${user.id}, Nombre="${user.nombre}"`);
 
-        if (!user.password && password) {
-            console.log(`[LOGIN_DEBUG] Usuario no tiene contraseña establecida.`);
-            throw new AuthenticationError('Credenciales inválidas');
-        }
+        // LOGIN POR TOKEN BIOMÉTRICO (Nivel 2)
+        if (biometricToken) {
+            if (!user.biometricToken || user.biometricToken !== biometricToken) {
+                console.log(`[LOGIN_DEBUG] Token biométrico inválido para usuario ID=${user.id}`);
+                throw new AuthenticationError('Sesión biométrica expirada o no configurada. Por favor, use su contraseña.');
+            }
+            console.log(`[LOGIN_DEBUG] Autenticación por token biométrico exitosa para ID=${user.id}`);
+        } 
+        // LOGIN POR CONTRASEÑA (Normal / Primera vez)
+        else if (password) {
+            if (!user.password) {
+                console.log(`[LOGIN_DEBUG] Usuario no tiene contraseña establecida.`);
+                throw new AuthenticationError('Credenciales inválidas');
+            }
 
-        if (user.password) {
             const isValid = await this.passwordEncoder.verify(password, user.password);
             if (!isValid) {
                 console.log(`[LOGIN_DEBUG] Contraseña incorrecta para usuario ID=${user.id}`);
                 throw new AuthenticationError('Credenciales inválidas');
             }
+        } else {
+            throw new AuthenticationError('Debe proporcionar una contraseña o un token válido');
         }
 
         // Verificación de estado de cuenta (Funcionalidad de bloqueo)

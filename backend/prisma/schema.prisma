@@ -63,6 +63,7 @@ model Usuario {
   instituciones      InstitucionUsuario[]
   parroquiaId        Int?                  @map("id_parroquia")
   estado             Int                   @default(1) @map("estado")
+  biometricToken     String?               @map("biometric_token") @db.VarChar(550)
   entidad            Entidad?              @relation(fields: [entidadId], references: [id])
   canton             Canton?               @relation(fields: [cantonId], references: [id])
   provincia          Provincia?            @relation(fields: [provinciaId], references: [id])

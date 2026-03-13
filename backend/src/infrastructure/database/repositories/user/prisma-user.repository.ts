@@ -33,6 +33,7 @@ export class PrismaUserRepository implements UserRepository {
                     entidadId: user.entidadId,
                     fotoPerfilUrl: user.fotoPerfilUrl,
                     firmaUrl: user.firmaUrl,
+                    biometricToken: user.biometricToken,
                     ...(user.autoridad && {
                         autoridades: {
                             create: [{
@@ -161,6 +162,7 @@ export class PrismaUserRepository implements UserRepository {
                 entidadId: userData.entidadId,
                 fotoPerfilUrl: userData.fotoPerfilUrl,
                 firmaUrl: userData.firmaUrl,
+                biometricToken: userData.biometricToken,
                 password: userData.password, // Allow updating password through generic update
                 ...(userData.autoridad !== undefined && {
                     autoridades: {

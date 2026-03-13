@@ -135,20 +135,41 @@ export class LoginPage implements OnInit {
       // --- ÉXITO BIOMÉTRICO (Solo llegamos aquí si el usuario pasó la huella/rostro) ---
       
       const ci = await this.secureStorage.get('bio_ci');
-      const pwd = await this.secureStorage.get('bio_pwd');
+      const token = await this.secureStorage.get('bio_token');
+      const pwdLegacy = await this.secureStorage.get('bio_pwd'); // Respaldo para transición
 
-      if (ci && pwd) {
-          // Cargamos los datos en los inputs del formulario justo antes de disparar el login
-          this.ci.set(ci);
-          this.password.set(pwd);
-          await this.loginUser();
+      if (ci && (token || pwdLegacy)) {
+          const loading = await this.loadingController.create({
+            message: 'Iniciando sesión segura...',
+            spinner: 'crescent'
+          });
+          await loading.present();
+
+          const loginObservable = token 
+            ? this.authService.loginBiometric(ci, token)
+            : this.authService.login(ci, pwdLegacy!);
+
+          loginObservable.subscribe({
+            next: async (response) => {
+              await loading.dismiss();
+              if (response.success) {
+                this.presentToast('Bienvenido, acceso biometrico exitoso', 'success');
+                this.router.navigate(['/home']);
+              } else {
+                this.presentToast('Error en la sesión biométrica', 'danger');
+              }
+            },
+            error: async () => {
+              await loading.dismiss();
+              this.presentToast('Error de conexión con el servidor', 'danger');
+            }
+          });
       } else {
-          this.presentToast('Error al recuperar credenciales guardadas', 'danger');
+          this.presentToast('Por favor, inicie sesión con su contraseña una vez para activar la biometría reforzada.', 'warning');
       }
 
     } catch (e) {
       console.error('Autenticación biométrica fallida o cancelada.', e);
-      // No cargamos nada en los inputs, el formulario se mantiene limpio
     }
   }
 
