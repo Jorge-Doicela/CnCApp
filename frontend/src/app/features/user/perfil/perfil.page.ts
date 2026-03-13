@@ -10,9 +10,10 @@ import { environment } from 'src/environments/environment';
 import { Capacitor } from '@capacitor/core';
 import { firstValueFrom, timeout, finalize } from 'rxjs';
 import { AuthService } from 'src/app/features/auth/services/auth.service';
-import { Preferences } from '@capacitor/preferences';
 import { FingerprintAIO } from '@awesome-cordova-plugins/fingerprint-aio/ngx';
+import { SecureStorageService } from 'src/app/core/services/secure-storage.service';
 import { WebAuthnUtil } from 'src/app/core/utils/webauthn.util';
+import { Preferences } from '@capacitor/preferences';
 
 @Component({
   selector: 'app-perfil',
@@ -43,7 +44,8 @@ export class PerfilPage implements OnInit {
     private http: HttpClient,
     private authService: AuthService,
     private cdr: ChangeDetectorRef,
-    private fingerprintAIO: FingerprintAIO
+    private fingerprintAIO: FingerprintAIO,
+    private secureStorage: SecureStorageService
   ) { }
 
   ngOnInit() { }
@@ -55,7 +57,7 @@ export class PerfilPage implements OnInit {
 
   async verificarBiometria() {
     try {
-      const { value } = await Preferences.get({ key: 'biometria_activada' });
+      const value = await this.secureStorage.get('biometria_activada');
       this.biometriaActiva = value === 'true';
     } catch (e) {
       console.error('Error al verificar biometría:', e);
@@ -131,13 +133,13 @@ export class PerfilPage implements OnInit {
                       } else {
                           // Crear la credencial WebAuthn
                           const credentialId = await WebAuthnUtil.registerBiometric(this.datosUsuario.Nombre_Usuario);
-                          await Preferences.set({ key: 'bio_credential_id', value: credentialId });
+                          await this.secureStorage.set('bio_credential_id', credentialId);
                       }
 
                       // Guardar credenciales de forma segura
-                      await Preferences.set({ key: 'biometria_activada', value: 'true' });
-                      await Preferences.set({ key: 'bio_ci', value: ci });
-                      await Preferences.set({ key: 'bio_pwd', value: pass });
+                      await this.secureStorage.set('biometria_activada', 'true');
+                      await this.secureStorage.set('bio_ci', ci);
+                      await this.secureStorage.set('bio_pwd', pass);
 
                       this.presentToast('Biometría configurada correctamente', 'success');
                       this.biometriaActiva = true;
@@ -164,10 +166,10 @@ export class PerfilPage implements OnInit {
       }
     } else {
       // Si la está desactivando
-      await Preferences.remove({ key: 'biometria_activada' });
-      await Preferences.remove({ key: 'bio_ci' });
-      await Preferences.remove({ key: 'bio_pwd' });
-      await Preferences.remove({ key: 'bio_credential_id' });
+      await this.secureStorage.remove('biometria_activada');
+      await this.secureStorage.remove('bio_ci');
+      await this.secureStorage.remove('bio_pwd');
+      await this.secureStorage.remove('bio_credential_id');
       this.biometriaActiva = false;
       this.presentToast('Biometría desactivada.', 'secondary');
     }
