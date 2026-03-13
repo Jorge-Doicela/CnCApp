@@ -32,7 +32,7 @@
           <div class="capacitacion-card">
             <div class="capacitacion-header" [ngClass]="{
               'header-pending': infoCapacitacion.estado === 'Activa' || infoCapacitacion.estado === 'Pendiente',
-              'header-completed': infoCapacitacion.estado === 'Realizada',
+              'header-completed': infoCapacitacion.estado === 'Finalizada',
               'header-canceled': infoCapacitacion.estado === 'Cancelada'
             }">
               <div class="header-info">
@@ -237,7 +237,7 @@
 
         <!-- ===== CERTIFICADOS - PREMIUM STYLE ===== -->
         <div class="certificate-section-premium fade-in delay-3"
-          *ngIf="infoCapacitacion && infoCapacitacion.estado === 'Realizada' && !infoCapacitacion.certificado && !isConferencista">
+          *ngIf="infoCapacitacion && infoCapacitacion.estado === 'Finalizada' && !infoCapacitacion.certificado && !isConferencista">
           <ion-icon name="ribbon" class="cert-icon"></ion-icon>
           <h4>Protocolo de Certificación</h4>
           <p>La capacitación ha concluido. Puede proceder a emitir los certificados oficiales a los usuarios confirmados.</p>

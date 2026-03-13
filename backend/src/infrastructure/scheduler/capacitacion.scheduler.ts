@@ -3,6 +3,7 @@ import { container } from 'tsyringe';
 import { PrismaClient } from '@prisma/client';
 import { GenerateAllCertificadosUseCase } from '../../application/certificado/use-cases/generate-all-certificados.use-case';
 import logger from '../../config/logger';
+import { EstadoCapacitacionEnum } from '../../domain/shared/constants/enums';
 
 const prisma = new PrismaClient();
 
@@ -34,7 +35,7 @@ async function procesarCapacitacionesVencidas(): Promise<void> {
     const capacitaciones = await prisma.capacitacion.findMany({
         where: {
             estado: { in: ['Activa', 'Pendiente'] },
-            fechaFin: { lte: ahora } // fecha de fin ya pasó (o igual a hoy)
+            fechaFin: { lte: ahora } 
         }
     });
 
@@ -56,10 +57,10 @@ async function procesarCapacitacionesVencidas(): Promise<void> {
         logger.info(`[Scheduler] Finalizando capacitación ID=${cap.id} "${cap.nombre}" (fin: ${fechaHoraFin.toISOString()})`);
 
         try {
-            // PASO 1: Marcar como Realizada
+            // PASO 1: Marcar como Realizada (usando el Enum oficial 'Finalizada')
             await prisma.capacitacion.update({
                 where: { id: cap.id },
-                data: { estado: 'Realizada' }
+                data: { estado: EstadoCapacitacionEnum.REALIZADA }
             });
 
             // PASO 2: Verificar si ya tiene certificados emitidos

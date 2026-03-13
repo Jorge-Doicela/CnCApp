@@ -7,6 +7,7 @@ import { ActualizarAsistenciaUseCase } from '../../../application/usuario-capaci
 import { UsuarioCapacitacionRepository } from '../../../domain/usuario-capacitacion/usuario-capacitacion.repository';
 import { AuthRequest } from '../middleware/auth.middleware';
 import { ROLES } from '../../../domain/shared/constants/roles.constants';
+import { EstadoCapacitacionEnum } from '../../../domain/shared/constants/enums';
 import prisma from '../../../config/database';
 
 @injectable()
@@ -225,7 +226,7 @@ export class UsuarioCapacitacionController {
             }
 
             // 2. Verificar que la capacitación está activa (no finalizada ni cancelada)
-            if (capacitacion.estado === 'Realizada' || capacitacion.estado === 'Cancelada') {
+            if (capacitacion.estado === EstadoCapacitacionEnum.REALIZADA || capacitacion.estado === EstadoCapacitacionEnum.CANCELADA) {
                 res.status(400).json({
                     message: `No se puede confirmar asistencia: la capacitación se encuentra en estado "${capacitacion.estado}"`
                 });

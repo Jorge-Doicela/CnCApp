@@ -503,7 +503,7 @@ export class VisualizarinscritosPage implements OnInit {
   getEstadoTexto(estado: string): string {
     switch (estado) {
       case EstadoCapacitacionEnum.PENDIENTE: return 'Pendiente';
-      case EstadoCapacitacionEnum.REALIZADA: return 'Realizada';
+      case EstadoCapacitacionEnum.REALIZADA: return 'Finalizada';
       case EstadoCapacitacionEnum.CANCELADA: return 'Cancelada';
       default: return estado;
     }

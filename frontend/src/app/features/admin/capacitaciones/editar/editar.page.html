@@ -30,7 +30,7 @@
           }">
           <ion-icon
             [name]="capacitacion.estado === EstadoCapacitacion.REALIZADA ? 'checkmark-circle' : (capacitacion.estado === EstadoCapacitacion.PENDIENTE ? 'time' : 'close-circle')"></ion-icon>
-          {{ capacitacion.estado === EstadoCapacitacion.REALIZADA ? 'Realizada' : (capacitacion.estado ===
+          {{ capacitacion.estado === EstadoCapacitacion.REALIZADA ? 'Finalizada' : (capacitacion.estado ===
           EstadoCapacitacion.PENDIENTE ? 'En Curso / Pendiente' : 'Cancelada') }}
         </div>
       </header>

@@ -7,4 +7,6 @@ export interface CapacitacionRepository {
     findByNombre(nombre: string, excludeId?: number): Promise<Capacitacion | null>;
     findAll(expositorId?: number): Promise<Capacitacion[]>;
     delete(id: number): Promise<void>;
+    incrementarCupo(id: number): Promise<void>;
+    decrementarCupo(id: number): Promise<void>;
 }

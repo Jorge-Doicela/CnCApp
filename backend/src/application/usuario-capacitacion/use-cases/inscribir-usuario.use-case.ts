@@ -2,6 +2,7 @@ import { injectable, inject } from 'tsyringe';
 import { UsuarioCapacitacionRepository } from '../../../domain/usuario-capacitacion/usuario-capacitacion.repository';
 import { UsuarioCapacitacion } from '../../../domain/usuario-capacitacion/entities/usuario-capacitacion.entity';
 import { CapacitacionRepository } from '../../../domain/capacitacion/repositories/capacitacion.repository';
+import { EstadoCapacitacionEnum } from '../../../domain/shared/constants/enums';
 import { ValidationError } from '../../../domain/shared/errors';
 
 @injectable()
@@ -22,7 +23,7 @@ export class InscribirUsuarioUseCase {
             throw new ValidationError('La capacitación no existe');
         }
 
-        if (capacitacion.estado === 'Realizada' || capacitacion.estado === 'Cancelada') {
+        if (capacitacion.estado === EstadoCapacitacionEnum.REALIZADA || capacitacion.estado === EstadoCapacitacionEnum.CANCELADA) {
             throw new ValidationError(`No es posible inscribirse: la capacitación se encuentra ${capacitacion.estado}`);
         }
 
@@ -39,11 +40,9 @@ export class InscribirUsuarioUseCase {
         // 3. Crear inscripción
         const result = await this.repository.create(data);
 
-        // 4. Actualizar cupos (decremento)
+        // 4. Actualizar cupos (decremento atómico)
         if (capacitacion.cuposDisponibles !== null && capacitacion.cuposDisponibles > 0) {
-            await this.capacitacionRepository.update(capacitacion.id!, {
-                cuposDisponibles: capacitacion.cuposDisponibles - 1
-            });
+            await this.capacitacionRepository.decrementarCupo(capacitacion.id!);
         }
 
         return result;

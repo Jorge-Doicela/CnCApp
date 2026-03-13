@@ -7,6 +7,13 @@ import { RolCapacitacionEnum, EstadoCapacitacionEnum } from '../../domain/shared
 @injectable()
 export class PrismaUsuarioCapacitacionRepository implements UsuarioCapacitacionRepository {
 
+    async findById(id: number): Promise<UsuarioCapacitacion | null> {
+        const result = await prisma.usuarioCapacitacion.findUnique({
+            where: { id }
+        });
+        return result as unknown as UsuarioCapacitacion | null;
+    }
+
     async findByCapacitacionId(capacitacionId: number): Promise<UsuarioCapacitacion[]> {
         const result = await prisma.usuarioCapacitacion.findMany({
             where: { capacitacionId },
