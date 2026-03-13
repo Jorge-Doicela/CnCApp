@@ -48,8 +48,17 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
                 localStorage.removeItem('user_role');
                 localStorage.removeItem('auth_uid');
 
-                // Redirigir al login
-                router.navigate(['/login']);
+                // Lista de rutas públicas donde NO queremos redirección automática al login
+                const currentUrl = router.url.split('?')[0];
+                const skipRedirectPaths = ['/', '/home', '/login', '/register', '/validar-certificados'];
+                const shouldSkipRedirect = skipRedirectPaths.some(path => currentUrl === path || currentUrl.startsWith('/home/'));
+
+                if (!shouldSkipRedirect) {
+                    console.warn('[AUTH_INTERCEPTOR] Token inválido o expirado en ruta protegida, redirigiendo al login:', currentUrl);
+                    router.navigate(['/login']);
+                } else {
+                    console.log('[AUTH_INTERCEPTOR] 401 detectado en ruta pública, se limpian tokens pero no se redirige. Ruta actual:', currentUrl);
+                }
             }
 
             return throwError(() => error);

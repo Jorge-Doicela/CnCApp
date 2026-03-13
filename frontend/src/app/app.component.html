@@ -47,6 +47,12 @@
             <ion-icon [name]="getIconForModule(modulo)" slot="start"></ion-icon>
             <ion-label>{{ modulo }}</ion-label>
           </ion-item>
+
+          <!-- ASISTENCIA QR (Hardcoded for Users parity with Header) -->
+          <ion-item *ngIf="isUser()" button detail="false" (click)="navegarModulo('Asistencia QR')" class="menu-item">
+            <ion-icon name="qr-code-outline" slot="start"></ion-icon>
+            <ion-label>Asistencia QR</ion-label>
+          </ion-item>
         </ng-container>
 
         <!-- INFORMACIÓN (Siempre visible o solo guest, según prefiera el usuario. Screenshot muestra guest view) -->

@@ -179,17 +179,23 @@
           </div>
         </div>
 
+        <!-- Seguridad -->
+        <div class="profile-section fade-in" style="animation-delay: 0.35s;">
+          <h3 class="section-title">Seguridad</h3>
+          <div class="security-item">
+            <div class="info-item biometric-toggle-item">
+              <ion-icon name="finger-print-outline" color="primary"></ion-icon>
+              <div class="info-content">
+                <span class="info-label">Inicio con Biometría</span>
+                <span class="info-value">FaceID/Huella o Patrón</span>
+              </div>
+              <ion-toggle slot="end" [checked]="biometriaActiva" (ionChange)="toggleBiometria($event)"></ion-toggle>
+            </div>
+          </div>
+        </div>
+
         <!-- Acciones de perfil -->
         <div class="profile-actions fade-in" style="animation-delay: 0.4s;">
-          <ion-item class="biometric-toggle" lines="none">
-            <ion-icon name="finger-print-outline" slot="start" color="primary"></ion-icon>
-            <ion-label>
-              <h2>Inicio con Biometría</h2>
-              <p>FaceID/Huella o Patrón del dispositivo</p>
-            </ion-label>
-            <ion-toggle slot="end" [checked]="biometriaActiva" (ionChange)="toggleBiometria($event)"></ion-toggle>
-          </ion-item>
-          
           <ion-button expand="block" color="primary" (click)="editarPerfil()">
             <ion-icon name="create-outline" slot="start"></ion-icon>
             Editar Perfil

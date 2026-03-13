@@ -49,13 +49,23 @@
     <!-- Control Center -->
     <div class="control-center fade-up delay-2">
       <div class="search-wrapper">
-        <ion-searchbar 
-          [(ngModel)]="terminoBusqueda" 
-          (ionInput)="aplicarFiltros()"
-          placeholder="Buscar por nombre de curso, lugar o descripción técnica..." 
-          class="premium-search" 
-          [debounce]="300">
-        </ion-searchbar>
+        <div class="custom-premium-search">
+          <ion-icon name="search-outline" class="search-icon"></ion-icon>
+          <input 
+            type="text" 
+            [(ngModel)]="terminoBusqueda" 
+            (input)="aplicarFiltros()"
+            placeholder="Buscar por nombre de curso, lugar o descripción técnica..." 
+            class="search-input"
+          >
+          <ion-button 
+            *ngIf="terminoBusqueda" 
+            fill="clear" 
+            (click)="terminoBusqueda = ''; aplicarFiltros()" 
+            class="clear-search-btn">
+            <ion-icon name="close-circle-outline"></ion-icon>
+          </ion-button>
+        </div>
         
         <ion-button 
           fill="clear" 
