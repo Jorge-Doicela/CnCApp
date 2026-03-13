@@ -1,11 +1,13 @@
 import { Request, Response, NextFunction } from 'express';
 import { injectable, inject } from 'tsyringe';
+import { AuthRequest } from '../middleware/auth.middleware';
 import { CreateCapacitacionUseCase } from '../../../application/capacitacion/use-cases/create-capacitacion.use-case';
 import { GetAllCapacitacionesUseCase } from '../../../application/capacitacion/use-cases/get-all-capacitaciones.use-case';
 import { UpdateCapacitacionUseCase } from '../../../application/capacitacion/use-cases/update-capacitacion.use-case';
 import { GetCapacitacionByIdUseCase } from '../../../application/capacitacion/use-cases/get-capacitacion-by-id.use-case';
 import { DeleteCapacitacionUseCase } from '../../../application/capacitacion/use-cases/delete-capacitacion.use-case';
 import { CheckNombreCapacitacionUseCase } from '../../../application/capacitacion/use-cases/check-nombre-capacitacion.use-case';
+import { ROLES } from '../../../domain/shared/constants/roles.constants';
 import { parseIdParam } from '../middleware/parse-id.helper';
 import { NotFoundError } from '../../../domain/shared/errors';
 import { z } from 'zod';
