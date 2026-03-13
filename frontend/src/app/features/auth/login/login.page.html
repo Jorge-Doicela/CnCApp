@@ -43,8 +43,8 @@
             <ion-label position="stacked">Cédula de Identidad</ion-label>
             <div class="custom-input-wrapper">
               <ion-icon name="person-outline" class="input-icon"></ion-icon>
-              <ion-input [value]="ci()" (ionInput)="updateCi($event)" type="tel" maxlength="10"
-                placeholder="Ingrese su cédula" mode="md">
+              <ion-input [value]="ci()" (ionInput)="updateCi($event)" type="text" maxlength="10"
+                placeholder="Ingrese su cédula" mode="md" autocomplete="off" name="no-fill-ci">
               </ion-input>
             </div>
           </div>
@@ -54,7 +54,8 @@
             <div class="custom-input-wrapper">
               <ion-icon name="lock-closed-outline" class="input-icon"></ion-icon>
               <ion-input [value]="password()" (ionInput)="updatePassword($event)"
-                [type]="showPassword() ? 'text' : 'password'" placeholder="Ingrese su contraseña" mode="md">
+                [type]="showPassword() ? 'text' : 'password'" placeholder="Ingrese su contraseña" mode="md"
+                autocomplete="new-password" name="no-fill-pwd">
               </ion-input>
               <ion-button fill="clear" (click)="togglePassword()" class="eye-btn" slot="end">
                 <ion-icon [name]="showPassword() ? 'eye-off-outline' : 'eye-outline'" slot="icon-only"></ion-icon>
