@@ -115,7 +115,7 @@
           </div>
 
           <!-- Mobile Login Button -->
-          <div *ngIf="isGuest()" class="mobile-only-btn-frame">
+          <div *ngIf="isGuest()" class="mobile-only-btn-frame mobile-only">
             <div (click)="iraLogin()" class="auth-box login mobile-login-pill">
               <ion-icon name="log-in-outline"></ion-icon>
             </div>
@@ -411,6 +411,12 @@
 
   @media (max-width: 1200px) {
     .desktop-only {
+      display: none !important;
+    }
+  }
+
+  @media (min-width: 1201px) {
+    .mobile-only {
       display: none !important;
     }
   }
