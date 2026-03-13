@@ -146,6 +146,18 @@ export class ReportesPage implements OnInit {
         }
     }
 
+    getUsuariosTrends(): number[] {
+        const stats = this.stats();
+        if (!stats || !stats.tendencias) return [];
+        return stats.tendencias.map(t => t.usuarios);
+    }
+
+    getCertificadosTrends(): number[] {
+        const stats = this.stats();
+        if (!stats || !stats.tendencias) return [];
+        return stats.tendencias.map(t => t.certificados);
+    }
+
     async exportarPDF() {
         const loading = await this.loadingController.create({
             message: 'Generando reporte PDF...',
