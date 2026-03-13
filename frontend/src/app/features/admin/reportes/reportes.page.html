@@ -138,11 +138,21 @@
                 </div>
 
                 <div class="kpi-grid">
-                    <app-kpi-card label="Usuarios Totales" [value]="stats()?.totalUsuarios ?? 0" icon="people-outline"
-                        type="primary" trendText="+12% este mes" [trendPositive]="true"></app-kpi-card>
-
-                    <app-kpi-card label="Certificados" [value]="stats()?.totalCertificados ?? 0" icon="ribbon-outline"
-                        type="success" trendText="+5% este mes" [trendPositive]="true"></app-kpi-card>
+                    <app-kpi-card label="Usuarios Totales" 
+                        [value]="stats()!.totalUsuarios" 
+                        icon="people-outline" 
+                        type="primary"
+                        trendText="+12% este mes"
+                        [trendPositive]="true"
+                        [chartData]="getUsuariosTrends()"></app-kpi-card>
+                    
+                    <app-kpi-card label="Certificados" 
+                        [value]="stats()!.totalCertificados" 
+                        icon="ribbon-outline" 
+                        type="success"
+                        trendText="+5% este mes"
+                        [trendPositive]="true"
+                        [chartData]="getCertificadosTrends()"></app-kpi-card>
 
                     <app-kpi-card label="Capacitaciones" [value]="stats()?.totalCapacitaciones ?? 0" icon="school-outline"
                         type="warning" trendText="8 activas" trendIcon="time-outline"
