@@ -38,6 +38,11 @@ export class AppComponent implements OnInit, OnDestroy {
   userRole = this.authService.roleName;
   modulos = this.authService.modulos;
 
+  isUser = computed(() => {
+    const role = this.userRole()?.toLowerCase() || '';
+    return role === 'usuario' || role === 'participante';
+  });
+
   lastUrl: string = '';
 
   // Logic to show header
@@ -244,6 +249,8 @@ export class AppComponent implements OnInit, OnDestroy {
       'Ver certificados': 'ver-certificaciones',
       'Validar certificados': 'validar-certificados',
       'validar-certificados': 'validar-certificados',
+      'Asistencia QR': 'confirmar-asistencia',
+      'confirmar-asistencia': 'confirmar-asistencia',
       'informacion': 'home/informacion',
       'direccion': 'home/direccion',
       'historia': 'home/historia',
@@ -306,11 +313,11 @@ export class AppComponent implements OnInit, OnDestroy {
       'Ver Perfil': 'person-outline',
       'Ver conferencias': 'list-outline',
       'Ver certificaciones': 'document-text-outline',
-      'Ver certificados': 'document-text-outline',
-      'Validar certificados': 'qr-code-outline',
+      'gestionar-reportes': 'apps-outline',
       'gestionar-plantillas': 'image-outline',
       'gestionar-roles': 'people-outline',
-      'gestionar-usuarios': 'person-add-outline'
+      'gestionar-usuarios': 'person-add-outline',
+      'Asistencia QR': 'qr-code-outline'
     };
 
     return iconMap[modulo] || 'apps-outline';

@@ -9,14 +9,16 @@ ion-header {
 
     ion-toolbar {
         --border-width: 0;
-        --padding-start: 0;
-        --padding-end: 0;
-        --padding-top: 0;
-        --padding-bottom: 0;
+        --padding-start: 16px;
+        --padding-end: 16px;
+        --padding-top: env(safe-area-inset-top, 0px);
+        --min-height: calc(72px + env(safe-area-inset-top, 0px));
+        --background: #ffffff;
     }
 }
 
 // Ensure the menu button looks clean and aligned
 ion-menu-button {
     --color: #475569;
+    font-size: 1.1rem;
 }

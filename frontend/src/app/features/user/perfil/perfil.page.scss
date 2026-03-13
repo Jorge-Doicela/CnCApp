@@ -343,15 +343,26 @@ ion-content {
   }
 }
 
+.security-item {
+  margin-top: 10px;
+  
+  .biometric-toggle-item {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    
+    ion-toggle {
+      --handle-spacing: 4px;
+      margin-left: auto;
+    }
+  }
+}
+
 .profile-actions {
   display: grid;
   grid-template-columns: 1fr;
   gap: 15px;
-  margin-top: 20px;
-
-  @media (min-width: 576px) {
-    grid-template-columns: repeat(2, 1fr);
-  }
+  margin-top: 10px;
 
   ion-button {
     --border-radius: 12px;
