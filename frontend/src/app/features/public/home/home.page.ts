@@ -27,6 +27,7 @@ import {
 import { Router } from '@angular/router';
 
 import { CapacitacionesService } from '../../admin/capacitaciones/services/capacitaciones.service';
+import { CertificadosService } from '../../admin/certificados/services/certificados.service';
 import { UsuarioService } from '../../user/services/usuario.service';
 import { AuthService } from '../../auth/services/auth.service';
 import { Capacitacion } from '../../../core/models/capacitacion.interface';
@@ -106,6 +107,7 @@ export class HomePage implements OnInit {
   pageTitle: string = 'Inicio';
 
   private capacitacionesService = inject(CapacitacionesService);
+  private certificadosService = inject(CertificadosService);
   private usuarioService = inject(UsuarioService);
   private menuCtrl = inject(MenuController);
   private cd = inject(ChangeDetectorRef);
@@ -215,7 +217,10 @@ export class HomePage implements OnInit {
   }
 
   async cargarDatosUsuario() {
-    await this.RecuperarConferenciasInscrito();
+    await Promise.all([
+      this.RecuperarConferenciasInscrito(),
+      this.cargarConteoCertificados()
+    ]);
     this.calcularEstadisticas();
 
     if (this.isAdmin()) {
@@ -270,9 +275,21 @@ export class HomePage implements OnInit {
     }
   }
 
+  async cargarConteoCertificados() {
+    try {
+      const certificados = await firstValueFrom(this.certificadosService.getMyCertificados());
+      this.certificadosDisponibles = certificados?.length || 0;
+    } catch (e) {
+      console.error('Error al cargar conteo de certificados:', e);
+      this.certificadosDisponibles = 0;
+    } finally {
+      this.cd.markForCheck();
+    }
+  }
+
   calcularEstadisticas() {
     this.proximasConferencias = this.ConferenciasInscritas.filter(c => c.estado === 'Activa').length;
-    this.certificadosDisponibles = this.ConferenciasInscritas.filter(c => c.estado === 'Finalizada').length;
+    // Ya no lo calculamos aquí localmente, usamos cargarConteoCertificados()
   }
 
   async cargarEstadisticasAdmin() {

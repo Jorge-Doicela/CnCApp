@@ -17,6 +17,10 @@ export class CertificadosService {
         return this.http.get<any>(`${this.apiUrl}/qr/${hash}`);
     }
 
+    getMyCertificados(): Observable<any[]> {
+        return this.http.get<any[]>(`${this.apiUrl}/my`);
+    }
+
     verifyHash(idUsuario: string, idCapacitacion: number): Observable<any[]> {
         // Should return array matching Supabase structure for compatibility initially
         // Or null if not found
