@@ -118,17 +118,7 @@ ion-content {
     gap: 20px;
     
     .compact-stats {
-      margin-top: 0;
-      padding: 10px 20px;
-      gap: 28px;
-      border-radius: 20px;
-      animation: f-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
-
-      .mini-stat {
-        &:not(:last-child)::after { right: -14px; }
-        .val { font-size: 1.5rem; }
-        .lab { font-size: 0.6rem; }
-      }
+      margin: 0;
     }
 
     .new-btn {
@@ -158,58 +148,66 @@ ion-content {
   }
 }
 
-// ── Compact Integrated Stats ────────────────
+// ── Compact Integrated Stats (Pill Capsule Design) ──
 .compact-stats {
   display: flex;
-  gap: 40px;
+  gap: 32px;
   margin-top: 28px;
-  padding: 12px 28px;
-  @extend .glass-effect;
-  background: rgba(255, 255, 255, 0.3);
-  border-radius: 24px;
+  padding: 12px 32px;
+  background: white;
+  border-radius: 100px;
   width: fit-content;
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.02);
   animation: f-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) both 0.2s;
 
   .mini-stat {
     display: flex;
     flex-direction: column;
+    align-items: center;
     position: relative;
+    min-width: 60px;
 
     &:not(:last-child)::after {
       content: '';
       position: absolute;
-      right: -20px;
+      right: -16px;
       top: 15%;
       height: 70%;
       width: 1px;
-      background: rgba(0,0,0,0.05);
+      background: #f1f5f9;
     }
     
     .val {
-      font-size: 1.75rem;
-      font-weight: 950;
-      color: var(--text-primary);
+      font-size: 2rem;
+      font-weight: 800;
+      color: #1e293b;
       line-height: 1;
       letter-spacing: -0.02em;
     }
     .lab {
       font-size: 0.65rem;
-      font-weight: 800;
-      color: var(--text-muted);
+      font-weight: 900;
+      color: #64748b;
       text-transform: uppercase;
-      letter-spacing: 0.1em;
-      margin-top: 6px;
+      letter-spacing: 0.08em;
+      margin-top: 8px;
+      white-space: nowrap;
     }
 
-    .teal-text { color: var(--accent-teal); }
-    .indigo-text { color: var(--accent-indigo); }
-    .amber-text { color: var(--accent-amber); }
+    .teal-text { color: #0d9488 !important; }
+    .indigo-text { color: #6366f1 !important; }
+    .amber-text { color: #d97706 !important; }
   }
 
   @media (max-width: 600px) {
-    gap: 20px;
-    padding: 10px 16px;
-    .mini-stat .val { font-size: 1.25rem; }
+    gap: 16px;
+    padding: 10px 20px;
+    .mini-stat {
+      min-width: auto;
+      .val { font-size: 1.5rem; }
+      &:not(:last-child)::after { right: -8px; }
+    }
   }
 }
 
