@@ -23,9 +23,18 @@ export interface DashboardStatsData {
     participantesInscritos: number;
     tasaCertificacion: number;
     usuariosPorGenero: Array<{ nombre: string; cantidad: number; }>;
+    usuariosPorEtnia: Array<{ nombre: string; cantidad: number; }>;
     topProvincias: Array<{ nombre: string; cantidad: number; }>;
+    capacitacionesPorModalidad: Array<{ nombre: string; cantidad: number; }>;
+}
+
+export interface DashboardFilter {
+    startDate?: string;
+    endDate?: string;
+    entidadId?: number;
+    modalidad?: string;
 }
 
 export interface ReportesRepository {
-    getDashboardStats(): Promise<DashboardStatsData>;
+    getDashboardStats(filter?: DashboardFilter): Promise<DashboardStatsData>;
 }
