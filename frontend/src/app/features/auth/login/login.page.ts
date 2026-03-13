@@ -69,9 +69,16 @@ export class LoginPage implements OnInit {
   }
 
   ionViewWillEnter() {
-    // Limpiamos los campos al entrar para evitar que se queden guardados tras cerrar sesión
+    // Limpiamos inmediatamente
     this.ci.set('');
     this.password.set('');
+
+    // Refuerzo: Limpiamos otra vez tras medio segundo para "nukear" el autocompletado del celular
+    setTimeout(() => {
+      this.ci.set('');
+      this.password.set('');
+    }, 500);
+
     this.checkBiometricLogin();
   }
 
@@ -103,17 +110,18 @@ export class LoginPage implements OnInit {
       const isNative = Capacitor.isNativePlatform();
 
       if (isNative) {
-          const result = await this.fingerprintAIO.isAvailable({ requireStrongBiometrics: false });
+          // Exigimos BIOMETRÍA FUERTE (Hardware dedicado, no PIN/Patrón)
+          const result = await this.fingerprintAIO.isAvailable({ requireStrongBiometrics: true });
           if (result !== 'biometric' && result !== 'finger' && result !== 'face') {
-             this.presentToast('Biometría no disponible en este dispositivo', 'warning');
+             this.presentToast('Este modo requiere un sensor de huella o rostro configurado', 'warning');
              return;
           }
           
           await this.fingerprintAIO.show({
-              title: 'Iniciar Sesión',
-              subtitle: 'Use su biometría para acceder a su cuenta',
-              description: 'Escanee su huella o rostro',
-              disableBackup: true
+              title: 'Autenticación Reforzada',
+              subtitle: 'Verifique su identidad para acceder',
+              description: 'El sistema requiere su huella o rostro para descifrar sus credenciales protegidas.',
+              disableBackup: true, // No permitimos usar el PIN del teléfono como respaldo
           });
       } else {
           const credentialId = await this.secureStorage.get('bio_credential_id');
