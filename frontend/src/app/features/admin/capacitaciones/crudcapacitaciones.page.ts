@@ -19,7 +19,8 @@ import {
   optionsOutline, chevronDownOutline, locationOutline, calendarClearOutline, 
   videocamOutline, people, createOutline, peopleOutline, checkmarkDoneOutline, 
   trashBinOutline, ellipse, checkmarkCircle, eyeOutline, closeOutline,
-  linkOutline, time, businessOutline
+  linkOutline, time, businessOutline, qrCodeOutline, printOutline,
+  copyOutline
 } from 'ionicons/icons';
 
 @Component({
@@ -47,6 +48,12 @@ export class CrudcapacitacionesPage implements OnInit {
   cargando: boolean = false;
   mostrarFiltrosAvanzados: boolean = false;
 
+  // QR Modal logic
+  mostrarQREvento: boolean = false;
+  qrDataUrl: string = '';
+  generandoQR: boolean = false;
+  infoCapacitacionQR: Capacitacion | null = null;
+
   private capacitacionesService = inject(CapacitacionesService);
   private authService = inject(AuthService);
   private cdr = inject(ChangeDetectorRef);
@@ -66,7 +73,8 @@ export class CrudcapacitacionesPage implements OnInit {
       optionsOutline, chevronDownOutline, locationOutline, calendarClearOutline,
       videocamOutline, people, createOutline, peopleOutline, checkmarkDoneOutline,
       trashBinOutline, ellipse, checkmarkCircle, eyeOutline, closeOutline,
-      linkOutline, time, businessOutline
+      linkOutline, time, businessOutline, qrCodeOutline, printOutline,
+      copyOutline
     });
   }
 
@@ -373,5 +381,93 @@ export class CrudcapacitacionesPage implements OnInit {
     if (!lugar) return;
     const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(lugar)}`;
     window.open(url, '_blank');
+  }
+
+  // --- QR Actions ---
+
+  async mostrarQRDelEvento(cap: Capacitacion) {
+    if (!cap.codigoQrEvento) {
+      this.presentToast('Esta capacitación no tiene un código QR generado', 'warning');
+      return;
+    }
+
+    this.infoCapacitacionQR = cap;
+    this.generandoQR = true;
+    this.mostrarQREvento = true;
+    this.cdr.markForCheck();
+
+    try {
+      const qrContent = cap.codigoQrEvento;
+      const qrSize = 300;
+      this.qrDataUrl = `https://api.qrserver.com/v1/create-qr-code/?size=${qrSize}x${qrSize}&data=${encodeURIComponent(qrContent)}&margin=10&format=png`;
+    } finally {
+      this.generandoQR = false;
+      this.cdr.markForCheck();
+    }
+  }
+
+  cerrarQRModal() {
+    this.mostrarQREvento = false;
+    this.infoCapacitacionQR = null;
+    this.cdr.markForCheck();
+  }
+
+  async copiarCodigoAcceso() {
+    const codigo = this.getCodigoAcceso(this.infoCapacitacionQR);
+    if (!codigo) return;
+    
+    try {
+      await navigator.clipboard.writeText(codigo);
+      this.presentToast('Código copiado al portapapeles', 'success');
+    } catch (err) {
+      this.presentToast('No se pudo copiar el código', 'danger');
+    }
+  }
+
+  getCodigoAcceso(cap: Capacitacion | null): string {
+    if (!cap?.codigoQrEvento) return '';
+    return cap.codigoQrEvento.replace(/-/g, '').substring(0, 8).toUpperCase();
+  }
+
+  imprimirQR() {
+    if (!this.qrDataUrl || !this.infoCapacitacionQR) return;
+
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) return;
+
+    const html = `
+      <html>
+        <head>
+          <title>Imprimir QR - ${this.infoCapacitacionQR.nombre}</title>
+          <style>
+            body { font-family: 'Inter', sans-serif; text-align: center; padding: 40px; }
+            .container { max-width: 500px; margin: 0 auto; border: 2px solid #e2e8f0; padding: 40px; border-radius: 30px; }
+            h2 { color: #1e3a8a; margin-bottom: 5px; font-size: 24px; }
+            p { color: #64748b; margin-bottom: 30px; }
+            .qr-img { width: 300px; height: 300px; margin-bottom: 30px; }
+            .code-box { background: #f1f5f9; padding: 15px; border-radius: 12px; font-size: 20px; font-weight: bold; letter-spacing: 5px; color: #1e3a8a; }
+            .footer { margin-top: 40px; font-size: 12px; color: #94a3b8; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <h2>${this.infoCapacitacionQR.nombre}</h2>
+            <p>Registro de Asistencia Digital</p>
+            <img src="${this.qrDataUrl}" class="qr-img" />
+            <div class="code-box">${this.getCodigoAcceso(this.infoCapacitacionQR)}</div>
+            <div class="footer">Generado por Plataforma CNC - ${new Date().toLocaleDateString()}</div>
+          </div>
+          <script>
+            window.onload = function() {
+              window.print();
+              setTimeout(() => { window.close(); }, 500);
+            }
+          </script>
+        </body>
+      </html>
+    `;
+
+    printWindow.document.write(html);
+    printWindow.document.close();
   }
 }
