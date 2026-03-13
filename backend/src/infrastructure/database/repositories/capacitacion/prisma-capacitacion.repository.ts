@@ -149,14 +149,29 @@ export class PrismaCapacitacionRepository implements CapacitacionRepository {
 
             const toAdd = targetInscripciones.filter(t => !currentIds.includes(t.usuarioId));
             
-            // Ajustar cupos basado en el balance neto de participantes (NO expositores)
-            const participantesEliminados = currentInscripciones.filter(i => 
-                i.rolCapacitacion === RolCapacitacionEnum.PARTICIPANTE && 
-                !targetIds.includes(i.usuarioId)
-            ).length;
+            // Lógica Híbrida de Cupos:
+            // Solo ajustamos de forma atómica si NO se está enviando un nuevo valor absoluto de cuposDisponibles
+            if (data.cuposDisponibles === undefined) {
+                const participantesEliminados = currentInscripciones.filter(i => 
+                    i.rolCapacitacion === RolCapacitacionEnum.PARTICIPANTE && 
+                    !targetIds.includes(i.usuarioId)
+                ).length;
 
-            const participantesNuevos = toAdd.filter(t => t.rol === RolCapacitacionEnum.PARTICIPANTE).length;
-            const balanceParticipantes = participantesNuevos - participantesEliminados;
+                const participantesNuevos = toAdd.filter(t => t.rol === RolCapacitacionEnum.PARTICIPANTE).length;
+                const balanceParticipantes = participantesNuevos - participantesEliminados;
+
+                // Actualizar cuposDisponibles de forma atómica basado en el balance neto
+                if (balanceParticipantes !== 0) {
+                    await prisma.capacitacion.update({
+                        where: { id },
+                        data: {
+                            cuposDisponibles: {
+                                decrement: balanceParticipantes
+                            }
+                        }
+                    });
+                }
+            }
 
             if (toAdd.length > 0) {
                 await prisma.usuarioCapacitacion.createMany({
@@ -166,18 +181,6 @@ export class PrismaCapacitacionRepository implements CapacitacionRepository {
                         rolCapacitacion: t.rol,
                         estadoInscripcion: 'Activa'
                     }))
-                });
-            }
-
-            // Actualizar cuposDisponibles de forma atómica si hay cambios en participantes
-            if (balanceParticipantes !== 0) {
-                await prisma.capacitacion.update({
-                    where: { id },
-                    data: {
-                        cuposDisponibles: {
-                            decrement: balanceParticipantes // Si balance es +, decrementa cupos. Si es -, incrementa.
-                        }
-                    }
                 });
             }
         }

@@ -103,12 +103,11 @@
           </h3>
 
           <div class="form-row">
-            <div class="form-group">
+            <div class="form-group" style="flex: 2;">
               <ion-item class="form-item" lines="none">
-                <ion-icon name="time-outline" slot="start"></ion-icon>
-                <ion-label position="floating">Inicia el:</ion-label>
-                <ion-datetime presentation="date-time" [(ngModel)]="capacitacion.fechaInicio" name="fechaInicio" required #fecha="ngModel">
-                </ion-datetime>
+                <ion-icon name="calendar-outline" slot="start"></ion-icon>
+                <ion-label position="floating">Fecha del Evento</ion-label>
+                <ion-input type="date" [(ngModel)]="capacitacion.fechaInicio" name="fechaInicio" required #fecha="ngModel" [min]="fechaMinima"></ion-input>
               </ion-item>
               <div class="error-message" *ngIf="fecha.invalid && (fecha.dirty || fecha.touched)">
                 <ion-icon name="alert-circle-outline"></ion-icon>
@@ -116,13 +115,41 @@
               </div>
             </div>
 
+            <div class="form-group" style="flex: 2;">
+              <label class="form-label-standalone">Duración Estimada</label>
+              <div class="duration-split-edit">
+                <div class="duration-input-box">
+                  <input type="number" [(ngModel)]="duracionHoras" name="duracionHoras" (change)="actualizarHorasTotales()" min="0">
+                  <span>hrs</span>
+                </div>
+                <div class="duration-input-box">
+                  <input type="number" [(ngModel)]="duracionMinutos" name="duracionMinutos" (change)="actualizarHorasTotales()" min="0" max="59">
+                  <span>min</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
             <div class="form-group">
               <ion-item class="form-item" lines="none">
-                <ion-icon name="hourglass-outline" slot="start"></ion-icon>
-                <ion-label position="floating">Carga Horaria (Horas)</ion-label>
-                <ion-input type="number" [(ngModel)]="capacitacion.horas" name="horas" required min="1"></ion-input>
+                <ion-icon name="time-outline" slot="start"></ion-icon>
+                <ion-label position="floating">Hora Inicio</ion-label>
+                <ion-input type="time" [(ngModel)]="capacitacion.horaInicio" name="horaInicio" required></ion-input>
               </ion-item>
             </div>
+            <div class="form-group">
+              <ion-item class="form-item" lines="none">
+                <ion-icon name="time-outline" slot="start"></ion-icon>
+                <ion-label position="floating">Hora Fin</ion-label>
+                <ion-input type="time" [(ngModel)]="capacitacion.horaFin" name="horaFin" required></ion-input>
+              </ion-item>
+            </div>
+          </div>
+
+          <div class="info-message error" *ngIf="validarHorarios() === false" style="background: rgba(var(--ion-color-danger-rgb), 0.1); color: var(--ion-color-danger); padding: 10px; border-radius: 8px; margin-bottom: 10px;">
+            <ion-icon name="alert-circle-outline"></ion-icon>
+            La hora de cierre debe ser posterior a la de apertura.
           </div>
 
           <div class="form-group" *ngIf="capacitacion.modalidad !== 'VIRTUAL'">
@@ -165,9 +192,13 @@
             <div class="form-group">
               <ion-item class="form-item" lines="none">
                 <ion-icon name="people-outline" slot="start"></ion-icon>
-                <ion-label position="floating">Aforo Máximo</ion-label>
-                <ion-input type="number" [(ngModel)]="capacitacion.cuposDisponibles" name="cuposDisponibles" required min="1"></ion-input>
+                <ion-label position="floating">Capacidad Total (Aforo Máximo)</ion-label>
+                <ion-input type="number" [(ngModel)]="aforoMaximo" name="aforoMaximo" required min="1"></ion-input>
               </ion-item>
+              <div class="field-hint" *ngIf="inscritosActuales > 0" style="font-size: 0.8em; margin-top: 5px; opacity: 0.8; display: flex; align-items: center; gap: 5px;">
+                <ion-icon name="information-circle-outline" color="primary"></ion-icon>
+                Hay {{ inscritosActuales }} inscritos. Quedan {{ aforoMaximo - inscritosActuales }} cupos libres.
+              </div>
             </div>
           </div>
         </section>
@@ -244,24 +275,19 @@
             </ion-button>
           </div>
 
-          <div class="secondary-btns">
-            <ion-button *ngIf="capacitacion.estado === EstadoCapacitacion.REALIZADA && !capacitacion.certificado"
-              color="success" (click)="irAEmitirCertificados()" expand="block">
+          <!-- Acciones de Flujo de Trabajo (Solo si está finalizada) -->
+          <div class="secondary-btns" *ngIf="capacitacion.estado === EstadoCapacitacion.REALIZADA && !capacitacion.certificado">
+            <ion-button color="success" (click)="irAEmitirCertificados()" expand="block" mode="ios">
               <ion-icon name="ribbon-outline" slot="start"></ion-icon>
               Proceder a Emitir Certificados
             </ion-button>
-
-            <ion-button *ngIf="capacitacion.estado === EstadoCapacitacion.PENDIENTE"
-              color="success" (click)="finalizarCapacitacion()" expand="block">
-              <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
-              Marcar como Finalizada
-            </ion-button>
           </div>
 
-          <div class="danger-zone" *ngIf="!capacitacion.certificado">
+          <!-- Zona de Peligro (Protegida: Solo eventos pendientes sin certificados) -->
+          <div class="danger-zone" *ngIf="capacitacion.estado === EstadoCapacitacion.PENDIENTE && !capacitacion.certificado">
             <ion-button color="danger" (click)="confirmarEliminar()" fill="clear">
               <ion-icon name="trash-outline" slot="start"></ion-icon>
-              Eliminar este Evento Permanentemente
+              Eliminar esta Capacitación (Acción Irreversible)
             </ion-button>
           </div>
         </footer>
