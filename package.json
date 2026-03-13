@@ -11,5 +11,9 @@
     "devDependencies": {
         "@capacitor/cli": "^7.0.1",
         "typescript": "^5.9.3"
+    },
+    "dependencies": {
+        "@capacitor/android": "^7.6.0",
+        "@capacitor/core": "^7.6.0"
     }
 }
