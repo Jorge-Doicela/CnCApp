@@ -92,10 +92,32 @@ export class CapacitacionController {
         }
     };
 
+    private checkStaffAccess = async (req: AuthRequest, capacitacionId: number): Promise<boolean> => {
+        if (req.userRoleName === ROLES.ADMINISTRADOR) return true;
+
+        const isExpositor = await prisma.usuarioCapacitacion.findFirst({
+            where: {
+                capacitacionId,
+                usuarioId: req.userId,
+                rolCapacitacion: 'Expositor'
+            }
+        });
+
+        return !!isExpositor;
+    }
+
     update = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
+            const authReq = req as AuthRequest;
             const id = parseIdParam(req, res);
             if (id === null) return;
+
+            const hasAccess = await this.checkStaffAccess(authReq, id);
+            if (!hasAccess) {
+                res.status(403).json({ message: 'No tienes permiso para modificar esta capacitación' });
+                return;
+            }
+
             const data = updateCapacitacionSchema.parse(req.body);
             const capacitacion = await this.updateUseCase.execute(id, data);
             res.json(capacitacion);
@@ -106,8 +128,16 @@ export class CapacitacionController {
 
     delete = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
+            const authReq = req as AuthRequest;
             const id = parseIdParam(req, res);
             if (id === null) return;
+
+            const hasAccess = await this.checkStaffAccess(authReq, id);
+            if (!hasAccess) {
+                res.status(403).json({ message: 'No tienes permiso para eliminar esta capacitación' });
+                return;
+            }
+
             await this.deleteUseCase.execute(id);
             res.status(204).send();
         } catch (error) {

@@ -6,7 +6,7 @@ import * as L from 'leaflet';
 import { firstValueFrom, Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { NgForm } from '@angular/forms';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, RouterModule, Router } from '@angular/router';
 import { ToastController, AlertController, NavController, LoadingController } from '@ionic/angular';
 import { CapacitacionesService } from 'src/app/features/admin/capacitaciones/services/capacitaciones.service';
 import { CatalogoService } from 'src/app/shared/services/catalogo.service';
@@ -70,6 +70,7 @@ export class EditarPage implements OnInit {
   private capacitacionesService = inject(CapacitacionesService);
   private catalogoService = inject(CatalogoService);
   private usuarioService = inject(UsuarioService);
+  private router = inject(Router);
 
   readonly EstadoCapacitacion = EstadoCapacitacionEnum;
 
@@ -109,7 +110,8 @@ export class EditarPage implements OnInit {
       this.cargarDatos();
     } else {
       this.mostrarToast('ID de capacitación no válido', 'danger');
-      this.navController.navigateBack('/gestionar-capacitaciones');
+      const prefix = this.router.url.includes('/conferencista/') ? '/conferencista' : '';
+      this.navController.navigateBack(`${prefix}/gestionar-capacitaciones`);
     }
   }
 
@@ -142,7 +144,8 @@ export class EditarPage implements OnInit {
         this.mostrarToast(ErrorHandlerUtil.getErrorMessage(error), 'danger');
       }
       setTimeout(() => {
-        this.navController.navigateBack('/gestionar-capacitaciones');
+        const prefix = this.router.url.includes('/conferencista/') ? '/conferencista' : '';
+        this.navController.navigateBack(`${prefix}/gestionar-capacitaciones`);
       }, 2000);
     } finally {
       this.cargando = false;
@@ -157,7 +160,8 @@ export class EditarPage implements OnInit {
     const data = await firstValueFrom(this.capacitacionesService.getCapacitacion(this.capacitacion.id));
     if (!data) {
       this.mostrarToast('No se encontró la capacitación', 'warning');
-      this.navController.navigateBack('/gestionar-capacitaciones');
+      const prefix = this.router.url.includes('/conferencista/') ? '/conferencista' : '';
+      this.navController.navigateBack(`${prefix}/gestionar-capacitaciones`);
       throw new Error('No data');
     }
     
@@ -308,7 +312,8 @@ export class EditarPage implements OnInit {
         this.preguntarEmitirCertificados();
       } else {
         setTimeout(() => {
-          this.navController.navigateBack('/gestionar-capacitaciones');
+          const prefix = this.router.url.includes('/conferencista/') ? '/conferencista' : '';
+          this.navController.navigateBack(`${prefix}/gestionar-capacitaciones`);
         }, 1000);
       }
     } catch (error) {
@@ -333,14 +338,16 @@ export class EditarPage implements OnInit {
           {
             text: 'Descartar cambios',
             handler: () => {
-              this.navController.navigateBack('/gestionar-capacitaciones');
+              const prefix = this.router.url.includes('/conferencista/') ? '/conferencista' : '';
+              this.navController.navigateBack(`${prefix}/gestionar-capacitaciones`);
             }
           }
         ]
       });
       await alert.present();
     } else {
-      this.navController.navigateBack('/gestionar-capacitaciones');
+      const prefix = this.router.url.includes('/conferencista/') ? '/conferencista' : '';
+      this.navController.navigateBack(`${prefix}/gestionar-capacitaciones`);
     }
   }
 
@@ -402,7 +409,8 @@ export class EditarPage implements OnInit {
       await firstValueFrom(this.capacitacionesService.deleteCapacitacion(this.capacitacion.id));
       this.mostrarToast('Capacitación eliminada correctamente', 'success');
       setTimeout(() => {
-        this.navController.navigateBack('/gestionar-capacitaciones');
+        const prefix = this.router.url.includes('/conferencista/') ? '/conferencista' : '';
+        this.navController.navigateBack(`${prefix}/gestionar-capacitaciones`);
       }, 1500);
     } catch (error) {
       console.error('Error al eliminar:', error);
@@ -421,7 +429,8 @@ export class EditarPage implements OnInit {
         {
           text: 'Más tarde',
           handler: () => {
-            this.navController.navigateBack('/gestionar-capacitaciones');
+            const prefix = this.router.url.includes('/conferencista/') ? '/conferencista' : '';
+            this.navController.navigateBack(`${prefix}/gestionar-capacitaciones`);
           }
         },
         {
@@ -436,7 +445,8 @@ export class EditarPage implements OnInit {
   }
 
   irAEmitirCertificados() {
-    this.navController.navigateForward(`/gestionar-capacitaciones/visualizar-inscritos/${this.capacitacion.id}`);
+    const prefix = this.router.url.includes('/conferencista/') ? '/conferencista' : '';
+    this.navController.navigateForward(`${prefix}/gestionar-capacitaciones/visualizar-inscritos/${this.capacitacion.id}`);
   }
 
   async mostrarToast(mensaje: string, color: string = 'primary') {

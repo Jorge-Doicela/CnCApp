@@ -149,7 +149,8 @@ export class VisualizarinscritosPage implements OnInit {
       this.cargarDatos();
     } else {
       this.mostrarToast('ID de capacitación no válido', 'danger');
-      this.navController.navigateBack('/gestionar-capacitaciones');
+      const prefix = this.router.url.includes('/conferencista/') ? '/conferencista' : '';
+      this.navController.navigateBack(`${prefix}/gestionar-capacitaciones`);
     }
   }
 
