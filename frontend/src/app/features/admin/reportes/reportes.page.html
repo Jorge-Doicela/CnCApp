@@ -19,21 +19,30 @@
 
     <div class="dashboard-wrapper">
         <!-- Back Nav -->
-        <div class="page-back-nav" style="padding: 15px 20px 0 20px;">
+        <div class="page-back-nav">
             <ion-button fill="clear" color="medium" size="small" routerLink="/home">
                 <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
-                Volver al Inicio
+                Volver al Centro de Control
             </ion-button>
         </div>
 
-        <!-- Compact Hero greeting (Public Style) -->
-        <div class="hero-wrapper compact" *ngIf="!loading()">
-            <div class="container hero-content">
-                <span class="pill-label">Analítica de Datos</span>
-                <h2>Panel de <span>Reportes</span></h2>
-                <p>Resumen detallado de la participación y crecimiento de la plataforma.</p>
+        <!-- Luxury Hero Section -->
+        <header class="admin-header fade-up">
+            <div class="header-left">
+                <span class="eyebrow">
+                    <ion-icon name="stats-chart"></ion-icon>
+                    ANALÍTICA AVANZADA
+                </span>
+                <h1>Panel de <span>Reportes</span></h1>
+                <p>Resumen detallado de la participación, crecimiento y eficiencia de la plataforma en tiempo real.</p>
             </div>
-        </div>
+            <div class="header-actions">
+                <button class="export-btn" (click)="exportarPDF()">
+                    <ion-icon name="download-outline" slot="start"></ion-icon>
+                    Exportar Reporte Maestro
+                </button>
+            </div>
+        </header>
 
         <div class="container content-body">
             <!-- Loading State -->
@@ -48,9 +57,9 @@
             <div class="error-container animate-fade-up" *ngIf="error()">
                 <div class="error-card">
                     <ion-icon name="alert-circle-outline"></ion-icon>
-                    <h3>Error de Conexión</h3>
+                    <h3>Interrupción de Datos</h3>
                     <p>{{ error() }}</p>
-                    <button class="primary pill" (click)="loadStats()">Reintentar Carga</button>
+                    <button class="primary pill" (click)="loadStats()">Reintentar Sincronización</button>
                 </div>
             </div>
 
@@ -58,7 +67,11 @@
             <div class="main-stats animate-fade-up" *ngIf="!loading() && stats()">
 
                 <!-- KPI Section -->
-                <h3 class="dash-section-title">Indicadores Clave (KPIs)</h3>
+                <div class="section-title">
+                    <h2>Métricas de Impacto</h2>
+                    <span class="results-count">KPIs Principales</span>
+                </div>
+
                 <div class="kpi-grid">
                     <app-kpi-card label="Usuarios Totales" [value]="stats()?.totalUsuarios ?? 0" icon="people-outline"
                         type="primary" trendText="+12% este mes" [trendPositive]="true"></app-kpi-card>
@@ -71,110 +84,127 @@
                         [trendPositive]="false"></app-kpi-card>
 
                     <app-kpi-card label="Asistencia Promedio" [value]="round(stats()?.tasaAsistencia ?? 0) + '%'"
-                        icon="checkmark-circle-outline" type="primary" trendText="De todo el historial"
+                        icon="checkmark-circle-outline" type="primary" trendText="Eficacia Global"
                         [trendPositive]="true"></app-kpi-card>
 
-                    <app-kpi-card label="Inscripciones Totales" [value]="stats()?.participantesInscritos ?? 0"
-                        icon="people-outline" type="warning" trendText="Cupos tomados" trendIcon="time-outline"
+                    <app-kpi-card label="Inscripciones" [value]="stats()?.participantesInscritos ?? 0"
+                        icon="people-outline" type="warning" trendText="Cupos Totales" trendIcon="time-outline"
                         [trendPositive]="true"></app-kpi-card>
 
-                    <app-kpi-card label="Total Horas Impartidas" [value]="(stats()?.totalHorasCapacitacion ?? 0) + ' hrs'"
+                    <app-kpi-card label="Horas Impartidas" [value]="(stats()?.totalHorasCapacitacion ?? 0) + ' hrs'"
                         icon="time-outline" type="success" trendText="Acumulado Histórico"
                         [trendPositive]="true"></app-kpi-card>
 
                     <app-kpi-card label="Tasa de Certificación" [value]="round(stats()?.tasaCertificacion ?? 0) + '%'"
-                        icon="ribbon-outline" type="info" trendText="Eficacia" trendIcon="stats-chart-outline"
+                        icon="ribbon-outline" type="info" trendText="Conversión" trendIcon="stats-chart-outline"
                         [trendPositive]="true"></app-kpi-card>
                 </div>
 
-                <!-- Visualization Section -->
-                <h3 class="dash-section-title">Análisis Visual</h3>
+                <!-- Visual Analytics -->
+                <div class="section-title" style="margin-top: 40px;">
+                    <h2>Análisis Visual y Tendencias</h2>
+                    <span class="results-count">Últimos 6 meses</span>
+                </div>
+
                 <div class="charts-container">
-                    <div class="chart-item wide">
-                        <app-trend-chart title="Tendencias de Crecimiento"
-                            subtitle="Evolución de registros y certificaciones (Últimos 6 meses)"
+                    <div class="chart-item wide glass-card">
+                        <app-trend-chart title="Evolución de la Comunidad"
+                            subtitle="Registros vs Certificaciones generadas"
                             [data]="stats()!.tendencias"></app-trend-chart>
                     </div>
-                    <div class="chart-item">
-                        <app-roles-chart title="Distribución de Roles" subtitle="Segmentación de la comunidad"
+                    <div class="chart-item glass-card">
+                        <app-roles-chart title="Distribución de Roles" 
+                            subtitle="Composición del ecosistema"
                             [data]="stats()!.usuariosPorRol" [total]="stats()!.totalUsuarios"></app-roles-chart>
                     </div>
                 </div>
 
-                <!-- Activity Summary -->
-                <h3 class="dash-section-title">Actividad Reciente</h3>
-                <div class="summary-card">
-                    <div class="card-header">
-                        <div class="header-info">
-                            <h4>Estado de Conferencias</h4>
-                            <p>Resumen de capacitaciones dictadas y en curso</p>
-                        </div>
-                        <button class="secondary-btn" (click)="exportarPDF()">Exportar PDF</button>
-                    </div>
-                    <div class="summary-list">
-                        <div class="summary-item">
-                            <div class="item-visual">
-                                <div class="icon-circle active"><ion-icon name="play-outline"></ion-icon></div>
-                            </div>
-                            <div class="item-data">
-                                <span class="label">En ejecución</span>
-                                <span class="val">{{ stats()!.capacitacionesActivas }}</span>
-                            </div>
-                        </div>
-                        <div class="summary-item">
-                            <div class="item-visual">
-                                <div class="icon-circle completed"><ion-icon name="checkmark-done-outline"></ion-icon>
-                                </div>
-                            </div>
-                            <div class="item-data">
-                                <span class="label">Completadas</span>
-                                <span class="val">{{ stats()!.capacitacionesFinalizadas }}</span>
-                            </div>
-                        </div>
-                        <div class="summary-item">
-                            <div class="item-visual">
-                                <div class="icon-circle new"><ion-icon name="trending-up-outline"></ion-icon></div>
-                            </div>
-                            <div class="item-data">
-                                <span class="label">Registros Este Mes</span>
-                                <span class="val">{{ stats()?.usuariosRegistradosEsteMes ?? 0 }}</span>
-                            </div>
-                        </div>
-                    </div>
+                <!-- Recent Activity & Status -->
+                <div class="section-title" style="margin-top: 40px;">
+                    <h2>Resumen Operativo</h2>
+                    <span class="results-count">Actividad Reciente</span>
                 </div>
 
-                <!-- Demographics Summary -->
-                <h3 class="dash-section-title" style="margin-top: 30px;">Análisis Demográfico</h3>
-                <div class="charts-container">
-                    <div class="chart-item">
-                        <app-roles-chart title="Por Género (Auto-declarado)" subtitle="Distribución global"
-                            [data]="stats()!.usuariosPorGenero" [total]="stats()!.totalUsuarios"></app-roles-chart>
-                    </div>
-
-                    <div class="summary-card" style="width: 100%;">
+                <div class="summary-grid">
+                    <div class="summary-card glass-card">
                         <div class="card-header">
                             <div class="header-info">
-                                <h4>Top Regiones Activas</h4>
-                                <p>Provincias con mayor participación</p>
+                                <h4>Estado de Capacitaciones</h4>
+                                <p>Monitoreo de eventos activos y completados</p>
                             </div>
-                            <ion-icon name="map-outline" style="font-size: 24px; color: var(--ion-color-primary)"></ion-icon>
                         </div>
                         <div class="summary-list">
-                            <div class="summary-item" *ngFor="let prov of (stats()?.topProvincias ?? []); let i = index">
+                            <div class="summary-item">
                                 <div class="item-visual">
-                                    <div class="icon-circle" [class.active]="i === 0" [class.completed]="i === 1" [class.new]="i > 1">
-                                       <ion-icon name="podium-outline"></ion-icon>
-                                    </div>
+                                    <div class="icon-circle active"><ion-icon name="play-outline"></ion-icon></div>
                                 </div>
-                                <div class="item-data" style="width: 100%; display: flex; justify-content: space-between;">
-                                    <span class="label">{{ prov.nombre | uppercase }}</span>
-                                    <span class="val">{{ prov.cantidad }} Usuarios</span>
+                                <div class="item-data">
+                                    <span class="label">En ejecución</span>
+                                    <span class="val">{{ stats()!.capacitacionesActivas }}</span>
                                 </div>
                             </div>
-                            <div *ngIf="!stats()?.topProvincias || stats()?.topProvincias?.length === 0" style="padding: 10px; opacity: 0.6">No hay datos regionales todavía.</div>
+                            <div class="summary-item">
+                                <div class="item-visual">
+                                    <div class="icon-circle completed"><ion-icon name="checkmark-done-outline"></ion-icon>
+                                    </div>
+                                </div>
+                                <div class="item-data">
+                                    <span class="label">Completadas</span>
+                                    <span class="val">{{ stats()!.capacitacionesFinalizadas }}</span>
+                                </div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="item-visual">
+                                    <div class="icon-circle new"><ion-icon name="trending-up-outline"></ion-icon></div>
+                                </div>
+                                <div class="item-data">
+                                    <span class="label">Registros (Mes)</span>
+                                    <span class="val">{{ stats()?.usuariosRegistradosEsteMes ?? 0 }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="summary-card glass-card">
+                        <div class="card-header">
+                            <div class="header-info">
+                                <h4>Geolocalización de Usuarios</h4>
+                                <p>Provincias con mayor participación activa</p>
+                            </div>
+                            <ion-icon name="map-outline" style="font-size: 24px; color: var(--accent-indigo)"></ion-icon>
+                        </div>
+                        <div class="summary-list vertical">
+                            <div class="region-item" *ngFor="let prov of (stats()?.topProvincias ?? []); let i = index">
+                                <div class="region-left">
+                                    <div class="rank" [class.gold]="i === 0" [class.silver]="i === 1" [class.bronze]="i === 2">{{ i + 1 }}</div>
+                                    <span class="region-name">{{ prov.nombre | uppercase }}</span>
+                                </div>
+                                <div class="region-right">
+                                    <span class="region-count">{{ prov.cantidad }}</span>
+                                    <span class="region-label">Usuarios</span>
+                                </div>
+                            </div>
+                            <div *ngIf="!stats()?.topProvincias || stats()?.topProvincias?.length === 0" class="no-data">
+                                Sin datos regionales disponibles.
+                            </div>
                         </div>
                     </div>
                 </div>
+
+                <!-- Demographics -->
+                <div class="section-title" style="margin-top: 40px;">
+                    <h2>Diversidad y Perfiles</h2>
+                    <span class="results-count">Segmentación Grupal</span>
+                </div>
+                
+                <div class="charts-container">
+                    <div class="chart-item wide glass-card">
+                        <app-roles-chart title="Distribución por Género" 
+                            subtitle="Representación global en la plataforma"
+                            [data]="stats()!.usuariosPorGenero" [total]="stats()!.totalUsuarios"></app-roles-chart>
+                    </div>
+                </div>
+
 
             </div>
         </div>
