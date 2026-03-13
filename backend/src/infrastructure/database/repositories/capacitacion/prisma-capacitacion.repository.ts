@@ -204,4 +204,26 @@ export class PrismaCapacitacionRepository implements CapacitacionRepository {
             where: { id }
         });
     }
+
+    async incrementarCupo(id: number): Promise<void> {
+        await prisma.capacitacion.update({
+            where: { id },
+            data: {
+                cuposDisponibles: {
+                    increment: 1
+                }
+            }
+        });
+    }
+
+    async decrementarCupo(id: number): Promise<void> {
+        await prisma.capacitacion.update({
+            where: { id },
+            data: {
+                cuposDisponibles: {
+                    decrement: 1
+                }
+            }
+        });
+    }
 }

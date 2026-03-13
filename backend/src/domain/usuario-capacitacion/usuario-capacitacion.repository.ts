@@ -1,6 +1,7 @@
 import { UsuarioCapacitacion } from './entities/usuario-capacitacion.entity';
 
 export interface UsuarioCapacitacionRepository {
+    findById(id: number): Promise<UsuarioCapacitacion | null>;
     findByCapacitacionId(capacitacionId: number): Promise<UsuarioCapacitacion[]>;
     findByUsuarioId(usuarioId: number): Promise<UsuarioCapacitacion[]>;
     findByUserAndCapacitacion(usuarioId: number, capacitacionId: number): Promise<UsuarioCapacitacion | null>;
