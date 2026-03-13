@@ -46,7 +46,11 @@ export class PrismaCertificadoRepository implements CertificadoRepository {
         const certificados = await prisma.certificado.findMany({
             where: { usuarioId: userId },
             include: {
-                capacitacion: true
+                capacitacion: {
+                    include: {
+                        plantilla: true
+                    }
+                }
             },
             orderBy: { fechaEmision: 'desc' }
         });

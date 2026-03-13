@@ -1,19 +1,21 @@
 import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { AlertController, ToastController } from '@ionic/angular';
 import { CapacitacionesService } from '../../admin/capacitaciones/services/capacitaciones.service';
 import { AuthService } from '../../auth/services/auth.service';
 import { ErrorHandlerUtil } from 'src/app/shared/utils/error-handler.util';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-conferencias',
   templateUrl: './conferencias.page.html',
   styleUrls: ['./conferencias.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule]
+  imports: [CommonModule, FormsModule, IonicModule],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ConferenciasPage implements OnInit {
   inscripciones: any[] = [];
@@ -39,6 +41,9 @@ export class ConferenciasPage implements OnInit {
 
   /** Resuelve el userId de la sesión y lanza la carga */
   private resolverYCargar() {
+    this.loading = true;
+    this.cdr.markForCheck();
+
     // 1. Intentar desde el signal (ya cargado desde localStorage en AuthService constructor)
     const user = this.authService.currentUser();
     if (user?.id) {
@@ -57,38 +62,34 @@ export class ConferenciasPage implements OnInit {
     // 3. No hay sesión: mostrar vacío sin carga infinita
     this.loading = false;
     this.errorMsg = 'No hay sesión activa. Inicia sesión para ver tus conferencias.';
+    this.cdr.detectChanges();
   }
 
-  cargarHistorial(userId: number) {
+  async cargarHistorial(userId: number) {
     this.loading = true;
     this.errorMsg = '';
     this.inscripciones = [];
     this.inscripcionesFiltradas = [];
     this.cdr.markForCheck();
 
-    this.capacitacionesService.getInscripcionesUsuario(userId).subscribe({
-      next: (data) => {
-        this.inscripciones = Array.isArray(data) ? data : [];
-        this.filtrarCapacitaciones();
-        this.loading = false;
-        this.cdr.markForCheck();
-      },
-      error: (err) => {
-        console.error('[ConferenciasPage] Error al cargar historial:', err);
-        this.inscripciones = [];
-        this.inscripcionesFiltradas = [];
-        this.loading = false;
-        const status = err?.status;
-        if (status === 401 || status === 403) {
-          this.errorMsg = 'Sin autorización. Inicia sesión nuevamente.';
-        } else if (status === 404) {
-          this.errorMsg = 'Servicio no encontrado. Contacta al administrador.';
-        } else {
-          this.errorMsg = ErrorHandlerUtil.getErrorMessage(err);
-        }
-        this.cdr.markForCheck();
+    try {
+      const data = await firstValueFrom(this.capacitacionesService.getInscripcionesUsuario(userId));
+      this.inscripciones = Array.isArray(data) ? data : [];
+      this.filtrarCapacitaciones();
+    } catch (err: any) {
+      console.error('[ConferenciasPage] Error al cargar historial:', err);
+      const status = err?.status;
+      if (status === 401 || status === 403) {
+        this.errorMsg = 'Sin autorización. Inicia sesión nuevamente.';
+      } else if (status === 404) {
+        this.errorMsg = 'Servicio no encontrado. Contacta al administrador.';
+      } else {
+        this.errorMsg = ErrorHandlerUtil.getErrorMessage(err);
       }
-    });
+    } finally {
+      this.loading = false;
+      this.cdr.detectChanges();
+    }
   }
 
   recargar() {

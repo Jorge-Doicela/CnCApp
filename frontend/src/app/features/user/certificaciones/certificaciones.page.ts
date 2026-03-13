@@ -1,9 +1,10 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule, LoadingController, ToastController } from '@ionic/angular';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { addIcons } from 'ionicons';
 import {
@@ -20,7 +21,10 @@ import {
     <ion-header [translucent]="true">
       <ion-toolbar color="primary">
         <ion-buttons slot="start">
-          <ion-back-button defaultHref="/home"></ion-back-button>
+          <ion-back-button *ngIf="!idCapacitacion" defaultHref="/home"></ion-back-button>
+          <ion-button *ngIf="idCapacitacion" (click)="volverAlListado()">
+            <ion-icon name="arrow-back-outline" slot="icon-only"></ion-icon>
+          </ion-button>
         </ion-buttons>
         <ion-title>{{ idCapacitacion ? 'Vista de Certificado' : 'Mis Títulos Obtenidos' }}</ion-title>
       </ion-toolbar>
@@ -48,7 +52,7 @@ import {
       <div *ngIf="!loading && idCapacitacion && certificadoData" class="preview-container">
         <ion-card class="cert-preview-card">
           <div class="pdf-snapshot">
-            <img [src]="plantillaData?.imagenUrl || 'assets/certificados/placeholder-cert.png'" class="bg-img">
+            <img [src]="getImageUrl(plantillaData?.imagenUrl) || 'assets/certificados/placeholder-cert.png'" class="bg-img">
             <div class="snapshot-overlay">
               <div class="qr-placeholder"></div>
               <p class="user-placeholder">{{ certificadoData.usuario?.nombre }}</p>
@@ -339,7 +343,8 @@ import {
     }
   `],
     standalone: true,
-    imports: [CommonModule, FormsModule, IonicModule]
+    imports: [CommonModule, FormsModule, IonicModule],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CertificacionesPage implements OnInit {
 
@@ -357,18 +362,24 @@ export class CertificacionesPage implements OnInit {
     private route = inject(ActivatedRoute);
     private http = inject(HttpClient);
     private router = inject(Router);
+    private cdr = inject(ChangeDetectorRef);
 
     constructor() {
         addIcons({ cloudDownloadOutline, eyeOutline, arrowBackOutline, ribbonOutline, ribbon, checkmarkCircle, calendarOutline, qrCodeOutline, chevronForward });
     }
 
     ngOnInit() {
-        this.route.paramMap.subscribe(params => {
-            this.idCapacitacion = Number(params.get('Id_Capacitacion') || this.route.snapshot.queryParamMap.get('idCapacitacion'));
+        // Combinamos la escucha de parámetros de ruta y de consulta
+        this.route.queryParamMap.subscribe(queryParams => {
+            const idParam = queryParams.get('idCapacitacion') || 
+                            this.route.snapshot.paramMap.get('Id_Capacitacion');
+            
+            this.idCapacitacion = idParam ? Number(idParam) : null;
 
-            if (this.idCapacitacion) {
+            if (this.idCapacitacion && !isNaN(this.idCapacitacion)) {
                 this.cargarUnCertificado(this.idCapacitacion);
             } else {
+                this.idCapacitacion = null;
                 this.cargarTodosLosCertificados();
             }
         });
@@ -376,20 +387,28 @@ export class CertificacionesPage implements OnInit {
 
     async cargarTodosLosCertificados() {
         this.loading = true;
+        this.cdr.markForCheck();
         try {
-            this.certificados = await this.http.get<any[]>(`${environment.apiUrl}/certificados/my`).toPromise() || [];
+            console.log('[CERTIFICADOS] Cargando todos los certificados...');
+            const response = await firstValueFrom(this.http.get<any[]>(`${environment.apiUrl}/certificados/my`));
+            this.certificados = response || [];
+            console.log('[CERTIFICADOS] Cargados:', this.certificados.length);
         } catch (e) {
-            console.error('Error fetching all certificates', e);
+            console.error('[CERTIFICADOS] Error fetching all certificates', e);
+            this.certificados = [];
         } finally {
             this.loading = false;
+            this.cdr.detectChanges();
         }
     }
 
     async cargarUnCertificado(idCapacitacion: number) {
         this.loading = true;
+        this.cdr.markForCheck();
         try {
-            const certs = await this.http.get<any[]>(`${environment.apiUrl}/certificados/my`).toPromise() || [];
-            const cert = certs.find(c => c.capacitacionId === idCapacitacion);
+            console.log('[CERTIFICADOS] Cargando certificado para capacitación:', idCapacitacion);
+            const certs = await firstValueFrom(this.http.get<any[]>(`${environment.apiUrl}/certificados/my`)) || [];
+            const cert = certs.find((c: any) => c.capacitacionId === idCapacitacion);
 
             if (cert) {
                 this.certificadoData = {
@@ -399,15 +418,26 @@ export class CertificacionesPage implements OnInit {
                     fecha: cert.createdAt ? new Date(cert.createdAt).toLocaleDateString() : 'N/A'
                 };
 
+                // Recuperar datos de la plantilla para la vista previa
+                this.plantillaData = cert.capacitacion?.plantilla || null;
+                console.log('[CERTIFICADOS] Plantilla cargada:', this.plantillaData?.nombre || 'Ninguna');
+
                 const baseUrl = environment.apiUrl.replace('/api', '');
                 this.pdfUrl = `${baseUrl}${cert.pdfUrl}`;
+                console.log('[CERTIFICADOS] Certificado encontrado:', cert.id);
             } else {
+                console.warn('[CERTIFICADOS] No se encontró certificado para ID:', idCapacitacion);
                 this.certificadoData = null;
+                // Si no se encuentra, volvemos a la lista
+                this.idCapacitacion = null;
             }
         } catch (e) {
-            console.error('Error fetching single certificate', e);
+            console.error('[CERTIFICADOS] Error fetching single certificate', e);
+            this.certificadoData = null;
+            this.idCapacitacion = null;
         } finally {
             this.loading = false;
+            this.cdr.detectChanges();
         }
     }
 
@@ -418,5 +448,20 @@ export class CertificacionesPage implements OnInit {
     generarPDF(action: 'download' | 'open') {
         if (!this.pdfUrl) return;
         window.open(this.pdfUrl, '_blank');
+    }
+
+    getImageUrl(path: string | undefined): string | null {
+        if (!path) return null;
+        if (path.startsWith('http')) return path;
+        const baseUrl = environment.apiUrl.replace('/api', '');
+        return `${baseUrl}${path.startsWith('/') ? '' : '/'}${path}`;
+    }
+
+    volverAlListado() {
+        this.idCapacitacion = null;
+        this.certificadoData = null;
+        this.plantillaData = null;
+        this.router.navigate(['/ver-certificaciones'], { queryParams: { idCapacitacion: null } });
+        this.cdr.detectChanges();
     }
 }
