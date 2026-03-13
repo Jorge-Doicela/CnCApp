@@ -10,9 +10,18 @@ export class ReportesController {
         @inject(ExportarPDFUseCase) private readonly exportarPDFUseCase: ExportarPDFUseCase
     ) { }
 
-    getDashboard = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
+    getDashboard = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
-            const stats = await this.getDashboardStatsUseCase.execute();
+            const { startDate, endDate, entidadId, modalidad } = req.query;
+            
+            const filter = {
+                startDate: startDate as string,
+                endDate: endDate as string,
+                entidadId: entidadId ? parseInt(entidadId as string) : undefined,
+                modalidad: modalidad as string
+            };
+
+            const stats = await this.getDashboardStatsUseCase.execute(filter);
 
             res.json({
                 success: true,

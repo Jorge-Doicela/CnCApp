@@ -42,6 +42,74 @@
         </header>
 
         <div class="container content-body">
+            <!-- Filtros Avanzados (Glassmorphism) -->
+            <div class="filters-container fade-up">
+                <div class="glass-filters">
+                    <div class="filter-header">
+                        <div class="filter-title">
+                            <ion-icon name="filter-outline"></ion-icon>
+                            <span>Filtros de Análisis</span>
+                            <ion-badge color="primary" *ngIf="filtrosActivosCount() > 0">{{ filtrosActivosCount() }}</ion-badge>
+                        </div>
+                        <div class="filter-actions">
+                            <ion-button fill="clear" size="small" (click)="limpiarFiltros()" *ngIf="filtrosActivosCount() > 0">
+                                <ion-icon name="refresh-outline" slot="start"></ion-icon>
+                                Limpiar
+                            </ion-button>
+                        </div>
+                    </div>
+
+                    <div class="filter-grid">
+                        <!-- Rango de Fechas -->
+                        <div class="filter-group">
+                            <ion-label>Rango de Fechas</ion-label>
+                            <div class="date-inputs">
+                                <ion-item lines="none" class="glass-input">
+                                    <ion-icon name="calendar-clear-outline" slot="start"></ion-icon>
+                                    <ion-input type="date" [(ngModel)]="filtros().startDate" (ionChange)="actualizarFiltros()" placeholder="Desde"></ion-input>
+                                </ion-item>
+                                <ion-item lines="none" class="glass-input">
+                                    <ion-input type="date" [(ngModel)]="filtros().endDate" (ionChange)="actualizarFiltros()" placeholder="Hasta"></ion-input>
+                                </ion-item>
+                            </div>
+                        </div>
+
+                        <!-- Entidad -->
+                        <div class="filter-group">
+                            <ion-label>Entidad Organizadora</ion-label>
+                            <ion-item lines="none" class="glass-input">
+                                <ion-icon name="business-outline" slot="start"></ion-icon>
+                                <ion-select placeholder="Todas las entidades" [(ngModel)]="filtros().entidadId" (ionChange)="actualizarFiltros()">
+                                    <ion-select-option [value]="undefined">Todas</ion-select-option>
+                                    <ion-select-option *ngFor="let ent of entidades()" [value]="ent.id">{{ ent.nombre }}</ion-select-option>
+                                </ion-select>
+                            </ion-item>
+                        </div>
+
+                        <!-- Modalidad -->
+                        <div class="filter-group">
+                            <ion-label>Modalidad</ion-label>
+                            <ion-item lines="none" class="glass-input">
+                                <ion-icon name="school-outline" slot="start"></ion-icon>
+                                <ion-select placeholder="Todas las modalidades" [(ngModel)]="filtros().modalidad" (ionChange)="actualizarFiltros()">
+                                    <ion-select-option value="">Todas</ion-select-option>
+                                    <ion-select-option value="Presencial">Presencial</ion-select-option>
+                                    <ion-select-option value="Virtual">Virtual</ion-select-option>
+                                    <ion-select-option value="Híbrido">Híbrido</ion-select-option>
+                                </ion-select>
+                            </ion-item>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Indicador de Carga -->
+            <div class="loading-overlay" *ngIf="loading()">
+                <ion-spinner name="crescent"></ion-spinner>
+                <span>Actualizando análisis...</span>
+            </div>
+
+            <div class="dashboard-container" *ngIf="stats() as data">
             <!-- Loading State -->
             <div class="loading-container" *ngIf="loading()">
                 <div class="spinner-box">
@@ -119,15 +187,16 @@
                 <!-- Recent Activity & Status -->
                 <div class="section-title" style="margin-top: 40px;">
                     <h2>Resumen Operativo</h2>
-                    <span class="results-count">Actividad Reciente</span>
+                    <span class="results-count">Actividad & Modalidades</span>
                 </div>
 
                 <div class="summary-grid">
+                    <!-- Estado de Capacitaciones -->
                     <div class="summary-card glass-card">
                         <div class="card-header">
                             <div class="header-info">
-                                <h4>Estado de Capacitaciones</h4>
-                                <p>Monitoreo de eventos activos y completados</p>
+                                <h4>Estado de Eventos</h4>
+                                <p>Monitoreo de actividad actual</p>
                             </div>
                         </div>
                         <div class="summary-list">
@@ -142,68 +211,119 @@
                             </div>
                             <div class="summary-item">
                                 <div class="item-visual">
-                                    <div class="icon-circle completed"><ion-icon name="checkmark-done-outline"></ion-icon>
-                                    </div>
+                                    <div class="icon-circle completed"><ion-icon name="checkmark-done-outline"></ion-icon></div>
                                 </div>
                                 <div class="item-data">
-                                    <span class="label">Completadas</span>
+                                    <span class="label">Finalizadas</span>
                                     <span class="val">{{ stats()!.capacitacionesFinalizadas }}</span>
                                 </div>
                             </div>
-                            <div class="summary-item">
-                                <div class="item-visual">
-                                    <div class="icon-circle new"><ion-icon name="trending-up-outline"></ion-icon></div>
-                                </div>
-                                <div class="item-data">
-                                    <span class="label">Registros (Mes)</span>
-                                    <span class="val">{{ stats()?.usuariosRegistradosEsteMes ?? 0 }}</span>
-                                </div>
-                            </div>
                         </div>
                     </div>
 
+                    <!-- Modalidades -->
                     <div class="summary-card glass-card">
                         <div class="card-header">
                             <div class="header-info">
-                                <h4>Geolocalización de Usuarios</h4>
-                                <p>Provincias con mayor participación activa</p>
+                                <h4>Modalidades</h4>
+                                <p>Tipos de eventos realizados</p>
                             </div>
-                            <ion-icon name="map-outline" style="font-size: 24px; color: var(--accent-indigo)"></ion-icon>
+                        </div>
+                        <div class="summary-list">
+                            <div *ngFor="let mod of stats()?.capacitacionesPorModalidad" class="summary-item">
+                                <div class="item-visual">
+                                    <div class="icon-circle new" style="background: rgba(var(--ion-color-secondary-rgb), 0.05); color: var(--ion-color-secondary)">
+                                        <ion-icon [name]="mod.nombre === 'Virtual' ? 'play-outline' : 'podium-outline'"></ion-icon>
+                                    </div>
+                                </div>
+                                <div class="item-data">
+                                    <span class="label">{{ mod.nombre }}</span>
+                                    <span class="val">{{ mod.cantidad }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Demographics & Inclusion -->
+                <div class="section-title" style="margin-top: 40px;">
+                    <h2>Diversidad y Territorio</h2>
+                    <span class="results-count">Segmentación 360°</span>
+                </div>
+                
+                <div class="summary-grid">
+                    <!-- Género -->
+                    <div class="summary-card glass-card">
+                        <div class="card-header">
+                            <div class="header-info">
+                                <h4>Distribución por Género</h4>
+                                <p>Representación de la comunidad</p>
+                            </div>
                         </div>
                         <div class="summary-list vertical">
-                            <div class="region-item" *ngFor="let prov of (stats()?.topProvincias ?? []); let i = index">
+                            <div *ngFor="let gen of stats()?.usuariosPorGenero" class="region-item">
                                 <div class="region-left">
-                                    <div class="rank" [class.gold]="i === 0" [class.silver]="i === 1" [class.bronze]="i === 2">{{ i + 1 }}</div>
-                                    <span class="region-name">{{ prov.nombre | uppercase }}</span>
+                                    <div class="icon-circle active" style="width: 32px; height: 32px; font-size: 1rem;">
+                                        <ion-icon name="male-female-outline"></ion-icon>
+                                    </div>
+                                    <span class="region-name">{{gen.nombre}}</span>
                                 </div>
                                 <div class="region-right">
-                                    <span class="region-count">{{ prov.cantidad }}</span>
+                                    <span class="region-count">{{gen.cantidad}}</span>
                                     <span class="region-label">Usuarios</span>
                                 </div>
                             </div>
-                            <div *ngIf="!stats()?.topProvincias || stats()?.topProvincias?.length === 0" class="no-data">
-                                Sin datos regionales disponibles.
+                        </div>
+                    </div>
+
+                    <!-- Etnia -->
+                    <div class="summary-card glass-card">
+                        <div class="card-header">
+                            <div class="header-info">
+                                <h4>Inclusión & Etnia</h4>
+                                <p>Identidad de los participantes</p>
+                            </div>
+                        </div>
+                        <div class="summary-list vertical">
+                            <div *ngFor="let etnia of stats()?.usuariosPorEtnia" class="region-item">
+                                <div class="region-left">
+                                    <div class="icon-circle new" style="width: 32px; height: 32px; font-size: 1rem;">
+                                        <ion-icon name="people-outline"></ion-icon>
+                                    </div>
+                                    <span class="region-name">{{etnia.nombre}}</span>
+                                </div>
+                                <div class="region-right">
+                                    <span class="region-count">{{etnia.cantidad}}</span>
+                                    <span class="region-label">Registros</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Geolocalización -->
+                    <div class="summary-card glass-card">
+                        <div class="card-header">
+                            <div class="header-info">
+                                <h4>Geolocalización</h4>
+                                <p>Presencia territorial (Top 5)</p>
+                            </div>
+                        </div>
+                        <div class="summary-list vertical" style="max-height: 300px; overflow-y: auto;">
+                            <div *ngFor="let prov of stats()?.topProvincias; let i = index" class="region-item">
+                                <div class="region-left">
+                                    <span class="rank" [class.gold]="i===0" [class.silver]="i===1" [class.bronze]="i===2">{{i+1}}</span>
+                                    <span class="region-name">{{prov.nombre}}</span>
+                                </div>
+                                <div class="region-right">
+                                    <span class="region-count">{{prov.cantidad}}</span>
+                                    <span class="region-label">Usuarios</span>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-
-                <!-- Demographics -->
-                <div class="section-title" style="margin-top: 40px;">
-                    <h2>Diversidad y Perfiles</h2>
-                    <span class="results-count">Segmentación Grupal</span>
-                </div>
-                
-                <div class="charts-container">
-                    <div class="chart-item wide glass-card">
-                        <app-roles-chart title="Distribución por Género" 
-                            subtitle="Representación global en la plataforma"
-                            [data]="stats()!.usuariosPorGenero" [total]="stats()!.totalUsuarios"></app-roles-chart>
-                    </div>
-                </div>
-
-
             </div>
         </div>
+    </div>
     </div>
 </ion-content>

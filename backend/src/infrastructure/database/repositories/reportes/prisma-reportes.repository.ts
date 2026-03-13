@@ -1,6 +1,6 @@
 import { injectable, inject } from 'tsyringe';
 import { PrismaClient } from '@prisma/client';
-import { ReportesRepository, DashboardStatsData, DashboardStatsTrend } from '../../../../domain/reportes/repositories/reportes.repository';
+import { ReportesRepository, DashboardStatsData, DashboardStatsTrend, DashboardFilter } from '../../../../domain/reportes/repositories/reportes.repository';
 import { EstadoCapacitacionEnum } from '../../../../domain/shared/constants/enums';
 
 @injectable()
@@ -9,9 +9,34 @@ export class PrismaReportesRepository implements ReportesRepository {
         @inject('PrismaClient') private readonly prisma: PrismaClient
     ) { }
 
-    async getDashboardStats(): Promise<DashboardStatsData> {
+    async getDashboardStats(filter?: DashboardFilter): Promise<DashboardStatsData> {
         const now = new Date();
         const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+        const whereClause: any = {};
+        const whereInscripcion: any = {};
+        const whereUser: any = {};
+
+        if (filter?.startDate || filter?.endDate) {
+            whereClause.createdAt = {
+                ...(filter.startDate && { gte: new Date(filter.startDate) }),
+                ...(filter.endDate && { lte: new Date(filter.endDate) })
+            };
+            whereInscripcion.fechaInscripcion = {
+                ...(filter.startDate && { gte: new Date(filter.startDate) }),
+                ...(filter.endDate && { lte: new Date(filter.endDate) })
+            };
+        }
+
+        if (filter?.modalidad) {
+            whereClause.modalidad = filter.modalidad;
+        }
+
+        if (filter?.entidadId) {
+            whereClause.entidadesEncargadas = {
+                some: { id: filter.entidadId }
+            };
+        }
 
         const [
             totalUsuarios,
@@ -27,17 +52,24 @@ export class PrismaReportesRepository implements ReportesRepository {
             statsInscripciones,
             statsAsistencia,
             userGeneros,
-            userProvincias
+            userProvincias,
+            userEtnias,
+            capacitacionesPorModalidadData
         ] = await Promise.all([
-            this.prisma.usuario.count(),
-            this.prisma.capacitacion.count(),
-            this.prisma.certificado.count(),
-            this.getUsuariosPorRolData(),
+            this.prisma.usuario.count({ where: whereUser }),
+            this.prisma.capacitacion.count({ where: whereClause }),
+            this.prisma.certificado.count({ 
+                where: { 
+                    ...(filter?.startDate || filter?.endDate ? { fechaEmision: whereInscripcion.fechaInscripcion } : {}),
+                    capacitacion: whereClause 
+                } 
+            }),
+            this.getUsuariosPorRolData(whereUser),
             this.prisma.capacitacion.count({
-                where: { estado: EstadoCapacitacionEnum.PENDIENTE }
+                where: { ...whereClause, estado: EstadoCapacitacionEnum.PENDIENTE }
             }),
             this.prisma.capacitacion.count({
-                where: { estado: EstadoCapacitacionEnum.REALIZADA }
+                where: { ...whereClause, estado: EstadoCapacitacionEnum.REALIZADA }
             }),
             this.prisma.certificado.count({
                 where: { fechaEmision: { gte: firstDayOfMonth } }
@@ -46,11 +78,27 @@ export class PrismaReportesRepository implements ReportesRepository {
                 where: { createdAt: { gte: firstDayOfMonth } }
             }),
             this.getTendenciasData(),
-            this.prisma.capacitacion.aggregate({ _sum: { horas: true }, where: { estado: EstadoCapacitacionEnum.REALIZADA } }),
-            this.prisma.usuarioCapacitacion.count(),
-            this.prisma.usuarioCapacitacion.count({ where: { asistio: true } }),
-            this.prisma.genero.findMany({ include: { _count: { select: { usuarios: true } } } }),
-            this.prisma.provincia.findMany({ include: { _count: { select: { usuarios: true } } }, orderBy: { usuarios: { _count: 'desc' } }, take: 5 })
+            this.prisma.capacitacion.aggregate({ 
+                _sum: { horas: true }, 
+                where: { ...whereClause, estado: EstadoCapacitacionEnum.REALIZADA } 
+            }),
+            this.prisma.usuarioCapacitacion.count({ 
+                where: { ...whereInscripcion, capacitacion: whereClause } 
+            }),
+            this.prisma.usuarioCapacitacion.count({ 
+                where: { ...whereInscripcion, asistio: true, capacitacion: whereClause } 
+            }),
+            this.prisma.genero.findMany({ include: { _count: { select: { usuarios: { where: whereUser } } } } }),
+            this.prisma.provincia.findMany({ 
+                include: { _count: { select: { usuarios: { where: whereUser } } } }, 
+                orderBy: { usuarios: { _count: 'desc' } }, take: 5 
+            }),
+            this.prisma.etnia.findMany({ include: { _count: { select: { usuarios: { where: whereUser } } } } }),
+            this.prisma.capacitacion.groupBy({ 
+                by: ['modalidad'], 
+                where: whereClause,
+                _count: { modalidad: true } 
+            })
         ]);
 
         const participantesInscritos = statsInscripciones;
@@ -59,8 +107,14 @@ export class PrismaReportesRepository implements ReportesRepository {
         const tasaCertificacion = participantesInscritos > 0 ? (totalCertificados / participantesInscritos) * 100 : 0;
 
         const usuariosPorGenero = userGeneros.map(g => ({ nombre: g.nombre, cantidad: g._count.usuarios }));
+        const usuariosPorEtnia = userEtnias.map(e => ({ nombre: e.nombre, cantidad: e._count.usuarios }));
         const topProvincias = userProvincias.map(p => ({ nombre: p.nombre, cantidad: p._count.usuarios }));
-
+        
+        const capacitacionesPorModalidad = capacitacionesPorModalidadData.map(m => ({ 
+            nombre: m.modalidad || 'No definida', 
+            cantidad: m._count.modalidad 
+        }));
+ 
         return {
             totalUsuarios,
             totalCapacitaciones,
@@ -76,7 +130,9 @@ export class PrismaReportesRepository implements ReportesRepository {
             participantesInscritos,
             tasaCertificacion,
             usuariosPorGenero,
-            topProvincias
+            usuariosPorEtnia,
+            topProvincias,
+            capacitacionesPorModalidad
         };
     }
 
@@ -120,11 +176,11 @@ export class PrismaReportesRepository implements ReportesRepository {
         }));
     }
 
-    private async getUsuariosPorRolData() {
+    private async getUsuariosPorRolData(whereUser: any = {}) {
         const roles = await this.prisma.rol.findMany({
             include: {
                 _count: {
-                    select: { usuarios: true }
+                    select: { usuarios: { where: whereUser } }
                 }
             },
             orderBy: {
