@@ -241,6 +241,10 @@
                                     <span class="val">{{ mod.cantidad }}</span>
                                 </div>
                             </div>
+                            <div class="no-data-mini" *ngIf="!stats()?.capacitacionesPorModalidad?.length">
+                                <ion-icon name="information-circle-outline"></ion-icon>
+                                Sin modalidades registradas
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -296,6 +300,10 @@
                                     <span class="region-count">{{etnia.cantidad}}</span>
                                     <span class="region-label">Registros</span>
                                 </div>
+                            </div>
+                            <div class="no-data-mini" *ngIf="!stats()?.usuariosPorEtnia?.length">
+                                <ion-icon name="information-circle-outline"></ion-icon>
+                                Sin datos de etnia
                             </div>
                         </div>
                     </div>
