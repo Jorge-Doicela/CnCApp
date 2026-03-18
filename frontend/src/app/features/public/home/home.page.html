@@ -417,11 +417,18 @@
             </ion-button>
           </div>
 
+          <!-- Evento Iniciado / Inscripciones Cerradas -->
+          <div *ngIf="!isInscrito(cap.id) && haIniciado(cap)" class="enrolled-status disabled" style="background: rgba(var(--ion-color-medium-rgb, 146, 148, 156), 0.1); color: var(--ion-color-medium);">
+            <ion-icon name="time-outline"></ion-icon>
+            <span>Inscripciones cerradas</span>
+          </div>
+
           <!-- Disponible para inscripción -->
-          <button *ngIf="!isInscrito(cap.id)" class="enroll-btn" (click)="inscribirse(cap.id)">
+          <button *ngIf="!isInscrito(cap.id) && !haIniciado(cap)" class="enroll-btn" (click)="inscribirse(cap.id)">
             <span>Inscribirme ahora</span>
             <ion-icon name="sparkles-outline"></ion-icon>
           </button>
+
         </div>
       </div>
     </div>

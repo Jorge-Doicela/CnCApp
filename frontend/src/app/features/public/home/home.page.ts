@@ -67,6 +67,20 @@ export class HomePage implements OnInit {
   isInscrito = (id: number) => {
     return this.ConferenciasInscritas.some(c => c.id === id);
   };
+
+  haIniciado = (cap: Capacitacion) => {
+    if (!cap.fechaInicio) return false;
+    const ahora = new Date();
+    const fechaHoraInicio = new Date(cap.fechaInicio);
+    if (cap.horaInicio) {
+      const [h, m] = cap.horaInicio.split(':').map(Number);
+      fechaHoraInicio.setHours(h ?? 0, m ?? 0, 0, 0);
+    } else {
+      fechaHoraInicio.setHours(0, 0, 0, 0);
+    }
+    return ahora >= fechaHoraInicio;
+  };
+
   // Greeting Logic
   saludo = computed(() => {
     const hour = new Date().getHours();

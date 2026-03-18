@@ -32,6 +32,21 @@ export class InscribirUsuarioUseCase {
                 throw new ValidationError(`No es posible inscribirse: la capacitación se encuentra ${capacitacion.estado}`);
             }
 
+            if (capacitacion.fechaInicio) {
+                const ahora = new Date();
+                const fechaHoraInicio = new Date(capacitacion.fechaInicio);
+                if (capacitacion.horaInicio) {
+                    const [h, m] = capacitacion.horaInicio.split(':').map(Number);
+                    fechaHoraInicio.setHours(h ?? 0, m ?? 0, 0, 0);
+                } else {
+                    fechaHoraInicio.setHours(0, 0, 0, 0);
+                }
+
+                if (ahora >= fechaHoraInicio) {
+                    throw new ValidationError('Las inscripciones están cerradas porque el evento ya ha comenzado.');
+                }
+            }
+
             if (capacitacion.cuposDisponibles !== null && capacitacion.cuposDisponibles <= 0) {
                 throw new ValidationError('Lo sentimos, ya no quedan cupos disponibles para esta capacitación');
             }

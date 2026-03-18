@@ -233,6 +233,25 @@ export class UsuarioCapacitacionController {
                 return;
             }
 
+            // 2.5. Verificar que la capacitación ya comenzó
+            if (capacitacion.fechaInicio) {
+                const ahora = new Date();
+                const fechaHoraInicio = new Date(capacitacion.fechaInicio);
+                if (capacitacion.horaInicio) {
+                    const [h, m] = capacitacion.horaInicio.split(':').map(Number);
+                    fechaHoraInicio.setHours(h ?? 0, m ?? 0, 0, 0);
+                } else {
+                    fechaHoraInicio.setHours(0, 0, 0, 0);
+                }
+
+                if (ahora < fechaHoraInicio) {
+                    res.status(400).json({
+                        message: 'No puedes registrar asistencia: el evento aún no ha comenzado.'
+                    });
+                    return;
+                }
+            }
+
             // 3. Buscar la inscripción del usuario en esta capacitación
             const inscripcion = await prisma.usuarioCapacitacion.findUnique({
                 where: {
