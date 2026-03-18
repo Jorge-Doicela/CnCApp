@@ -4,7 +4,8 @@
   "webDir": "www",
   "server": {
     "androidScheme": "http",
-    "hostname": "localhost"
+    "cleartext": true,
+    "allowNavigation": ["*"]
   },
   "plugins": {
     "SplashScreen": {

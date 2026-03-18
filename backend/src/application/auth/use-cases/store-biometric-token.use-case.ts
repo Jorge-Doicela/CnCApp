@@ -17,7 +17,7 @@ export class StoreBiometricTokenUseCase {
 
         // Generamos un token aleatorio fuerte (UUID v4)
         const biometricToken = uuidv4();
-        
+
         // Lo guardamos en el usuario
         user.biometricToken = biometricToken;
         await this.userRepository.save(user);

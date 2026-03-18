@@ -1,5 +1,5 @@
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:3000/api',  // URL universal para desarrollo local
+  apiUrl: 'https://cncapp-production.up.railway.app/api',  // Backend en Railway
   redirectUrl: 'http://localhost:4200/recuperar-password',
 };
