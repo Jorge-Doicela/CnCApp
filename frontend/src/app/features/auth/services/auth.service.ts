@@ -95,10 +95,10 @@ export class AuthService {
         }
     }
 
-    login(ci: string, password: string): Observable<LoginResponse> {
+    login(ci: string, password: string, recaptchaToken: string = ''): Observable<LoginResponse> {
         console.log('[AUTH_SERVICE] Login attempt:', { ci, passwordLength: password.length });
 
-        return this.http.post<LoginResponse>(`${this.apiUrl}/auth/login`, { ci, password }).pipe(
+        return this.http.post<LoginResponse>(`${this.apiUrl}/auth/login`, { ci, password, recaptchaToken }).pipe(
             tap({
                 next: (response) => {
                     console.log('[AUTH_SERVICE] Login successful:', response);
@@ -220,6 +220,7 @@ export class AuthService {
         tipoParticipante?: number;
         provinciaId?: number;
         cantonId?: number;
+        recaptchaToken: string;
     }): Observable<LoginResponse> {
         return this.http.post<LoginResponse>(`${this.apiUrl}/auth/register`, data).pipe(
             tap({

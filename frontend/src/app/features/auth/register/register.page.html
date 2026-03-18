@@ -527,71 +527,9 @@
             <ion-label id="terms-trigger">He leído y acepto los <strong>Términos y Condiciones</strong></ion-label>
           </div>
 
-          <!-- Mock Captcha -->
-          <div class="captcha-container">
-            <div class="captcha-box" (click)="openCaptcha()" style="cursor: pointer; transition: all 0.3s ease;"
-              [ngStyle]="{'border': termsData().captchaVerified ? '1px solid #10b981' : '1px solid #dcdcdc', 'background': termsData().captchaVerified ? '#f0fdf4' : '#f9f9f9'}">
-
-              <div class="spin-container" *ngIf="isVerifyingCaptcha()" style="margin-right: 12px; display: flex;">
-                <ion-spinner name="crescent" color="primary" style="width: 20px; height: 20px;"></ion-spinner>
-              </div>
-
-              <ion-checkbox *ngIf="!isVerifyingCaptcha()" [checked]="termsData().captchaVerified"
-                style="pointer-events: none; --size: 24px; --border-radius: 4px;"></ion-checkbox>
-
-              <span *ngIf="!isVerifyingCaptcha()" style="margin-left:12px;">{{ termsData().captchaVerified ?
-                'Verificado' : 'No soy un robot' }}</span>
-              <span *ngIf="isVerifyingCaptcha()">Comprobando...</span>
-
-              <div class="captcha-logo">
-                <img src="https://www.gstatic.com/recaptcha/api2/logo_48.png" alt="reCAPTCHA">
-                <small>reCAPTCHA</small>
-              </div>
-            </div>
+          <div class="captcha-container" style="display: flex; justify-content: center; margin: 20px 0;">
+            <div class="g-recaptcha" data-sitekey="6LeIFo8sAAAAANn2CU_a1H2DgyagspGvU3OTsfps"></div>
           </div>
-
-          <!--
-          ===========================================
-          --- GOOGLE RECAPTCHA VERIFICATION (PROD) ---
-          ===========================================
-          Requiere: npm install ng-recaptcha
-          Recuerda importar RecaptchaModule en los imports del Componente
-          
-          <div class="captcha-container">
-            <re-captcha
-              siteKey="TU_CLAVE_DE_SITIO_PUBLICA_AQUI"
-              (resolved)="onCaptchaResolved($event)"
-            ></re-captcha>
-          </div>
-          ===========================================
-          -->
-
-          <!-- Modal Captcha Challenge Mock -->
-          <ion-modal [isOpen]="showCaptchaChallenge()" (didDismiss)="showCaptchaChallenge.set(false)"
-            cssClass="captcha-modal">
-            <ng-template>
-              <div class="captcha-challenge-wrapper">
-                <div class="captcha-header">
-                  <p>Selecciona todas las imágenes con</p>
-                  <h2>semáforos</h2>
-                  <p style="margin-top: 5px; font-size: 13px;">Si no hay ninguna, haz clic en omitir.</p>
-                </div>
-                <div class="captcha-grid">
-                  @for(img of captchaMockImages(); track $index) {
-                  <div class="captcha-item" [class.selected]="img.selected" (click)="toggleCaptchaImage($index)">
-                    <img [src]="img.url" alt="captcha part" />
-                    <div class="check" *ngIf="img.selected"><ion-icon name="checkmark-circle"></ion-icon></div>
-                  </div>
-                  }
-                </div>
-                <div class="captcha-footer">
-                  <ion-button fill="clear" color="medium" (click)="showCaptchaChallenge.set(false)"><ion-icon
-                      name="refresh-outline" slot="icon-only"></ion-icon></ion-button>
-                  <ion-button color="primary" (click)="verifyMockCaptcha()">Verificar</ion-button>
-                </div>
-              </div>
-            </ng-template>
-          </ion-modal>
         </div>
         }
 

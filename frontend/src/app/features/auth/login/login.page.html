@@ -66,9 +66,12 @@
             </div>
           </div>
 
-          <ion-button expand="block" type="submit" class="submit-btn" [disabled]="!ci() || !password()">
-            Ingresar
-            <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
+          <!-- Div vacío para renderizado dinámico e invisible -->
+          <div id="recaptcha-container"></div>
+
+          <ion-button expand="block" type="submit" class="submit-btn" [disabled]="!ci() || !password() || isVerifyingCaptcha()">
+            @if(isVerifyingCaptcha()) { <ion-spinner name="crescent"></ion-spinner> }
+            @else { Ingresar <ion-icon name="arrow-forward-outline" slot="end"></ion-icon> }
           </ion-button>
 
           <ion-button expand="block" fill="clear" color="secondary" class="biometric-button fade-in" style="animation-delay: 0.35s; margin-top: 10px;" (click)="triggerManualBiometricLogin()">

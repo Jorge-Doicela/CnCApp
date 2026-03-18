@@ -90,21 +90,6 @@ export class RegisterPage {
 
   passwordStrength = signal<{ score: number; label: string; color: string }>({ score: 0, label: '', color: 'medium' });
 
-  // Captcha Exercise State
-  showCaptchaChallenge = signal<boolean>(false);
-  isVerifyingCaptcha = signal<boolean>(false);
-  captchaMockImages = signal<{ url: string, selected: boolean }[]>([
-    { url: 'https://images.unsplash.com/photo-1534067783941-51c9c23ecefd?auto=format&fit=crop&w=150&h=150', selected: false },
-    { url: 'https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?auto=format&fit=crop&w=150&h=150', selected: false },
-    { url: 'https://images.unsplash.com/photo-1549488344-1f9b8d2bd1f3?auto=format&fit=crop&w=150&h=150', selected: false },
-    { url: 'https://images.unsplash.com/photo-1566373892301-26757b019b5b?auto=format&fit=crop&w=150&h=150', selected: false },
-    { url: 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=150&h=150', selected: false },
-    { url: 'https://images.unsplash.com/photo-1494522855154-9297ac14b55f?auto=format&fit=crop&w=150&h=150', selected: false },
-    { url: 'https://images.unsplash.com/photo-1519750783826-e2420f4d687f?auto=format&fit=crop&w=150&h=150', selected: false },
-    { url: 'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=150&h=150', selected: false },
-    { url: 'https://images.unsplash.com/photo-1522069169874-c58ec4b76be5?auto=format&fit=crop&w=150&h=150', selected: false }
-  ]);
-
   constructor(
     private router: Router,
     private loadingController: LoadingController,
@@ -379,7 +364,9 @@ export class RegisterPage {
       this.presentToast('Debe aceptar los términos y condiciones', 'warning');
       return;
     }
-    if (!this.termsData().captchaVerified) {
+
+    const recaptchaToken = (window as any).grecaptcha?.getResponse();
+    if (!recaptchaToken) {
       this.presentToast('Por favor, verifique que no es un robot', 'warning');
       return;
     }
@@ -397,7 +384,8 @@ export class RegisterPage {
     const fullData = {
       ...this.userData(),
       ...this.personalData(),
-      ...this.laborData()
+      ...this.laborData(),
+      recaptchaToken
     };
 
     // Cast to any to bypass strict DTO match if interface isn't updated in frontend
@@ -408,9 +396,7 @@ export class RegisterPage {
         if (res.success) {
           this.presentToast('¡Registro exitoso!', 'success');
           this.state.reset();
-          // Reset captcha too
-          this.isVerifyingCaptcha.set(false);
-          this.showCaptchaChallenge.set(false);
+          (window as any).grecaptcha?.reset();
           setTimeout(() => this.router.navigate(['/login']), 1500);
         } else {
           this.presentToast(res.message || 'Error', 'danger');
@@ -419,6 +405,7 @@ export class RegisterPage {
       error: async (err) => {
         await LOADING.dismiss();
         this.isLoading.set(false);
+        (window as any).grecaptcha?.reset();
         this.presentToast(err.error?.message || 'Error al registrar', 'danger');
       }
     });
@@ -460,46 +447,6 @@ export class RegisterPage {
 
     this.passwordStrength.set({ score, label, color });
   }
-
-  // Captcha Exercise Challenge Methods
-  openCaptcha() {
-    if (!this.termsData().captchaVerified && !this.isVerifyingCaptcha()) {
-      this.captchaMockImages.update(imgs => imgs.map(img => ({ ...img, selected: false })));
-      this.showCaptchaChallenge.set(true);
-    }
-  }
-
-  toggleCaptchaImage(index: number) {
-    this.captchaMockImages.update(imgs => {
-      const copy = [...imgs];
-      copy[index].selected = !copy[index].selected;
-      return copy;
-    });
-  }
-
-  verifyMockCaptcha() {
-    this.showCaptchaChallenge.set(false);
-    this.isVerifyingCaptcha.set(true);
-    setTimeout(() => {
-      this.isVerifyingCaptcha.set(false);
-      this.state.updateUserData({ captchaVerified: true });
-    }, 1200);
-  }
-
-  /*
-  // ============================================
-  // --- GOOGLE RECAPTCHA VERIFICATION (PROD) ---
-  // ============================================
-  onCaptchaResolved(token: string | null) {
-    if (token) {
-      this.state.updateUserData({ captchaVerified: true, captchaToken: token });
-    } else {
-      // Captcha expired
-      this.state.updateUserData({ captchaVerified: false, captchaToken: undefined });
-    }
-  }
-  // ============================================
-  */
 
   async presentToast(msg: string, color: string = 'primary') {
     const toast = await this.toastController.create({

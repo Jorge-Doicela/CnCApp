@@ -20,6 +20,7 @@ const envSchema = z.object({
     JWT_EXPIRES_IN: z.string().default('24h'),
     JWT_REFRESH_EXPIRES_IN: z.string().default('7d'),
     BCRYPT_ROUNDS: z.string().transform(Number).default('10'),
+    RECAPTCHA_SECRET_KEY: z.string(),
 
     // Rate Limiting
     RATE_LIMIT_WINDOW_MS: z.string().transform(Number).default('900000'), // 15 minutes

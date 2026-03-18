@@ -11,6 +11,7 @@ import { RefreshTokenUseCase } from '../../../application/auth/use-cases/refresh
 import { StoreBiometricTokenUseCase } from '../../../application/auth/use-cases/store-biometric-token.use-case';
 import { AuthRequest } from '../middleware/auth.middleware';
 import { InvalidateRefreshTokenUseCase } from '../../../application/auth/use-cases/invalidate-refresh-token.use-case';
+import { env } from '../../../config/env';
 
 // Strip password from user object before sending to client
 const toDTO = (user: any) => {
@@ -39,7 +40,8 @@ const registerSchema = z.object({
     funcionarioGad: z.any().optional(),
     institucion: z.any().optional(),
     parroquiaId: z.number().optional(),
-    estado: z.number().optional()
+    estado: z.number().optional(),
+    recaptchaToken: z.string().min(1, 'Token de reCAPTCHA es requerido')
 });
 
 const loginSchema = z.object({
@@ -78,6 +80,19 @@ export class AuthController {
     register = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const data = registerSchema.parse(req.body);
+
+            // Verificación reCAPTCHA
+            const verifyCall = await fetch('https://www.google.com/recaptcha/api/siteverify', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `secret=${env.RECAPTCHA_SECRET_KEY}&response=${data.recaptchaToken}`
+            });
+            const verifyRes = await verifyCall.json() as any;
+            
+            if (!verifyRes.success) {
+                res.status(400).json({ success: false, message: 'Fallo verificación reCAPTCHA. Refresque e intente nuevamente.' });
+                return;
+            }
 
             const result = await this.registerUseCase.execute({
                 ci: data.ci as string,
@@ -119,6 +134,7 @@ export class AuthController {
     login = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const data = loginSchema.parse(req.body);
+
             const result = await this.loginUseCase.execute(data.ci, data.password, data.biometricToken);
 
             res.json({
