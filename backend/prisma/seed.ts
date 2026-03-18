@@ -58,7 +58,20 @@ async function main() {
                 nombre: 'Administrador',
                 codigo: 'ADMIN',
                 descripcion: 'Control total de la plataforma y reportes gerenciales',
-                modulos: ['usuarios', 'capacitaciones', 'certificados', 'reportes', 'configuracion', 'plantillas', 'competencias'],
+                modulos: [
+                    "Ver Perfil",
+                    "Ver conferencias",
+                    "Gestionar roles",
+                    "Gestionar capacitaciones",
+                    "Gestionar usuarios",
+                    "Gestionar entidades",
+                    "Gestionar provincias",
+                    "Gestionar parroquias",
+                    "Gestionar cantones",
+                    "Gestionar competencias",
+                    "Gestionar instituciones",
+                    "Validar certificados"
+                ],
             },
         });
 
@@ -67,7 +80,7 @@ async function main() {
                 nombre: 'Conferencista',
                 codigo: 'CONFERENCISTA',
                 descripcion: 'Gestión de contenidos académicos y certificación masiva',
-                modulos: ['capacitaciones', 'certificados', 'inscripciones'],
+                modulos: ["Ver Perfil", "Ver conferencias", "Gestionar capacitaciones", "Validar certificados"],
             },
         });
 
@@ -76,7 +89,7 @@ async function main() {
                 nombre: 'Usuario',
                 codigo: 'USUARIO',
                 descripcion: 'Participante en programas de formación territorial',
-                modulos: ['inscripciones', 'certificados'],
+                modulos: ["Ver Perfil", "Ver conferencias"],
             },
         });
 
