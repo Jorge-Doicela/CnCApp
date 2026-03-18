@@ -33,6 +33,18 @@ import { notFound } from './infrastructure/web/middleware/notFound.middleware';
 // Importar scheduler
 import { initCapacitacionScheduler } from './infrastructure/scheduler/capacitacion.scheduler';
 
+// ============================================
+// MANEJO DE CAÍDAS CRÍTICAS DE NODE.JS
+// ============================================
+// Estas reglas mantienen el servidor encendido 24/7 incluso si ocurre un error asíncrono no atrapado
+process.on('uncaughtException', (error) => {
+    logger.error('💥 FATAL ERROR: Excepción no capturada (uncaughtException) - Evitando caída del Servidor', { error: error.message, stack: error.stack });
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+    logger.error('💥 FATAL ERROR: Promesa rechazada sin atrapar (unhandledRejection) - Evitando caída del Servidor', { reason, promise });
+});
+
 const app: Application = express();
 const PORT = env.PORT;
 
