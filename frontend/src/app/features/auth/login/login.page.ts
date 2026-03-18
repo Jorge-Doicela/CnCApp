@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import {
   IonContent, IonIcon, IonLabel, // IonItem from top import removed
-  IonInput, IonButton, LoadingController, ToastController, AlertController
+  IonInput, IonButton, IonSpinner, LoadingController, ToastController, AlertController
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -29,7 +29,7 @@ import { Preferences } from '@capacitor/preferences';
     CommonModule,
     FormsModule,
     IonContent, IonIcon, IonLabel, 
-    IonInput, IonButton, RouterLink
+    IonInput, IonButton, IonSpinner, RouterLink
   ]
 })
 export class LoginPage implements OnInit {
