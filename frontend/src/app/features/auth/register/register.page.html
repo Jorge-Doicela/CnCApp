@@ -527,11 +527,13 @@
             <ion-label id="terms-trigger">He leído y acepto los <strong>Términos y Condiciones</strong></ion-label>
           </div>
 
-          <div class="captcha-container" style="display: flex; justify-content: center; margin: 20px 0;">
-            <div class="g-recaptcha" data-sitekey="6LeIFo8sAAAAANn2CU_a1H2DgyagspGvU3OTsfps"></div>
-          </div>
         </div>
         }
+
+        <!-- RECAPTCHA WIDGET: Siempre renderizado en el DOM para la API de Google, pero oculto hasta el Paso 5 -->
+        <div [style.display]="step() === 5 ? 'flex' : 'none'" style="justify-content: center; margin: 20px 0;">
+          <div class="g-recaptcha" data-sitekey="6LeIFo8sAAAAANn2CU_a1H2DgyagspGvU3OTsfps"></div>
+        </div>
 
         <!-- Navigation Buttons -->
         <div class="wizard-actions">
