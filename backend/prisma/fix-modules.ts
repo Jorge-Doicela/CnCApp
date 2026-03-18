@@ -17,6 +17,7 @@ async function main() {
         "Gestionar cantones",
         "Gestionar competencias",
         "Gestionar instituciones",
+        "Gestionar plantillas",
         "Validar certificados"
     ];
 
@@ -42,7 +43,7 @@ async function main() {
         await prisma.rol.update({
             where: { id: conferencistaRole.id },
             data: {
-                modulos: ["Ver Perfil", "Ver conferencias", "Gestionar capacitaciones", "Validar certificados"]
+                modulos: ["Ver Perfil", "Ver conferencias", "Gestionar capacitaciones", "Gestionar plantillas", "Validar certificados"]
             }
         });
         console.log('✅ Conferencista role updated.');

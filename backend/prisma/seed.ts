@@ -70,6 +70,7 @@ async function main() {
                     "Gestionar cantones",
                     "Gestionar competencias",
                     "Gestionar instituciones",
+                    "Gestionar plantillas",
                     "Validar certificados"
                 ],
             },
@@ -80,7 +81,7 @@ async function main() {
                 nombre: 'Conferencista',
                 codigo: 'CONFERENCISTA',
                 descripcion: 'Gestión de contenidos académicos y certificación masiva',
-                modulos: ["Ver Perfil", "Ver conferencias", "Gestionar capacitaciones", "Validar certificados"],
+                modulos: ["Ver Perfil", "Ver conferencias", "Gestionar capacitaciones", "Gestionar plantillas", "Validar certificados"],
             },
         });
 

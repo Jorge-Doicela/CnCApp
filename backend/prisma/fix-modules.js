@@ -7,7 +7,7 @@ async function main() {
         "Ver Perfil", "Ver conferencias", "Gestionar roles", "Gestionar capacitaciones",
         "Gestionar usuarios", "Gestionar entidades", "Gestionar provincias",
         "Gestionar parroquias", "Gestionar cantones", "Gestionar competencias",
-        "Gestionar instituciones", "Validar certificados"
+        "Gestionar instituciones", "Gestionar plantillas", "Validar certificados"
     ];
 
     const adminRole = await prisma.rol.findUnique({ where: { nombre: 'Administrador' } });
@@ -23,7 +23,7 @@ async function main() {
     if (conferencistaRole) {
         await prisma.rol.update({
             where: { id: conferencistaRole.id },
-            data: { modulos: ["Ver Perfil", "Ver conferencias", "Gestionar capacitaciones", "Validar certificados"] }
+            data: { modulos: ["Ver Perfil", "Ver conferencias", "Gestionar capacitaciones", "Gestionar plantillas", "Validar certificados"] }
         });
         console.log('✅ Conferencista role updated.');
     }
