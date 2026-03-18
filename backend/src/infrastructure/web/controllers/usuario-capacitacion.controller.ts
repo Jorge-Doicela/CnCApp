@@ -101,7 +101,7 @@ export class UsuarioCapacitacionController {
                 rolCapacitacion: rolCapacitacion || Rol_Capacitacion,
                 asistio: asistio !== undefined ? asistio : Asistencia,
                 estadoInscripcion: estadoInscripcion || Estado_Inscripcion
-            });
+            }, isStaff);
             res.status(201).json(data);
         } catch (error) {
             next(error);
@@ -140,6 +140,38 @@ export class UsuarioCapacitacionController {
             if (!isStaff && req.userId !== targetUserId) {
                 res.status(403).json({ message: 'No puedes cancelar la inscripción de otro usuario' });
                 return;
+            }
+
+            if (!isStaff) {
+                const capacitacion = await prisma.capacitacion.findUnique({
+                    where: { id: Number(idCapacitacion) }
+                });
+
+                if (!capacitacion) {
+                    res.status(404).json({ message: 'Capacitación no encontrada' });
+                    return;
+                }
+
+                if (capacitacion.estado === EstadoCapacitacionEnum.REALIZADA || capacitacion.estado === EstadoCapacitacionEnum.CANCELADA) {
+                    res.status(400).json({ message: 'No puedes cancelar la inscripción de un evento finalizado o cancelado' });
+                    return;
+                }
+
+                if (capacitacion.fechaInicio) {
+                    const ahora = new Date();
+                    const fechaHoraInicio = new Date(capacitacion.fechaInicio);
+                    if (capacitacion.horaInicio) {
+                        const [h, m] = capacitacion.horaInicio.split(':').map(Number);
+                        fechaHoraInicio.setHours(h ?? 0, m ?? 0, 0, 0);
+                    } else {
+                        fechaHoraInicio.setHours(0, 0, 0, 0);
+                    }
+
+                    if (ahora >= fechaHoraInicio) {
+                        res.status(400).json({ message: 'No puedes cancelar la inscripción porque el evento ya ha comenzado.' });
+                        return;
+                    }
+                }
             }
 
             await this.usuarioCapacitacionRepository.deleteByCapacitacionAndUser(Number(idCapacitacion), targetUserId);

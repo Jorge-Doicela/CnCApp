@@ -13,7 +13,7 @@ export class InscribirUsuarioUseCase {
         @inject('CapacitacionRepository') private capacitacionRepository: CapacitacionRepository
     ) { }
 
-    async execute(data: Partial<UsuarioCapacitacion>) {
+    async execute(data: Partial<UsuarioCapacitacion>, isStaff: boolean = false) {
         if (!data.usuarioId || !data.capacitacionId) {
             throw new ValidationError('ID de usuario y capacitación son obligatorios');
         }
@@ -32,7 +32,7 @@ export class InscribirUsuarioUseCase {
                 throw new ValidationError(`No es posible inscribirse: la capacitación se encuentra ${capacitacion.estado}`);
             }
 
-            if (capacitacion.fechaInicio) {
+            if (!isStaff && capacitacion.fechaInicio) {
                 const ahora = new Date();
                 const fechaHoraInicio = new Date(capacitacion.fechaInicio);
                 if (capacitacion.horaInicio) {
