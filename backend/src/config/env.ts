@@ -32,6 +32,13 @@ const envSchema = z.object({
     UPLOAD_DIR: z.string().default('public/uploads'),
     BASE_URL: z.string().url().default('http://localhost:3000'),
     FRONTEND_URL: z.string().url().default('http://localhost:8100'),
+
+    // SMTP Mailer
+    SMTP_HOST: z.string().optional(),
+    SMTP_PORT: z.string().optional(),
+    SMTP_SECURE: z.string().optional(),
+    SMTP_USER: z.string().optional(),
+    SMTP_PASS: z.string().optional(),
 });
 
 // Validar y exportar la configuración

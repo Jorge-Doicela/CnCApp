@@ -215,6 +215,7 @@ export class PrismaCapacitacionRepository implements CapacitacionRepository {
 
     async findAll(expositorId?: number): Promise<Capacitacion[]> {
         const capacitaciones = await prisma.capacitacion.findMany({
+            take: 1000,
             where: expositorId ? {
                 inscripciones: {
                     some: {

@@ -29,41 +29,6 @@ export const authGuard: CanActivateFn = async (route, state) => {
   return true;
 };
 
-/**
- * Injectable class-based guard for backwards compatibility
- * Only checks authentication, not roles
- */
-@Injectable({
-  providedIn: 'root'
-})
-export class AuthGuard {
-  constructor(
-    private router: Router,
-    private alertController: AlertController,
-    private authService: AuthService
-  ) { }
-
-  async canActivate(route: any, state: any): Promise<boolean> {
-    const token = localStorage.getItem('accessToken') || localStorage.getItem('token');
-    if (!token) {
-      await this.presentAuthAlert('Acceso denegado', 'Debe iniciar sesión');
-      this.router.navigate(['/login']);
-      return false;
-    }
-    return true;
-  }
-
-  private async presentAuthAlert(header: string, message: string) {
-    const alert = await this.alertController.create({
-      header,
-      message,
-      buttons: ['Aceptar'],
-      cssClass: 'auth-alert',
-      backdropDismiss: false
-    });
-    await alert.present();
-  }
-}
 
 async function presentAuthAlert(alertController: AlertController, header: string, message: string) {
   const alert = await alertController.create({

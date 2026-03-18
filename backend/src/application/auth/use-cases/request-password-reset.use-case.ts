@@ -2,12 +2,14 @@
 import { injectable, inject } from 'tsyringe';
 import { UserRepository } from '../../../domain/user/user.repository';
 import { TokenProvider } from '../../../domain/auth/auth.ports';
+import { EmailService } from '../../../infrastructure/services/email.service';
 
 @injectable()
 export class RequestPasswordResetUseCase {
     constructor(
         @inject('UserRepository') private readonly userRepository: UserRepository,
-        @inject('TokenProvider') private readonly tokenProvider: TokenProvider
+        @inject('TokenProvider') private readonly tokenProvider: TokenProvider,
+        @inject(EmailService) private readonly emailService: EmailService
     ) { }
 
     async execute(email: string, redirectTo: string): Promise<{ resetLink?: string }> {
@@ -27,11 +29,7 @@ export class RequestPasswordResetUseCase {
         const resetToken = tokens.accessToken;
         const link = `${redirectTo}?type=recovery&token=${resetToken}`;
 
-        console.log('--------------------------------------------------');
-        console.log(`[EMAIL MOCK] To: ${email}`);
-        console.log(`[EMAIL MOCK] Subject: Recuperación de Contraseña - CNC`);
-        console.log(`[EMAIL MOCK] Click here to reset: ${link}`);
-        console.log('--------------------------------------------------');
+        await this.emailService.sendPasswordResetEmail(email, link);
 
         return { resetLink: link };
     }

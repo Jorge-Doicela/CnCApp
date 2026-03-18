@@ -31,7 +31,7 @@ export const CREATOR_ROUTES: Routes = [
 
     // ── Certificados ─────────────────────────────────────────────────
     {
-        path: 'conferencista/certificados/:Id_Capacitacion',
+        path: 'conferencista/certificados/:id',
         loadComponent: () => import('../admin/certificados/certificados.page').then(m => m.CertificadosPage),
         canActivate: [creatorGuard]
     },

@@ -1,0 +1,62 @@
+import { injectable } from 'tsyringe';
+import nodemailer from 'nodemailer';
+import { env } from '../../config/env';
+
+@injectable()
+export class EmailService {
+    private transporter: nodemailer.Transporter;
+
+    constructor() {
+        this.transporter = nodemailer.createTransport({
+            host: env.SMTP_HOST || 'smtp.gmail.com',
+            port: parseInt(env.SMTP_PORT || '465', 10),
+            secure: env.SMTP_SECURE !== 'false',
+            auth: {
+                user: env.SMTP_USER,
+                pass: env.SMTP_PASS
+            }
+        });
+    }
+
+    async sendPasswordResetEmail(to: string, resetLink: string): Promise<void> {
+        if (!env.SMTP_USER || !env.SMTP_PASS) {
+            console.warn(`[EMAIL_MOCK] Credentials missing in .env. Would send to ${to}: ${resetLink}`);
+            return;
+        }
+
+        const mailOptions = {
+            from: `"Soporte CNC" <${env.SMTP_USER}>`,
+            to,
+            subject: 'Recuperación de Contraseña - Sistema CNC',
+            html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333;">
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <h2 style="color: #003366; margin: 0;">Recuperación de Contraseña</h2>
+                    </div>
+                    <p style="font-size: 16px;">Hola,</p>
+                    <p style="font-size: 16px;">Hemos recibido una solicitud para cambiar tu contraseña en el Sistema CNC.</p>
+                    <p style="font-size: 16px;">Si fuiste tú, haz clic en el siguiente enlace para crear una nueva contraseña:</p>
+                    
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a href="${resetLink}" style="background-color: #003366; color: white; padding: 12px 25px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 16px; display: inline-block;">
+                            Restablecer Contraseña
+                        </a>
+                    </div>
+                    
+                    <p style="font-size: 14px; color: #666;">Este enlace es único y expirará en poco tiempo por tu seguridad.</p>
+                    <p style="font-size: 14px; color: #666;">Si no solicitaste este cambio, puedes ignorar de forma segura este correo. Tu cuenta seguirá protegida.</p>
+                    
+                    <hr style="border: none; border-top: 1px solid #eaeaea; margin: 30px 0;" />
+                    <p style="font-size: 12px; color: #999; text-align: center;">Atentamente,<br>El Equipo del Sistema CNC</p>
+                </div>
+            `
+        };
+
+        try {
+            await this.transporter.sendMail(mailOptions);
+            console.log(`[EMAIL_SERVICE] Correo de recuperación enviado a ${to}`);
+        } catch (error) {
+            console.error(`[EMAIL_SERVICE] Falló el envío de correo a ${to}:`, error);
+        }
+    }
+}

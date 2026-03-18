@@ -13,12 +13,13 @@ import { PrismaReportesRepository } from '../infrastructure/database/repositorie
 import { PrismaParroquiaRepository } from '../infrastructure/database/repositories/ubicacion/prisma-parroquia.repository';
 import { PrismaCompetenciaRepository } from '../infrastructure/database/repositories/competencia/prisma-competencia.repository';
 
-// Import Auth Use Cases
 import { RegisterUserUseCase } from '../application/auth/use-cases/register-user.use-case';
 import { LoginUserUseCase } from '../application/auth/use-cases/login-user.use-case';
 import { RefreshTokenUseCase } from '../application/auth/use-cases/refresh-token.use-case';
 import { RequestPasswordResetUseCase } from '../application/auth/use-cases/request-password-reset.use-case';
 import { ResetPasswordUseCase } from '../application/auth/use-cases/reset-password.use-case';
+import { StoreBiometricTokenUseCase } from '../application/auth/use-cases/store-biometric-token.use-case';
+import { InvalidateRefreshTokenUseCase } from '../application/auth/use-cases/invalidate-refresh-token.use-case';
 
 // Import User Use Cases
 import { GetUserProfileUseCase } from '../application/user/use-cases/get-user-profile.use-case';
@@ -46,6 +47,7 @@ import { CountCertificadosUseCase } from '../application/certificado/use-cases/c
 import { CertificateGeneratorService } from '../infrastructure/services/certificate-generator.service';
 import { GenerateCertificadoUseCase } from '../application/certificado/use-cases/generate-certificado.use-case';
 import { FileStorageService } from '../infrastructure/services/file-storage.service';
+import { EmailService } from '../infrastructure/services/email.service';
 
 // Import Ubicacion Use Cases
 import { GetProvinciasUseCase } from '../application/ubicacion/use-cases/get-provincias.use-case';
@@ -153,6 +155,8 @@ container.registerSingleton(LoginUserUseCase);
 container.registerSingleton(RefreshTokenUseCase);
 container.registerSingleton(RequestPasswordResetUseCase);
 container.registerSingleton(ResetPasswordUseCase);
+container.registerSingleton(StoreBiometricTokenUseCase);
+container.registerSingleton(InvalidateRefreshTokenUseCase);
 
 // User Use Cases
 container.registerSingleton(GetUserProfileUseCase);
@@ -186,6 +190,7 @@ container.registerSingleton(CountCertificadosUseCase);
 container.registerSingleton(CertificateGeneratorService);
 container.registerSingleton(GenerateCertificadoUseCase);
 container.registerSingleton(FileStorageService);
+container.registerSingleton(EmailService);
 
 // Ubicacion Use Cases
 container.registerSingleton(GetProvinciasUseCase);

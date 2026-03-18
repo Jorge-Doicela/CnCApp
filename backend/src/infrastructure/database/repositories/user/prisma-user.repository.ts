@@ -222,6 +222,7 @@ export class PrismaUserRepository implements UserRepository {
 
     async findAll(): Promise<User[]> {
         const users = await prisma.usuario.findMany({
+            take: 2000,
             include: {
                 rol: true,
                 entidad: true,

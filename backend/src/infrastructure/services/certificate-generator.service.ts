@@ -52,28 +52,42 @@ export class CertificateGeneratorService {
                 doc.pipe(stream);
 
                 // 2. Load Background Image
-                let imagePath = plantillaImagenUrl;
+                if (plantillaImagenUrl) {
+                    if (plantillaImagenUrl.startsWith('data:image')) {
+                        doc.image(plantillaImagenUrl, 0, 0, {
+                            width: doc.page.width,
+                            height: doc.page.height
+                        });
+                    } else if (plantillaImagenUrl.startsWith('http://') || plantillaImagenUrl.startsWith('https://')) {
+                        try {
+                            const response = await fetch(plantillaImagenUrl);
+                            if (!response.ok) throw new Error(`HTTP fetch status: ${response.status}`);
+                            const arrayBuffer = await response.arrayBuffer();
+                            doc.image(Buffer.from(arrayBuffer), 0, 0, {
+                                width: doc.page.width,
+                                height: doc.page.height
+                            });
+                        } catch (e) {
+                            console.warn(`Failed to fetch HTTP image: ${plantillaImagenUrl}`, e);
+                            doc.rect(0, 0, doc.page.width, doc.page.height).stroke();
+                            doc.fillColor('#000000').fontSize(20).text('Plantilla URL unreachable', 100, 100);
+                        }
+                    } else {
+                        const imagePath = path.isAbsolute(plantillaImagenUrl) 
+                            ? plantillaImagenUrl 
+                            : path.join(process.cwd(), 'public', plantillaImagenUrl);
 
-                // Resolve relative paths (like /assets/...) to absolute paths in 'public'
-                if (!plantillaImagenUrl.startsWith('data:image') && !path.isAbsolute(plantillaImagenUrl)) {
-                    imagePath = path.join(process.cwd(), 'public', plantillaImagenUrl);
-                }
-
-                if (plantillaImagenUrl.startsWith('data:image')) {
-                    doc.image(plantillaImagenUrl, 0, 0, {
-                        width: doc.page.width,
-                        height: doc.page.height
-                    });
-                } else if (fs.existsSync(imagePath)) {
-                    doc.image(imagePath, 0, 0, {
-                        width: doc.page.width,
-                        height: doc.page.height
-                    });
-                } else {
-                    console.warn(`Plantilla image not found at ${imagePath}`);
-                    // Draw a placeholder or minimal border
-                    doc.rect(0, 0, doc.page.width, doc.page.height).stroke();
-                    doc.fillColor('#000000').fontSize(20).text('Plantilla background missing', 100, 100);
+                        if (fs.existsSync(imagePath)) {
+                            doc.image(imagePath, 0, 0, {
+                                width: doc.page.width,
+                                height: doc.page.height
+                            });
+                        } else {
+                            console.warn(`Plantilla image not found locally at ${imagePath}`);
+                            doc.rect(0, 0, doc.page.width, doc.page.height).stroke();
+                            doc.fillColor('#000000').fontSize(20).text('Plantilla background missing', 100, 100);
+                        }
+                    }
                 }
 
                 // 3. Draw Text Fields

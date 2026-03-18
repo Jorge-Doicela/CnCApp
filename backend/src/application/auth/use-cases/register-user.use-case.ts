@@ -120,17 +120,23 @@ export class RegisterUserUseCase {
         const cncEntity = await this.entidadRepository.findByName('Consejo Nacional de Competencias');
 
         // 3. Create User Entity
-        const nombreCompleto = `${data.primerNombre} ${data.segundoNombre || ''} ${data.primerApellido} ${data.segundoApellido || ''}`.replace(/\s+/g, ' ').trim();
+        const sanitizeName = (val?: string | null) => (!val || val === 'null' || val === 'undefined') ? '' : val.trim();
+        const cleanPrimerNombre = sanitizeName(data.primerNombre);
+        const cleanSegundoNombre = sanitizeName(data.segundoNombre);
+        const cleanPrimerApellido = sanitizeName(data.primerApellido);
+        const cleanSegundoApellido = sanitizeName(data.segundoApellido);
+
+        const nombreCompleto = `${cleanPrimerNombre} ${cleanSegundoNombre} ${cleanPrimerApellido} ${cleanSegundoApellido}`.replace(/\s+/g, ' ').trim();
         const now = new Date();
 
         const newUser: User = {
             id: 0,
             ci: data.ci,
             nombre: nombreCompleto,
-            primerNombre: data.primerNombre,
-            segundoNombre: data.segundoNombre,
-            primerApellido: data.primerApellido,
-            segundoApellido: data.segundoApellido,
+            primerNombre: cleanPrimerNombre || undefined,
+            segundoNombre: cleanSegundoNombre || undefined,
+            primerApellido: cleanPrimerApellido || undefined,
+            segundoApellido: cleanSegundoApellido || undefined,
             email: data.email,
             telefono: data.telefono,
             celular: data.celular,

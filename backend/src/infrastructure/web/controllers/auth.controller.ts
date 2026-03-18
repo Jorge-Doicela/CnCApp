@@ -10,6 +10,7 @@ import { ResetPasswordUseCase } from '../../../application/auth/use-cases/reset-
 import { RefreshTokenUseCase } from '../../../application/auth/use-cases/refresh-token.use-case';
 import { StoreBiometricTokenUseCase } from '../../../application/auth/use-cases/store-biometric-token.use-case';
 import { AuthRequest } from '../middleware/auth.middleware';
+import { InvalidateRefreshTokenUseCase } from '../../../application/auth/use-cases/invalidate-refresh-token.use-case';
 
 // Strip password from user object before sending to client
 const toDTO = (user: any) => {
@@ -70,7 +71,8 @@ export class AuthController {
         @inject(RequestPasswordResetUseCase) private requestPasswordResetUseCase: RequestPasswordResetUseCase,
         @inject(ResetPasswordUseCase) private resetPasswordUseCase: ResetPasswordUseCase,
         @inject(RefreshTokenUseCase) private refreshTokenUseCase: RefreshTokenUseCase,
-        @inject(StoreBiometricTokenUseCase) private storeBiometricTokenUseCase: StoreBiometricTokenUseCase
+        @inject(StoreBiometricTokenUseCase) private storeBiometricTokenUseCase: StoreBiometricTokenUseCase,
+        @inject(InvalidateRefreshTokenUseCase) private invalidateRefreshTokenUseCase: InvalidateRefreshTokenUseCase
     ) { }
 
     register = async (req: Request, res: Response, next: NextFunction) => {
@@ -148,6 +150,20 @@ export class AuthController {
                 data: {
                     biometricToken
                 }
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    logout = async (req: AuthRequest, res: Response, next: NextFunction) => {
+        try {
+            if (req.userId) {
+                await this.invalidateRefreshTokenUseCase.execute(req.userId);
+            }
+            res.json({
+                success: true,
+                message: 'Sesión cerrada exitosamente'
             });
         } catch (error) {
             next(error);

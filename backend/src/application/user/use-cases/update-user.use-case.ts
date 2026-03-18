@@ -48,13 +48,20 @@ export class UpdateUserUseCase {
         }
 
         // If any name field is updated, reconstruct the full name
-        if (userData.primerNombre || userData.segundoNombre || userData.primerApellido || userData.segundoApellido) {
-            const primerNombre = userData.primerNombre !== undefined ? userData.primerNombre : (user.primerNombre || '');
-            const segundoNombre = userData.segundoNombre !== undefined ? userData.segundoNombre : (user.segundoNombre || '');
-            const primerApellido = userData.primerApellido !== undefined ? userData.primerApellido : (user.primerApellido || '');
-            const segundoApellido = userData.segundoApellido !== undefined ? userData.segundoApellido : (user.segundoApellido || '');
+        if ('primerNombre' in userData || 'segundoNombre' in userData || 'primerApellido' in userData || 'segundoApellido' in userData) {
+            const sanitizeName = (val?: string | null) => (!val || val === 'null' || val === 'undefined') ? '' : val.trim();
+            
+            if ('primerNombre' in userData) userData.primerNombre = sanitizeName(userData.primerNombre) || undefined;
+            if ('segundoNombre' in userData) userData.segundoNombre = sanitizeName(userData.segundoNombre) || undefined;
+            if ('primerApellido' in userData) userData.primerApellido = sanitizeName(userData.primerApellido) || undefined;
+            if ('segundoApellido' in userData) userData.segundoApellido = sanitizeName(userData.segundoApellido) || undefined;
 
-            userData.nombre = `${primerNombre} ${segundoNombre} ${primerApellido} ${segundoApellido}`.replace(/\s+/g, ' ').trim();
+            const finalPrimerNombre = userData.primerNombre !== undefined ? userData.primerNombre : (user.primerNombre || '');
+            const finalSegundoNombre = userData.segundoNombre !== undefined ? userData.segundoNombre : (user.segundoNombre || '');
+            const finalPrimerApellido = userData.primerApellido !== undefined ? userData.primerApellido : (user.primerApellido || '');
+            const finalSegundoApellido = userData.segundoApellido !== undefined ? userData.segundoApellido : (user.segundoApellido || '');
+
+            userData.nombre = `${finalPrimerNombre} ${finalSegundoNombre} ${finalPrimerApellido} ${finalSegundoApellido}`.replace(/\s+/g, ' ').trim();
         }
 
         // If password is provided, hash it
