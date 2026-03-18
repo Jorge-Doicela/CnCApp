@@ -12,7 +12,7 @@ import { z } from 'zod';
 
 const plantillaSchema = z.object({
     nombre: z.string().min(3, 'El nombre es obligatorio'),
-    imagenUrl: z.string().url('URL de imagen inválida').optional().or(z.literal('')),
+    imagenUrl: z.string().optional().or(z.literal('')),
     configuracion: z.record(z.any()).optional(),
     activa: z.boolean().optional()
 });

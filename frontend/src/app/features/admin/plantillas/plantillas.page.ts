@@ -33,6 +33,8 @@ export class PlantillasPage implements OnInit {
     plantillasFiltradas: PlantillaCertificado[] = [];
     terminoBusqueda: string = '';
     cargando: boolean = true;
+    isModalOpen: boolean = false;
+    plantillaSeleccionada: PlantillaCertificado | null = null;
 
     private plantillasService = inject(PlantillasService);
     private navController = inject(NavController);
@@ -190,18 +192,17 @@ export class PlantillasPage implements OnInit {
         await alert.present();
     }
 
-    async previsualizarPlantilla(plantilla: PlantillaCertificado) {
-        const alert = await this.alertController.create({
-            header: plantilla.nombre,
-            message: `<div class="preview-modal-content">
-                <img src="${plantilla.imagenUrl}" style="width: 100%; border-radius: 8px; margin-bottom: 10px;" onerror="this.src='assets/placeholder-certificate.png'">
-                <p><strong>Configuración:</strong> ${Object.keys(plantilla.configuracion).length} campos detectados.</p>
-                <p><strong>Estado:</strong> ${plantilla.activa ? 'Activa' : 'Inactiva'}</p>
-            </div>`,
-            buttons: ['Cerrar'],
-            cssClass: 'custom-alert-preview'
-        });
-        await alert.present();
+    previsualizarPlantilla(plantilla: PlantillaCertificado) {
+        this.plantillaSeleccionada = plantilla;
+        this.isModalOpen = true;
+    }
+
+    cerrarModal() {
+        this.isModalOpen = false;
+        setTimeout(() => {
+            this.plantillaSeleccionada = null;
+            this.cd.markForCheck();
+        }, 300);
     }
 
     onImageError(event: any) {
