@@ -78,6 +78,7 @@ export class RegisterPage {
   isLoading = signal<boolean>(false);
   showPassword = signal<boolean>(false);
   showPasswordConfirm = signal<boolean>(false);
+  recaptchaWidgetId: number | null = null;
 
   termsText = `
     <p><strong>CONVENIO DE RESPONSABILIDAD DE USO DE PLATAFORMA DEL CNC</strong></p>
@@ -108,6 +109,24 @@ export class RegisterPage {
 
   ngOnInit() {
     this.loadCatalogos();
+  }
+
+  ngAfterViewInit() {
+    this.initRecaptcha();
+  }
+
+  initRecaptcha() {
+    const checkGrecaptcha = setInterval(() => {
+      if ((window as any).grecaptcha && (window as any).grecaptcha.render) {
+        clearInterval(checkGrecaptcha);
+        try {
+          this.recaptchaWidgetId = (window as any).grecaptcha.render('register-recaptcha-wrapper', {
+            'sitekey': '6LeIFo8sAAAAANn2CU_a1H2DgyagspGvU3OTsfps',
+            'theme': 'light'
+          });
+        } catch(e) { console.error('Recaptcha init err', e); }
+      }
+    }, 500);
   }
 
   async loadCatalogos() {
@@ -366,7 +385,13 @@ export class RegisterPage {
       return;
     }
 
-    const recaptchaToken = (window as any).grecaptcha?.getResponse();
+    let recaptchaToken = '';
+    if (this.recaptchaWidgetId !== null) {
+       recaptchaToken = (window as any).grecaptcha?.getResponse(this.recaptchaWidgetId);
+    } else {
+       recaptchaToken = (window as any).grecaptcha?.getResponse();
+    }
+
     if (!recaptchaToken) {
       this.presentToast('Por favor, verifique que no es un robot', 'warning');
       return;
@@ -403,17 +428,36 @@ export class RegisterPage {
           await alert.present();
 
           this.state.reset();
-          try { (window as any).grecaptcha?.reset(); } catch(e) {}
+          try { 
+            if (this.recaptchaWidgetId !== null) {
+              (window as any).grecaptcha?.reset(this.recaptchaWidgetId); 
+            } else {
+              (window as any).grecaptcha?.reset();
+            }
+          } catch(e) {}
           this.router.navigate(['/login']);
         } else {
+          try { 
+            if (this.recaptchaWidgetId !== null) {
+              (window as any).grecaptcha?.reset(this.recaptchaWidgetId); 
+            } else {
+              (window as any).grecaptcha?.reset();
+            }
+          } catch(e) {}
           this.presentToast(res.message || 'Error', 'danger');
         }
       },
       error: async (err) => {
-        await LOADING.dismiss();
+        try { await LOADING.dismiss(); } catch(e){}
         this.isLoading.set(false);
-        try { (window as any).grecaptcha?.reset(); } catch(e) {}
-        this.presentToast(err.error?.message || 'Error al registrar', 'danger');
+        try { 
+            if (this.recaptchaWidgetId !== null) {
+              (window as any).grecaptcha?.reset(this.recaptchaWidgetId); 
+            } else {
+              (window as any).grecaptcha?.reset();
+            }
+        } catch(e) {}
+        this.presentToast(err.error?.message || err.message || 'Error al conectar con el servidor', 'danger');
       }
     });
   }

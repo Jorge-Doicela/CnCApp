@@ -176,7 +176,11 @@ export class RegisterUserUseCase {
         }).accessToken; // Usamos el JWT de corta duración (24h) para forzar confirmación en fecha límite
 
         const verificationLink = `${env.BASE_URL}/api/auth/verify-email?token=${activationToken}`;
-        await this.emailService.sendAccountConfirmationEmail(data.email, verificationLink, nombreCompleto);
+        
+        // Ejecutamos el envío de correo en segundo plano para no congelar la pantalla del usuario (Optimización de latencia)
+        this.emailService.sendAccountConfirmationEmail(data.email, verificationLink, nombreCompleto).catch(e => {
+            console.error('[EMAIL_MOCK] Error enviando confirmación asíncrona:', e);
+        });
 
         // Limitamos los tokens enviados al front porque el usuario NO puede entrar aún
         return {
