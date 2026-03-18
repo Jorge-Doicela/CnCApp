@@ -403,7 +403,7 @@ export class RegisterPage {
           await alert.present();
 
           this.state.reset();
-          (window as any).grecaptcha?.reset();
+          try { (window as any).grecaptcha?.reset(); } catch(e) {}
           this.router.navigate(['/login']);
         } else {
           this.presentToast(res.message || 'Error', 'danger');
@@ -412,7 +412,7 @@ export class RegisterPage {
       error: async (err) => {
         await LOADING.dismiss();
         this.isLoading.set(false);
-        (window as any).grecaptcha?.reset();
+        try { (window as any).grecaptcha?.reset(); } catch(e) {}
         this.presentToast(err.error?.message || 'Error al registrar', 'danger');
       }
     });

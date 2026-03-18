@@ -225,7 +225,8 @@ export class AuthService {
         return this.http.post<LoginResponse>(`${this.apiUrl}/auth/register`, data).pipe(
             tap({
                 next: (response) => {
-                    if (response.success && response.data) {
+                    // Evitar auto-login si el backend retuvo los tokens (esperando confirmación de correo)
+                    if (response.success && response.data && response.data.accessToken) {
                         this.setAuthData(
                             response.data.user,
                             response.data.accessToken,
