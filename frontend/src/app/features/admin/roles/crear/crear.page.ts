@@ -5,6 +5,7 @@ import { Component, OnInit, inject, ChangeDetectionStrategy, ChangeDetectorRef }
 import { ToastController, AlertController, NavController } from '@ionic/angular';
 import { CatalogoService } from 'src/app/shared/services/catalogo.service';
 import { firstValueFrom } from 'rxjs';
+import { SYSTEM_MODULES } from 'src/app/shared/constants/modules.constants';
 
 @Component({
   selector: 'app-crear',
@@ -15,20 +16,8 @@ import { firstValueFrom } from 'rxjs';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CrearPage implements OnInit {
-  modulos: string[] = [
-    "Ver Perfil",
-    "Ver conferencias",
-    "Gestionar roles",
-    "Gestionar capacitaciones",
-    "Gestionar usuarios",
-    "Gestionar entidades",
-    "Gestionar provincias",
-    "Gestionar parroquias",
-    "Gestionar cantones",
-    "Gestionar competencias",
-    "Gestionar instituciones",
-    "Validar certificados"
-  ];
+  modulos: string[] = SYSTEM_MODULES;
+
 
   rol = {
     nombre: '',
