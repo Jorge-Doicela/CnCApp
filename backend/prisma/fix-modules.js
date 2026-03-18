@@ -4,10 +4,11 @@ const prisma = new PrismaClient();
 async function main() {
     console.log('🚀 Starting module names migration (CJS)...');
     const systemModules = [
-        "Ver Perfil", "Ver conferencias", "Gestionar roles", "Gestionar capacitaciones",
-        "Gestionar usuarios", "Gestionar entidades", "Gestionar provincias",
-        "Gestionar parroquias", "Gestionar cantones", "Gestionar competencias",
-        "Gestionar instituciones", "Gestionar plantillas", "Validar certificados"
+        "Ver Perfil", "Ver conferencias",        "Gestionar roles", "Gestionar capacitaciones", "Gestionar usuarios", 
+        "Gestionar entidades", "Gestionar provincias", "Gestionar parroquias", 
+        "Gestionar cantones", "Gestionar competencias", "Gestionar instituciones", 
+        "Gestionar plantillas", "Gestionar reportes", "Gestionar grados ocupacionales", 
+        "Gestionar cargos", "Validar certificados"
     ];
 
     const adminRole = await prisma.rol.findUnique({ where: { nombre: 'Administrador' } });

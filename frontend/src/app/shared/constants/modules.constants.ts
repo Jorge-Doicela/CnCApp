@@ -15,5 +15,8 @@ export const SYSTEM_MODULES: string[] = [
     "Gestionar competencias",
     "Gestionar instituciones",
     "Gestionar plantillas",
+    "Gestionar reportes",
+    "Gestionar grados ocupacionales",
+    "Gestionar cargos",
     "Validar certificados"
 ];

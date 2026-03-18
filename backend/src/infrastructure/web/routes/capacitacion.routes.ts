@@ -15,9 +15,9 @@ router.get('/count', controller.count);
 router.get('/', [authenticate], controller.getAll);
 router.get('/:id', controller.getById);
 
-// Protected routes (Escritura - Solo Staff)
-router.post('/', [authenticate, authorize(...STAFF_ROLES)], controller.create);
-router.put('/:id', [authenticate, authorize(...STAFF_ROLES)], controller.update);
-router.delete('/:id', [authenticate, authorize(...STAFF_ROLES)], controller.delete);
+// Protected routes (Escritura - Solo Staff con permiso de gestión)
+router.post('/', [authenticate, requireModule('Gestionar capacitaciones')], controller.create);
+router.put('/:id', [authenticate, requireModule('Gestionar capacitaciones')], controller.update);
+router.delete('/:id', [authenticate, requireModule('Gestionar capacitaciones')], controller.delete);
 
 export default router;

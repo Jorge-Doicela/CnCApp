@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { container } from 'tsyringe';
 import { UserController } from '../controllers/user.controller';
-import { authenticate, authorize } from '../middleware/auth.middleware';
+import { authenticate, authorize, requireModule } from '../middleware/auth.middleware';
 import { ADMIN_ROLES } from '../../../domain/shared/constants/roles.constants';
 
 const router = Router();
@@ -14,7 +14,7 @@ router.put('/me', userController.updateMe);          // Actualizar perfil propio
 router.get('/auth/:authId', userController.getByAuthId);
 
 // Rutas solo para administradores
-router.use(authorize(...ADMIN_ROLES));
+router.use(requireModule('Gestionar usuarios'));
 
 router.get('/', userController.getAll);
 router.post('/', userController.create);

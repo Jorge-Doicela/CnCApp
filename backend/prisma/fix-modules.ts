@@ -18,6 +18,9 @@ async function main() {
         "Gestionar competencias",
         "Gestionar instituciones",
         "Gestionar plantillas",
+        "Gestionar reportes",
+        "Gestionar grados ocupacionales",
+        "Gestionar cargos",
         "Validar certificados"
     ];
 

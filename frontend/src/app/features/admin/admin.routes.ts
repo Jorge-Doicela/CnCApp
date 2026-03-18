@@ -11,7 +11,8 @@ export const ADMIN_ROUTES: Routes = [
     {
         path: 'gestionar-reportes',
         loadComponent: () => import('./reportes/reportes.page').then(m => m.ReportesPage),
-        canActivate: [adminGuard]
+        canActivate: [adminGuard, moduleGuard],
+        data: { requiredModule: 'Gestionar reportes' }
     },
     {
         path: 'gestionar-usuarios',
@@ -195,7 +196,8 @@ export const ADMIN_ROUTES: Routes = [
     {
         path: 'gestionar-cargos-instituciones',
         loadComponent: () => import('./cargos-instituciones/crudcargosinstituciones.page').then(m => m.CrudcargosinstitucionesPage),
-        canActivate: [adminGuard]
+        canActivate: [adminGuard, moduleGuard],
+        data: { requiredModule: 'Gestionar cargos' }
     },
     {
         path: 'gestionar-cargos-instituciones/crear',
@@ -210,7 +212,8 @@ export const ADMIN_ROUTES: Routes = [
     {
         path: 'gestionar-plantillas',
         loadComponent: () => import('./plantillas/plantillas.page').then(m => m.PlantillasPage),
-        canActivate: [adminGuard]
+        canActivate: [adminGuard, moduleGuard],
+        data: { requiredModule: 'Gestionar plantillas' }
     },
     {
         path: 'gestionar-plantillas/crear',
@@ -225,6 +228,7 @@ export const ADMIN_ROUTES: Routes = [
     {
         path: 'gestionar-grados',
         loadComponent: () => import('./grados-ocupacionales/grados-ocupacionales.page').then(m => m.GradosOcupacionalesPage),
-        canActivate: [adminGuard]
+        canActivate: [adminGuard, moduleGuard],
+        data: { requiredModule: 'Gestionar grados ocupacionales' }
     }
 ];
