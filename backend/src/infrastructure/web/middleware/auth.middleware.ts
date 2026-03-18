@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { env } from '../../../config/env';
+import prisma from '../../../config/database';
 
 export interface AuthRequest extends Request {
     userId?: number;
@@ -62,5 +63,44 @@ export const authorize = (...allowedRoles: string[]) => {
         }
 
         next();
+    };
+};
+
+// Middleware para verificar si el usuario tiene asignado un módulo específico (Tiempo real en DB)
+export const requireModule = (...requiredModules: string[]) => {
+    return async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+        if (!req.userId) {
+            res.status(401).json({ error: 'No autorizado - Sin usuario' });
+            return;
+        }
+
+        try {
+            const user = await prisma.usuario.findUnique({
+                where: { id: req.userId },
+                include: { rol: true }
+            });
+
+            if (!user) {
+                res.status(401).json({ error: 'Fallo de seguridad - Usuario no encontrado' });
+                return;
+            }
+
+            const userModules = Array.isArray(user.rol?.modulos) ? (user.rol?.modulos as string[]) : [];
+            const hasModule = requiredModules.some(mod => userModules.includes(mod));
+
+            if (!hasModule) {
+                console.log(`[AUTH_DEBUG] Acceso denegado a módulo. UserId: ${req.userId}, Requerido: ${requiredModules}`);
+                res.status(403).json({
+                    error: 'Acceso denegado - Módulo no asignado',
+                    requiredModules
+                });
+                return;
+            }
+
+            next();
+        } catch (error) {
+            console.error('[AUTH_DEBUG] Error interno validando módulos:', error);
+            res.status(500).json({ error: 'Error del servidor en validación de permisos' });
+        }
     };
 };

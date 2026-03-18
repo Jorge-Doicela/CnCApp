@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { container } from 'tsyringe';
 import { InstitucionController } from '../controllers/institucion.controller';
-import { authenticate, authorize } from '../middleware/auth.middleware';
+import { authenticate, authorize, requireModule } from '../middleware/auth.middleware';
 import { ADMIN_ROLES } from '../../../domain/shared/constants/roles.constants';
 
 const router = Router();
@@ -14,7 +14,7 @@ router.get('/', controller.getAll);
 router.get('/:id', controller.getById);
 
 // Management routes (Admins only)
-router.use(authorize(...ADMIN_ROLES));
+router.use(requireModule('Gestionar instituciones'));
 router.post('/', controller.create);
 router.put('/:id', controller.update);
 router.delete('/:id', controller.delete);

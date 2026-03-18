@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { container } from 'tsyringe';
 import { CapacitacionController } from '../controllers/capacitacion.controller';
-import { authenticate, authorize } from '../middleware/auth.middleware';
+import { authenticate, authorize, requireModule } from '../middleware/auth.middleware';
 import { ROLES } from '../../../domain/shared/constants/roles.constants';
 
 const router = Router();
