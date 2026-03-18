@@ -11,6 +11,7 @@ import { RefreshTokenUseCase } from '../../../application/auth/use-cases/refresh
 import { StoreBiometricTokenUseCase } from '../../../application/auth/use-cases/store-biometric-token.use-case';
 import { AuthRequest } from '../middleware/auth.middleware';
 import { InvalidateRefreshTokenUseCase } from '../../../application/auth/use-cases/invalidate-refresh-token.use-case';
+import { VerifyEmailUseCase } from '../../../application/auth/use-cases/verify-email.use-case';
 import { env } from '../../../config/env';
 
 // Strip password from user object before sending to client
@@ -74,7 +75,8 @@ export class AuthController {
         @inject(ResetPasswordUseCase) private resetPasswordUseCase: ResetPasswordUseCase,
         @inject(RefreshTokenUseCase) private refreshTokenUseCase: RefreshTokenUseCase,
         @inject(StoreBiometricTokenUseCase) private storeBiometricTokenUseCase: StoreBiometricTokenUseCase,
-        @inject(InvalidateRefreshTokenUseCase) private invalidateRefreshTokenUseCase: InvalidateRefreshTokenUseCase
+        @inject(InvalidateRefreshTokenUseCase) private invalidateRefreshTokenUseCase: InvalidateRefreshTokenUseCase,
+        @inject(VerifyEmailUseCase) private verifyEmailUseCase: VerifyEmailUseCase
     ) { }
 
     register = async (req: Request, res: Response, next: NextFunction) => {
@@ -119,7 +121,7 @@ export class AuthController {
 
             res.status(201).json({
                 success: true,
-                message: 'Usuario registrado exitosamente',
+                message: 'Usuario registrado exitosamente. Por favor, verifique su correo electrónico para activar su cuenta.',
                 data: {
                     user: toDTO(result.user),
                     accessToken: result.accessToken,
@@ -244,6 +246,25 @@ export class AuthController {
             });
         } catch (error) {
             next(error);
+        }
+    };
+
+    verifyEmail = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const token = req.query.token as string;
+            if (!token) {
+                res.redirect(`${env.FRONTEND_URL}/login?verified=error`);
+                return;
+            }
+            const success = await this.verifyEmailUseCase.execute(token);
+            if (success) {
+                res.redirect(`${env.FRONTEND_URL}/login?verified=true`);
+            } else {
+                res.redirect(`${env.FRONTEND_URL}/login?verified=error`);
+            }
+        } catch (error) {
+            console.error('[Verify Email Controller]', error);
+            res.redirect(`${env.FRONTEND_URL}/login?verified=error`);
         }
     };
 }

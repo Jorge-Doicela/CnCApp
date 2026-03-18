@@ -1,7 +1,7 @@
 import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import {
   IonContent, IonIcon, IonLabel, // IonItem from top import removed
   IonInput, IonButton, LoadingController, ToastController, AlertController
@@ -33,6 +33,7 @@ import { Preferences } from '@capacitor/preferences';
   ]
 })
 export class LoginPage implements OnInit {
+  private route = inject(ActivatedRoute);
   private authService = inject(AuthService);
   private secureStorage = inject(SecureStorageService);
 
@@ -92,6 +93,17 @@ export class LoginPage implements OnInit {
   }
 
   ionViewWillEnter() {
+    this.route.queryParams.subscribe(params => {
+      if (params['verified'] === 'true') {
+        this.presentToast('¡Tu cuenta ha sido verificada exitosamente! Ya puedes iniciar sesión de forma segura.', 'success');
+        // Clear params after showing to prevent endless loops
+        this.router.navigate([], { queryParams: { verified: null }, queryParamsHandling: 'merge' });
+      } else if (params['verified'] === 'error') {
+        this.presentToast('Hemos tenido problemas para verificar tu token o ya ha expirado.', 'warning');
+        this.router.navigate([], { queryParams: { verified: null }, queryParamsHandling: 'merge' });
+      }
+    });
+
     // Limpiamos inmediatamente
     this.ci.set('');
     this.password.set('');

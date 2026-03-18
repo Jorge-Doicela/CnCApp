@@ -14,5 +14,6 @@ router.post('/setup-biometric', authenticate, authController.setupBiometric);
 router.get('/profile', authenticate, authController.getProfile);
 router.post('/reset-password-request', authController.requestPasswordReset);
 router.post('/reset-password', authController.resetPassword);
+router.get('/verify-email', authController.verifyEmail);
 
 export default router;

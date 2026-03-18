@@ -59,4 +59,44 @@ export class EmailService {
             console.error(`[EMAIL_SERVICE] Falló el envío de correo a ${to}:`, error);
         }
     }
+
+    async sendAccountConfirmationEmail(to: string, confirmLink: string, nombreCompleto: string): Promise<void> {
+        if (!env.SMTP_USER || !env.SMTP_PASS) {
+            console.warn(`[EMAIL_MOCK] Configuración SMTP incompleta. Correo de confirmación simulado hacia ${to}: ${confirmLink}`);
+            return;
+        }
+
+        const mailOptions = {
+            from: `"Bienvenido a CNC" <${env.SMTP_USER}>`,
+            to,
+            subject: 'Activa tu Cuenta - Sistema CNC',
+            html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333;">
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <h2 style="color: #003366; margin: 0;">¡Bienvenido al sistema!</h2>
+                    </div>
+                    <p style="font-size: 16px;">Hola <strong>${nombreCompleto}</strong>,</p>
+                    <p style="font-size: 16px;">Tu cuenta ha sido creada exitosamente. Para poder iniciar sesión, necesitas confirmar que este correo te pertenece.</p>
+                    
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a href="${confirmLink}" style="background-color: #003366; color: white; padding: 12px 25px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 16px; display: inline-block;">
+                            Confirmar mi Correo
+                        </a>
+                    </div>
+                    
+                    <p style="font-size: 14px; color: #666;">Si no creaste esta cuenta, puedes ignorar este mensaje.</p>
+                    
+                    <hr style="border: none; border-top: 1px solid #eaeaea; margin: 30px 0;" />
+                    <p style="font-size: 12px; color: #999; text-align: center;">Atentamente,<br>El Equipo del Consejo Nacional de Competencias</p>
+                </div>
+            `
+        };
+
+        try {
+            await this.transporter.sendMail(mailOptions);
+            console.log(`[EMAIL_SERVICE] Correo de confirmación enviado a ${to}`);
+        } catch (error) {
+            console.error(`[EMAIL_SERVICE] Error enviando correo de confirmación a ${to}:`, error);
+        }
+    }
 }

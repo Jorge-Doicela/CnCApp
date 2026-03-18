@@ -52,10 +52,14 @@ export class LoginUserUseCase {
             throw new AuthenticationError('Debe proporcionar una contraseña o un token válido');
         }
 
-        // Verificación de estado de cuenta (Funcionalidad de bloqueo)
         if (user.estado === 0) {
             console.log(`[LOGIN_DEBUG] Intento de login en cuenta inactiva/bloqueada ID=${user.id}`);
             throw new AuthenticationError('Su cuenta se encuentra inactiva o bloqueada. Contacte al administrador.');
+        }
+
+        if (user.estado === 2) {
+            console.log(`[LOGIN_DEBUG] Intento de login en cuenta pendiente de verificación por correo ID=${user.id}`);
+            throw new AuthenticationError('Debes verificar tu correo electrónico antes de poder iniciar sesión.');
         }
 
         console.log(`[LOGIN_DEBUG] Login exitoso para usuario ID=${user.id}. Generando tokens...`);

@@ -7,6 +7,8 @@ import { RolRepository } from '../../../domain/user/rol.repository';
 import { EntidadRepository } from '../../../domain/user/entidad.repository';
 import prisma from '../../../config/database';
 import { RoleIdEnum, TipoParticipanteIdEnum } from '../../../domain/shared/constants/enums';
+import { EmailService } from '../../../infrastructure/services/email.service';
+import { env } from '../../../config/env';
 
 interface RegisterDto {
     ci: string;
@@ -47,7 +49,8 @@ export class RegisterUserUseCase {
         @inject('PasswordEncoder') private readonly passwordEncoder: PasswordEncoder,
         @inject('TokenProvider') private readonly tokenProvider: TokenProvider,
         @inject('RolRepository') private readonly rolRepository: RolRepository,
-        @inject('EntidadRepository') private readonly entidadRepository: EntidadRepository
+        @inject('EntidadRepository') private readonly entidadRepository: EntidadRepository,
+        @inject(EmailService) private readonly emailService: EmailService
     ) { }
 
     async execute(data: RegisterDto): Promise<RegisterResult> {
@@ -148,7 +151,7 @@ export class RegisterUserUseCase {
             provinciaId: data.provinciaId,
             cantonId: data.cantonId,
             parroquiaId: data.parroquiaId || data.autoridad?.parroquiaId || data.funcionarioGad?.parroquiaId || null,
-            estado: data.estado !== undefined ? data.estado : 1, // Default active
+            estado: 2, // 2 = PENDIENTE DE VERIFICACIÓN, 1 = ACTIVO, 0 = INACTIVO/BROQUEADO
             rolId: finalRolId,
             entidadId: (cncEntity ? cncEntity.id : null),
             tipoParticipanteId: data.tipoParticipanteId || null,
@@ -164,18 +167,22 @@ export class RegisterUserUseCase {
 
         const savedUser = await this.userRepository.save(newUser);
 
-        // 4. Generate tokens
-        const tokens = this.tokenProvider.generateTokens({
+        // 4. Create activation token and send email
+        const activationToken = this.tokenProvider.generateTokens({
             userId: savedUser.id,
             ci: savedUser.ci,
             roleId: savedUser.rolId ?? finalRolId,
             roleName: finalRoleName
-        });
+        }).accessToken; // Usamos el JWT de corta duración (24h) para forzar confirmación en fecha límite
 
+        const verificationLink = `${env.BASE_URL}/api/auth/verify-email?token=${activationToken}`;
+        await this.emailService.sendAccountConfirmationEmail(data.email, verificationLink, nombreCompleto);
+
+        // Limitamos los tokens enviados al front porque el usuario NO puede entrar aún
         return {
             user: savedUser,
-            accessToken: tokens.accessToken,
-            refreshToken: tokens.refreshToken
+            accessToken: '',
+            refreshToken: ''
         };
     }
 }

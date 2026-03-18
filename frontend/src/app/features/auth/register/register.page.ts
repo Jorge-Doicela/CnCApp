@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import {
   IonContent, IonIcon, IonLabel,
   IonInput, IonButton, LoadingController, ToastController, IonSpinner,
-  IonSelect, IonSelectOption, IonCheckbox,
+  IonSelect, IonSelectOption, IonCheckbox, AlertController,
   IonModal
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
@@ -94,6 +94,7 @@ export class RegisterPage {
     private router: Router,
     private loadingController: LoadingController,
     private toastController: ToastController,
+    private alertController: AlertController,
     public state: RegisterStateService
   ) {
     addIcons({
@@ -394,10 +395,16 @@ export class RegisterPage {
         await LOADING.dismiss();
         this.isLoading.set(false);
         if (res.success) {
-          this.presentToast('¡Registro exitoso!', 'success');
+          const alert = await this.alertController.create({
+             header: '¡Registro Exitoso!',
+             message: 'Hemos enviado un enlace de confirmación a tu correo electrónico. Por favor, revísalo (y tu carpeta de Spam) para activar tu cuenta antes de iniciar sesión.',
+             buttons: ['Entendido']
+          });
+          await alert.present();
+
           this.state.reset();
           (window as any).grecaptcha?.reset();
-          setTimeout(() => this.router.navigate(['/login']), 1500);
+          this.router.navigate(['/login']);
         } else {
           this.presentToast(res.message || 'Error', 'danger');
         }
