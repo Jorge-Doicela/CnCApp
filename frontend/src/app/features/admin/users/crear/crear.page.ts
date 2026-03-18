@@ -529,14 +529,14 @@ export class CrearPage implements OnInit {
       }
     }
     // Caso 2: Documento Extranjero / Pasaporte
-    // Si no es numérico exacto de 10 o tiene letras, lo tratamos como extranjero
-    else if (!isNumeric || (length > 5 && length !== 10)) {
+    // Todo lo que tenga al menos 5 caracteres y no haya caído en validación estricta de 10 dígitos arriba
+    else if (length >= 5 && (!isNumeric || length !== 10)) {
       this.mensajeValidacionCedula = 'Documento extranjero/Pasaporte aceptado';
       this.cedulaValidada = true; // Lo aceptamos para no bloquear extranjeros
     }
     // Caso 3: Incompleto o inválido
     else {
-      this.mensajeValidacionCedula = 'Cédula debe tener 10 dígitos o ser pasaporte';
+      this.mensajeValidacionCedula = 'Cédula debe tener 10 dígitos o pasaporte al menos 5';
       this.cedulaValidada = false;
     }
 

@@ -8,7 +8,7 @@ import { RegisterUserUseCase } from '../../../application/auth/use-cases/registe
 import { parseIdParam } from '../middleware/parse-id.helper';
 import { AuthRequest } from '../middleware/auth.middleware';
 import { z } from 'zod';
-import { validarCedula } from '../../../domain/shared/utils/validar-cedula';
+import { validarDocumentoIdentidad } from '../../../domain/shared/utils/validar-documento';
 import prisma from '../../../config/database';
 
 const autoridadSchema = z.object({
@@ -64,7 +64,7 @@ const createUserSchema = z.object({
     segundoNombre: z.string().optional().nullable(),
     primerApellido: z.string().min(2, 'El primer apellido es requerido'),
     segundoApellido: z.string().optional().nullable(),
-    ci: z.string().length(10, 'La cédula debe tener 10 dígitos').refine(validarCedula, 'Cédula ecuatoriana inválida'),
+    ci: z.string().min(5, 'El documento debe tener al menos 5 caracteres').max(20, 'El documento no debe exceder los 20 caracteres').refine(validarDocumentoIdentidad, 'Documento de identidad inválido o Cédula incorrecta'),
     email: z.string().email('Email inválido'),
     telefono: z.string().optional().nullable(),
     celular: z.string().optional().nullable(),

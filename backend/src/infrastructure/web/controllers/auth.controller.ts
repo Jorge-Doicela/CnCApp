@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { injectable, inject } from 'tsyringe';
 import { z } from 'zod';
-import { validarCedula } from '../../../domain/shared/utils/validar-cedula';
+import { validarDocumentoIdentidad } from '../../../domain/shared/utils/validar-documento';
 import { RegisterUserUseCase } from '../../../application/auth/use-cases/register-user.use-case';
 import { LoginUserUseCase } from '../../../application/auth/use-cases/login-user.use-case';
 import { GetUserProfileUseCase } from '../../../application/user/use-cases/get-user-profile.use-case';
@@ -26,7 +26,7 @@ const registerSchema = z.object({
     segundoNombre: z.string().optional(),
     primerApellido: z.string().min(2, 'El primer apellido es requerido'),
     segundoApellido: z.string().optional(),
-    ci: z.string().length(10, 'La cédula debe tener 10 dígitos').refine(validarCedula, 'Cédula ecuatoriana inválida'),
+    ci: z.string().min(5, 'El documento debe tener al menos 5 caracteres').max(20, 'El documento no debe exceder los 20 caracteres').refine(validarDocumentoIdentidad, 'Documento de identidad inválido o Cédula incorrecta'),
     email: z.string().email('Email inválido'),
     telefono: z.string().optional(),
     celular: z.string().optional(),
@@ -46,7 +46,7 @@ const registerSchema = z.object({
 });
 
 const loginSchema = z.object({
-    ci: z.string().length(10, 'La cédula debe tener 10 dígitos').refine(validarCedula, 'Cédula ecuatoriana inválida'),
+    ci: z.string().min(5, 'El documento debe tener al menos 5 caracteres').max(20, 'El documento no debe exceder los 20 caracteres').refine(validarDocumentoIdentidad, 'Documento de identidad inválido o Cédula incorrecta'),
     password: z.string().min(1, 'La contraseña es requerida').optional(),
     biometricToken: z.string().optional()
 });
