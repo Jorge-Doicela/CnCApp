@@ -42,8 +42,6 @@ export class LoginPage implements OnInit {
   password = signal<string>('');
   showPassword = signal<boolean>(false);
   isLoading = signal<boolean>(false);
-  isVerifyingCaptcha = signal<boolean>(false);
-  recaptchaWidgetId: number | null = null;
 
   constructor(
     private router: Router,
@@ -69,27 +67,6 @@ export class LoginPage implements OnInit {
   }
 
   ngOnInit() {
-  }
-
-  ngAfterViewInit() {
-    this.initInvisibleCaptcha();
-  }
-
-  initInvisibleCaptcha() {
-    // We poll until grecaptcha is fully loaded by Google's script
-    const checkGrecaptcha = setInterval(() => {
-      if ((window as any).grecaptcha && (window as any).grecaptcha.render) {
-        clearInterval(checkGrecaptcha);
-        try {
-          this.recaptchaWidgetId = (window as any).grecaptcha.render('recaptcha-container', {
-            'sitekey': '6LeIFo8sAAAAANn2CU_a1H2DgyagspGvU3OTsfps',
-            'size': 'invisible',
-            'callback': (token: string) => this.onRecaptchaComplete(token),
-            'expired-callback': () => (window as any).grecaptcha.reset(this.recaptchaWidgetId)
-          });
-        } catch(e) { /* Already rendered or collision */ }
-      }
-    }, 500);
   }
 
   ionViewWillEnter() {
@@ -228,25 +205,6 @@ export class LoginPage implements OnInit {
       return;
     }
 
-    if (this.recaptchaWidgetId !== null) {
-       this.isVerifyingCaptcha.set(true);
-       (window as any).grecaptcha.execute(this.recaptchaWidgetId);
-    } else {
-       this.presentToast('Error de conexión con Google, reintente en un momento.', 'warning');
-    }
-  }
-
-  async onRecaptchaComplete(recaptchaToken: string) {
-    this.isVerifyingCaptcha.set(false);
-    
-    if (!recaptchaToken) {
-       this.presentToast('Fallo en la verificación de seguridad', 'danger');
-       return;
-    }
-
-    const ciValue = this.ci();
-    const passwordValue = this.password();
-
     const loading = await this.loadingController.create({
       message: 'Iniciando sesión...',
       spinner: 'crescent'
@@ -254,7 +212,7 @@ export class LoginPage implements OnInit {
     await loading.present();
     this.isLoading.set(true);
 
-    this.authService.login(ciValue, passwordValue, recaptchaToken).subscribe({
+    this.authService.login(ciValue, passwordValue, '').subscribe({
       next: async (response) => {
         await loading.dismiss();
         this.isLoading.set(false);
@@ -285,10 +243,6 @@ export class LoginPage implements OnInit {
           }
         } else if (error.error && error.error.message) {
           msg = error.error.message;
-        }
-
-        if (this.recaptchaWidgetId !== null) {
-          (window as any).grecaptcha.reset(this.recaptchaWidgetId);
         }
         
         this.presentToast(msg, 'danger');
