@@ -12,6 +12,7 @@ model Rol {
   nombre      String    @unique @map("nombre_rol") @db.VarChar(100)
   descripcion String?   @map("descripcion")
   modulos     Json?     @default("[]") @map("modulos")
+  estado      Boolean   @default(true) @map("estado")
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime  @updatedAt @map("updated_at")
   codigo      String?   @unique @map("codigo") @db.VarChar(50)

@@ -34,7 +34,8 @@ export class PrismaRolRepository implements RolRepository {
                 nombre: rol.nombre,
                 codigo: rol.codigo,
                 descripcion: rol.descripcion,
-                modulos: rol.modulos || []
+                modulos: rol.modulos || [],
+                estado: rol.estado ?? true
             }
         });
         return { ...newRol, modulos: newRol.modulos };
@@ -48,6 +49,7 @@ export class PrismaRolRepository implements RolRepository {
                 ...(rol.codigo !== undefined && { codigo: rol.codigo }),
                 ...(rol.descripcion !== undefined && { descripcion: rol.descripcion }),
                 ...(rol.modulos !== undefined && { modulos: rol.modulos }),
+                ...(rol.estado !== undefined && { estado: rol.estado })
             }
         });
         return { ...updatedRol, modulos: updatedRol.modulos };
