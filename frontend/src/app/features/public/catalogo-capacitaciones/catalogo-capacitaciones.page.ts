@@ -208,7 +208,11 @@ export class CatalogoCapacitacionesPage implements OnInit {
     this.router.navigate(['/home']);
   }
 
-  irAMisCursos() {
-    this.router.navigate(['/ver-conferencias']);
+  irAMisCursos(cap: any) {
+    if (cap.modalidad === 'Virtual' && cap.enlaceVirtual) {
+      window.open(cap.enlaceVirtual, '_blank');
+      return;
+    }
+    this.router.navigate(['/ver-conferencias'], { queryParams: { id: cap.id } });
   }
 }

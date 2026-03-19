@@ -2,8 +2,9 @@ import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
-import { Router } from '@angular/router';
-import { AlertController, ToastController } from '@ionic/angular';
+import { Router, ActivatedRoute } from '@angular/router';
+import { AlertController, ToastController, ModalController } from '@ionic/angular';
+import { DetalleCapacitacionModalComponent } from './components/detalle-capacitacion-modal/detalle-capacitacion-modal.component';
 import { CapacitacionesService } from '../../admin/capacitaciones/services/capacitaciones.service';
 import { AuthService } from '../../auth/services/auth.service';
 import { ErrorHandlerUtil } from 'src/app/shared/utils/error-handler.util';
@@ -29,7 +30,9 @@ export class ConferenciasPage implements OnInit {
   private capacitacionesService = inject(CapacitacionesService);
   private authService = inject(AuthService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private alertController = inject(AlertController);
+  private modalController = inject(ModalController);
   private toastController = inject(ToastController);
   private cdr = inject(ChangeDetectorRef);
 
@@ -76,6 +79,16 @@ export class ConferenciasPage implements OnInit {
       const data = await firstValueFrom(this.capacitacionesService.getInscripcionesUsuario(userId));
       this.inscripciones = Array.isArray(data) ? data : [];
       this.filtrarCapacitaciones();
+
+      // Check for deep link ID
+      const deepId = this.route.snapshot.queryParamMap.get('id');
+      if (deepId) {
+        const idNum = parseInt(deepId, 10);
+        const match = this.inscripciones.find(i => (i.capacitacionId ?? i.Id_Capacitacion ?? i.capacitacion?.id) === idNum);
+        if (match) {
+          setTimeout(() => this.verDetallesCapacitacion(match), 500);
+        }
+      }
     } catch (err: any) {
       console.error('[ConferenciasPage] Error al cargar historial:', err);
       const status = err?.status;
@@ -124,23 +137,15 @@ export class ConferenciasPage implements OnInit {
   }
 
   async verDetallesCapacitacion(inscripcion: any) {
-    const cap = inscripcion.capacitacion;
-    const alert = await this.alertController.create({
-      header: cap?.nombre ?? 'Capacitación',
-      subHeader: inscripcion.fechaInscripcion
-        ? `Inscrito el: ${new Date(inscripcion.fechaInscripcion).toLocaleDateString()}`
-        : '',
-      message: `
-        <div style="text-align:left">
-          <p><strong>Descripción:</strong> ${cap?.descripcion ?? 'Sin descripción'}</p>
-          <p><strong>Modalidad:</strong> ${cap?.modalidad ?? 'N/A'}</p>
-          <p><strong>Estado:</strong> ${inscripcion.estadoInscripcion ?? 'N/A'}</p>
-          <p><strong>Asistencia:</strong> ${inscripcion.asistio ? 'Sí' : 'No'}</p>
-        </div>
-      `,
-      buttons: ['OK']
+    const modal = await this.modalController.create({
+      component: DetalleCapacitacionModalComponent,
+      componentProps: {
+        capacitacion: inscripcion.capacitacion,
+        inscripcion: inscripcion
+      },
+      cssClass: 'professional-modal-class' // Optional: for custom styling
     });
-    await alert.present();
+    return await modal.present();
   }
 
   iraGenerarCertificado(idCapacitacion: number) {
