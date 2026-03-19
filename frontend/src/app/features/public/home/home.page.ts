@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, effect, ChangeDetectionStrategy, computed, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, inject, effect, ChangeDetectionStrategy, computed, ChangeDetectorRef, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -65,7 +65,7 @@ export class HomePage implements OnInit {
   });
 
   isInscrito = (id: number) => {
-    return this.ConferenciasInscritas.some(c => c.id === id);
+    return this.ConferenciasInscritas().some(c => c.id === id);
   };
 
   haIniciado = (cap: Capacitacion) => {
@@ -103,7 +103,7 @@ export class HomePage implements OnInit {
   // Datos de conferencias
   Capacitaciones: Capacitacion[] = [];
   capacitacionesDisponibles: Capacitacion[] = [];
-  ConferenciasInscritas: Capacitacion[] = [];
+  ConferenciasInscritas = signal<Capacitacion[]>([]);
   cargandoCapacitaciones: boolean = false;
 
   // Estadísticas
@@ -276,16 +276,19 @@ export class HomePage implements OnInit {
           if (this.Capacitaciones.length === 0) {
             await this.RecuperarCapacitaciones();
           }
-          this.ConferenciasInscritas = this.Capacitaciones.filter(c =>
+          const inscritas = this.Capacitaciones.filter(c =>
             capacitacionIds.includes(c.id)
           );
+          this.ConferenciasInscritas.set(inscritas);
         }
       } else {
-        this.ConferenciasInscritas = [];
+        this.ConferenciasInscritas.set([]);
       }
     } catch (error) {
       console.error('Error al recuperar conferencias inscritas:', error);
-      this.ConferenciasInscritas = [];
+      this.ConferenciasInscritas.set([]);
+    } finally {
+      this.cd.markForCheck();
     }
   }
 
@@ -302,7 +305,7 @@ export class HomePage implements OnInit {
   }
 
   calcularEstadisticas() {
-    this.proximasConferencias = this.ConferenciasInscritas.filter(c => c.estado === 'Activa').length;
+    this.proximasConferencias = this.ConferenciasInscritas().filter(c => c.estado === 'Activa').length;
     // Ya no lo calculamos aquí localmente, usamos cargarConteoCertificados()
   }
 
@@ -343,6 +346,7 @@ export class HomePage implements OnInit {
       this.showSuccessToast('Inscripción exitosa');
       await this.RecuperarConferenciasInscrito();
       this.calcularEstadisticas();
+      this.cd.markForCheck();
     } catch (e: any) {
       console.error('Error inscribiendo:', e);
       const msg = e.error?.message || 'Error al inscribirse';
