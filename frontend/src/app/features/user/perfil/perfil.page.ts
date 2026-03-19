@@ -210,13 +210,14 @@ export class PerfilPage implements OnInit {
           return;
         }
 
-        // Construir nombre completo
+        const cleanPart = (val: any) => (val || '').toString().replace(/\bnull\b/g, '').trim();
+
         const nombreCompleto = [
-          usuario.primerNombre,
-          usuario.segundoNombre,
-          usuario.primerApellido,
-          usuario.segundoApellido
-        ].filter(Boolean).join(' ') || usuario.nombre || '';
+          cleanPart(usuario.primerNombre),
+          cleanPart(usuario.segundoNombre),
+          cleanPart(usuario.primerApellido),
+          cleanPart(usuario.segundoApellido)
+        ].filter(p => !!p).join(' ') || (usuario.nombre || '').replace(/\s*null\s*/g, ' ').trim() || '';
 
         const apellido = [
           usuario.primerApellido,

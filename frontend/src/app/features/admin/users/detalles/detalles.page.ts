@@ -137,22 +137,29 @@ export class DetallesPage implements OnInit {
 
     getInicial(nombre: string): string {
         if (!nombre && this.usuario) nombre = this.getCleanFullName();
-        if (!nombre) return 'J';
+        if (!nombre || nombre.trim() === '') return 'U';
+        
         const clean = nombre.replace(/\s*null\s*/g, ' ').trim();
-        return clean ? clean.charAt(0).toUpperCase() : 'J';
+        return clean ? clean.charAt(0).toUpperCase() : 'U';
     }
 
     getCleanFullName(): string {
         if (!this.usuario) return '';
         const user = this.usuario;
-        if (user.primerNombre && user.primerApellido) {
-            return [
-                user.primerNombre,
-                user.segundoNombre,
-                user.primerApellido,
-                user.segundoApellido
-            ].filter(val => val && val.toString().trim() !== '' && val !== 'null' && val !== 'undefined').join(' ');
+        
+        // Priorizar nombres individuales si existen
+        const parts = [
+            user.primerNombre,
+            user.segundoNombre,
+            user.primerApellido,
+            user.segundoApellido
+        ].filter(val => val && val.toString().trim() !== '' && val !== 'null' && val !== 'undefined');
+
+        if (parts.length > 0) {
+            return parts.join(' ');
         }
+        
+        // Fallback al campo nombre consolidado
         return (user.nombre || '').replace(/\s*null\s*/g, ' ').trim();
     }
 
