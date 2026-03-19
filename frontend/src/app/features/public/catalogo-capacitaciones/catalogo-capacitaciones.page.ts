@@ -5,7 +5,9 @@ import { IonContent, IonIcon, IonHeader, IonToolbar, IonSpinner, ToastController
 import { addIcons } from 'ionicons';
 import { 
   arrowBackOutline, searchOutline, calendarClearOutline, calendarOutline, 
-  timeOutline, locationOutline, checkmarkCircle, sparklesOutline, chevronForward 
+  timeOutline, locationOutline, checkmarkCircle, sparklesOutline, chevronForward,
+  videocamOutline, businessOutline, syncOutline, optionsOutline, filterOutline,
+  swapVerticalOutline, hourglassOutline, layersOutline
 } from 'ionicons/icons';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
@@ -31,22 +33,70 @@ export class CatalogoCapacitacionesPage implements OnInit {
 
   capacitaciones = signal<Capacitacion[]>([]);
   query = signal<string>('');
+  filtroModalidad = signal<string>('Todos'); 
+  filtroHoras = signal<string>('Todos'); // 'Todos', '<10', '10-40', '>40'
+  ordenarPor = signal<string>('reciente'); // 'reciente', 'duracion', 'nombre'
+  soloNoInscritos = signal<boolean>(false);
+  mostrarFiltrosAvanzados = signal<boolean>(false);
+  
   cargandoCapacitaciones = signal<boolean>(false);
   conferenciasInscritas = signal<Capacitacion[]>([]);
 
   capacitacionesFiltradas = computed(() => {
-    const q = this.query().toLowerCase();
-    return this.capacitaciones().filter(c => 
-      c.nombre.toLowerCase().includes(q) || 
-      c.descripcion?.toLowerCase().includes(q) ||
-      c.lugar?.toLowerCase().includes(q)
-    );
+    const q = this.query().toLowerCase().trim();
+    const mod = this.filtroModalidad();
+    const horas = this.filtroHoras();
+    const soloNo = this.soloNoInscritos();
+    const orden = this.ordenarPor();
+    
+    let list = this.capacitaciones();
+
+    // 1. Filtrar por Modalidad
+    if (mod !== 'Todos') {
+      list = list.filter(c => c.modalidad === mod);
+    }
+
+    // 2. Filtrar por Carga Horaria
+    if (horas !== 'Todos') {
+      if (horas === '<10') list = list.filter(c => (c.horas || 0) < 10);
+      else if (horas === '10-40') list = list.filter(c => (c.horas || 0) >= 10 && (c.horas || 0) <= 40);
+      else if (horas === '>40') list = list.filter(c => (c.horas || 0) > 40);
+    }
+
+    // 3. Filtrar por No Inscritos
+    if (soloNo) {
+      const inscritosIds = this.conferenciasInscritas().map(c => c.id);
+      list = list.filter(c => !inscritosIds.includes(c.id));
+    }
+
+    // 4. Filtrar por Texto
+    if (q) {
+      list = list.filter(c => 
+        c.nombre.toLowerCase().includes(q) || 
+        c.descripcion?.toLowerCase().includes(q) ||
+        c.lugar?.toLowerCase().includes(q)
+      );
+    }
+
+    // 5. Ordenamiento
+    const sorted = [...list];
+    if (orden === 'reciente') {
+      sorted.sort((a, b) => new Date(b.fechaInicio || 0).getTime() - new Date(a.fechaInicio || 0).getTime());
+    } else if (orden === 'duracion') {
+      sorted.sort((a, b) => (b.horas || 0) - (a.horas || 0));
+    } else if (orden === 'nombre') {
+      sorted.sort((a, b) => a.nombre.localeCompare(b.nombre));
+    }
+
+    return sorted;
   });
 
   constructor() {
     addIcons({
       arrowBackOutline, searchOutline, calendarClearOutline, calendarOutline,
-      timeOutline, locationOutline, checkmarkCircle, sparklesOutline, chevronForward
+      timeOutline, locationOutline, checkmarkCircle, sparklesOutline, chevronForward,
+      videocamOutline, businessOutline, syncOutline, optionsOutline, filterOutline,
+      swapVerticalOutline, hourglassOutline, layersOutline
     });
   }
 
@@ -134,8 +184,24 @@ export class CatalogoCapacitacionesPage implements OnInit {
     this.query.set(event.target.value);
   }
 
+  setFiltroHoras(h: string) {
+    this.filtroHoras.set(h);
+  }
+
+  toggleFiltrosAvanzados() {
+    this.mostrarFiltrosAvanzados.update(v => !v);
+  }
+
+  setFiltroModalidad(m: string) {
+    this.filtroModalidad.set(m);
+  }
+
   resetSearch() {
     this.query.set('');
+    this.filtroModalidad.set('Todos');
+    this.filtroHoras.set('Todos');
+    this.ordenarPor.set('reciente');
+    this.soloNoInscritos.set(false);
   }
 
   irAHome() {

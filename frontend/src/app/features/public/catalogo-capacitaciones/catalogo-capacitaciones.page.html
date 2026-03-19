@@ -20,11 +20,73 @@
 
   <div class="container content-wrapper">
     
-    <!-- Filters / Search (Placeholder for now) -->
+    <!-- Search & Filters -->
     <div class="filter-strip animate-fade-up" style="animation-delay: 0.2s;">
-      <div class="search-box">
-        <ion-icon name="search-outline"></ion-icon>
-        <input type="text" placeholder="Buscar capacitación por nombre..." (input)="onSearch($event)">
+      <div class="search-row">
+        <div class="search-box">
+          <ion-icon name="search-outline"></ion-icon>
+          <input type="text" placeholder="Buscar capacitación..." (input)="onSearch($event)" [value]="query()">
+        </div>
+        <button class="btn-advanced" (click)="toggleFiltrosAvanzados()" [class.active]="mostrarFiltrosAvanzados()">
+          <ion-icon name="options-outline"></ion-icon>
+          <span>Filtros</span>
+        </button>
+      </div>
+
+      <div class="chips-container">
+        <button class="filter-chip" [class.active]="filtroModalidad() === 'Todos'" (click)="setFiltroModalidad('Todos')">
+          Todos
+        </button>
+        <button class="filter-chip" [class.active]="filtroModalidad() === 'Virtual'" (click)="setFiltroModalidad('Virtual')">
+          <ion-icon name="videocam-outline"></ion-icon>
+          Virtual
+        </button>
+        <button class="filter-chip" [class.active]="filtroModalidad() === 'Presencial'" (click)="setFiltroModalidad('Presencial')">
+          <ion-icon name="business-outline"></ion-icon>
+          Presencial
+        </button>
+        <button class="filter-chip" [class.active]="filtroModalidad() === 'Híbrida'" (click)="setFiltroModalidad('Híbrida')">
+          <ion-icon name="sync-outline"></ion-icon>
+          Híbrida
+        </button>
+      </div>
+
+      <!-- Advanced Filters Panel -->
+      <div class="advanced-panel" *ngIf="mostrarFiltrosAvanzados()" class="advanced-panel fade-in">
+        <div class="panel-grid">
+          <!-- Sorting -->
+          <div class="filter-group">
+            <label><ion-icon name="swap-vertical-outline"></ion-icon> Ordenar por</label>
+            <select [ngModel]="ordenarPor()" (ngModelChange)="ordenarPor.set($event)">
+              <option value="reciente">Más recientes</option>
+              <option value="duracion">Mayor duración</option>
+              <option value="nombre">Nombre (A-Z)</option>
+            </select>
+          </div>
+
+          <!-- Hour Range -->
+          <div class="filter-group">
+            <label><ion-icon name="hourglass-outline"></ion-icon> Carga Horaria</label>
+            <div class="mini-chips">
+              <button [class.active]="filtroHoras() === 'Todos'" (click)="setFiltroHoras('Todos')">Todas</button>
+              <button [class.active]="filtroHoras() === '<10'" (click)="setFiltroHoras('<10')">&lt; 10h</button>
+              <button [class.active]="filtroHoras() === '10-40'" (click)="setFiltroHoras('10-40')">10-40h</button>
+              <button [class.active]="filtroHoras() === '>40'" (click)="setFiltroHoras('>40')">&gt; 40h</button>
+            </div>
+          </div>
+
+          <!-- Toggles -->
+          <div class="filter-group check-group">
+            <label class="custom-check">
+              <input type="checkbox" [ngModel]="soloNoInscritos()" (ngModelChange)="soloNoInscritos.set($event)">
+              <span class="checkmark"></span>
+              Ocultar mis inscripciones
+            </label>
+            <button class="clear-btn" (click)="resetSearch()">
+              Limpiar filtros
+            </button>
+          </div>
+        </div>
       </div>
     </div>
 
