@@ -33,7 +33,13 @@ export const authenticate = (
         };
 
         // Agregar userId y rol al request
-        req.userId = decoded.userId;
+        // En JWT, los números a veces llegan como string; Prisma requiere Int válido en `where`.
+        const userId = Number(decoded.userId);
+        if (!Number.isFinite(userId)) {
+            res.status(401).json({ error: 'Token inválido - userId no numérico' });
+            return;
+        }
+        req.userId = userId;
         req.userRole = decoded.roleId;
         req.userRoleName = decoded.roleName;
 
@@ -75,8 +81,13 @@ export const requireModule = (...requiredModules: string[]) => {
         }
 
         try {
+            const userId = Number(req.userId);
+            if (!Number.isFinite(userId)) {
+                res.status(401).json({ error: 'Token inválido - userId no numérico' });
+                return;
+            }
             const user = await prisma.usuario.findUnique({
-                where: { id: req.userId },
+                where: { id: userId },
                 include: { rol: true }
             });
 

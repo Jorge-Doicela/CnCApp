@@ -1,11 +1,9 @@
 import cron from 'node-cron';
 import { container } from 'tsyringe';
-import { PrismaClient } from '@prisma/client';
 import { GenerateAllCertificadosUseCase } from '../../application/certificado/use-cases/generate-all-certificados.use-case';
 import logger from '../../config/logger';
 import { EstadoCapacitacionEnum } from '../../domain/shared/constants/enums';
-
-const prisma = new PrismaClient();
+import prisma from '../../config/database';
 
 /**
  * Construye un objeto Date combinando la fecha (Date) y la hora ("HH:MM" string).
