@@ -82,7 +82,7 @@ export class CertificadosPage implements OnInit {
       ]);
 
       this.usuarioactual = [u];
-      this.nombreUsuario = u?.nombre;
+      this.nombreUsuario = (u?.nombre || '').replace(/\s*null\s*/g, ' ').trim();
       this.idUsuario = u?.id; // Real ID
 
       if (this.idUsuario) {

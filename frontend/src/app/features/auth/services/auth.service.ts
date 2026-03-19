@@ -52,7 +52,7 @@ export class AuthService {
     refreshToken = signal<string | null>(null);
 
     // Computed signals for easy consumption
-    userName = computed(() => this.currentUser()?.nombre || null);
+    userName = computed(() => (this.currentUser()?.nombre || '').replace(/\s*null\s*/g, ' ').trim() || null);
     userRole = computed(() => this.currentUser()?.rol?.id || null);
     roleName = computed(() => this.currentUser()?.rol?.nombre || null);
     modulos = computed(() => {

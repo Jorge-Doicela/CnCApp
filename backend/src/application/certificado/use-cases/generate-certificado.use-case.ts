@@ -58,8 +58,16 @@ export class GenerateCertificadoUseCase {
         // 3. Prepare config and data
         const config = plantilla.configuracion || {};
         const cursoFecha = capacitacion.fechaInicio || new Date();
+        const sanitizeName = (val?: string | null) => (!val || val.toString().trim() === '' || val === 'null' || val === 'undefined') ? '' : val.trim();
+        const fullUserDisplayName = [
+            sanitizeName(usuario.primerNombre),
+            sanitizeName(usuario.segundoNombre),
+            sanitizeName(usuario.primerApellido),
+            sanitizeName(usuario.segundoApellido)
+        ].filter(Boolean).join(' ').toUpperCase() || (usuario.nombre || '').replace(/\s*null\s*/g, ' ').trim().toUpperCase();
+
         const data: any = {
-            usuario: `${usuario.primerNombre || ''} ${usuario.primerApellido || ''}`.trim().toUpperCase() || usuario.nombre.toUpperCase(),
+            usuario: fullUserDisplayName,
             curso: capacitacion.nombre.toUpperCase(),
             fecha: cursoFecha.toLocaleDateString('es-ES', { 
                 weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' 

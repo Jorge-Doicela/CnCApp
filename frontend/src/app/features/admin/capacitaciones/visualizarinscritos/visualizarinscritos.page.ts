@@ -213,7 +213,7 @@ export class VisualizarinscritosPage implements OnInit {
     const mappedUsuarios: ParticipanteInfo[] = inscritos.map((u: any) => ({
       id: u.id,
       usuarioId: u.usuarioId,
-      nombre: u.usuario?.nombre || 'Sin nombre',
+      nombre: (u.usuario?.nombre || 'Sin nombre').replace(/\s*null\s*/g, ' ').trim(),
       rolCapacitacion: u.rolCapacitacion,
       asistio: u.asistio,
       email: u.usuario?.email,

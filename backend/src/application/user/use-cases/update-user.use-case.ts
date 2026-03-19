@@ -49,7 +49,7 @@ export class UpdateUserUseCase {
 
         // If any name field is updated, reconstruct the full name
         if ('primerNombre' in userData || 'segundoNombre' in userData || 'primerApellido' in userData || 'segundoApellido' in userData) {
-            const sanitizeName = (val?: string | null) => (!val || val === 'null' || val === 'undefined') ? '' : val.trim();
+            const sanitizeName = (val?: string | null) => (!val || val.toString().trim() === '' || val === 'null' || val === 'undefined') ? '' : val.trim();
             
             if ('primerNombre' in userData) userData.primerNombre = sanitizeName(userData.primerNombre) || undefined;
             if ('segundoNombre' in userData) userData.segundoNombre = sanitizeName(userData.segundoNombre) || undefined;
