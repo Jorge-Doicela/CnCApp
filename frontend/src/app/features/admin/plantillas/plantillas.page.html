@@ -163,7 +163,13 @@
                                  [style.left.%]="plantillaSeleccionada.configuracion.nombreUsuario.x / 8.42"
                                  [style.top.%]="plantillaSeleccionada.configuracion.nombreUsuario.y / 5.95"
                                  [style.font-size.px]="plantillaSeleccionada.configuracion.nombreUsuario.fontSize"
-                                 [style.color]="plantillaSeleccionada.configuracion.nombreUsuario.color">
+                                 [style.font-family]="getFontFamilyCss(plantillaSeleccionada.configuracion.nombreUsuario.fontFamily)"
+                                 [style.font-weight]="getFontWeightCss(plantillaSeleccionada.configuracion.nombreUsuario.fontFamily)"
+                                 [style.color]="plantillaSeleccionada.configuracion.nombreUsuario.color"
+                                 [style.width.%]="plantillaSeleccionada.configuracion.nombreUsuario.width ? (plantillaSeleccionada.configuracion.nombreUsuario.width / 8.42) : null"
+                                 [style.white-space]="plantillaSeleccionada.configuracion.nombreUsuario.width ? 'normal' : 'nowrap'"
+                                 [style.text-align]="plantillaSeleccionada.configuracion.nombreUsuario.textAlign"
+                                 [style.text-decoration]="plantillaSeleccionada.configuracion.nombreUsuario.isUnderline ? 'underline' : 'none'">
                                 {{ getPlaceholder('nombreUsuario') }}
                             </div>
 
@@ -172,7 +178,13 @@
                                  [style.left.%]="plantillaSeleccionada.configuracion.curso.x / 8.42"
                                  [style.top.%]="plantillaSeleccionada.configuracion.curso.y / 5.95"
                                  [style.font-size.px]="plantillaSeleccionada.configuracion.curso.fontSize"
-                                 [style.color]="plantillaSeleccionada.configuracion.curso.color">
+                                 [style.font-family]="getFontFamilyCss(plantillaSeleccionada.configuracion.curso.fontFamily)"
+                                 [style.font-weight]="getFontWeightCss(plantillaSeleccionada.configuracion.curso.fontFamily)"
+                                 [style.color]="plantillaSeleccionada.configuracion.curso.color"
+                                 [style.width.%]="plantillaSeleccionada.configuracion.curso.width ? (plantillaSeleccionada.configuracion.curso.width / 8.42) : null"
+                                 [style.white-space]="plantillaSeleccionada.configuracion.curso.width ? 'normal' : 'nowrap'"
+                                 [style.text-align]="plantillaSeleccionada.configuracion.curso.textAlign"
+                                 [style.text-decoration]="plantillaSeleccionada.configuracion.curso.isUnderline ? 'underline' : 'none'">
                                 {{ getPlaceholder('curso') }}
                             </div>
 
@@ -181,7 +193,13 @@
                                  [style.left.%]="plantillaSeleccionada.configuracion.fecha.x / 8.42"
                                  [style.top.%]="plantillaSeleccionada.configuracion.fecha.y / 5.95"
                                  [style.font-size.px]="plantillaSeleccionada.configuracion.fecha.fontSize"
-                                 [style.color]="plantillaSeleccionada.configuracion.fecha.color">
+                                 [style.font-family]="getFontFamilyCss(plantillaSeleccionada.configuracion.fecha.fontFamily)"
+                                 [style.font-weight]="getFontWeightCss(plantillaSeleccionada.configuracion.fecha.fontFamily)"
+                                 [style.color]="plantillaSeleccionada.configuracion.fecha.color"
+                                 [style.width.%]="plantillaSeleccionada.configuracion.fecha.width ? (plantillaSeleccionada.configuracion.fecha.width / 8.42) : null"
+                                 [style.white-space]="plantillaSeleccionada.configuracion.fecha.width ? 'normal' : 'nowrap'"
+                                 [style.text-align]="plantillaSeleccionada.configuracion.fecha.textAlign"
+                                 [style.text-decoration]="plantillaSeleccionada.configuracion.fecha.isUnderline ? 'underline' : 'none'">
                                 {{ getPlaceholder('fecha') }}
                             </div>
 
@@ -190,8 +208,39 @@
                                  [style.left.%]="plantillaSeleccionada.configuracion.cedula.x / 8.42"
                                  [style.top.%]="plantillaSeleccionada.configuracion.cedula.y / 5.95"
                                  [style.font-size.px]="plantillaSeleccionada.configuracion.cedula.fontSize"
-                                 [style.color]="plantillaSeleccionada.configuracion.cedula.color">
+                                 [style.font-family]="getFontFamilyCss(plantillaSeleccionada.configuracion.cedula.fontFamily)"
+                                 [style.font-weight]="getFontWeightCss(plantillaSeleccionada.configuracion.cedula.fontFamily)"
+                                 [style.color]="plantillaSeleccionada.configuracion.cedula.color"
+                                 [style.width.%]="plantillaSeleccionada.configuracion.cedula.width ? (plantillaSeleccionada.configuracion.cedula.width / 8.42) : null"
+                                 [style.white-space]="plantillaSeleccionada.configuracion.cedula.width ? 'normal' : 'nowrap'"
+                                 [style.text-align]="plantillaSeleccionada.configuracion.cedula.textAlign"
+                                 [style.text-decoration]="plantillaSeleccionada.configuracion.cedula.isUnderline ? 'underline' : 'none'">
                                 {{ getPlaceholder('cedula') }}
+                            </div>
+
+                            <div *ngIf="plantillaSeleccionada.configuracion.parrafo" 
+                                 class="preview-overlay-field" 
+                                 [style.left.%]="plantillaSeleccionada.configuracion.parrafo.x / 8.42"
+                                 [style.top.%]="plantillaSeleccionada.configuracion.parrafo.y / 5.95"
+                                 [style.font-size.px]="plantillaSeleccionada.configuracion.parrafo.fontSize"
+                                 [style.font-family]="getFontFamilyCss(plantillaSeleccionada.configuracion.parrafo.fontFamily)"
+                                 [style.font-weight]="getFontWeightCss(plantillaSeleccionada.configuracion.parrafo.fontFamily)"
+                                 [style.color]="plantillaSeleccionada.configuracion.parrafo.color"
+                                 [style.width.%]="plantillaSeleccionada.configuracion.parrafo.width ? (plantillaSeleccionada.configuracion.parrafo.width / 8.42) : null"
+                                 [style.white-space]="plantillaSeleccionada.configuracion.parrafo.width ? 'normal' : 'nowrap'"
+                                 [style.text-align]="plantillaSeleccionada.configuracion.parrafo.textAlign"
+                                 [style.text-decoration]="plantillaSeleccionada.configuracion.parrafo.isUnderline ? 'underline' : 'none'">
+                                {{ getPlaceholder('parrafo') }}
+                            </div>
+
+                            <div *ngIf="plantillaSeleccionada.configuracion.codigoQR" 
+                                 class="preview-overlay-field" 
+                                 [style.left.%]="plantillaSeleccionada.configuracion.codigoQR.x / 8.42"
+                                 [style.top.%]="plantillaSeleccionada.configuracion.codigoQR.y / 5.95"
+                                 [style.width.%]="plantillaSeleccionada.configuracion.codigoQR.fontSize / 8.42"
+                                 [style.height.%]="plantillaSeleccionada.configuracion.codigoQR.fontSize / 5.95"
+                                 style="border: 1px dashed rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.7); border-radius: 4px; padding: 0;">
+                                <ion-icon name="qr-code-outline" [style.font-size.px]="plantillaSeleccionada.configuracion.codigoQR.fontSize * 0.4" style="color: rgba(0,0,0,0.5);"></ion-icon>
                             </div>
                         </div>
                     </div>

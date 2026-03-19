@@ -66,6 +66,8 @@ export class GenerateCertificadoUseCase {
             horas: `${capacitacion.horas || 0} HORAS`
         };
 
+        data.parrafo = `Por su participación en el evento de capacitación: "${capacitacion.nombre}", realizado en modalidad virtual el ${data.fecha}, con una duración de ${capacitacion.horas || 0} horas.`;
+
         // 4. Generate Unique Hash and QR Content
         const hash = crypto.randomBytes(12).toString('hex'); // 24 chars, very unique
         

@@ -20,8 +20,10 @@ interface FieldConfig {
     y: number;
     fontSize: number;
     color: string;
+    fontFamily?: string;
     width?: number; // Optional wrapping width
-    align?: string; // Optional alignment
+    textAlign?: string; // Optional alignment
+    isUnderline?: boolean;
 }
 
 interface PlantillaConfig {
@@ -50,6 +52,38 @@ export class CertificateGeneratorService {
 
                 const stream = fs.createWriteStream(outputPath);
                 doc.pipe(stream);
+
+                // 1.5 Register Custom Fonts
+                const fontsDir = path.join(process.cwd(), 'public', 'fonts');
+                if (fs.existsSync(path.join(fontsDir, 'Montserrat-Regular.ttf'))) {
+                    doc.registerFont('Montserrat', path.join(fontsDir, 'Montserrat-Regular.ttf'));
+                }
+                if (fs.existsSync(path.join(fontsDir, 'Montserrat-Bold.ttf'))) {
+                    doc.registerFont('Montserrat-Bold', path.join(fontsDir, 'Montserrat-Bold.ttf'));
+                }
+                if (fs.existsSync(path.join(fontsDir, 'PlayfairDisplay-Regular.ttf'))) {
+                    doc.registerFont('PlayfairDisplay', path.join(fontsDir, 'PlayfairDisplay-Regular.ttf'));
+                }
+                if (fs.existsSync(path.join(fontsDir, 'GreatVibes-Regular.ttf'))) {
+                    doc.registerFont('GreatVibes', path.join(fontsDir, 'GreatVibes-Regular.ttf'));
+                }
+                if (fs.existsSync(path.join(fontsDir, 'Poppins-Regular.ttf'))) {
+                    doc.registerFont('Poppins', path.join(fontsDir, 'Poppins-Regular.ttf'));
+                }
+                if (fs.existsSync(path.join(fontsDir, 'Poppins-Bold.ttf'))) {
+                    doc.registerFont('Poppins-Bold', path.join(fontsDir, 'Poppins-Bold.ttf'));
+                }
+                if (fs.existsSync(path.join(fontsDir, 'Inter-Bold.ttf'))) {
+                    doc.registerFont('Inter-Bold', path.join(fontsDir, 'Inter-Bold.ttf'));
+                } else if (fs.existsSync(path.join(fontsDir, 'Poppins-Bold.ttf'))) {
+                    doc.registerFont('Inter-Bold', path.join(fontsDir, 'Poppins-Bold.ttf'));
+                }
+                
+                if (fs.existsSync(path.join(fontsDir, 'Inter-Regular.ttf'))) {
+                    doc.registerFont('Inter', path.join(fontsDir, 'Inter-Regular.ttf'));
+                } else if (fs.existsSync(path.join(fontsDir, 'Poppins-Regular.ttf'))) {
+                    doc.registerFont('Inter', path.join(fontsDir, 'Poppins-Regular.ttf'));
+                }
 
                 // 2. Load Background Image
                 if (plantillaImagenUrl) {
@@ -92,32 +126,76 @@ export class CertificateGeneratorService {
 
                 // 3. Draw Text Fields
                 for (const [key, fieldConfig] of Object.entries(config)) {
+                    if (key === 'codigoQR') continue; // Don't draw the QR code config as text
+
                     const text = data[key];
                     if (text && fieldConfig) {
+                        try {
+                            doc.font(fieldConfig.fontFamily || 'Helvetica');
+                        } catch (e) {
+                            console.warn(`Font ${fieldConfig.fontFamily} not registered in PDFKit. Falling back to Helvetica.`);
+                            doc.font('Helvetica');
+                        }
+
                         doc.fillColor(fieldConfig.color || '#000000')
-                            .fontSize(fieldConfig.fontSize || 12)
-                            .text(text, fieldConfig.x, fieldConfig.y, {
-                                width: fieldConfig.width,
-                                align: fieldConfig.align as any
-                            });
+                           .fontSize(fieldConfig.fontSize || 12);
+                        
+                        const textOptions: PDFKit.Mixins.TextOptions = {
+                            lineBreak: false
+                        };
+
+                        if (fieldConfig.width) {
+                            textOptions.width = fieldConfig.width;
+                            textOptions.lineBreak = true;
+                            if (fieldConfig.textAlign) {
+                                textOptions.align = fieldConfig.textAlign as any;
+                            }
+                        }
+
+                        if (fieldConfig.isUnderline) {
+                            textOptions.underline = true;
+                        }
+
+                        const textHeight = doc.heightOfString(text, textOptions);
+                        let renderX = fieldConfig.x;
+                        let renderY = fieldConfig.y;
+
+                        if (!fieldConfig.width) {
+                            const textWidth = doc.widthOfString(text);
+                            if (fieldConfig.textAlign === 'left') {
+                                renderY = fieldConfig.y - (textHeight / 2); // Center horizontally aligned left
+                            } else if (fieldConfig.textAlign === 'right') {
+                                renderX = fieldConfig.x - textWidth;
+                                renderY = fieldConfig.y - (textHeight / 2);
+                            } else {
+                                // Default center
+                                renderX = fieldConfig.x - (textWidth / 2);
+                                renderY = fieldConfig.y - (textHeight / 2);
+                            }
+                        } else {
+                            // Block is translated -50% -50% in frontend, so X,Y marks the absolute center of the bounding box
+                            renderX = fieldConfig.x - (fieldConfig.width / 2);
+                            renderY = fieldConfig.y - (textHeight / 2);
+                        }
+
+                        doc.text(text, renderX, renderY, textOptions);
                     }
                 }
 
                 // 4. Generate and Draw QR Code
-                // Position for QR (Could be configurable in future, fixed for now or part of config?)
-                // Let's check if 'qr' is in config, otherwise default bottom-right
-                // But usually config comes from Plantilla definition.
+                const qrBuffer = await QRCode.toBuffer(qrCodeContent, { margin: 1 });
 
-                // Let's generate a temporary buffer for QR
-                const qrBuffer = await QRCode.toBuffer(qrCodeContent);
+                let qrSize = 100;
+                let qrX = doc.page.width - qrSize - 50;
+                let qrY = doc.page.height - qrSize - 50;
 
-                // Check if 'qr' position is defined in config, else default
-                // Assuming 'qr' might be a key in config? 
-                // If not, hardcode position for now or add to Plantilla model later.
-                // Defaulting to bottom-right corner
-                const qrSize = 100;
-                const qrX = doc.page.width - qrSize - 50;
-                const qrY = doc.page.height - qrSize - 50;
+                if (config['codigoQR']) {
+                    const qrConfig = config['codigoQR'];
+                    qrSize = qrConfig.fontSize || 100;
+                    // Apply translate(-50%, -50%) offset to match frontend dragging center
+                    qrX = qrConfig.x - (qrSize / 2);
+                    qrY = qrConfig.y - (qrSize / 2);
+                }
 
                 doc.image(qrBuffer, qrX, qrY, { fit: [qrSize, qrSize] });
 

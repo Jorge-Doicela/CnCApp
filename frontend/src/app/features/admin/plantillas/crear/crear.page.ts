@@ -16,11 +16,12 @@ import {
     layersOutline,
     imageOutline,
     informationCircleOutline,
-    trashOutline
+    trashOutline,
+    qrCodeOutline
 } from 'ionicons/icons';
 
 interface DraggableField {
-    key: Extract<keyof PlantillaCertificado['configuracion'], string>;
+    key: string;
     label: string;
     enabled: boolean;
 }
@@ -58,9 +59,25 @@ export class CrearPage implements OnInit {
         { key: 'nombreUsuario', label: 'Nombre Participante', enabled: true },
         { key: 'curso', label: 'Nombre Curso', enabled: true },
         { key: 'fecha', label: 'Fecha Emisión', enabled: true },
+        { key: 'codigoQR', label: 'Código QR', enabled: false },
         { key: 'cedula', label: 'Cédula', enabled: false },
         { key: 'rol', label: 'Rol', enabled: false },
         { key: 'horas', label: 'Horas', enabled: false },
+        { key: 'parrafo', label: 'Párrafo Descriptivo', enabled: false },
+    ];
+
+    availableFonts = [
+        { name: 'Helvetica (Estándar)', value: 'Helvetica' },
+        { name: 'Times Roman (Clásica)', value: 'Times-Roman' },
+        { name: 'Courier (Máquina escribir)', value: 'Courier' },
+        { name: 'Montserrat (Moderna)', value: 'Montserrat' },
+        { name: 'Montserrat Bold (Gruesa)', value: 'Montserrat-Bold' },
+        { name: 'Poppins (Limpia)', value: 'Poppins' },
+        { name: 'Poppins Bold (Gruesa limpia)', value: 'Poppins-Bold' },
+        { name: 'Inter (Versátil)', value: 'Inter' },
+        { name: 'Inter Bold (Gruesa versátil)', value: 'Inter-Bold' },
+        { name: 'Playfair Display (Elegante)', value: 'PlayfairDisplay' },
+        { name: 'Great Vibes (Cursiva firma)', value: 'GreatVibes' }
     ];
 
     // Drag state
@@ -86,7 +103,8 @@ export class CrearPage implements OnInit {
             layersOutline,
             imageOutline,
             informationCircleOutline,
-            trashOutline
+            trashOutline,
+            qrCodeOutline
         });
     }
 
@@ -130,12 +148,34 @@ export class CrearPage implements OnInit {
             // Add field to configuration
             if (!this.plantilla.configuracion[key]) {
                 const config: any = this.plantilla.configuracion;
-                config[key] = {
-                    x: 420,
-                    y: 300,
-                    fontSize: 16,
-                    color: '#000000'
-                };
+                if (key === 'codigoQR') {
+                    // Default bottom right corner, fontSize acts as width/height
+                    config[key] = {
+                        x: 692,
+                        y: 445,
+                        fontSize: 100,
+                        color: '#000000'
+                    };
+                } else if (key === 'parrafo') {
+                    config[key] = {
+                        x: 100,
+                        y: 400,
+                        fontSize: 14,
+                        color: '#000000',
+                        fontFamily: 'Helvetica',
+                        width: 642,
+                        textAlign: 'justify'
+                    };
+                } else {
+                    config[key] = {
+                        x: 420,
+                        y: 300,
+                        fontSize: 16,
+                        color: '#000000',
+                        fontFamily: 'Helvetica',
+                        textAlign: 'center'
+                    };
+                }
             }
         } else {
             // Remove field from configuration
@@ -150,9 +190,35 @@ export class CrearPage implements OnInit {
             fecha: '07/02/2026',
             cedula: '1234567890',
             rol: 'PARTICIPANTE',
-            horas: '40 HORAS'
+            horas: '40 HORAS',
+            parrafo: 'Por su participación en el evento de capacitación: "NOMBRE DEL CURSO", realizado en modalidad virtual el 01 de enero de 2026, con una duración de 40 horas.'
         };
         return placeholders[key as string] || 'TEXTO';
+    }
+
+    getFontFamilyCss(fontValue?: string): string {
+        switch (fontValue) {
+            case 'GreatVibes': return "'Great Vibes', cursive";
+            case 'Montserrat': 
+            case 'Montserrat-Bold': return "'Montserrat', sans-serif";
+            case 'Poppins':
+            case 'Poppins-Bold': return "'Poppins', sans-serif";
+            case 'Inter':
+            case 'Inter-Bold': return "'Inter', sans-serif";
+            case 'PlayfairDisplay': return "'Playfair Display', serif";
+            case 'Times-Roman': return "'Times New Roman', serif";
+            case 'Courier': return "'Courier New', monospace";
+            default: return 'Helvetica, Arial, sans-serif';
+        }
+    }
+
+    getFontWeightCss(fontValue?: string): string {
+        if (fontValue === 'Montserrat-Bold' || fontValue === 'Poppins-Bold' || fontValue === 'Inter-Bold') return 'bold';
+        return 'normal';
+    }
+
+    isQRCode(key: string): boolean {
+        return key === 'codigoQR';
     }
 
     onFileSelected(event: any) {
@@ -317,3 +383,4 @@ export class CrearPage implements OnInit {
         await toast.present();
     }
 }
+// Force Angular recompile

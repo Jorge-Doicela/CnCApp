@@ -100,22 +100,54 @@
                                     </div>
 
                                     <div class="control-row">
-                                        <div class="control-group">
-                                            <label>Tamaño</label>
-                                            <ion-input type="number"
-                                                [(ngModel)]="plantilla.configuracion[field.key]!.fontSize"
-                                                (ionChange)="updateField(field.key)">
-                                            </ion-input>
-                                        </div>
-                                        <div class="control-group">
-                                            <label>Color</label>
-                                            <input type="color" [(ngModel)]="plantilla.configuracion[field.key]!.color"
-                                                (change)="updateField(field.key)" class="color-picker">
-                                        </div>
+                                    <div class="control-group">
+                                        <label>{{ isQRCode(field.key) ? 'Tamaño del QR (px)' : 'Tamaño de Fuente (px)' }}</label>
+                                        <ion-input type="number"
+                                            [(ngModel)]="plantilla.configuracion[field.key]!.fontSize"
+                                            (ionChange)="updateField(field.key)"></ion-input>
+                                    </div>
+                                    <div class="control-group" *ngIf="!isQRCode(field.key)">
+                                        <label>Color</label>
+                                        <input type="color" class="color-picker"
+                                            [(ngModel)]="plantilla.configuracion[field.key]!.color"
+                                            (change)="updateField(field.key)">
+                                    </div>
+                                    <div class="control-group" *ngIf="!isQRCode(field.key)">
+                                        <label>Tipografía</label>
+                                        <ion-select [(ngModel)]="plantilla.configuracion[field.key]!.fontFamily"
+                                            (ionChange)="updateField(field.key)" interface="popover">
+                                            <ion-select-option *ngFor="let font of availableFonts" [value]="font.value">
+                                                {{ font.name }}
+                                            </ion-select-option>
+                                        </ion-select>
+                                    </div>
+                                </div>
+                                <div class="control-row" *ngIf="!isQRCode(field.key)">
+                                    <div class="control-group">
+                                        <label>Ancho Máximo (px)</label>
+                                        <ion-input type="number"
+                                            [(ngModel)]="plantilla.configuracion[field.key]!.width"
+                                            (ionChange)="updateField(field.key)" placeholder="Auto"></ion-input>
+                                    </div>
+                                    <div class="control-group">
+                                        <label>Alineación</label>
+                                        <ion-select [(ngModel)]="plantilla.configuracion[field.key]!.textAlign"
+                                            (ionChange)="updateField(field.key)" interface="popover">
+                                            <ion-select-option value="left">Izquierda</ion-select-option>
+                                            <ion-select-option value="center">Centro</ion-select-option>
+                                            <ion-select-option value="right">Derecha</ion-select-option>
+                                            <ion-select-option value="justify">Justificado</ion-select-option>
+                                        </ion-select>
+                                    </div>
+                                    <div class="control-group checkbox-group" *ngIf="!isQRCode(field.key)">
+                                        <label>Subrayado</label>
+                                        <ion-checkbox [(ngModel)]="plantilla.configuracion[field.key]!.isUnderline"
+                                            (ionChange)="updateField(field.key)"></ion-checkbox>
                                     </div>
                                 </div>
                             </div>
                         </div>
+                    </div>
                     </ion-list>
                 </ion-card-content>
             </ion-card>
@@ -139,13 +171,28 @@
                             <ng-container>
                                 <div *ngFor="let field of fields" class="field-marker"
                                     [class.active]="activeDragKey === field.key"
-                                    [style.display]="field.enabled ? 'block' : 'none'"
+                                    [class.qr-marker]="isQRCode(field.key)"
+                                    [style.display]="field.enabled ? 'flex' : 'none'"
                                     [style.left.px]="plantilla.configuracion[field.key]?.x || 0"
                                     [style.top.px]="plantilla.configuracion[field.key]?.y || 0"
-                                    [style.font-size.px]="plantilla.configuracion[field.key]?.fontSize || 14"
+                                    [style.font-size.px]="!isQRCode(field.key) ? (plantilla.configuracion[field.key]?.fontSize || 14) : null"
+                                    [style.font-family]="!isQRCode(field.key) ? getFontFamilyCss(plantilla.configuracion[field.key]?.fontFamily) : null"
+                                    [style.font-weight]="!isQRCode(field.key) ? getFontWeightCss(plantilla.configuracion[field.key]?.fontFamily) : null"
                                     [style.color]="plantilla.configuracion[field.key]?.color || '#000'"
+                                    [style.width.px]="isQRCode(field.key) ? plantilla.configuracion[field.key]?.fontSize : plantilla.configuracion[field.key]?.width"
+                                    [style.height.px]="isQRCode(field.key) ? plantilla.configuracion[field.key]?.fontSize : null"
+                                    [style.white-space]="!isQRCode(field.key) && plantilla.configuracion[field.key]?.width ? 'normal' : 'nowrap'"
+                                    [style.text-align]="!isQRCode(field.key) ? plantilla.configuracion[field.key]?.textAlign : null"
+                                    [style.text-decoration]="$any(plantilla.configuracion[field.key])?.isUnderline ? 'underline' : 'none'"
                                     (mousedown)="startDrag($event, field.key)" (touchstart)="startDrag($event, field.key)">
-                                    {{ getPlaceholder(field.key) }}
+                                    
+                                    <ng-container *ngIf="!isQRCode(field.key)">
+                                        {{ getPlaceholder(field.key) }}
+                                    </ng-container>
+                                    
+                                    <ion-icon *ngIf="isQRCode(field.key)" name="qr-code-outline" 
+                                        [style.font-size.px]="(plantilla.configuracion[field.key]?.fontSize || 100) * 0.8">
+                                    </ion-icon>
                                 </div>
                             </ng-container>
                         </div>

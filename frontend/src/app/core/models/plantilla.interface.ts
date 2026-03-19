@@ -1,15 +1,28 @@
+export interface ConfiguracionCampo {
+    x: number;
+    y: number;
+    fontSize: number;
+    color: string;
+    fontFamily?: string;
+    width?: number;
+    textAlign?: string;
+    isUnderline?: boolean;
+}
 
 export interface PlantillaCertificado {
     id: number;
     nombre: string;
     imagenUrl: string;
     configuracion: {
-        nombreUsuario: { x: number, y: number, fontSize: number, color: string };
-        curso: { x: number, y: number, fontSize: number, color: string };
-        fecha: { x: number, y: number, fontSize: number, color: string };
-        cedula?: { x: number, y: number, fontSize: number, color: string };
-        rol?: { x: number, y: number, fontSize: number, color: string };
-        horas?: { x: number, y: number, fontSize: number, color: string };
+        nombreUsuario: ConfiguracionCampo;
+        curso: ConfiguracionCampo;
+        fecha: ConfiguracionCampo;
+        cedula?: ConfiguracionCampo;
+        rol?: ConfiguracionCampo;
+        horas?: ConfiguracionCampo;
+        parrafo?: ConfiguracionCampo;
+        codigoQR?: ConfiguracionCampo;
+        [key: string]: ConfiguracionCampo | undefined;
     };
     activa: boolean;
     createdAt?: string;

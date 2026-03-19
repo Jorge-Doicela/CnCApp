@@ -209,13 +209,36 @@ export class PlantillasPage implements OnInit {
             fecha: '07/02/2026',
             cedula: '1234567890',
             rol: 'PARTICIPANTE',
-            horas: '40 HORAS'
+            horas: '40 HORAS',
+            parrafo: 'Por su participación en el evento de capacitación: "NOMBRE DEL CURSO", realizado en modalidad virtual el 01 de enero de 2026, con una duración de 40 horas.'
         };
         return placeholders[key] || 'TEXTO';
     }
 
     onImageError(event: any) {
-        event.target.src = '/assets/certificados/plantilla.png';
+        // En caso de error, mostramos la imagen por defecto genérica
+        event.target.src = 'assets/img/default-template.png';
+    }
+
+    getFontFamilyCss(fontValue?: string): string {
+        switch (fontValue) {
+            case 'GreatVibes': return "'Great Vibes', cursive";
+            case 'Montserrat': 
+            case 'Montserrat-Bold': return "'Montserrat', sans-serif";
+            case 'Poppins':
+            case 'Poppins-Bold': return "'Poppins', sans-serif";
+            case 'Inter':
+            case 'Inter-Bold': return "'Inter', sans-serif";
+            case 'PlayfairDisplay': return "'Playfair Display', serif";
+            case 'Times-Roman': return "'Times New Roman', serif";
+            case 'Courier': return "'Courier New', monospace";
+            default: return 'Helvetica, Arial, sans-serif';
+        }
+    }
+
+    getFontWeightCss(fontValue?: string): string {
+        if (fontValue === 'Montserrat-Bold' || fontValue === 'Poppins-Bold' || fontValue === 'Inter-Bold') return 'bold';
+        return 'normal';
     }
 
     async mostrarToast(mensaje: string, color: string = 'primary') {
