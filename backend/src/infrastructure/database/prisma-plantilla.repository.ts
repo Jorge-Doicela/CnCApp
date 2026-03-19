@@ -1,11 +1,12 @@
 import prisma from '../../config/database';
 import { Plantilla } from '../../domain/plantilla/plantilla.entity';
 import { PlantillaRepository } from '../../domain/plantilla/plantilla.repository';
+import { env } from '../../config/env';
 
 export class PrismaPlantillaRepository implements PlantillaRepository {
     async create(plantilla: Partial<Plantilla>): Promise<Plantilla> {
         const { nombre, imagenUrl, configuracion, activa } = plantilla;
-        return await prisma.plantilla.create({
+        const p = await prisma.plantilla.create({
             data: {
                 nombre: nombre!,
                 imagenUrl: imagenUrl!,
@@ -13,23 +14,46 @@ export class PrismaPlantillaRepository implements PlantillaRepository {
                 activa: activa || false
             }
         });
+        return this.mapToEntity(p);
     }
 
     async findAll(): Promise<Plantilla[]> {
-        return await prisma.plantilla.findMany({
+        const plantillas = await prisma.plantilla.findMany({
             orderBy: { createdAt: 'desc' }
         });
+        return plantillas.map(p => this.mapToEntity(p));
     }
 
     async findById(id: number): Promise<Plantilla | null> {
-        return await prisma.plantilla.findUnique({
+        const p = await prisma.plantilla.findUnique({
             where: { id }
         });
+        return p ? this.mapToEntity(p) : null;
+    }
+
+    private mapToEntity(p: any): Plantilla {
+        // 1. Resolver URL absoluta
+        if (p.imagenUrl && !p.imagenUrl.startsWith('http') && !p.imagenUrl.startsWith('data:')) {
+            const baseUrl = env.BASE_URL.endsWith('/') ? env.BASE_URL.slice(0, -1) : env.BASE_URL;
+            const path = p.imagenUrl.startsWith('/') ? p.imagenUrl : `/${p.imagenUrl}`;
+            p.imagenUrl = `${baseUrl}${path}`;
+        }
+
+        // 2. Normalizar configuración (fallback para datos viejos)
+        if (p.configuracion && (p.configuracion.elements || !p.configuracion.nombreUsuario)) {
+            p.configuracion = {
+                nombreUsuario: { x: 420, y: 300, fontSize: 32, color: '#1a1a1a' },
+                curso: { x: 420, y: 370, fontSize: 18, color: '#333333' },
+                fecha: { x: 420, y: 450, fontSize: 14, color: '#666666' }
+            };
+        }
+
+        return p;
     }
 
     async update(id: number, plantilla: Partial<Plantilla>): Promise<Plantilla> {
         const { nombre, imagenUrl, configuracion, activa } = plantilla;
-        return await prisma.plantilla.update({
+        const p = await prisma.plantilla.update({
             where: { id },
             data: {
                 nombre,
@@ -38,6 +62,7 @@ export class PrismaPlantillaRepository implements PlantillaRepository {
                 activa
             }
         });
+        return this.mapToEntity(p);
     }
 
     async delete(id: number): Promise<void> {
@@ -54,9 +79,10 @@ export class PrismaPlantillaRepository implements PlantillaRepository {
     }
 
     async activar(id: number): Promise<Plantilla> {
-        return await prisma.plantilla.update({
+        const p = await prisma.plantilla.update({
             where: { id },
             data: { activa: true }
         });
+        return this.mapToEntity(p);
     }
 }

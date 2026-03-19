@@ -153,9 +153,53 @@
             </ion-header>
             <ion-content class="ion-padding">
                 <div class="preview-modal-content" *ngIf="plantillaSeleccionada">
-                    <img [src]="plantillaSeleccionada.imagenUrl" style="width: 100%; border-radius: 8px; margin-bottom: 10px;" (error)="onImageError($event)">
-                    <p><strong>Configuración:</strong> {{ contarCampos(plantillaSeleccionada) }} campos detectados.</p>
-                    <p><strong>Estado:</strong> {{ plantillaSeleccionada.activa ? 'Activa' : 'Inactiva' }}</p>
+                    <div class="certificate-preview-container">
+                        <div class="certificate-canvas">
+                            <img [src]="plantillaSeleccionada.imagenUrl" (error)="onImageError($event)">
+                            
+                            <!-- Fields Overlay -->
+                            <div *ngIf="plantillaSeleccionada.configuracion.nombreUsuario" 
+                                 class="preview-overlay-field" 
+                                 [style.left.%]="plantillaSeleccionada.configuracion.nombreUsuario.x / 8.42"
+                                 [style.top.%]="plantillaSeleccionada.configuracion.nombreUsuario.y / 5.95"
+                                 [style.font-size.px]="plantillaSeleccionada.configuracion.nombreUsuario.fontSize"
+                                 [style.color]="plantillaSeleccionada.configuracion.nombreUsuario.color">
+                                {{ getPlaceholder('nombreUsuario') }}
+                            </div>
+
+                            <div *ngIf="plantillaSeleccionada.configuracion.curso" 
+                                 class="preview-overlay-field" 
+                                 [style.left.%]="plantillaSeleccionada.configuracion.curso.x / 8.42"
+                                 [style.top.%]="plantillaSeleccionada.configuracion.curso.y / 5.95"
+                                 [style.font-size.px]="plantillaSeleccionada.configuracion.curso.fontSize"
+                                 [style.color]="plantillaSeleccionada.configuracion.curso.color">
+                                {{ getPlaceholder('curso') }}
+                            </div>
+
+                            <div *ngIf="plantillaSeleccionada.configuracion.fecha" 
+                                 class="preview-overlay-field" 
+                                 [style.left.%]="plantillaSeleccionada.configuracion.fecha.x / 8.42"
+                                 [style.top.%]="plantillaSeleccionada.configuracion.fecha.y / 5.95"
+                                 [style.font-size.px]="plantillaSeleccionada.configuracion.fecha.fontSize"
+                                 [style.color]="plantillaSeleccionada.configuracion.fecha.color">
+                                {{ getPlaceholder('fecha') }}
+                            </div>
+
+                            <div *ngIf="plantillaSeleccionada.configuracion.cedula" 
+                                 class="preview-overlay-field" 
+                                 [style.left.%]="plantillaSeleccionada.configuracion.cedula.x / 8.42"
+                                 [style.top.%]="plantillaSeleccionada.configuracion.cedula.y / 5.95"
+                                 [style.font-size.px]="plantillaSeleccionada.configuracion.cedula.fontSize"
+                                 [style.color]="plantillaSeleccionada.configuracion.cedula.color">
+                                {{ getPlaceholder('cedula') }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="preview-info">
+                        <p><strong>Configuración:</strong> {{ contarCampos(plantillaSeleccionada) }} campos detectados.</p>
+                        <p><strong>Estado:</strong> {{ plantillaSeleccionada.activa ? 'Activa' : 'Inactiva' }}</p>
+                    </div>
                 </div>
             </ion-content>
         </ng-template>

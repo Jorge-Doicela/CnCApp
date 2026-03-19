@@ -297,19 +297,27 @@ async function main() {
         // STEP 5: TEMPLATES & TRAINING
         // ============================================
         console.log('Configuring Professional Templates...');
+        const defaultTemplateConfig = {
+            nombreUsuario: { x: 420, y: 300, fontSize: 32, color: '#1a1a1a' },
+            curso: { x: 420, y: 370, fontSize: 18, color: '#333333' },
+            fecha: { x: 420, y: 450, fontSize: 14, color: '#666666' }
+        };
+
         const templateStd = await prisma.plantilla.create({
             data: {
                 nombre: 'CERTIFICADO INSTITUCIONAL CNC - ESTÁNDAR',
-                imagenUrl: '/assets/templates/cnc-standard.jpg',
-                configuracion: { theme: { primary: '#1a4a7c' }, elements: [{ id: 'name', type: 'text', text: '{USER_NAME}' }] }
+                imagenUrl: '/uploads/plantillas/92850c1d-6ede-4f7c-8bea-020af569ff0c.jpeg',
+                configuracion: defaultTemplateConfig,
+                activa: true
             }
         });
 
         const templateExec = await prisma.plantilla.create({
             data: {
                 nombre: 'CERTIFICADO DE EXCELENCIA GERENCIAL GAD',
-                imagenUrl: '/assets/templates/cnc-premium.jpg',
-                configuracion: { theme: { primary: '#b49d2a' } }
+                imagenUrl: '/uploads/plantillas/92850c1d-6ede-4f7c-8bea-020af569ff0c.jpeg',
+                configuracion: defaultTemplateConfig,
+                activa: false
             }
         });
 

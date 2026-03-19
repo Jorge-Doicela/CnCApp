@@ -199,14 +199,23 @@ export class PlantillasPage implements OnInit {
 
     cerrarModal() {
         this.isModalOpen = false;
-        setTimeout(() => {
-            this.plantillaSeleccionada = null;
-            this.cd.markForCheck();
-        }, 300);
+        this.cd.markForCheck();
+    }
+
+    getPlaceholder(key: string): string {
+        const placeholders: Record<string, string> = {
+            nombreUsuario: 'JUAN PÉREZ GARCÍA',
+            curso: 'GESTIÓN DE COMPETENCIAS',
+            fecha: '07/02/2026',
+            cedula: '1234567890',
+            rol: 'PARTICIPANTE',
+            horas: '40 HORAS'
+        };
+        return placeholders[key] || 'TEXTO';
     }
 
     onImageError(event: any) {
-        event.target.src = 'assets/placeholder-certificate.png';
+        event.target.src = '/assets/certificados/plantilla.png';
     }
 
     async mostrarToast(mensaje: string, color: string = 'primary') {
