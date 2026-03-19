@@ -13,10 +13,18 @@ export const checkDatabaseConnection = async (retries = 5, delay = 2000): Promis
     for (let i = 0; i < retries; i++) {
         try {
             await prisma.$connect();
-            console.log('✅ [Database] Conexión establecida correctamente');
+            // Pequeña espera para confirmar que el socket no se cierra de inmediato
+            await new Promise(resolve => setTimeout(resolve, 500));
+            await prisma.$queryRaw`SELECT 1`;
+            console.log('✅ [Database] Conexión establecida y verificada correctamente');
             return true;
         } catch (error) {
-            console.error(`❌ [Database] Intento de conexión ${i + 1}/${retries} fallido:`, (error as Error).message);
+            const errorMsg = (error as Error).message;
+            console.error(`❌ [Database] Intento de conexión ${i + 1}/${retries} fallido:`, errorMsg);
+            
+            // Si es un error de conexión reiniciada, desconectar y reintentar
+            await prisma.$disconnect().catch(() => {});
+            
             if (i < retries - 1) {
                 await new Promise(resolve => setTimeout(resolve, delay));
             }
