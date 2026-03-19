@@ -75,23 +75,36 @@ export class CrudcompetenciasPage implements OnInit {
 
   filtrarCompetencias() {
     this.competenciasFiltradas = this.competencias.filter(competencia => {
+      // Datos incompletos desde API: aseguramos que los campos sean strings antes de operar.
+      const nombre = (competencia?.nombre_competencias ?? '').toString();
+      const id = (competencia?.id_competencias ?? '').toString();
+      const estado = (competencia?.estado_competencia ?? '').toString();
+
       // Filtrar por término de búsqueda
       const matchesSearchTerm = this.searchTerm.trim() === '' ||
-        competencia.nombre_competencias.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        competencia.id_competencias.toString().includes(this.searchTerm.toLowerCase());
+        nombre.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+        id.includes(this.searchTerm.toLowerCase());
 
       // Filtrar por estado
       const matchesEstado = this.filtroEstado === 'todos' ||
-        competencia.estado_competencia.toString() === this.filtroEstado;
+        estado === this.filtroEstado;
 
       return matchesSearchTerm && matchesEstado;
     });
 
     // Ordenar resultados
     if (this.ordenarPor === 'nombre') {
-      this.competenciasFiltradas.sort((a, b) => a.nombre_competencias.localeCompare(b.nombre_competencias));
+      this.competenciasFiltradas.sort((a, b) => {
+        const nombreA = (a?.nombre_competencias ?? '').toString();
+        const nombreB = (b?.nombre_competencias ?? '').toString();
+        return nombreA.localeCompare(nombreB);
+      });
     } else if (this.ordenarPor === 'id') {
-      this.competenciasFiltradas.sort((a, b) => a.id_competencias - b.id_competencias);
+      this.competenciasFiltradas.sort((a, b) => {
+        const idA = Number(a?.id_competencias ?? 0);
+        const idB = Number(b?.id_competencias ?? 0);
+        return idA - idB;
+      });
     }
     this.cd.markForCheck();
   }
