@@ -30,7 +30,7 @@
           </div>
         </div>
         <div class="profile-info">
-          <h2>{{ datosUsuario.Nombre_Usuario || '' }} {{ datosUsuario.apellido || ''}}</h2>
+          <h2>{{ datosUsuario.nombreCompleto || 'Usuario' }}</h2>
           <p class="profile-role">
             <ion-icon name="shield-checkmark-outline"></ion-icon>
             {{ obtenerRolTexto(datosUsuario.Rol_Usuario) }}
@@ -66,8 +66,7 @@
               <ion-icon name="person-outline" color="primary"></ion-icon>
               <div class="info-content">
                 <span class="info-label">Nombre Completo</span>
-                <span class="info-value">{{ datosUsuario.Nombre_Usuario || '' }} {{ datosUsuario.apellido || ''
-                  }}</span>
+                <span class="info-value">{{ datosUsuario.nombreCompleto }}</span>
               </div>
             </div>
             <div class="info-item">

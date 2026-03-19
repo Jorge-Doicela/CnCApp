@@ -14,10 +14,42 @@ export class UsuarioService {
     constructor() { }
 
     private cleanUsuario(u: Usuario): Usuario {
-        if (u && u.nombre) {
-            u.nombre = u.nombre.replace(/\s*null\s*/g, ' ').trim();
-        }
+        if (!u) return u;
+        
+        const clean = (val: any) => {
+            if (val === null || val === undefined) return '';
+            return val.toString().replace(/\bnull\b/g, '').trim();
+        };
+
+        if (u.nombre) u.nombre = u.nombre.replace(/\s*null\s*/g, ' ').trim();
+        u.primerNombre = clean(u.primerNombre);
+        u.segundoNombre = clean(u.segundoNombre);
+        u.primerApellido = clean(u.primerApellido);
+        u.segundoApellido = clean(u.segundoApellido);
+        
         return u;
+    }
+
+    getFullName(u: Usuario | null | undefined): string {
+        if (!u) return '';
+        
+        const parts = [
+            u.primerNombre,
+            u.segundoNombre,
+            u.primerApellido,
+            u.segundoApellido
+        ].map(p => (p || '').toString().replace(/\bnull\b/g, '').trim())
+         .filter(p => !!p);
+
+        if (parts.length > 0) return parts.join(' ');
+        
+        return (u.nombre || '').replace(/\s*null\s*/g, ' ').trim();
+    }
+
+    getInicial(u: Usuario | null | undefined): string {
+        const full = this.getFullName(u);
+        if (!full || full.trim() === '') return 'U';
+        return full.charAt(0).toUpperCase();
     }
 
     getUsuarios(): Observable<Usuario[]> {

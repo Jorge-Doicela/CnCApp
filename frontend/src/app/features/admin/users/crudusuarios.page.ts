@@ -55,6 +55,9 @@ export class CRUDUsuariosPage implements OnInit {
   private loadingCtrl = inject(LoadingController);
   private catalogoService = inject(CatalogoService);
 
+  formatNombre = (u: Usuario) => this.usuarioService.getFullName(u);
+  getInicial = (u: Usuario) => this.usuarioService.getInicial(u);
+
   private cd = inject(ChangeDetectorRef);
 
   constructor() {
@@ -103,26 +106,6 @@ export class CRUDUsuariosPage implements OnInit {
     return labels[t] || "Desconocido";
   }
 
-  formatNombre(usuario: Usuario): string {
-    if (!usuario.nombre) return 'Sin Nombre';
-
-    // Remove literal "null" strings that might come from bad concatenation in backend
-    let nombre = usuario.nombre.replace(/\bnull\b/g, '').trim();
-
-    // If name is empty after removing nulls, try individual fields
-    if (!nombre) {
-      const parts = [
-        usuario.primerNombre,
-        usuario.segundoNombre,
-        usuario.primerApellido,
-        usuario.segundoApellido
-      ].filter(p => !!p && p !== 'null');
-
-      nombre = parts.join(' ').trim();
-    }
-
-    return nombre || 'Usuario';
-  }
 
   getAdmins(): number {
     return this.usuarios.filter((u: any) => u.rol?.nombre === 'Administrador').length;

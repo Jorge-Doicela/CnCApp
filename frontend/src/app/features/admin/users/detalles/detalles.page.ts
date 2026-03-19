@@ -33,9 +33,13 @@ export class DetallesPage implements OnInit {
 
     usuario: Usuario | null = null;
     cargando = true;
-    actualizando = false; // Add this for localized loading
+    actualizando = false;
     today = new Date();
     TipoParticipanteEnum = TipoParticipanteEnum;
+
+    // Métodos delegados al servicio
+    getFullName = (u: any) => this.usuarioService.getFullName(u);
+    getInicial = (u: any) => this.usuarioService.getInicial(u);
 
     constructor() {
         addIcons({
@@ -135,33 +139,6 @@ export class DetallesPage implements OnInit {
         return ci;
     }
 
-    getInicial(nombre: string): string {
-        if (!nombre && this.usuario) nombre = this.getCleanFullName();
-        if (!nombre || nombre.trim() === '') return 'U';
-        
-        const clean = nombre.replace(/\s*null\s*/g, ' ').trim();
-        return clean ? clean.charAt(0).toUpperCase() : 'U';
-    }
-
-    getCleanFullName(): string {
-        if (!this.usuario) return '';
-        const user = this.usuario;
-        
-        // Priorizar nombres individuales si existen
-        const parts = [
-            user.primerNombre,
-            user.segundoNombre,
-            user.primerApellido,
-            user.segundoApellido
-        ].filter(val => val && val.toString().trim() !== '' && val !== 'null' && val !== 'undefined');
-
-        if (parts.length > 0) {
-            return parts.join(' ');
-        }
-        
-        // Fallback al campo nombre consolidado
-        return (user.nombre || '').replace(/\s*null\s*/g, ' ').trim();
-    }
 
     async toggleEstado() {
         if (!this.usuario) return;

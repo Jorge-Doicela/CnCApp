@@ -31,14 +31,14 @@
         <div class="profile-hero-card fade-in">
             <div class="avatar-wrap">
                 <div class="avatar-circle">
-                    {{ getInicial(usuario.nombre) }}
+                    {{ getInicial(usuario) }}
                 </div>
                 <!-- Online dot reflecting account status -->
                 <div class="online-indicator" [ngClass]="usuario.estado === 1 ? 'active' : 'inactive'"></div>
             </div>
 
             <div class="profile-main">
-                <h1 class="user-full-name">{{ getCleanFullName() || 'Nombre de Usuario' }}</h1>
+                <h1 class="user-full-name">{{ getFullName(usuario) || 'Nombre de Usuario' }}</h1>
 
                 <div class="user-id-badge">
                     <ion-icon name="finger-print-outline"></ion-icon>
@@ -66,11 +66,11 @@
                 <div class="data-grid">
                     <div class="data-group">
                         <label>Nombres</label>
-                        <p>{{ usuario.primerNombre }}</p>
+                        <p>{{ (usuario.primerNombre + ' ' + (usuario.segundoNombre || '')).trim() }}</p>
                     </div>
                     <div class="data-group">
                         <label>Apellidos</label>
-                        <p>{{ usuario.primerApellido }}</p>
+                        <p>{{ (usuario.primerApellido + ' ' + (usuario.segundoApellido || '')).trim() }}</p>
                     </div>
                     <div class="data-group full">
                         <label>Correo Electrónico</label>

@@ -184,6 +184,13 @@ export class EditarPage implements OnInit, OnDestroy {
     }
   }
 
+  getFullName(): string {
+    const v = this.perfilForm.value;
+    const parts = [v.primerNombre, v.segundoNombre, v.primerApellido, v.segundoApellido]
+      .filter(p => p && p.trim() !== '' && p !== 'null');
+    return parts.join(' ');
+  }
+
   volver() {
     const idParam = this.route.snapshot.paramMap.get('id');
     if (idParam) {

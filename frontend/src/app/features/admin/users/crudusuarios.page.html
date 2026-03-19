@@ -91,7 +91,7 @@
             <div class="avatar-wrapper shadow-blue">
               <div class="user-avatar" [style.background]="'hsla(' + (i * 45) + ', 70%, 50%, 0.1)'" 
                    [style.color]="'hsla(' + (i * 45) + ', 70%, 40%, 1)'">
-                {{ formatNombre(usuario).charAt(0).toUpperCase() }}
+                {{ getInicial(usuario) }}
               </div>
             </div>
             <div class="badge-row">

@@ -18,7 +18,7 @@
       <div class="header-main">
         <div class="title-group">
           <span class="eyebrow">Administración</span>
-          <h1>Editar <span>{{ usuario.primerNombre + ' ' + usuario.primerApellido || 'Usuario' }}</span></h1>
+          <h1>Editar <span>{{ getFullName(usuario) || 'Usuario' }}</span></h1>
           <p>Actualice la información del perfil del usuario registrado. Use las pestañas para navegar entre secciones.
           </p>
         </div>

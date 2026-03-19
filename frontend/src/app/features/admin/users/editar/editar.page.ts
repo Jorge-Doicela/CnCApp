@@ -103,6 +103,8 @@ export class EditarPage implements OnInit {
 
   cargando: boolean = false;
 
+  getFullName = (u: any) => this.usuarioService.getFullName(u);
+
   private usuarioService = inject(UsuarioService);
   private catalogoService = inject(CatalogoService);
 
