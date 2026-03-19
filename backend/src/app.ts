@@ -168,12 +168,21 @@ app.use(errorHandler);
 // INICIAR SERVIDOR
 // ============================================
 
-app.listen(PORT, () => {
+import { checkDatabaseConnection } from './config/database';
+
+app.listen(PORT, async () => {
     logger.info(`Server running on port ${PORT} in ${env.NODE_ENV} mode`);
     logger.info(`URL: http://localhost:${PORT}`);
 
-    // Iniciar el scheduler de finalización automática de capacitaciones
-    initCapacitacionScheduler();
+    // Verificar conexión a DB antes de iniciar procesos secundarios
+    const isDbConnected = await checkDatabaseConnection();
+
+    if (isDbConnected) {
+        // Iniciar el scheduler de finalización automática de capacitaciones
+        initCapacitacionScheduler();
+    } else {
+        logger.warn('⚠️ [Server] El scheduler no se inició debido a problemas de conexión con la base de datos');
+    }
 });
 
 export default app;

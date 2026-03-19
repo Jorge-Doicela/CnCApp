@@ -101,10 +101,15 @@ async function procesarCapacitacionesVencidas(): Promise<void> {
  * Corre cada 15 minutos para no perder eventos por pocas horas.
  */
 export function initCapacitacionScheduler(): void {
-    // Ejecutar inmediatamente al iniciar (para recuperar vencimientos ocurridos mientras el servidor estaba apagado)
-    procesarCapacitacionesVencidas().catch(err =>
-        logger.error(`[Scheduler] Error en ejecución inicial: ${err}`)
-    );
+    // Ejecutar con un pequeño retraso al iniciar (para evitar conflictos de conexión al arranque)
+    setTimeout(async () => {
+        try {
+            logger.info('[Scheduler] Ejecutando verificación inicial de capacitaciones...');
+            await procesarCapacitacionesVencidas();
+        } catch (err) {
+            logger.error(`[Scheduler] Error en ejecución inicial: ${err}`);
+        }
+    }, 5000); // 5 segundos de cortesía
 
     // Correr cada 15 minutos: "*/15 * * * *"
     cron.schedule('*/15 * * * *', async () => {

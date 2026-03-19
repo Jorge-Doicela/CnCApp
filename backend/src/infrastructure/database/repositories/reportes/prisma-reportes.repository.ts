@@ -38,26 +38,16 @@ export class PrismaReportesRepository implements ReportesRepository {
             };
         }
 
+        // Ejecutamos las consultas principales en bloques para no saturar el pool
+        const totalUsuarios = await this.prisma.usuario.count({ where: whereUser });
+        const totalCapacitaciones = await this.prisma.capacitacion.count({ where: whereClause });
+        
         const [
-            totalUsuarios,
-            totalCapacitaciones,
             totalCertificados,
             usuariosPorRol,
             capacitacionesActivas,
-            capacitacionesFinalizadas,
-            certificadosEsteMes,
-            usuariosRegistradosEsteMes,
-            tendencias,
-            totalHorasData,
-            statsInscripciones,
-            statsAsistencia,
-            userGeneros,
-            userProvincias,
-            userEtnias,
-            capacitacionesPorModalidadData
+            capacitacionesFinalizadas
         ] = await Promise.all([
-            this.prisma.usuario.count({ where: whereUser }),
-            this.prisma.capacitacion.count({ where: whereClause }),
             this.prisma.certificado.count({ 
                 where: { 
                     ...(filter?.startDate || filter?.endDate ? { fechaEmision: whereInscripcion.fechaInscripcion } : {}),
@@ -70,7 +60,17 @@ export class PrismaReportesRepository implements ReportesRepository {
             }),
             this.prisma.capacitacion.count({
                 where: { ...whereClause, estado: EstadoCapacitacionEnum.REALIZADA }
-            }),
+            })
+        ]);
+
+        const [
+            certificadosEsteMes,
+            usuariosRegistradosEsteMes,
+            tendencias,
+            totalHorasData,
+            statsInscripciones,
+            statsAsistencia
+        ] = await Promise.all([
             this.prisma.certificado.count({
                 where: { fechaEmision: { gte: firstDayOfMonth } }
             }),
@@ -87,7 +87,15 @@ export class PrismaReportesRepository implements ReportesRepository {
             }),
             this.prisma.usuarioCapacitacion.count({ 
                 where: { ...whereInscripcion, asistio: true, capacitacion: whereClause } 
-            }),
+            })
+        ]);
+
+        const [
+            userGeneros,
+            userProvincias,
+            userEtnias,
+            capacitacionesPorModalidadData
+        ] = await Promise.all([
             this.prisma.genero.findMany({ include: { _count: { select: { usuarios: { where: whereUser } } } } }),
             this.prisma.provincia.findMany({ 
                 include: { _count: { select: { usuarios: { where: whereUser } } } }, 
@@ -157,17 +165,19 @@ export class PrismaReportesRepository implements ReportesRepository {
             });
         }
 
-        // Ejecutamos todos los conteos en paralelo
-        const results = await Promise.all(queries.map(q =>
-            Promise.all([
+        // Ejecutamos los conteos de forma secuencial o en batches pequeños para evitar agotar el pool
+        const results: [number, number][] = [];
+        for (const q of queries) {
+            const [users, certs] = await Promise.all([
                 this.prisma.usuario.count({
                     where: { createdAt: { gte: q.start, lte: q.end } }
                 }),
                 this.prisma.certificado.count({
                     where: { fechaEmision: { gte: q.start, lte: q.end } }
                 })
-            ])
-        ));
+            ]);
+            results.push([users, certs]);
+        }
 
         return queries.map((q, index) => ({
             mes: q.mesLabel,
