@@ -301,49 +301,62 @@ ion-content {
     .canvas-container {
         position: relative;
         width: 100%;
-        min-height: 500px;
+        /* Let the wrapper dictate aspect ratio to preserve space in the flex layout */
+        aspect-ratio: 842 / 595;
         border: 2px solid var(--ion-color-light);
         border-radius: 12px;
         background: #f8f9fa;
         overflow: hidden;
-        display: flex;
-        align-items: center;
-        justify-content: center;
 
-        .bg-image {
-            max-width: 100%;
-            max-height: 700px;
-            display: block;
-            user-select: none;
-        }
-
-        .field-marker {
+        /* Fixed A4 size canvas that gets scaled via CSS transform */
+        .certificate-canvas {
             position: absolute;
-            border: 2px dashed rgba(var(--ion-color-primary-rgb), 0.5);
-            background: rgba(255, 255, 255, 0.8);
-            padding: 4px 8px;
-            white-space: nowrap;
-            cursor: move;
-            transform: translate(-50%, -50%);
-            user-select: none;
-            border-radius: 4px;
-            transition: all 0.2s ease;
+            top: 0;
+            left: 0;
+            width: 842px;
+            height: 595px;
+            transform-origin: top left;
+            /* Transform is applied via inline style in HTML */
 
-            &:hover {
-                border-color: var(--ion-color-primary);
-                background: rgba(255, 255, 255, 0.95);
-                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            .bg-image {
+                width: 100%;
+                height: 100%;
+                display: block;
+                user-select: none;
             }
 
-            &.active {
-                border-color: var(--ion-color-primary);
-                border-style: solid;
-                box-shadow: 0 4px 12px rgba(var(--ion-color-primary-rgb), 0.3);
-                z-index: 10;
+            .field-marker {
+                position: absolute;
+                border: 2px dashed rgba(var(--ion-color-primary-rgb), 0.5);
+                background: rgba(255, 255, 255, 0.8);
+                padding: 4px 8px;
+                white-space: nowrap;
+                cursor: move;
+                transform: translate(-50%, -50%); /* Centers the text on the origin point */
+                user-select: none;
+                border-radius: 4px;
+                transition: outline 0.2s ease, box-shadow 0.2s ease;
+
+                &:hover {
+                    border-color: var(--ion-color-primary);
+                    background: rgba(255, 255, 255, 0.95);
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+                }
+
+                &.active {
+                    border-style: solid;
+                    border-color: var(--ion-color-primary);
+                    box-shadow: 0 4px 12px rgba(var(--ion-color-primary-rgb), 0.3);
+                    z-index: 10;
+                }
             }
         }
 
         .empty-preview {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             display: flex;
             flex-direction: column;
             align-items: center;

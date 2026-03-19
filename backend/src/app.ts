@@ -53,7 +53,9 @@ const PORT = env.PORT;
 // ============================================
 
 // Helmet - Protección de headers HTTP
-app.use(helmet());
+app.use(helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" }
+}));
 
 // CORS - Permitir peticiones desde el frontend
 const allowedOrigins = Array.isArray(env.ALLOWED_ORIGINS)

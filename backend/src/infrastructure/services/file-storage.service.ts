@@ -29,7 +29,11 @@ export class FileStorageService {
         // 1. Validar que es un base64
         const matches = base64Data.match(/^data:([A-Za-z-+/]+);base64,(.+)$/);
         if (!matches || matches.length !== 3) {
-            // No es base64, tal vez es una URL externa, devolver tal cual
+            // No es base64. Si es una URL absoluta de nuestro servidor, la hacemos relativa
+            const baseUrl = env.BASE_URL.endsWith('/') ? env.BASE_URL.slice(0, -1) : env.BASE_URL;
+            if (base64Data.startsWith(baseUrl)) {
+                return base64Data.replace(baseUrl, '');
+            }
             return base64Data;
         }
 
@@ -51,11 +55,9 @@ export class FileStorageService {
         // 3. Guardar archivo
         fs.writeFileSync(filePath, buffer);
 
-        // 4. Retornar URL pública
+        // 4. Retornar URL pública relativa
         const relativePath = subfolder ? `uploads/${subfolder}/${fileName}` : `uploads/${fileName}`;
-        // Ensure env.BASE_URL exists and handle trailing slash
-        const baseUrl = env.BASE_URL.endsWith('/') ? env.BASE_URL.slice(0, -1) : env.BASE_URL;
-        return `${baseUrl}/${relativePath}`;
+        return `/${relativePath}`;
     }
 
     /**

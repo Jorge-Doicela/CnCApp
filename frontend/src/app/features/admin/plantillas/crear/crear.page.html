@@ -129,23 +129,26 @@
                 </ion-card-header>
                 <ion-card-content>
                     <div class="canvas-container" #canvasContainer>
-                        <!-- Background Image -->
-                        <img *ngIf="plantilla.imagenUrl" [src]="plantilla.imagenUrl" class="bg-image" draggable="false"
-                            (load)="onImageLoad($event)">
+                        <!-- Wrapper for fixed A4 size but visually scaled via CSS transform -->
+                        <div class="certificate-canvas" *ngIf="plantilla.imagenUrl" [style.transform]="getCanvasTransform()">
+                            <!-- Background Image -->
+                            <img [src]="plantilla.imagenUrl" class="bg-image" draggable="false"
+                                (load)="onImageLoad($event)">
 
-                        <!-- Field Markers -->
-                        <ng-container *ngIf="plantilla.imagenUrl">
-                            <div *ngFor="let field of fields" class="field-marker"
-                                [class.active]="activeDragKey === field.key"
-                                [style.display]="field.enabled ? 'block' : 'none'"
-                                [style.left.px]="plantilla.configuracion[field.key]?.x || 0"
-                                [style.top.px]="plantilla.configuracion[field.key]?.y || 0"
-                                [style.font-size.px]="plantilla.configuracion[field.key]?.fontSize || 14"
-                                [style.color]="plantilla.configuracion[field.key]?.color || '#000'"
-                                (mousedown)="startDrag($event, field.key)" (touchstart)="startDrag($event, field.key)">
-                                {{ getPlaceholder(field.key) }}
-                            </div>
-                        </ng-container>
+                            <!-- Field Markers -->
+                            <ng-container>
+                                <div *ngFor="let field of fields" class="field-marker"
+                                    [class.active]="activeDragKey === field.key"
+                                    [style.display]="field.enabled ? 'block' : 'none'"
+                                    [style.left.px]="plantilla.configuracion[field.key]?.x || 0"
+                                    [style.top.px]="plantilla.configuracion[field.key]?.y || 0"
+                                    [style.font-size.px]="plantilla.configuracion[field.key]?.fontSize || 14"
+                                    [style.color]="plantilla.configuracion[field.key]?.color || '#000'"
+                                    (mousedown)="startDrag($event, field.key)" (touchstart)="startDrag($event, field.key)">
+                                    {{ getPlaceholder(field.key) }}
+                                </div>
+                            </ng-container>
+                        </div>
 
                         <!-- Empty State -->
                         <div class="empty-preview" *ngIf="!plantilla.imagenUrl">

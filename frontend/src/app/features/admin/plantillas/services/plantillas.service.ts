@@ -65,12 +65,8 @@ export class PlantillasService {
     }
 
     activarPlantilla(id: number): Observable<PlantillaCertificado> {
-        return this.http.patch<PlantillaCertificado>(`${this.apiUrl}/${id}/activar`, {});
-    }
-
-    uploadImage(file: File): Observable<{ url: string }> {
-        const formData = new FormData();
-        formData.append('image', file);
-        return this.http.post<{ url: string }>(`${this.apiUrl}/upload`, formData);
+        return this.http.patch<PlantillaCertificado>(`${this.apiUrl}/${id}/activar`, {}).pipe(
+            map(p => this.sanitizarPlantilla(p))
+        );
     }
 }

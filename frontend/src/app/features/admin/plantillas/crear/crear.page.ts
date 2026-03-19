@@ -206,6 +206,20 @@ export class CrearPage implements OnInit {
         }
     }
 
+    @HostListener('window:resize')
+    onResize() {
+        // Recalculate scale on window resize
+        this.cdr.detectChanges();
+    }
+
+    getCanvasTransform(): string {
+        if (!this.canvasContainer) return 'scale(1)';
+        const rect = this.canvasContainer.nativeElement.getBoundingClientRect();
+        // The container aspect ratio is 842/595, so width scaling is sufficient
+        const scale = rect.width / 842;
+        return `scale(${scale})`;
+    }
+
     @HostListener('document:mousemove', ['$event'])
     @HostListener('document:touchmove', ['$event'])
     onDragMove(event: MouseEvent | TouchEvent) {
@@ -219,16 +233,20 @@ export class CrearPage implements OnInit {
         const deltaX = clientX - this.dragStartX;
         const deltaY = clientY - this.dragStartY;
 
+        // Calculate the current scale to map screen pixels back to A4 pixels
+        let scale = 1;
+        if (this.canvasContainer) {
+            const rect = this.canvasContainer.nativeElement.getBoundingClientRect();
+            scale = rect.width / 842;
+        }
+
+        const deltaXA4 = deltaX / scale;
+        const deltaYA4 = deltaY / scale;
+
         const config = this.plantilla.configuracion[this.activeDragKey as keyof typeof this.plantilla.configuracion];
         if (config) {
-            config.x = Math.max(0, this.fieldStartX + deltaX);
-            config.y = Math.max(0, this.fieldStartY + deltaY);
-
-            // Limit to canvas bounds (approximate)
-            if (this.canvasContainer) {
-                const rect = this.canvasContainer.nativeElement.getBoundingClientRect();
-                // Optional: Add boundary content checks here
-            }
+            config.x = Math.max(0, this.fieldStartX + deltaXA4);
+            config.y = Math.max(0, this.fieldStartY + deltaYA4);
         }
     }
 

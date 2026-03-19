@@ -12,8 +12,14 @@ export class UpdatePlantillaUseCase {
     ) { }
 
     async execute(id: number, data: Partial<Plantilla>): Promise<Plantilla> {
+        const existingPlantilla = await this.repository.findById(id);
+        
         if (data.imagenUrl) {
-            data.imagenUrl = await this.fileStorageService.saveBase64(data.imagenUrl, 'plantillas');
+            const newUrl = await this.fileStorageService.saveBase64(data.imagenUrl, 'plantillas');
+            if (existingPlantilla?.imagenUrl && newUrl !== existingPlantilla.imagenUrl) {
+                await this.fileStorageService.deleteFile(existingPlantilla.imagenUrl);
+            }
+            data.imagenUrl = newUrl;
         }
 
         if (data.activa) {

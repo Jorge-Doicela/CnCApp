@@ -1,7 +1,16 @@
 import { User } from '../entities/user.entity';
+import { env } from '../../../config/env';
 
 export class UserMapper {
     static toDomain(prismaUser: any): User {
+        const baseUrl = env.BASE_URL.endsWith('/') ? env.BASE_URL.slice(0, -1) : env.BASE_URL;
+
+        const resolveUrl = (url: string | null | undefined) => {
+            if (!url) return url;
+            if (url.startsWith('http') || url.startsWith('data:')) return url;
+            return url.startsWith('/') ? `${baseUrl}${url}` : `${baseUrl}/${url}`;
+        };
+
         return {
             id: prismaUser.id,
             authUid: prismaUser.authUid,
@@ -26,8 +35,8 @@ export class UserMapper {
             cantonId: prismaUser.cantonId,
             parroquiaId: prismaUser.parroquiaId,
             estado: prismaUser.estado ?? 1,
-            fotoPerfilUrl: prismaUser.fotoPerfilUrl,
-            firmaUrl: prismaUser.firmaUrl,
+            fotoPerfilUrl: resolveUrl(prismaUser.fotoPerfilUrl),
+            firmaUrl: resolveUrl(prismaUser.firmaUrl),
             biometricToken: prismaUser.biometricToken,
             createdAt: prismaUser.createdAt,
             updatedAt: prismaUser.updatedAt,
