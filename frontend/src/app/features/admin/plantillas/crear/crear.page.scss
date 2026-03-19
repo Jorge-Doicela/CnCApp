@@ -361,6 +361,58 @@ ion-content {
                     overflow: hidden;
                 }
             }
+
+            .firma-marker {
+                position: absolute;
+                cursor: move;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                user-select: none;
+                z-index: 5;
+                transform: translateX(-50%);
+
+                .firma-img {
+                    max-width: 100%;
+                    height: auto;
+                    object-fit: contain;
+                    margin-bottom: -10px;
+                }
+
+                .firma-text {
+                    text-align: center;
+                    width: 100%;
+
+                    .firma-line {
+                        width: 90%;
+                        height: 1px;
+                        background: #333;
+                        margin: 0 auto 4px;
+                    }
+
+                    p {
+                        margin: 0;
+                        line-height: 1.2;
+                    }
+
+                    .firma-nombre {
+                        font-weight: 800;
+                        font-size: 11px;
+                        color: #1e293b;
+                    }
+
+                    .firma-cargo {
+                        font-size: 10px;
+                        color: #475569;
+                    }
+
+                    .firma-institucion {
+                        font-size: 9px;
+                        color: #64748b;
+                        font-style: italic;
+                    }
+                }
+            }
         }
 
         .empty-preview {
@@ -407,3 +459,111 @@ ion-content {
         }
     }
 }
+
+// New Styles for Signatures and Templates
+.signatures-section {
+    padding: 20px;
+    border-top: 1px solid #e2e8f0;
+
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+
+        h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0;
+        }
+    }
+
+    .firma-config-item {
+        background: #f1f5f9;
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 20px;
+        border: 1px solid #e2e8f0;
+
+        .firma-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            border-bottom: 1px solid #cbd5e1;
+            padding-bottom: 8px;
+
+            span {
+                font-size: 13px;
+                font-weight: 700;
+                color: #475569;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+            }
+        }
+
+        .firma-upload {
+            width: 100%;
+            height: 60px;
+            background: white;
+            border: 2px dashed #cbd5e1;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            overflow: hidden;
+
+            &:hover {
+                border-color: var(--ion-color-primary);
+                background: #f8fafc;
+            }
+
+            ion-icon {
+                font-size: 24px;
+                color: #64748b;
+            }
+
+            .mini-firma {
+                height: 80%;
+                width: auto;
+                object-fit: contain;
+            }
+
+            span {
+                font-size: 12px;
+                color: #64748b;
+                margin-left: 8px;
+            }
+        }
+    }
+}
+
+.full-width {
+    grid-template-columns: 1fr !important;
+}
+
+.custom-textarea {
+    --background: white;
+    --padding-start: 12px;
+    --padding-end: 12px;
+    --padding-top: 12px;
+    --padding-bottom: 12px;
+    --border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    font-size: 13px;
+    line-height: 1.5;
+    margin-top: 8px;
+}
+
+.template-help {
+    font-size: 11px;
+    color: #64748b;
+    margin-top: 6px;
+    font-style: italic;
+    background: #fff;
+    padding: 4px 8px;
+    border-radius: 4px;
+    border-left: 3px solid var(--ion-color-warning);
+}

@@ -7,6 +7,19 @@ export interface ConfiguracionCampo {
     width?: number;
     textAlign?: string;
     isUnderline?: boolean;
+    textoTemplate?: string; // New: Supports placeholders like {{usuario}} and <b> tags
+}
+
+export interface FirmaConfig {
+    id: string;
+    nombrePersona: string;
+    cargo: string;
+    institucion?: string;
+    imagenUrl: string; // The signature image
+    x: number;
+    y: number;
+    width: number;
+    height: number;
 }
 
 export interface PlantillaCertificado {
@@ -22,8 +35,10 @@ export interface PlantillaCertificado {
         horas?: ConfiguracionCampo;
         parrafo?: ConfiguracionCampo;
         codigoQR?: ConfiguracionCampo;
-        [key: string]: ConfiguracionCampo | undefined;
+        firmas?: FirmaConfig[]; // JSON slot for persistence
+        [key: string]: any;
     };
+    firmas: FirmaConfig[]; // Transient field for component logic
     activa: boolean;
     createdAt?: string;
     updatedAt?: string;

@@ -24,6 +24,19 @@ interface FieldConfig {
     width?: number; // Optional wrapping width
     textAlign?: string; // Optional alignment
     isUnderline?: boolean;
+    textoTemplate?: string;
+}
+
+interface FirmaConfig {
+    id: string;
+    nombrePersona: string;
+    cargo: string;
+    institucion?: string;
+    imagenUrl: string; // Base64 or URL
+    x: number;
+    y: number;
+    width: number;
+    height: number;
 }
 
 interface PlantillaConfig {
@@ -39,7 +52,8 @@ export class CertificateGeneratorService {
         config: PlantillaConfig,
         data: CertificateData,
         qrCodeContent: string,
-        outputPath: string
+        outputPath: string,
+        firmas?: FirmaConfig[]
     ): Promise<void> {
         return new Promise(async (resolve, reject) => {
             try {
@@ -55,151 +69,66 @@ export class CertificateGeneratorService {
 
                 // 1.5 Register Custom Fonts
                 const fontsDir = path.join(process.cwd(), 'public', 'fonts');
-                if (fs.existsSync(path.join(fontsDir, 'Montserrat-Regular.ttf'))) {
-                    doc.registerFont('Montserrat', path.join(fontsDir, 'Montserrat-Regular.ttf'));
+                const fontFiles = [
+                    { name: 'Montserrat', file: 'Montserrat-Regular.ttf' },
+                    { name: 'Montserrat-Bold', file: 'Montserrat-Bold.ttf' },
+                    { name: 'PlayfairDisplay', file: 'PlayfairDisplay-Regular.ttf' },
+                    { name: 'GreatVibes', file: 'GreatVibes-Regular.ttf' },
+                    { name: 'Poppins', file: 'Poppins-Regular.ttf' },
+                    { name: 'Poppins-Bold', file: 'Poppins-Bold.ttf' },
+                    { name: 'Inter', file: 'Inter-Regular.ttf' },
+                    { name: 'Inter-Bold', file: 'Inter-Bold.ttf' }
+                ];
+
+                for (const font of fontFiles) {
+                    const fontPath = path.join(fontsDir, font.file);
+                    if (fs.existsSync(fontPath)) {
+                        doc.registerFont(font.name, fontPath);
+                    }
                 }
-                if (fs.existsSync(path.join(fontsDir, 'Montserrat-Bold.ttf'))) {
-                    doc.registerFont('Montserrat-Bold', path.join(fontsDir, 'Montserrat-Bold.ttf'));
-                }
-                if (fs.existsSync(path.join(fontsDir, 'PlayfairDisplay-Regular.ttf'))) {
-                    doc.registerFont('PlayfairDisplay', path.join(fontsDir, 'PlayfairDisplay-Regular.ttf'));
-                }
-                if (fs.existsSync(path.join(fontsDir, 'GreatVibes-Regular.ttf'))) {
-                    doc.registerFont('GreatVibes', path.join(fontsDir, 'GreatVibes-Regular.ttf'));
-                }
-                if (fs.existsSync(path.join(fontsDir, 'Poppins-Regular.ttf'))) {
-                    doc.registerFont('Poppins', path.join(fontsDir, 'Poppins-Regular.ttf'));
-                }
-                if (fs.existsSync(path.join(fontsDir, 'Poppins-Bold.ttf'))) {
-                    doc.registerFont('Poppins-Bold', path.join(fontsDir, 'Poppins-Bold.ttf'));
-                }
-                if (fs.existsSync(path.join(fontsDir, 'Inter-Bold.ttf'))) {
-                    doc.registerFont('Inter-Bold', path.join(fontsDir, 'Inter-Bold.ttf'));
-                } else if (fs.existsSync(path.join(fontsDir, 'Poppins-Bold.ttf'))) {
+
+                // Fallbacks for Inter if not present
+                if (!fs.existsSync(path.join(fontsDir, 'Inter-Bold.ttf')) && fs.existsSync(path.join(fontsDir, 'Poppins-Bold.ttf'))) {
                     doc.registerFont('Inter-Bold', path.join(fontsDir, 'Poppins-Bold.ttf'));
                 }
-                
-                if (fs.existsSync(path.join(fontsDir, 'Inter-Regular.ttf'))) {
-                    doc.registerFont('Inter', path.join(fontsDir, 'Inter-Regular.ttf'));
-                } else if (fs.existsSync(path.join(fontsDir, 'Poppins-Regular.ttf'))) {
+                if (!fs.existsSync(path.join(fontsDir, 'Inter-Regular.ttf')) && fs.existsSync(path.join(fontsDir, 'Poppins-Regular.ttf'))) {
                     doc.registerFont('Inter', path.join(fontsDir, 'Poppins-Regular.ttf'));
                 }
 
                 // 2. Load Background Image
-                if (plantillaImagenUrl) {
-                    if (plantillaImagenUrl.startsWith('data:image')) {
-                        doc.image(plantillaImagenUrl, 0, 0, {
-                            width: doc.page.width,
-                            height: doc.page.height
-                        });
-                    } else if (plantillaImagenUrl.startsWith('http://') || plantillaImagenUrl.startsWith('https://')) {
-                        try {
-                            const response = await fetch(plantillaImagenUrl);
-                            if (!response.ok) throw new Error(`HTTP fetch status: ${response.status}`);
-                            const arrayBuffer = await response.arrayBuffer();
-                            doc.image(Buffer.from(arrayBuffer), 0, 0, {
-                                width: doc.page.width,
-                                height: doc.page.height
-                            });
-                        } catch (e) {
-                            console.warn(`Failed to fetch HTTP image: ${plantillaImagenUrl}`, e);
-                            doc.rect(0, 0, doc.page.width, doc.page.height).stroke();
-                            doc.fillColor('#000000').fontSize(20).text('Plantilla URL unreachable', 100, 100);
-                        }
-                    } else {
-                        const imagePath = path.isAbsolute(plantillaImagenUrl) 
-                            ? plantillaImagenUrl 
-                            : path.join(process.cwd(), 'public', plantillaImagenUrl);
-
-                        if (fs.existsSync(imagePath)) {
-                            doc.image(imagePath, 0, 0, {
-                                width: doc.page.width,
-                                height: doc.page.height
-                            });
-                        } else {
-                            console.warn(`Plantilla image not found locally at ${imagePath}`);
-                            doc.rect(0, 0, doc.page.width, doc.page.height).stroke();
-                            doc.fillColor('#000000').fontSize(20).text('Plantilla background missing', 100, 100);
-                        }
-                    }
-                }
+                await this.renderBackground(doc, plantillaImagenUrl);
 
                 // 3. Draw Text Fields
                 for (const [key, fieldConfig] of Object.entries(config)) {
-                    if (key === 'codigoQR') continue; // Don't draw the QR code config as text
+                    if (key === 'codigoQR') continue;
 
-                    const text = data[key];
+                    let text = data[key];
+                    
+                    // If field has a custom template, use it and interpolate
+                    if (fieldConfig.textoTemplate) {
+                        text = fieldConfig.textoTemplate;
+                        for (const [dataKey, dataValue] of Object.entries(data)) {
+                            const placeholder = `{{${dataKey}}}`;
+                            text = text.replace(new RegExp(placeholder, 'g'), dataValue || '');
+                        }
+                    }
+
                     if (text && fieldConfig) {
-                        try {
-                            doc.font(fieldConfig.fontFamily || 'Helvetica');
-                        } catch (e) {
-                            console.warn(`Font ${fieldConfig.fontFamily} not registered in PDFKit. Falling back to Helvetica.`);
-                            doc.font('Helvetica');
-                        }
-
-                        doc.fillColor(fieldConfig.color || '#000000')
-                           .fontSize(fieldConfig.fontSize || 12);
-                        
-                        const textOptions: PDFKit.Mixins.TextOptions = {
-                            lineBreak: false
-                        };
-
-                        if (fieldConfig.width) {
-                            textOptions.width = fieldConfig.width;
-                            textOptions.lineBreak = true;
-                            if (fieldConfig.textAlign) {
-                                textOptions.align = fieldConfig.textAlign as any;
-                            }
-                        }
-
-                        if (fieldConfig.isUnderline) {
-                            textOptions.underline = true;
-                        }
-
-                        const textHeight = doc.heightOfString(text, textOptions);
-                        let renderX = fieldConfig.x;
-                        let renderY = fieldConfig.y;
-
-                        if (!fieldConfig.width) {
-                            const textWidth = doc.widthOfString(text);
-                            if (fieldConfig.textAlign === 'left') {
-                                renderY = fieldConfig.y - (textHeight / 2); // Center horizontally aligned left
-                            } else if (fieldConfig.textAlign === 'right') {
-                                renderX = fieldConfig.x - textWidth;
-                                renderY = fieldConfig.y - (textHeight / 2);
-                            } else {
-                                // Default center
-                                renderX = fieldConfig.x - (textWidth / 2);
-                                renderY = fieldConfig.y - (textHeight / 2);
-                            }
-                        } else {
-                            // Block is translated -50% -50% in frontend, so X,Y marks the absolute center of the bounding box
-                            renderX = fieldConfig.x - (fieldConfig.width / 2);
-                            renderY = fieldConfig.y - (textHeight / 2);
-                        }
-
-                        doc.text(text, renderX, renderY, textOptions);
+                        this.renderRichText(doc, text, fieldConfig);
                     }
                 }
 
-                // 4. Generate and Draw QR Code
-                const qrBuffer = await QRCode.toBuffer(qrCodeContent, { margin: 1 });
-
-                let qrSize = 100;
-                let qrX = doc.page.width - qrSize - 50;
-                let qrY = doc.page.height - qrSize - 50;
-
-                if (config['codigoQR']) {
-                    const qrConfig = config['codigoQR'];
-                    qrSize = qrConfig.fontSize || 100;
-                    // Apply translate(-50%, -50%) offset to match frontend dragging center
-                    qrX = qrConfig.x - (qrSize / 2);
-                    qrY = qrConfig.y - (qrSize / 2);
+                // 4. Draw Signatures
+                if (firmas && firmas.length > 0) {
+                    for (const firma of firmas) {
+                        await this.renderFirma(doc, firma);
+                    }
                 }
 
-                doc.image(qrBuffer, qrX, qrY, { fit: [qrSize, qrSize] });
+                // 5. Generate and Draw QR Code
+                await this.renderQRCode(doc, qrCodeContent, config['codigoQR']);
 
-                // 5. Finalize
+                // 6. Finalize
                 doc.end();
 
                 stream.on('finish', () => resolve());
@@ -209,5 +138,141 @@ export class CertificateGeneratorService {
                 reject(error);
             }
         });
+    }
+
+    private async renderBackground(doc: PDFKit.PDFDocument, url: string) {
+        if (!url) return;
+        try {
+            if (url.startsWith('data:image')) {
+                doc.image(url, 0, 0, { width: doc.page.width, height: doc.page.height });
+            } else if (url.startsWith('http')) {
+                const response = await fetch(url);
+                const arrayBuffer = await response.arrayBuffer();
+                doc.image(Buffer.from(arrayBuffer), 0, 0, { width: doc.page.width, height: doc.page.height });
+            } else {
+                const imgPath = path.isAbsolute(url) ? url : path.join(process.cwd(), 'public', url);
+                if (fs.existsSync(imgPath)) {
+                    doc.image(imgPath, 0, 0, { width: doc.page.width, height: doc.page.height });
+                }
+            }
+        } catch (e) {
+            console.error('Error rendering background:', e);
+        }
+    }
+
+    private renderRichText(doc: PDFKit.PDFDocument, text: string, config: FieldConfig) {
+        const baseFont = config.fontFamily || 'Helvetica';
+        const boldFont = baseFont.includes('Bold') ? baseFont : `${baseFont}-Bold`;
+        
+        doc.fillColor(config.color || '#000000').fontSize(config.fontSize || 12);
+
+        const options: PDFKit.Mixins.TextOptions = {
+            width: config.width,
+            align: (config.textAlign as any) || 'center',
+            underline: config.isUnderline
+        };
+
+        // Calculate heights/positions
+        // PDFKit text() returns the doc, but we need the height for vertical centering
+        // doc.heightOfString is helpful
+        const totalHeight = doc.heightOfString(text.replace(/<b>|<\/b>/g, ''), options);
+        let renderX = config.width ? config.x - (config.width / 2) : config.x;
+        let renderY = config.y - (totalHeight / 2);
+
+        // Simple parser for <b> tags
+        const parts = text.split(/(<b>.*?<\/b>)/g);
+        
+        let currentX = renderX;
+        let currentY = renderY;
+
+        // If it's a block with width, PDFKit handles wrapping best if we use the standard text() call
+        // But for mixed styles in a wrapped block, we use the 'continued: true' feature of PDFKit
+        
+        doc.text('', renderX, renderY, options); // Set cursor
+
+        parts.forEach((part, index) => {
+            const isBold = part.startsWith('<b>') && part.endsWith('</b>');
+            const content = isBold ? part.slice(3, -4) : part;
+            
+            if (!content) return;
+
+            try {
+                doc.font(isBold ? boldFont : baseFont);
+            } catch (e) {
+                doc.font(baseFont);
+            }
+
+            const isLast = index === parts.length - 1;
+            doc.text(content, {
+                continued: !isLast,
+                ...options
+            });
+        });
+    }
+
+    private async renderFirma(doc: PDFKit.PDFDocument, firma: FirmaConfig) {
+        try {
+            let imgSource: any;
+            if (firma.imagenUrl.startsWith('data:image')) {
+                imgSource = firma.imagenUrl;
+            } else if (firma.imagenUrl.startsWith('http')) {
+                const resp = await fetch(firma.imagenUrl);
+                imgSource = Buffer.from(await resp.arrayBuffer());
+            }
+
+            if (imgSource) {
+                // Signature image
+                doc.image(imgSource, firma.x - (firma.width / 2), firma.y - firma.height + 10, {
+                    width: firma.width
+                });
+            }
+
+            // Line and Text
+            const lineY = firma.y + 2;
+            doc.moveTo(firma.x - (firma.width / 2.2), lineY)
+               .lineTo(firma.x + (firma.width / 2.2), lineY)
+               .lineWidth(0.5)
+               .stroke('#333333');
+
+            doc.fillColor('#1e293b')
+               .font('Inter-Bold')
+               .fontSize(9)
+               .text(firma.nombrePersona, firma.x - (firma.width / 2), lineY + 4, {
+                   width: firma.width,
+                   align: 'center'
+               });
+
+            doc.fillColor('#475569')
+               .font('Inter')
+               .fontSize(8)
+               .text(firma.cargo, {
+                   width: firma.width,
+                   align: 'center'
+               });
+
+            if (firma.institucion) {
+                doc.fillColor('#64748b')
+                   .fontSize(7)
+                   .text(firma.institucion, {
+                       width: firma.width,
+                       align: 'center'
+                   });
+            }
+        } catch (e) {
+            console.error('Error rendering firma:', e);
+        }
+    }
+
+    private async renderQRCode(doc: PDFKit.PDFDocument, content: string, qrConfig?: FieldConfig) {
+        try {
+            const qrBuffer = await QRCode.toBuffer(content, { margin: 1 });
+            let size = qrConfig?.fontSize || 100;
+            let x = qrConfig ? qrConfig.x - (size / 2) : doc.page.width - size - 50;
+            let y = qrConfig ? qrConfig.y - (size / 2) : doc.page.height - size - 50;
+
+            doc.image(qrBuffer, x, y, { fit: [size, size] });
+        } catch (e) {
+            console.error('Error rendering QR:', e);
+        }
     }
 }

@@ -57,19 +57,25 @@ export class GenerateCertificadoUseCase {
 
         // 3. Prepare config and data
         const config = plantilla.configuracion || {};
+        const cursoFecha = capacitacion.fechaInicio || new Date();
         const data: any = {
-            nombreUsuario: `${usuario.primerNombre || ''} ${usuario.primerApellido || ''}`.trim().toUpperCase() || usuario.nombre.toUpperCase(),
+            usuario: `${usuario.primerNombre || ''} ${usuario.primerApellido || ''}`.trim().toUpperCase() || usuario.nombre.toUpperCase(),
             curso: capacitacion.nombre.toUpperCase(),
-            fecha: new Date().toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' }),
+            fecha: cursoFecha.toLocaleDateString('es-ES', { 
+                weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' 
+            }),
             cedula: usuario.ci,
             rol: (inscripcion.rolCapacitacion || 'Participante').toUpperCase(),
-            horas: `${capacitacion.horas || 0} HORAS`
+            horas: `${capacitacion.horas || 0} horas`,
+            modalidad: (capacitacion.modalidad || 'virtual').toLowerCase()
         };
 
-        data.parrafo = `Por su participación en el evento de capacitación: "${capacitacion.nombre}", realizado en modalidad virtual el ${data.fecha}, con una duración de ${capacitacion.horas || 0} horas.`;
+        // Note: 'parrafo' is now dynamically handled via fieldConfig.textoTemplate if present
+        // but we'll keep the key 'nombreUsuario' mapped to 'usuario' if the template uses it
+        data.nombreUsuario = data.usuario; 
 
         // 4. Generate Unique Hash and QR Content
-        const hash = crypto.randomBytes(12).toString('hex'); // 24 chars, very unique
+        const hash = crypto.randomBytes(12).toString('hex');
         
         // Base URL for verification
         const baseUrl = env.FRONTEND_URL.endsWith('/') ? env.FRONTEND_URL.slice(0, -1) : env.FRONTEND_URL;
@@ -91,7 +97,8 @@ export class GenerateCertificadoUseCase {
             config,
             data,
             qrCodeUrl, // Physical QR code has full URL
-            outputPath
+            outputPath,
+            plantilla.firmas || []
         );
 
         // 7. Save Record

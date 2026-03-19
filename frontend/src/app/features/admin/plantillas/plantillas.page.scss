@@ -406,10 +406,39 @@ ion-content {
 
     .preview-overlay-field {
         position: absolute;
-        white-space: nowrap;
         pointer-events: none;
         font-weight: 700;
         transform: translate(-50%, -50%); // Center based on x,y
+    }
+
+    .preview-overlay-firma {
+        position: absolute;
+        pointer-events: none;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        transform: translateX(-50%);
+
+        .firma-img {
+            max-width: 100%;
+            height: auto;
+            object-fit: contain;
+            margin-bottom: -5px;
+        }
+
+        .firma-line {
+            width: 80%;
+            height: 1px;
+            background: #333;
+            margin: 0 auto 2px;
+        }
+
+        .firma-text {
+            text-align: center;
+            p { margin: 0; line-height: 1.1; }
+            .n { font-weight: 800; font-size: 8px; color: #1e293b; }
+            .c { font-size: 7px; color: #475569; }
+        }
     }
 }
 

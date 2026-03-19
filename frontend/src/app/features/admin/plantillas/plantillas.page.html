@@ -157,6 +157,19 @@
                         <div class="certificate-canvas">
                             <img [src]="plantillaSeleccionada.imagenUrl" (error)="onImageError($event)">
                             
+                            <!-- Signatures Overlay -->
+                            <div *ngFor="let firma of plantillaSeleccionada.firmas" class="preview-overlay-firma"
+                                [style.left.%]="firma.x / 8.42"
+                                [style.top.%]="firma.y / 5.95"
+                                [style.width.%]="firma.width / 8.42">
+                                <img [src]="firma.imagenUrl" class="firma-img" *ngIf="firma.imagenUrl">
+                                <div class="firma-line"></div>
+                                <div class="firma-text">
+                                    <p class="n">{{ firma.nombrePersona }}</p>
+                                    <p class="c">{{ firma.cargo }}</p>
+                                </div>
+                            </div>
+
                             <!-- Fields Overlay -->
                             <div *ngIf="plantillaSeleccionada.configuracion.nombreUsuario" 
                                  class="preview-overlay-field" 
@@ -230,7 +243,9 @@
                                  [style.white-space]="plantillaSeleccionada.configuracion.parrafo.width ? 'normal' : 'nowrap'"
                                  [style.text-align]="plantillaSeleccionada.configuracion.parrafo.textAlign"
                                  [style.text-decoration]="plantillaSeleccionada.configuracion.parrafo.isUnderline ? 'underline' : 'none'">
-                                {{ getPlaceholder('parrafo') }}
+                                <div *ngIf="plantillaSeleccionada.configuracion.parrafo.textoTemplate; else normalP"
+                                     [innerHTML]="plantillaSeleccionada.configuracion.parrafo.textoTemplate"></div>
+                                <ng-template #normalP>{{ getPlaceholder('parrafo') }}</ng-template>
                             </div>
 
                             <div *ngIf="plantillaSeleccionada.configuracion.codigoQR" 

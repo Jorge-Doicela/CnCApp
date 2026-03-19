@@ -52,6 +52,7 @@ export class CrearPage implements OnInit {
             curso: { x: 420, y: 370, fontSize: 18, color: '#333333' },
             fecha: { x: 420, y: 450, fontSize: 14, color: '#666666' }
         },
+        firmas: [],
         activa: false
     };
 
@@ -63,7 +64,7 @@ export class CrearPage implements OnInit {
         { key: 'cedula', label: 'Cédula', enabled: false },
         { key: 'rol', label: 'Rol', enabled: false },
         { key: 'horas', label: 'Horas', enabled: false },
-        { key: 'parrafo', label: 'Párrafo Descriptivo', enabled: false },
+        { key: 'parrafo', label: 'Párrafo Descriptivo (Variable)', enabled: false },
     ];
 
     availableFonts = [
@@ -82,6 +83,7 @@ export class CrearPage implements OnInit {
 
     // Drag state
     activeDragKey: string | null = null;
+    activeFirmaId: string | null = null; // New: for signature dragging
     dragStartX = 0;
     dragStartY = 0;
     fieldStartX = 0;
@@ -138,8 +140,13 @@ export class CrearPage implements OnInit {
     sincronizarCampos() {
         // Enable fields that exist in configuration
         this.fields.forEach(field => {
-            field.enabled = !!this.plantilla.configuracion[field.key as keyof typeof this.plantilla.configuracion];
+            field.enabled = !!this.plantilla.configuracion[field.key];
         });
+        
+        // Ensure firmas array exists
+        if (!this.plantilla.firmas) {
+            this.plantilla.firmas = [];
+        }
     }
 
     toggleField(field: DraggableField) {
@@ -164,7 +171,8 @@ export class CrearPage implements OnInit {
                         color: '#000000',
                         fontFamily: 'Helvetica',
                         width: 642,
-                        textAlign: 'justify'
+                        textAlign: 'justify',
+                        textoTemplate: 'Por su participación en el evento de capacitación: <b>"{{curso}}"</b>, realizado en modalidad {{modalidad}} el {{fecha}}, con una duración de {{horas}}.'
                     };
                 } else {
                     config[key] = {
@@ -265,10 +273,27 @@ export class CrearPage implements OnInit {
         this.dragStartX = clientX;
         this.dragStartY = clientY;
 
-        const config = this.plantilla.configuracion[key as keyof typeof this.plantilla.configuracion];
+        const config = this.plantilla.configuracion[key] as any;
         if (config) {
             this.fieldStartX = config.x;
             this.fieldStartY = config.y;
+        }
+    }
+
+    startDragFirma(event: MouseEvent | TouchEvent, firmaId: string) {
+        event.preventDefault();
+        this.activeFirmaId = firmaId;
+
+        const clientX = event instanceof MouseEvent ? event.clientX : event.touches[0].clientX;
+        const clientY = event instanceof MouseEvent ? event.clientY : event.touches[0].clientY;
+
+        this.dragStartX = clientX;
+        this.dragStartY = clientY;
+
+        const firma = this.plantilla.firmas?.find(f => f.id === firmaId);
+        if (firma) {
+            this.fieldStartX = firma.x;
+            this.fieldStartY = firma.y;
         }
     }
 
@@ -309,10 +334,18 @@ export class CrearPage implements OnInit {
         const deltaXA4 = deltaX / scale;
         const deltaYA4 = deltaY / scale;
 
-        const config = this.plantilla.configuracion[this.activeDragKey as keyof typeof this.plantilla.configuracion];
-        if (config) {
-            config.x = Math.max(0, this.fieldStartX + deltaXA4);
-            config.y = Math.max(0, this.fieldStartY + deltaYA4);
+        if (this.activeDragKey) {
+            const config = this.plantilla.configuracion[this.activeDragKey] as any;
+            if (config) {
+                config.x = Math.max(0, this.fieldStartX + deltaXA4);
+                config.y = Math.max(0, this.fieldStartY + deltaYA4);
+            }
+        } else if (this.activeFirmaId) {
+            const firma = this.plantilla.firmas?.find(f => f.id === this.activeFirmaId);
+            if (firma) {
+                firma.x = Math.max(0, this.fieldStartX + deltaXA4);
+                firma.y = Math.max(0, this.fieldStartY + deltaYA4);
+            }
         }
     }
 
@@ -320,6 +353,7 @@ export class CrearPage implements OnInit {
     @HostListener('document:touchend')
     onDragEnd() {
         this.activeDragKey = null;
+        this.activeFirmaId = null;
     }
 
     updateField(key: string | any) {
@@ -381,6 +415,50 @@ export class CrearPage implements OnInit {
             ]
         });
         await toast.present();
+    }
+
+    // --- Signature Management ---
+    addFirma() {
+        if (!this.plantilla.firmas) {
+            this.plantilla.firmas = [];
+        }
+        const nuevaFirma = {
+            id: 'firma_' + Date.now(),
+            nombrePersona: '',
+            cargo: '',
+            institucion: '',
+            imagenUrl: '',
+            x: 420,
+            y: 450,
+            width: 150,
+            height: 80
+        };
+        this.plantilla.firmas.push(nuevaFirma);
+        this.cdr.detectChanges();
+    }
+
+    removeFirma(index: number) {
+        this.plantilla.firmas?.splice(index, 1);
+        this.cdr.detectChanges();
+    }
+
+    onFirmaImageSelected(event: any, index: number) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        if (file.size > 2 * 1024 * 1024) {
+            this.mostrarToast('La firma no debe superar 2MB', 'warning');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e: any) => {
+            if (this.plantilla.firmas) {
+                this.plantilla.firmas[index].imagenUrl = e.target.result;
+                this.cdr.detectChanges();
+            }
+        };
+        reader.readAsDataURL(file);
     }
 }
 // Force Angular recompile

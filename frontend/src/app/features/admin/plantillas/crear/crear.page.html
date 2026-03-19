@@ -145,6 +145,64 @@
                                             (ionChange)="updateField(field.key)"></ion-checkbox>
                                     </div>
                                 </div>
+                                
+                                <!-- Rich Text Template Editor -->
+                                <div class="control-row full-width" *ngIf="plantilla.configuracion[field.key]!.textoTemplate !== undefined">
+                                    <div class="control-group">
+                                        <label>Contenido del Párrafo (Usa &lt;b&gt; para negritas)</label>
+                                        <ion-textarea [(ngModel)]="plantilla.configuracion[field.key]!.textoTemplate" 
+                                            rows="4" class="custom-textarea" (ionChange)="updateField(field.key)">
+                                        </ion-textarea>
+                                        <div class="template-help">
+                                            Variables: {{ '{{' }}usuario{{ '}}' }}, {{ '{{' }}curso{{ '}}' }}, {{ '{{' }}fecha{{ '}}' }}, {{ '{{' }}horas{{ '}}' }}, {{ '{{' }}modalidad{{ '}}' }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Signatures Management Section -->
+                        <div class="signatures-section" *ngIf="plantilla.imagenUrl">
+                            <div class="section-header">
+                                <h3>Firmas Autorizadas</h3>
+                                <ion-button size="small" fill="outline" (click)="addFirma()">
+                                    <ion-icon name="add-outline" slot="start"></ion-icon>
+                                    Agregar Firma
+                                </ion-button>
+                            </div>
+
+                            <div *ngFor="let firma of plantilla.firmas; let i = index" class="firma-config-item">
+                                <div class="firma-header">
+                                    <span>Firma #{{ i + 1 }}</span>
+                                    <ion-button fill="clear" color="danger" size="small" (click)="removeFirma(i)">
+                                        <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+                                    </ion-button>
+                                </div>
+                                <div class="control-row">
+                                    <div class="control-group">
+                                        <label>Nombre</label>
+                                        <ion-input [(ngModel)]="firma.nombrePersona" placeholder="Ej: Myriam Zarzosa"></ion-input>
+                                    </div>
+                                    <div class="control-group">
+                                        <label>Cargo</label>
+                                        <ion-input [(ngModel)]="firma.cargo" placeholder="Ej: Secretaria Ejecutiva"></ion-input>
+                                    </div>
+                                </div>
+                                <div class="control-row">
+                                    <div class="control-group">
+                                        <label>Institución</label>
+                                        <ion-input [(ngModel)]="firma.institucion" placeholder="Opcional"></ion-input>
+                                    </div>
+                                    <div class="control-group">
+                                        <label>Imagen Firma (PNG transparente)</label>
+                                        <div class="firma-upload" (click)="firmaInput.click()">
+                                            <ion-icon name="cloud-upload-outline" *ngIf="!firma.imagenUrl"></ion-icon>
+                                            <img [src]="firma.imagenUrl" *ngIf="firma.imagenUrl" class="mini-firma">
+                                            <span *ngIf="!firma.imagenUrl">Subir</span>
+                                        </div>
+                                        <input #firmaInput type="file" (change)="onFirmaImageSelected($event, i)" accept="image/*" hidden>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -167,6 +225,22 @@
                             <img [src]="plantilla.imagenUrl" class="bg-image" draggable="false"
                                 (load)="onImageLoad($event)">
 
+                            <!-- Signatures Preview -->
+                            <div *ngFor="let firma of plantilla.firmas" class="firma-marker"
+                                [style.left.px]="firma.x"
+                                [style.top.px]="firma.y"
+                                [style.width.px]="firma.width"
+                                (mousedown)="startDragFirma($event, firma.id)"
+                                (touchstart)="startDragFirma($event, firma.id)">
+                                <img [src]="firma.imagenUrl" *ngIf="firma.imagenUrl" class="firma-img">
+                                <div class="firma-text">
+                                    <div class="firma-line"></div>
+                                    <p class="firma-nombre">{{ firma.nombrePersona || 'Nombre Firma' }}</p>
+                                    <p class="firma-cargo">{{ firma.cargo || 'Cargo' }}</p>
+                                    <p class="firma-institucion" *ngIf="firma.institucion">{{ firma.institucion }}</p>
+                                </div>
+                            </div>
+
                             <!-- Field Markers -->
                             <ng-container>
                                 <div *ngFor="let field of fields" class="field-marker"
@@ -187,7 +261,9 @@
                                     (mousedown)="startDrag($event, field.key)" (touchstart)="startDrag($event, field.key)">
                                     
                                     <ng-container *ngIf="!isQRCode(field.key)">
-                                        {{ getPlaceholder(field.key) }}
+                                        <div *ngIf="plantilla.configuracion[field.key]!.textoTemplate; else normalText"
+                                            [innerHTML]="plantilla.configuracion[field.key]!.textoTemplate"></div>
+                                        <ng-template #normalText>{{ getPlaceholder(field.key) }}</ng-template>
                                     </ng-container>
                                     
                                     <ion-icon *ngIf="isQRCode(field.key)" name="qr-code-outline" 
