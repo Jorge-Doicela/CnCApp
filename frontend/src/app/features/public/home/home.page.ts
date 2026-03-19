@@ -64,22 +64,9 @@ export class HomePage implements OnInit {
     return r?.includes('creador') || r?.includes('conferencista') || r?.includes('conferencia');
   });
 
-  isInscrito = (id: number) => {
-    return this.ConferenciasInscritas().some(c => c.id === id);
-  };
 
-  haIniciado = (cap: Capacitacion) => {
-    if (!cap.fechaInicio) return false;
-    const ahora = new Date();
-    const fechaHoraInicio = new Date(cap.fechaInicio);
-    if (cap.horaInicio) {
-      const [h, m] = cap.horaInicio.split(':').map(Number);
-      fechaHoraInicio.setHours(h ?? 0, m ?? 0, 0, 0);
-    } else {
-      fechaHoraInicio.setHours(0, 0, 0, 0);
-    }
-    return ahora >= fechaHoraInicio;
-  };
+
+
 
   // Greeting Logic
   saludo = computed(() => {
@@ -102,8 +89,6 @@ export class HomePage implements OnInit {
 
   // Datos de conferencias
   Capacitaciones: Capacitacion[] = [];
-  capacitacionesDisponibles: Capacitacion[] = [];
-  ConferenciasInscritas = signal<Capacitacion[]>([]);
   cargandoCapacitaciones: boolean = false;
 
   // Estadísticas
@@ -232,7 +217,6 @@ export class HomePage implements OnInit {
 
   async cargarDatosUsuario() {
     await Promise.all([
-      this.RecuperarConferenciasInscrito(),
       this.cargarConteoCertificados()
     ]);
     this.calcularEstadisticas();
@@ -243,11 +227,10 @@ export class HomePage implements OnInit {
   }
 
   async RecuperarCapacitaciones() {
+    // Only fetch basic info if needed for stats, otherwise empty for Home
     this.cargandoCapacitaciones = true;
     try {
-      const data = await firstValueFrom(this.capacitacionesService.getCapacitaciones());
-      this.Capacitaciones = data ?? [];
-      this.capacitacionesDisponibles = this.Capacitaciones.filter(c => c.estado === 'Activa');
+      // In home we might not need the full list anymore if it's moved
     } catch (error) {
       console.error('Error al cargar capacitaciones:', error);
     } finally {
@@ -256,41 +239,7 @@ export class HomePage implements OnInit {
     }
   }
 
-  async RecuperarConferenciasInscrito() {
-    // Obtener ID directamente del AuthService (evita llamadas extra al backend)
-    const user = this.authService.currentUser();
-    const userId = user?.id ?? parseInt(localStorage.getItem('auth_uid') ?? '', 10);
-    if (!userId || isNaN(userId)) return;
 
-    try {
-      const inscripciones = await firstValueFrom(
-        this.capacitacionesService.getInscripcionesUsuario(userId)
-      ) as any[];
-
-      if (inscripciones?.length) {
-        const capacitacionIds = inscripciones.map((item: any) =>
-          item.capacitacionId ?? item.Id_Capacitacion
-        ).filter(Boolean);
-
-        if (capacitacionIds.length > 0) {
-          if (this.Capacitaciones.length === 0) {
-            await this.RecuperarCapacitaciones();
-          }
-          const inscritas = this.Capacitaciones.filter(c =>
-            capacitacionIds.includes(c.id)
-          );
-          this.ConferenciasInscritas.set(inscritas);
-        }
-      } else {
-        this.ConferenciasInscritas.set([]);
-      }
-    } catch (error) {
-      console.error('Error al recuperar conferencias inscritas:', error);
-      this.ConferenciasInscritas.set([]);
-    } finally {
-      this.cd.markForCheck();
-    }
-  }
 
   async cargarConteoCertificados() {
     try {
@@ -305,8 +254,7 @@ export class HomePage implements OnInit {
   }
 
   calcularEstadisticas() {
-    this.proximasConferencias = this.ConferenciasInscritas().filter(c => c.estado === 'Activa').length;
-    // Ya no lo calculamos aquí localmente, usamos cargarConteoCertificados()
+    this.proximasConferencias = 0; // Simplified or fetch from a service if needed
   }
 
   async cargarEstadisticasAdmin() {
@@ -327,38 +275,10 @@ export class HomePage implements OnInit {
     }
   }
 
-  async inscribirse(idCapacitacion: number) {
-    if (this.isGuest()) {
-      this.router.navigate(['/login']);
-      return;
-    }
 
-    const loading = await this.loadingController.create({ message: 'Inscribiendo...', spinner: 'crescent' });
-    await loading.present();
-
-    try {
-      // Obtener userId directamente sin llamada extra al backend
-      const user = this.authService.currentUser();
-      const idUsuario = user?.id ?? parseInt(localStorage.getItem('auth_uid') ?? '', 10);
-      if (!idUsuario || isNaN(idUsuario as number)) throw new Error('Usuario no identificado');
-
-      await firstValueFrom(this.capacitacionesService.inscribirse(idUsuario as number, idCapacitacion) as any);
-      this.showSuccessToast('Inscripción exitosa');
-      await this.RecuperarConferenciasInscrito();
-      this.calcularEstadisticas();
-      this.cd.markForCheck();
-    } catch (e: any) {
-      console.error('Error inscribiendo:', e);
-      const msg = e.error?.message || 'Error al inscribirse';
-      this.showErrorToast(msg);
-    } finally {
-      loading.dismiss();
-    }
-  }
 
   irACatalogo() {
-    const el = document.getElementById('oferta-publica');
-    if (el) { el.scrollIntoView({ behavior: 'smooth' }); }
+    this.router.navigate(['/catalogo-capacitaciones']);
   }
 
   // --- Navigation & Auth Wrappers ---

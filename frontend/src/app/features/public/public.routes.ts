@@ -27,6 +27,10 @@ export const PUBLIC_ROUTES: Routes = [
         loadComponent: () => import('./home/pages/servi-progra/servi-progra.page').then(m => m.ServiPrograPage)
     },
     {
+        path: 'catalogo-capacitaciones',
+        loadComponent: () => import('./catalogo-capacitaciones/catalogo-capacitaciones.page').then(m => m.CatalogoCapacitacionesPage)
+    },
+    {
         path: 'validar-certificados',
         loadComponent: () => import('./validar-qr/validar-qr.page').then(m => m.ValidarQrPage)
     }

@@ -1,0 +1,105 @@
+<ion-header class="ion-no-border">
+  <div class="catalog-hero">
+    <div class="mesh-bg"></div>
+    <div class="container hero-content">
+      <div (click)="irAHome()" class="back-link">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+        <span>Volver al Inicio</span>
+      </div>
+      <h1 class="animate-fade-up">Oferta Académica <span>Digital</span></h1>
+      <p class="animate-fade-up" style="animation-delay: 0.1s;">
+        Explora nuestros programas de capacitación oficial y potencia tu desarrollo profesional en el sector público.
+      </p>
+    </div>
+  </div>
+</ion-header>
+
+<ion-content>
+  <div class="container section-padding">
+    
+    <!-- Filters / Search (Placeholder for now) -->
+    <div class="filter-strip animate-fade-up" style="animation-delay: 0.2s;">
+      <div class="search-box">
+        <ion-icon name="search-outline"></ion-icon>
+        <input type="text" placeholder="Buscar capacitación por nombre..." (input)="onSearch($event)">
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="cargandoCapacitaciones()" class="catalog-loading">
+      <ion-spinner name="crescent" color="primary"></ion-spinner>
+      <p>Consultando catálogo oficial...</p>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!cargandoCapacitaciones() && capacitacionesFiltradas().length === 0" class="empty-catalog fade-in">
+      <div class="empty-icon-box">
+        <ion-icon name="calendar-clear-outline"></ion-icon>
+      </div>
+      <h3>No se encontraron resultados</h3>
+      <p>Intenta con otros términos de búsqueda o vuelve pronto para ver nuevas fechas.</p>
+      <button class="btn-primary-outline" (click)="resetSearch()">Ver todos los cursos</button>
+    </div>
+
+    <!-- Dynamic Grid -->
+    <div class="courses-grid" *ngIf="!cargandoCapacitaciones() && capacitacionesFiltradas().length > 0">
+      <div class="course-card fade-in" *ngFor="let cap of capacitacionesFiltradas(); let i = index"
+        [style.animation-delay]="(0.05 * i) + 's'">
+        <div class="card-badge">{{ cap.modalidad }}</div>
+
+        <div class="card-body">
+          <div class="category">Capacitación CNC</div>
+          <h3 class="course-title">{{ cap.nombre }}</h3>
+          <p class="course-desc">{{ cap.descripcion }}</p>
+
+          <div class="course-meta">
+            <div class="meta-item">
+              <ion-icon name="calendar-outline"></ion-icon>
+              <span>{{ cap.fechaInicio | date:'mediumDate' }}</span>
+            </div>
+            <div class="meta-item">
+              <ion-icon name="time-outline"></ion-icon>
+              <span>{{ cap.horas }} horas</span>
+            </div>
+            <div class="meta-item">
+              <ion-icon name="location-outline"></ion-icon>
+              <span>{{ cap.lugar }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-footer">
+          <!-- Ya inscrito -->
+          <div *ngIf="isInscrito(cap.id)" class="enrolled-status">
+            <div class="status-marker">
+                <ion-icon name="checkmark-circle"></ion-icon>
+                <span>Ya estás inscrito</span>
+            </div>
+            <button class="view-btn" (click)="irAMisCursos()">
+              <span>Acceder</span>
+              <ion-icon name="chevron-forward"></ion-icon>
+            </button>
+          </div>
+
+          <!-- Evento Iniciado / Inscripciones Cerradas -->
+          <div *ngIf="!isInscrito(cap.id) && haIniciado(cap)" class="enrolled-status disabled">
+            <ion-icon name="time-outline"></ion-icon>
+            <span>Inscripciones cerradas</span>
+          </div>
+
+          <!-- Disponible para por inscripción -->
+          <button *ngIf="!isInscrito(cap.id) && !haIniciado(cap)" class="enroll-btn" (click)="inscribirse(cap.id)">
+            <span>Inscribirme ahora</span>
+            <ion-icon name="sparkles-outline"></ion-icon>
+          </button>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer Simple -->
+  <div class="dashboard-footer">
+    <p>&copy; 2026 Consejo Nacional de Competencias - Ecuador</p>
+  </div>
+</ion-content>
