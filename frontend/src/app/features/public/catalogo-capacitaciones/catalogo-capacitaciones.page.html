@@ -1,21 +1,24 @@
 <ion-header class="ion-no-border">
-  <div class="catalog-hero">
+  <ion-toolbar>
+    <div (click)="irAHome()" class="back-link-nav">
+      <ion-icon name="arrow-back-outline"></ion-icon>
+      <span>Inicio</span>
+    </div>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="catalog-hero-compact">
     <div class="mesh-bg"></div>
-    <div class="container hero-content">
-      <div (click)="irAHome()" class="back-link">
-        <ion-icon name="arrow-back-outline"></ion-icon>
-        <span>Volver al Inicio</span>
-      </div>
+    <div class="container">
       <h1 class="animate-fade-up">Oferta Académica <span>Digital</span></h1>
       <p class="animate-fade-up" style="animation-delay: 0.1s;">
-        Explora nuestros programas de capacitación oficial y potencia tu desarrollo profesional en el sector público.
+        Programas de capacitación oficial para el sector público.
       </p>
     </div>
   </div>
-</ion-header>
 
-<ion-content>
-  <div class="container section-padding">
+  <div class="container content-wrapper">
     
     <!-- Filters / Search (Placeholder for now) -->
     <div class="filter-strip animate-fade-up" style="animation-delay: 0.2s;">

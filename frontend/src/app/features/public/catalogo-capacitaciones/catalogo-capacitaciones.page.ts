@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal, ChangeDetectorRef, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonContent, IonIcon, IonHeader, IonSpinner, ToastController, LoadingController } from '@ionic/angular/standalone';
+import { IonContent, IonIcon, IonHeader, IonToolbar, IonSpinner, ToastController, LoadingController } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { 
   arrowBackOutline, searchOutline, calendarClearOutline, calendarOutline, 
@@ -19,7 +19,7 @@ import { Capacitacion } from '../../../core/models/capacitacion.interface';
   templateUrl: './catalogo-capacitaciones.page.html',
   styleUrls: ['./catalogo-capacitaciones.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonContent, IonIcon, IonHeader, IonSpinner]
+  imports: [CommonModule, FormsModule, IonContent, IonIcon, IonHeader, IonToolbar, IonSpinner]
 })
 export class CatalogoCapacitacionesPage implements OnInit {
   private capacitacionesService = inject(CapacitacionesService);
