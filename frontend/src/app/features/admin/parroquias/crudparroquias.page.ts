@@ -2,7 +2,7 @@ import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AlertController, ToastController } from '@ionic/angular';
 import { CatalogoService } from 'src/app/shared/services/catalogo.service';
 import { Parroquia } from 'src/app/shared/models/parroquia.model';
@@ -34,7 +34,7 @@ import { firstValueFrom } from 'rxjs';
   templateUrl: './crudparroquias.page.html',
   styleUrls: ['./crudparroquias.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule],
+  imports: [CommonModule, FormsModule, IonicModule, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CrudparroquiasPage implements OnInit {

@@ -1,6 +1,6 @@
 import { Component, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import {
     IonContent, IonButton,
     IonIcon
@@ -21,7 +21,7 @@ import { AuthService } from '../../auth/services/auth.service';
     imports: [
         CommonModule,
         IonContent, IonButton,
-        IonIcon
+        IonIcon, RouterLink
     ]
 })
 export class ConfiguracionPage {

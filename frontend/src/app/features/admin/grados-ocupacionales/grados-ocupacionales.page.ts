@@ -1,13 +1,13 @@
 import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import {
     IonHeader, IonToolbar, IonTitle, IonContent, IonButtons,
     IonMenuButton, IonCard, IonCardHeader, IonCardTitle,
     IonCardContent, IonItem, IonButton, IonIcon,
     IonInput, AlertController, ToastController,
-    IonCardSubtitle
+    IonCardSubtitle, IonBackButton
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -22,11 +22,11 @@ import { firstValueFrom } from 'rxjs';
     templateUrl: './grados-ocupacionales.page.html',
     standalone: true,
     imports: [
-        CommonModule, FormsModule,
+        CommonModule, FormsModule, RouterLink,
         IonHeader, IonToolbar, IonTitle, IonContent, IonButtons,
         IonMenuButton, IonCard, IonCardHeader, IonCardTitle,
         IonCardContent, IonItem, IonButton, IonIcon,
-        IonInput, IonCardSubtitle
+        IonInput, IonCardSubtitle, IonBackButton
     ],
     changeDetection: ChangeDetectionStrategy.OnPush
 })

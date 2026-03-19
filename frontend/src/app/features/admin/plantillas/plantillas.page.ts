@@ -2,6 +2,7 @@ import { Component, OnInit, inject, ChangeDetectorRef, ChangeDetectionStrategy }
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule, AlertController, ToastController, NavController, LoadingController, ModalController } from '@ionic/angular';
+import { RouterLink } from '@angular/router';
 import { PlantillasService } from './services/plantillas.service';
 import { PlantillaCertificado } from '../../../core/models/plantilla.interface';
 import { addIcons } from 'ionicons';
@@ -12,6 +13,7 @@ import {
     trashOutline,
     documentTextOutline,
     eyeOutline,
+    arrowBackOutline,
     checkmarkCircle,
     radioButtonOn,
     radioButtonOff,
@@ -25,7 +27,7 @@ import {
     templateUrl: './plantillas.page.html',
     styleUrls: ['./plantillas.page.scss'],
     standalone: true,
-    imports: [CommonModule, FormsModule, IonicModule],
+    imports: [CommonModule, FormsModule, IonicModule, RouterLink],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PlantillasPage implements OnInit {
@@ -51,6 +53,7 @@ export class PlantillasPage implements OnInit {
             trashOutline,
             documentTextOutline,
             eyeOutline,
+            arrowBackOutline,
             checkmarkCircle,
             radioButtonOn,
             radioButtonOff,

@@ -3,7 +3,7 @@ import { firstValueFrom } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule, NavController, LoadingController, ToastController } from '@ionic/angular';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { PlantillasService } from '../services/plantillas.service';
 import { ErrorHandlerUtil } from 'src/app/shared/utils/error-handler.util';
 import { PlantillaCertificado } from '../../../../core/models/plantilla.interface';
@@ -31,7 +31,7 @@ interface DraggableField {
     templateUrl: './crear.page.html',
     styleUrls: ['./crear.page.scss'],
     standalone: true,
-    imports: [CommonModule, FormsModule, IonicModule],
+    imports: [CommonModule, FormsModule, IonicModule, RouterLink],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CrearPage implements OnInit {
