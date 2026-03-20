@@ -64,11 +64,11 @@ async function verify() {
 
         // 3. Execute
         console.log('Generating certificate...');
-        const certificado = await generateUseCase.execute(usuario.id, capacitacion.id);
+        const pdfUrl = await generateUseCase.execute(usuario.id, capacitacion.id);
 
         console.log('Certificate generated successfully!');
-        console.log('PDF URL:', certificado.pdfUrl);
-        console.log('QR Code:', certificado.codigoQR);
+        console.log('PDF URL:', pdfUrl);
+
 
     } catch (error) {
         console.error('Verification failed:', error);
