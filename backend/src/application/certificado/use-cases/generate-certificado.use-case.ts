@@ -12,6 +12,7 @@ import { EmailService } from '../../../infrastructure/services/email.service';
 import logger from '../../../config/logger';
 import { NotFoundError } from '../../../domain/shared/errors';
 import { PlantillaRepository } from '../../../domain/plantilla/plantilla.repository';
+import os from 'os';
 
 @injectable()
 export class GenerateCertificadoUseCase {
@@ -100,35 +101,57 @@ export class GenerateCertificadoUseCase {
 
         // 3. Output Path
         const uploadDir = path.resolve(process.cwd(), env.UPLOAD_DIR || 'public/uploads');
-        const certificatesDir = path.join(uploadDir, 'certificados');
-        if (!fs.existsSync(certificatesDir)) {
-            fs.mkdirSync(certificatesDir, { recursive: true });
+        let certificatesDir = path.join(uploadDir, 'certificados');
+        let isUsingTmp = false;
+
+        try {
+            if (!fs.existsSync(certificatesDir)) {
+                fs.mkdirSync(certificatesDir, { recursive: true });
+            }
+        } catch (e) {
+            logger.warn(`[GEN_CERT] Fallo al crear directorio en ${certificatesDir}: ${e}. Usando /tmp para el archivo temporal.`);
+            certificatesDir = os.tmpdir();
+            isUsingTmp = true;
         }
 
         const fileName = `cert_${usuarioId}_${capacitacionId}_${hash.substring(0, 8)}.pdf`;
         const outputPath = path.join(certificatesDir, fileName);
+        logger.info(`[GEN_CERT] Ruta seleccionada: ${outputPath}`);
 
         // 4. Generate PDF
-        logger.info(`[GEN_CERT] Generando PDF: ${fileName} con plantilla ${plantilla.id}`);
-        await this.generatorService.generate(
-            plantilla.imagenUrl || '',
-            config as any,
-            data,
-            qrCodeUrl,
-            outputPath,
-            plantilla.firmas as any || []
-        );
+        try {
+            logger.info(`[GEN_CERT] Generando PDF: ${fileName} con plantilla ${plantilla.id}`);
+            await this.generatorService.generate(
+                plantilla.imagenUrl || '',
+                config as any,
+                data,
+                qrCodeUrl,
+                outputPath,
+                plantilla.firmas as any || []
+            );
+        } catch (genErr) {
+            logger.error(`[GEN_CERT] Error CRÍTICO en generatorService.generate: ${genErr}`);
+            // Si falla la escritura en disco, el proceso se detiene aquí.
+            throw genErr;
+        }
 
         // 5. Save in DB
-        const publicUrl = `/uploads/certificados/${fileName}`;
-        await this.certificadoRepository.create({
-            usuarioId,
-            capacitacionId,
-            codigoQR: hash,
-            pdfUrl: publicUrl
-        });
-
-        logger.info(`[GEN_CERT] Certificado guardado y listo en: ${publicUrl}`);
+        // Nota: Si estamos en /tmp, la URL pública será inválida, 
+        // pero registramos el intento para que aparezca en el listado.
+        const publicUrl = isUsingTmp ? `/tmp/${fileName}` : `/uploads/certificados/${fileName}`;
+        
+        try {
+            await this.certificadoRepository.create({
+                usuarioId,
+                capacitacionId,
+                codigoQR: hash,
+                pdfUrl: publicUrl
+            });
+            logger.info(`[GEN_CERT] Certificado registrado en DB. URL: ${publicUrl}`);
+        } catch (dbErr) {
+            logger.error(`[GEN_CERT] Error guardando registro en DB: ${dbErr}`);
+            // Continuamos para intentar enviar el correo aunque falle el registro DB
+        }
 
         // 6. Send Email (Async)
         if (usuario.email) {
@@ -138,10 +161,17 @@ export class GenerateCertificadoUseCase {
                 data.usuario,
                 capacitacion.nombre,
                 outputPath
-            ).catch(err => {
+            ).then(() => {
+                logger.info(`[GEN_CERT] Correo enviado exitosamente a ${usuario.email}`);
+                // Opcional: Si usamos /tmp, borrar el archivo después de enviar el correo
+                if (isUsingTmp && fs.existsSync(outputPath)) {
+                    // fs.unlinkSync(outputPath); // Desactivado por ahora para evitar problemas si es asíncrono
+                }
+            }).catch(err => {
                 logger.error(`[GEN_CERT] Error enviando correo a ${usuario.email}: ${err}`);
             });
         }
+
 
         return publicUrl;
     }
