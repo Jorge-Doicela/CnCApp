@@ -441,7 +441,8 @@ export class PerfilPage implements OnInit {
       Nombre_Usuario: user.nombre,
       nombreCompleto: user.nombre,
       CI_Usuario: user.ci,
-      Imagen_Perfil: user.fotoPerfilUrl,
+      Imagen_Perfil: user.fotoPerfilUrl || user.Imagen_Perfil,
+      Firma_Usuario: user.firmaUrl || user.Firma_Usuario,
       Rol_Usuario: user.rol?.nombre || 'Usuario'
     };
   }

@@ -10,6 +10,7 @@ import SignaturePad from 'signature_pad';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { AuthService } from 'src/app/features/auth/services/auth.service';
 
 @Component({
   selector: 'app-firma',
@@ -36,7 +37,8 @@ export class FirmaPage implements OnInit, AfterViewInit {
     private toastController: ToastController,
     private router: Router,
     private navController: NavController,
-    private http: HttpClient
+    private http: HttpClient,
+    private authService: AuthService
   ) { }
 
   ngOnInit() {
@@ -223,8 +225,7 @@ export class FirmaPage implements OnInit, AfterViewInit {
       const response: any = await firstValueFrom(this.http.put(`${environment.apiUrl}/users/me`, { firmaUrl: dataUrl }));
       
       if (response && response.firmaUrl) {
-        // Podríamos actualizar el estado local si fuera necesario, 
-        // pero navegamos atrás al perfil que recargará los datos.
+        this.authService.updateCurrentUser({ firmaUrl: response.firmaUrl });
       }
       
       this.presentToast('Firma actualizada correctamente', 'success');

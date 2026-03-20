@@ -10,6 +10,7 @@ export interface AuthUser {
     email?: string;
     telefono?: string;
     fotoPerfilUrl?: string; // Nuevo: para consistencia global
+    firmaUrl?: string; // Nuevo
     rol: {
 
         id: number;
@@ -263,5 +264,14 @@ export class AuthService {
 
     setupBiometric(): Observable<any> {
         return this.http.post(`${this.apiUrl}/auth/setup-biometric`, {});
+    }
+
+    updateCurrentUser(userUpdate: Partial<AuthUser>) {
+        const current = this.currentUser();
+        if (current) {
+            const updated = { ...current, ...userUpdate };
+            this.currentUser.set(updated);
+            localStorage.setItem('user', JSON.stringify(updated));
+        }
     }
 }

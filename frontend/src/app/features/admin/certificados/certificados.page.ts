@@ -8,7 +8,7 @@ import * as CryptoJS from 'crypto-js';
 import { CertificadosService } from 'src/app/features/admin/certificados/services/certificados.service';
 import { UsuarioService } from 'src/app/features/user/services/usuario.service';
 import { AuthService } from 'src/app/features/auth/services/auth.service';
-import { ErrorHandlerUtil } from 'src/app/shared/utils/error-handler.util';
+import { environment } from 'src/environments/environment';
 import { firstValueFrom } from 'rxjs';
 
 const pdfMake = require('pdfmake/build/pdfmake');
@@ -153,10 +153,27 @@ export class CertificadosPage implements OnInit {
     this.capacitadoresBase64 = [];
     for (const expositor of this.expositores) {
       if (expositor.firmaUrl) {
-        const base64 = await this.urlToBase64(expositor.firmaUrl);
+        const fullUrl = this.getImageUrl(expositor.firmaUrl);
+        const base64 = await this.urlToBase64(fullUrl);
         this.capacitadoresBase64.push(base64);
       }
     }
+  }
+
+  /**
+   * Obtiene la URL completa para una imagen.
+   * Maneja base64, URLs absolutas y rutas relativas del backend.
+   */
+  getImageUrl(path: string | null | undefined): string {
+    if (!path) return '';
+    if (path.startsWith('data:') || path.startsWith('http') || path.startsWith('assets/')) return path;
+
+    // Si la ruta empieza con /, quitarlo para evitar dobles //
+    const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+
+    // El backend sirve archivos desde public/, por lo que la URL base es el origen del API (sin /api)
+    const baseUrl = environment.apiUrl.replace('/api', '');
+    return `${baseUrl}/${cleanPath}`;
   }
 
   async urlToBase64(url: string): Promise<string> {
