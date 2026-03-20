@@ -137,6 +137,26 @@ export class PrismaUserRepository implements UserRepository {
         return user ? UserMapper.toDomain(user) : null;
     }
 
+    async findProfileById(id: number): Promise<User | null> {
+        const user = await prisma.usuario.findUnique({
+            where: { id },
+            include: {
+                rol: true,
+                entidad: true,
+                provincia: true,
+                canton: true,
+                parroquia: true,
+                _count: {
+                    select: {
+                        inscripciones: true,
+                        certificados: true
+                    }
+                }
+            }
+        });
+        return user ? UserMapper.toDomain(user) : null;
+    }
+
     async update(id: number, userData: Partial<User>): Promise<User> {
         const user = await prisma.usuario.update({
             where: { id },

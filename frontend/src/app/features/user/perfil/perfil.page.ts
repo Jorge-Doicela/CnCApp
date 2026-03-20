@@ -63,7 +63,10 @@ export class PerfilPage implements OnInit {
   activacionExitosa: boolean = false;
   toggleEventActual: any = null;
 
-
+  // Cache estático para persistencia entre navegaciones en la misma sesión
+  private static perfilCache: any = null;
+  private static ultimaCarga: number = 0;
+  private readonly CACHE_TTL = 300000; // 5 minutos
 
   // Recompensas / Logros
   logros: any[] = [];
@@ -344,14 +347,35 @@ export class PerfilPage implements OnInit {
 
 
   cargarPerfil() {
-    this.cargando = true;
-    this.datosUsuario = null;
+    // 1. Estrategia SWR: Cargar datos básicos de AuthService inmediatamente
+    const current = this.authService.currentUser();
+    if (current && !this.datosUsuario) {
+      this.mapearDatosBasicos(current);
+      this.cargando = false; 
+    }
+
+    // 2. Cargar desde cache estático si es reciente
+    const ahora = Date.now();
+    if (PerfilPage.perfilCache && (ahora - PerfilPage.ultimaCarga < this.CACHE_TTL)) {
+      this.datosUsuario = PerfilPage.perfilCache;
+      this.capacitacionesInscritas = this.datosUsuario._count?.inscripciones || 0;
+      this.certificadosObtenidos = this.datosUsuario._count?.certificados || 0;
+      this.cargando = false;
+      this.calcularLogros();
+      this.cdr.detectChanges();
+      
+      // Si la carga es MUY reciente (menos de 10s), no molestamos al servidor
+      if (ahora - PerfilPage.ultimaCarga < 10000) return;
+    }
+
+    // 3. Revalidar en segundo plano
+    if (!this.datosUsuario) this.cargando = true;
+    
     const url = `${environment.apiUrl}/users/me`;
 
     this.http.get<any>(url).pipe(
       timeout(10000),
       finalize(() => {
-        this.calcularLogros();
         this.cargando = false;
         this.cdr.detectChanges();
       })
@@ -397,6 +421,11 @@ export class PerfilPage implements OnInit {
 
         this.capacitacionesInscritas = usuario._count?.inscripciones ?? 0;
         this.certificadosObtenidos = usuario._count?.certificados ?? 0;
+
+        // Actualizar cache
+        PerfilPage.perfilCache = this.datosUsuario;
+        PerfilPage.ultimaCarga = Date.now();
+        this.calcularLogros();
       },
       error: (err) => {
         console.error('[PERFIL] Error al cargar:', err);
@@ -404,6 +433,17 @@ export class PerfilPage implements OnInit {
         this.presentToast('Error al cargar perfil: ' + msg, 'danger');
       }
     });
+  }
+
+  private mapearDatosBasicos(user: any) {
+    this.datosUsuario = {
+      ...user,
+      Nombre_Usuario: user.nombre,
+      nombreCompleto: user.nombre,
+      CI_Usuario: user.ci,
+      Imagen_Perfil: user.fotoPerfilUrl,
+      Rol_Usuario: user.rol?.nombre || 'Usuario'
+    };
   }
 
   /**

@@ -4,6 +4,7 @@ import { GetAllUsersUseCase } from '../../../application/user/use-cases/get-all-
 import { UpdateUserUseCase } from '../../../application/user/use-cases/update-user.use-case';
 import { DeleteUserUseCase } from '../../../application/user/use-cases/delete-user.use-case';
 import { GetUserProfileUseCase } from '../../../application/user/use-cases/get-user-profile.use-case';
+import { GetMyProfileUseCase } from '../../../application/user/use-cases/get-my-profile.use-case';
 import { RegisterUserUseCase } from '../../../application/auth/use-cases/register-user.use-case';
 import { parseIdParam } from '../middleware/parse-id.helper';
 import { AuthRequest } from '../middleware/auth.middleware';
@@ -88,6 +89,7 @@ export class UserController {
     constructor(
         @inject(GetAllUsersUseCase) private getAllUsersUseCase: GetAllUsersUseCase,
         @inject(GetUserProfileUseCase) private getUserByIdUseCase: GetUserProfileUseCase,
+        @inject(GetMyProfileUseCase) private getMyProfileUseCase: GetMyProfileUseCase,
         @inject(RegisterUserUseCase) private registerUserUseCase: RegisterUserUseCase,
         @inject(UpdateUserUseCase) private updateUserUseCase: UpdateUserUseCase,
         @inject(DeleteUserUseCase) private deleteUserUseCase: DeleteUserUseCase
@@ -219,7 +221,7 @@ export class UserController {
                 res.status(401).json({ message: 'Usuario no autenticado' });
                 return;
             }
-            const user = await this.getUserByIdUseCase.execute(req.userId);
+            const user = await this.getMyProfileUseCase.execute(req.userId);
             res.json(user);
         } catch (error) {
             next(error);

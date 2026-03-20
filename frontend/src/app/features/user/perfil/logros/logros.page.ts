@@ -16,6 +16,7 @@ import {
 import { firstValueFrom, finalize, timeout } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { SecureStorageService } from 'src/app/core/services/secure-storage.service';
+import { AuthService } from 'src/app/features/auth/services/auth.service';
 
 interface Achievement {
   id: string;
@@ -54,9 +55,15 @@ export class LogrosPage implements OnInit {
   mostrarModal: boolean = false;
   tracks: { id: string, name: string, icon: string, color: string, summary: string, achievements: Achievement[] }[] = [];
 
+  // Cache estático similar a PerfilPage
+  private static logrosCache: any = null;
+  private static ultimaCargaLogros: number = 0;
+  private readonly CACHE_TTL = 300000; // 5 minutos
+
   private http = inject(HttpClient);
   private cdr = inject(ChangeDetectorRef);
   private secureStorage = inject(SecureStorageService);
+  private authService = inject(AuthService);
 
   constructor() {
     addIcons({
@@ -67,46 +74,85 @@ export class LogrosPage implements OnInit {
   }
 
   ngOnInit() {
-    this.cargarDatos();
+    this.cargarPerfil();
   }
 
-  async cargarDatos() {
-    this.cargando = true;
-    try {
-      const resp: any = await firstValueFrom(
-        this.http.get(`${environment.apiUrl}/users/me`).pipe(timeout(10000))
-      );
-      this.usuario = resp;
-
-      // Verificar biometría local
-      let biometriaActiva = false;
-      try {
-        const value = await this.secureStorage.get('biometria_activada');
-        biometriaActiva = value === 'true';
-      } catch (e) {}
-
-      this.calcularCaminos(biometriaActiva);
-    } catch (error) {
-      console.error('Error al cargar datos para logros:', error);
-    } finally {
+  async cargarPerfil() {
+    // 1. Estrategia SWR: Cargar datos básicos de AuthService inmediatamente
+    const current = this.authService.currentUser();
+    if (current && !this.usuario) {
+      this.usuario = {
+        ...current,
+        Nombre_Usuario: current.nombre,
+        fotoPerfilUrl: current.fotoPerfilUrl
+      };
       this.cargando = false;
-      this.cdr.detectChanges();
+      this.calcularCaminos(0, 0, current.fotoPerfilUrl ? true : false, false, false, 0);
     }
+
+    // 2. Cache estático
+    const ahora = Date.now();
+    if (LogrosPage.logrosCache && (ahora - LogrosPage.ultimaCargaLogros < this.CACHE_TTL)) {
+      this.usuario = LogrosPage.logrosCache;
+      this.cargando = false;
+      this.actualizarLogrosDesdeUsuario(this.usuario);
+      this.cdr.detectChanges();
+      
+      if (ahora - LogrosPage.ultimaCargaLogros < 10000) return;
+    }
+
+    if (!this.usuario) this.cargando = true;
+    
+    this.http.get<any>(`${environment.apiUrl}/users/me`).pipe(
+      finalize(() => {
+        this.cargando = false;
+        this.cdr.detectChanges();
+      })
+    ).subscribe({
+      next: (usuario: any) => {
+        this.usuario = usuario;
+        
+        // Actualizar cache
+        LogrosPage.logrosCache = usuario;
+        LogrosPage.ultimaCargaLogros = Date.now();
+        
+        this.actualizarLogrosDesdeUsuario(usuario);
+      },
+      error: (err) => {
+        console.error('Error al cargar perfil para logros:', err);
+      }
+    });
   }
 
-  calcularCaminos(biometriaActiva: boolean = false) {
-    if (!this.usuario) return;
-
-    const inscritos = this.usuario._count?.inscripciones || 0;
-    const certs = this.usuario._count?.certificados || 0;
-    const fechaRegistro = new Date(this.usuario.createdAt || new Date());
-    const hoy = new Date();
-    const mesesAntiguedad = (hoy.getFullYear() - fechaRegistro.getFullYear()) * 12 + (hoy.getMonth() - fechaRegistro.getMonth());
+  private async actualizarLogrosDesdeUsuario(usuario: any) {
+    const inscritos = usuario._count?.inscripciones || 0;
+    const certs = usuario._count?.certificados || 0;
+    const tieneFoto = !!usuario.fotoPerfilUrl;
+    const tieneFirma = !!usuario.firmaUrl;
     
-    const tieneFoto = this.usuario.fotoPerfilUrl && !this.usuario.fotoPerfilUrl.includes('placeholder');
-    const tieneFirma = !!this.usuario.firmaUrl;
-    // Biometría ya viene por parámetro desde el storage local
+    // Antigüedad (meses)
+    let mesesAntiguedad = 0;
+    if (usuario.createdAt) {
+      const creacion = new Date(usuario.createdAt);
+      const hoy = new Date();
+      mesesAntiguedad = (hoy.getFullYear() - creacion.getFullYear()) * 12 + (hoy.getMonth() - creacion.getMonth());
+    }
 
+    // Verificar biometría de forma asíncrona pero sin bloquear la UI
+    const biometriaActiva = (await this.secureStorage.get('biometria_activada')) === 'true';
+    
+    this.calcularCaminos(inscritos, certs, tieneFoto, tieneFirma, biometriaActiva, mesesAntiguedad);
+    this.cdr.detectChanges();
+  }
+
+  calcularCaminos(
+    inscritos: number, 
+    certs: number, 
+    tieneFoto: boolean, 
+    tieneFirma: boolean, 
+    biometriaActiva: boolean, 
+    mesesAntiguedad: number
+  ) {
     this.tracks = [
       {
         id: 'academico',
