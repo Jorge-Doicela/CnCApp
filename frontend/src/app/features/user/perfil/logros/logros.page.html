@@ -33,24 +33,38 @@
 
       <!-- Achievement Tracks -->
       <div class="tracks-container">
-        <div *ngFor="let track of tracks; let lastTrack = last" class="track-section">
-          <div class="track-header animate-slide-up">
-            <div class="track-icon-wrapper">
+        <div *ngFor="let track of tracks; let iTrack = index; let lastTrack = last" class="track-section">
+          <div class="track-header animate-slide-up" [style.--delay]="(iTrack * 0.2) + 's'">
+            <div class="track-icon-wrapper" [ngClass]="track.color">
               <ion-icon [name]="track.icon"></ion-icon>
             </div>
-            <h3>{{ track.name }}</h3>
+            <div class="track-title-info">
+              <h3>{{ track.name }}</h3>
+              <p class="track-summary">{{ track.summary }}</p>
+            </div>
+          </div>
+
+          <!-- Track Progress Bar -->
+          <div class="track-progress-bar-container animate-fade-in" [style.--delay]="(iTrack * 0.2 + 0.1) + 's'">
+            <div class="progress-labels">
+               <span>Progreso de Trayecto</span>
+               <span>{{ (getTrackProgress(track.id) * 100) | number:'1.0-0' }}%</span>
+            </div>
+            <ion-progress-bar [value]="getTrackProgress(track.id)" [color]="track.color"></ion-progress-bar>
           </div>
 
           <div class="roadmap-path">
-            <div *ngFor="let achievement of track.achievements; let lastAch = last" 
+            <div *ngFor="let achievement of track.achievements; let iAch = index; let lastAch = last" 
                  class="achievement-node" 
                  [class.locked]="!achievement.isUnlocked"
-                 [class.last-node]="lastAch && lastTrack">
+                 [class.last-node]="lastAch && lastTrack"
+                 [style.--delay]="(iTrack * 0.3 + iAch * 0.1) + 's'"
+                 (click)="openDetail(achievement)">
               
-              <div class="node-line" *ngIf="!lastAch"></div>
+              <div class="node-line" *ngIf="!lastAch" [class.unlocked]="achievement.isUnlocked"></div>
               
               <div class="node-content animate-fade-up">
-                <div class="badge-wrapper" [ngClass]="'tier-' + achievement.level.toLowerCase()">
+                <div class="badge-wrapper" [ngClass]="['tier-' + achievement.level.toLowerCase(), achievement.isUnlocked ? 'unlocked' : '']">
                   <div class="icon-circle">
                     <ion-icon [name]="achievement.isUnlocked ? achievement.icon : 'lock-closed'"></ion-icon>
                   </div>
@@ -59,21 +73,21 @@
                 <div class="text-wrapper">
                   <div class="title-row">
                     <h4>{{ achievement.title }}</h4>
-                    <span class="tier-label">{{ achievement.level }}</span>
+                    <span class="tier-label" [ngClass]="'tier-' + achievement.level.toLowerCase()">{{ achievement.level }}</span>
                   </div>
                   <p class="desc">{{ achievement.description }}</p>
                   
                   <div class="progress-info" *ngIf="!achievement.isUnlocked && achievement.targetValue">
                     <div class="progress-labels">
-                      <span>Progreso: {{ achievement.currentValue }} / {{ achievement.targetValue }}</span>
-                      <span>{{ (achievement.progress * 100) | number:'1.0-0' }}%</span>
+                      <span>{{ achievement.currentValue }} / {{ achievement.targetValue }} {{ achievement.criteria }}</span>
                     </div>
-                    <ion-progress-bar [value]="achievement.progress" color="secondary" class="node-progress"></ion-progress-bar>
+                    <ion-progress-bar [value]="achievement.progress" color="medium" class="node-progress"></ion-progress-bar>
                   </div>
 
-                  <ion-badge *ngIf="achievement.isUnlocked" color="success" mode="ios" class="unlocked-badge">
-                    <ion-icon name="checkmark-circle"></ion-icon> DESBLOQUEADO
-                  </ion-badge>
+                  <div class="unlocked-indicator" *ngIf="achievement.isUnlocked">
+                    <ion-icon name="checkmark-circle"></ion-icon>
+                    <span>Completado</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -81,6 +95,48 @@
         </div>
       </div>
     </div>
+
+    <!-- Achievement Detail Modal -->
+    <ion-modal [isOpen]="mostrarModal" (didDismiss)="cerrarModal()" class="achievement-detail-modal">
+      <ng-template>
+        <div class="modal-glass-content" *ngIf="selectedAchievement">
+          <div class="modal-header">
+            <div class="modal-badge-large" [ngClass]="'tier-' + selectedAchievement.level.toLowerCase()">
+              <ion-icon [name]="selectedAchievement.isUnlocked ? selectedAchievement.icon : 'lock-closed'"></ion-icon>
+            </div>
+            <ion-button fill="clear" (click)="cerrarModal()" class="close-btn">
+              <ion-icon name="close"></ion-icon>
+            </ion-button>
+          </div>
+
+          <div class="modal-body">
+            <span class="modal-tier-tag" [ngClass]="'tier-' + selectedAchievement.level.toLowerCase()">
+              Nivel {{ selectedAchievement.level }}
+            </span>
+            <h2 class="modal-title">{{ selectedAchievement.title }}</h2>
+            <p class="modal-long-desc">{{ selectedAchievement.longDescription }}</p>
+
+            <div class="requirements-box" [class.unlocked]="selectedAchievement.isUnlocked">
+              <span class="box-label">REQUISITO PARA DESBLOQUEAR</span>
+              <div class="req-content">
+                <ion-icon [name]="selectedAchievement.isUnlocked ? 'checkmark-circle' : 'hourglass'"></ion-icon>
+                <p>{{ selectedAchievement.criteria }}</p>
+              </div>
+              <ion-progress-bar *ngIf="!selectedAchievement.isUnlocked" 
+                               [value]="selectedAchievement.progress" 
+                               color="primary"></ion-progress-bar>
+            </div>
+
+            <div class="status-footer" *ngIf="selectedAchievement.isUnlocked">
+              <div class="congrats-card">
+                <ion-icon name="star"></ion-icon>
+                <p>¡Felicidades! Has dominado este hito.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ng-template>
+    </ion-modal>
 
     <!-- Empty State -->
     <div *ngIf="!cargando && !usuario" class="premium-empty-state">
