@@ -205,4 +205,36 @@
       </button>
     </div>
   </div>
+  <!-- Perfil Élite Achievement Badge in Hero (Optional Polish) -->
+  <div class="elite-hero-badge" *ngIf="datosUsuario?.Imagen_Perfil && !datosUsuario.Imagen_Perfil.includes('placeholder') && (datosUsuario.firmaUrl || datosUsuario.Firma_Usuario)">
+    <ion-icon name="shield-checkmark"></ion-icon>
+    <span>VERIFICADO</span>
+  </div>
+
+  <!-- Modal para selección de Avatares -->
+  <ion-modal [isOpen]="mostrarModalAvatars" (didDismiss)="mostrarModalAvatars = false" class="avatar-selection-modal">
+    <ng-template>
+      <ion-header mode="ios" class="ion-no-border">
+        <ion-toolbar>
+          <ion-title>Elige tu Avatar</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="mostrarModalAvatars = false">
+              <ion-icon name="close"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+
+      <ion-content class="ion-padding avatar-modal-content">
+        <div class="avatar-grid">
+          <div *ngFor="let avatar of avatarsPredefinidos" 
+               class="avatar-option" 
+               (click)="seleccionarAvatarPredefinido(avatar)">
+            <img [src]="avatar" alt="Avatar">
+          </div>
+        </div>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+
 </ion-content>

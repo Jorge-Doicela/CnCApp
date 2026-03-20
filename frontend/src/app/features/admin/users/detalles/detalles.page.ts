@@ -49,7 +49,8 @@ export class DetallesPage implements OnInit {
      */
     getImageUrl(path: string | null | undefined): string {
         if (!path) return '';
-        if (path.startsWith('data:') || path.startsWith('http')) return path;
+        if (path.startsWith('data:') || path.startsWith('http') || path.startsWith('assets/')) return path;
+
 
         // Si la ruta empieza con /, quitarlo para evitar dobles //
         const cleanPath = path.startsWith('/') ? path.slice(1) : path;

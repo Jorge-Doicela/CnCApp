@@ -6,7 +6,7 @@ import { Router } from '@angular/router';
 import { 
   IonHeader, IonToolbar, IonButtons, IonButton, IonTitle, 
   IonMenuButton, IonContent, IonSpinner, IonIcon, 
-  IonAvatar, IonToggle, 
+  IonAvatar, IonToggle, IonModal,
   AlertController, LoadingController, ToastController, 
   ActionSheetController, NavController 
 } from '@ionic/angular/standalone';
@@ -39,7 +39,7 @@ import { environment } from 'src/environments/environment';
     CommonModule, FormsModule, 
     IonHeader, IonToolbar, IonButtons, IonButton, IonTitle, 
     IonMenuButton, IonContent, IonSpinner, IonIcon, 
-    IonAvatar, IonToggle
+    IonAvatar, IonToggle, IonModal
   ]
 })
 export class PerfilPage implements OnInit {
@@ -279,7 +279,8 @@ export class PerfilPage implements OnInit {
    */
   getImageUrl(path: string | null | undefined): string {
     if (!path) return 'assets/avatar-placeholder.svg';
-    if (path.startsWith('data:') || path.startsWith('http')) return path;
+    if (path.startsWith('data:') || path.startsWith('http') || path.startsWith('assets/')) return path;
+
     
     // Si la ruta empieza con /, quitarlo para evitar dobles //
     const cleanPath = path.startsWith('/') ? path.slice(1) : path;
@@ -353,8 +354,10 @@ export class PerfilPage implements OnInit {
   async actualizarFotoPerfil() {
     const buttons: any[] = [
       { text: 'Cámara', icon: 'camera', handler: () => { this.capturarFoto(CameraSource.Camera); } },
-      { text: 'Galería', icon: 'image', handler: () => { this.capturarFoto(CameraSource.Photos); } }
+      { text: 'Galería', icon: 'image', handler: () => { this.capturarFoto(CameraSource.Photos); } },
+      { text: 'Elegir Avatar', icon: 'person-circle', handler: () => { this.abrirSelectorAvatars(); } }
     ];
+
 
     // Mostrar opción de eliminar si hay una foto actual
     if (this.datosUsuario?.Imagen_Perfil) {
@@ -493,4 +496,41 @@ export class PerfilPage implements OnInit {
       this.logros.push({ icon: 'footsteps', color: 'medium', title: 'Primeros Pasos', description: 'Participa para ganar logros.', level: 'Inicio' });
     }
   }
+  // Avatares predefinidos (usando Dicebear para máxima fiabilidad y calidad SVG)
+  avatarsPredefinidos = [
+    'https://api.dicebear.com/7.x/bottts/svg?seed=ElectroBot1&backgroundColor=b6e3f4',
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix',
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka',
+    'https://api.dicebear.com/7.x/identicon/svg?seed=TechFocus',
+    'https://api.dicebear.com/7.x/bottts/svg?seed=KittyRobot&backgroundColor=ffdfbf',
+    'https://api.dicebear.com/7.x/shapes/svg?seed=EcoSphere&backgroundColor=c0aede'
+  ];
+
+  mostrarModalAvatars = false;
+
+  abrirSelectorAvatars() {
+    this.mostrarModalAvatars = true;
+    this.cdr.detectChanges();
+  }
+
+  async seleccionarAvatarPredefinido(path: string) {
+    this.mostrarModalAvatars = false;
+    const loading = await this.loadingController.create({ message: 'Actualizando avatar...', spinner: 'crescent' });
+    await loading.present();
+    try {
+      await firstValueFrom(this.http.put(`${environment.apiUrl}/users/me`, { fotoPerfilUrl: path }));
+      this.datosUsuario.Imagen_Perfil = path;
+      this.presentToast('Avatar actualizado', 'success');
+      this.calcularLogros();
+      this.cdr.detectChanges();
+    } catch (error: any) {
+      console.error('Error al actualizar avatar:', error);
+      this.presentToast('Error al actualizar avatar', 'danger');
+    } finally {
+      loading.dismiss();
+    }
+  }
+
+  // Final del archivo
 }
+
