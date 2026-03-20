@@ -26,9 +26,10 @@
       <div *ngIf="tieneFirma" class="current-signature-container">
         <h3 class="section-title">Firma Actual</h3>
         <div class="current-signature">
-          <img [src]="usuario.Firma_Usuario" alt="Firma actual" class="signature-image">
+          <img [src]="getImageUrl(usuario.Firma_Usuario)" alt="Firma actual" class="signature-image">
         </div>
       </div>
+
 
       <!-- Opciones para agregar firma -->
       <div class="signature-options">

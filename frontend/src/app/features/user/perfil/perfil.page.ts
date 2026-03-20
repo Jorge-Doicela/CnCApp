@@ -273,6 +273,23 @@ export class PerfilPage implements OnInit {
     });
   }
 
+  /**
+   * Obtiene la URL completa para una imagen de perfil o firma.
+   * Maneja base64, URLs absolutas y rutas relativas del backend.
+   */
+  getImageUrl(path: string | null | undefined): string {
+    if (!path) return 'assets/avatar-placeholder.svg';
+    if (path.startsWith('data:') || path.startsWith('http')) return path;
+    
+    // Si la ruta empieza con /, quitarlo para evitar dobles //
+    const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+    
+    // El backend sirve archivos desde public/, por lo que la URL base es el origen del API (sin /api)
+    const baseUrl = environment.apiUrl.replace('/api', '');
+    return `${baseUrl}/${cleanPath}`;
+  }
+
+
   obtenerRolTexto(rol: any): string {
     if (typeof rol === 'string') return rol;
     return rol?.nombre || 'Usuario';
@@ -334,24 +351,40 @@ export class PerfilPage implements OnInit {
   }
 
   async actualizarFotoPerfil() {
+    const buttons: any[] = [
+      { text: 'Cámara', icon: 'camera', handler: () => { this.capturarFoto(CameraSource.Camera); } },
+      { text: 'Galería', icon: 'image', handler: () => { this.capturarFoto(CameraSource.Photos); } }
+    ];
+
+    // Mostrar opción de eliminar si hay una foto actual
+    if (this.datosUsuario?.Imagen_Perfil) {
+      buttons.push({
+        text: 'Eliminar foto',
+        role: 'destructive',
+        icon: 'trash',
+        handler: () => { this.eliminarFoto(); }
+      });
+    }
+
+    buttons.push({ text: 'Cancelar', icon: 'close', role: 'cancel' });
+
     const actionSheet = await this.actionSheetController.create({
       header: 'Actualizar foto de perfil',
-      buttons: [
-        { text: 'Cámara', icon: 'camera', handler: () => { this.capturarFoto(CameraSource.Camera); } },
-        { text: 'Galería', icon: 'image', handler: () => { this.capturarFoto(CameraSource.Photos); } },
-        { text: 'Cancelar', icon: 'close', role: 'cancel' }
-      ]
+      buttons: buttons
     });
     await actionSheet.present();
   }
 
+
   async capturarFoto(source: CameraSource) {
     try {
       const image = await Camera.getPhoto({
-        quality: 80,
-        allowEditing: false,
+        quality: 90,
+        allowEditing: true, // Habilitar edición para mejor encuadre
         resultType: CameraResultType.Base64,
-        source: source
+        source: source,
+        width: 800, // Limitar tamaño para eficiencia
+        correctOrientation: true
       });
       if (image.base64String) {
         await this.subirFoto(image.base64String, image.format);
@@ -362,6 +395,23 @@ export class PerfilPage implements OnInit {
       }
     }
   }
+
+  async eliminarFoto() {
+    const loading = await this.loadingController.create({ message: 'Eliminando foto...', spinner: 'crescent' });
+    await loading.present();
+    try {
+      await firstValueFrom(this.http.put(`${environment.apiUrl}/users/me`, { fotoPerfilUrl: null }));
+      this.datosUsuario.Imagen_Perfil = null;
+      this.presentToast('Foto de perfil eliminada', 'success');
+      this.cdr.detectChanges();
+    } catch (error: any) {
+      const msg = error.error?.message || error.message || 'Error';
+      this.presentToast('Error al eliminar foto: ' + msg, 'danger');
+    } finally {
+      loading.dismiss();
+    }
+  }
+
 
   async subirFoto(base64: string, format: string = 'jpeg') {
     const loading = await this.loadingController.create({ message: 'Subiendo imagen...', spinner: 'crescent' });

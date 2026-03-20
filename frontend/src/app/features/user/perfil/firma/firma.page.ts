@@ -99,6 +99,23 @@ export class FirmaPage implements OnInit, AfterViewInit {
     this.cargando = false;
   }
 
+  /**
+   * Obtiene la URL completa para una imagen de perfil o firma.
+   * Maneja base64, URLs absolutas y rutas relativas del backend.
+   */
+  getImageUrl(path: string | null | undefined): string {
+    if (!path) return '';
+    if (path.startsWith('data:') || path.startsWith('http')) return path;
+    
+    // Si la ruta empieza con /, quitarlo para evitar dobles //
+    const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+    
+    // El backend sirve archivos desde public/, por lo que la URL base es el origen del API (sin /api)
+    const baseUrl = environment.apiUrl.replace('/api', '');
+    return `${baseUrl}/${cleanPath}`;
+  }
+
+
   cambiarMetodo() {
     this.firmaDibujada = false;
     this.previewFirma = null;

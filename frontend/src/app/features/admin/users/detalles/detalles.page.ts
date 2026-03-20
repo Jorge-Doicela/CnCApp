@@ -15,6 +15,8 @@ import { UsuarioService } from 'src/app/features/user/services/usuario.service';
 import { Usuario } from 'src/app/core/models/usuario.interface';
 import { RolEnum, TipoParticipanteEnum, NivelGobiernoEnum } from 'src/app/shared/constants/enums';
 import { AlertController } from '@ionic/angular/standalone';
+import { environment } from 'src/environments/environment';
+
 
 @Component({
     selector: 'app-detalles',
@@ -40,6 +42,23 @@ export class DetallesPage implements OnInit {
     // Métodos delegados al servicio
     getFullName = (u: any) => this.usuarioService.getFullName(u);
     getInicial = (u: any) => this.usuarioService.getInicial(u);
+
+    /**
+     * Obtiene la URL completa para una imagen de perfil o firma.
+     * Maneja base64, URLs absolutas y rutas relativas del backend.
+     */
+    getImageUrl(path: string | null | undefined): string {
+        if (!path) return '';
+        if (path.startsWith('data:') || path.startsWith('http')) return path;
+
+        // Si la ruta empieza con /, quitarlo para evitar dobles //
+        const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+
+        // El backend sirve archivos desde public/, por lo que la URL base es el origen del API (sin /api)
+        const baseUrl = environment.apiUrl.replace('/api', '');
+        return `${baseUrl}/${cleanPath}`;
+    }
+
 
     constructor() {
         addIcons({

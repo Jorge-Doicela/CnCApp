@@ -30,8 +30,9 @@
         <div class="profile-avatar-wrapper animate-fade-in">
           <div class="avatar-glass-ring">
             <ion-avatar class="premium-avatar">
-              <img [src]="datosUsuario.Imagen_Perfil || 'assets/avatar-placeholder.svg'" alt="Foto de perfil">
+              <img [src]="getImageUrl(datosUsuario.Imagen_Perfil)" alt="Foto de perfil">
             </ion-avatar>
+
             <div class="avatar-edit-badge" (click)="actualizarFotoPerfil()">
               <ion-icon name="camera"></ion-icon>
             </div>
