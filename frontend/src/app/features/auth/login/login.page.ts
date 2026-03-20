@@ -133,8 +133,17 @@ export class LoginPage implements OnInit {
     if (isActive === 'true') {
         await this.loginWithBiometrics();
     } else {
-        this.presentToast('La biometría no está configurada, inicie sesión y configúrela en su perfil.', 'warning');
+        const platformLabel = WebAuthnUtil.getPlatformLabel();
+        const alert = await this.alertController.create({
+            header: 'Biometría no configurada',
+            subHeader: platformLabel,
+            message: `La autenticación con ${platformLabel} aún no está configurada en este dispositivo. Para habilitarla, inicie sesión con su contraseña y actívela desde la sección de "Mi Perfil".`,
+            buttons: ['Entendido'],
+            cssClass: 'premium-alert'
+        });
+        await alert.present();
     }
+
   }
 
   async loginWithBiometrics() {
