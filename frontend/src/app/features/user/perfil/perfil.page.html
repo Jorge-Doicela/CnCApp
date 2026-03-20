@@ -55,9 +55,13 @@
           </div>
           <div class="stat-card animate-scale-in" style="animation-delay: 0.2s;">
             <span class="stat-num">{{ certificadosObtenidos }}</span>
+            <span class="stat-label">CERTIFICADOS</span>
+          </div>
+          <div class="stat-card animate-scale-in" style="animation-delay: 0.3s;">
+            <span class="stat-num">{{ logros.length }}</span>
             <span class="stat-label">LOGROS</span>
           </div>
-          <div class="stat-card status-card animate-scale-in" style="animation-delay: 0.3s;">
+          <div class="stat-card status-card animate-scale-in" style="animation-delay: 0.4s;">
             <ion-icon [name]="datosUsuario.Firma_Usuario ? 'checkmark-circle' : 'close-circle'" 
                       [color]="datosUsuario.Firma_Usuario ? 'success' : 'danger'"></ion-icon>
             <span class="stat-label">FIRMA</span>

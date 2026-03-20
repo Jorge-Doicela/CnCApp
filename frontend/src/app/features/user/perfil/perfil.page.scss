@@ -174,10 +174,14 @@ ion-content.premium-content {
 /* Stats Grid */
 .premium-stats-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 12px;
   width: 100%;
   margin-top: 32px;
+
+  @media (min-width: 400px) {
+    grid-template-columns: repeat(4, 1fr);
+  }
 
   .stat-card {
     background: white;
@@ -347,9 +351,12 @@ ion-content.premium-content {
       p { margin: 0; font-size: 0.75rem; color: var(--ion-color-medium); line-height: 1.3; }
     }
 
-    &.tier-oro { border-left: 4px solid #fbbf24; }
-    &.tier-plata { border-left: 4px solid #94a3b8; }
-    &.tier-bronce { border-left: 4px solid #d97706; }
+    &.tier-diamante { border-left: 4px solid #06b6d4; background: linear-gradient(to right, #ecfeff, white); }
+    &.tier-oro { border-left: 4px solid #fbbf24; background: linear-gradient(to right, #fffbeb, white); }
+    &.tier-plata { border-left: 4px solid #94a3b8; background: linear-gradient(to right, #f8fafc, white); }
+    &.tier-bronce { border-left: 4px solid #d97706; background: linear-gradient(to right, #fff7ed, white); }
+    &.tier-especial { border-left: 4px solid #8b5cf6; background: linear-gradient(to right, #f5f3ff, white); }
+    &.tier-inicio { border-left: 4px solid #e2e8f0; }
   }
 }
 

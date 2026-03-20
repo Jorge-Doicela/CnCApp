@@ -101,7 +101,8 @@ export class PerfilPage implements OnInit {
       'home-outline': homeOutline, 'finger-print-outline': fingerPrintOutline,
       'shield-checkmark-outline': shieldCheckmarkOutline,
       'cloud-offline-outline': cloudOfflineOutline, 'stats-chart': statsChart,
-      'arrow-forward-circle': arrowForwardCircle, 'chevron-forward': chevronForward
+      'arrow-forward-circle': arrowForwardCircle, 'chevron-forward': chevronForward,
+      'finger-print': fingerPrintOutline
     });
 
 
@@ -612,31 +613,63 @@ export class PerfilPage implements OnInit {
 
   calcularLogros() {
     this.logros = [];
+    
+    // 1. Logros por Capacitaciones (Cursos)
     if (this.capacitacionesInscritas > 0) {
-      if (this.capacitacionesInscritas >= 5) {
-         this.logros.push({ icon: 'school', color: 'warning', title: 'Estudiante Dedicado', description: '5 o más capacitaciones.', level: 'Oro' });
+      if (this.capacitacionesInscritas >= 10) {
+        this.logros.push({ icon: 'school', color: 'tertiary', title: 'Maestro del Saber', description: '10 o más capacitaciones inscritas.', level: 'Diamante' });
+      } else if (this.capacitacionesInscritas >= 5) {
+        this.logros.push({ icon: 'school', color: 'warning', title: 'Estudiante Dedicado', description: '5 o más capacitaciones.', level: 'Oro' });
       } else {
-         this.logros.push({ icon: 'book', color: 'primary', title: 'Aprendiz', description: 'Al menos una capacitación.', level: 'Bronce' });
-      }
-    }
-    if (this.certificadosObtenidos > 0) {
-      if (this.certificadosObtenidos >= 3) {
-         this.logros.push({ icon: 'medal', color: 'warning', title: 'Experto Certificado', description: '3 o más certificados.', level: 'Oro' });
-      } else {
-         this.logros.push({ icon: 'ribbon', color: 'secondary', title: 'Primer Certificado', description: 'Has obtenido un certificado.', level: 'Plata' });
-      }
-    }
-    if (this.datosUsuario && (this.datosUsuario.firmaUrl || this.datosUsuario.Firma_Usuario)) {
-      const tieneFoto = this.datosUsuario.Imagen_Perfil && !this.datosUsuario.Imagen_Perfil.includes('placeholder');
-      if (tieneFoto) {
-        this.logros.push({ icon: 'shield-checkmark', color: 'warning', title: 'Perfil Élite', description: 'Foto y firma configuradas.', level: 'Oro' });
-      } else {
-        this.logros.push({ icon: 'shield-checkmark', color: 'success', title: 'Perfil Verificado', description: 'Firma digital configurada.', level: 'Plata' });
+        this.logros.push({ icon: 'book', color: 'primary', title: 'Aprendiz', description: 'Al menos una capacitación.', level: 'Bronce' });
       }
     }
 
+    // 2. Logros por Certificados
+    if (this.certificadosObtenidos > 0) {
+      if (this.certificadosObtenidos >= 5) {
+        this.logros.push({ icon: 'medal', color: 'tertiary', title: 'Leyenda Certificada', description: '5 o más certificados obtenidos.', level: 'Diamante' });
+      } else if (this.certificadosObtenidos >= 3) {
+        this.logros.push({ icon: 'medal', color: 'warning', title: 'Experto Certificado', description: '3 o más certificados.', level: 'Oro' });
+      } else {
+        this.logros.push({ icon: 'ribbon', color: 'secondary', title: 'Primer Certificado', description: 'Has obtenido tu primer certificado.', level: 'Plata' });
+      }
+    }
+
+    // 3. Logros por Perfil y Seguridad
+    if (this.datosUsuario) {
+      // Firma y Foto
+      const tieneFirma = !!(this.datosUsuario.firmaUrl || this.datosUsuario.Firma_Usuario);
+      const tieneFoto = this.datosUsuario.Imagen_Perfil && !this.datosUsuario.Imagen_Perfil.includes('placeholder');
+      
+      if (tieneFirma && tieneFoto) {
+        this.logros.push({ icon: 'shield-checkmark', color: 'warning', title: 'Perfil Élite', description: 'Identidad digital completa y verificada.', level: 'Oro' });
+      } else if (tieneFirma) {
+        this.logros.push({ icon: 'shield-checkmark', color: 'success', title: 'Perfil Verificado', description: 'Firma digital configurada.', level: 'Plata' });
+      }
+
+      // Biometría
+      if (this.biometriaActiva) {
+        this.logros.push({ icon: 'finger-print', color: 'tertiary', title: 'Guardián Digital', description: 'Acceso seguro mediante biometría activo.', level: 'Especial' });
+      }
+
+      // Completitud de Perfil (campos básicos)
+      const camposCompletos = [
+        this.datosUsuario.email,
+        this.datosUsuario.Celular_Usuario,
+        this.datosUsuario.Provincia_Nombre,
+        this.datosUsuario.Canton_Nombre,
+        this.datosUsuario.direccion
+      ].filter(Boolean).length;
+
+      if (camposCompletos >= 5) {
+        this.logros.push({ icon: 'person-circle', color: 'success', title: 'Ciudadano Ejemplar', description: 'Perfil con información completa.', level: 'Plata' });
+      }
+    }
+
+    // 4. Logro por defecto si no tiene nada
     if (this.logros.length === 0) {
-      this.logros.push({ icon: 'footsteps', color: 'medium', title: 'Primeros Pasos', description: 'Participa para ganar logros.', level: 'Inicio' });
+      this.logros.push({ icon: 'footsteps', color: 'medium', title: 'Primeros Pasos', description: 'Explora la plataforma para ganar logros.', level: 'Inicio' });
     }
   }
   // Avatares predefinidos (usando Dicebear para máxima fiabilidad y calidad SVG)
