@@ -2,10 +2,10 @@ import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { 
   IonHeader, IonToolbar, IonButtons, IonButton, IonTitle, 
-  IonMenuButton, IonBackButton, IonContent, IonSpinner, IonIcon, 
+  IonBackButton, IonContent, IonSpinner, IonIcon, 
   IonAvatar, IonToggle, IonModal, IonInput,
   AlertController, LoadingController, ToastController, 
   ActionSheetController, NavController 
@@ -37,9 +37,9 @@ import { environment } from 'src/environments/environment';
   styleUrls: ['./perfil.page.scss'],
   standalone: true,
   imports: [
-    CommonModule, FormsModule, 
+    CommonModule, FormsModule, RouterLink,
     IonHeader, IonToolbar, IonButtons, IonButton, IonTitle, 
-    IonMenuButton, IonBackButton, IonContent, IonSpinner, IonIcon, 
+    IonBackButton, IonContent, IonSpinner, IonIcon, 
     IonAvatar, IonToggle, IonModal, IonInput
   ]
 })
@@ -91,17 +91,6 @@ export class PerfilPage implements OnInit {
       statsChart, addCircleOutline, brush, 
       'trash': trash,
       'person-circle': personCircle,
-
-      'settings-outline': settingsOutline,
-      'create-outline': createOutline, 'lock-closed-outline': lockClosedOutline,
-      'brush-outline': brushOutline, 'shield-checkmark': shieldCheckmark,
-      'checkmark-circle': checkmarkCircle, 'close-circle': closeCircle,
-      'person-outline': personOutline, 'id-card-outline': idCardOutline,
-      'mail-outline': mailOutline, 'call-outline': callOutline,
-      'home-outline': homeOutline, 'finger-print-outline': fingerPrintOutline,
-      'shield-checkmark-outline': shieldCheckmarkOutline,
-      'cloud-offline-outline': cloudOfflineOutline, 'stats-chart': statsChart,
-      'arrow-forward-circle': arrowForwardCircle, 'chevron-forward': chevronForward,
       'finger-print': fingerPrintOutline
     });
 

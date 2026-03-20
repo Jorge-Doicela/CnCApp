@@ -1,0 +1,269 @@
+/* logros.page.scss - Luxury Achievement Roadmap */
+
+ion-content.premium-content {
+  --background: #f8fafc;
+  --padding-top: 0;
+  --padding-bottom: 20px;
+  --padding-start: 16px;
+  --padding-end: 16px;
+}
+
+/* Background Decorations (Reused for consistency) */
+.bg-blur-circle {
+  position: fixed;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  filter: blur(80px);
+  z-index: -1;
+  opacity: 0.3;
+  pointer-events: none;
+
+  &.primary { top: -50px; right: -50px; background: rgba(30, 58, 138, 0.2); }
+  &.secondary { bottom: -50px; left: -50px; background: rgba(37, 99, 235, 0.1); }
+}
+
+.glass-header {
+  --background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  --border-width: 0;
+  
+  .premium-title {
+    font-family: var(--font-heading);
+    font-weight: 800;
+    letter-spacing: 2px;
+    font-size: 0.9rem;
+    color: var(--ion-color-primary);
+  }
+}
+
+.glass-container-premium {
+  margin-top: 20px;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 32px;
+  padding: 24px;
+  min-height: calc(100vh - 120px);
+  margin-bottom: 30px;
+  box-shadow: 0 16px 32px -8px rgba(0, 0, 0, 0.05);
+}
+
+/* Progress Overview */
+.progress-overview {
+  background: white;
+  padding: 24px;
+  border-radius: 24px;
+  text-align: center;
+  margin-bottom: 32px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+  border: 1px solid #f1f5f9;
+
+  .progress-stat {
+    display: flex;
+    justify-content: center;
+    align-items: baseline;
+    gap: 4px;
+    margin-bottom: 4px;
+
+    .count { font-size: 2.2rem; font-weight: 900; color: var(--ion-color-primary); }
+    .total { font-size: 1.1rem; font-weight: 600; color: #94a3b8; }
+  }
+
+  .progress-label {
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: #64748b;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  .global-progress {
+    height: 8px;
+    border-radius: 4px;
+    --progress-background: #eff6ff;
+  }
+}
+
+/* Track Section */
+.track-section {
+  margin-bottom: 40px;
+
+  .track-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+
+    .track-icon-wrapper {
+      width: 40px;
+      height: 40px;
+      background: #eff6ff;
+      color: #3b82f6;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+    }
+
+    h3 {
+      margin: 0;
+      font-weight: 800;
+      font-size: 1.1rem;
+      color: #1e293b;
+      letter-spacing: -0.5px;
+    }
+  }
+}
+
+/* Roadmap Path */
+.roadmap-path {
+  position: relative;
+  padding-left: 20px;
+
+  .achievement-node {
+    position: relative;
+    padding-bottom: 32px;
+    
+    .node-line {
+      position: absolute;
+      left: -16px;
+      top: 32px;
+      bottom: -32px;
+      width: 2px;
+      background: #e2e8f0;
+      z-index: 1;
+
+      &::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 0%;
+        background: var(--ion-color-primary);
+        transition: height 1s ease;
+      }
+    }
+
+    &.unlocked .node-line::after { height: 100%; }
+    
+    .node-content {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      position: relative;
+      z-index: 2;
+
+      .badge-wrapper {
+        flex-shrink: 0;
+        width: 48px;
+        height: 48px;
+        background: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 4px solid #f1f5f9;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        position: relative;
+        left: -39px;
+
+        .icon-circle {
+          font-size: 1.4rem;
+          color: #94a3b8;
+        }
+
+        &.tier-diamante { border-color: #06b6d4; .icon-circle { color: #06b6d4; } }
+        &.tier-oro { border-color: #fbbf24; .icon-circle { color: #fbbf24; } }
+        &.tier-plata { border-color: #94a3b8; .icon-circle { color: #94a3b8; } }
+        &.tier-bronce { border-color: #d97706; .icon-circle { color: #d97706; } }
+        &.tier-especial { border-color: #8b5cf6; .icon-circle { color: #8b5cf6; } }
+        &.tier-leyenda { border-color: #1e3a8a; .icon-circle { color: #1e3a8a; } }
+        &.tier-inicio { border-color: #e2e8f0; .icon-circle { color: #64748b; } }
+      }
+
+      .text-wrapper {
+        flex: 1;
+        background: white;
+        padding: 16px;
+        border-radius: 20px;
+        border: 1px solid #f1f5f9;
+        margin-left: -20px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+
+        .title-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          margin-bottom: 4px;
+
+          h4 { margin: 0; font-size: 0.95rem; font-weight: 800; color: #1e293b; }
+          .tier-label { 
+            font-size: 0.6rem; 
+            font-weight: 700; 
+            text-transform: uppercase; 
+            padding: 2px 8px; 
+            background: #f1f5f9; 
+            border-radius: 99px; 
+            color: #64748b;
+          }
+        }
+
+        p.desc { margin: 0 0 12px 0; font-size: 0.8rem; color: #64748b; line-height: 1.4; }
+
+        .progress-info {
+          .progress-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #94a3b8;
+            margin-bottom: 4px;
+          }
+          .node-progress { height: 4px; border-radius: 2px; }
+        }
+
+        .unlocked-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          padding: 6px 12px;
+          font-size: 0.65rem;
+          font-weight: 800;
+          border-radius: 8px;
+          
+          ion-icon { font-size: 0.8rem; }
+        }
+      }
+    }
+
+    &.locked {
+      .node-content {
+        .text-wrapper { background: #fdfdfd; opacity: 0.8; }
+      }
+    }
+  }
+}
+
+/* Animations (reused) */
+.animate-fade-in { animation: fadeIn 0.8s ease forwards; }
+.animate-slide-up { animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.animate-fade-up { animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Desktop */
+@media (min-width: 768px) {
+  .glass-container-premium {
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}

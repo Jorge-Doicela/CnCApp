@@ -141,7 +141,13 @@
 
       <!-- Badges Section -->
       <section class="premium-section animate-fade-up" style="animation-delay: 0.6s;" *ngIf="logros.length > 0">
-        <span class="eyebrow">RECOMPENSAS Y RECONOCIMIENTOS</span>
+        <div class="section-header-row">
+          <span class="eyebrow">RECOMPENSAS Y RECONOCIMIENTOS</span>
+          <a class="view-all-link premium-btn-sm" routerLink="/ver-perfil/logros">
+            <span>VER CAMINO DE LOGROS</span>
+            <ion-icon name="arrow-forward-circle"></ion-icon>
+          </a>
+        </div>
         <div class="premium-badges-slider">
           <div class="premium-badge-item" *ngFor="let logro of logros" [ngClass]="'tier-' + logro.level.toLowerCase()">
             <div class="premium-badge-icon">

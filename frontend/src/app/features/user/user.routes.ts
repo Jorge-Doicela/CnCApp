@@ -13,6 +13,11 @@ export const USER_ROUTES: Routes = [
         canActivate: [authGuard]
     },
     {
+        path: 'ver-perfil/logros',
+        loadComponent: () => import('./perfil/logros/logros.page').then(m => m.LogrosPage),
+        canActivate: [authGuard]
+    },
+    {
         path: 'ver-perfil/firma',
         loadComponent: () => import('./perfil/firma/firma.page').then(m => m.FirmaPage),
         canActivate: [authGuard]

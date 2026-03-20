@@ -1,0 +1,94 @@
+<ion-header [translucent]="true" class="ion-no-border">
+  <ion-toolbar class="glass-header">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/ver-perfil" color="primary"></ion-back-button>
+    </ion-buttons>
+    <ion-title class="premium-title">CAMINO DE LOGROS</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="premium-content">
+  <!-- Background Decorations -->
+  <div class="bg-blur-circle primary"></div>
+  <div class="bg-blur-circle secondary"></div>
+
+  <div class="glass-container-premium">
+    <div *ngIf="cargando" class="loading-container">
+      <ion-spinner name="crescent" color="primary"></ion-spinner>
+      <p class="loading-text">Cargando tu progreso...</p>
+    </div>
+
+    <div *ngIf="!cargando && usuario" class="content-fade-up">
+      <!-- Progress Header -->
+      <section class="progress-overview animate-fade-in">
+        <div class="progress-circle-container">
+          <div class="progress-stat">
+            <span class="count">{{ getUnlockedCount() }}</span>
+            <span class="total">/ {{ getTotalCount() }}</span>
+          </div>
+          <p class="progress-label">LOGROS DESBLOQUEADOS</p>
+        </div>
+        <ion-progress-bar [value]="getUnlockedCount() / getTotalCount()" color="primary" class="global-progress"></ion-progress-bar>
+      </section>
+
+      <!-- Achievement Tracks -->
+      <div class="tracks-container">
+        <div *ngFor="let track of tracks; let lastTrack = last" class="track-section">
+          <div class="track-header animate-slide-up">
+            <div class="track-icon-wrapper">
+              <ion-icon [name]="track.icon"></ion-icon>
+            </div>
+            <h3>{{ track.name }}</h3>
+          </div>
+
+          <div class="roadmap-path">
+            <div *ngFor="let achievement of track.achievements; let lastAch = last" 
+                 class="achievement-node" 
+                 [class.locked]="!achievement.isUnlocked"
+                 [class.last-node]="lastAch && lastTrack">
+              
+              <div class="node-line" *ngIf="!lastAch"></div>
+              
+              <div class="node-content animate-fade-up">
+                <div class="badge-wrapper" [ngClass]="'tier-' + achievement.level.toLowerCase()">
+                  <div class="icon-circle">
+                    <ion-icon [name]="achievement.isUnlocked ? achievement.icon : 'lock-closed'"></ion-icon>
+                  </div>
+                </div>
+
+                <div class="text-wrapper">
+                  <div class="title-row">
+                    <h4>{{ achievement.title }}</h4>
+                    <span class="tier-label">{{ achievement.level }}</span>
+                  </div>
+                  <p class="desc">{{ achievement.description }}</p>
+                  
+                  <div class="progress-info" *ngIf="!achievement.isUnlocked && achievement.targetValue">
+                    <div class="progress-labels">
+                      <span>Progreso: {{ achievement.currentValue }} / {{ achievement.targetValue }}</span>
+                      <span>{{ (achievement.progress * 100) | number:'1.0-0' }}%</span>
+                    </div>
+                    <ion-progress-bar [value]="achievement.progress" color="secondary" class="node-progress"></ion-progress-bar>
+                  </div>
+
+                  <ion-badge *ngIf="achievement.isUnlocked" color="success" mode="ios" class="unlocked-badge">
+                    <ion-icon name="checkmark-circle"></ion-icon> DESBLOQUEADO
+                  </ion-badge>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!cargando && !usuario" class="premium-empty-state">
+      <div class="empty-icon-wrapper">
+        <ion-icon name="cloud-offline-outline"></ion-icon>
+      </div>
+      <h2>No pudimos cargar los logros</h2>
+      <p>Verifica tu conexión e inténtalo de nuevo.</p>
+    </div>
+  </div>
+</ion-content>
