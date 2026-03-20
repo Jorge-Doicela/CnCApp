@@ -7,7 +7,9 @@ import { AlertController, LoadingController, ToastController, NavController } fr
 import { Router, ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
-import { firstValueFrom, Subscription } from 'rxjs';
+import { firstValueFrom, Subscription, timeout } from 'rxjs';
+import { ChangeDetectorRef } from '@angular/core';
+
 import { UsuarioService } from '../../services/usuario.service';
 import { AuthService } from 'src/app/features/auth/services/auth.service';
 
@@ -42,7 +44,8 @@ export class EditarPage implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private navController: NavController,
     private http: HttpClient,
-    private usuarioService: UsuarioService
+    private usuarioService: UsuarioService,
+    private cdr: ChangeDetectorRef
   ) {
     // Intentar obtener datos pasados via navigation state
     const navigation = this.router.getCurrentNavigation();
@@ -90,24 +93,31 @@ export class EditarPage implements OnInit, OnDestroy {
 
   async cargarDatos() {
     try {
-      // Cargar provincias y cantones
-      const [provResp, cantResp] = await Promise.all([
-        firstValueFrom(this.http.get<any[]>(`${environment.apiUrl}/provincias`)),
-        firstValueFrom(this.http.get<any[]>(`${environment.apiUrl}/cantones`))
+      // Cargar provincias y cantones con timeout para evitar bloqueos infinitos
+      const metadataPromise = Promise.all([
+        firstValueFrom(this.http.get<any[]>(`${environment.apiUrl}/provincias`).pipe(timeout(8000))),
+        firstValueFrom(this.http.get<any[]>(`${environment.apiUrl}/cantones`).pipe(timeout(8000)))
       ]);
-      this.provincias = provResp || [];
-      this.cantonesOriginales = cantResp || [];
+
+      // No bloqueamos el resto de la carga si las provincias fallan (opcional)
+      try {
+        const [provResp, cantResp] = await metadataPromise;
+        this.provincias = provResp || [];
+        this.cantonesOriginales = cantResp || [];
+      } catch (e) {
+        console.warn('[EDITAR] No se pudieron cargar las provincias/cantones:', e);
+      }
 
       // Si hay ID en la URL → modo admin editando a un usuario específico
       const idParam = this.route.snapshot.paramMap.get('id');
       if (idParam) {
         this.modoAdmin = true;
-        this.usuario = await firstValueFrom(this.usuarioService.getUsuario(+idParam));
+        this.usuario = await firstValueFrom(this.usuarioService.getUsuario(+idParam).pipe(timeout(8000)));
       }
 
       // Si aún no tenemos usuario → cargar el perfil propio
       if (!this.usuario) {
-        const me = await firstValueFrom(this.http.get<any>(`${environment.apiUrl}/users/me`));
+        const me = await firstValueFrom(this.http.get<any>(`${environment.apiUrl}/users/me`).pipe(timeout(8000)));
         this.usuario = me;
       }
 
@@ -127,15 +137,21 @@ export class EditarPage implements OnInit, OnDestroy {
           celular: this.usuario.celular || '',
           provincia: this.usuario.provinciaId || null,
           canton: this.usuario.cantonId || null,
-        });
+        }, { emitEvent: false }); // Evitamos disparar eventos innecesarios durante la carga
       }
     } catch (error: any) {
-      console.error('[EDITAR] Error cargando datos:', error);
-      this.presentToast('Error al cargar datos: ' + (error.error?.message || error.message), 'danger');
+      console.error('[EDITAR] Error crítico cargando datos:', error);
+      const errorMsg = error.name === 'TimeoutError' 
+        ? 'El servidor tardó demasiado en responder.' 
+        : (error.error?.message || error.message || 'Error desconocido');
+      
+      this.presentToast('Aviso: ' + errorMsg, 'warning');
     } finally {
       this.cargando = false;
+      this.cdr.detectChanges(); // Aseguramos que la UI reaccione al cambio de 'cargando'
     }
   }
+
 
   async guardarCambios() {
     if (this.perfilForm.invalid) {
@@ -154,17 +170,18 @@ export class EditarPage implements OnInit, OnDestroy {
       const formData = this.perfilForm.value;
       const updateData: any = {
         primerNombre: formData.primerNombre,
-        segundoNombre: formData.segundoNombre || null,
+        segundoNombre: formData.segundoNombre || undefined,
         primerApellido: formData.primerApellido,
-        segundoApellido: formData.segundoApellido || null,
+        segundoApellido: formData.segundoApellido || undefined,
         email: formData.email,
-        telefono: formData.telefono || null,
-        celular: formData.celular || null,
+        telefono: formData.telefono || undefined,
+        celular: formData.celular || undefined,
         provinciaId: formData.provincia ? +formData.provincia : null,
         cantonId: formData.canton ? +formData.canton : null,
       };
 
       if (this.modoAdmin && this.usuario?.id) {
+
         // Admin editando a otro usuario → PUT /api/users/:id
         await firstValueFrom(this.usuarioService.updateUsuario(this.usuario.id, updateData));
       } else {

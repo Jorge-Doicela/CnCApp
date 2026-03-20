@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { 
   IonHeader, IonToolbar, IonButtons, IonButton, IonTitle, 
-  IonMenuButton, IonContent, IonSpinner, IonIcon, 
+  IonMenuButton, IonBackButton, IonContent, IonSpinner, IonIcon, 
   IonAvatar, IonToggle, IonModal, IonInput,
   AlertController, LoadingController, ToastController, 
   ActionSheetController, NavController 
@@ -39,7 +39,7 @@ import { environment } from 'src/environments/environment';
   imports: [
     CommonModule, FormsModule, 
     IonHeader, IonToolbar, IonButtons, IonButton, IonTitle, 
-    IonMenuButton, IonContent, IonSpinner, IonIcon, 
+    IonMenuButton, IonBackButton, IonContent, IonSpinner, IonIcon, 
     IonAvatar, IonToggle, IonModal, IonInput
   ]
 })

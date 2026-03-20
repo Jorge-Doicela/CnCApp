@@ -124,12 +124,20 @@
     </ion-card-content>
   </ion-card>
 
-  <!-- Estado vacío -->
+  <!-- Estado vacío / Error -->
   <div *ngIf="!cargando && !usuario" style="text-align:center;padding:40px">
     <ion-icon name="alert-circle-outline" color="medium" style="font-size:48px"></ion-icon>
     <h4>No se pudieron cargar los datos</h4>
-    <p>No se encontró información del usuario para editar.</p>
-    <ion-button expand="block" color="primary" (click)="volver()">Volver al perfil</ion-button>
+    <p>Hubo un problema al obtener la información de tu perfil o se agotó el tiempo de espera.</p>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-top:20px">
+      <ion-button expand="block" color="primary" (click)="cargarDatos()">
+        <ion-icon name="refresh-outline" slot="start"></ion-icon>
+        Reintentar
+      </ion-button>
+      <ion-button expand="block" fill="clear" color="medium" (click)="volver()">
+        Volver al perfil
+      </ion-button>
+    </div>
   </div>
 
 </ion-content>
