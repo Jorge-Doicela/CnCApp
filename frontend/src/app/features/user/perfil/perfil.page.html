@@ -240,42 +240,56 @@
   <!-- Modal de Verificación Biométrica Premium -->
   <ion-modal [isOpen]="mostrarModalBio" (didDismiss)="cerrarModalBio()" class="premium-bio-modal">
     <ng-template>
-      <div class="bio-modal-wrapper animate-fade-in">
-        <div class="bio-modal-header">
-          <div class="bio-icon-container" [ngClass]="platformIcon">
-            <ion-icon [name]="platformIcon"></ion-icon>
-            <div class="bio-pulse"></div>
-          </div>
-          <h2>Confirmar Identidad</h2>
-          <p>Para activar <strong>{{ platformLabel }}</strong>, por favor ingrese su contraseña para verificar su cuenta.</p>
+      <div class="bio-modal-wrapper">
+      <!-- HEADER: Normal / Éxito -->
+      <div class="bio-modal-header animate-fade-in" *ngIf="!activacionExitosa">
+        <div class="bio-icon-container" [class]="platformIcon">
+          <div class="bio-pulse"></div>
+          <ion-icon [name]="platformIcon"></ion-icon>
         </div>
+        <h2>Configurar {{platformLabel}}</h2>
+        <p>Para activar {{platformLabel}}, por favor ingrese su contraseña para verificar su cuenta.</p>
+      </div>
 
-        <div class="bio-modal-body">
-          <div class="premium-input-group">
-            <ion-icon name="lock-closed-outline" class="input-icon-left"></ion-icon>
-            <ion-input [(ngModel)]="passVerificacion" 
-                      [type]="verPassword ? 'text' : 'password'" 
-                      placeholder="Contraseña actual"
-                      class="premium-input"
-                      (keyup.enter)="confirmarActivacionBio()">
-            </ion-input>
-            <ion-button fill="clear" (click)="verPassword = !verPassword" class="eye-toggle">
-              <ion-icon [name]="verPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
-            </ion-button>
-          </div>
+      <div class="bio-modal-header success-state animate-scale-in" *ngIf="activacionExitosa">
+        <div class="bio-icon-container success-pulse">
+          <div class="bio-pulse success"></div>
+          <ion-icon name="checkmark-circle" color="success"></ion-icon>
+        </div>
+        <h2>¡Éxito Total!</h2>
+        <p>La biometría ha sido vinculada correctamente a tu cuenta.</p>
+      </div>
+
+      <!-- BODY: Solo si no hay éxito aún -->
+      <ng-container *ngIf="!activacionExitosa">
+        <div class="premium-input-group">
+          <ion-icon name="lock-closed-outline" class="input-icon-left"></ion-icon>
+          <ion-input 
+            [type]="verPassword ? 'text' : 'password'" 
+            placeholder="Contraseña actual" 
+            [(ngModel)]="passVerificacion"
+            class="premium-input"
+            [disabled]="verificandoBio">
+          </ion-input>
+          <ion-button fill="clear" (click)="verPassword = !verPassword" class="eye-toggle">
+            <ion-icon [name]="verPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+          </ion-button>
         </div>
 
         <div class="bio-modal-footer">
-          <button class="modal-btn-cancel" (click)="cerrarModalBio()">CANCELAR</button>
-          <button class="modal-btn-confirm" 
-                  [disabled]="!passVerificacion || verificandoBio"
-                  (click)="confirmarActivacionBio()">
+          <button class="modal-btn-confirm" (click)="confirmarActivacionBio()" [disabled]="verificandoBio || !passVerificacion">
             <ion-spinner name="crescent" *ngIf="verificandoBio"></ion-spinner>
             <span *ngIf="!verificandoBio">VERIFICAR Y ACTIVAR</span>
           </button>
+          
+          <button class="modal-btn-cancel" (click)="cerrarModalBio()" [disabled]="verificandoBio">CANCELAR</button>
         </div>
-      </div>
-    </ng-template>
+      </ng-container>
+
+      <!-- Espacio extra si es éxito para que se vea centrado -->
+      <div style="height: 20px;" *ngIf="activacionExitosa"></div>
+    </div>
+</ng-template>
   </ion-modal>
 
 
