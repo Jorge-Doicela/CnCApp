@@ -1,6 +1,6 @@
 import cron from 'node-cron';
 import { container } from 'tsyringe';
-import { GenerateAllCertificadosUseCase } from '../../application/certificado/use-cases/generate-all-certificados.use-case';
+import { UpdateCapacitacionUseCase } from '../../application/capacitacion/use-cases/update-capacitacion.use-case';
 import logger from '../../config/logger';
 import { EstadoCapacitacionEnum } from '../../domain/shared/constants/enums';
 import prisma from '../../config/database';
@@ -27,16 +27,9 @@ function buildFechaHoraFin(fecha: Date, hora?: string | null): Date {
     return new Date(combinedStr);
 }
 
-/**
- * Procesa las capacitaciones que debieron finalizar:
- * 1. Cambia estado a "Realizada"
- * 2. Genera certificados automáticamente para todos los asistentes
- * 3. Marca la capacitación como certificado=true
- */
 async function procesarCapacitacionesVencidas(): Promise<void> {
     const ahora = new Date();
 
-    // Buscar todas las capacitaciones que no estén finalizadas ni canceladas
     const capacitaciones = await prisma.capacitacion.findMany({
         where: {
             estado: { 
@@ -49,64 +42,23 @@ async function procesarCapacitacionesVencidas(): Promise<void> {
 
     logger.info(`[Scheduler] Evaluando ${capacitaciones.length} capacitaciones no finalizadas...`);
 
-    const generateAllUseCase = container.resolve(GenerateAllCertificadosUseCase);
+    const updateUseCase = container.resolve(UpdateCapacitacionUseCase);
 
     for (const cap of capacitaciones) {
-        // Fallback: si no tiene fecha de fin, usar fecha de inicio
         const baseDate = cap.fechaFin || cap.fechaInicio;
-        
-        if (!baseDate) {
-            logger.warn(`[Scheduler] Cap. ID=${cap.id} no tiene fechaInicio ni fechaFin. Omitiendo.`);
-            continue;
-        }
+        if (!baseDate) continue;
 
         const fechaHoraFin = buildFechaHoraFin(baseDate, cap.horaFin);
-
-        if (fechaHoraFin > ahora) {
-            // Aún no es tiempo de cerrar
-            continue;
-        }
+        if (fechaHoraFin > ahora) continue;
 
         logger.info(`[Scheduler] >> Finalizando: ID=${cap.id} "${cap.nombre}" | Fin programado: ${fechaHoraFin.toLocaleString('es-EC')}`);
 
         try {
-            // 1. Cambiar estado a Finalizada
-            await prisma.capacitacion.update({
-                where: { id: cap.id },
-                data: { estado: EstadoCapacitacionEnum.REALIZADA }
-            });
-
-            // PASO 2: Verificar si ya tiene certificados emitidos
-            if (cap.certificado) {
-                logger.info(`[Scheduler] Cap. ID=${cap.id} ya tiene certificados. Solo se actualizó estado.`);
-                continue;
-            }
-
-            // Verificar si hay asistentes confirmados
-            const asistentesCount = await prisma.usuarioCapacitacion.count({
-                where: { capacitacionId: cap.id, asistio: true }
-            });
-
-            if (asistentesCount === 0) {
-                logger.warn(`[Scheduler] Cap. ID=${cap.id} no tiene asistentes confirmados. No se emiten certificados.`);
-                continue;
-            }
-
-            // PASO 3: Generar certificados para todos los asistentes
-            logger.info(`[Scheduler] Cap. ID=${cap.id} — generando ${asistentesCount} certificado(s)...`);
-            await generateAllUseCase.execute(cap.id);
-
-            // PASO 4: Marcar certificado=true en la capacitación
-            await prisma.capacitacion.update({
-                where: { id: cap.id },
-                data: { certificado: true }
-            });
-
-            logger.info(`[Scheduler] ✓ Cap. ID=${cap.id} finalizada y ${asistentesCount} certificado(s) emitido(s).`);
-
+            // Unificamos todo en el Use Case: esto cambia estado Y dispara certificación automática
+            await updateUseCase.execute(cap.id, { estado: EstadoCapacitacionEnum.REALIZADA });
+            logger.info(`[Scheduler] ✓ Cap. ID=${cap.id} marcada para finalización y certificación automática.`);
         } catch (err) {
-            logger.error(`[Scheduler] Error procesando cap. ID=${cap.id}: ${err}`);
-            // Continuar con lo demás — no detener el proceso
+            logger.error(`[Scheduler] Error al cerrar cap. ID=${cap.id}: ${err}`);
         }
     }
 }

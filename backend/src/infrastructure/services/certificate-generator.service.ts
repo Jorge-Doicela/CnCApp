@@ -3,6 +3,7 @@ import * as QRCode from 'qrcode';
 import fs from 'fs';
 import path from 'path';
 import { injectable } from 'tsyringe';
+import { env } from '../../config/env';
 
 interface CertificateData {
     nombreParticipante: string;
@@ -131,32 +132,95 @@ export class CertificateGeneratorService {
                 // 6. Finalize
                 doc.end();
 
-                stream.on('finish', () => resolve());
-                stream.on('error', (err) => reject(err));
+                stream.on('finish', () => {
+                    console.log(`[CERT_GEN] PDF guardado exitosamente: ${outputPath}`);
+                    resolve();
+                });
+                stream.on('error', (err) => {
+                    console.error(`[CERT_GEN] Error en el stream de escritura: ${err}`);
+                    reject(err);
+                });
 
             } catch (error) {
+                console.error(`[CERT_GEN] Error general durante la generación: ${error}`);
                 reject(error);
             }
         });
     }
 
+    /**
+     * Resuelve una URL o ruta a una ruta de archivo local si es posible.
+     * Si la URL apunta a nuestro propio servidor (según env.BASE_URL), la convierte a ruta de disco.
+     */
+    private resolveLocalPath(url: string): string | null {
+        if (!url) return null;
+
+        // Caso 1: Es una ruta relativa (empieza con /uploads o /public)
+        if (url.startsWith('/uploads/')) {
+            return path.join(process.cwd(), 'public', url);
+        }
+
+        // Caso 2: Es una URL absoluta que apunta a nuestro servidor
+        const baseUrl = env.BASE_URL.endsWith('/') ? env.BASE_URL.slice(0, -1) : env.BASE_URL;
+        if (url.startsWith(baseUrl)) {
+            const relativePath = url.replace(baseUrl, '');
+            // Asegurarse de que si la ruta resultante empieza por /public no la dupliquemos
+            if (relativePath.startsWith('/public')) {
+                return path.join(process.cwd(), relativePath);
+            }
+            return path.join(process.cwd(), 'public', relativePath);
+        }
+
+        // Caso 3: Es una ruta de sistema de archivos (absoluta o relativa al root)
+        if (!url.startsWith('http') && !url.startsWith('data:')) {
+            return path.isAbsolute(url) ? url : path.join(process.cwd(), 'public', url);
+        }
+
+        return null;
+    }
+
+    /**
+     * Realiza un fetch con timeout para evitar bloqueos infinitos
+     */
+    private async fetchWithTimeout(url: string, timeoutMs: number = 8000): Promise<Response> {
+        const controller = new AbortController();
+        const id = setTimeout(() => controller.abort(), timeoutMs);
+
+        try {
+            const response = await fetch(url, { signal: controller.signal });
+            clearTimeout(id);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            return response;
+        } catch (error) {
+            clearTimeout(id);
+            throw error;
+        }
+    }
+
     private async renderBackground(doc: PDFKit.PDFDocument, url: string) {
         if (!url) return;
         try {
+            // Priority 1: Data URL
             if (url.startsWith('data:image')) {
                 doc.image(url, 0, 0, { width: doc.page.width, height: doc.page.height });
-            } else if (url.startsWith('http')) {
-                const response = await fetch(url);
+                return;
+            }
+
+            // Priority 2: Local Path resolution (bypass network)
+            const localPath = this.resolveLocalPath(url);
+            if (localPath && fs.existsSync(localPath)) {
+                doc.image(localPath, 0, 0, { width: doc.page.width, height: doc.page.height });
+                return;
+            }
+
+            // Priority 3: Remote Fetch (with timeout)
+            if (url.startsWith('http')) {
+                const response = await this.fetchWithTimeout(url);
                 const arrayBuffer = await response.arrayBuffer();
                 doc.image(Buffer.from(arrayBuffer), 0, 0, { width: doc.page.width, height: doc.page.height });
-            } else {
-                const imgPath = path.isAbsolute(url) ? url : path.join(process.cwd(), 'public', url);
-                if (fs.existsSync(imgPath)) {
-                    doc.image(imgPath, 0, 0, { width: doc.page.width, height: doc.page.height });
-                }
             }
         } catch (e) {
-            console.error('Error rendering background:', e);
+            console.error(`[CERT_GEN] Error renderBackground (${url}):`, e);
         }
     }
 
@@ -213,11 +277,19 @@ export class CertificateGeneratorService {
     private async renderFirma(doc: PDFKit.PDFDocument, firma: FirmaConfig) {
         try {
             let imgSource: any;
+
             if (firma.imagenUrl.startsWith('data:image')) {
                 imgSource = firma.imagenUrl;
-            } else if (firma.imagenUrl.startsWith('http')) {
-                const resp = await fetch(firma.imagenUrl);
-                imgSource = Buffer.from(await resp.arrayBuffer());
+            } else {
+                // Intentar resolución local primero
+                const localPath = this.resolveLocalPath(firma.imagenUrl);
+                if (localPath && fs.existsSync(localPath)) {
+                    imgSource = localPath;
+                } else if (firma.imagenUrl.startsWith('http')) {
+                    // Si falla local y es URL, fetch con timeout
+                    const resp = await this.fetchWithTimeout(firma.imagenUrl);
+                    imgSource = Buffer.from(await resp.arrayBuffer());
+                }
             }
 
             if (imgSource) {
@@ -225,6 +297,8 @@ export class CertificateGeneratorService {
                 doc.image(imgSource, firma.x - (firma.width / 2), firma.y - firma.height + 10, {
                     width: firma.width
                 });
+            } else {
+                console.warn(`[CERT_GEN] No se pudo cargar imagen de firma para: ${firma.nombrePersona}`);
             }
 
             // Line and Text

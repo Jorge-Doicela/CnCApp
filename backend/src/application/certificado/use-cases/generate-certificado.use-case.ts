@@ -1,6 +1,5 @@
 import { injectable, inject } from 'tsyringe';
 import { CertificadoRepository } from '../../../domain/certificado/repositories/certificado.repository';
-import { Certificado } from '../../../domain/certificado/entities/certificado.entity';
 import { CertificateGeneratorService } from '../../../infrastructure/services/certificate-generator.service';
 import { UserRepository } from '../../../domain/user/user.repository';
 import { CapacitacionRepository } from '../../../domain/capacitacion/repositories/capacitacion.repository';
@@ -10,6 +9,9 @@ import fs from 'fs';
 import crypto from 'crypto';
 import { UsuarioCapacitacionRepository } from '../../../domain/usuario-capacitacion/usuario-capacitacion.repository';
 import { EmailService } from '../../../infrastructure/services/email.service';
+import logger from '../../../config/logger';
+import { NotFoundError } from '../../../domain/shared/errors';
+import { PlantillaRepository } from '../../../domain/plantilla/plantilla.repository';
 
 @injectable()
 export class GenerateCertificadoUseCase {
@@ -19,48 +21,14 @@ export class GenerateCertificadoUseCase {
         @inject('UserRepository') private userRepository: UserRepository,
         @inject('CapacitacionRepository') private capacitacionRepository: CapacitacionRepository,
         @inject('UsuarioCapacitacionRepository') private usuarioCapacitacionRepository: UsuarioCapacitacionRepository,
+        @inject('PlantillaRepository') private plantillaRepository: PlantillaRepository,
         @inject(EmailService) private emailService: EmailService
     ) { }
 
-    async execute(usuarioId: number, capacitacionId: number): Promise<Certificado> {
-        // 0. Check if certificate already exists to avoid duplicates
-        const existing = await this.certificadoRepository.findByUserAndCapacitacion(usuarioId, capacitacionId);
-        if (existing) {
-            return existing;
-        }
-        
-        // 0.5 Check Attendance
-        const inscripcion = await this.usuarioCapacitacionRepository.findByUserAndCapacitacion(usuarioId, capacitacionId);
-        if (!inscripcion) throw new Error('El usuario no está inscrito en esta capacitación');
-        if (!inscripcion.asistio) throw new Error('El usuario no marcó asistencia en esta capacitación');
+    private prepareCertificateData(usuario: any, capacitacion: any): any {
+        const sanitizeName = (val?: string | null) => 
+            (!val || val.toString().trim() === '' || val === 'null' || val === 'undefined') ? '' : val.trim();
 
-        // 1. Fetch User and Capacitacion
-        const usuario = await this.userRepository.findById(usuarioId);
-        if (!usuario) throw new Error('Usuario no encontrado');
-
-        const capacitacion = await this.capacitacionRepository.findById(capacitacionId);
-        if (!capacitacion) throw new Error('Capacitación no encontrada');
-
-        // Cast to any to access plantilla check in case type definition is strict
-        const capAny = capacitacion as any;
-        if (!capAny.plantillaId && !capAny.plantilla) {
-            throw new Error('La capacitación no tiene una plantilla asignada');
-        }
-
-        // 2. Resolve Plantilla
-        // If repository 'findById' includes 'plantilla', we are good. 
-        // If not, we might fail here. Assuming it is included for now.
-        if (!capAny.plantilla) {
-            // In a robust system, we would fetch simple plantilla by ID here if missing
-            throw new Error('Datos de plantilla no cargados en capacitación. Asegúrate de incluir la relación en el repositorio.');
-        }
-
-        const plantilla = capAny.plantilla;
-
-        // 3. Prepare config and data
-        const config = plantilla.configuracion || {};
-        const cursoFecha = capacitacion.fechaInicio || new Date();
-        const sanitizeName = (val?: string | null) => (!val || val.toString().trim() === '' || val === 'null' || val === 'undefined') ? '' : val.trim();
         const fullUserDisplayName = [
             sanitizeName(usuario.primerNombre),
             sanitizeName(usuario.segundoNombre),
@@ -68,69 +36,113 @@ export class GenerateCertificadoUseCase {
             sanitizeName(usuario.segundoApellido)
         ].filter(Boolean).join(' ').toUpperCase() || (usuario.nombre || '').replace(/\s*null\s*/g, ' ').trim().toUpperCase();
 
-        const data: any = {
+        const cursoFecha = capacitacion.fechaInicio || new Date();
+
+        return {
             usuario: fullUserDisplayName,
             curso: capacitacion.nombre.toUpperCase(),
             fecha: cursoFecha.toLocaleDateString('es-ES', { 
                 weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' 
             }),
             cedula: usuario.ci,
-            rol: (inscripcion.rolCapacitacion || 'Participante').toUpperCase(),
+            rol: (usuario.rolCapacitacion || 'Participante').toUpperCase(),
             horas: `${capacitacion.horas || 0} horas`,
-            modalidad: (capacitacion.modalidad || 'virtual').toLowerCase()
+            modalidad: (capacitacion.modalidad || 'virtual').toLowerCase(),
+            nombreUsuario: fullUserDisplayName
         };
+    }
 
-        // Note: 'parrafo' is now dynamically handled via fieldConfig.textoTemplate if present
-        // but we'll keep the key 'nombreUsuario' mapped to 'usuario' if the template uses it
-        data.nombreUsuario = data.usuario; 
+    async execute(usuarioId: number, capacitacionId: number): Promise<string> {
+        logger.info(`[GEN_CERT] Iniciando proceso para Usuario=${usuarioId}, Cap=${capacitacionId}`);
 
-        // 4. Generate Unique Hash and QR Content
+        // 0. Check if already exists
+        const existing = await this.certificadoRepository.findByUserAndCapacitacion(usuarioId, capacitacionId);
+        if (existing) {
+            logger.info(`[GEN_CERT] Certificado ya existe para Usuario=${usuarioId}, Cap=${capacitacionId}. URL: ${existing.pdfUrl}`);
+            return existing.pdfUrl;
+        }
+
+        // 0.5 Check Attendance
+        const inscripcion = await this.usuarioCapacitacionRepository.findByUserAndCapacitacion(usuarioId, capacitacionId);
+        if (!inscripcion || !inscripcion.asistio) {
+            logger.warn(`[GEN_CERT] Usuario=${usuarioId} no puede recibir certificado en Cap=${capacitacionId} (Asistencia: ${!!inscripcion?.asistio})`);
+            throw new Error('El usuario no tiene asistencia confirmada para este evento');
+        }
+
+        // 1. Fetch data
+        const usuario = await this.userRepository.findById(usuarioId);
+        const capacitacion = await this.capacitacionRepository.findById(capacitacionId);
+
+        if (!usuario || !capacitacion) {
+            throw new NotFoundError('Usuario o Capacitación no encontrada');
+        }
+
+        const capAny = capacitacion as any;
+        const plantillaId = capAny.plantillaId;
+        if (!plantillaId) {
+            logger.error(`[GEN_CERT] Capacitación ID=${capacitacionId} no tiene plantilla asignada.`);
+            throw new Error('La capacitación no tiene una plantilla asignada');
+        }
+
+        const plantilla = await this.plantillaRepository.findById(plantillaId);
+        if (!plantilla) {
+            throw new NotFoundError(`Plantilla ID=${plantillaId} no encontrada`);
+        }
+
+        // 2. Prepare content
+        const data = this.prepareCertificateData({ ...usuario, rolCapacitacion: inscripcion.rolCapacitacion }, capacitacion);
+        const config = plantilla.configuracion || {};
         const hash = crypto.randomBytes(12).toString('hex');
-        
-        // Base URL for verification
+
+        // Verification URL
         const baseUrl = env.FRONTEND_URL.endsWith('/') ? env.FRONTEND_URL.slice(0, -1) : env.FRONTEND_URL;
         const qrCodeUrl = `${baseUrl}/validar-certificados?hash=${hash}`;
 
-        // 5. Define Output Path
-        const fileName = `cert_${usuarioId}_${capacitacionId}_${hash.substring(0, 8)}.pdf`;
+        // 3. Output Path
         const uploadDir = path.resolve(process.cwd(), env.UPLOAD_DIR || 'public/uploads');
         const certificatesDir = path.join(uploadDir, 'certificados');
-
         if (!fs.existsSync(certificatesDir)) {
             fs.mkdirSync(certificatesDir, { recursive: true });
         }
+
+        const fileName = `cert_${usuarioId}_${capacitacionId}_${hash.substring(0, 8)}.pdf`;
         const outputPath = path.join(certificatesDir, fileName);
 
-        // 6. Generate PDF
+        // 4. Generate PDF
+        logger.info(`[GEN_CERT] Generando PDF: ${fileName} con plantilla ${plantilla.id}`);
         await this.generatorService.generate(
             plantilla.imagenUrl || '',
-            config,
+            config as any,
             data,
-            qrCodeUrl, // Physical QR code has full URL
+            qrCodeUrl,
             outputPath,
-            plantilla.firmas || []
+            plantilla.firmas as any || []
         );
 
-        // 7. Save Record
-        const savedCertificado = await this.certificadoRepository.create({
+        // 5. Save in DB
+        const publicUrl = `/uploads/certificados/${fileName}`;
+        await this.certificadoRepository.create({
             usuarioId,
             capacitacionId,
-            codigoQR: hash, // Store only hash for cleaner lookup
-            pdfUrl: `/uploads/certificados/${fileName}`
+            codigoQR: hash,
+            pdfUrl: publicUrl
         });
 
-        // 8. Enviar correo electrónico (Asíncrono)
+        logger.info(`[GEN_CERT] Certificado guardado y listo en: ${publicUrl}`);
+
+        // 6. Send Email (Async)
         if (usuario.email) {
+            logger.info(`[GEN_CERT] Enviando correo a ${usuario.email}...`);
             this.emailService.sendCertificateEmail(
                 usuario.email,
-                fullUserDisplayName,
+                data.usuario,
                 capacitacion.nombre,
                 outputPath
-            ).catch(err => console.error(`[PDF_GEN] Error al enviar correo de certificado:`, err));
-        } else {
-            console.warn(`[PDF_GEN] No se pudo enviar correo para usuario ID=${usuarioId}: Email no disponible.`);
+            ).catch(err => {
+                logger.error(`[GEN_CERT] Error enviando correo a ${usuario.email}: ${err}`);
+            });
         }
 
-        return savedCertificado;
+        return publicUrl;
     }
 }

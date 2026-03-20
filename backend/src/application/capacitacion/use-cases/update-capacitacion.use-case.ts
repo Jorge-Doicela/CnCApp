@@ -2,11 +2,14 @@ import { injectable, inject } from 'tsyringe';
 import { CapacitacionRepository } from '../../../domain/capacitacion/repositories/capacitacion.repository';
 import { Capacitacion } from '../../../domain/capacitacion/entities/capacitacion.entity';
 import { NotFoundError, ValidationError } from '../../../domain/shared/errors';
+import { EstadoCapacitacionEnum } from '../../../domain/shared/constants/enums';
+import { GenerateAllCertificadosUseCase } from '../../certificado/use-cases/generate-all-certificados.use-case';
 
 @injectable()
 export class UpdateCapacitacionUseCase {
     constructor(
-        @inject('CapacitacionRepository') private capacitacionRepository: CapacitacionRepository
+        @inject('CapacitacionRepository') private capacitacionRepository: CapacitacionRepository,
+        @inject(GenerateAllCertificadosUseCase) private generateAllUseCase: GenerateAllCertificadosUseCase
     ) { }
 
     async execute(id: number, data: Partial<Capacitacion>): Promise<Capacitacion> {
@@ -35,6 +38,22 @@ export class UpdateCapacitacionUseCase {
             }
         }
 
-        return this.capacitacionRepository.update(id, data);
+        const updated = await this.capacitacionRepository.update(id, data);
+
+        // 3. Si el estado cambia a FINALIZADA (Realizada), disparar generación de certificados automáticamente
+        if (data.estado === EstadoCapacitacionEnum.REALIZADA && current.estado !== EstadoCapacitacionEnum.REALIZADA) {
+            // Solo si no se han emitido ya
+            if (!updated.certificado) {
+                // Ejecución asíncrona para no bloquear la respuesta principal
+                this.generateAllUseCase.execute(id).then(async () => {
+                    // Marcar como certificado=true tras el éxito
+                    await this.capacitacionRepository.update(id, { certificado: true });
+                }).catch(err => {
+                    console.error(`[UNIFIED_CERT] Error en generación automática para ID=${id}:`, err);
+                });
+            }
+        }
+
+        return updated;
     }
 }
