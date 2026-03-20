@@ -1,26 +1,46 @@
-import { IonicModule } from '@ionic/angular';
-import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { AlertController, LoadingController, ToastController, ActionSheetController, NavController } from '@ionic/angular';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { 
+  IonHeader, IonToolbar, IonButtons, IonButton, IonTitle, 
+  IonMenuButton, IonContent, IonSpinner, IonIcon, 
+  IonAvatar, IonToggle, 
+  AlertController, LoadingController, ToastController, 
+  ActionSheetController, NavController 
+} from '@ionic/angular/standalone';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
-import { environment } from 'src/environments/environment';
 import { Capacitor } from '@capacitor/core';
+import { Preferences } from '@capacitor/preferences';
+import { FingerprintAIO } from '@awesome-cordova-plugins/fingerprint-aio/ngx';
+import { addIcons } from 'ionicons';
+import { 
+  settingsOutline, camera, shieldCheckmark, checkmarkCircle, 
+  closeCircle, personOutline, idCardOutline, mailOutline, 
+  callOutline, homeOutline, fingerPrintOutline, createOutline, 
+  lockClosedOutline, brushOutline, cloudOfflineOutline, 
+  school, book, medal, ribbon, footsteps, close, image, 
+  shieldCheckmarkOutline, arrowForwardCircle, chevronForward, 
+  statsChart, addCircleOutline, brush
+} from 'ionicons/icons';
 import { firstValueFrom, timeout, finalize } from 'rxjs';
 import { AuthService } from 'src/app/features/auth/services/auth.service';
-import { FingerprintAIO } from '@awesome-cordova-plugins/fingerprint-aio/ngx';
 import { SecureStorageService } from 'src/app/core/services/secure-storage.service';
 import { WebAuthnUtil } from 'src/app/core/utils/webauthn.util';
-import { Preferences } from '@capacitor/preferences';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-perfil',
   templateUrl: './perfil.page.html',
   styleUrls: ['./perfil.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule]
+  imports: [
+    CommonModule, FormsModule, 
+    IonHeader, IonToolbar, IonButtons, IonButton, IonTitle, 
+    IonMenuButton, IonContent, IonSpinner, IonIcon, 
+    IonAvatar, IonToggle
+  ]
 })
 export class PerfilPage implements OnInit {
   datosUsuario: any = null;
@@ -46,7 +66,25 @@ export class PerfilPage implements OnInit {
     private cdr: ChangeDetectorRef,
     private fingerprintAIO: FingerprintAIO,
     private secureStorage: SecureStorageService
-  ) { }
+  ) {
+    addIcons({
+      settingsOutline, camera, shieldCheckmark, checkmarkCircle, 
+      closeCircle, personOutline, idCardOutline, mailOutline, 
+      callOutline, homeOutline, fingerPrintOutline, createOutline, 
+      lockClosedOutline, brushOutline, cloudOfflineOutline, 
+      school, book, medal, ribbon, footsteps, close, image, 
+      shieldCheckmarkOutline, arrowForwardCircle, chevronForward, 
+      statsChart, addCircleOutline, brush, 'settings-outline': settingsOutline,
+      'create-outline': createOutline, 'lock-closed-outline': lockClosedOutline,
+      'brush-outline': brushOutline, 'shield-checkmark': shieldCheckmark,
+      'checkmark-circle': checkmarkCircle, 'close-circle': closeCircle,
+      'person-outline': personOutline, 'id-card-outline': idCardOutline,
+      'mail-outline': mailOutline, 'call-outline': callOutline,
+      'home-outline': homeOutline, 'finger-print-outline': fingerPrintOutline,
+      'cloud-offline-outline': cloudOfflineOutline, 'stats-chart': statsChart,
+      'arrow-forward-circle': arrowForwardCircle, 'chevron-forward': chevronForward
+    });
+  }
 
   ngOnInit() { }
 
@@ -64,14 +102,9 @@ export class PerfilPage implements OnInit {
     }
   }
 
-  verificarDisponibilidadBiometria() {
-     // Stub in case checking state logic needs expansion later
-  }
-
   async toggleBiometria(event: any) {
     const isChecked = event.detail.checked;
     
-    // Si el usuario lo está activando
     if (isChecked) {
       try {
         const isNative = Capacitor.isNativePlatform();
@@ -117,13 +150,11 @@ export class PerfilPage implements OnInit {
                 await loading.present();
 
                 try {
-                  // Verificamos si la contraseña es correcta haciendo un login en background
                   const loginResponse = await firstValueFrom(this.authService.login(ci, pass));
                   await loading.dismiss();
 
                   if (loginResponse.success) {
                       if (isNative) {
-                          // Solicitar la huella o rostro para confirmar propiedad en móvil
                           await this.fingerprintAIO.show({
                              title: 'Confirmar Seguridad',
                              subtitle: 'Active la biometría usando su dispositivo',
@@ -131,27 +162,18 @@ export class PerfilPage implements OnInit {
                              disableBackup: true
                           });
                       } else {
-                          // Crear la credencial WebAuthn
                           const credentialId = await WebAuthnUtil.registerBiometric(this.datosUsuario.Nombre_Usuario);
                           await this.secureStorage.set('bio_credential_id', credentialId);
                       }
 
-                      // --- CONFIGURACIÓN NIVEL 2: TOKENIZACIÓN ---
-                      // Ya no guardamos la contraseña. Pedimos al servidor un token único.
                       const setupResponse = await firstValueFrom(this.authService.setupBiometric());
                       
                       if (setupResponse.success && setupResponse.data.biometricToken) {
-                          // Guardamos el TOKEN, no la contraseña
                           await this.secureStorage.set('biometria_activada', 'true');
                           await this.secureStorage.set('bio_ci', ci);
                           await this.secureStorage.set('bio_token', setupResponse.data.biometricToken);
                           
-                          if (!isNative) {
-                              const credentialId = await WebAuthnUtil.registerBiometric(this.datosUsuario.Nombre_Usuario);
-                              await this.secureStorage.set('bio_credential_id', credentialId);
-                          }
-
-                          this.presentToast('Biometría configurada correctamente (Nivel 2)', 'success');
+                          this.presentToast('Biometría configurada correctamente', 'success');
                           this.biometriaActiva = true;
                       } else {
                           throw new Error('No se pudo generar el token biométrico');
@@ -178,28 +200,25 @@ export class PerfilPage implements OnInit {
         this.biometriaActiva = false;
       }
     } else {
-      // Si la está desactivando
       await this.secureStorage.remove('biometria_activada');
       await this.secureStorage.remove('bio_ci');
       await this.secureStorage.remove('bio_pwd');
       await this.secureStorage.remove('bio_token');
       await this.secureStorage.remove('bio_credential_id');
       this.biometriaActiva = false;
-      this.presentToast('Biometría desactivada y llaves eliminadas.', 'secondary');
+      this.presentToast('Biometría desactivada.', 'secondary');
     }
   }
 
   cargarPerfil() {
     this.cargando = true;
     this.datosUsuario = null;
-
-    // Usamos /api/users/me: accesible por cualquier usuario autenticado (no requiere admin)
     const url = `${environment.apiUrl}/users/me`;
 
     this.http.get<any>(url).pipe(
       timeout(10000),
       finalize(() => {
-        this.calcularLogros(); // Se calculan los logros al final de recargar
+        this.calcularLogros();
         this.cargando = false;
         this.cdr.detectChanges();
       })
@@ -226,7 +245,6 @@ export class PerfilPage implements OnInit {
 
         this.datosUsuario = {
           ...usuario,
-          // Campos normalizados para la vista
           Nombre_Usuario: [usuario.primerNombre, usuario.segundoNombre].filter(Boolean).join(' ') || usuario.nombre,
           apellido: apellido,
           nombreCompleto: nombreCompleto,
@@ -235,7 +253,6 @@ export class PerfilPage implements OnInit {
           Rol_Usuario: usuario.rol?.nombre || 'Usuario',
           Imagen_Perfil: usuario.fotoPerfilUrl,
           Firma_Usuario: usuario.firmaUrl,
-          // Ubicación desde objetos anidados del backend
           Provincia_Nombre: usuario.provincia?.nombre || '',
           Canton_Nombre: usuario.canton?.nombre || '',
           Fecha_Nacimiento: usuario.fechaNacimiento ? new Date(usuario.fechaNacimiento).toISOString().split('T')[0] : null,
@@ -245,7 +262,6 @@ export class PerfilPage implements OnInit {
         this.cantonUsuario = this.datosUsuario.Canton_Nombre;
         this.parroquiaUsuario = usuario.parroquia?.nombre || '';
 
-        // Estadísticas del _count que devuelve el backend
         this.capacitacionesInscritas = usuario._count?.inscripciones ?? 0;
         this.certificadosObtenidos = usuario._count?.certificados ?? 0;
       },
@@ -263,28 +279,15 @@ export class PerfilPage implements OnInit {
   }
 
   async editarPerfil() {
-    try {
-      this.router.navigate(['/ver-perfil/editar'], {
-        state: {
-          usuario: this.datosUsuario,
-          modoFirma: false
-        }
-      });
-    } catch (error) {
-      console.error('Error en navegación a editar perfil:', error);
-      this.presentToast('Error al navegar a editar perfil', 'danger');
-    }
+    this.router.navigate(['/ver-perfil/editar'], {
+      state: { usuario: this.datosUsuario, modoFirma: false }
+    });
   }
 
   async navegarAFirma() {
-    try {
-      this.router.navigate(['/ver-perfil/firma'], {
-        state: { usuario: this.datosUsuario }
-      });
-    } catch (error) {
-      console.error('Error en navegación a firma:', error);
-      this.presentToast('Error al navegar a la página de firma', 'danger');
-    }
+    this.router.navigate(['/ver-perfil/firma'], {
+      state: { usuario: this.datosUsuario }
+    });
   }
 
   async cambiarContrasena() {
@@ -320,11 +323,10 @@ export class PerfilPage implements OnInit {
     const loading = await this.loadingController.create({ message: 'Actualizando contraseña...', spinner: 'crescent' });
     await loading.present();
     try {
-      // Usa PUT /api/users/me que no requiere ser admin
       await firstValueFrom(this.http.put(`${environment.apiUrl}/users/me`, { password: nuevaContrasena }));
       this.presentToast('Contraseña actualizada correctamente', 'success');
     } catch (error: any) {
-      const msg = error.error?.message || error.message || 'Error desconocido';
+      const msg = error.error?.message || error.message || 'Error';
       this.presentToast('Error al actualizar: ' + msg, 'danger');
     } finally {
       loading.dismiss();
@@ -402,72 +404,27 @@ export class PerfilPage implements OnInit {
     await toast.present();
   }
 
-  // ==== SISTEMA DE LOGROS ====
   calcularLogros() {
     this.logros = [];
-
-    // Logro por Asistencia (Participante)
     if (this.capacitacionesInscritas > 0) {
       if (this.capacitacionesInscritas >= 5) {
-         this.logros.push({
-           icon: 'school',
-           color: 'warning',
-           title: 'Estudiante Dedicado',
-           description: 'Te has inscrito en 5 o más capacitaciones.',
-           level: 'Oro'
-         });
+         this.logros.push({ icon: 'school', color: 'warning', title: 'Estudiante Dedicado', description: '5 o más capacitaciones.', level: 'Oro' });
       } else {
-         this.logros.push({
-           icon: 'book',
-           color: 'primary',
-           title: 'Aprendiz',
-           description: 'Te has inscrito en al menos una capacitación.',
-           level: 'Bronce'
-         });
+         this.logros.push({ icon: 'book', color: 'primary', title: 'Aprendiz', description: 'Al menos una capacitación.', level: 'Bronce' });
       }
     }
-
-    // Logro por Certificados
     if (this.certificadosObtenidos > 0) {
       if (this.certificadosObtenidos >= 3) {
-         this.logros.push({
-           icon: 'medal',
-           color: 'warning',
-           title: 'Experto Certificado',
-           description: 'Has obtenido 3 o más certificados.',
-           level: 'Oro'
-         });
+         this.logros.push({ icon: 'medal', color: 'warning', title: 'Experto Certificado', description: '3 o más certificados.', level: 'Oro' });
       } else {
-         this.logros.push({
-           icon: 'ribbon',
-           color: 'secondary',
-           title: 'Primer Certificado',
-           description: 'Has obtenido tu primer certificado.',
-           level: 'Plata'
-         });
+         this.logros.push({ icon: 'ribbon', color: 'secondary', title: 'Primer Certificado', description: 'Has obtenido un certificado.', level: 'Plata' });
       }
     }
-
-    // Logro por Perfil Completo
     if (this.datosUsuario && (this.datosUsuario.firmaUrl || this.datosUsuario.Firma_Usuario)) {
-      this.logros.push({
-        icon: 'shield-checkmark',
-        color: 'success',
-        title: 'Perfil Verificado',
-        description: 'Has configurado tu firma digital.',
-        level: 'Plata'
-      });
+      this.logros.push({ icon: 'shield-checkmark', color: 'success', title: 'Perfil Verificado', description: 'Firma digital configurada.', level: 'Plata' });
     }
-
-    // Si aún no tiene logros
     if (this.logros.length === 0) {
-      this.logros.push({
-        icon: 'footsteps',
-        color: 'medium',
-        title: 'Primeros Pasos',
-        description: 'Comienza a participar en capacitaciones para ganar logros.',
-        level: 'Inicio'
-      });
+      this.logros.push({ icon: 'footsteps', color: 'medium', title: 'Primeros Pasos', description: 'Participa para ganar logros.', level: 'Inicio' });
     }
   }
 }

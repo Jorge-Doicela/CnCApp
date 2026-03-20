@@ -1,224 +1,207 @@
-<!-- perfil.page.html - Updated to show location names -->
-<ion-header [translucent]="true">
-  <ion-toolbar color="primary">
+<!-- perfil.page.html - Luxury Glassmorphic Dashboard -->
+<ion-header [translucent]="true" class="ion-no-border">
+  <ion-toolbar class="glass-header">
     <ion-buttons slot="start">
-      <ion-menu-button></ion-menu-button>
+      <ion-menu-button color="primary"></ion-menu-button>
     </ion-buttons>
-    <ion-title class="ion-text-center">Perfil de Usuario</ion-title>
+    <ion-title class="premium-title">MI PERFIL</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="editarPerfil()">
+        <ion-icon name="settings-outline" color="primary"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true" class="ion-padding">
+<ion-content [fullscreen]="true" class="premium-content">
+  <!-- Background Decorations -->
+  <div class="bg-blur-circle primary"></div>
+  <div class="bg-blur-circle secondary"></div>
 
-  <ion-card class="main-card">
+  <div class="glass-container-premium">
     <div *ngIf="cargando" class="loading-container">
       <ion-spinner name="crescent" color="primary"></ion-spinner>
-      <p>Cargando datos de perfil...</p>
+      <p class="loading-text">Sincronizando tus datos...</p>
     </div>
 
-    <div *ngIf="!cargando && datosUsuario">
-      <!-- Tarjeta de presentación -->
-      <div class="profile-header fade-in">
-        <div class="profile-image-container">
-          <div class="profile-image">
-            <ion-avatar>
+    <div *ngIf="!cargando && datosUsuario" class="content-fade-up">
+      <!-- Profile Header Section -->
+      <section class="profile-hero-section">
+        <div class="profile-avatar-wrapper animate-fade-in">
+          <div class="avatar-glass-ring">
+            <ion-avatar class="premium-avatar">
               <img [src]="datosUsuario.Imagen_Perfil || 'assets/avatar-placeholder.png'" alt="Foto de perfil">
             </ion-avatar>
-            <div class="edit-photo-button" (click)="actualizarFotoPerfil()">
+            <div class="avatar-edit-badge" (click)="actualizarFotoPerfil()">
               <ion-icon name="camera"></ion-icon>
             </div>
           </div>
         </div>
-        <div class="profile-info">
-          <h2>{{ datosUsuario.nombreCompleto || 'Usuario' }}</h2>
-          <p class="profile-role">
-            <ion-icon name="shield-checkmark-outline"></ion-icon>
-            {{ obtenerRolTexto(datosUsuario.Rol_Usuario) }}
-          </p>
-          <div class="profile-stats">
-            <div class="stat-item">
-              <span class="stat-value">{{ capacitacionesInscritas }}</span>
-              <span class="stat-label">Capacitaciones</span>
+
+        <div class="profile-hero-info animate-slide-up">
+          <span class="eyebrow">ADMINISTRACIÓN</span>
+          <h1 class="profile-name">{{ datosUsuario.nombreCompleto || 'Usuario' }}</h1>
+          <div class="profile-role-badge">
+            <ion-icon name="shield-checkmark"></ion-icon>
+            <span>{{ obtenerRolTexto(datosUsuario.Rol_Usuario) }}</span>
+          </div>
+        </div>
+
+        <div class="premium-stats-grid">
+          <div class="stat-card animate-scale-in" style="animation-delay: 0.1s;">
+            <span class="stat-num">{{ capacitacionesInscritas }}</span>
+            <span class="stat-label">CURSOS</span>
+          </div>
+          <div class="stat-card animate-scale-in" style="animation-delay: 0.2s;">
+            <span class="stat-num">{{ certificadosObtenidos }}</span>
+            <span class="stat-label">LOGROS</span>
+          </div>
+          <div class="stat-card status-card animate-scale-in" style="animation-delay: 0.3s;">
+            <ion-icon [name]="datosUsuario.Firma_Usuario ? 'checkmark-circle' : 'close-circle'" 
+                      [color]="datosUsuario.Firma_Usuario ? 'success' : 'danger'"></ion-icon>
+            <span class="stat-label">FIRMA</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Personal Info Section -->
+      <section class="premium-section animate-fade-up" style="animation-delay: 0.4s;">
+        <span class="eyebrow">DETALLES PERSONALES</span>
+        <div class="premium-info-card">
+          <div class="info-row">
+            <div class="info-icon-box primary">
+              <ion-icon name="person-outline"></ion-icon>
             </div>
-            <div class="stat-item">
-              <span class="stat-value">{{ certificadosObtenidos }}</span>
-              <span class="stat-label">Certificados</span>
+            <div class="info-data">
+              <label>NOMBRE COMPLETO</label>
+              <span>{{ datosUsuario.nombreCompleto }}</span>
             </div>
-            <div class="stat-item" *ngIf="datosUsuario.Firma_Usuario">
-              <span class="stat-value"><ion-icon name="checkmark-circle" color="success"></ion-icon></span>
-              <span class="stat-label">Firma Digital</span>
+          </div>
+          <div class="info-row">
+            <div class="info-icon-box secondary">
+              <ion-icon name="id-card-outline"></ion-icon>
             </div>
-            <div class="stat-item" *ngIf="!datosUsuario.Firma_Usuario">
-              <span class="stat-value"><ion-icon name="close-circle" color="danger"></ion-icon></span>
-              <span class="stat-label">Firma Digital</span>
+            <div class="info-data">
+              <label>IDENTIFICACIÓN</label>
+              <span>{{ datosUsuario.CI_Usuario || datosUsuario.cedula || 'N/A' }}</span>
+            </div>
+          </div>
+          <div class="info-row">
+            <div class="info-icon-box primary">
+              <ion-icon name="mail-outline"></ion-icon>
+            </div>
+            <div class="info-data">
+              <label>CONTACTO DIGITAL</label>
+              <span>{{ datosUsuario.email }}</span>
+            </div>
+          </div>
+          <div class="info-row">
+            <div class="info-icon-box secondary">
+              <ion-icon name="call-outline"></ion-icon>
+            </div>
+            <div class="info-data">
+              <label>TELÉFONO MÓVIL</label>
+              <span>{{ datosUsuario.Celular_Usuario || datosUsuario.telefono || 'No especificado' }}</span>
             </div>
           </div>
         </div>
+      </section>
+
+      <!-- Location Section -->
+      <section class="premium-section animate-fade-up" style="animation-delay: 0.5s;"
+               *ngIf="datosUsuario.Canton_Nombre || datosUsuario.Parroquia_Nombre || provinciaUsuario">
+        <span class="eyebrow">UBICACIÓN ESTRATÉGICA</span>
+        <div class="premium-info-card">
+          <div class="location-grid">
+            <div class="location-item" *ngIf="provinciaUsuario">
+              <label>PROVINCIA</label>
+              <p>{{ provinciaUsuario }}</p>
+            </div>
+            <div class="location-item" *ngIf="cantonUsuario">
+              <label>CANTÓN</label>
+              <p>{{ cantonUsuario }}</p>
+            </div>
+          </div>
+          <div class="info-row full-width" *ngIf="datosUsuario.direccion">
+            <div class="info-icon-box primary">
+              <ion-icon name="home-outline"></ion-icon>
+            </div>
+            <div class="info-data">
+              <label>DIRECCIÓN DOMICILIARIA</label>
+              <span>{{ datosUsuario.direccion }}</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Badges Section -->
+      <section class="premium-section animate-fade-up" style="animation-delay: 0.6s;" *ngIf="logros.length > 0">
+        <span class="eyebrow">RECOMPENSAS Y RECONOCIMIENTOS</span>
+        <div class="premium-badges-slider">
+          <div class="premium-badge-item" *ngFor="let logro of logros" [ngClass]="'tier-' + logro.level.toLowerCase()">
+            <div class="premium-badge-icon">
+              <ion-icon [name]="logro.icon" [color]="logro.color"></ion-icon>
+            </div>
+            <div class="premium-badge-text">
+              <h4>{{ logro.title }}</h4>
+              <p>{{ logro.description }}</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Security & Actions -->
+      <section class="premium-section animate-fade-up" style="animation-delay: 0.7s;">
+        <span class="eyebrow">CONFIGURACIÓN Y SEGURIDAD</span>
+        <div class="premium-info-card highlight">
+          <div class="security-toggle-container">
+            <div class="info-icon-box accent">
+              <ion-icon name="finger-print-outline"></ion-icon>
+            </div>
+            <div class="info-content">
+              <h3>Biometría Avanzada</h3>
+              <p>Seguridad mediante FaceID/TouchID</p>
+            </div>
+            <ion-toggle [checked]="biometriaActiva" (ionChange)="toggleBiometria($event)"></ion-toggle>
+          </div>
+        </div>
+
+        <div class="profile-action-stack">
+          <button class="premium-pill-button primary" (click)="editarPerfil()">
+            <ion-icon name="create-outline"></ion-icon>
+            <span>MODIFICAR PERFIL</span>
+          </button>
+          
+          <button class="premium-pill-button secondary" (click)="cambiarContrasena()">
+            <ion-icon name="lock-closed-outline"></ion-icon>
+            <span>SEGURIDAD DE CUENTA</span>
+          </button>
+
+          <button class="premium-pill-button outline accent" (click)="navegarAFirma()" *ngIf="!datosUsuario.Firma_Usuario">
+            <ion-icon name="brush-outline"></ion-icon>
+            <span>VINCULAR FIRMA DIGITAL</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Sign Out -->
+      <div class="logout-container animate-fade-in" style="animation-delay: 0.9s;">
+        <button class="premium-text-button danger" (click)="cerrarSesion()">
+          Cerrar sesión de forma segura
+        </button>
       </div>
-
-      <!-- Contenido de perfil -->
-      <ion-card-content>
-        <!-- Información personal -->
-        <div class="profile-section fade-in" style="animation-delay: 0.1s;">
-          <h3 class="section-title">Información Personal</h3>
-          <div class="info-grid">
-            <div class="info-item">
-              <ion-icon name="person-outline" color="primary"></ion-icon>
-              <div class="info-content">
-                <span class="info-label">Nombre Completo</span>
-                <span class="info-value">{{ datosUsuario.nombreCompleto }}</span>
-              </div>
-            </div>
-            <div class="info-item">
-              <ion-icon name="id-card-outline" color="primary"></ion-icon>
-              <div class="info-content">
-                <span class="info-label">Cédula</span>
-                <span class="info-value">{{ datosUsuario.CI_Usuario || datosUsuario.cedula || 'No especificado'
-                  }}</span>
-              </div>
-            </div>
-            <div class="info-item">
-              <ion-icon name="mail-outline" color="primary"></ion-icon>
-              <div class="info-content">
-                <span class="info-label">Correo Electrónico</span>
-                <span class="info-value">{{ datosUsuario.email }}</span>
-              </div>
-            </div>
-            <div class="info-item">
-              <ion-icon name="call-outline" color="primary"></ion-icon>
-              <div class="info-content">
-                <span class="info-label">Teléfono</span>
-                <span class="info-value">{{ datosUsuario.Celular_Usuario || datosUsuario.telefono || 'No especificado'
-                  }}</span>
-              </div>
-            </div>
-            <div class="info-item" *ngIf="datosUsuario.Genero_Usuario">
-              <ion-icon name="person-circle-outline" color="primary"></ion-icon>
-              <div class="info-content">
-                <span class="info-label">Género</span>
-                <span class="info-value">{{ datosUsuario.Genero_Usuario }}</span>
-              </div>
-            </div>
-            <div class="info-item" *ngIf="datosUsuario.Fecha_Nacimiento">
-              <ion-icon name="calendar-outline" color="primary"></ion-icon>
-              <div class="info-content">
-                <span class="info-label">Fecha de Nacimiento</span>
-                <span class="info-value">{{ datosUsuario.Fecha_Nacimiento }}</span>
-              </div>
-            </div>
-            <div class="info-item" *ngIf="datosUsuario.Nacionalidad_Usuario">
-              <ion-icon name="flag-outline" color="primary"></ion-icon>
-              <div class="info-content">
-                <span class="info-label">Nacionalidad</span>
-                <span class="info-value">{{ datosUsuario.Nacionalidad_Usuario }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Dirección y ubicación -->
-        <div class="profile-section fade-in" style="animation-delay: 0.15s;"
-          *ngIf="datosUsuario.Canton_Nombre || datosUsuario.Parroquia_Nombre || provinciaUsuario">
-          <h3 class="section-title">Ubicación y Dirección</h3>
-          <div class="info-grid">
-            <div class="info-item" *ngIf="provinciaUsuario">
-              <ion-icon name="map-outline" color="primary"></ion-icon>
-              <div class="info-content">
-                <span class="info-label">Provincia</span>
-                <span class="info-value">{{ provinciaUsuario }}</span>
-              </div>
-            </div>
-            <div class="info-item" *ngIf="cantonUsuario">
-              <ion-icon name="business-outline" color="primary"></ion-icon>
-              <div class="info-content">
-                <span class="info-label">Cantón</span>
-                <span class="info-value">{{ cantonUsuario }}</span>
-              </div>
-            </div>
-            <div class="info-item" *ngIf="parroquiaUsuario">
-              <ion-icon name="location-outline" color="primary"></ion-icon>
-              <div class="info-content">
-                <span class="info-label">Parroquia</span>
-                <span class="info-value">{{ parroquiaUsuario }}</span>
-              </div>
-            </div>
-            <div class="info-item" *ngIf="datosUsuario.direccion">
-              <ion-icon name="home-outline" color="primary"></ion-icon>
-              <div class="info-content">
-                <span class="info-label">Dirección</span>
-                <span class="info-value">{{ datosUsuario.direccion }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Recompensas y Logros (Estilo Github) -->
-        <div class="profile-section fade-in" style="animation-delay: 0.25s;" *ngIf="logros.length > 0">
-          <h3 class="section-title">Logros y Recompensas</h3>
-          <div class="badges-container">
-            <div class="badge-item" *ngFor="let logro of logros" [ngClass]="'tier-' + logro.level.toLowerCase()">
-              <div class="badge-icon-wrapper">
-                <ion-icon [name]="logro.icon" [color]="logro.color"></ion-icon>
-              </div>
-              <h4 class="badge-title">{{ logro.title }}</h4>
-              <p class="badge-desc">{{ logro.description }}</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Firma digital -->
-        <div class="profile-section fade-in" style="animation-delay: 0.3s;" *ngIf="datosUsuario.Firma_Usuario">
-          <h3 class="section-title">Firma Digital</h3>
-          <div class="signature-container">
-            <img [src]="datosUsuario.Firma_Usuario" alt="Firma digital" class="signature-image">
-            <ion-button fill="outline" color="primary" size="small" (click)="navegarAFirma()">
-              <ion-icon name="create-outline" slot="start"></ion-icon>
-              Actualizar Firma
-            </ion-button>
-          </div>
-        </div>
-
-        <!-- Seguridad -->
-        <div class="profile-section fade-in" style="animation-delay: 0.35s;">
-          <h3 class="section-title">Seguridad</h3>
-          <div class="security-item">
-            <div class="info-item biometric-toggle-item">
-              <ion-icon name="finger-print-outline" color="primary"></ion-icon>
-              <div class="info-content">
-                <span class="info-label">Inicio con Biometría</span>
-                <span class="info-value">FaceID/Huella o Patrón</span>
-              </div>
-              <ion-toggle slot="end" [checked]="biometriaActiva" (ionChange)="toggleBiometria($event)"></ion-toggle>
-            </div>
-          </div>
-        </div>
-
-        <!-- Acciones de perfil -->
-        <div class="profile-actions fade-in" style="animation-delay: 0.4s;">
-          <ion-button expand="block" color="primary" (click)="editarPerfil()">
-            <ion-icon name="create-outline" slot="start"></ion-icon>
-            Editar Perfil
-          </ion-button>
-          <ion-button expand="block" color="medium" (click)="cambiarContrasena()">
-            <ion-icon name="lock-closed-outline" slot="start"></ion-icon>
-            Cambiar Contraseña
-          </ion-button>
-          <ion-button expand="block" color="secondary" (click)="navegarAFirma()" *ngIf="!datosUsuario.Firma_Usuario">
-            <ion-icon name="create-outline" slot="start"></ion-icon>
-            Agregar Firma Digital
-          </ion-button>
-        </div>
-      </ion-card-content>
     </div>
 
-    <!-- Estado vacío si no hay datos -->
-    <div *ngIf="!cargando && !datosUsuario" class="empty-state">
-      <ion-icon name="alert-circle-outline" color="medium"></ion-icon>
-      <h4>No se pudo cargar el perfil</h4>
-      <p>No se encontraron datos del usuario. Intente iniciar sesión nuevamente.</p>
-      <ion-button expand="block" color="primary" (click)="cerrarSesion()">
-        Volver a Iniciar Sesión
-      </ion-button>
+    <!-- Empty State -->
+    <div *ngIf="!cargando && !datosUsuario" class="premium-empty-state">
+      <div class="empty-icon-wrapper">
+        <ion-icon name="cloud-offline-outline"></ion-icon>
+      </div>
+      <h2>Sin conexión con el servidor</h2>
+      <p>No logramos recuperar tu perfil en este momento.</p>
+      <button class="premium-pill-button primary" (click)="cerrarSesion()">
+        REINTENTAR ACCESO
+      </button>
     </div>
-  </ion-card>
+  </div>
 </ion-content>

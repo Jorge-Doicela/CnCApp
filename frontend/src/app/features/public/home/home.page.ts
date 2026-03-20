@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import {
   IonContent, IonIcon,
   ToastController, LoadingController, MenuController,
-  IonSpinner, IonButton
+  IonSpinner
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -40,7 +40,7 @@ import { firstValueFrom } from 'rxjs';
   standalone: true,
   imports: [
     CommonModule, FormsModule,
-    IonContent, IonIcon, IonSpinner, IonButton
+    IonContent, IonIcon, IonSpinner
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
