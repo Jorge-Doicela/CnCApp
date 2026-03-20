@@ -43,7 +43,7 @@ export class CrudcapacitacionesPage implements OnInit {
   filtroCertificados: string = 'todos';
   fechaDesde: string = '';
   fechaHasta: string = '';
-  ordenarPor: string = 'fecha_desc';
+  ordenarPor: string = 'prioridad';
   terminoBusqueda: string = '';
   cargando: boolean = false;
   mostrarFiltrosAvanzados: boolean = false;
@@ -144,6 +144,37 @@ export class CrudcapacitacionesPage implements OnInit {
 
     // 6. Ordenar resultados
     switch (this.ordenarPor) {
+      case 'prioridad':
+        resultado.sort((a, b) => {
+          const score = (cap: Capacitacion) => {
+            const estado = (cap.estado || '').toLowerCase();
+            // Prioridad 1: Próximas (Activa, Pendiente, Programada, En Progreso)
+            if (['activa', 'en progreso', 'pendiente', 'programada'].includes(estado)) return 1;
+            // Prioridad 2: Pasadas (Finalizada, Realizada)
+            if (['finalizada', 'realizada'].includes(estado)) return 2;
+            // Prioridad 3: Canceladas
+            if (estado === 'cancelada') return 3;
+            return 4;
+          };
+          
+          const scoreA = score(a);
+          const scoreB = score(b);
+          
+          if (scoreA !== scoreB) return scoreA - scoreB;
+          
+          // Si tienen el mismo score, desempatar por fecha
+          const dateA = new Date(a.fechaInicio || 0).getTime();
+          const dateB = new Date(b.fechaInicio || 0).getTime();
+          
+          if (scoreA === 1) {
+            // Próximas: La más cercana primero (Ascendente)
+            return dateA - dateB;
+          } else {
+            // Otros (Finalizadas/Canceladas): La más reciente primero (Descendente)
+            return dateB - dateA;
+          }
+        });
+        break;
       case 'fecha_asc':
         resultado.sort((a, b) => new Date(a.fechaInicio || 0).getTime() - new Date(b.fechaInicio || 0).getTime());
         break;
@@ -169,7 +200,7 @@ export class CrudcapacitacionesPage implements OnInit {
     this.filtroCertificados = 'todos';
     this.fechaDesde = '';
     this.fechaHasta = '';
-    this.ordenarPor = 'fecha_desc';
+    this.ordenarPor = 'prioridad';
     this.terminoBusqueda = '';
     this.aplicarFiltros();
   }

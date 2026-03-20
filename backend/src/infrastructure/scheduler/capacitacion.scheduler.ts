@@ -10,14 +10,21 @@ import prisma from '../../config/database';
  * Si no hay hora, asume el final del día (23:59).
  */
 function buildFechaHoraFin(fecha: Date, hora?: string | null): Date {
-    const dt = new Date(fecha);
-    if (hora) {
-        const [h, m] = hora.split(':').map(Number);
-        dt.setHours(h ?? 23, m ?? 59, 0, 0);
-    } else {
-        dt.setHours(23, 59, 0, 0);
-    }
-    return dt;
+    // 1. Obtener la base de la fecha (YYYY-MM-DD)
+    // Usamos el formato ISO pero asegurándonos de que no cambie el día por el desfase UTC
+    const year = fecha.getUTCFullYear();
+    const month = String(fecha.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(fecha.getUTCDate()).padStart(2, '0');
+    const dateStr = `${year}-${month}-${day}`;
+
+    // 2. Obtener la hora (HH:mm)
+    let horaStr = hora || '23:59';
+    if (!horaStr.includes(':')) horaStr = '23:59';
+
+    // 3. Construir string ISO con el offset de Ecuador (-05:00)
+    const combinedStr = `${dateStr}T${horaStr}:00.000-05:00`;
+    
+    return new Date(combinedStr);
 }
 
 /**

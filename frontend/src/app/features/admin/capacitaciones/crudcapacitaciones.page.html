@@ -103,6 +103,7 @@
           <div class="select-group">
             <label style="font-size: 0.75rem; font-weight: 800; color: var(--text-muted); display: block; margin-bottom: 10px; text-transform: uppercase;">Criterio de Ordenamiento</label>
             <ion-select [(ngModel)]="ordenarPor" (ionChange)="aplicarFiltros()" interface="popover" toggleIcon="chevron-down-outline" style="background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0; --padding-start: 16px; min-height: 48px;">
+              <ion-select-option value="prioridad">Prioridad (Recomendado)</ion-select-option>
               <ion-select-option value="fecha_desc">Cronológico (Nuevo-Viejo)</ion-select-option>
               <ion-select-option value="fecha_asc">Cronológico (Viejo-Nuevo)</ion-select-option>
               <ion-select-option value="nombre">Alfabético (A-Z)</ion-select-option>
