@@ -403,8 +403,10 @@ export class PerfilPage implements OnInit {
       await firstValueFrom(this.http.put(`${environment.apiUrl}/users/me`, { fotoPerfilUrl: null }));
       this.datosUsuario.Imagen_Perfil = null;
       this.presentToast('Foto de perfil eliminada', 'success');
+      this.calcularLogros(); // Actualizar logros
       this.cdr.detectChanges();
     } catch (error: any) {
+
       const msg = error.error?.message || error.message || 'Error';
       this.presentToast('Error al eliminar foto: ' + msg, 'danger');
     } finally {
@@ -418,9 +420,16 @@ export class PerfilPage implements OnInit {
     await loading.present();
     try {
       const fotoUrl = `data:image/${format};base64,${base64}`;
-      await firstValueFrom(this.http.put(`${environment.apiUrl}/users/me`, { fotoPerfilUrl: fotoUrl }));
-      this.datosUsuario.Imagen_Perfil = fotoUrl;
+      const response: any = await firstValueFrom(this.http.put(`${environment.apiUrl}/users/me`, { fotoPerfilUrl: fotoUrl }));
+      
+      if (response && response.fotoPerfilUrl) {
+        this.datosUsuario.Imagen_Perfil = response.fotoPerfilUrl;
+      } else {
+        this.datosUsuario.Imagen_Perfil = fotoUrl; // Fallback a base64 local
+      }
+      
       this.presentToast('Foto de perfil actualizada', 'success');
+      this.calcularLogros(); // Recalcular logros al cambiar foto
       this.cdr.detectChanges();
     } catch (error: any) {
       const msg = error.error?.message || error.message || 'Error';
@@ -429,6 +438,7 @@ export class PerfilPage implements OnInit {
       loading.dismiss();
     }
   }
+
 
   async cerrarSesion() {
     const loading = await this.loadingController.create({ message: 'Cerrando sesión...', spinner: 'crescent' });
@@ -471,8 +481,14 @@ export class PerfilPage implements OnInit {
       }
     }
     if (this.datosUsuario && (this.datosUsuario.firmaUrl || this.datosUsuario.Firma_Usuario)) {
-      this.logros.push({ icon: 'shield-checkmark', color: 'success', title: 'Perfil Verificado', description: 'Firma digital configurada.', level: 'Plata' });
+      const tieneFoto = this.datosUsuario.Imagen_Perfil && !this.datosUsuario.Imagen_Perfil.includes('placeholder');
+      if (tieneFoto) {
+        this.logros.push({ icon: 'shield-checkmark', color: 'warning', title: 'Perfil Élite', description: 'Foto y firma configuradas.', level: 'Oro' });
+      } else {
+        this.logros.push({ icon: 'shield-checkmark', color: 'success', title: 'Perfil Verificado', description: 'Firma digital configurada.', level: 'Plata' });
+      }
     }
+
     if (this.logros.length === 0) {
       this.logros.push({ icon: 'footsteps', color: 'medium', title: 'Primeros Pasos', description: 'Participa para ganar logros.', level: 'Inicio' });
     }

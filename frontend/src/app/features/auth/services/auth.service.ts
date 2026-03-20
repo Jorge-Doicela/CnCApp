@@ -9,7 +9,9 @@ export interface AuthUser {
     ci: string;
     email?: string;
     telefono?: string;
+    fotoPerfilUrl?: string; // Nuevo: para consistencia global
     rol: {
+
         id: number;
         nombre: string;
         modulos?: any;

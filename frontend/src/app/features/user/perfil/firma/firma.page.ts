@@ -220,7 +220,13 @@ export class FirmaPage implements OnInit, AfterViewInit {
   async ejecutarSubidaFirma(dataUrl: string) {
     try {
       // 1. Enviar al backend (usamos /me para no requerir ser admin)
-      await firstValueFrom(this.http.put(`${environment.apiUrl}/users/me`, { firmaUrl: dataUrl }));
+      const response: any = await firstValueFrom(this.http.put(`${environment.apiUrl}/users/me`, { firmaUrl: dataUrl }));
+      
+      if (response && response.firmaUrl) {
+        // Podríamos actualizar el estado local si fuera necesario, 
+        // pero navegamos atrás al perfil que recargará los datos.
+      }
+      
       this.presentToast('Firma actualizada correctamente', 'success');
       this.navController.navigateBack('/ver-perfil');
     } catch (error: any) {
@@ -228,6 +234,7 @@ export class FirmaPage implements OnInit, AfterViewInit {
       throw error;
     }
   }
+
 
   async subirFirma(dataUrl: string) {
     // Deprecated: Supabase implementation removed

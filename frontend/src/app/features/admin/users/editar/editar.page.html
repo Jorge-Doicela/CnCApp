@@ -395,7 +395,8 @@
 
         <div class="firma-container">
           <div class="firma-preview" *ngIf="usuario.firmaUrl">
-            <img [src]="usuario.firmaUrl" alt="Firma" class="firma-image">
+            <img [src]="getImageUrl(usuario.firmaUrl)" alt="Firma" class="firma-image">
+
             <ion-button size="small" color="danger" fill="clear" (click)="eliminarFirma()">
               <ion-icon name="trash-outline" slot="start"></ion-icon>ELIMINAR FIRMA
             </ion-button>
