@@ -1,7 +1,7 @@
 import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import {
     IonHeader, IonToolbar, IonTitle, IonContent, IonButtons,
     IonMenuButton, IonCard, IonCardHeader, IonCardTitle,
@@ -22,7 +22,7 @@ import { firstValueFrom } from 'rxjs';
     templateUrl: './grados-ocupacionales.page.html',
     standalone: true,
     imports: [
-        CommonModule, FormsModule, RouterLink,
+        CommonModule, FormsModule,
         IonHeader, IonToolbar, IonTitle, IonContent, IonButtons,
         IonMenuButton, IonCard, IonCardHeader, IonCardTitle,
         IonCardContent, IonItem, IonButton, IonIcon,

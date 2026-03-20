@@ -3,8 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
   IonContent, IonIcon,
-  ToastController, LoadingController, MenuController,
-  IonSpinner
+  ToastController, LoadingController, MenuController
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -40,7 +39,7 @@ import { firstValueFrom } from 'rxjs';
   standalone: true,
   imports: [
     CommonModule, FormsModule,
-    IonContent, IonIcon, IonSpinner
+    IonContent, IonIcon
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
