@@ -10,8 +10,9 @@ import { addIcons } from 'ionicons';
 import {
   cardOutline, lockClosedOutline, logInOutline, personAddOutline,
   close, arrowBack, arrowBackOutline, personOutline, arrowForwardOutline,
-  eyeOutline, eyeOffOutline, fingerPrintOutline
+  eyeOutline, eyeOffOutline, fingerPrintOutline, shieldCheckmarkOutline
 } from 'ionicons/icons';
+
 import { Capacitor } from '@capacitor/core';
 import { AuthService } from '../services/auth.service';
 import { SecureStorageService } from 'src/app/core/services/secure-storage.service';
@@ -42,6 +43,9 @@ export class LoginPage implements OnInit {
   password = signal<string>('');
   showPassword = signal<boolean>(false);
   isLoading = signal<boolean>(false);
+  biometricLabel = 'Biometría';
+  biometricIcon = 'finger-print-outline';
+
 
   constructor(
     private router: Router,
@@ -62,8 +66,11 @@ export class LoginPage implements OnInit {
       arrowForwardOutline,
       eyeOutline,
       eyeOffOutline,
-      fingerPrintOutline
+      fingerPrintOutline,
+      shieldCheckmarkOutline,
+      'shield-checkmark-outline': shieldCheckmarkOutline
     });
+
   }
 
   ngOnInit() {
@@ -91,8 +98,21 @@ export class LoginPage implements OnInit {
       this.password.set('');
     }, 500);
 
+    this.updateBiometricInfo();
     this.checkBiometricLogin();
   }
+
+  updateBiometricInfo() {
+    const label = WebAuthnUtil.getPlatformLabel();
+    this.biometricLabel = 'Ingresar con ' + label;
+    
+    // Choose icon based on label
+    if (label.includes('Windows')) this.biometricIcon = 'shield-checkmark-outline';
+    else if (label.includes('Android')) this.biometricIcon = 'finger-print-outline';
+    else if (label.includes('Face ID')) this.biometricIcon = 'person-outline';
+    else this.biometricIcon = 'finger-print-outline';
+  }
+
 
   async checkBiometricLogin() {
     try {

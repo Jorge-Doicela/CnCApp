@@ -6,7 +6,7 @@ import { Router } from '@angular/router';
 import { 
   IonHeader, IonToolbar, IonButtons, IonButton, IonTitle, 
   IonMenuButton, IonContent, IonSpinner, IonIcon, 
-  IonAvatar, IonToggle, IonModal,
+  IonAvatar, IonToggle, IonModal, IonInput,
   AlertController, LoadingController, ToastController, 
   ActionSheetController, NavController 
 } from '@ionic/angular/standalone';
@@ -40,7 +40,7 @@ import { environment } from 'src/environments/environment';
     CommonModule, FormsModule, 
     IonHeader, IonToolbar, IonButtons, IonButton, IonTitle, 
     IonMenuButton, IonContent, IonSpinner, IonIcon, 
-    IonAvatar, IonToggle, IonModal
+    IonAvatar, IonToggle, IonModal, IonInput
   ]
 })
 export class PerfilPage implements OnInit {
@@ -51,7 +51,19 @@ export class PerfilPage implements OnInit {
   provinciaUsuario: string = '';
   cantonUsuario: string = '';
   parroquiaUsuario: string = '';
+  platformLabel: string = 'Biometría';
+  platformIcon: string = 'finger-print-outline';
   biometriaActiva: boolean = false;
+  
+  // Biometric Verification Modal state
+  mostrarModalBio: boolean = false;
+  passVerificacion: string = '';
+  verificandoBio: boolean = false;
+  verPassword: boolean = false;
+  toggleEventActual: any = null;
+
+
+
   // Recompensas / Logros
   logros: any[] = [];
 
@@ -86,9 +98,12 @@ export class PerfilPage implements OnInit {
       'person-outline': personOutline, 'id-card-outline': idCardOutline,
       'mail-outline': mailOutline, 'call-outline': callOutline,
       'home-outline': homeOutline, 'finger-print-outline': fingerPrintOutline,
+      'shield-checkmark-outline': shieldCheckmarkOutline,
       'cloud-offline-outline': cloudOfflineOutline, 'stats-chart': statsChart,
       'arrow-forward-circle': arrowForwardCircle, 'chevron-forward': chevronForward
     });
+
+
 
 
   }
@@ -101,6 +116,14 @@ export class PerfilPage implements OnInit {
   }
 
   async verificarBiometria() {
+    this.platformLabel = WebAuthnUtil.getPlatformLabel();
+    
+    // Choose icon based on label
+    if (this.platformLabel.includes('Windows')) this.platformIcon = 'shield-checkmark-outline';
+    else if (this.platformLabel.includes('Android')) this.platformIcon = 'finger-print-outline';
+    else if (this.platformLabel.includes('Face ID')) this.platformIcon = 'person-outline';
+    else this.platformIcon = 'finger-print-outline';
+
     try {
       const value = await this.secureStorage.get('biometria_activada');
       this.biometriaActiva = value === 'true';
@@ -112,7 +135,17 @@ export class PerfilPage implements OnInit {
   async toggleBiometria(event: any) {
     const isChecked = event.detail.checked;
     
-    if (isChecked) {
+    // Si estamos apagando, simplemente lo hacemos
+    if (!isChecked && this.biometriaActiva) {
+        await this.secureStorage.set('biometria_activada', 'false');
+        await this.secureStorage.remove('bio_token');
+        await this.secureStorage.remove('bio_ci');
+        this.biometriaActiva = false;
+        this.presentToast('Biometría desactivada', 'primary');
+        return;
+    }
+
+    if (isChecked && !this.biometriaActiva) {
       try {
         const isNative = Capacitor.isNativePlatform();
         let isBiometricAvailable = false;
@@ -124,96 +157,85 @@ export class PerfilPage implements OnInit {
            isBiometricAvailable = await WebAuthnUtil.isAvailable();
         }
 
-        this.calcularLogros();
-
         if (!isBiometricAvailable) {
            this.presentToast('Biometría no disponible en este dispositivo.', 'warning');
-           this.biometriaActiva = false;
+           setTimeout(() => { event.target.checked = false; this.cdr.detectChanges(); }, 10);
            return;
         }
 
-        const alert = await this.alertController.create({
-          header: 'Activar Biometría',
-          message: 'Para activar el inicio de sesión con FaceID/Huella, ingrese su contraseña actual.',
-          inputs: [
-            { name: 'password', type: 'password', placeholder: 'Contraseña' }
-          ],
-          buttons: [
-            { 
-              text: 'Cancelar', 
-              role: 'cancel',
-              handler: () => {
-                this.biometriaActiva = false;
-              }
-            },
-            {
-              text: 'Verificar y Activar',
-              handler: async (data) => {
-                const pass = data.password;
-                if (!pass) return false;
-                
-                const ci = this.datosUsuario.CI_Usuario;
-                const loading = await this.loadingController.create({ message: 'Verificando...' });
-                await loading.present();
-
-                try {
-                  const loginResponse = await firstValueFrom(this.authService.login(ci, pass));
-                  await loading.dismiss();
-
-                  if (loginResponse.success) {
-                      if (isNative) {
-                          await this.fingerprintAIO.show({
-                             title: 'Confirmar Seguridad',
-                             subtitle: 'Active la biometría usando su dispositivo',
-                             description: 'Escanee su huella o rostro para completar el registro',
-                             disableBackup: true
-                          });
-                      } else {
-                          const credentialId = await WebAuthnUtil.registerBiometric(this.datosUsuario.Nombre_Usuario);
-                          await this.secureStorage.set('bio_credential_id', credentialId);
-                      }
-
-                      const setupResponse = await firstValueFrom(this.authService.setupBiometric());
-                      
-                      if (setupResponse.success && setupResponse.data.biometricToken) {
-                          await this.secureStorage.set('biometria_activada', 'true');
-                          await this.secureStorage.set('bio_ci', ci);
-                          await this.secureStorage.set('bio_token', setupResponse.data.biometricToken);
-                          
-                          this.presentToast('Biometría configurada correctamente', 'success');
-                          this.biometriaActiva = true;
-                      } else {
-                          throw new Error('No se pudo generar el token biométrico');
-                      }
-                  } else {
-                     this.presentToast('Contraseña incorrecta', 'danger');
-                     this.biometriaActiva = false;
-                  }
-                } catch (e) {
-                  await loading.dismiss();
-                  this.presentToast('Error al verificar las credenciales', 'danger');
-                  this.biometriaActiva = false;
-                }
-                return true;
-              }
-            }
-          ]
-        });
-        await alert.present();
+        this.toggleEventActual = event;
+        this.mostrarModalBio = true;
+        this.passVerificacion = '';
+        this.verPassword = false;
 
       } catch (error) {
         console.error('Biometría error:', error);
-        this.presentToast('No se pudo usar la biometría del dispositivo', 'danger');
-        this.biometriaActiva = false;
+        this.presentToast('Error al acceder al hardware de seguridad', 'danger');
+        setTimeout(() => { event.target.checked = false; this.cdr.detectChanges(); }, 10);
       }
-    } else {
-      await this.secureStorage.remove('biometria_activada');
-      await this.secureStorage.remove('bio_ci');
-      await this.secureStorage.remove('bio_pwd');
-      await this.secureStorage.remove('bio_token');
-      await this.secureStorage.remove('bio_credential_id');
-      this.biometriaActiva = false;
-      this.presentToast('Biometría desactivada.', 'secondary');
+    }
+  }
+
+  async confirmarActivacionBio() {
+    if (!this.passVerificacion) {
+       this.presentToast('Por favor ingrese su contraseña', 'warning');
+       return;
+    }
+    
+    this.verificandoBio = true;
+    const ci = this.datosUsuario.CI_Usuario;
+    const isNative = Capacitor.isNativePlatform();
+
+    try {
+      const loginResponse = await firstValueFrom(this.authService.login(ci, this.passVerificacion));
+
+      if (loginResponse.success) {
+          if (isNative) {
+              await this.fingerprintAIO.show({
+                 title: 'Confirmar Seguridad',
+                 subtitle: 'Active la biometría usando su dispositivo',
+                 description: 'Escanee su huella o rostro para completar el registro',
+                 disableBackup: true
+              });
+          } else {
+              const credentialId = await WebAuthnUtil.registerBiometric(this.datosUsuario.Nombre_Usuario);
+              await this.secureStorage.set('bio_credential_id', credentialId);
+          }
+
+          const setupResponse = await firstValueFrom(this.authService.setupBiometric());
+          
+          if (setupResponse.success && setupResponse.data.biometricToken) {
+              await this.secureStorage.set('biometria_activada', 'true');
+              await this.secureStorage.set('bio_ci', ci);
+              await this.secureStorage.set('bio_token', setupResponse.data.biometricToken);
+              
+              this.presentToast('Biometría configurada correctamente', 'success');
+              this.biometriaActiva = true;
+              this.mostrarModalBio = false;
+              this.calcularLogros();
+          } else {
+              throw new Error('No se pudo generar el token biométrico');
+          }
+      } else {
+          this.presentToast('Contraseña incorrecta. Verifique sus datos.', 'danger');
+      }
+    } catch (e: any) {
+      console.error('Error en activación Bio:', e);
+      this.presentToast('No se pudo completar la activación: ' + (e.message || 'Error de hardware'), 'danger');
+    } finally {
+      this.verificandoBio = false;
+    }
+  }
+
+  cerrarModalBio() {
+    this.mostrarModalBio = false;
+    if (!this.biometriaActiva && this.toggleEventActual) {
+        setTimeout(() => {
+            if (this.toggleEventActual.target) {
+                this.toggleEventActual.target.checked = false;
+            }
+            this.cdr.detectChanges();
+        }, 10);
     }
   }
 

@@ -45,6 +45,34 @@ export class WebAuthnUtil {
   }
 
   /**
+   * Returns a friendly name for the platform authenticator.
+   */
+  static getPlatformLabel(): string {
+    const userAgent = window.navigator.userAgent.toLowerCase();
+    const platform = (window.navigator as any).platform?.toLowerCase() || '';
+
+    if (userAgent.indexOf('windows') !== -1 || platform.indexOf('win') !== -1) {
+        return 'Windows Hello';
+    }
+    
+    if (userAgent.indexOf('macintosh') !== -1 || userAgent.indexOf('mac os') !== -1 || platform.indexOf('mac') !== -1) {
+        // iPhone/iPad usually have 'iphone' or 'ipad' in userAgent
+        if (userAgent.indexOf('iphone') !== -1 || userAgent.indexOf('ipad') !== -1) {
+            return 'Face ID / Touch ID';
+        }
+        return 'Touch ID';
+    }
+
+    if (userAgent.indexOf('android') !== -1) {
+        return 'Biometría del Dispositivo';
+    }
+
+    return 'Biometría';
+  }
+
+
+
+  /**
    * Prompts the user to register their platform biometric.
    * Conceptually signs them up for WebAuthn.
    * Returns a credential ID string (base64) that should be saved in Preferences.

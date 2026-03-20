@@ -72,9 +72,10 @@
           </ion-button>
 
           <ion-button expand="block" fill="clear" color="secondary" class="biometric-button fade-in" style="animation-delay: 0.35s; margin-top: 10px;" (click)="triggerManualBiometricLogin()">
-            <ion-icon name="finger-print-outline" slot="start"></ion-icon>
-            Ingresar con Biometría
+            <ion-icon [name]="biometricIcon" slot="start"></ion-icon>
+            {{ biometricLabel }}
           </ion-button>
+
 
         </form>
 
