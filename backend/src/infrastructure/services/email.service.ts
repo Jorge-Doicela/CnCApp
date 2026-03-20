@@ -1,6 +1,7 @@
 import { injectable } from 'tsyringe';
 import nodemailer from 'nodemailer';
 import { env } from '../../config/env';
+import logger from '../../config/logger';
 
 @injectable()
 export class EmailService {
@@ -97,6 +98,53 @@ export class EmailService {
             console.log(`[EMAIL_SERVICE] Correo de confirmación enviado a ${to}`);
         } catch (error) {
             console.error(`[EMAIL_SERVICE] Error enviando correo de confirmación a ${to}:`, error);
+        }
+    }
+
+    async sendCertificateEmail(to: string, userName: string, courseName: string, filePath: string): Promise<void> {
+        if (!env.SMTP_USER || !env.SMTP_PASS) {
+            console.warn(`[EMAIL_MOCK] Credenciales ausentes. Simulación de envío de certificado a ${to} (${courseName})`);
+            return;
+        }
+
+        const mailOptions = {
+            from: `"Capacitaciones CNC" <${env.SMTP_USER}>`,
+            to,
+            subject: `¡Certificado Disponible! - ${courseName}`,
+            html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333;">
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <h2 style="color: #003366; margin: 0;">¡Felicidades por tu Logro!</h2>
+                    </div>
+                    <p style="font-size: 16px;">Hola <strong>${userName}</strong>,</p>
+                    <p style="font-size: 16px;">Has completado exitosamente la capacitación: <strong>${courseName}</strong>.</p>
+                    <p style="font-size: 16px;">Adjunto a este correo encontrarás tu certificado digital validado por el Consejo Nacional de Competencias.</p>
+                    
+                    <div style="background: #f1f5f9; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #003366;">
+                        <p style="margin: 0; font-size: 14px; color: #475569;">
+                            Este certificado cuenta con un código QR de verificación único que garantiza su autenticidad.
+                        </p>
+                    </div>
+
+                    <p style="font-size: 14px; color: #666;">También puedes descargarlo en cualquier momento desde tu perfil en la plataforma.</p>
+                    
+                    <hr style="border: none; border-top: 1px solid #eaeaea; margin: 30px 0;" />
+                    <p style="font-size: 12px; color: #999; text-align: center;">Atentamente,<br>El Equipo de Capacitaciones CNC</p>
+                </div>
+            `,
+            attachments: [
+                {
+                    filename: `Certificado_${courseName.replace(/[^a-zA-Z0-0]/g, '_')}.pdf`,
+                    path: filePath
+                }
+            ]
+        };
+
+        try {
+            await this.transporter.sendMail(mailOptions);
+            logger.info(`[EMAIL_SERVICE] Certificado enviado exitosamente a ${to}`);
+        } catch (error) {
+            console.error(`[EMAIL_SERVICE] Fallo en el envío de certificado a ${to}:`, error);
         }
     }
 }

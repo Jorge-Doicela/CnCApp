@@ -9,6 +9,7 @@ import path from 'path';
 import fs from 'fs';
 import crypto from 'crypto';
 import { UsuarioCapacitacionRepository } from '../../../domain/usuario-capacitacion/usuario-capacitacion.repository';
+import { EmailService } from '../../../infrastructure/services/email.service';
 
 @injectable()
 export class GenerateCertificadoUseCase {
@@ -17,7 +18,8 @@ export class GenerateCertificadoUseCase {
         @inject(CertificateGeneratorService) private generatorService: CertificateGeneratorService,
         @inject('UserRepository') private userRepository: UserRepository,
         @inject('CapacitacionRepository') private capacitacionRepository: CapacitacionRepository,
-        @inject('UsuarioCapacitacionRepository') private usuarioCapacitacionRepository: UsuarioCapacitacionRepository
+        @inject('UsuarioCapacitacionRepository') private usuarioCapacitacionRepository: UsuarioCapacitacionRepository,
+        @inject(EmailService) private emailService: EmailService
     ) { }
 
     async execute(usuarioId: number, capacitacionId: number): Promise<Certificado> {
@@ -110,11 +112,25 @@ export class GenerateCertificadoUseCase {
         );
 
         // 7. Save Record
-        return this.certificadoRepository.create({
+        const savedCertificado = await this.certificadoRepository.create({
             usuarioId,
             capacitacionId,
             codigoQR: hash, // Store only hash for cleaner lookup
             pdfUrl: `/uploads/certificados/${fileName}`
         });
+
+        // 8. Enviar correo electrónico (Asíncrono)
+        if (usuario.email) {
+            this.emailService.sendCertificateEmail(
+                usuario.email,
+                fullUserDisplayName,
+                capacitacion.nombre,
+                outputPath
+            ).catch(err => console.error(`[PDF_GEN] Error al enviar correo de certificado:`, err));
+        } else {
+            console.warn(`[PDF_GEN] No se pudo enviar correo para usuario ID=${usuarioId}: Email no disponible.`);
+        }
+
+        return savedCertificado;
     }
 }
