@@ -36,33 +36,41 @@ function buildFechaHoraFin(fecha: Date, hora?: string | null): Date {
 async function procesarCapacitacionesVencidas(): Promise<void> {
     const ahora = new Date();
 
-    // Buscar todas las capacitaciones activas/pendientes con fecha de fin en el pasado
+    // Buscar todas las capacitaciones que no estén finalizadas ni canceladas
     const capacitaciones = await prisma.capacitacion.findMany({
         where: {
-            estado: { in: ['Activa', 'Pendiente'] },
-            fechaFin: { lte: ahora } 
+            estado: { 
+                notIn: [EstadoCapacitacionEnum.REALIZADA, EstadoCapacitacionEnum.CANCELADA, 'Finalizada', 'Realizada', 'Cancelada'] 
+            }
         }
     });
 
     if (capacitaciones.length === 0) return;
 
-    logger.info(`[Scheduler] Revisando ${capacitaciones.length} capacitación(es) candidatas a finalizar...`);
+    logger.info(`[Scheduler] Evaluando ${capacitaciones.length} capacitaciones no finalizadas...`);
 
     const generateAllUseCase = container.resolve(GenerateAllCertificadosUseCase);
 
     for (const cap of capacitaciones) {
-        // Validar con hora exacta si el campo horaFin existe
-        const fechaHoraFin = buildFechaHoraFin(cap.fechaFin!, cap.horaFin);
-
-        if (fechaHoraFin > ahora) {
-            // La hora de fin aún no llegó hoy
+        // Fallback: si no tiene fecha de fin, usar fecha de inicio
+        const baseDate = cap.fechaFin || cap.fechaInicio;
+        
+        if (!baseDate) {
+            logger.warn(`[Scheduler] Cap. ID=${cap.id} no tiene fechaInicio ni fechaFin. Omitiendo.`);
             continue;
         }
 
-        logger.info(`[Scheduler] Finalizando capacitación ID=${cap.id} "${cap.nombre}" (fin: ${fechaHoraFin.toISOString()})`);
+        const fechaHoraFin = buildFechaHoraFin(baseDate, cap.horaFin);
+
+        if (fechaHoraFin > ahora) {
+            // Aún no es tiempo de cerrar
+            continue;
+        }
+
+        logger.info(`[Scheduler] >> Finalizando: ID=${cap.id} "${cap.nombre}" | Fin programado: ${fechaHoraFin.toLocaleString('es-EC')}`);
 
         try {
-            // PASO 1: Marcar como Realizada (usando el Enum oficial 'Finalizada')
+            // 1. Cambiar estado a Finalizada
             await prisma.capacitacion.update({
                 where: { id: cap.id },
                 data: { estado: EstadoCapacitacionEnum.REALIZADA }
