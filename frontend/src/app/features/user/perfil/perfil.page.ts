@@ -22,8 +22,9 @@ import {
   lockClosedOutline, brushOutline, cloudOfflineOutline, 
   school, book, medal, ribbon, footsteps, close, image, 
   shieldCheckmarkOutline, arrowForwardCircle, chevronForward, 
-  statsChart, addCircleOutline, brush
+  statsChart, addCircleOutline, brush, trash, personCircle
 } from 'ionicons/icons';
+
 import { firstValueFrom, timeout, finalize } from 'rxjs';
 import { AuthService } from 'src/app/features/auth/services/auth.service';
 import { SecureStorageService } from 'src/app/core/services/secure-storage.service';
@@ -74,7 +75,11 @@ export class PerfilPage implements OnInit {
       lockClosedOutline, brushOutline, cloudOfflineOutline, 
       school, book, medal, ribbon, footsteps, close, image, 
       shieldCheckmarkOutline, arrowForwardCircle, chevronForward, 
-      statsChart, addCircleOutline, brush, 'settings-outline': settingsOutline,
+      statsChart, addCircleOutline, brush, 
+      'trash': trash,
+      'person-circle': personCircle,
+
+      'settings-outline': settingsOutline,
       'create-outline': createOutline, 'lock-closed-outline': lockClosedOutline,
       'brush-outline': brushOutline, 'shield-checkmark': shieldCheckmark,
       'checkmark-circle': checkmarkCircle, 'close-circle': closeCircle,
@@ -84,6 +89,8 @@ export class PerfilPage implements OnInit {
       'cloud-offline-outline': cloudOfflineOutline, 'stats-chart': statsChart,
       'arrow-forward-circle': arrowForwardCircle, 'chevron-forward': chevronForward
     });
+
+
   }
 
   ngOnInit() { }
