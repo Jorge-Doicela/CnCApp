@@ -82,7 +82,8 @@ export class CrearPage implements OnInit {
     tipoParticipante: undefined as number | undefined,
     fechaNacimiento: '',
     cantonId: undefined as number | undefined,
-    parroquiaId: undefined as number | undefined,
+    /** Parroquia catálogo oficial GAD (tabla gad_parroquias) */
+    gadParroquiaId: undefined as number | undefined,
   };
 
   autoridad = {
@@ -113,6 +114,8 @@ export class CrearPage implements OnInit {
     instituciones: [] as any[],
     provincias: [] as any[],
     cantones: [] as any[],
+    // Catálogo oficial plano GAD (gad_parroquias) - puede contener nombres duplicados
+    gadParroquias: [] as any[],
     parroquias: [] as any[],
     parroquiasSeleccionadas: [] as any[],
     macrocomunidades: [] as any[],
@@ -376,7 +379,8 @@ export class CrearPage implements OnInit {
       this.obtenerRegimenesEspeciales(),
       this.obtenerMancomunidades(),
       this.obtenerCompetencias(),
-      this.obtenerNacionalidades()
+      this.obtenerNacionalidades(),
+      this.obtenerGadParroquias()
     ]);
 
     this.resolveStaticIds();
@@ -419,7 +423,7 @@ export class CrearPage implements OnInit {
         // Normalización de tipos (Asegurar que IDs sean números para comparaciones estrictas)
         if (this.datosbusqueda.selectedProvincia) this.datosbusqueda.selectedProvincia = Number(this.datosbusqueda.selectedProvincia);
         if (this.usuarioGeneral.cantonId) this.usuarioGeneral.cantonId = Number(this.usuarioGeneral.cantonId);
-        if (this.usuarioGeneral.parroquiaId) this.usuarioGeneral.parroquiaId = Number(this.usuarioGeneral.parroquiaId);
+        if (this.usuarioGeneral.gadParroquiaId) this.usuarioGeneral.gadParroquiaId = Number(this.usuarioGeneral.gadParroquiaId);
         if (this.usuarioGeneral.nacionalidadId) this.usuarioGeneral.nacionalidadId = Number(this.usuarioGeneral.nacionalidadId);
         if (this.usuarioGeneral.tipoParticipante) this.usuarioGeneral.tipoParticipante = Number(this.usuarioGeneral.tipoParticipante);
         if (this.usuarioGeneral.rolId) this.usuarioGeneral.rolId = Number(this.usuarioGeneral.rolId);
@@ -435,11 +439,8 @@ export class CrearPage implements OnInit {
           // Cargamos cantones SIN resetear para no borrar el Id recuperado
           await this.obtenerCantones(this.datosbusqueda.selectedProvincia, true);
 
-          if (this.usuarioGeneral.cantonId) {
-            // Cargamos parroquias para ese cantón
-            await this.obtenerParroquias(this.usuarioGeneral.cantonId);
-          }
         }
+
 
         // Re-validar cédula si existe
         if (this.usuarioGeneral.ci) {
@@ -800,7 +801,8 @@ export class CrearPage implements OnInit {
       tipoParticipanteId: Number(this.usuarioGeneral.tipoParticipante),
       provinciaId: Number(this.datosbusqueda.selectedProvincia),
       cantonId: this.usuarioGeneral.cantonId ? Number(this.usuarioGeneral.cantonId) : undefined,
-      parroquiaId: this.usuarioGeneral.parroquiaId ? Number(this.usuarioGeneral.parroquiaId) : undefined,
+      parroquiaId: undefined,
+      gadParroquiaId: this.usuarioGeneral.gadParroquiaId ? Number(this.usuarioGeneral.gadParroquiaId) : undefined,
       generoId: this.usuarioGeneral.generoId ? Number(this.usuarioGeneral.generoId) : undefined,
       etniaId: this.usuarioGeneral.etniaId ? Number(this.usuarioGeneral.etniaId) : undefined,
       nacionalidadId: this.usuarioGeneral.nacionalidadId ? Number(this.usuarioGeneral.nacionalidadId) : undefined,
@@ -808,12 +810,12 @@ export class CrearPage implements OnInit {
       autoridad: this.usuarioGeneral.tipoParticipante == this.resolvedIds.tipoAutoridad ? {
         ...this.autoridad,
         nivelGobierno: this.autoridad.nivelGobierno ? String(this.autoridad.nivelGobierno) : undefined,
-        parroquiaId: this.usuarioGeneral.parroquiaId ? Number(this.usuarioGeneral.parroquiaId) : undefined
+        parroquiaId: undefined
       } : undefined,
       funcionarioGad: this.usuarioGeneral.tipoParticipante == this.resolvedIds.tipoFuncionario ? {
         ...this.funcionarioGad,
         nivelGobierno: this.funcionarioGad.nivelGobierno ? String(this.funcionarioGad.nivelGobierno) : undefined,
-        parroquiaId: this.usuarioGeneral.parroquiaId ? Number(this.usuarioGeneral.parroquiaId) : undefined
+        parroquiaId: undefined
       } : undefined,
       institucion: this.usuarioGeneral.tipoParticipante == this.resolvedIds.tipoInstitucion ? {
         ...this.institucion,
@@ -878,7 +880,7 @@ export class CrearPage implements OnInit {
       tipoParticipante: undefined,
       fechaNacimiento: '',
       cantonId: undefined,
-      parroquiaId: undefined,
+      gadParroquiaId: undefined,
     };
 
     this.autoridad = {
@@ -946,6 +948,17 @@ export class CrearPage implements OnInit {
     }
   }
 
+  async obtenerGadParroquias() {
+    try {
+      const data = await firstValueFrom(this.catalogoService.getItems('public/gad-parroquias'));
+      this.datosrecuperados.gadParroquias = data || [];
+    } catch (err) {
+      console.error('Error al obtener parroquias GAD:', err);
+    } finally {
+      this.cdr.markForCheck();
+    }
+  }
+
   // Obtener provincias
   async obtenerProvincias() {
     try {
@@ -978,7 +991,7 @@ export class CrearPage implements OnInit {
 
         if (!stillValid) {
           this.datosrecuperados.parroquiasSeleccionadas = [];
-          this.usuarioGeneral.parroquiaId = undefined;
+          this.usuarioGeneral.gadParroquiaId = undefined;
           this.usuarioGeneral.cantonId = undefined;
         }
       }
@@ -991,28 +1004,12 @@ export class CrearPage implements OnInit {
 
   // Obtener parroquias por cantón
   async obtenerParroquias(cantonId: any, skipReset: boolean = false) {
-    if (!cantonId) {
-      this.datosrecuperados.parroquiasSeleccionadas = [];
-      return;
-    }
-
-    try {
-      const data = await firstValueFrom(this.catalogoService.getItems('parroquias'));
-      const filtered = data.filter((p: any) => Number(p.cantonId) === Number(cantonId));
-      this.datosrecuperados.parroquiasSeleccionadas = filtered;
-
-      // Si no es omisión por restauración, verificar si la parroquia actual sigue siendo válida
-      if (!skipReset) {
-        const stillValid = this.usuarioGeneral.parroquiaId &&
-          filtered.some((p: any) => Number(p.id) === Number(this.usuarioGeneral.parroquiaId));
-        if (!stillValid) {
-          this.usuarioGeneral.parroquiaId = undefined;
-        }
-      }
-    } catch (err) {
-      console.error('Error al obtener parroquias:', err);
-    } finally {
-      this.cdr.markForCheck();
+    // Actualmente la selección de parroquia se hace con `gadParroquiaId`
+    // (catálogo `gad_parroquias`) y NO depende del cantón.
+    // Este método se mantiene solo por compatibilidad con el asistente.
+    this.datosrecuperados.parroquiasSeleccionadas = [];
+    if (!skipReset) {
+      // No reseteamos `gadParroquiaId` porque no existe relación cantón->parroquia en este catálogo.
     }
   }
 

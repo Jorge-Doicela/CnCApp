@@ -184,10 +184,11 @@
 
         <ion-item class="form-field" style="margin-top: 24px;">
           <ion-icon name="map-outline" slot="start"></ion-icon>
-          <ion-label>Parroquia</ion-label>
-          <ion-select [(ngModel)]="usuario.parroquiaId" placeholder="Seleccione" [disabled]="!usuario.cantonId">
-            <ion-select-option *ngFor="let parr of datosrecuperados.parroquias" [value]="parr.id">
-              {{ parr.nombre }}
+          <ion-label>Parroquia (catálogo GAD)</ion-label>
+          <ion-select [(ngModel)]="usuario.gadParroquiaId" placeholder="Seleccione (824 opciones)"
+            interface="popover" [disabled]="!datosrecuperados.gadParroquias.length">
+            <ion-select-option *ngFor="let g of datosrecuperados.gadParroquias" [value]="g.id">
+              {{ g.nombre }}
             </ion-select-option>
           </ion-select>
         </ion-item>

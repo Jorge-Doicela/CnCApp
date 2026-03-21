@@ -34,6 +34,7 @@ export class UserMapper {
             provinciaId: prismaUser.provinciaId,
             cantonId: prismaUser.cantonId,
             parroquiaId: prismaUser.parroquiaId,
+            gadParroquiaId: prismaUser.gadParroquiaId,
             estado: prismaUser.estado ?? 1,
             fotoPerfilUrl: resolveUrl(prismaUser.fotoPerfilUrl),
             firmaUrl: resolveUrl(prismaUser.firmaUrl),
@@ -61,6 +62,10 @@ export class UserMapper {
             parroquia: prismaUser.parroquia ? {
                 id: prismaUser.parroquia.id,
                 nombre: prismaUser.parroquia.nombre
+            } : null,
+            gadParroquia: prismaUser.gadParroquia ? {
+                id: prismaUser.gadParroquia.id,
+                nombre: prismaUser.gadParroquia.nombre
             } : null,
             tipoParticipante: prismaUser.tipoParticipante ? {
                 id: prismaUser.tipoParticipante.id,

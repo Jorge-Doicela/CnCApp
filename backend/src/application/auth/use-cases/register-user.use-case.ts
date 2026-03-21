@@ -32,6 +32,7 @@ interface RegisterDto {
     institucion?: any;
     rolId?: number;
     parroquiaId?: number;
+    gadParroquiaId?: number;
     estado?: number;
     // captchaToken?: string; // --- GOOGLE RECAPTCHA (Descomentar en Producción) ---
 }
@@ -151,6 +152,7 @@ export class RegisterUserUseCase {
             provinciaId: data.provinciaId,
             cantonId: data.cantonId,
             parroquiaId: data.parroquiaId || data.autoridad?.parroquiaId || data.funcionarioGad?.parroquiaId || null,
+            gadParroquiaId: data.gadParroquiaId ?? null,
             estado: 2, // 2 = PENDIENTE DE VERIFICACIÓN, 1 = ACTIVO, 0 = INACTIVO/BROQUEADO
             rolId: finalRolId,
             entidadId: (cncEntity ? cncEntity.id : null),

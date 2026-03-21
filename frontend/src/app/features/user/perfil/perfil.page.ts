@@ -417,7 +417,7 @@ export class PerfilPage implements OnInit {
 
         this.provinciaUsuario = this.datosUsuario.Provincia_Nombre;
         this.cantonUsuario = this.datosUsuario.Canton_Nombre;
-        this.parroquiaUsuario = usuario.parroquia?.nombre || '';
+        this.parroquiaUsuario = usuario.gadParroquia?.nombre || usuario.parroquia?.nombre || '';
 
         this.capacitacionesInscritas = usuario._count?.inscripciones ?? 0;
         this.certificadosObtenidos = usuario._count?.certificados ?? 0;

@@ -70,4 +70,8 @@ export class CatalogoController {
 
     getRegimenesEspeciales = async (_req: Request, res: Response, next: NextFunction) =>
         query(res, next, () => prisma.regimenEspecial.findMany({ orderBy: { id: 'asc' } }));
+
+    /** Catálogo plano oficial GAD (824 parroquias; orden por nombre). */
+    getGadParroquias = async (_req: Request, res: Response, next: NextFunction) =>
+        query(res, next, () => prisma.gadParroquia.findMany({ orderBy: { nombre: 'asc' } }));
 }

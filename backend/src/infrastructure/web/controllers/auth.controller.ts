@@ -41,6 +41,7 @@ const registerSchema = z.object({
     funcionarioGad: z.any().optional(),
     institucion: z.any().optional(),
     parroquiaId: z.number().optional(),
+    gadParroquiaId: z.number().int().optional(),
     estado: z.number().optional(),
     recaptchaToken: z.string().min(1, 'Token de reCAPTCHA es requerido')
 });
@@ -116,6 +117,7 @@ export class AuthController {
                 funcionarioGad: data.funcionarioGad,
                 institucion: data.institucion,
                 parroquiaId: data.parroquiaId,
+                gadParroquiaId: data.gadParroquiaId,
                 estado: data.estado
             });
 

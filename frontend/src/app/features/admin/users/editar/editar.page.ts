@@ -68,7 +68,7 @@ export class EditarPage implements OnInit {
     tipoParticipante: 0,
     fechaNacimiento: '',
     cantonId: undefined as number | null | undefined,
-    parroquiaId: undefined as number | null | undefined,
+    gadParroquiaId: undefined as number | null | undefined,
     generoId: undefined as number | null | undefined,
     etniaId: undefined as number | null | undefined,
     nacionalidadId: undefined as number | null | undefined,
@@ -89,6 +89,8 @@ export class EditarPage implements OnInit {
     instituciones: [] as any[],
     provincias: [] as any[],
     cantones: [] as any[],
+    // Catálogo oficial plano GAD (gad_parroquias) - puede contener nombres duplicados
+    gadParroquias: [] as any[],
     parroquias: [] as any[],
     generos: [] as any[],
     etnias: [] as any[],
@@ -192,7 +194,8 @@ export class EditarPage implements OnInit {
         this.obtenerRegimenesEspeciales(),
         this.obtenerMancomunidades(),
         this.obtenerCompetencias(),
-        this.obtenerGradosOcupacionales()
+        this.obtenerGradosOcupacionales(),
+        this.obtenerGadParroquias()
       ]);
 
       // Then resolve IDs dynamically based on names to avoid issues if IDs change in DB
@@ -245,7 +248,7 @@ export class EditarPage implements OnInit {
         tipoParticipante: Number(data.tipoParticipanteId || (data as any).tipoParticipante) || TipoParticipanteEnum.CIUDADANO,
         fechaNacimiento: data.fechaNacimiento ? new Date(data.fechaNacimiento).toISOString().split('T')[0] : '',
         cantonId: data.cantonId,
-        parroquiaId: data.parroquiaId,
+        gadParroquiaId: data.gadParroquiaId,
         generoId: data.generoId,
         etniaId: data.etniaId,
         nacionalidadId: data.nacionalidadId,
@@ -322,7 +325,6 @@ export class EditarPage implements OnInit {
 
   cambioProvincia() {
     this.usuario.cantonId = undefined;
-    this.usuario.parroquiaId = undefined;
     this.datosrecuperados.cantones = [];
     this.datosrecuperados.parroquias = [];
 
@@ -347,21 +349,22 @@ export class EditarPage implements OnInit {
     }
   }
 
-  cambioCanton() {
-    this.usuario.parroquiaId = undefined;
-    this.datosrecuperados.parroquias = [];
-    if (this.usuario.cantonId) {
-      this.cargarParroquias(this.usuario.cantonId);
-    }
+  // Método por compatibilidad: la selección actual usa `gadParroquiaId`
+  // y no depende del cantón, así que no hace nada.
+  async cargarParroquias(_cantonId: number | string) {
+    return;
   }
 
-  async cargarParroquias(cantonId: number | string) {
-    if (!cantonId) return;
+  cambioCanton() {
+    this.datosrecuperados.parroquias = [];
+  }
+
+  async obtenerGadParroquias() {
     try {
-      const data = await firstValueFrom(this.catalogoService.getItems('parroquias'));
-      this.datosrecuperados.parroquias = data.filter((p: any) => p.cantonId == cantonId);
+      const data = await firstValueFrom(this.catalogoService.getItems('public/gad-parroquias'));
+      this.datosrecuperados.gadParroquias = data || [];
     } catch (err) {
-      console.error(err);
+      console.error('Error parroquias GAD:', err);
     } finally {
       this.cdr.markForCheck();
     }
@@ -536,7 +539,8 @@ export class EditarPage implements OnInit {
       fechaNacimiento: this.usuario.fechaNacimiento || null,
       provinciaId: this.datosbusqueda.selectedProvincia ? Number(this.datosbusqueda.selectedProvincia) : null,
       cantonId: this.usuario.cantonId ? Number(this.usuario.cantonId) : null,
-      parroquiaId: this.usuario.parroquiaId ? Number(this.usuario.parroquiaId) : null,
+      parroquiaId: null,
+      gadParroquiaId: this.usuario.gadParroquiaId ? Number(this.usuario.gadParroquiaId) : null,
       rolId: this.usuario.rolId ? Number(this.usuario.rolId) : undefined,
       entidadId: this.usuario.entidadId ? Number(this.usuario.entidadId) : null,
       tipoParticipanteId: this.usuario.tipoParticipante ? Number(this.usuario.tipoParticipante) : TipoParticipanteEnum.CIUDADANO,

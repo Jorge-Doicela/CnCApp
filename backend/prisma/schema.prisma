@@ -64,12 +64,14 @@ model Usuario {
   funcionarios       FuncionarioGAD[]
   instituciones      InstitucionUsuario[]
   parroquiaId        Int?                   @map("id_parroquia")
+  gadParroquiaId     Int?                   @map("id_gad_parroquia")
   estado             Int                    @default(1) @map("estado")
   biometricToken     String?                @map("biometric_token") @db.VarChar(550)
   entidad            Entidad?               @relation(fields: [entidadId], references: [id])
   canton             Canton?                @relation(fields: [cantonId], references: [id])
   provincia          Provincia?             @relation(fields: [provinciaId], references: [id])
   parroquia          Parroquia?             @relation(fields: [parroquiaId], references: [id])
+  gadParroquia       GadParroquia?          @relation(fields: [gadParroquiaId], references: [id], onDelete: SetNull)
   rol                Rol?                   @relation(fields: [rolId], references: [id])
   genero             Genero?                @relation(fields: [generoId], references: [id])
   etnia              Etnia?                 @relation(fields: [etniaId], references: [id])
@@ -87,7 +89,17 @@ model Usuario {
   @@index([nacionalidadId])
   @@index([tipoParticipanteId])
   @@index([tipoInstitucionId])
+  @@index([gadParroquiaId])
   @@map("usuarios")
+}
+
+/// Catálogo plano oficial GAD (824 filas; pueden repetirse nombres, p. ej. BELLAMARÍA).
+model GadParroquia {
+  id       Int       @id @default(autoincrement()) @map("id_gad_parroquia")
+  nombre   String    @map("nombre") @db.VarChar(200)
+  usuarios Usuario[]
+
+  @@map("gad_parroquias")
 }
 
 model Provincia {

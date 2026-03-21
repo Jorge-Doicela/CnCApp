@@ -1,3 +1,5 @@
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 import type { PrismaClient } from '@prisma/client';
 import { ecuadorData } from './data/ecuador-data';
 import { resolverNombreCantonOficial } from './data/gad-canton-nombres-oficiales';
@@ -110,4 +112,32 @@ export async function ensureMunicipalInstitucionesSistema(prisma: PrismaClient):
     console.log(
         `[seed] Instituciones municipales (bomberos/EP/registros) aseguradas — nuevas insertadas: ${result.count}`
     );
+}
+
+/**
+ * Catálogo plano oficial GAD (824 parroquias; pueden repetirse nombres).
+ * Fuente: prisma/data/gad-parroquias.json (generar con prisma/tools/parse-gad-parroquias-sql.mjs).
+ */
+export async function seedGadParroquias(prisma: PrismaClient): Promise<void> {
+    const jsonPath = path.join(__dirname, 'data', 'gad-parroquias.json');
+    if (!fs.existsSync(jsonPath)) {
+        console.warn('[seed] gad-parroquias.json no encontrado; omitiendo catálogo GAD parroquias.');
+        return;
+    }
+    const raw = fs.readFileSync(jsonPath, 'utf8');
+    const nombres = JSON.parse(raw) as string[];
+    if (!Array.isArray(nombres) || nombres.length === 0) {
+        console.warn('[seed] gad-parroquias.json vacío o inválido.');
+        return;
+    }
+    await prisma.$transaction(async (tx) => {
+        await tx.usuario.updateMany({ data: { gadParroquiaId: null } });
+        await tx.gadParroquia.deleteMany({});
+        const batch = 500;
+        for (let i = 0; i < nombres.length; i += batch) {
+            const slice = nombres.slice(i, i + batch).map((nombre) => ({ nombre }));
+            await tx.gadParroquia.createMany({ data: slice });
+        }
+    });
+    console.log(`[seed] gad_parroquias cargadas: ${nombres.length} registros`);
 }

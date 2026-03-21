@@ -27,6 +27,7 @@ export interface User {
     provinciaId?: number | null;
     cantonId?: number | null;
     parroquiaId?: number | null;
+    gadParroquiaId?: number | null;
     estado: number;
     provincia?: {
         id: number;
@@ -37,6 +38,10 @@ export interface User {
         nombre: string;
     } | null;
     parroquia?: {
+        id: number;
+        nombre: string;
+    } | null;
+    gadParroquia?: {
         id: number;
         nombre: string;
     } | null;

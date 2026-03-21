@@ -12,7 +12,8 @@ import {
 } from './data/form-options-index';
 import {
     ensureMunicipalInstitucionesSistema,
-    seedGeoSqlProvincias
+    seedGeoSqlProvincias,
+    seedGadParroquias
 } from './seed-reference-catalogs';
 
 const prisma = new PrismaClient();
@@ -114,6 +115,7 @@ async function main() {
         await safeDeleteMany('funcionarios_gad', () => prisma.funcionarioGAD.deleteMany());
         await safeDeleteMany('autoridades', () => prisma.autoridad.deleteMany());
         await safeDeleteMany('usuarios', () => prisma.usuario.deleteMany());
+        await safeDeleteMany('gad_parroquias', () => prisma.gadParroquia.deleteMany());
         await safeDeleteMany('parroquias', () => prisma.parroquia.deleteMany());
         await safeDeleteMany('cantones', () => prisma.canton.deleteMany());
         await safeDeleteMany('provincias', () => prisma.provincia.deleteMany());
@@ -347,6 +349,9 @@ async function main() {
         console.log('Syncing National Geographic Model (Provinces/Cantons/Parishes)...');
         // 23 provincias (SQL oficial) + cantones/parroquias desde ecuadorData (ver seed-reference-catalogs.ts)
         await seedGeoSqlProvincias(prisma);
+
+        console.log('Loading GAD parroquias catalog (824)...');
+        await seedGadParroquias(prisma);
 
         // ============================================
         // STEP 4: USERS (Massive & Realistic)
@@ -586,12 +591,22 @@ async function main() {
             console.error('[seed] No se pudieron asegurar instituciones municipales en BD:', e);
         }
         try {
+            const nGad = await prisma.gadParroquia.count().catch(() => -1);
+            if (nGad >= 0 && nGad < 800) {
+                console.log('[seed] Catálogo gad_parroquias incompleto; recargando desde JSON...');
+                await seedGadParroquias(prisma);
+            }
+        } catch (e) {
+            console.warn('[seed] No se pudo verificar catálogo gad_parroquias:', e);
+        }
+        try {
             const nProv = await prisma.provincia.count().catch(() => -1);
             const nUsers = await prisma.usuario.count().catch(() => -1);
 
             if (nProv === 0) {
                 console.log('[seed] Sin provincias en BD; sincronizando geo (23 provincias + cantones/parroquias)...');
                 await seedGeoSqlProvincias(prisma);
+                await seedGadParroquias(prisma);
             } else if (
                 nProv > 0 &&
                 nProv < EXPECTED_PROVINCIAS_SEED &&

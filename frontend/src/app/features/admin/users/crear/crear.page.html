@@ -218,7 +218,7 @@
               <ion-icon name="location-outline" slot="start"></ion-icon>
               <ion-label>Cantón *</ion-label>
               <ion-select [(ngModel)]="usuarioGeneral.cantonId"
-                (ngModelChange)="guardarProgreso(); obtenerParroquias(usuarioGeneral.cantonId)" placeholder="Seleccione"
+                (ngModelChange)="guardarProgreso()" placeholder="Seleccione"
                 interface="popover" [disabled]="!datosrecuperados.cantones.length">
                 <ion-select-option *ngFor="let canton of datosrecuperados.cantones" [value]="canton.id">
                   {{ canton.nombre }}
@@ -227,13 +227,12 @@
             </ion-item>
             <ion-item class="form-field">
               <ion-icon name="map-outline" slot="start"></ion-icon>
-              <ion-label>Parroquia</ion-label>
-              <ion-select [(ngModel)]="usuarioGeneral.parroquiaId" (ngModelChange)="guardarProgreso()"
-                placeholder="Seleccione" interface="popover"
-                [disabled]="!datosrecuperados.parroquiasSeleccionadas.length">
-                <ion-select-option *ngFor="let parroquia of datosrecuperados.parroquiasSeleccionadas"
-                  [value]="parroquia.id">
-                  {{ parroquia.nombre }}
+              <ion-label>Parroquia (catálogo GAD)</ion-label>
+              <ion-select [(ngModel)]="usuarioGeneral.gadParroquiaId" (ngModelChange)="guardarProgreso()"
+                placeholder="Seleccione (824 opciones)" interface="popover"
+                [disabled]="!datosrecuperados.gadParroquias.length">
+                <ion-select-option *ngFor="let g of datosrecuperados.gadParroquias" [value]="g.id">
+                  {{ g.nombre }}
                 </ion-select-option>
               </ion-select>
             </ion-item>
