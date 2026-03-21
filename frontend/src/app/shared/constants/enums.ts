@@ -13,18 +13,19 @@ export enum TipoParticipanteEnum {
  * Niveles de Gobierno (IDs en Base de Datos - Tabla Entidad)
  */
 export enum NivelGobiernoEnum {
-    PROVINCIAL = 25,
-    MUNICIPAL = 26,
-    PARROQUIAL = 27,
-    GREMIOS = 28,
-    CENTRAL = 29,
-    COOPERANTES = 30,
-    ACADEMIA = 31,
-    EDUCACION = 32,
-    PRIVADO = 33,
-    CIUDADANIA = 34,
-    MANCOMUNIDADES = 35,
-    REGIMEN_ESPECIAL = 36
+    PROVINCIAL = 1,
+    MUNICIPAL = 2,
+    PARROQUIAL = 3,
+    GREMIOS = 4,
+    CENTRAL = 5,
+    OTRAS = 6,
+    COOPERANTES = 7,
+    ACADEMIA = 8,
+    EDUCACION = 9,
+    PRIVADO = 10,
+    CIUDADANIA = 11,
+    MANCOMUNIDADES = 12,
+    REGIMEN_ESPECIAL = 13
 }
 
 /**

@@ -46,6 +46,7 @@ async function main() {
         await prisma.tipoParticipante.deleteMany();
         await prisma.nacionalidad.deleteMany();
         await prisma.gradoOcupacional.deleteMany();
+        await prisma.tipoInstitucion.deleteMany();
 
         console.log('System clean\n');
 
@@ -148,6 +149,21 @@ async function main() {
             ]
         });
 
+        console.log('Seeding Institution Types...');
+        const tipoInstitucionProvincial = await prisma.tipoInstitucion.create({ data: { nombre: 'PROVINCIAL' } });
+        const tipoInstitucionMunicipal = await prisma.tipoInstitucion.create({ data: { nombre: 'MUNICIPAL' } });
+        const tipoInstitucionParroquial = await prisma.tipoInstitucion.create({ data: { nombre: 'PARROQUIAL RURAL' } });
+        const tipoInstitucionGremios = await prisma.tipoInstitucion.create({ data: { nombre: 'GREMIOS' } });
+        const tipoInstitucionCentral = await prisma.tipoInstitucion.create({ data: { nombre: 'CENTRAL' } });
+        const tipoInstitucionOtras = await prisma.tipoInstitucion.create({ data: { nombre: 'OTRAS INSTITUCIONES DEL ESTADO' } });
+        const tipoInstitucionCooperantes = await prisma.tipoInstitucion.create({ data: { nombre: 'COOPERANTES' } });
+        const tipoInstitucionAcademia = await prisma.tipoInstitucion.create({ data: { nombre: 'ACADEMIA' } });
+        const tipoInstitucionEducacion = await prisma.tipoInstitucion.create({ data: { nombre: 'EDUCACIÓN GENERAL BÁSICA Y BACHILLERATO' } });
+        const tipoInstitucionPrivado = await prisma.tipoInstitucion.create({ data: { nombre: 'PRIVADO' } });
+        const tipoInstitucionCiudadania = await prisma.tipoInstitucion.create({ data: { nombre: 'CIUDADANÍA' } });
+        const tipoInstitucionMancomunidades = await prisma.tipoInstitucion.create({ data: { nombre: 'MANCOMUNIDADES Y CONSORCIOS' } });
+        const tipoInstitucionRegimen = await prisma.tipoInstitucion.create({ data: { nombre: 'RÉGIMEN ESPECIAL' } });
+
         await prisma.gradoOcupacional.createMany({
             data: [
                 { nombre: 'PROFESIONAL 1' },
@@ -187,19 +203,19 @@ async function main() {
         });
 
         const institucionesArray = [
-            ...gremiosList.map(n => ({ nombre: n, tipo: 'GREMIOS' })),
-            ...entidadesCentralesList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL CENTRAL' })),
-            ...cooperantesList.map(n => ({ nombre: n, tipo: 'COOPERANTES' })),
-            ...academiaList.map(n => ({ nombre: n, tipo: 'ACADEMIA' })),
-            ...educacionList.map(n => ({ nombre: n, tipo: 'EDUCACIÓN GENERAL BÁSICA Y BACHILLERATO' })),
-            ...privadoList.map(n => ({ nombre: n, tipo: 'PRIVADO' })),
-            ...ciudadaniaList.map(n => ({ nombre: n, tipo: 'CIUDADANÍA' })),
-            ...regimenEspecialList.map(n => ({ nombre: n, tipo: 'RÉGIMEN ESPECIAL' })),
+            ...gremiosList.map(n => ({ nombre: n, tipo: 'GREMIOS', tipoInstitucionId: tipoInstitucionGremios.id })),
+            ...entidadesCentralesList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL CENTRAL', tipoInstitucionId: tipoInstitucionCentral.id })),
+            ...cooperantesList.map(n => ({ nombre: n, tipo: 'COOPERANTES', tipoInstitucionId: tipoInstitucionCooperantes.id })),
+            ...academiaList.map(n => ({ nombre: n, tipo: 'ACADEMIA', tipoInstitucionId: tipoInstitucionAcademia.id })),
+            ...educacionList.map(n => ({ nombre: n, tipo: 'EDUCACIÓN GENERAL BÁSICA Y BACHILLERATO', tipoInstitucionId: tipoInstitucionEducacion.id })),
+            ...privadoList.map(n => ({ nombre: n, tipo: 'PRIVADO', tipoInstitucionId: tipoInstitucionPrivado.id })),
+            ...ciudadaniaList.map(n => ({ nombre: n, tipo: 'CIUDADANÍA', tipoInstitucionId: tipoInstitucionCiudadania.id })),
+            ...regimenEspecialList.map(n => ({ nombre: n, tipo: 'RÉGIMEN ESPECIAL', tipoInstitucionId: tipoInstitucionRegimen.id })),
             // Municipales additions
-            ...bomberosList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)' })),
-            ...empresasPublicasList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)' })),
-            ...registrosPropiedadList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)' })),
-            ...consejosCantonalesList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)' }))
+            ...bomberosList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)', tipoInstitucionId: tipoInstitucionMunicipal.id })),
+            ...empresasPublicasList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)', tipoInstitucionId: tipoInstitucionMunicipal.id })),
+            ...registrosPropiedadList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)', tipoInstitucionId: tipoInstitucionMunicipal.id })),
+            ...consejosCantonalesList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)', tipoInstitucionId: tipoInstitucionMunicipal.id }))
         ];
 
         const insSistema = await prisma.institucionSistema.createMany({
@@ -284,6 +300,7 @@ async function main() {
                     rolId: u.roleId,
                     authUid: u.authUid,
                     tipoParticipanteId: u.roleId === adminRole.id ? tipoAutoridad.id : tipoCiudadano.id,
+                    tipoInstitucionId: u.roleId === adminRole.id ? tipoInstitucionCentral.id : tipoInstitucionCiudadania.id,
                     generoId: generos[index % generos.length].id,
                     etniaId: etnias[index % etnias.length].id,
                     provinciaId: provincias[index % provincias.length].id,

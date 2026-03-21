@@ -405,7 +405,7 @@ export class EditarPage implements OnInit {
 
   async obtenerEntidades() {
     try {
-      const data = await firstValueFrom(this.catalogoService.getItems('public/entidades'));
+      const data = await firstValueFrom(this.catalogoService.getItems('public/tipos-institucion'));
       this.datosrecuperados.entidades = data || [];
     } catch (error) {
       console.error('Error entidades:', error);
@@ -654,6 +654,11 @@ export class EditarPage implements OnInit {
       return match ? match.id : undefined;
     };
 
+    const findIdByNombre = (list: any[], nombre: string) => {
+      const match = list.find(i => i.nombre === nombre);
+      return match ? match.id : undefined;
+    };
+
     // Resolver Tipos de Participante
     this.resolvedIds.tipoAutoridad = findIdByCodigo(this.datosrecuperados.tiposParticipante, 'AUTORIDAD') || TipoParticipanteEnum.AUTORIDAD;
     this.resolvedIds.tipoCiudadano = findIdByCodigo(this.datosrecuperados.tiposParticipante, 'CIUDADANO') || TipoParticipanteEnum.CIUDADANO;
@@ -661,10 +666,10 @@ export class EditarPage implements OnInit {
     this.resolvedIds.tipoInstitucion = findIdByCodigo(this.datosrecuperados.tiposParticipante, 'INSTITUCION') || TipoParticipanteEnum.INSTITUCION;
 
     // Resolver Niveles de Gobierno (Entidades)
-    this.resolvedIds.nivelProvincial = findIdByCodigo(this.datosrecuperados.entidades, 'NIVEL_PROVINCIAL') || NivelGobiernoEnum.PROVINCIAL;
-    this.resolvedIds.nivelMunicipal = findIdByCodigo(this.datosrecuperados.entidades, 'NIVEL_MUNICIPAL') || NivelGobiernoEnum.MUNICIPAL;
-    this.resolvedIds.nivelParroquial = findIdByCodigo(this.datosrecuperados.entidades, 'NIVEL_PARROQUIAL') || NivelGobiernoEnum.PARROQUIAL;
-    this.resolvedIds.nivelMancomunidad = findIdByCodigo(this.datosrecuperados.entidades, 'MANCOMUNIDADES') || NivelGobiernoEnum.MANCOMUNIDADES;
+    this.resolvedIds.nivelProvincial = findIdByNombre(this.datosrecuperados.entidades, 'PROVINCIAL') || NivelGobiernoEnum.PROVINCIAL;
+    this.resolvedIds.nivelMunicipal = findIdByNombre(this.datosrecuperados.entidades, 'MUNICIPAL') || NivelGobiernoEnum.MUNICIPAL;
+    this.resolvedIds.nivelParroquial = findIdByNombre(this.datosrecuperados.entidades, 'PARROQUIAL RURAL') || NivelGobiernoEnum.PARROQUIAL;
+    this.resolvedIds.nivelMancomunidad = findIdByNombre(this.datosrecuperados.entidades, 'MANCOMUNIDADES Y CONSORCIOS') || NivelGobiernoEnum.MANCOMUNIDADES;
 
     console.log('[ADMIN_EDITAR_DEBUG] IDs Dinámicos Resueltos (por código):', this.resolvedIds);
   }

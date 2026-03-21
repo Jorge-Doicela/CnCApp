@@ -15,5 +15,6 @@ router.get('/public/instituciones', catalogoController.getInstituciones);
 router.get('/public/mancomunidades', catalogoController.getMancomunidades);
 router.get('/public/competencias', catalogoController.getCompetencias);
 router.get('/public/grados-ocupacionales', catalogoController.getGradosOcupacionales);
+router.get('/public/tipos-institucion', catalogoController.getTiposInstitucion);
 
 export { router as catalogoRoutes };

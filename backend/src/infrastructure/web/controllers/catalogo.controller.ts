@@ -64,4 +64,7 @@ export class CatalogoController {
             });
             return competencias.map((c: any) => ({ id: c.id, nombre: c.nombre }));
         });
+
+    getTiposInstitucion = async (_req: Request, res: Response, next: NextFunction) =>
+        query(res, next, () => prisma.tipoInstitucion.findMany({ orderBy: { id: 'asc' } }));
 }

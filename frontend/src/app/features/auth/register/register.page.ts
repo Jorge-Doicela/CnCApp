@@ -139,7 +139,7 @@ export class RegisterPage {
         firstValueFrom(this.catalogoService.getItems('tipos-participante')),
         firstValueFrom(this.catalogoService.getItems('nacionalidades')),
         firstValueFrom(this.catalogoService.getItems('public/cargos')),
-        firstValueFrom(this.catalogoService.getItems('public/entidades')),
+        firstValueFrom(this.catalogoService.getItems('public/tipos-institucion')),
         firstValueFrom(this.catalogoService.getItems('public/mancomunidades')),
         firstValueFrom(this.catalogoService.getItems('public/competencias')),
         firstValueFrom(this.catalogoService.getItems('public/grados-ocupacionales')),
@@ -174,15 +174,20 @@ export class RegisterPage {
         return match ? match.id : fallback;
       };
 
+      const findIdByNombre = (list: any[], nombre: string, fallback: number) => {
+        const match = list.find((i: any) => i.nombre === nombre);
+        return match ? match.id : fallback;
+      };
+
       const newResolvedIds = {
         tipoAutoridad: findIdByCodigo(tiposParticipanteResp, 'AUTORIDAD', TipoParticipanteEnum.AUTORIDAD),
         tipoCiudadano: findIdByCodigo(tiposParticipanteResp, 'CIUDADANO', TipoParticipanteEnum.CIUDADANO),
         tipoFuncionario: findIdByCodigo(tiposParticipanteResp, 'FUNCIONARIO_GAD', TipoParticipanteEnum.FUNCIONARIO_GAD),
         tipoInstitucion: findIdByCodigo(tiposParticipanteResp, 'INSTITUCION', TipoParticipanteEnum.INSTITUCION),
-        nivelProvincial: findIdByCodigo(entidadesResp, 'NIVEL_PROVINCIAL', NivelGobiernoEnum.PROVINCIAL),
-        nivelMunicipal: findIdByCodigo(entidadesResp, 'NIVEL_MUNICIPAL', NivelGobiernoEnum.MUNICIPAL),
-        nivelParroquial: findIdByCodigo(entidadesResp, 'NIVEL_PARROQUIAL', NivelGobiernoEnum.PARROQUIAL),
-        nivelMancomunidad: findIdByCodigo(entidadesResp, 'MANCOMUNIDADES', NivelGobiernoEnum.MANCOMUNIDADES),
+        nivelProvincial: findIdByNombre(entidadesResp, 'PROVINCIAL', NivelGobiernoEnum.PROVINCIAL),
+        nivelMunicipal: findIdByNombre(entidadesResp, 'MUNICIPAL', NivelGobiernoEnum.MUNICIPAL),
+        nivelParroquial: findIdByNombre(entidadesResp, 'PARROQUIAL RURAL', NivelGobiernoEnum.PARROQUIAL),
+        nivelMancomunidad: findIdByNombre(entidadesResp, 'MANCOMUNIDADES Y CONSORCIOS', NivelGobiernoEnum.MANCOMUNIDADES),
       };
 
       this.state.updateUserData({ resolvedIds: newResolvedIds } as any);
