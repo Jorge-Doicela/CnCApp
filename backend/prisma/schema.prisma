@@ -322,3 +322,10 @@ model Nacionalidad {
   @@map("nacionalidades")
 }
 
+model RegimenEspecial {
+  id     Int    @id @default(autoincrement()) @map("id_regimen_especial")
+  nombre String @unique @map("nombre") @db.VarChar(200)
+
+  @@map("regimen_especial")
+}
+

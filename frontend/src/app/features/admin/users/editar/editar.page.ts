@@ -43,7 +43,8 @@ export class EditarPage implements OnInit {
     nivelProvincial: NivelGobiernoEnum.PROVINCIAL,
     nivelMunicipal: NivelGobiernoEnum.MUNICIPAL,
     nivelParroquial: NivelGobiernoEnum.PARROQUIAL,
-    nivelMancomunidad: NivelGobiernoEnum.MANCOMUNIDADES
+    nivelMancomunidad: NivelGobiernoEnum.MANCOMUNIDADES,
+    nivelRegimenEspecial: NivelGobiernoEnum.REGIMEN_ESPECIAL
   };
 
   usuario = {
@@ -95,6 +96,7 @@ export class EditarPage implements OnInit {
     tiposParticipante: [] as any[],
     entidades: [] as any[], // Nivel de gobierno
     mancomunidades: [] as any[],
+    regimenesEspeciales: [] as any[],
     competencias: [] as any[],
     gradosOcupacionales: [] as any[],
   };
@@ -187,6 +189,7 @@ export class EditarPage implements OnInit {
         this.obtenerNacionalidades(),
         this.obtenerTiposParticipante(),
         this.obtenerEntidades(),
+        this.obtenerRegimenesEspeciales(),
         this.obtenerMancomunidades(),
         this.obtenerCompetencias(),
         this.obtenerGradosOcupacionales()
@@ -629,6 +632,17 @@ export class EditarPage implements OnInit {
     }
   }
 
+  async obtenerRegimenesEspeciales() {
+    try {
+      const data = await firstValueFrom(this.catalogoService.getItems('public/regimenes-especiales'));
+      this.datosrecuperados.regimenesEspeciales = data || [];
+    } catch (err) {
+      console.error(err);
+    } finally {
+      this.cdr.markForCheck();
+    }
+  }
+
   // Navigation between segments
   proximoPasso() {
     if (this.segmentoActual === 'personal') {
@@ -670,6 +684,7 @@ export class EditarPage implements OnInit {
     this.resolvedIds.nivelMunicipal = findIdByNombre(this.datosrecuperados.entidades, 'MUNICIPAL') || NivelGobiernoEnum.MUNICIPAL;
     this.resolvedIds.nivelParroquial = findIdByNombre(this.datosrecuperados.entidades, 'PARROQUIAL RURAL') || NivelGobiernoEnum.PARROQUIAL;
     this.resolvedIds.nivelMancomunidad = findIdByNombre(this.datosrecuperados.entidades, 'MANCOMUNIDADES Y CONSORCIOS') || NivelGobiernoEnum.MANCOMUNIDADES;
+    this.resolvedIds.nivelRegimenEspecial = findIdByNombre(this.datosrecuperados.entidades, 'RÉGIMEN ESPECIAL') || NivelGobiernoEnum.REGIMEN_ESPECIAL;
 
     console.log('[ADMIN_EDITAR_DEBUG] IDs Dinámicos Resueltos (por código):', this.resolvedIds);
   }
@@ -679,6 +694,8 @@ export class EditarPage implements OnInit {
 
     if (n === this.resolvedIds.nivelMancomunidad) {
       return this.datosrecuperados.mancomunidades;
+    } else if (n === this.resolvedIds.nivelRegimenEspecial) {
+      return this.datosrecuperados.regimenesEspeciales;
     } else if (n === this.resolvedIds.nivelMunicipal || n === this.resolvedIds.nivelParroquial) {
       return this.datosrecuperados.cantones;
     } else {

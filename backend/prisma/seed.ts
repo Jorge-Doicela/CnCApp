@@ -23,7 +23,9 @@ async function main() {
         // STEP 0: CLEAN DATABASE (FULL RESET)
         // ============================================
         // Limpiar en orden inverso para evitar errores de claves foráneas
-        console.log('🧹 Cleaning database...');
+        const regimenesEspeciales = ['CONSEJO DE GOBIERNO DE RÉGIMEN ESPECIAL DE GALÁPAGOS'];
+
+        console.log('Cleaning existing data...');
         await prisma.certificado.deleteMany();
         await prisma.usuarioCapacitacion.deleteMany();
         await prisma.capacitacion.deleteMany();
@@ -47,6 +49,7 @@ async function main() {
         await prisma.nacionalidad.deleteMany();
         await prisma.gradoOcupacional.deleteMany();
         await prisma.tipoInstitucion.deleteMany();
+        await prisma.regimenEspecial.deleteMany();
 
         console.log('System clean\n');
 
@@ -380,6 +383,29 @@ async function main() {
 
         const createdTrainings = [];
         const mods = ['Presencial', 'Virtual', 'Híbrido'];
+        const tiposInstitucion = [
+            'PROVINCIAL', 'MUNICIPAL', 'PARROQUIAL RURAL', 'GREMIOS', 'CENTRAL',
+            'OTRAS INSTITUCIONES DEL ESTADO', 'COOPERANTES', 'ACADEMIA',
+            'EDUCACIÓN GENERAL BÁSICA Y BACHILLERATO', 'PRIVADO', 'CIUDADANÍA',
+            'MANCOMUNIDADES Y CONSORCIOS', 'RÉGIMEN ESPECIAL'
+        ];
+
+        for (const nombre of tiposInstitucion) {
+            await prisma.tipoInstitucion.upsert({
+                where: { nombre },
+                update: {},
+                create: { nombre },
+            });
+        }
+
+        console.log('Seeding Regimenes Especiales...');
+        for (const nombre of regimenesEspeciales) {
+            await prisma.regimenEspecial.upsert({
+                where: { nombre },
+                update: {},
+                create: { nombre },
+            });
+        }
         for (const [index, t] of trainingSessions.entries()) {
             const session = await prisma.capacitacion.create({
                 data: {

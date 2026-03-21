@@ -275,6 +275,11 @@
                       {{ m.nombre }}
                     </ion-select-option>
                   </ng-container>
+                  <ng-container *ngIf="autoridad.nivelGobierno == resolvedIds.nivelRegimenEspecial">
+                    <ion-select-option *ngFor="let r of datosrecuperados.regimenesEspeciales" [value]="r.nombre">
+                      {{ r.nombre }}
+                    </ion-select-option>
+                  </ng-container>
                   <ng-container
                     *ngIf="autoridad.nivelGobierno == resolvedIds.nivelMunicipal || autoridad.nivelGobierno == resolvedIds.nivelParroquial">
                     <ion-select-option *ngFor="let c of datosrecuperados.cantones" [value]="c.nombre">
@@ -328,6 +333,11 @@
                   <ng-container *ngIf="funcionarioGad.nivelGobierno == resolvedIds.nivelMancomunidad">
                     <ion-select-option *ngFor="let m of datosrecuperados.mancomunidades" [value]="m.nombre">
                       {{ m.nombre }}
+                    </ion-select-option>
+                  </ng-container>
+                  <ng-container *ngIf="funcionarioGad.nivelGobierno == resolvedIds.nivelRegimenEspecial">
+                    <ion-select-option *ngFor="let r of datosrecuperados.regimenesEspeciales" [value]="r.nombre">
+                      {{ r.nombre }}
                     </ion-select-option>
                   </ng-container>
                   <ng-container

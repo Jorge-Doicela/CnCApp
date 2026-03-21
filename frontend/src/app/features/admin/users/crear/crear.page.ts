@@ -54,6 +54,7 @@ export class CrearPage implements OnInit {
     nivelMunicipal: NivelGobiernoEnum.MUNICIPAL,
     nivelParroquial: NivelGobiernoEnum.PARROQUIAL,
     nivelMancomunidad: NivelGobiernoEnum.MANCOMUNIDADES,
+    nivelRegimenEspecial: NivelGobiernoEnum.REGIMEN_ESPECIAL,
     rolAdmin: 1 // Default Admin Role ID fallback
   };
 
@@ -123,6 +124,7 @@ export class CrearPage implements OnInit {
     etnias: [] as any[],
     entidades: [] as any[],
     mancomunidades: [] as any[],
+    regimenesEspeciales: [] as any[],
     nacionalidades: [] as any[],
   }
 
@@ -371,6 +373,7 @@ export class CrearPage implements OnInit {
       this.obtenerGeneros(),
       this.obtenerEtnias(),
       this.obtenerEntidades(),
+      this.obtenerRegimenesEspeciales(),
       this.obtenerMancomunidades(),
       this.obtenerCompetencias(),
       this.obtenerNacionalidades()
@@ -1049,6 +1052,17 @@ export class CrearPage implements OnInit {
     }
   }
 
+  async obtenerRegimenesEspeciales() {
+    try {
+      const data = await firstValueFrom(this.catalogoService.getItems('public/regimenes-especiales'));
+      this.datosrecuperados.regimenesEspeciales = data || [];
+    } catch (err) {
+      console.error(err);
+    } finally {
+      this.cdr.markForCheck();
+    }
+  }
+
   // Obtener mancomunidades
   async obtenerMancomunidades() {
     try {
@@ -1145,6 +1159,7 @@ export class CrearPage implements OnInit {
     this.resolvedIds.nivelMunicipal = findIdByNombre(this.datosrecuperados.entidades, 'MUNICIPAL') || NivelGobiernoEnum.MUNICIPAL;
     this.resolvedIds.nivelParroquial = findIdByNombre(this.datosrecuperados.entidades, 'PARROQUIAL RURAL') || NivelGobiernoEnum.PARROQUIAL;
     this.resolvedIds.nivelMancomunidad = findIdByNombre(this.datosrecuperados.entidades, 'MANCOMUNIDADES Y CONSORCIOS') || NivelGobiernoEnum.MANCOMUNIDADES;
+    this.resolvedIds.nivelRegimenEspecial = findIdByNombre(this.datosrecuperados.entidades, 'RÉGIMEN ESPECIAL') || NivelGobiernoEnum.REGIMEN_ESPECIAL;
 
     console.log('[ADMIN_CREAR_DEBUG] IDs Dinámicos Resueltos:', this.resolvedIds);
   }

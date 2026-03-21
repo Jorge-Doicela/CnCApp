@@ -70,6 +70,7 @@ export class RegisterPage {
   cargos = signal<any[]>([]);
   entidades = signal<any[]>([]); // "Nivel de gobierno u otro"
   mancomunidades = signal<any[]>([]);
+  regimenesEspeciales = signal<any[]>([]);
   competencias = signal<any[]>([]);
   gradosOcupacionales = signal<any[]>([]);
   instituciones = signal<any[]>([]);
@@ -131,7 +132,7 @@ export class RegisterPage {
 
   async loadCatalogos() {
     try {
-      const [provinciasResp, cantonesResp, generosResp, etniasResp, tiposParticipanteResp, nacionalidadesResp, cargosResp, entidadesResp, mancomunidadesResp, competenciasResp, gradosOcupacionalesResp, institucionesResp] = await Promise.all([
+      const [provinciasResp, cantonesResp, generosResp, etniasResp, tiposParticipanteResp, nacionalidadesResp, cargosResp, entidadesResp, regimenesEspecialesResp, mancomunidadesResp, competenciasResp, gradosOcupacionalesResp, institucionesResp] = await Promise.all([
         firstValueFrom(this.catalogoService.getItems('provincias')),
         firstValueFrom(this.catalogoService.getItems('cantones')),
         firstValueFrom(this.catalogoService.getItems('generos')),
@@ -140,6 +141,7 @@ export class RegisterPage {
         firstValueFrom(this.catalogoService.getItems('nacionalidades')),
         firstValueFrom(this.catalogoService.getItems('public/cargos')),
         firstValueFrom(this.catalogoService.getItems('public/tipos-institucion')),
+        firstValueFrom(this.catalogoService.getItems('public/regimenes-especiales')),
         firstValueFrom(this.catalogoService.getItems('public/mancomunidades')),
         firstValueFrom(this.catalogoService.getItems('public/competencias')),
         firstValueFrom(this.catalogoService.getItems('public/grados-ocupacionales')),
@@ -163,6 +165,7 @@ export class RegisterPage {
       this.tiposParticipante.set(tiposParticipanteResp || []);
       this.cargos.set(cargosResp || []);
       this.entidades.set(entidadesResp || []);
+      this.regimenesEspeciales.set(regimenesEspecialesResp || []);
       this.mancomunidades.set(mancomunidadesResp || []);
       this.competencias.set(competenciasResp || []);
       this.gradosOcupacionales.set(gradosOcupacionalesResp || []);
@@ -188,6 +191,7 @@ export class RegisterPage {
         nivelMunicipal: findIdByNombre(entidadesResp, 'MUNICIPAL', NivelGobiernoEnum.MUNICIPAL),
         nivelParroquial: findIdByNombre(entidadesResp, 'PARROQUIAL RURAL', NivelGobiernoEnum.PARROQUIAL),
         nivelMancomunidad: findIdByNombre(entidadesResp, 'MANCOMUNIDADES Y CONSORCIOS', NivelGobiernoEnum.MANCOMUNIDADES),
+        nivelRegimenEspecial: findIdByNombre(entidadesResp, 'RÉGIMEN ESPECIAL', NivelGobiernoEnum.REGIMEN_ESPECIAL),
       };
 
       this.state.updateUserData({ resolvedIds: newResolvedIds } as any);

@@ -347,6 +347,10 @@
                   @for (m of mancomunidades(); track m.id) {
                   <ion-select-option [value]="m.nombre">{{ m.nombre }}</ion-select-option>
                   }
+                  } @else if (state.laborData().autoridad?.nivelgobierno === state.resolvedIds().nivelRegimenEspecial) {
+                  @for (r of regimenesEspeciales(); track r.id) {
+                  <ion-select-option [value]="r.nombre">{{ r.nombre }}</ion-select-option>
+                  }
                   } @else if (state.laborData().autoridad?.nivelgobierno === state.resolvedIds().nivelMunicipal ||
                   state.laborData().autoridad?.nivelgobierno === state.resolvedIds().nivelParroquial) {
                   @for (c of cantones(); track c.id) {
@@ -415,6 +419,10 @@
                   @if (state.laborData().funcionarioGad?.nivelgobierno === state.resolvedIds().nivelMancomunidad) {
                   @for (m of mancomunidades(); track m.id) {
                   <ion-select-option [value]="m.nombre">{{ m.nombre }}</ion-select-option>
+                  }
+                  } @else if (state.laborData().funcionarioGad?.nivelgobierno === state.resolvedIds().nivelRegimenEspecial) {
+                  @for (r of regimenesEspeciales(); track r.id) {
+                  <ion-select-option [value]="r.nombre">{{ r.nombre }}</ion-select-option>
                   }
                   } @else if (state.laborData().funcionarioGad?.nivelgobierno === state.resolvedIds().nivelMunicipal ||
                   state.laborData().funcionarioGad?.nivelgobierno === state.resolvedIds().nivelParroquial) {

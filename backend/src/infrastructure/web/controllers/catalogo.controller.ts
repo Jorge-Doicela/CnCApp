@@ -67,4 +67,7 @@ export class CatalogoController {
 
     getTiposInstitucion = async (_req: Request, res: Response, next: NextFunction) =>
         query(res, next, () => prisma.tipoInstitucion.findMany({ orderBy: { id: 'asc' } }));
+
+    getRegimenesEspeciales = async (_req: Request, res: Response, next: NextFunction) =>
+        query(res, next, () => prisma.regimenEspecial.findMany({ orderBy: { id: 'asc' } }));
 }
