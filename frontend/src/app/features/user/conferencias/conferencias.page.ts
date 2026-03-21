@@ -149,6 +149,6 @@ export class ConferenciasPage implements OnInit {
   }
 
   iraGenerarCertificado(idCapacitacion: number) {
-    this.router.navigate(['/ver-certificaciones'], { queryParams: { idCapacitacion } });
+    this.router.navigate(['/mis-certificados'], { queryParams: { idCapacitacion } });
   }
 }

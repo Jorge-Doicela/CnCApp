@@ -28,8 +28,8 @@ export const USER_ROUTES: Routes = [
         canActivate: [authGuard]
     },
     {
-        path: 'ver-certificaciones',
-        loadComponent: () => import('./certificaciones/certificaciones.page').then(m => m.CertificacionesPage),
+        path: 'mis-certificados',
+        loadComponent: () => import('./certificados/certificados.page').then(m => m.MisCertificadosPage),
         canActivate: [authGuard]
     },
     {

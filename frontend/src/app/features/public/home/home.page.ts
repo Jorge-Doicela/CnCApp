@@ -307,7 +307,7 @@ export class HomePage implements OnInit {
       'Gestionar grados': 'gestionar-grados',
       'Ver Perfil': 'ver-perfil',
       'Ver conferencias': 'ver-conferencias',
-      'Ver certificaciones': 'ver-certificaciones',
+      'Ver certificaciones': 'mis-certificados',
       'Validar certificados': 'validar-certificados',
       'Ver capacitaciones': 'ver-conferencias',
       // Public Pages

@@ -1,0 +1,113 @@
+
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button *ngIf="!idCapacitacion" defaultHref="/home"></ion-back-button>
+      <ion-button *ngIf="idCapacitacion" (click)="volverAlListado()">
+        <ion-icon name="arrow-back-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>{{ idCapacitacion ? 'Vista de Certificado' : 'Mis Títulos Obtenidos' }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  
+  <!-- Loading State -->
+  <div *ngIf="loading" class="ion-text-center ion-padding">
+    <ion-spinner name="crescent" color="primary"></ion-spinner>
+    <p>Procesando información...</p>
+  </div>
+
+  <!-- Error / Empty State -->
+  <div *ngIf="!loading && !certificadoData && !certificados.length" class="empty-state">
+    <div class="empty-icon-box">
+      <ion-icon name="ribbon-outline"></ion-icon>
+    </div>
+    <h3>No tienes certificados aún</h3>
+    <p>Completa tus capacitaciones para obtener tus certificados oficiales.</p>
+    <ion-button fill="outline" routerLink="/home">Explorar Cursos</ion-button>
+  </div>
+
+  <!-- SINGLE CERTIFICATE VIEW (Preview) -->
+  <div *ngIf="!loading && idCapacitacion && certificadoData" class="preview-container">
+    <ion-card class="cert-preview-card">
+      <div class="pdf-snapshot">
+        <img [src]="getImageUrl(plantillaData?.imagenUrl) || 'assets/certificados/placeholder-cert.png'" class="bg-img">
+        <div class="snapshot-overlay">
+          <div class="qr-placeholder"></div>
+          <p class="user-placeholder">{{ certificadoData.usuario?.nombre }}</p>
+        </div>
+      </div>
+      
+      <ion-card-header>
+        <div class="cert-category">CERTIFICADO OFICIAL</div>
+        <ion-card-title>{{ (certificadoData.capacitacion?.nombre || 'Capacitación').toUpperCase() }}</ion-card-title>
+        <ion-card-subtitle>A nombre de: {{ certificadoData.usuario?.nombre }}</ion-card-subtitle>
+      </ion-card-header>
+
+      <ion-card-content>
+        <div class="cert-info-grid">
+           <div class="info-item">
+              <ion-icon name="calendar-outline"></ion-icon>
+              <div>
+                <small>Emitido el</small>
+                <p>{{ (certificadoData.fecha || 'Recientemente') }}</p>
+              </div>
+           </div>
+           <div class="info-item">
+              <ion-icon name="qr-code-outline"></ion-icon>
+              <div>
+                <small>Código QR</small>
+                <p>Verificado</p>
+              </div>
+           </div>
+        </div>
+
+        <div class="preview-actions">
+          <ion-button expand="block" (click)="generarPDF('download')" class="main-btn">
+            <ion-icon name="cloud-download-outline" slot="start"></ion-icon>
+            Descargar Documento
+          </ion-button>
+          <ion-button expand="block" fill="outline" (click)="generarPDF('open')" class="sec-btn">
+            <ion-icon name="eye-outline" slot="start"></ion-icon>
+            Ver en Pantalla Completa
+          </ion-button>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <!-- LIST VIEW (All Certificates) -->
+  <div *ngIf="!loading && !idCapacitacion && certificados.length" class="list-container">
+    <div class="list-header">
+        <h3>Tus Logros Académicos</h3>
+        <p>Has obtenido {{ certificados.length }} certificación(es) oficial(es).</p>
+    </div>
+
+    <div class="cert-grid">
+      <ion-card class="cert-item-card" *ngFor="let cert of certificados" (click)="verCertificado(cert)">
+        <div class="cert-item-header">
+            <div class="icon-circle">
+                <ion-icon name="ribbon"></ion-icon>
+            </div>
+            <div class="cert-date">{{ cert.createdAt | date:'longDate' }}</div>
+        </div>
+        
+        <ion-card-content>
+          <h4 class="cert-name">{{ cert.capacitacion?.nombre || 'Certificado de Capacitación' }}</h4>
+          <p class="cert-desc">{{ cert.capacitacion?.descripcion || 'Completado con éxito' }}</p>
+          
+          <div class="cert-footer-info">
+              <span class="badge-verified">
+                 <ion-icon name="checkmark-circle"></ion-icon>
+                 Verificado
+              </span>
+              <ion-icon name="chevron-forward" class="arrow"></ion-icon>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </div>
+  </div>
+
+</ion-content>
