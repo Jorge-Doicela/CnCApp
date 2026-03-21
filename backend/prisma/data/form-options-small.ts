@@ -9,6 +9,7 @@ export const modalidades = [
     'PRESENCIAL Y VIRTUAL'
 ];
 
+/** Catálogo alineado con SQL: cargo */
 export const cargosList = [
     'ALCALDE',
     'PREFECTO',
@@ -17,11 +18,21 @@ export const cargosList = [
     'VOCAL DE JUNTA PARROQUIAL',
     'SERVIDOR PÚBLICO (NJS)',
     'SERVIDOR PÚBLICO (TÉCNICO)',
-    'BOMBERO',
-    'POLICIA',
-    'VICEALCALDE',
-    'VICEPREFECTO'
+    'CIUDADANÍA'
 ];
+
+/** Catálogo alineado con SQL: genero */
+export const generoList = ['MUJER', 'HOMBRE', 'GLBTI+'] as const;
+
+/** Catálogo alineado con SQL: etnia */
+export const etniaList = [
+    'AFROECUATORIANO',
+    'BLANCO',
+    'INDÍGENA',
+    'MESTIZO',
+    'MONTUBIO',
+    'OTRO'
+] as const;
 
 export const gremiosList = [
     'ASOCIACIÓN DE MUNICIPALIDADES ECUATORIANAS (AME)',

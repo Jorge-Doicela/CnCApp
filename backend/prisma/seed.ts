@@ -3,7 +3,7 @@ import { randomUUID } from 'node:crypto';
 import { Prisma, PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import {
-    cargosList, gremiosList,
+    cargosList, generoList, etniaList, gremiosList,
     entidadesCentralesList, cooperantesList, academiaList,
     privadoList, ciudadaniaList,
     regimenEspecialList, mancomunidadesList,
@@ -209,22 +209,12 @@ async function main() {
         console.log('Loading Product Catalogs...');
 
         await prisma.genero.createMany({
-            data: [
-                { nombre: 'Masculino' },
-                { nombre: 'Femenino' }
-            ],
+            data: generoList.map((nombre) => ({ nombre })),
             skipDuplicates: true
         });
 
         await prisma.etnia.createMany({
-            data: [
-                { nombre: 'Mestizo' },
-                { nombre: 'Afroecuatoriano' },
-                { nombre: 'Montubio' },
-                { nombre: 'Indígena' },
-                { nombre: 'Blanco' },
-                { nombre: 'Otro' }
-            ],
+            data: etniaList.map((nombre) => ({ nombre })),
             skipDuplicates: true
         });
 
