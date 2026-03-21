@@ -55,6 +55,7 @@ export interface RegisterStateModel {
         nivelMunicipal: number;
         nivelParroquial: number;
         nivelMancomunidad: number;
+        nivelRegimenEspecial: number;
     };
 }
 
@@ -98,7 +99,8 @@ const initialState: RegisterStateModel = {
         nivelProvincial: 1, // Fallbacks
         nivelMunicipal: 2,
         nivelParroquial: 3,
-        nivelMancomunidad: 4
+        nivelMancomunidad: 4,
+        nivelRegimenEspecial: 13
     }
 };
 
