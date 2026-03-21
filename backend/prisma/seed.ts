@@ -1,22 +1,102 @@
 import 'dotenv/config';
-import { PrismaClient } from '@prisma/client';
+import { randomUUID } from 'node:crypto';
+import { Prisma, PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
-import { ecuadorData } from './data/ecuador-data';
 import {
-    tiposEvento, modalidades, cargosList, gremiosList,
+    cargosList, gremiosList,
     entidadesCentralesList, cooperantesList, academiaList,
     educacionList, privadoList, ciudadaniaList,
     regimenEspecialList, mancomunidadesList,
     bomberosList, empresasPublicasList,
     registrosPropiedadList, consejosCantonalesList
 } from './data/form-options-index';
+import {
+    ensureMunicipalInstitucionesSistema,
+    seedGeoSqlProvincias
+} from './seed-reference-catalogs';
 
 const prisma = new PrismaClient();
 const SALT_ROUNDS = 10;
 
+/** Evita que falle todo el seed si en la BD falta alguna tabla (p. ej. entornos desalineados). */
+async function safeDeleteMany(label: string, run: () => Promise<unknown>): Promise<void> {
+    try {
+        await run();
+    } catch (e) {
+        if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2021') {
+            console.warn(`[seed] Limpieza omitida (${label}): tabla no existe en esta base.`);
+            return;
+        }
+        throw e;
+    }
+}
+
+const TIPO_INSTITUCION_NOMBRES_SEED = [
+    'PROVINCIAL',
+    'MUNICIPAL',
+    'PARROQUIAL RURAL',
+    'GREMIOS',
+    'CENTRAL',
+    'OTRAS INSTITUCIONES DEL ESTADO',
+    'COOPERANTES',
+    'ACADEMIA',
+    'EDUCACIÓN GENERAL BÁSICA Y BACHILLERATO',
+    'PRIVADO',
+    'CIUDADANÍA',
+    'MANCOMUNIDADES Y CONSORCIOS',
+    'RÉGIMEN ESPECIAL'
+] as const;
+
+type TipoInstMap = Record<string, { id: number }>;
+
+/** Crea o reutiliza filas en tipo_institucion; si la tabla no existe, devuelve {}. */
+async function upsertTiposInstitucion(prisma: PrismaClient): Promise<TipoInstMap> {
+    const map: TipoInstMap = {};
+    let tableMissing = false;
+
+    for (const nombre of TIPO_INSTITUCION_NOMBRES_SEED) {
+        try {
+            const row = await prisma.tipoInstitucion.upsert({
+                where: { nombre },
+                update: {},
+                create: { nombre }
+            });
+            map[nombre] = row;
+        } catch (e) {
+            if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2021') {
+                tableMissing = true;
+                break;
+            }
+            console.warn(`[seed] tipo_institucion upsert falló para "${nombre}" (se continúa):`, e);
+        }
+    }
+
+    if (tableMissing) {
+        console.warn('[seed] Tabla tipo_institucion no disponible; se omiten tipoInstitucionId en instituciones_sistema.');
+        return {};
+    }
+
+    if (Object.keys(map).length === 0) {
+        try {
+            const all = await prisma.tipoInstitucion.findMany();
+            for (const row of all) {
+                map[row.nombre] = row;
+            }
+        } catch {
+            /* vacío */
+        }
+    }
+
+    return map;
+}
+
+const EXPECTED_PROVINCIAS_SEED = 23;
+
 async function main() {
     console.log('Starting PRODUCT LAUNCH database seed...');
     console.log('Generating ultra-realistic data for presentation...\n');
+
+    let seedFailed = false;
 
     try {
         // ============================================
@@ -26,79 +106,98 @@ async function main() {
         const regimenesEspeciales = ['CONSEJO DE GOBIERNO DE RÉGIMEN ESPECIAL DE GALÁPAGOS'];
 
         console.log('Cleaning existing data...');
-        await prisma.certificado.deleteMany();
-        await prisma.usuarioCapacitacion.deleteMany();
-        await prisma.capacitacion.deleteMany();
-        await prisma.plantilla.deleteMany();
-        await prisma.institucionUsuario.deleteMany();
-        await prisma.funcionarioGAD.deleteMany();
-        await prisma.autoridad.deleteMany();
-        await prisma.usuario.deleteMany();
-        await prisma.parroquia.deleteMany();
-        await prisma.canton.deleteMany();
-        await prisma.provincia.deleteMany();
-        await prisma.entidad.deleteMany();
-        await prisma.rol.deleteMany();
-        await prisma.mancomunidad.deleteMany();
-        await prisma.institucionSistema.deleteMany();
-        await prisma.cargo.deleteMany();
-        await prisma.competencia.deleteMany();
-        await prisma.genero.deleteMany();
-        await prisma.etnia.deleteMany();
-        await prisma.tipoParticipante.deleteMany();
-        await prisma.nacionalidad.deleteMany();
-        await prisma.gradoOcupacional.deleteMany();
-        await prisma.tipoInstitucion.deleteMany();
-        await prisma.regimenEspecial.deleteMany();
+        await safeDeleteMany('certificados', () => prisma.certificado.deleteMany());
+        await safeDeleteMany('usuarios_capacitaciones', () => prisma.usuarioCapacitacion.deleteMany());
+        await safeDeleteMany('capacitaciones', () => prisma.capacitacion.deleteMany());
+        await safeDeleteMany('plantillas', () => prisma.plantilla.deleteMany());
+        await safeDeleteMany('instituciones_usuario', () => prisma.institucionUsuario.deleteMany());
+        await safeDeleteMany('funcionarios_gad', () => prisma.funcionarioGAD.deleteMany());
+        await safeDeleteMany('autoridades', () => prisma.autoridad.deleteMany());
+        await safeDeleteMany('usuarios', () => prisma.usuario.deleteMany());
+        await safeDeleteMany('parroquias', () => prisma.parroquia.deleteMany());
+        await safeDeleteMany('cantones', () => prisma.canton.deleteMany());
+        await safeDeleteMany('provincias', () => prisma.provincia.deleteMany());
+        await safeDeleteMany('entidades', () => prisma.entidad.deleteMany());
+        await safeDeleteMany('roles', () => prisma.rol.deleteMany());
+        await safeDeleteMany('mancomunidades', () => prisma.mancomunidad.deleteMany());
+        await safeDeleteMany('instituciones_sistema', () => prisma.institucionSistema.deleteMany());
+        await safeDeleteMany('cargos', () => prisma.cargo.deleteMany());
+        await safeDeleteMany('competencias', () => prisma.competencia.deleteMany());
+        await safeDeleteMany('generos', () => prisma.genero.deleteMany());
+        await safeDeleteMany('etnias', () => prisma.etnia.deleteMany());
+        await safeDeleteMany('tipos_participante', () => prisma.tipoParticipante.deleteMany());
+        await safeDeleteMany('nacionalidades', () => prisma.nacionalidad.deleteMany());
+        await safeDeleteMany('grados_ocupacionales', () => prisma.gradoOcupacional.deleteMany());
+        await safeDeleteMany('tipo_institucion', () => prisma.tipoInstitucion.deleteMany());
+        await safeDeleteMany('regimen_especial', () => prisma.regimenEspecial.deleteMany());
 
         console.log('System clean\n');
 
         // ============================================
         // STEP 1: ROLES
         // ============================================
-        console.log('Configuring Roles...');
-        const adminRole = await prisma.rol.create({
-            data: {
+        console.log('Configuring Roles (upsert por codigo)...');
+        const adminModulos = [
+            'Ver Perfil',
+            'Ver conferencias',
+            'Gestionar roles',
+            'Gestionar capacitaciones',
+            'Gestionar usuarios',
+            'Gestionar entidades',
+            'Gestionar provincias',
+            'Gestionar parroquias',
+            'Gestionar cantones',
+            'Gestionar competencias',
+            'Gestionar instituciones',
+            'Gestionar plantillas',
+            'Gestionar reportes',
+            'Gestionar grados ocupacionales',
+            'Gestionar cargos',
+            'Validar certificados'
+        ];
+        const adminRole = await prisma.rol.upsert({
+            where: { codigo: 'ADMIN' },
+            update: {
+                nombre: 'Administrador',
+                descripcion: 'Control total de la plataforma y reportes gerenciales',
+                modulos: adminModulos
+            },
+            create: {
                 nombre: 'Administrador',
                 codigo: 'ADMIN',
                 descripcion: 'Control total de la plataforma y reportes gerenciales',
-                modulos: [
-                    "Ver Perfil",
-                    "Ver conferencias",
-                    "Gestionar roles",
-                    "Gestionar capacitaciones",
-                    "Gestionar usuarios",
-                    "Gestionar entidades",
-                    "Gestionar provincias",
-                    "Gestionar parroquias",
-                    "Gestionar cantones",
-                    "Gestionar competencias",
-                    "Gestionar instituciones",
-                    "Gestionar plantillas",
-                    "Gestionar reportes",
-                    "Gestionar grados ocupacionales",
-                    "Gestionar cargos",
-                    "Validar certificados"
-                ],
-            },
+                modulos: adminModulos
+            }
         });
 
-        const conferencistaRole = await prisma.rol.create({
-            data: {
+        const conferencistaRole = await prisma.rol.upsert({
+            where: { codigo: 'CONFERENCISTA' },
+            update: {
+                nombre: 'Conferencista',
+                descripcion: 'Gestión de contenidos académicos y certificación masiva',
+                modulos: ['Ver Perfil', 'Ver conferencias', 'Gestionar capacitaciones', 'Gestionar plantillas', 'Validar certificados']
+            },
+            create: {
                 nombre: 'Conferencista',
                 codigo: 'CONFERENCISTA',
                 descripcion: 'Gestión de contenidos académicos y certificación masiva',
-                modulos: ["Ver Perfil", "Ver conferencias", "Gestionar capacitaciones", "Gestionar plantillas", "Validar certificados"],
-            },
+                modulos: ['Ver Perfil', 'Ver conferencias', 'Gestionar capacitaciones', 'Gestionar plantillas', 'Validar certificados']
+            }
         });
 
-        const usuarioRole = await prisma.rol.create({
-            data: {
+        const usuarioRole = await prisma.rol.upsert({
+            where: { codigo: 'USUARIO' },
+            update: {
+                nombre: 'Usuario',
+                descripcion: 'Participante en programas de formación territorial',
+                modulos: ['Ver Perfil', 'Ver conferencias']
+            },
+            create: {
                 nombre: 'Usuario',
                 codigo: 'USUARIO',
                 descripcion: 'Participante en programas de formación territorial',
-                modulos: ["Ver Perfil", "Ver conferencias"],
-            },
+                modulos: ['Ver Perfil', 'Ver conferencias']
+            }
         });
 
         // ============================================
@@ -110,7 +209,8 @@ async function main() {
             data: [
                 { nombre: 'Masculino' },
                 { nombre: 'Femenino' }
-            ]
+            ],
+            skipDuplicates: true
         });
 
         await prisma.etnia.createMany({
@@ -121,20 +221,38 @@ async function main() {
                 { nombre: 'Indígena' },
                 { nombre: 'Blanco' },
                 { nombre: 'Otro' }
-            ]
+            ],
+            skipDuplicates: true
         });
 
         await prisma.nacionalidad.createMany({
             data: [
                 { nombre: 'Ecuatoriana' },
                 { nombre: 'Otra' }
-            ]
+            ],
+            skipDuplicates: true
         });
 
-        const tipoAutoridad = await prisma.tipoParticipante.create({ data: { nombre: 'Autoridad', codigo: 'AUTORIDAD' } });
-        const tipoCiudadano = await prisma.tipoParticipante.create({ data: { nombre: 'Ciudadano', codigo: 'CIUDADANO' } });
-        const tipoFuncionario = await prisma.tipoParticipante.create({ data: { nombre: 'Funcionario de GAD', codigo: 'FUNCIONARIO_GAD' } });
-        const tipoInstitucion = await prisma.tipoParticipante.create({ data: { nombre: 'Institución', codigo: 'INSTITUCION' } });
+        const tipoAutoridad = await prisma.tipoParticipante.upsert({
+            where: { codigo: 'AUTORIDAD' },
+            update: { nombre: 'Autoridad' },
+            create: { nombre: 'Autoridad', codigo: 'AUTORIDAD' }
+        });
+        const tipoCiudadano = await prisma.tipoParticipante.upsert({
+            where: { codigo: 'CIUDADANO' },
+            update: { nombre: 'Ciudadano' },
+            create: { nombre: 'Ciudadano', codigo: 'CIUDADANO' }
+        });
+        await prisma.tipoParticipante.upsert({
+            where: { codigo: 'FUNCIONARIO_GAD' },
+            update: { nombre: 'Funcionario de GAD' },
+            create: { nombre: 'Funcionario de GAD', codigo: 'FUNCIONARIO_GAD' }
+        });
+        await prisma.tipoParticipante.upsert({
+            where: { codigo: 'INSTITUCION' },
+            update: { nombre: 'Institución' },
+            create: { nombre: 'Institución', codigo: 'INSTITUCION' }
+        });
         await prisma.entidad.createMany({
             data: [
                 { nombre: 'INSTITUCIÓN — NIVEL PROVINCIAL', codigo: 'NIVEL_PROVINCIAL' },
@@ -152,20 +270,10 @@ async function main() {
             ]
         });
 
-        console.log('Seeding Institution Types...');
-        const tipoInstitucionProvincial = await prisma.tipoInstitucion.create({ data: { nombre: 'PROVINCIAL' } });
-        const tipoInstitucionMunicipal = await prisma.tipoInstitucion.create({ data: { nombre: 'MUNICIPAL' } });
-        const tipoInstitucionParroquial = await prisma.tipoInstitucion.create({ data: { nombre: 'PARROQUIAL RURAL' } });
-        const tipoInstitucionGremios = await prisma.tipoInstitucion.create({ data: { nombre: 'GREMIOS' } });
-        const tipoInstitucionCentral = await prisma.tipoInstitucion.create({ data: { nombre: 'CENTRAL' } });
-        const tipoInstitucionOtras = await prisma.tipoInstitucion.create({ data: { nombre: 'OTRAS INSTITUCIONES DEL ESTADO' } });
-        const tipoInstitucionCooperantes = await prisma.tipoInstitucion.create({ data: { nombre: 'COOPERANTES' } });
-        const tipoInstitucionAcademia = await prisma.tipoInstitucion.create({ data: { nombre: 'ACADEMIA' } });
-        const tipoInstitucionEducacion = await prisma.tipoInstitucion.create({ data: { nombre: 'EDUCACIÓN GENERAL BÁSICA Y BACHILLERATO' } });
-        const tipoInstitucionPrivado = await prisma.tipoInstitucion.create({ data: { nombre: 'PRIVADO' } });
-        const tipoInstitucionCiudadania = await prisma.tipoInstitucion.create({ data: { nombre: 'CIUDADANÍA' } });
-        const tipoInstitucionMancomunidades = await prisma.tipoInstitucion.create({ data: { nombre: 'MANCOMUNIDADES Y CONSORCIOS' } });
-        const tipoInstitucionRegimen = await prisma.tipoInstitucion.create({ data: { nombre: 'RÉGIMEN ESPECIAL' } });
+        console.log('Seeding Institution Types (upsert)...');
+        const tiposInst = await upsertTiposInstitucion(prisma);
+        const tid = (nombre: (typeof TIPO_INSTITUCION_NOMBRES_SEED)[number]): number | undefined =>
+            tiposInst[nombre]?.id;
 
         await prisma.gradoOcupacional.createMany({
             data: [
@@ -185,11 +293,13 @@ async function main() {
                 { nombre: 'SERVIDOR PÚBLICO 5' },
                 { nombre: 'SERVIDOR PÚBLICO 6' },
                 { nombre: 'SERVIDOR PÚBLICO 7' },
-            ]
+            ],
+            skipDuplicates: true
         });
 
         await prisma.cargo.createMany({
-            data: cargosList.map(c => ({ nombre: c }))
+            data: cargosList.map(c => ({ nombre: c })),
+            skipDuplicates: true
         });
 
         await prisma.competencia.createMany({
@@ -202,27 +312,29 @@ async function main() {
                 { nombre: 'SISTEMAS DE RIEGO Y DRENAJE', descripcion: 'Infraestructura para la producción agrícola' },
                 { nombre: 'RECURSOS NATURALES Y MINERÍA', descripcion: 'Gestión técnica de recursos del subsuelo' },
                 { nombre: 'FORTALECIMIENTO INSTITUCIONAL', descripcion: 'Mejora continua y modernización de los GAD' },
-            ]
+            ],
+            skipDuplicates: true
         });
 
         const institucionesArray = [
-            ...gremiosList.map(n => ({ nombre: n, tipo: 'GREMIOS', tipoInstitucionId: tipoInstitucionGremios.id })),
-            ...entidadesCentralesList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL CENTRAL', tipoInstitucionId: tipoInstitucionCentral.id })),
-            ...cooperantesList.map(n => ({ nombre: n, tipo: 'COOPERANTES', tipoInstitucionId: tipoInstitucionCooperantes.id })),
-            ...academiaList.map(n => ({ nombre: n, tipo: 'ACADEMIA', tipoInstitucionId: tipoInstitucionAcademia.id })),
-            ...educacionList.map(n => ({ nombre: n, tipo: 'EDUCACIÓN GENERAL BÁSICA Y BACHILLERATO', tipoInstitucionId: tipoInstitucionEducacion.id })),
-            ...privadoList.map(n => ({ nombre: n, tipo: 'PRIVADO', tipoInstitucionId: tipoInstitucionPrivado.id })),
-            ...ciudadaniaList.map(n => ({ nombre: n, tipo: 'CIUDADANÍA', tipoInstitucionId: tipoInstitucionCiudadania.id })),
-            ...regimenEspecialList.map(n => ({ nombre: n, tipo: 'RÉGIMEN ESPECIAL', tipoInstitucionId: tipoInstitucionRegimen.id })),
-            // Municipales additions
-            ...bomberosList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)', tipoInstitucionId: tipoInstitucionMunicipal.id })),
-            ...empresasPublicasList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)', tipoInstitucionId: tipoInstitucionMunicipal.id })),
-            ...registrosPropiedadList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)', tipoInstitucionId: tipoInstitucionMunicipal.id })),
-            ...consejosCantonalesList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)', tipoInstitucionId: tipoInstitucionMunicipal.id }))
+            ...gremiosList.map(n => ({ nombre: n, tipo: 'GREMIOS', tipoInstitucionId: tid('GREMIOS') })),
+            ...entidadesCentralesList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL CENTRAL', tipoInstitucionId: tid('CENTRAL') })),
+            ...cooperantesList.map(n => ({ nombre: n, tipo: 'COOPERANTES', tipoInstitucionId: tid('COOPERANTES') })),
+            ...academiaList.map(n => ({ nombre: n, tipo: 'ACADEMIA', tipoInstitucionId: tid('ACADEMIA') })),
+            ...educacionList.map(n => ({ nombre: n, tipo: 'EDUCACIÓN GENERAL BÁSICA Y BACHILLERATO', tipoInstitucionId: tid('EDUCACIÓN GENERAL BÁSICA Y BACHILLERATO') })),
+            ...privadoList.map(n => ({ nombre: n, tipo: 'PRIVADO', tipoInstitucionId: tid('PRIVADO') })),
+            ...ciudadaniaList.map(n => ({ nombre: n, tipo: 'CIUDADANÍA', tipoInstitucionId: tid('CIUDADANÍA') })),
+            ...regimenEspecialList.map(n => ({ nombre: n, tipo: 'RÉGIMEN ESPECIAL', tipoInstitucionId: tid('RÉGIMEN ESPECIAL') })),
+            // Municipales additions (también se re-aseguran al final del seed con skipDuplicates)
+            ...bomberosList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)', tipoInstitucionId: tid('MUNICIPAL') })),
+            ...empresasPublicasList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)', tipoInstitucionId: tid('MUNICIPAL') })),
+            ...registrosPropiedadList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)', tipoInstitucionId: tid('MUNICIPAL') })),
+            ...consejosCantonalesList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)', tipoInstitucionId: tid('MUNICIPAL') }))
         ];
 
-        const insSistema = await prisma.institucionSistema.createMany({
-            data: institucionesArray
+        await prisma.institucionSistema.createMany({
+            data: institucionesArray,
+            skipDuplicates: true
         });
 
         await prisma.mancomunidad.createMany({
@@ -233,29 +345,8 @@ async function main() {
         // STEP 3: GEO DATA
         // ============================================
         console.log('Syncing National Geographic Model (Provinces/Cantons/Parishes)...');
-        for (const prov of ecuadorData) {
-            const createdProv = await prisma.provincia.create({
-                data: { nombre: prov.provincia }
-            });
-
-            for (const cant of prov.cantones) {
-                const createdCant = await prisma.canton.create({
-                    data: {
-                        nombre: cant.nombre,
-                        provinciaId: createdProv.id
-                    }
-                });
-
-                if (cant.parroquias && cant.parroquias.length > 0) {
-                    await prisma.parroquia.createMany({
-                        data: cant.parroquias.map(p => ({
-                            nombre: p,
-                            cantonId: createdCant.id
-                        }))
-                    });
-                }
-            }
-        }
+        // 23 provincias (SQL oficial) + cantones/parroquias desde ecuadorData (ver seed-reference-catalogs.ts)
+        await seedGeoSqlProvincias(prisma);
 
         // ============================================
         // STEP 4: USERS (Massive & Realistic)
@@ -289,7 +380,25 @@ async function main() {
         const createdUsers = [];
         const generos = await prisma.genero.findMany();
         const etnias = await prisma.etnia.findMany();
-        const provincias = await prisma.provincia.findMany();
+        let provinciasList = await prisma.provincia.findMany();
+
+        if (provinciasList.length === 0) {
+            console.warn('[seed] Sin provincias tras STEP 3; reintentando geo...');
+            await seedGeoSqlProvincias(prisma);
+            provinciasList = await prisma.provincia.findMany();
+        }
+
+        if (generos.length === 0 || etnias.length === 0) {
+            throw new Error('[seed] Faltan géneros o etnias en BD; revisa migraciones y limpieza inicial.');
+        }
+        if (provinciasList.length === 0) {
+            throw new Error('[seed] No hay provincias en BD; no se pueden crear usuarios de prueba.');
+        }
+        if (provinciasList.length < EXPECTED_PROVINCIAS_SEED) {
+            console.warn(
+                `[seed] Provincias incompletas (${provinciasList.length}/${EXPECTED_PROVINCIAS_SEED}); los usuarios usarán módulo sobre las existentes.`
+            );
+        }
 
         for (const [index, u] of usersData.entries()) {
             const user = await prisma.usuario.create({
@@ -303,10 +412,10 @@ async function main() {
                     rolId: u.roleId,
                     authUid: u.authUid,
                     tipoParticipanteId: u.roleId === adminRole.id ? tipoAutoridad.id : tipoCiudadano.id,
-                    tipoInstitucionId: u.roleId === adminRole.id ? tipoInstitucionCentral.id : tipoInstitucionCiudadania.id,
+                    tipoInstitucionId: u.roleId === adminRole.id ? tid('CENTRAL') : tid('CIUDADANÍA'),
                     generoId: generos[index % generos.length].id,
                     etniaId: etnias[index % etnias.length].id,
-                    provinciaId: provincias[index % provincias.length].id,
+                    provinciaId: provinciasList[index % provinciasList.length].id,
                     estado: 1
                 }
             });
@@ -383,28 +492,18 @@ async function main() {
 
         const createdTrainings = [];
         const mods = ['Presencial', 'Virtual', 'Híbrido'];
-        const tiposInstitucion = [
-            'PROVINCIAL', 'MUNICIPAL', 'PARROQUIAL RURAL', 'GREMIOS', 'CENTRAL',
-            'OTRAS INSTITUCIONES DEL ESTADO', 'COOPERANTES', 'ACADEMIA',
-            'EDUCACIÓN GENERAL BÁSICA Y BACHILLERATO', 'PRIVADO', 'CIUDADANÍA',
-            'MANCOMUNIDADES Y CONSORCIOS', 'RÉGIMEN ESPECIAL'
-        ];
-
-        for (const nombre of tiposInstitucion) {
-            await prisma.tipoInstitucion.upsert({
-                where: { nombre },
-                update: {},
-                create: { nombre },
-            });
-        }
 
         console.log('Seeding Regimenes Especiales...');
         for (const nombre of regimenesEspeciales) {
-            await prisma.regimenEspecial.upsert({
-                where: { nombre },
-                update: {},
-                create: { nombre },
-            });
+            try {
+                await prisma.regimenEspecial.upsert({
+                    where: { nombre },
+                    update: {},
+                    create: { nombre },
+                });
+            } catch (e) {
+                console.warn(`[seed] regimen_especial upsert omitido para "${nombre}":`, e);
+            }
         }
         for (const [index, t] of trainingSessions.entries()) {
             const session = await prisma.capacitacion.create({
@@ -434,26 +533,40 @@ async function main() {
             for (const training of createdTrainings) {
                 // 70% probability of registration
                 if (Math.random() > 0.3) {
-                    await prisma.usuarioCapacitacion.create({
-                        data: {
-                            usuarioId: user.id,
-                            capacitacionId: training.id,
-                            asistio: training.estado === 'Finalizada',
-                            rolCapacitacion: 'Participante',
-                            estadoInscripcion: 'Activa'
-                        }
-                    });
-
-                    // If training is finished and user assisted, generate certificate
-                    if (training.estado === 'Finalizada') {
-                        await prisma.certificado.create({
+                    try {
+                        await prisma.usuarioCapacitacion.create({
                             data: {
                                 usuarioId: user.id,
                                 capacitacionId: training.id,
-                                codigoQR: `CERT-${training.id}-${user.id}-${Math.floor(Math.random() * 10000)}`,
-                                pdfUrl: `/certificates/cert_${training.id}_${user.id}.pdf`
+                                asistio: training.estado === 'Finalizada',
+                                rolCapacitacion: 'Participante',
+                                estadoInscripcion: 'Activa'
                             }
                         });
+                    } catch (e) {
+                        if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
+                            continue;
+                        }
+                        throw e;
+                    }
+
+                    // If training is finished and user assisted, generate certificate
+                    if (training.estado === 'Finalizada') {
+                        try {
+                            await prisma.certificado.create({
+                                data: {
+                                    usuarioId: user.id,
+                                    capacitacionId: training.id,
+                                    codigoQR: `CERT-${training.id}-${user.id}-${randomUUID()}`,
+                                    pdfUrl: `/certificates/cert_${training.id}_${user.id}.pdf`
+                                }
+                            });
+                        } catch (e) {
+                            if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
+                                continue;
+                            }
+                            throw e;
+                        }
                     }
                 }
             }
@@ -463,10 +576,43 @@ async function main() {
         console.log('System ready for Presentation and Launch.');
 
     } catch (error) {
+        seedFailed = true;
         console.error('Error during launch seeding:', error);
-        process.exit(1);
     } finally {
+        try {
+            // Siempre: bomberos + empresas públicas + registros (idempotente por nombre único)
+            await ensureMunicipalInstitucionesSistema(prisma);
+        } catch (e) {
+            console.error('[seed] No se pudieron asegurar instituciones municipales en BD:', e);
+        }
+        try {
+            const nProv = await prisma.provincia.count().catch(() => -1);
+            const nUsers = await prisma.usuario.count().catch(() => -1);
+
+            if (nProv === 0) {
+                console.log('[seed] Sin provincias en BD; sincronizando geo (23 provincias + cantones/parroquias)...');
+                await seedGeoSqlProvincias(prisma);
+            } else if (
+                nProv > 0 &&
+                nProv < EXPECTED_PROVINCIAS_SEED &&
+                nUsers === 0
+            ) {
+                console.log(
+                    `[seed] Geo incompleto (${nProv}/${EXPECTED_PROVINCIAS_SEED}) y sin usuarios; reiniciando catálogo geográfico...`
+                );
+                await safeDeleteMany('parroquias (repair)', () => prisma.parroquia.deleteMany());
+                await safeDeleteMany('cantones (repair)', () => prisma.canton.deleteMany());
+                await safeDeleteMany('provincias (repair)', () => prisma.provincia.deleteMany());
+                await seedGeoSqlProvincias(prisma);
+            }
+        } catch (e) {
+            console.warn('[seed] No se pudo verificar/rellenar catálogo geográfico:', e);
+        }
         await prisma.$disconnect();
+    }
+
+    if (seedFailed) {
+        process.exit(1);
     }
 }
 

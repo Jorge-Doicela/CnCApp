@@ -13,6 +13,8 @@
         "prisma:migrate:prod": "prisma migrate deploy",
         "prisma:studio": "prisma studio",
         "prisma:seed": "tsx prisma/seed.ts",
+        "prisma:seed:geo": "tsx prisma/seed-geo.ts",
+        "prisma:seed:municipal": "tsx prisma/seed-municipal-additions.ts",
         "test": "jest",
         "system:check": "node scripts/system-check.js",
         "lint": "eslint \"src/**/*.ts\""

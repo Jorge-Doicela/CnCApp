@@ -360,7 +360,7 @@ export const ecuadorData = [
                 parroquias: ['ALFREDO BAQUERIZO MORENO (JUJAN)']
             },
             {
-                nombre: 'BALAOL',
+                nombre: 'BALAO',
                 parroquias: ['BALAO']
             },
             {
