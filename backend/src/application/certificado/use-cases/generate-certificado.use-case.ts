@@ -59,8 +59,9 @@ export class GenerateCertificadoUseCase {
         // 0. Check if already exists
         const existing = await this.certificadoRepository.findByUserAndCapacitacion(usuarioId, capacitacionId);
         if (existing) {
-            logger.info(`[GEN_CERT] Certificado ya existe para Usuario=${usuarioId}, Cap=${capacitacionId}. URL: ${existing.pdfUrl}`);
-            return existing.pdfUrl;
+            const url = existing.pdfUrl || '';
+            logger.info(`[GEN_CERT] Certificado ya existe para Usuario=${usuarioId}, Cap=${capacitacionId}. URL: ${url}`);
+            return url;
         }
 
         // 0.5 Check Attendance
@@ -127,7 +128,7 @@ export class GenerateCertificadoUseCase {
                 data,
                 qrCodeUrl,
                 outputPath,
-                plantilla.firmas as any || []
+                (plantilla.configuracion as any)?.firmas || []
             );
         } catch (genErr) {
             logger.error(`[GEN_CERT] Error CRÍTICO en generatorService.generate: ${genErr}`);
