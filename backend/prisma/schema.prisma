@@ -213,12 +213,13 @@ model Competencia {
 
 model InstitucionSistema {
   id                Int                  @id @default(autoincrement()) @map("id_institucion")
-  nombre            String               @unique @map("nombre") @db.VarChar(300)
+  nombre            String               @map("nombre") @db.VarChar(300)
   tipo              String?              @map("tipo") @db.VarChar(100)
   tipoInstitucionId Int?                 @map("id_tipo_institucion")
   tipoInstitucion   TipoInstitucion?     @relation(fields: [tipoInstitucionId], references: [id])
   instituciones     InstitucionUsuario[]
 
+  @@unique([nombre, tipo])
   @@map("instituciones_sistema")
 }
 
