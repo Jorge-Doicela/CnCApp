@@ -13,6 +13,7 @@
         "prisma:migrate:prod": "prisma migrate deploy",
         "prisma:studio": "prisma studio",
         "prisma:seed": "tsx prisma/seed.ts",
+        "prisma:migrate:genero-etnia": "tsx prisma/migrate-genero-etnia-catalogs.ts",
         "prisma:seed:geo": "tsx prisma/seed-geo.ts",
         "prisma:seed:municipal": "tsx prisma/seed-municipal-additions.ts",
         "test": "jest",
