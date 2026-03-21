@@ -8,6 +8,7 @@ import {
     empresasPublicasList,
     registrosPropiedadList
 } from './data/form-options-index';
+import { educacionBasicaList } from './data/form-options-educacion';
 
 /** Mismo texto que usa el seed principal para instituciones municipales (bomberos, EP, registros). */
 export const TIPO_INSTITUCION_MUNICIPAL_CANTONES = 'INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)';
@@ -140,4 +141,22 @@ export async function seedGadParroquias(prisma: PrismaClient): Promise<void> {
         }
     });
     console.log(`[seed] gad_parroquias cargadas: ${nombres.length} registros`);
+}
+
+/**
+ * Catálogo educación básica (75 filas; pueden repetirse nombres).
+ * Elimina vínculos en instituciones_usuario que apunten a educacion_basica y recrea el catálogo.
+ */
+export async function seedEducacionBasica(prisma: PrismaClient): Promise<void> {
+    const nombres = [...educacionBasicaList];
+    await prisma.$transaction(async (tx) => {
+        await tx.institucionUsuario.deleteMany({ where: { educacionBasicaId: { not: null } } });
+        await tx.educacionBasica.deleteMany({});
+        const batch = 200;
+        for (let i = 0; i < nombres.length; i += batch) {
+            const slice = nombres.slice(i, i + batch).map((nombre) => ({ nombre }));
+            await tx.educacionBasica.createMany({ data: slice });
+        }
+    });
+    console.log(`[seed] educacion_basica cargadas: ${nombres.length} registros`);
 }

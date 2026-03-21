@@ -100,13 +100,18 @@ export class UserMapper {
                 nivelGobierno: prismaUser.funcionarios[0].nivelGobierno,
                 competencias: prismaUser.funcionarios[0].competencias ? prismaUser.funcionarios[0].competencias.map((c: any) => c.id) : []
             } : null,
-            institucion: prismaUser.instituciones && prismaUser.instituciones.length > 0 ? {
-                id: prismaUser.instituciones[0].id,
-                institucion: prismaUser.instituciones[0].institucionId,
-                institucionNombre: prismaUser.instituciones[0].institucion?.nombre,
-                gradoOcupacional: prismaUser.instituciones[0].gradoOcupacionalId,
-                gradoOcupacionalNombre: prismaUser.instituciones[0].gradoOcupacional?.nombre
-            } : null
+            institucion: prismaUser.instituciones && prismaUser.instituciones.length > 0 ? (() => {
+                const iu = prismaUser.instituciones[0];
+                const ebId = iu.educacionBasicaId;
+                const sysId = iu.institucionId;
+                return {
+                    id: iu.id,
+                    institucion: ebId != null ? `e:${ebId}` : sysId,
+                    institucionNombre: ebId != null ? iu.educacionBasica?.nombre : iu.institucion?.nombre,
+                    gradoOcupacional: iu.gradoOcupacionalId,
+                    gradoOcupacionalNombre: iu.gradoOcupacional?.nombre
+                };
+            })() : null
         };
     }
 

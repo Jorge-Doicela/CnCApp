@@ -102,6 +102,15 @@ model GadParroquia {
   @@map("gad_parroquias")
 }
 
+/// Catálogo educación básica oficial (75 filas; pueden repetirse nombres, p. ej. LICEO NAVAL GALÁPAGOS).
+model EducacionBasica {
+  id                  Int                  @id @default(autoincrement()) @map("id_educacion_basica")
+  nombre              String               @map("nombre") @db.VarChar(200)
+  institucionesUsuario InstitucionUsuario[]
+
+  @@map("educacion_basica")
+}
+
 model Provincia {
   id       Int       @id @default(autoincrement()) @map("id_provincia")
   nombre   String    @unique @map("nombre_provincia") @db.VarChar(100)
@@ -263,14 +272,17 @@ model FuncionarioGAD {
 }
 
 model InstitucionUsuario {
-  id                 Int                @id @default(autoincrement()) @map("id")
-  usuarioId          Int                @map("id_usuario")
-  institucionId      Int                @map("id_institucion")
-  gradoOcupacionalId Int?               @map("id_grado_ocupacional")
-  institucion        InstitucionSistema @relation(fields: [institucionId], references: [id], onDelete: Cascade)
-  usuario            Usuario            @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
-  gradoOcupacional   GradoOcupacional?  @relation(fields: [gradoOcupacionalId], references: [id])
+  id                 Int                 @id @default(autoincrement()) @map("id")
+  usuarioId          Int                 @map("id_usuario")
+  institucionId      Int?                @map("id_institucion")
+  educacionBasicaId  Int?                @map("id_educacion_basica")
+  gradoOcupacionalId Int?                @map("id_grado_ocupacional")
+  institucion        InstitucionSistema? @relation(fields: [institucionId], references: [id], onDelete: Cascade)
+  educacionBasica    EducacionBasica?    @relation(fields: [educacionBasicaId], references: [id], onDelete: Cascade)
+  usuario            Usuario             @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  gradoOcupacional   GradoOcupacional?   @relation(fields: [gradoOcupacionalId], references: [id])
 
+  @@index([educacionBasicaId])
   @@map("instituciones_usuario")
 }
 

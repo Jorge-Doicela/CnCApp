@@ -36,7 +36,8 @@ export interface RegisterStateModel {
     funcionarioGad?: string;
     funcionarioCompetencias?: number[];
 
-    institucionId?: number;
+    /** Número (legacy) o `i:id` / `e:id` para catálogo unificado */
+    institucionId?: number | string;
     institucionCargoId?: number;
     institucionGradoOcupacionalId?: number;
 
@@ -242,6 +243,14 @@ export class RegisterStateService {
             ];
 
             numericFields.forEach(field => {
+                if (
+                    field === 'institucionId' &&
+                    typeof data.institucionId === 'string' &&
+                    String(data.institucionId).includes(':')
+                ) {
+                    (normalizedData as any).institucionId = data.institucionId;
+                    return;
+                }
                 if (data[field] !== undefined && typeof data[field] === 'string') {
                     (normalizedData as any)[field] = Number(data[field]);
                 }

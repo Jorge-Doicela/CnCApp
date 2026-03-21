@@ -18,5 +18,6 @@ router.get('/public/grados-ocupacionales', catalogoController.getGradosOcupacion
 router.get('/public/tipos-institucion', catalogoController.getTiposInstitucion);
 router.get('/public/regimenes-especiales', catalogoController.getRegimenesEspeciales);
 router.get('/public/gad-parroquias', catalogoController.getGadParroquias);
+router.get('/public/educacion-basica', catalogoController.getEducacionBasica);
 
 export { router as catalogoRoutes };

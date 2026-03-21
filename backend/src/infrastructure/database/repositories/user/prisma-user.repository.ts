@@ -4,6 +4,34 @@ import { User } from '../../../../domain/user/entities/user.entity';
 import { UserRepository } from '../../../../domain/user/user.repository';
 import { UserMapper } from '../../../../domain/user/mappers/user.mapper';
 
+/** Payload de institución: id numérico (sistema), o "i:123" / "e:45" (prefijos para el front). */
+function parseInstitucionUsuarioRow(inst: any): {
+    institucionId: number | null;
+    educacionBasicaId: number | null;
+    gradoOcupacionalId: number | null;
+} {
+    const raw = inst?.institucion;
+    if (raw === undefined || raw === null || raw === '') {
+        throw new Error('institución requerida');
+    }
+    const s = String(raw);
+    const grado =
+        inst.gradoOcupacional != null && inst.gradoOcupacional !== ''
+            ? Number(inst.gradoOcupacional)
+            : null;
+    if (s.startsWith('e:')) {
+        return { educacionBasicaId: Number(s.slice(2)), institucionId: null, gradoOcupacionalId: grado };
+    }
+    if (s.startsWith('i:')) {
+        return { institucionId: Number(s.slice(2)), educacionBasicaId: null, gradoOcupacionalId: grado };
+    }
+    const n = Number(s);
+    if (!Number.isFinite(n)) {
+        throw new Error('id de institución inválido');
+    }
+    return { institucionId: n, educacionBasicaId: null, gradoOcupacionalId: grado };
+}
+
 @injectable()
 export class PrismaUserRepository implements UserRepository {
     async create(user: Partial<User>): Promise<User> {
@@ -127,6 +155,7 @@ export class PrismaUserRepository implements UserRepository {
                 instituciones: {
                     include: {
                         institucion: true,
+                        educacionBasica: true,
                         gradoOcupacional: true
                     }
                 },
@@ -223,10 +252,7 @@ export class PrismaUserRepository implements UserRepository {
                     instituciones: {
                         deleteMany: {},
                         ...(userData.institucion !== null && {
-                            create: [{
-                                institucionId: Number(userData.institucion.institucion),
-                                gradoOcupacionalId: userData.institucion.gradoOcupacional ? Number(userData.institucion.gradoOcupacional) : null
-                            }]
+                            create: [parseInstitucionUsuarioRow(userData.institucion)]
                         })
                     }
                 })
@@ -241,7 +267,14 @@ export class PrismaUserRepository implements UserRepository {
                 tipoParticipante: true,
                 genero: true,
                 etnia: true,
-                nacionalidad: true
+                nacionalidad: true,
+                instituciones: {
+                    include: {
+                        institucion: true,
+                        educacionBasica: true,
+                        gradoOcupacional: true
+                    }
+                }
             }
         });
         return UserMapper.toDomain(user);
@@ -291,6 +324,7 @@ export class PrismaUserRepository implements UserRepository {
                 instituciones: {
                     include: {
                         institucion: true,
+                        educacionBasica: true,
                         gradoOcupacional: true
                     }
                 },
@@ -328,6 +362,7 @@ export class PrismaUserRepository implements UserRepository {
                 instituciones: {
                     include: {
                         institucion: true,
+                        educacionBasica: true,
                         gradoOcupacional: true
                     }
                 }

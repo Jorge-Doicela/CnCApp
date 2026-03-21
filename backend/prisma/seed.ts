@@ -5,7 +5,7 @@ import bcrypt from 'bcrypt';
 import {
     cargosList, gremiosList,
     entidadesCentralesList, cooperantesList, academiaList,
-    educacionList, privadoList, ciudadaniaList,
+    privadoList, ciudadaniaList,
     regimenEspecialList, mancomunidadesList,
     bomberosList, empresasPublicasList,
     registrosPropiedadList, consejosCantonalesList
@@ -13,7 +13,8 @@ import {
 import {
     ensureMunicipalInstitucionesSistema,
     seedGeoSqlProvincias,
-    seedGadParroquias
+    seedGadParroquias,
+    seedEducacionBasica
 } from './seed-reference-catalogs';
 
 const prisma = new PrismaClient();
@@ -323,7 +324,6 @@ async function main() {
             ...entidadesCentralesList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL CENTRAL', tipoInstitucionId: tid('CENTRAL') })),
             ...cooperantesList.map(n => ({ nombre: n, tipo: 'COOPERANTES', tipoInstitucionId: tid('COOPERANTES') })),
             ...academiaList.map(n => ({ nombre: n, tipo: 'ACADEMIA', tipoInstitucionId: tid('ACADEMIA') })),
-            ...educacionList.map(n => ({ nombre: n, tipo: 'EDUCACIÓN GENERAL BÁSICA Y BACHILLERATO', tipoInstitucionId: tid('EDUCACIÓN GENERAL BÁSICA Y BACHILLERATO') })),
             ...privadoList.map(n => ({ nombre: n, tipo: 'PRIVADO', tipoInstitucionId: tid('PRIVADO') })),
             ...ciudadaniaList.map(n => ({ nombre: n, tipo: 'CIUDADANÍA', tipoInstitucionId: tid('CIUDADANÍA') })),
             ...regimenEspecialList.map(n => ({ nombre: n, tipo: 'RÉGIMEN ESPECIAL', tipoInstitucionId: tid('RÉGIMEN ESPECIAL') })),
@@ -352,6 +352,9 @@ async function main() {
 
         console.log('Loading GAD parroquias catalog (824)...');
         await seedGadParroquias(prisma);
+
+        console.log('Loading educacion_basica catalog (75)...');
+        await seedEducacionBasica(prisma);
 
         // ============================================
         // STEP 4: USERS (Massive & Realistic)
@@ -600,6 +603,15 @@ async function main() {
             console.warn('[seed] No se pudo verificar catálogo gad_parroquias:', e);
         }
         try {
+            const nEb = await prisma.educacionBasica.count().catch(() => -1);
+            if (nEb >= 0 && nEb < 70) {
+                console.log('[seed] Catálogo educacion_basica incompleto; recargando...');
+                await seedEducacionBasica(prisma);
+            }
+        } catch (e) {
+            console.warn('[seed] No se pudo verificar catálogo educacion_basica:', e);
+        }
+        try {
             const nProv = await prisma.provincia.count().catch(() => -1);
             const nUsers = await prisma.usuario.count().catch(() => -1);
 
@@ -607,6 +619,7 @@ async function main() {
                 console.log('[seed] Sin provincias en BD; sincronizando geo (23 provincias + cantones/parroquias)...');
                 await seedGeoSqlProvincias(prisma);
                 await seedGadParroquias(prisma);
+                await seedEducacionBasica(prisma);
             } else if (
                 nProv > 0 &&
                 nProv < EXPECTED_PROVINCIAS_SEED &&

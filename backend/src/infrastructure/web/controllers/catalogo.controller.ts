@@ -74,4 +74,8 @@ export class CatalogoController {
     /** Catálogo plano oficial GAD (824 parroquias; orden por nombre). */
     getGadParroquias = async (_req: Request, res: Response, next: NextFunction) =>
         query(res, next, () => prisma.gadParroquia.findMany({ orderBy: { nombre: 'asc' } }));
+
+    /** Catálogo educación básica (75; orden por nombre; pueden repetirse textos). */
+    getEducacionBasica = async (_req: Request, res: Response, next: NextFunction) =>
+        query(res, next, () => prisma.educacionBasica.findMany({ orderBy: { nombre: 'asc' } }));
 }

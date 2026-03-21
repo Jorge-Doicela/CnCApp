@@ -83,10 +83,13 @@ export class EditarPage implements OnInit {
   funcionarioGad = { cargo: '', competencias: [] as any[], nivelGobierno: '', gadFuncionarioGad: '' };
   institucion = { institucion: '', gradoOcupacional: '', cargo: '' };
 
+  opcionesInstitucionCombinadas: { value: string; label: string }[] = [];
+
   datosrecuperados = {
     roles: [] as any[],
     cargos: [] as any[],
     instituciones: [] as any[],
+    educacionBasica: [] as any[],
     provincias: [] as any[],
     cantones: [] as any[],
     // Catálogo oficial plano GAD (gad_parroquias) - puede contener nombres duplicados
@@ -195,7 +198,8 @@ export class EditarPage implements OnInit {
         this.obtenerMancomunidades(),
         this.obtenerCompetencias(),
         this.obtenerGradosOcupacionales(),
-        this.obtenerGadParroquias()
+        this.obtenerGadParroquias(),
+        this.obtenerEducacionBasica()
       ]);
 
       // Then resolve IDs dynamically based on names to avoid issues if IDs change in DB
@@ -276,8 +280,15 @@ export class EditarPage implements OnInit {
         };
       }
       if (data.institucion) {
+        const rawInst = data.institucion.institucion ?? data.institucion.institucionId;
+        const instStr =
+          rawInst == null || rawInst === ''
+            ? ''
+            : typeof rawInst === 'string' && (rawInst.startsWith('e:') || rawInst.startsWith('i:'))
+              ? rawInst
+              : `i:${Number(rawInst)}`;
         this.institucion = {
-          institucion: data.institucion.institucionId?.toString() || data.institucion.institucion || '',
+          institucion: instStr,
           gradoOcupacional: data.institucion.gradoOcupacionalId?.toString() || data.institucion.gradoOcupacional || '',
           cargo: data.institucion.cargo || ''
         };
@@ -398,6 +409,21 @@ export class EditarPage implements OnInit {
     }
   }
 
+  rebuildOpcionesInstitucionCombinadas() {
+    const sys = (this.datosrecuperados.instituciones || []).map((i: any) => ({
+      value: `i:${i.id}`,
+      label: i.nombre
+    }));
+    const eb = (this.datosrecuperados.educacionBasica || []).map((e: any) => ({
+      value: `e:${e.id}`,
+      label: e.nombre
+    }));
+    this.opcionesInstitucionCombinadas = [...sys, ...eb].sort((a, b) =>
+      a.label.localeCompare(b.label, 'es')
+    );
+    this.cdr.markForCheck();
+  }
+
   async obtenerInstituciones() {
     try {
       const data = await firstValueFrom(this.catalogoService.getItems('public/instituciones'));
@@ -405,7 +431,18 @@ export class EditarPage implements OnInit {
     } catch (error) {
       console.error('Error instituciones:', error);
     } finally {
-      this.cdr.markForCheck();
+      this.rebuildOpcionesInstitucionCombinadas();
+    }
+  }
+
+  async obtenerEducacionBasica() {
+    try {
+      const data = await firstValueFrom(this.catalogoService.getItems('public/educacion-basica'));
+      this.datosrecuperados.educacionBasica = data || [];
+    } catch (error) {
+      console.error('Error educación básica:', error);
+    } finally {
+      this.rebuildOpcionesInstitucionCombinadas();
     }
   }
 
@@ -547,7 +584,16 @@ export class EditarPage implements OnInit {
       estado: this.usuario.estado !== undefined ? Number(this.usuario.estado) : 1,
       autoridad: this.usuario.tipoParticipante == TipoParticipanteEnum.AUTORIDAD ? this.autoridad : null,
       funcionarioGad: this.usuario.tipoParticipante == TipoParticipanteEnum.FUNCIONARIO_GAD ? this.funcionarioGad : null,
-      institucion: this.usuario.tipoParticipante == TipoParticipanteEnum.INSTITUCION ? this.institucion : null
+      institucion: this.usuario.tipoParticipante == TipoParticipanteEnum.INSTITUCION ? (() => {
+        const raw = this.institucion.institucion;
+        const institucionVal =
+          raw == null || raw === ''
+            ? undefined
+            : typeof raw === 'string' && (raw.startsWith('e:') || raw.startsWith('i:'))
+              ? raw
+              : `i:${Number(raw)}`;
+        return { ...this.institucion, institucion: institucionVal };
+      })() : null
     };
 
     if (this.usuario.password && this.usuario.password.trim() !== '') {

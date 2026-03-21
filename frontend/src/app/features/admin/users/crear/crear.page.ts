@@ -102,16 +102,21 @@ export class CrearPage implements OnInit {
   };
 
   institucion = {
-    institucion: undefined as number | undefined,
+    /** `i:id` = instituciones_sistema, `e:id` = educacion_basica */
+    institucion: undefined as string | undefined,
     gradoOcupacional: undefined as number | undefined,
     cargo: '',
     idUsuario: ''
   };
 
+  /** Opciones unificadas para el ion-select de institución (sistema + educación básica). */
+  opcionesInstitucionCombinadas: { value: string; label: string }[] = [];
+
   datosrecuperados = {
     roles: [] as any[],
     cargos: [] as any[],
     instituciones: [] as any[],
+    educacionBasica: [] as any[],
     provincias: [] as any[],
     cantones: [] as any[],
     // Catálogo oficial plano GAD (gad_parroquias) - puede contener nombres duplicados
@@ -380,7 +385,8 @@ export class CrearPage implements OnInit {
       this.obtenerMancomunidades(),
       this.obtenerCompetencias(),
       this.obtenerNacionalidades(),
-      this.obtenerGadParroquias()
+      this.obtenerGadParroquias(),
+      this.obtenerEducacionBasica()
     ]);
 
     this.resolveStaticIds();
@@ -415,6 +421,9 @@ export class CrearPage implements OnInit {
         this.autoridad = { ...this.autoridad, ...data.autoridad };
         this.funcionarioGad = { ...this.funcionarioGad, ...data.funcionarioGad };
         this.institucion = { ...this.institucion, ...data.institucion };
+        if (this.institucion.institucion != null && typeof this.institucion.institucion === 'number') {
+          this.institucion.institucion = `i:${this.institucion.institucion}`;
+        }
         this.passoActual = data.passoActual || 1;
         this.datosbusqueda = { ...this.datosbusqueda, ...data.datosbusqueda };
         this.infoVeridica = data.infoVeridica || false;
@@ -819,7 +828,12 @@ export class CrearPage implements OnInit {
       } : undefined,
       institucion: this.usuarioGeneral.tipoParticipante == this.resolvedIds.tipoInstitucion ? {
         ...this.institucion,
-        institucion: Number(this.institucion.institucion),
+        institucion: (() => {
+          const raw = this.institucion.institucion;
+          if (raw == null || raw === '') return undefined;
+          if (typeof raw === 'string' && (raw.startsWith('e:') || raw.startsWith('i:'))) return raw;
+          return `i:${Number(raw)}`;
+        })(),
         gradoOcupacional: this.institucion.gradoOcupacional ? Number(this.institucion.gradoOcupacional) : undefined
       } : undefined
     };
@@ -924,6 +938,21 @@ export class CrearPage implements OnInit {
     }
   }
 
+  rebuildOpcionesInstitucionCombinadas() {
+    const sys = (this.datosrecuperados.instituciones || []).map((i: any) => ({
+      value: `i:${i.id}`,
+      label: i.nombre
+    }));
+    const eb = (this.datosrecuperados.educacionBasica || []).map((e: any) => ({
+      value: `e:${e.id}`,
+      label: e.nombre
+    }));
+    this.opcionesInstitucionCombinadas = [...sys, ...eb].sort((a, b) =>
+      a.label.localeCompare(b.label, 'es')
+    );
+    this.cdr.markForCheck();
+  }
+
   // Obtener instituciones
   async obtenerInstituciones() {
     try {
@@ -932,7 +961,18 @@ export class CrearPage implements OnInit {
     } catch (err) {
       console.error(err);
     } finally {
-      this.cdr.markForCheck();
+      this.rebuildOpcionesInstitucionCombinadas();
+    }
+  }
+
+  async obtenerEducacionBasica() {
+    try {
+      const data = await firstValueFrom(this.catalogoService.getItems('public/educacion-basica'));
+      this.datosrecuperados.educacionBasica = data || [];
+    } catch (err) {
+      console.error('Error al obtener educación básica:', err);
+    } finally {
+      this.rebuildOpcionesInstitucionCombinadas();
     }
   }
 

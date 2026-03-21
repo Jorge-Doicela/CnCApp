@@ -1,4 +1,4 @@
-import { Component, signal, inject } from '@angular/core';
+import { Component, signal, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -74,6 +74,13 @@ export class RegisterPage {
   competencias = signal<any[]>([]);
   gradosOcupacionales = signal<any[]>([]);
   instituciones = signal<any[]>([]);
+  educacionBasica = signal<any[]>([]);
+
+  opcionesInstitucionCombinadas = computed(() => {
+    const sys = (this.instituciones() || []).map((i: any) => ({ value: `i:${i.id}`, label: i.nombre }));
+    const eb = (this.educacionBasica() || []).map((e: any) => ({ value: `e:${e.id}`, label: e.nombre }));
+    return [...sys, ...eb].sort((a, b) => a.label.localeCompare(b.label, 'es'));
+  });
 
   // Local UI state
   isLoading = signal<boolean>(false);
@@ -132,7 +139,7 @@ export class RegisterPage {
 
   async loadCatalogos() {
     try {
-      const [provinciasResp, cantonesResp, generosResp, etniasResp, tiposParticipanteResp, nacionalidadesResp, cargosResp, entidadesResp, regimenesEspecialesResp, mancomunidadesResp, competenciasResp, gradosOcupacionalesResp, institucionesResp] = await Promise.all([
+      const [provinciasResp, cantonesResp, generosResp, etniasResp, tiposParticipanteResp, nacionalidadesResp, cargosResp, entidadesResp, regimenesEspecialesResp, mancomunidadesResp, competenciasResp, gradosOcupacionalesResp, institucionesResp, educacionBasicaResp] = await Promise.all([
         firstValueFrom(this.catalogoService.getItems('provincias')),
         firstValueFrom(this.catalogoService.getItems('cantones')),
         firstValueFrom(this.catalogoService.getItems('generos')),
@@ -145,7 +152,8 @@ export class RegisterPage {
         firstValueFrom(this.catalogoService.getItems('public/mancomunidades')),
         firstValueFrom(this.catalogoService.getItems('public/competencias')),
         firstValueFrom(this.catalogoService.getItems('public/grados-ocupacionales')),
-        firstValueFrom(this.catalogoService.getItems('public/instituciones'))
+        firstValueFrom(this.catalogoService.getItems('public/instituciones')),
+        firstValueFrom(this.catalogoService.getItems('public/educacion-basica'))
       ]);
 
       // Only active ones, sorted (Backend returns id, nombre, estado, etc.)
@@ -170,6 +178,7 @@ export class RegisterPage {
       this.competencias.set(competenciasResp || []);
       this.gradosOcupacionales.set(gradosOcupacionalesResp || []);
       this.instituciones.set(institucionesResp || []);
+      this.educacionBasica.set(educacionBasicaResp || []);
 
       // Resolve Dynamic IDs
       const findIdByCodigo = (list: any[], codigo: string, fallback: number) => {

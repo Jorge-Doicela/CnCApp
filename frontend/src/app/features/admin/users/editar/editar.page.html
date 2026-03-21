@@ -348,9 +348,10 @@
               <ion-label>Institución</ion-label>
               <div class="custom-input-wrapper">
                 <ion-select [(ngModel)]="institucion.institucion" interface="popover"
-                  placeholder="Seleccione institución">
-                  <ion-select-option *ngFor="let inst of datosrecuperados.instituciones" [value]="inst.id">
-                    {{ inst.nombre }}
+                  placeholder="Seleccione (incluye educación básica)"
+                  [disabled]="!opcionesInstitucionCombinadas.length">
+                  <ion-select-option *ngFor="let opt of opcionesInstitucionCombinadas" [value]="opt.value">
+                    {{ opt.label }}
                   </ion-select-option>
                 </ion-select>
               </div>
