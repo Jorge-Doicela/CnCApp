@@ -80,8 +80,21 @@ export class CatalogoCapacitacionesPage implements OnInit {
 
     // 5. Ordenamiento
     const sorted = [...list];
+    const hoyTimestamp = new Date().setHours(0, 0, 0, 0);
+    
     if (orden === 'reciente') {
-      sorted.sort((a, b) => new Date(b.fechaInicio || 0).getTime() - new Date(a.fechaInicio || 0).getTime());
+      sorted.sort((a, b) => {
+        const timeA = new Date(a.fechaInicio || 0).getTime();
+        const timeB = new Date(b.fechaInicio || 0).getTime();
+
+        // Próximas (Hoy o futuro): Ascendente (más cercana primero)
+        if (timeA >= hoyTimestamp && timeB >= hoyTimestamp) return timeA - timeB;
+        // Futura vs Pasada: Futura siempre primero
+        if (timeA >= hoyTimestamp && timeB < hoyTimestamp) return -1;
+        if (timeA < hoyTimestamp && timeB >= hoyTimestamp) return 1;
+        // Pasadas: Descendente (más reciente primero)
+        return timeB - timeA;
+      });
     } else if (orden === 'duracion') {
       sorted.sort((a, b) => (b.horas || 0) - (a.horas || 0));
     } else if (orden === 'nombre') {

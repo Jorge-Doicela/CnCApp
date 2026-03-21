@@ -143,18 +143,25 @@ export class CrudcapacitacionesPage implements OnInit {
     }
 
     // 6. Ordenar resultados
+    const hoyTimestamp = new Date().setHours(0, 0, 0, 0);
+
     switch (this.ordenarPor) {
       case 'prioridad':
         resultado.sort((a, b) => {
           const score = (cap: Capacitacion) => {
             const estado = (cap.estado || '').toLowerCase();
-            // Prioridad 1: Próximas (Activa, Pendiente, Programada, En Progreso)
-            if (['activa', 'en progreso', 'pendiente', 'programada'].includes(estado)) return 1;
-            // Prioridad 2: Pasadas (Finalizada, Realizada)
-            if (['finalizada', 'realizada'].includes(estado)) return 2;
-            // Prioridad 3: Canceladas
-            if (estado === 'cancelada') return 3;
-            return 4;
+            const fechaInicio = new Date(cap.fechaInicio || 0).getTime();
+            const esFutura = fechaInicio >= hoyTimestamp;
+
+            // Prioridad 1: Próximas (Activa/Pendiente y Fecha >= Hoy)
+            if (['activa', 'en progreso', 'pendiente', 'programada'].includes(estado) && esFutura) return 1;
+            // Prioridad 2: Activas pero con fecha pasada (Atrasadas)
+            if (['activa', 'en progreso', 'pendiente', 'programada'].includes(estado) && !esFutura) return 2;
+            // Prioridad 3: Pasadas (Finalizada, Realizada)
+            if (['finalizada', 'realizada'].includes(estado)) return 3;
+            // Prioridad 4: Canceladas
+            if (estado === 'cancelada') return 4;
+            return 5;
           };
           
           const scoreA = score(a);
@@ -162,16 +169,30 @@ export class CrudcapacitacionesPage implements OnInit {
           
           if (scoreA !== scoreB) return scoreA - scoreB;
           
-          // Si tienen el mismo score, desempatar por fecha
-          const dateA = new Date(a.fechaInicio || 0).getTime();
-          const dateB = new Date(b.fechaInicio || 0).getTime();
+          // Helper para obtener timestamp preciso (Fecha + Hora)
+          const getFullTime = (cap: Capacitacion) => {
+            const date = new Date(cap.fechaInicio || 0);
+            if (cap.horaInicio) {
+              const [h, m] = cap.horaInicio.split(':').map(Number);
+              date.setHours(h || 0, m || 0, 0, 0);
+            } else {
+              date.setHours(0, 0, 0, 0);
+            }
+            return date.getTime();
+          };
+
+          const timeA = getFullTime(a);
+          const timeB = getFullTime(b);
           
           if (scoreA === 1) {
             // Próximas: La más cercana primero (Ascendente)
-            return dateA - dateB;
+            // Si una no tiene fecha (0), ponerla al final del grupo 1
+            if (timeA === 0) return 1;
+            if (timeB === 0) return -1;
+            return timeA - timeB;
           } else {
-            // Otros (Finalizadas/Canceladas): La más reciente primero (Descendente)
-            return dateB - dateA;
+            // Otros (Atrasadas, Finalizadas, Canceladas): La más reciente primero (Descendente)
+            return timeB - timeA;
           }
         });
         break;
