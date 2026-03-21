@@ -74,7 +74,7 @@ export class HeaderComponent {
             'conferencista/gestionar-capacitaciones': 'conferencista/gestionar-capacitaciones',
             'conferencista/gestionar-plantillas': 'conferencista/gestionar-plantillas',
             'ver-conferencias': 'ver-conferencias',
-            'ver-certificaciones': 'ver-certificaciones',
+            'mis-certificados': 'mis-certificados',
             'confirmar-asistencia': 'confirmar-asistencia'
         };
 
@@ -109,7 +109,7 @@ export class HeaderComponent {
             'conferencista/gestionar-capacitaciones': 'conferencista/gestionar-capacitaciones',
             'conferencista/gestionar-plantillas': 'conferencista/gestionar-plantillas',
             'ver-conferencias': 'ver-conferencias',
-            'ver-certificaciones': 'ver-certificaciones',
+            'mis-certificados': 'mis-certificados',
             'confirmar-asistencia': 'confirmar-asistencia'
         };
 

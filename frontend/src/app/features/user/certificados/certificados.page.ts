@@ -90,7 +90,7 @@ export class MisCertificadosPage implements OnInit {
                     ...cert,
                     usuario: cert.usuario || { nombre: 'Participante' },
                     capacitacion: cert.capacitacion || { nombre: 'Capacitación' },
-                    fecha: cert.createdAt ? new Date(cert.createdAt).toLocaleDateString() : 'N/A'
+                    fecha: cert.fechaEmision ? new Date(cert.fechaEmision).toLocaleDateString() : 'N/A'
                 };
 
                 // Recuperar datos de la plantilla para la vista previa
