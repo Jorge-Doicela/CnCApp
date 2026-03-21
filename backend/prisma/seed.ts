@@ -4,7 +4,7 @@ import { Prisma, PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import {
     cargosList, gremiosList,
-    entidadesCentralesList, cooperantesList, academiaList,
+    entidadesCentralesList, otrasInstitucionesEstadoList, cooperantesList, academiaList,
     privadoList, ciudadaniaList,
     regimenEspecialList, mancomunidadesList,
     bomberosList, empresasPublicasList,
@@ -305,6 +305,11 @@ async function main() {
         const institucionesArray = [
             ...gremiosList.map(n => ({ nombre: n, tipo: 'GREMIOS', tipoInstitucionId: tid('GREMIOS') })),
             ...entidadesCentralesList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL CENTRAL', tipoInstitucionId: tid('CENTRAL') })),
+            ...otrasInstitucionesEstadoList.map((n) => ({
+                nombre: n,
+                tipo: 'OTRAS INSTITUCIONES DEL ESTADO',
+                tipoInstitucionId: tid('OTRAS INSTITUCIONES DEL ESTADO')
+            })),
             ...cooperantesList.map(n => ({ nombre: n, tipo: 'COOPERANTES', tipoInstitucionId: tid('COOPERANTES') })),
             ...academiaList.map(n => ({ nombre: n, tipo: 'ACADEMIA', tipoInstitucionId: tid('ACADEMIA') })),
             ...privadoList.map(n => ({ nombre: n, tipo: 'PRIVADO', tipoInstitucionId: tid('PRIVADO') })),
