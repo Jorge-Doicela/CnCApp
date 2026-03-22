@@ -59,7 +59,7 @@ export const regimenEspecialList = [
 
 export const ciudadaniaList = [
     'JUNTA CÍVICA DE GUAYAQUIL',
-    'COLEGIO DE INGENIEROS DE SUCUMBIOS',
+    'COLEGIO DE INGENIEROS DE SUCUMBÍOS',
     'CENTRO CÍVICO CIUDAD DE ALFARO',
     'FUNDACIÓN PAZ Y DESARROLLO',
     'DATALAT',

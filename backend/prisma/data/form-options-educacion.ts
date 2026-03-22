@@ -1,5 +1,5 @@
 /**
- * Catálogo oficial `educacion_basica` (75 registros; LICEO NAVAL GALÁPAGOS aparece dos veces).
+ * Catálogo oficial `educacion_basica` (Deduplicado).
  * Se siembra en la tabla `educacion_basica`, no en `instituciones_sistema`.
  */
 export const educacionBasicaList = [
@@ -75,7 +75,6 @@ export const educacionBasicaList = [
     'UNIDAD EDUCATIVA FISCAL AMARILIS FUENTES ALCÍVAR',
     'UNIDAD EDUCATIVA FISCAL CLARA BRUNO DE PIANA',
     'UNIDAD EDUCATIVA FISCAL LUXEMBURGO',
-    'UNIDAD EDUCATIVA LICEO NAVAL GALÁPAGOS',
     'UNIDAD EDUCATIVA SALINAS',
     'UNIDAD EDUCATIVA PLAN INTERNACIONAL'
 ] as const;
