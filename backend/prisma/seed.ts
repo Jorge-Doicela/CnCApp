@@ -8,7 +8,8 @@ import {
     privadoList, ciudadaniaList,
     regimenEspecialList, mancomunidadesList,
     bomberosList, empresasPublicasList,
-    registrosPropiedadList, consejosCantonalesList
+    registrosPropiedadList, consejosCantonalesList,
+    provinciasInstitucionesList, cantonesInstitucionesList, parroquiasInstitucionesList
 } from './data/form-options-index';
 import {
     ensureMunicipalInstitucionesSistema,
@@ -48,7 +49,10 @@ const TIPO_INSTITUCION_NOMBRES_SEED = [
     'PRIVADO',
     'CIUDADANÍA',
     'MANCOMUNIDADES Y CONSORCIOS',
-    'RÉGIMEN ESPECIAL'
+    'RÉGIMEN ESPECIAL',
+    'PRESENCIAL',
+    'VIRTUAL',
+    'MUNICIPAL PRESENCIAL Y VIRTUAL'
 ] as const;
 
 type TipoInstMap = Record<string, { id: number }>;
@@ -253,7 +257,10 @@ async function main() {
                 { nombre: 'PRIVADO', codigo: 'PRIVADO' },
                 { nombre: 'CIUDADANÍA', codigo: 'CIUDADANIA' },
                 { nombre: 'MANCOMUNIDADES Y CONSORCIOS', codigo: 'MANCOMUNIDADES' },
-                { nombre: 'RÉGIMEN ESPECIAL', codigo: 'REGIMEN_ESPECIAL' }
+                { nombre: 'RÉGIMEN ESPECIAL', codigo: 'REGIMEN_ESPECIAL' },
+                { nombre: 'PRESENCIAL', codigo: 'PRESENCIAL' },
+                { nombre: 'VIRTUAL', codigo: 'VIRTUAL' },
+                { nombre: 'MUNICIPAL PRESENCIAL Y VIRTUAL', codigo: 'MUNICIPAL_HIBRIDO' }
             ]
         });
 
@@ -320,7 +327,15 @@ async function main() {
             ...bomberosList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)', tipoInstitucionId: tid('MUNICIPAL') })),
             ...empresasPublicasList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)', tipoInstitucionId: tid('MUNICIPAL') })),
             ...registrosPropiedadList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)', tipoInstitucionId: tid('MUNICIPAL') })),
-            ...consejosCantonalesList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)', tipoInstitucionId: tid('MUNICIPAL') }))
+            ...consejosCantonalesList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)', tipoInstitucionId: tid('MUNICIPAL') })),
+            // GADs Provinciales, Municipales (Presenciales) y Parroquiales
+            ...provinciasInstitucionesList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL PROVINCIAL', tipoInstitucionId: tid('PROVINCIAL') })),
+            ...cantonesInstitucionesList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)', tipoInstitucionId: tid('MUNICIPAL') })),
+            ...parroquiasInstitucionesList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL PARROQUIAL RURAL', tipoInstitucionId: tid('PARROQUIAL RURAL') })),
+            // Soporte para etiquetas literales PRESENCIAL y VIRTUAL pedidas por el usuario
+            ...cantonesInstitucionesList.map(n => ({ nombre: n, tipo: 'PRESENCIAL', tipoInstitucionId: tid('PRESENCIAL') })),
+            { nombre: 'QUITO', tipo: 'VIRTUAL', tipoInstitucionId: tid('VIRTUAL') },
+            ...cantonesInstitucionesList.map(n => ({ nombre: n, tipo: 'MUNICIPAL PRESENCIAL Y VIRTUAL', tipoInstitucionId: tid('MUNICIPAL PRESENCIAL Y VIRTUAL') }))
         ];
 
         await prisma.institucionSistema.createMany({

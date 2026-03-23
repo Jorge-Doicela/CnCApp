@@ -5,3 +5,4 @@ export * from './form-options-academia-privado';
 export * from './form-options-educacion';
 export * from './form-options-municipal-additions';
 export * from './form-options-mancomunidades-consejos';
+export * from './form-options-gads';
