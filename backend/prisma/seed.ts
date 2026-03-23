@@ -17,6 +17,7 @@ import {
     seedEducacionBasica
 } from './seed-reference-catalogs';
 import { syncGeneroEtniaCatalogs } from './seed-sync-genero-etnia';
+import { generateEcuadorianID } from './tools/ecuador-id.utils';
 
 const prisma = new PrismaClient();
 const SALT_ROUNDS = 10;
@@ -352,25 +353,30 @@ async function main() {
 
         const usersData = [
             // Administrators
-            { nombre: 'JORGE DOICELA', ci: '1234567897', email: 'jorge.doicela@cnc.gob.ec', roleId: adminRole.id, authUid: 'admin-01' },
-            { nombre: 'KAREN MENDOZA', ci: '1722334453', email: 'karen.mendoza@cnc.gob.ec', roleId: adminRole.id, authUid: 'admin-02' },
+            { nombre: 'JORGE DOICELA', ci: generateEcuadorianID(), email: 'jorge.doicela@cnc.gob.ec', roleId: adminRole.id, authUid: 'admin-01' },
+            { nombre: 'KAREN MENDOZA', ci: generateEcuadorianID(), email: 'karen.mendoza@cnc.gob.ec', roleId: adminRole.id, authUid: 'admin-02' },
 
             // Conferencistas
-            { nombre: 'DR. RICARDO PAZMIÑO', ci: '0911223345', email: 'ricardo.pazmino@capacitacion.ec', roleId: conferencistaRole.id, authUid: 'conf-01' },
-            { nombre: 'MAG. ELENA VITERI', ci: '0102030400', email: 'elena.viteri@consultoria.com', roleId: conferencistaRole.id, authUid: 'conf-02' },
-            { nombre: 'ING. SEBASTIÁN NOBOA', ci: '1803040502', email: 'snoboa@expertos.org', roleId: conferencistaRole.id, authUid: 'conf-03' },
+            { nombre: 'DR. RICARDO PAZMIÑO', ci: generateEcuadorianID(), email: 'ricardo.pazmino@capacitacion.ec', roleId: conferencistaRole.id, authUid: 'conf-01' },
+            { nombre: 'MAG. ELENA VITERI', ci: generateEcuadorianID(), email: 'elena.viteri@consultoria.com', roleId: conferencistaRole.id, authUid: 'conf-02' },
+            { nombre: 'ING. SEBASTIÁN NOBOA', ci: generateEcuadorianID(), email: 'snoboa@expertos.org', roleId: conferencistaRole.id, authUid: 'conf-03' },
 
             // Participants (Varied Regions)
-            { nombre: 'FABIÁN IZQUIERDO', ci: '1755112233', email: 'fizquierdo@quito.gob.ec', roleId: usuarioRole.id, authUid: 'user-01' },
-            { nombre: 'LAURA ALCIVAR', ci: '1311223344', email: 'laura.alcivar@manta.gob.ec', roleId: usuarioRole.id, authUid: 'user-02' },
-            { nombre: 'GIOVANNY CASTILLO', ci: '0122334455', email: 'gcastillo@cuenca.gob.ec', roleId: usuarioRole.id, authUid: 'user-03' },
-            { nombre: 'DIANA MORALES', ci: '0933445566', email: 'dmorales@guayaquil.gob.ec', roleId: usuarioRole.id, authUid: 'user-04' },
-            { nombre: 'ROBERTO CHIRIBOGA', ci: '1004050607', email: 'rchiriboga@ibarra.gob.ec', roleId: usuarioRole.id, authUid: 'user-05' },
-            { nombre: 'XIMENA SALTOS', ci: '1205060708', email: 'xsaltos@portoviejo.gob.ec', roleId: usuarioRole.id, authUid: 'user-06' },
-            { nombre: 'MARCO TULIO', ci: '2006070809', email: 'mtulio@galapagos.gob.ec', roleId: usuarioRole.id, authUid: 'user-07' },
-            { nombre: 'PATRICIO RIVERA', ci: '0507080910', email: 'privera@latacunga.gob.ec', roleId: usuarioRole.id, authUid: 'user-08' },
-            { nombre: 'SOFÍA ENDARA', ci: '1108091011', email: 'sendara@ambato.gob.ec', roleId: usuarioRole.id, authUid: 'user-09' },
-            { nombre: 'ANDRÉS VELASCO', ci: '0409101112', email: 'avelasco@tulcan.gob.ec', roleId: usuarioRole.id, authUid: 'user-10' },
+            { nombre: 'FABIÁN IZQUIERDO', ci: generateEcuadorianID(), email: 'fizquierdo@quito.gob.ec', roleId: usuarioRole.id, authUid: 'user-01' },
+            { nombre: 'LAURA ALCIVAR', ci: generateEcuadorianID(), email: 'laura.alcivar@manta.gob.ec', roleId: usuarioRole.id, authUid: 'user-02' },
+            { nombre: 'GIOVANNY CASTILLO', ci: generateEcuadorianID(), email: 'gcastillo@cuenca.gob.ec', roleId: usuarioRole.id, authUid: 'user-03' },
+            { nombre: 'DIANA MORALES', ci: generateEcuadorianID(), email: 'dmorales@guayaquil.gob.ec', roleId: usuarioRole.id, authUid: 'user-04' },
+            { nombre: 'ROBERTO CHIRIBOGA', ci: generateEcuadorianID(), email: 'rchiriboga@ibarra.gob.ec', roleId: usuarioRole.id, authUid: 'user-05' },
+            { nombre: 'XIMENA SALTOS', ci: generateEcuadorianID(), email: 'xsaltos@portoviejo.gob.ec', roleId: usuarioRole.id, authUid: 'user-06' },
+            { nombre: 'MARCO TULIO', ci: generateEcuadorianID(), email: 'mtulio@galapagos.gob.ec', roleId: usuarioRole.id, authUid: 'user-07' },
+            { nombre: 'PATRICIO RIVERA', ci: generateEcuadorianID(), email: 'privera@latacunga.gob.ec', roleId: usuarioRole.id, authUid: 'user-08' },
+            { nombre: 'SOFÍA ENDARA', ci: generateEcuadorianID(), email: 'sendara@ambato.gob.ec', roleId: usuarioRole.id, authUid: 'user-09' },
+            { nombre: 'ANDRÉS VELASCO', ci: generateEcuadorianID(), email: 'avelasco@tulcan.gob.ec', roleId: usuarioRole.id, authUid: 'user-10' },
+            { nombre: 'MARÍA FERNANDA REYES', ci: generateEcuadorianID(), email: 'mfreyes@loja.gob.ec', roleId: usuarioRole.id, authUid: 'user-11' },
+            { nombre: 'CARLOS ANDRÉS MORA', ci: generateEcuadorianID(), email: 'cmora@esmeraldas.gob.ec', roleId: usuarioRole.id, authUid: 'user-12' },
+            { nombre: 'VERÓNICA CASTRO', ci: generateEcuadorianID(), email: 'vcastro@babahoyo.gob.ec', roleId: usuarioRole.id, authUid: 'user-13' },
+            { nombre: 'JOSÉ IGNACIO PINTO', ci: generateEcuadorianID(), email: 'jpinto@macas.gob.ec', roleId: usuarioRole.id, authUid: 'user-14' },
+            { nombre: 'ANA LUCÍA SALAS', ci: generateEcuadorianID(), email: 'asalas@puyo.gob.ec', roleId: usuarioRole.id, authUid: 'user-15' },
         ];
 
         const createdUsers = [];
@@ -483,6 +489,24 @@ async function main() {
                 descripcion: 'Mecanismos legales de participación ciudadana en el ciclo presupuestario.',
                 fechaInicio: new Date('2024-11-01'), fechaFin: new Date('2024-11-10'),
                 lugar: 'MANTA', cupos: 200, modalidad: 'Semipresencial', estado: 'Finalizada', pId: templateStd.id
+            },
+            {
+                nombre: 'TALLER DE LIDERAZGO PARA MUJERES EN GOBIERNOS LOCALES',
+                descripcion: 'Potenciando la participación política y técnica de las mujeres en la gestión territorial.',
+                fechaInicio: new Date('2025-04-10'), fechaFin: new Date('2025-04-12'),
+                lugar: 'PORTOVIEJO', cupos: 100, modalidad: 'Presencial', estado: 'Programada', pId: templateStd.id
+            },
+            {
+                nombre: 'CURSO DE CIBERSEGURIDAD PARA FUNCIONARIOS PÚBLICOS',
+                descripcion: 'Protección de datos y seguridad de la información en entornos gubernamentales.',
+                fechaInicio: new Date('2025-03-15'), fechaFin: new Date('2025-04-15'),
+                lugar: 'VIRTUAL', cupos: 1000, modalidad: 'Virtual', estado: 'Activa', pId: templateStd.id
+            },
+            {
+                nombre: 'ENCUENTRO DE GADS FRONTERIZOS: COOPERACIÓN BINACIONAL',
+                descripcion: 'Estrategias conjuntas para el desarrollo de zonas de frontera y gestión de recursos.',
+                fechaInicio: new Date('2025-07-01'), fechaFin: new Date('2025-07-03'),
+                lugar: 'TULCÁN', cupos: 150, modalidad: 'Presencial', estado: 'Programada', pId: templateExec.id
             }
         ];
 
