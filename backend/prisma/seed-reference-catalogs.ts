@@ -13,7 +13,7 @@ import { educacionBasicaList } from './data/form-options-educacion';
 /** Mismo texto que usa el seed principal para instituciones municipales (bomberos, EP, registros). */
 export const TIPO_INSTITUCION_MUNICIPAL_CANTONES = 'INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)';
 
-/** 23 provincias alineadas al SQL oficial (sin Galápagos). */
+/** 24 provincias alineadas al SQL oficial. */
 export const SQL_PROVINCIAS = [
     'AZUAY',
     'BOLÍVAR',
@@ -23,6 +23,7 @@ export const SQL_PROVINCIAS = [
     'COTOPAXI',
     'EL ORO',
     'ESMERALDAS',
+    'GALÁPAGOS',
     'GUAYAS',
     'IMBABURA',
     'LOJA',

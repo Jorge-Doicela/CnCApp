@@ -331,6 +331,10 @@ async function main() {
         await prisma.mancomunidad.createMany({
             data: mancomunidadesList.map(n => ({ nombre: n }))
         });
+        await prisma.regimenEspecial.createMany({
+            data: regimenEspecialList.map(n => ({ nombre: n })),
+            skipDuplicates: true
+        });
 
         // ============================================
         // STEP 3: GEO DATA
@@ -511,7 +515,7 @@ async function main() {
         ];
 
         const createdTrainings = [];
-        const mods = ['Presencial', 'Virtual', 'Híbrido'];
+        const mods = ['PRESENCIAL', 'VIRTUAL', 'PRESENCIAL Y VIRTUAL'];
 
         console.log('Seeding Regimenes Especiales...');
         for (const nombre of regimenesEspeciales) {
