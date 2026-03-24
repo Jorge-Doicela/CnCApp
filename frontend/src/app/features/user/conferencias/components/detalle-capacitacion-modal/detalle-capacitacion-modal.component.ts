@@ -2,7 +2,7 @@ import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonButton, IonIcon, ModalController, IonList, IonItem, IonLabel, IonBadge, IonFooter } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { closeOutline, videocamOutline, locationOutline, timeOutline, documentTextOutline, calendarOutline, checkmarkCircleOutline } from 'ionicons/icons';
+import { closeOutline, videocamOutline, locationOutline, timeOutline, documentTextOutline, calendarOutline, checkmarkCircleOutline, ribbonOutline, playCircleOutline, alertCircleOutline } from 'ionicons/icons';
 import { Capacitacion } from 'src/app/core/models/capacitacion.interface';
 
 @Component({
@@ -23,7 +23,16 @@ import { Capacitacion } from 'src/app/core/models/capacitacion.interface';
 
     <ion-content class="glass-modal-content">
       <div class="modal-hero animate-fade-up">
-        <span class="modal-eyebrow">Información General</span>
+        <div class="status-container">
+          <div class="luxury-badge" [ngClass]="{
+            'badge-pendiente': estadoReal === 'Pendiente' || estadoReal === 'Próximamente' || estadoReal === 'Aprobada',
+            'badge-finalizada': estadoReal === 'Finalizada',
+            'badge-curso': estadoReal === 'En Curso'
+          }">
+            <ion-icon [name]="estadoReal === 'Finalizada' ? 'checkmark-circle' : (estadoReal === 'En Curso' ? 'play-circle' : 'time')"></ion-icon>
+            {{ estadoReal }}
+          </div>
+        </div>
         <h2>{{ capacitacion?.nombre }}</h2>
         <div class="pill-badge">{{ capacitacion?.modalidad }}</div>
       </div>
@@ -118,9 +127,29 @@ import { Capacitacion } from 'src/app/core/models/capacitacion.interface';
       border-bottom: 1px solid #f1f5f9;
       text-align: center;
       
-      .modal-eyebrow { font-size: 0.75rem; font-weight: 850; color: #1e3a8a; text-transform: uppercase; letter-spacing: 0.1em; display: block; margin-bottom: 8px; }
+      .status-container { margin-bottom: 16px; display: flex; justify-content: center; }
+      
+      .luxury-badge {
+        padding: 6px 14px;
+        border-radius: 12px;
+        font-size: 0.7rem;
+        font-weight: 850;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        box-shadow: 0 4px 10px -2px rgba(0, 0, 0, 0.05);
+
+        ion-icon { font-size: 0.9rem; }
+
+        &.badge-pendiente { background: #fdfaf1; color: #b45309; }
+        &.badge-finalizada { background: #ecfdf5; color: #059669; }
+        &.badge-curso { background: #eff6ff; color: #2563eb; }
+      }
+
       h2 { font-size: 1.8rem; font-weight: 900; color: #0f172a; letter-spacing: -0.03em; line-height: 1.25; margin: 0 0 16px; }
-      .pill-badge { display: inline-block; padding: 6px 14px; background: #eff6ff; color: #1e40af; border-radius: 99px; font-size: 0.75rem; font-weight: 750; }
+      .pill-badge { display: inline-block; padding: 6px 14px; background: #f1f5f9; color: #475569; border-radius: 99px; font-size: 0.75rem; font-weight: 750; }
     }
 
     .content-container { padding: 24px; }
@@ -188,11 +217,16 @@ import { Capacitacion } from 'src/app/core/models/capacitacion.interface';
 export class DetalleCapacitacionModalComponent {
   @Input() capacitacion?: Capacitacion;
   @Input() inscripcion?: any;
+  @Input() estadoReal: string = 'Pendiente';
   
   private modalCtrl = inject(ModalController);
 
   constructor() {
-    addIcons({ closeOutline, videocamOutline, locationOutline, timeOutline, documentTextOutline, calendarOutline, checkmarkCircleOutline });
+    addIcons({ 
+      closeOutline, videocamOutline, locationOutline, timeOutline, 
+      documentTextOutline, calendarOutline, checkmarkCircleOutline,
+      ribbonOutline, playCircleOutline, alertCircleOutline
+    });
   }
 
   close() {

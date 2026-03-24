@@ -188,7 +188,9 @@ export class ConferenciasPage implements OnInit {
   getCapacitacionesPorEstado(estado: string): number {
     return this.inscripciones.filter(i => {
       const realEst = this.calcularEstadoReal(i);
-      if (estado === 'Pendiente') return realEst === 'Pendiente' || realEst === 'Aprobada';
+      if (estado === 'Pendiente') {
+        return ['Pendiente', 'Aprobada', 'Próximamente'].includes(realEst);
+      }
       return realEst === estado;
     }).length;
   }
@@ -215,7 +217,10 @@ export class ConferenciasPage implements OnInit {
     if (this.filtroEstado !== 'todos') {
       resultado = resultado.filter(i => {
         if (this.filtroEstado === 'Pendiente') {
-          return i.estadoReal === 'Pendiente' || i.estadoReal === 'Aprobada';
+          return ['Pendiente', 'Aprobada', 'Próximamente'].includes(i.estadoReal);
+        }
+        if (this.filtroEstado === 'Activa' || this.filtroEstado === 'En Curso') {
+           return i.estadoReal === 'En Curso';
         }
         return i.estadoReal === this.filtroEstado;
       });
@@ -229,9 +234,10 @@ export class ConferenciasPage implements OnInit {
       component: DetalleCapacitacionModalComponent,
       componentProps: {
         capacitacion: inscripcion.capacitacion,
-        inscripcion: inscripcion
+        inscripcion: inscripcion,
+        estadoReal: inscripcion.estadoReal || this.calcularEstadoReal(inscripcion)
       },
-      cssClass: 'professional-modal-class' // Optional: for custom styling
+      cssClass: 'professional-modal-class'
     });
     return await modal.present();
   }
