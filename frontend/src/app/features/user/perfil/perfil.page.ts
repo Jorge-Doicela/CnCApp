@@ -6,7 +6,7 @@ import { Router, RouterLink } from '@angular/router';
 import { 
   IonHeader, IonToolbar, IonButtons, IonButton, IonTitle, 
   IonBackButton, IonContent, IonSpinner, IonIcon, 
-  IonAvatar, IonToggle, IonModal, IonInput,
+  IonAvatar, IonToggle, IonModal,
   AlertController, LoadingController, ToastController, 
   ActionSheetController, NavController 
 } from '@ionic/angular/standalone';
@@ -42,7 +42,7 @@ import { BiometricModalComponent } from 'src/app/shared/components/biometric-mod
     CommonModule, FormsModule, RouterLink,
     IonHeader, IonToolbar, IonButtons, IonButton, IonTitle, 
     IonBackButton, IonContent, IonSpinner, IonIcon, 
-    IonAvatar, IonModal, IonInput,
+    IonAvatar, IonModal,
     BiometricModalComponent
   ]
 })

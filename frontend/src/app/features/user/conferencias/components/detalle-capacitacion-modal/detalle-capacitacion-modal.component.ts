@@ -1,6 +1,6 @@
 import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonButton, IonIcon, ModalController, IonList, IonItem, IonLabel, IonBadge, IonFooter } from '@ionic/angular/standalone';
+import { IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonButton, IonIcon, ModalController, IonFooter } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { closeOutline, videocamOutline, locationOutline, timeOutline, documentTextOutline, calendarOutline, checkmarkCircleOutline, ribbonOutline, playCircleOutline, alertCircleOutline } from 'ionicons/icons';
 import { Capacitacion } from 'src/app/core/models/capacitacion.interface';
@@ -8,7 +8,7 @@ import { Capacitacion } from 'src/app/core/models/capacitacion.interface';
 @Component({
   selector: 'app-detalle-capacitacion-modal',
   standalone: true,
-  imports: [CommonModule, IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonButton, IonIcon, IonList, IonItem, IonLabel, IonBadge, IonFooter],
+  imports: [CommonModule, IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonButton, IonIcon, IonFooter],
   template: `
     <ion-header class="ion-no-border premium-header">
       <ion-toolbar>

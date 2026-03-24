@@ -21,7 +21,12 @@ import {
   informationCircleOutline,
   createOutline,
   trashOutline,
-  swapVerticalOutline
+  swapVerticalOutline,
+  pauseCircleOutline,
+  playCircleOutline,
+  locationOutline,
+  layersOutline,
+  chevronBackOutline
 } from 'ionicons/icons';
 import { firstValueFrom } from 'rxjs';
 
@@ -57,19 +62,24 @@ export class CrudprovinciasPage implements OnInit {
     private toastController: ToastController
   ) {
     addIcons({
-      searchOutline,
-      search,
-      filterOutline,
-      mapOutline,
-      checkmarkCircleOutline,
-      closeCircleOutline,
-      addCircleOutline,
-      alertCircleOutline,
-      keyOutline,
-      informationCircleOutline,
-      createOutline,
-      trashOutline,
-      swapVerticalOutline
+      'search-outline': searchOutline,
+      'search': search,
+      'filter-outline': filterOutline,
+      'map-outline': mapOutline,
+      'checkmark-circle-outline': checkmarkCircleOutline,
+      'close-circle-outline': closeCircleOutline,
+      'add-circle-outline': addCircleOutline,
+      'alert-circle-outline': alertCircleOutline,
+      'key-outline': keyOutline,
+      'information-circle-outline': informationCircleOutline,
+      'create-outline': createOutline,
+      'trash-outline': trashOutline,
+      'swap-vertical-outline': swapVerticalOutline,
+      'pause-circle-outline': pauseCircleOutline,
+      'play-circle-outline': playCircleOutline,
+      'location-outline': locationOutline,
+      'layers-outline': layersOutline,
+      'chevron-back-outline': chevronBackOutline
     });
   }
 

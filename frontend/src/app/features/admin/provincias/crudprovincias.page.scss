@@ -435,9 +435,15 @@ ion-content {
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.2rem;
       cursor: pointer;
       transition: all 0.2s;
+      color: #64748b;
+
+      ion-icon {
+        font-size: 1.4rem;
+        display: block; // Asegurar que el componente se renderice
+        color: inherit; // Forzar a usar el color del padre (64748b)
+      }
 
       &:hover { background: #f8fafc; transform: translateY(-2px); }
       &.edit:hover { color: var(--primary-blue); border-color: var(--primary-blue); }

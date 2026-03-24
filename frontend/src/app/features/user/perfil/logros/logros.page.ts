@@ -4,7 +4,7 @@ import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { 
   IonHeader, IonToolbar, IonButtons, IonButton, IonTitle, 
-  IonBackButton, IonContent, IonSpinner, IonIcon, IonBadge,
+  IonBackButton, IonContent, IonSpinner, IonIcon,
   IonProgressBar, IonModal
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
@@ -44,7 +44,7 @@ interface Achievement {
   imports: [
     CommonModule, FormsModule, 
     IonHeader, IonToolbar, IonButtons, IonButton, IonTitle, 
-    IonBackButton, IonContent, IonSpinner, IonIcon, IonBadge,
+    IonBackButton, IonContent, IonSpinner, IonIcon,
     IonProgressBar, IonModal
   ]
 })
