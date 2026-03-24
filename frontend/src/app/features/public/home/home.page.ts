@@ -310,6 +310,7 @@ export class HomePage implements OnInit {
       'Ver certificaciones': 'mis-certificados',
       'Validar certificados': 'validar-certificados',
       'Ver capacitaciones': 'ver-conferencias',
+      'Confirmar asistencia': 'confirmar-asistencia',
       // Public Pages
       'historia': 'home/historia',
       'direccion': 'home/direccion',
