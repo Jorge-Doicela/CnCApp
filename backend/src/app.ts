@@ -111,6 +111,7 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Servir archivos estáticos (Certificados, etc.)
 app.use(express.static('public'));
+app.use('/uploads', express.static('uploads'));
 
 // Debug Middleware (solo en desarrollo)
 if (env.NODE_ENV === 'development') {

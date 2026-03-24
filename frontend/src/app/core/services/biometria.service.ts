@@ -21,24 +21,33 @@ export class BiometriaService {
   platformLabel = signal<string>('Biometría');
   platformIcon = signal<string>('finger-print-outline');
 
-  constructor() {
-    this.init();
-  }
-
-  private async init() {
-    await this.checkAvailability();
-    await this.checkStatus();
-  }
+  constructor() {}
 
   async checkAvailability(): Promise<boolean> {
-    const available = await WebAuthnUtil.isAvailable();
+    const isNative = Capacitor.isNativePlatform();
+    let available = false;
+
+    if (isNative) {
+      try {
+        // FingerprintAIO.isAvailable returns a string of the type or throws if not available
+        const result = await this.fingerprintAIO.isAvailable();
+        // Potential values: "finger", "face", "biometric" on Android; "OK" sometimes on iOS or older versions
+        available = !!result; 
+        this.platformLabel.set('Biometría del Dispositivo');
+      } catch (e) {
+        console.error('[BIOMETRIA_SERVICE] FingerprintAIO not available:', e);
+        available = false;
+      }
+    } else {
+      available = await WebAuthnUtil.isAvailable();
+      this.platformLabel.set(WebAuthnUtil.getPlatformLabel());
+    }
+
     this.isAvailable.set(available);
-    
-    this.platformLabel.set(WebAuthnUtil.getPlatformLabel());
     const label = this.platformLabel().toLowerCase();
     
     if (label.includes('windows')) this.platformIcon.set('shield-checkmark-outline');
-    else if (label.includes('android')) this.platformIcon.set('finger-print-outline');
+    else if (label.includes('android') || label.includes('dispositivo')) this.platformIcon.set('finger-print-outline');
     else if (label.includes('face id')) this.platformIcon.set('person-outline');
     else this.platformIcon.set('finger-print-outline');
 
