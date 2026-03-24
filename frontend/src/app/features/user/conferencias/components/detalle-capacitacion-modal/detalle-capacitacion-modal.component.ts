@@ -22,196 +22,213 @@ import { Capacitacion } from 'src/app/core/models/capacitacion.interface';
     </ion-header>
 
     <ion-content class="glass-modal-content">
-      <div class="modal-hero animate-fade-up">
-        <div class="status-container">
-          <div class="luxury-badge" [ngClass]="{
+      <!-- 1. HERO SECTION -->
+      <div class="modal-hero">
+        <div class="hero-bg-accent"></div>
+        <div class="status-container animate-fade-up">
+           <div class="luxury-badge" [ngClass]="{
             'badge-pendiente': estadoReal === 'Pendiente' || estadoReal === 'Próximamente' || estadoReal === 'Aprobada',
             'badge-finalizada': estadoReal === 'Finalizada',
             'badge-curso': estadoReal === 'En Curso'
           }">
-            <ion-icon [name]="estadoReal === 'Finalizada' ? 'checkmark-circle' : (estadoReal === 'En Curso' ? 'play-circle' : 'time')"></ion-icon>
-            {{ estadoReal }}
-          </div>
+             <ion-icon [name]="estadoReal === 'Finalizada' ? 'checkmark-circle' : (estadoReal === 'En Curso' ? 'play-circle' : 'time')"></ion-icon>
+             {{ estadoReal }}
+           </div>
         </div>
-        <h2>{{ capacitacion?.nombre }}</h2>
-        <div class="pill-badge">{{ capacitacion?.modalidad }}</div>
+        <h2 class="animate-fade-up" style="animation-delay: 0.1s;">{{ capacitacion?.nombre }}</h2>
+        <div class="type-pill animate-fade-up" style="animation-delay: 0.15s;">
+          <ion-icon name="layers-outline"></ion-icon>
+          {{ capacitacion?.modalidad }}
+        </div>
       </div>
 
-      <div class="content-container animate-fade-up" style="animation-delay: 0.1s;">
-        <!-- INFO CARDS GRID -->
-        <div class="info-grid-premium">
-          <div class="glass-info-card">
-            <div class="icon-box"><ion-icon name="calendar-outline"></ion-icon></div>
-            <div class="text">
-              <small>Fecha de Inicio</small>
-              <p>{{ capacitacion?.fechaInicio | date:'longDate' }}</p>
+      <div class="content-container">
+        <!-- 2. BENTO INFO GRID -->
+        <div class="bento-grid">
+          <div class="bento-card long animate-fade-up" style="animation-delay: 0.2s;">
+            <div class="card-icon"><ion-icon name="calendar-outline"></ion-icon></div>
+            <div class="card-info">
+              <label>Fecha del Evento</label>
+              <p>{{ capacitacion?.fechaInicio | date:'fullDate' }}</p>
             </div>
           </div>
 
-          <div class="glass-info-card">
-            <div class="icon-box"><ion-icon name="time-outline"></ion-icon></div>
-            <div class="text">
-              <small>Horario</small>
+          <div class="bento-card small animate-fade-up" style="animation-delay: 0.25s;">
+            <div class="card-icon"><ion-icon name="time-outline"></ion-icon></div>
+            <div class="card-info">
+              <label>Horario</label>
               <p>{{ capacitacion?.horaInicio }} - {{ capacitacion?.horaFin }}</p>
             </div>
           </div>
 
-          <div class="glass-info-card highlighted">
-            <div class="icon-box"><ion-icon name="ribbon-outline"></ion-icon></div>
-            <div class="text">
-              <small>Certificación</small>
-              <p>{{ capacitacion?.horas }} Horas Avaladas</p>
+          <div class="bento-card small highlight animate-fade-up" style="animation-delay: 0.3s;">
+            <div class="card-icon"><ion-icon name="ribbon-outline"></ion-icon></div>
+            <div class="card-info">
+              <label>Horas</label>
+              <p>{{ capacitacion?.horas }}</p>
             </div>
           </div>
 
-          <div class="glass-info-card">
-            <div class="icon-box"><ion-icon name="location-outline"></ion-icon></div>
-            <div class="text">
-              <small>Ubicación / Sede</small>
+          <div class="bento-card wide animate-fade-up" style="animation-delay: 0.35s;">
+            <div class="card-icon"><ion-icon name="location-outline"></ion-icon></div>
+            <div class="card-info">
+              <label>Ubicación / Sede</label>
               <p>{{ capacitacion?.lugar }}</p>
             </div>
+            <div class="status-dot green"></div>
           </div>
         </div>
 
-        <div class="description-section">
-          <h3>Descripción del Programa</h3>
-          <p>{{ capacitacion?.descripcion || 'No se ha proporcionado una descripción detallada aún.' }}</p>
+        <!-- 3. DESCRIPTION SECTION -->
+        <div class="description-section animate-fade-up" style="animation-delay: 0.4s;">
+          <div class="section-title">
+            <div class="line"></div>
+            <h3>Detalles del Programa</h3>
+          </div>
+          <p>{{ capacitacion?.descripcion || 'No se han cargado detalles adicionales técnicos para esta sesión.' }}</p>
         </div>
 
-        <!-- ACTION AREA -->
-        <div class="virtual-cta animate-fade-up" *ngIf="capacitacion?.modalidad === 'Virtual' && capacitacion?.enlaceVirtual" style="animation-delay: 0.2s;">
-            <div class="cta-inner">
-               <ion-icon name="videocam-outline" class="cta-icon"></ion-icon>
-               <div class="cta-text">
-                  <h4>Aula Virtual Disponible</h4>
-                  <p>Accede directamente a la sesión en vivo.</p>
-               </div>
-               <ion-button (click)="openVirtualLink()" class="cta-btn">
-                  Entrar Ahora
-               </ion-button>
+        <!-- 4. VIRTUAL ACCESS CTA -->
+        <div class="virtual-access-premium animate-fade-up" *ngIf="capacitacion?.modalidad === 'Virtual' || capacitacion?.modalidad === 'PRESENCIAL Y VIRTUAL'" style="animation-delay: 0.45s;">
+          <div class="virtual-inner" *ngIf="capacitacion?.enlaceVirtual">
+            <div class="virtual-text">
+              <ion-icon name="videocam-outline"></ion-icon>
+              <div>
+                <h4>Acceso al Aula Virtual</h4>
+                <span>La sesión iniciará según el horario establecido.</span>
+              </div>
             </div>
-        </div>
-
-        <div class="no-link-warning" *ngIf="capacitacion?.modalidad === 'Virtual' && !capacitacion?.enlaceVirtual">
-          <ion-icon name="alert-circle-outline"></ion-icon>
-          <p>El enlace de acceso será habilitado por tu instructor minutos antes del inicio.</p>
+            <ion-button (click)="openVirtualLink()" class="luxury-btn">
+               Ingresar ahora
+            </ion-button>
+          </div>
+          
+          <div class="virtual-placeholder" *ngIf="!capacitacion?.enlaceVirtual">
+            <ion-icon name="lock-closed-outline"></ion-icon>
+            <p>El enlace de Zoom/Teams se habilitará 15 minutos antes del inicio de la capacitación.</p>
+          </div>
         </div>
       </div>
     </ion-content>
 
     <ion-footer class="ion-no-border premium-footer">
-      <ion-button expand="block" (click)="close()" fill="clear" class="footer-close-btn">
-        Entendido, Volver
+      <ion-button (click)="close()" class="footer-btn">
+         Cerrar Detalles
       </ion-button>
     </ion-footer>
   `,
   styles: [`
-    :host { --ion-background-color: #f8fafc; }
+    :host { --ion-background-color: #fdfdfd; font-family: 'Inter', sans-serif; }
     
     .premium-header {
-      background: rgba(255, 255, 255, 0.8);
-      backdrop-filter: blur(12px);
-      ion-toolbar { --background: transparent; --min-height: 70px; }
-      ion-title { font-weight: 850; letter-spacing: -0.02em; color: #0f172a; text-align: center; }
-      .close-btn { --color: #64748b; --background: rgba(0,0,0,0.03); --border-radius: 50%; }
+      background: white;
+      ion-toolbar { --background: transparent; --min-height: 60px; }
+      ion-title { font-weight: 900; letter-spacing: -0.04em; color: #1e293b; text-align: center; font-size: 1.1rem; }
+      .close-btn { --color: #94a3b8; --background: rgba(0,0,0,0.02); --border-radius: 50%; width: 32px; height: 32px; }
     }
 
-    .glass-modal-content {
-       --padding-top: 0;
-       background: #f8fafc;
-    }
+    .glass-modal-content { --padding-top: 0; }
 
     .modal-hero {
-      padding: 40px 24px 30px;
-      background: white;
-      border-bottom: 1px solid #f1f5f9;
+      padding: 50px 24px 40px;
       text-align: center;
+      position: relative;
+      background: linear-gradient(to bottom, #f8fafc 0%, white 100%);
+      overflow: hidden;
+
+      .hero-bg-accent {
+        position: absolute;
+        top: -100px; left: 50%; transform: translateX(-50%);
+        width: 300px; height: 300px;
+        background: radial-gradient(circle, rgba(59, 130, 246, 0.05) 0%, transparent 70%);
+        pointer-events: none;
+      }
       
-      .status-container { margin-bottom: 16px; display: flex; justify-content: center; }
-      
+      .status-container { margin-bottom: 24px; display: flex; justify-content: center; }
       .luxury-badge {
-        padding: 6px 14px;
-        border-radius: 12px;
-        font-size: 0.7rem;
-        font-weight: 850;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        box-shadow: 0 4px 10px -2px rgba(0, 0, 0, 0.05);
-
-        ion-icon { font-size: 0.9rem; }
-
-        &.badge-pendiente { background: #fdfaf1; color: #b45309; }
-        &.badge-finalizada { background: #ecfdf5; color: #059669; }
-        &.badge-curso { background: #eff6ff; color: #2563eb; }
+        padding: 8px 18px; border-radius: 14px; font-size: 0.7rem; font-weight: 900; text-transform: uppercase;
+        letter-spacing: 0.08em; display: inline-flex; align-items: center; gap: 8px;
+        box-shadow: 0 4px 15px -4px rgba(0,0,0,0.08); background: white; border: 1px solid rgba(0,0,0,0.03);
+        
+        &.badge-pendiente { color: #b45309; }
+        &.badge-finalizada { color: #10b981; }
+        &.badge-curso { color: #3b82f6; }
       }
 
-      h2 { font-size: 1.8rem; font-weight: 900; color: #0f172a; letter-spacing: -0.03em; line-height: 1.25; margin: 0 0 16px; }
-      .pill-badge { display: inline-block; padding: 6px 14px; background: #f1f5f9; color: #475569; border-radius: 99px; font-size: 0.75rem; font-weight: 750; }
+      h2 { font-size: 2.1rem; font-weight: 950; color: #0f172a; letter-spacing: -0.05em; line-height: 1.1; margin: 0 0 24px; }
+      .type-pill {
+        display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px;
+        background: #f1f5f9; color: #475569; border-radius: 20px; font-size: 0.85rem; font-weight: 800;
+        border: 1px solid rgba(0,0,0,0.02);
+      }
     }
 
-    .content-container { padding: 24px; }
+    .content-container { padding: 0 24px 40px; }
 
-    .info-grid-premium {
+    /* BENTO GRID */
+    .bento-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto auto auto;
       gap: 16px;
-      margin-bottom: 30px;
-    }
+      margin-bottom: 40px;
 
-    .glass-info-card {
-      background: white;
-      border: 1px solid #f1f5f9;
-      border-radius: 20px;
-      padding: 16px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      
-      .icon-box { width: 40px; height: 40px; border-radius: 12px; background: #f8fafc; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; color: #1e3a8a; }
-      .text {
-         small { display: block; font-size: 0.65rem; font-weight: 750; color: #94a3b8; text-transform: uppercase; margin-bottom: 2px; }
-         p { font-size: 0.85rem; font-weight: 700; color: #1e293b; margin: 0; line-height: 1.3; }
+      .bento-card {
+        background: white; border: 1px solid rgba(0,0,0,0.04); border-radius: 28px; padding: 20px;
+        display: flex; flex-direction: column; gap: 16px; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        
+        &:hover { transform: scale(1.02); border-color: rgba(30, 58, 138, 0.1); }
+        &.long { grid-column: span 2; flex-direction: row; align-items: center; }
+        &.wide { grid-column: span 2; flex-direction: row; align-items: center; justify-content: space-between; overflow: hidden; position: relative;}
+        &.highlight { background: #eff6ff; border-color: #dbeafe; .card-icon { background: #dbeafe; color: #1e40af; } }
+
+        .card-icon { width: 44px; height: 44px; border-radius: 14px; background: #f8fafc; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; color: #64748b; }
+        .card-info {
+          label { display: block; font-size: 0.65rem; font-weight: 900; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+          p { font-size: 1.05rem; font-weight: 800; color: #1e293b; margin: 0; line-height: 1.2; }
+        }
+
+        .status-dot { width: 10px; height: 10px; border-radius: 50%; opacity: 0.5; &.green { background: #10b981; box-shadow: 0 0 10px #10b981; } }
       }
-
-      &.highlighted { border-color: #bae6fd; background: #f0f9ff; .icon-box { background: #e0f2fe; } }
     }
 
     .description-section {
-       margin-bottom: 30px;
-       h3 { font-size: 1rem; font-weight: 850; color: #0f172a; margin-bottom: 10px; }
-       p { font-size: 0.95rem; color: #475569; line-height: 1.6; }
+      margin-bottom: 40px;
+      .section-title {
+        display: flex; align-items: center; gap: 12px; margin-bottom: 16px;
+        .line { width: 30px; height: 3px; background: #3b82f6; border-radius: 4px; }
+        h3 { font-size: 0.9rem; font-weight: 900; color: #0f172a; margin: 0; text-transform: uppercase; letter-spacing: 0.05em; }
+      }
+      p { font-size: 1.05rem; color: #4b5563; line-height: 1.7; font-weight: 500; }
     }
 
-    .virtual-cta {
-       background: #1e3a8a;
-       border-radius: 24px;
-       padding: 20px;
-       color: white;
-       box-shadow: 0 15px 30px -10px rgba(30, 58, 138, 0.3);
-       
-       .cta-inner { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
-       .cta-icon { font-size: 2.2rem; background: rgba(255,255,255,0.2); border-radius: 14px; padding: 8px; }
-       .cta-text {
-          flex: 1; min-width: 150px;
-          h4 { margin: 0; font-size: 1.1rem; font-weight: 800; }
-          p { margin: 2px 0 0; font-size: 0.85rem; color: rgba(255,255,255,0.7); font-weight: 500; }
-       }
-       .cta-btn { --background: white; --color: #1e3a8a; --border-radius: 12px; font-weight: 850; margin: 0; width: 100%; margin-top: 10px; }
+    .virtual-access-premium {
+      .virtual-inner {
+        background: #0f172a; border-radius: 32px; padding: 24px; color: white; display: flex; flex-direction: column; gap: 24px;
+        box-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.4);
+        
+        .virtual-text {
+          display: flex; align-items: center; gap: 16px;
+          ion-icon { font-size: 1.8rem; background: rgba(255,255,255,0.1); padding: 12px; border-radius: 16px; }
+          h4 { margin: 0; font-size: 1.2rem; font-weight: 900; }
+          span { font-size: 0.85rem; color: rgba(255,255,255,0.5); font-weight: 600; }
+        }
+        .luxury-btn { --background: #3b82f6; --color: white; --border-radius: 16px; margin: 0; height: 50px; font-weight: 900; --box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3); }
+      }
+      .virtual-placeholder {
+        display: flex; align-items: center; gap: 16px; padding: 20px; background: #f8fafc; border-radius: 20px; border: 1px dashed #cbd5e1;
+        ion-icon { font-size: 1.5rem; color: #94a3b8; }
+        p { margin: 0; font-size: 0.85rem; font-weight: 600; color: #64748b; line-height: 1.4; }
+      }
     }
 
-    .no-link-warning {
-       display: flex; gap: 12px; padding: 16px; background: #fff7ed; border-radius: 16px; border: 1px solid #ffedd5;
-       ion-icon { font-size: 1.4rem; color: #9a3412; }
-       p { font-size: 0.85rem; color: #9a3412; font-weight: 500; margin: 0; line-height: 1.4; }
+    .premium-footer {
+       padding: 24px; background: white; border-top: 1px solid rgba(0,0,0,0.03);
+       .footer-btn { --background: #f1f5f9; --color: #475569; --border-radius: 16px; font-weight: 900; text-transform: none; margin: 0; height: 50px; }
     }
 
-    .premium-footer { background: #f8fafc; .footer-close-btn { --color: #64748b; font-weight: 700; } }
-
-    .animate-fade-up { opacity: 0; animation: fadeUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
-    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .animate-fade-up { opacity: 0; animation: fadeUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
   `]
 })
 export class DetalleCapacitacionModalComponent {
