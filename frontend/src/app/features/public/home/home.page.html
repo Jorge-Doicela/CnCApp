@@ -283,6 +283,24 @@
               <ion-icon name="arrow-forward-circle" class="arrow-icon"></ion-icon>
             </div>
 
+            <div class="dash-card featured-card highlighted" (click)="navegarModulo('Confirmar asistencia')">
+              <div class="card-icon-main"><ion-icon name="qr-code-outline"></ion-icon></div>
+              <div class="card-info">
+                <h4>Inscribirse con QR</h4>
+                <p>Escanea el código del evento para registrar tu asistencia.</p>
+              </div>
+              <ion-icon name="arrow-forward-circle" class="arrow-icon"></ion-icon>
+            </div>
+
+            <div class="dash-card" (click)="navegarModulo('Ver capacitaciones')">
+              <div class="icon-box-outline"><ion-icon name="calendar-clear-outline"></ion-icon></div>
+              <div class="card-info">
+                <h4>Mis Capacitaciones</h4>
+                <p>Sigue el progreso de tus cursos activos.</p>
+              </div>
+              <ion-icon name="chevron-forward" class="arrow-small"></ion-icon>
+            </div>
+
             <div class="dash-card" (click)="navegarModulo('mis-certificados')">
               <div class="icon-box blue"><ion-icon name="ribbon-outline"></ion-icon></div>
               <div class="card-info">

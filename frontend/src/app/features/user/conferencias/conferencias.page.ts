@@ -47,24 +47,31 @@ export class ConferenciasPage implements OnInit {
     this.loading = true;
     this.cdr.markForCheck();
 
-    // 1. Intentar desde el signal (ya cargado desde localStorage en AuthService constructor)
+    // 1. Usar el signal del AuthService (Fuente de verdad actual)
     const user = this.authService.currentUser();
     if (user?.id) {
+      console.log('[ConferenciasPage] Cargando para usuario:', user.id);
       this.cargarHistorial(user.id);
       return;
     }
 
-    // 2. Fallback: leer auth_uid de localStorage directamente
-    const rawId = localStorage.getItem('auth_uid');
-    const userId = rawId ? parseInt(rawId, 10) : NaN;
-    if (!isNaN(userId) && userId > 0) {
-      this.cargarHistorial(userId);
-      return;
+    // 2. Fallback: Si el signal no está listo pero hay datos en localStorage
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      try {
+        const userParsed = JSON.parse(storedUser);
+        if (userParsed?.id) {
+          this.cargarHistorial(userParsed.id);
+          return;
+        }
+      } catch (e) {
+        console.error('[ConferenciasPage] Error parseando usuario persistido');
+      }
     }
 
-    // 3. No hay sesión: mostrar vacío sin carga infinita
+    // 3. No hay sesión
     this.loading = false;
-    this.errorMsg = 'No hay sesión activa. Inicia sesión para ver tus conferencias.';
+    this.errorMsg = 'No se detectó una sesión activa. Por favor, ingresa de nuevo.';
     this.cdr.detectChanges();
   }
 
