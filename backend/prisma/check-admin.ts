@@ -7,7 +7,7 @@ async function main() {
     where: {
       OR: [
         { email: 'admin1@cnc.gob.ec' },
-        { ci: '1710000001' }
+        { ci: '1710000009' }
       ]
     },
     include: {

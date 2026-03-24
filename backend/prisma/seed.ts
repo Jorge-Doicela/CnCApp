@@ -374,30 +374,30 @@ async function main() {
 
         const usersData = [
             // Administrators (Pichincha)
-            { nombre: 'ADMINISTRADOR 1', ci: '1710000015', email: 'admin1@cnc.gob.ec', roleId: adminRole.id, authUid: 'admin-01' },
-            { nombre: 'ADMINISTRADOR 2', ci: '1710000023', email: 'admin2@cnc.gob.ec', roleId: adminRole.id, authUid: 'admin-02' },
+            { nombre: 'ADMINISTRADOR 1', ci: '1710000009', email: 'admin1@cnc.gob.ec', roleId: adminRole.id, authUid: 'admin-01' },
+            { nombre: 'ADMINISTRADOR 2', ci: '1710000017', email: 'admin2@cnc.gob.ec', roleId: adminRole.id, authUid: 'admin-02' },
 
             // Conferencistas
-            { nombre: 'DR. RICARDO PAZMIÑO', ci: '1710000031', email: 'ricardo.pazmino@capacitacion.ec', roleId: conferencistaRole.id, authUid: 'conf-01' },
-            { nombre: 'MAG. ELENA VITERI', ci: '1710000049', email: 'elena.viteri@consultoria.com', roleId: conferencistaRole.id, authUid: 'conf-02' },
-            { nombre: 'ING. SEBASTIÁN NOBOA', ci: '1710000056', email: 'snoboa@expertos.org', roleId: conferencistaRole.id, authUid: 'conf-03' },
+            { nombre: 'DR. RICARDO PAZMIÑO', ci: '1710000025', email: 'ricardo.pazmino@capacitacion.ec', roleId: conferencistaRole.id, authUid: 'conf-01' },
+            { nombre: 'MAG. ELENA VITERI', ci: '1710000033', email: 'elena.viteri@consultoria.com', roleId: conferencistaRole.id, authUid: 'conf-02' },
+            { nombre: 'ING. SEBASTIÁN NOBOA', ci: '1710000041', email: 'snoboa@expertos.org', roleId: conferencistaRole.id, authUid: 'conf-03' },
 
             // Participants (Varied Regions)
-            { nombre: 'FABIÁN IZQUIERDO', ci: '1710000064', email: 'fizquierdo@quito.gob.ec', roleId: usuarioRole.id, authUid: 'user-01' },
-            { nombre: 'LAURA ALCIVAR', ci: '1710000072', email: 'laura.alcivar@manta.gob.ec', roleId: usuarioRole.id, authUid: 'user-02' },
-            { nombre: 'GIOVANNY CASTILLO', ci: '1710000080', email: 'gcastillo@cuenca.gob.ec', roleId: usuarioRole.id, authUid: 'user-03' },
-            { nombre: 'DIANA MORALES', ci: '1710000098', email: 'dmorales@guayaquil.gob.ec', roleId: usuarioRole.id, authUid: 'user-04' },
-            { nombre: 'ROBERTO CHIRIBOGA', ci: '1710000106', email: 'rchiriboga@ibarra.gob.ec', roleId: usuarioRole.id, authUid: 'user-05' },
-            { nombre: 'XIMENA SALTOS', ci: '1710000114', email: 'xsaltos@portoviejo.gob.ec', roleId: usuarioRole.id, authUid: 'user-06' },
-            { nombre: 'MARCO TULIO', ci: '1710000122', email: 'mtulio@galapagos.gob.ec', roleId: usuarioRole.id, authUid: 'user-07' },
-            { nombre: 'PATRICIO RIVERA', ci: '1710000130', email: 'privera@latacunga.gob.ec', roleId: usuarioRole.id, authUid: 'user-08' },
-            { nombre: 'SOFÍA ENDARA', ci: '1710000148', email: 'sendara@ambato.gob.ec', roleId: usuarioRole.id, authUid: 'user-09' },
-            { nombre: 'ANDRÉS VELASCO', ci: '1710000155', email: 'avelasco@tulcan.gob.ec', roleId: usuarioRole.id, authUid: 'user-10' },
-            { nombre: 'MARÍA FERNANDA REYES', ci: '1710000163', email: 'mfreyes@loja.gob.ec', roleId: usuarioRole.id, authUid: 'user-11' },
-            { nombre: 'CARLOS ANDRÉS MORA', ci: '1710000171', email: 'cmora@esmeraldas.gob.ec', roleId: usuarioRole.id, authUid: 'user-12' },
-            { nombre: 'VERÓNICA CASTRO', ci: '1710000189', email: 'vcastro@babahoyo.gob.ec', roleId: usuarioRole.id, authUid: 'user-13' },
-            { nombre: 'JOSÉ IGNACIO PINTO', ci: '1710000197', email: 'jpinto@macas.gob.ec', roleId: usuarioRole.id, authUid: 'user-14' },
-            { nombre: 'ANA LUCÍA SALAS', ci: '1710000205', email: 'asalas@puyo.gob.ec', roleId: usuarioRole.id, authUid: 'user-15' },
+            { nombre: 'FABIÁN IZQUIERDO', ci: '1710000058', email: 'fizquierdo@quito.gob.ec', roleId: usuarioRole.id, authUid: 'user-01' },
+            { nombre: 'LAURA ALCIVAR', ci: '1710000066', email: 'laura.alcivar@manta.gob.ec', roleId: usuarioRole.id, authUid: 'user-02' },
+            { nombre: 'GIOVANNY CASTILLO', ci: '1710000074', email: 'gcastillo@cuenca.gob.ec', roleId: usuarioRole.id, authUid: 'user-03' },
+            { nombre: 'DIANA MORALES', ci: '1710000082', email: 'dmorales@guayaquil.gob.ec', roleId: usuarioRole.id, authUid: 'user-04' },
+            { nombre: 'ROBERTO CHIRIBOGA', ci: '1710000090', email: 'rchiriboga@ibarra.gob.ec', roleId: usuarioRole.id, authUid: 'user-05' },
+            { nombre: 'XIMENA SALTOS', ci: '1710000108', email: 'xsaltos@portoviejo.gob.ec', roleId: usuarioRole.id, authUid: 'user-06' },
+            { nombre: 'MARCO TULIO', ci: '1710000116', email: 'mtulio@galapagos.gob.ec', roleId: usuarioRole.id, authUid: 'user-07' },
+            { nombre: 'PATRICIO RIVERA', ci: '1710000124', email: 'privera@latacunga.gob.ec', roleId: usuarioRole.id, authUid: 'user-08' },
+            { nombre: 'SOFÍA ENDARA', ci: '1710000132', email: 'sendara@ambato.gob.ec', roleId: usuarioRole.id, authUid: 'user-09' },
+            { nombre: 'ANDRÉS VELASCO', ci: '1710000140', email: 'avelasco@tulcan.gob.ec', roleId: usuarioRole.id, authUid: 'user-10' },
+            { nombre: 'MARÍA FERNANDA REYES', ci: '1710000157', email: 'mfreyes@loja.gob.ec', roleId: usuarioRole.id, authUid: 'user-11' },
+            { nombre: 'CARLOS ANDRÉS MORA', ci: '1710000165', email: 'cmora@esmeraldas.gob.ec', roleId: usuarioRole.id, authUid: 'user-12' },
+            { nombre: 'VERÓNICA CASTRO', ci: '1710000173', email: 'vcastro@babahoyo.gob.ec', roleId: usuarioRole.id, authUid: 'user-13' },
+            { nombre: 'JOSÉ IGNACIO PINTO', ci: '1710000181', email: 'jpinto@macas.gob.ec', roleId: usuarioRole.id, authUid: 'user-14' },
+            { nombre: 'ANA LUCÍA SALAS', ci: '1710000199', email: 'asalas@puyo.gob.ec', roleId: usuarioRole.id, authUid: 'user-15' },
         ];
 
         const createdUsers = [];
