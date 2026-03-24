@@ -102,6 +102,20 @@
               <ion-icon name="arrow-forward-circle" class="arrow-icon"></ion-icon>
             </div>
 
+            <!-- QUICK SECURITY (BIOMETRICS) -->
+            <div class="dash-card security-quick-card animate-pulse-border" 
+                 *ngIf="biometriaService.isAvailable() && !biometriaService.isActive()"
+                 (click)="solicitarActivacionBio()">
+              <div class="icon-box-pulse">
+                <ion-icon [name]="biometriaService.platformIcon()"></ion-icon>
+              </div>
+              <div class="card-info">
+                <h4>Acceso Rápido</h4>
+                <p>Activar {{ biometriaService.platformLabel() }}</p>
+              </div>
+              <div class="security-badge">NUEVO</div>
+            </div>
+
             <div class="dash-card" (click)="navegarModulo('gestionar-capacitaciones')">
               <div class="icon-box blue"><ion-icon name="easel"></ion-icon></div>
               <div class="card-info">
@@ -378,4 +392,10 @@
   <div class="dashboard-footer">
     <p>&copy; 2026 Consejo Nacional de Competencias - Ecuador</p>
   </div>
+
+  <!-- Componente Compartido de Biometría -->
+  <app-biometric-modal 
+    [isOpen]="mostrarModalBio" 
+    (didDismiss)="onBiometricResult($event)">
+  </app-biometric-modal>
 </ion-content>

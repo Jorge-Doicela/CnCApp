@@ -30,6 +30,8 @@ import { AuthService } from 'src/app/features/auth/services/auth.service';
 import { SecureStorageService } from 'src/app/core/services/secure-storage.service';
 import { WebAuthnUtil } from 'src/app/core/utils/webauthn.util';
 import { environment } from 'src/environments/environment';
+import { BiometriaService } from 'src/app/core/services/biometria.service';
+import { BiometricModalComponent } from 'src/app/shared/components/biometric-modal/biometric-modal.component';
 
 @Component({
   selector: 'app-perfil',
@@ -40,7 +42,8 @@ import { environment } from 'src/environments/environment';
     CommonModule, FormsModule, RouterLink,
     IonHeader, IonToolbar, IonButtons, IonButton, IonTitle, 
     IonBackButton, IonContent, IonSpinner, IonIcon, 
-    IonAvatar, IonModal, IonInput
+    IonAvatar, IonModal, IonInput,
+    BiometricModalComponent
   ]
 })
 export class PerfilPage implements OnInit {
@@ -51,18 +54,8 @@ export class PerfilPage implements OnInit {
   provinciaUsuario: string = '';
   cantonUsuario: string = '';
   parroquiaUsuario: string = '';
-  platformLabel: string = 'Biometría';
-  platformIcon: string = 'finger-print-outline';
-  biometriaActiva: boolean = false;
-  biometriaDisponible: boolean = false;
-  
-  // Biometric Verification Modal state
+  biometriaService = inject(BiometriaService);
   mostrarModalBio: boolean = false;
-  passVerificacion: string = '';
-  verificandoBio: boolean = false;
-  verPassword: boolean = false;
-  activacionExitosa: boolean = false;
-  toggleEventActual: any = null;
 
   // Cache estático para persistencia entre navegaciones en la misma sesión
   private static perfilCache: any = null;
@@ -111,36 +104,20 @@ export class PerfilPage implements OnInit {
   }
 
   async verificarBiometria() {
-    this.platformLabel = WebAuthnUtil.getPlatformLabel();
-    
-    // Choose icon based on label
-    if (this.platformLabel.includes('Windows')) this.platformIcon = 'shield-checkmark-outline';
-    else if (this.platformLabel.includes('Android')) this.platformIcon = 'finger-print-outline';
-    else if (this.platformLabel.includes('Face ID')) this.platformIcon = 'person-outline';
-    else this.platformIcon = 'finger-print-outline';
-
-    try {
-      this.biometriaDisponible = await WebAuthnUtil.isAvailable();
-      const value = await this.secureStorage.get('biometria_activada');
-      this.biometriaActiva = value === 'true';
-    } catch (e) {
-      console.error('Error al verificar biometría:', e);
-      this.biometriaDisponible = false;
-    }
+    await this.biometriaService.checkAvailability();
+    await this.biometriaService.checkStatus();
   }
 
   /**
    * Nueva lógica por botón en lugar de switch para máxima fiabilidad
    */
   async solicitarCambioBiometria() {
-    // REGLA DE ORO: Si no hay datos de usuario, no podemos activar biometría
     if (!this.datosUsuario) {
       this.presentToast('Cargando perfil...', 'warning');
       return;
     }
 
-    if (this.biometriaActiva) {
-      // DESACTIVAR
+    if (this.biometriaService.isActive()) {
       const alert = await this.alertController.create({
         header: 'Desactivar Biometría',
         message: '¿Estás seguro de que deseas desactivar el acceso rápido?',
@@ -150,12 +127,9 @@ export class PerfilPage implements OnInit {
             text: 'Desactivar',
             cssClass: 'danger',
             handler: async () => {
-              await this.secureStorage.set('biometria_activada', 'false');
-              await this.secureStorage.remove('bio_token');
-              await this.secureStorage.remove('bio_ci');
-              await this.secureStorage.remove('bio_credential_id');
-              this.biometriaActiva = false;
+              await this.biometriaService.deactivate();
               this.presentToast('Biometría desactivada', 'secondary');
+              this.calcularLogros();
               this.cdr.detectChanges();
             }
           }
@@ -163,16 +137,20 @@ export class PerfilPage implements OnInit {
       });
       await alert.present();
     } else {
-      // ACTIVAR
-      if (!this.biometriaDisponible) {
+      if (!this.biometriaService.isAvailable()) {
         this.presentToast('Biometría no compatible con este equipo', 'warning');
         return;
       }
-      
       this.mostrarModalBio = true;
-      this.passVerificacion = '';
-      this.verPassword = false;
-      this.activacionExitosa = false;
+      this.cdr.detectChanges();
+    }
+  }
+
+  onBiometricResult(success: boolean) {
+    this.mostrarModalBio = false;
+    if (success) {
+      this.presentToast('Biometría activada correctamente', 'success');
+      this.calcularLogros();
       this.cdr.detectChanges();
     }
   }
@@ -180,88 +158,6 @@ export class PerfilPage implements OnInit {
 
 
 
-  async confirmarActivacionBio() {
-    if (!this.passVerificacion) {
-       this.presentToast('Por favor ingrese su contraseña', 'warning');
-       return;
-    }
-    
-    this.verificandoBio = true;
-    const ci = this.datosUsuario.CI_Usuario;
-    const isNative = Capacitor.isNativePlatform();
-
-    try {
-      const loginResponse = await firstValueFrom(this.authService.login(ci, this.passVerificacion));
-
-      if (loginResponse.success) {
-          if (isNative) {
-              await this.fingerprintAIO.show({
-                 title: 'Confirmar Seguridad',
-                 subtitle: 'Active la biometría usando su dispositivo',
-                 description: 'Escanee su huella o rostro para completar el registro',
-                 disableBackup: true
-              });
-          } else {
-              const credentialId = await WebAuthnUtil.registerBiometric(this.datosUsuario.Nombre_Usuario);
-              await this.secureStorage.set('bio_credential_id', credentialId);
-          }
-
-          const setupResponse = await firstValueFrom(this.authService.setupBiometric());
-          
-          if (setupResponse.success && setupResponse.data.biometricToken) {
-              await this.secureStorage.set('biometria_activada', 'true');
-              await this.secureStorage.set('bio_ci', ci);
-              await this.secureStorage.set('bio_token', setupResponse.data.biometricToken);
-              
-              // Estado de éxito visual en el modal
-              this.activacionExitosa = true;
-              this.biometriaActiva = true;
-              this.calcularLogros();
-
-              // Esperamos un momento para que el usuario vea el éxito antes de cerrar
-              setTimeout(() => {
-                this.mostrarModalBio = false;
-                this.activacionExitosa = false;
-                this.cdr.detectChanges();
-                
-                // Mostramos el toast después de que el modal empiece a cerrarse
-                setTimeout(() => {
-                  this.presentToast('Biometría activada correctamente', 'success');
-                }, 400);
-              }, 1500);
-
-          } else {
-              throw new Error('No se pudo generar el token biométrico');
-          }
-      } else {
-          this.presentToast('Contraseña incorrecta. Verifique sus datos.', 'danger');
-      }
-    } catch (e: any) {
-      console.error('Error en activación Bio:', e);
-      this.presentToast('No se pudo completar la activación: ' + (e.message || 'Error de hardware'), 'danger');
-    } finally {
-      this.verificandoBio = false;
-    }
-  }
-
-  cerrarModalBio() {
-    this.mostrarModalBio = false;
-    // Si cerramos el modal sin éxito, revertimos el toggle de forma persistente
-    if (!this.biometriaActiva && this.toggleEventActual) {
-        // Usamos un delay un poco mayor para asegurar que la animación del modal 
-        // no interfiera con el ciclo de vida de detección de cambios
-        setTimeout(() => {
-            if (this.toggleEventActual.target) {
-                this.toggleEventActual.target.checked = false;
-            }
-            this.biometriaActiva = false;
-            this.cdr.detectChanges();
-            this.toggleEventActual = null;
-        }, 150);
-    } else {
-        this.toggleEventActual = null;
-    }
-  }
 
 
   cargarPerfil() {
@@ -597,7 +493,7 @@ export class PerfilPage implements OnInit {
       }
 
       // Biometría
-      if (this.biometriaActiva) {
+      if (this.biometriaService.isActive()) {
         this.logros.push({ icon: 'finger-print', color: 'tertiary', title: 'Guardián Digital', description: 'Acceso seguro mediante biometría activo.', level: 'Especial' });
       }
 

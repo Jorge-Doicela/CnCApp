@@ -31,6 +31,8 @@ import { UsuarioService } from '../../user/services/usuario.service';
 import { AuthService } from '../../auth/services/auth.service';
 import { Capacitacion } from '../../../core/models/capacitacion.interface';
 import { firstValueFrom } from 'rxjs';
+import { BiometriaService } from 'src/app/core/services/biometria.service';
+import { BiometricModalComponent } from 'src/app/shared/components/biometric-modal/biometric-modal.component';
 
 @Component({
   selector: 'app-home',
@@ -39,7 +41,8 @@ import { firstValueFrom } from 'rxjs';
   standalone: true,
   imports: [
     CommonModule, FormsModule,
-    IonContent, IonIcon
+    IonContent, IonIcon,
+    BiometricModalComponent
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -109,6 +112,9 @@ export class HomePage implements OnInit {
   private usuarioService = inject(UsuarioService);
   private menuCtrl = inject(MenuController);
   private cd = inject(ChangeDetectorRef);
+  public biometriaService = inject(BiometriaService);
+
+  mostrarModalBio: boolean = false;
 
   constructor(
     private toastController: ToastController,
@@ -371,5 +377,19 @@ export class HomePage implements OnInit {
   async showErrorToast(message: string) {
     const toast = await this.toastController.create({ message, duration: 2000, color: 'danger', position: 'top' });
     toast.present();
+  }
+
+  // --- Biometrics ---
+  solicitarActivacionBio() {
+    this.mostrarModalBio = true;
+    this.cd.detectChanges();
+  }
+
+  onBiometricResult(success: boolean) {
+    this.mostrarModalBio = false;
+    if (success) {
+      this.showSuccessToast('¡Biometría activada con éxito!');
+      this.cd.detectChanges();
+    }
   }
 }
