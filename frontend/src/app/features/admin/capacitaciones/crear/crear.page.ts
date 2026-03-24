@@ -315,6 +315,11 @@ export class CrearPage implements OnInit {
     }
   }
 
+  volverAListado() {
+    const prefix = this.router.url.includes('/conferencista/') ? '/conferencista' : '';
+    this.navController.navigateBack(`${prefix}/gestionar-capacitaciones`);
+  }
+
   async cancelar() {
     const prefix = this.router.url.includes('/conferencista/') ? '/conferencista' : '';
     if (this.hayDatosIngresados()) {

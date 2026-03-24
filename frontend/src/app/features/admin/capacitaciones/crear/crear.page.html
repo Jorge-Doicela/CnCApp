@@ -349,7 +349,7 @@
           </div>
         </div>
 
-        <div class="success-info-alert">
+        <div class="success-info-alert" *ngIf="(capacitacion.idsUsuarios?.length || 0) > 0">
           <ion-icon name="information-circle-outline"></ion-icon>
           <p>Los participantes seleccionados han sido pre-inscritos automáticamente.</p>
         </div>
@@ -365,7 +365,7 @@
               <ion-icon name="add-circle-outline" slot="start"></ion-icon>
               Crear Otra
             </ion-button>
-            <ion-button fill="clear" (click)="cancelar()">
+            <ion-button fill="clear" (click)="volverAListado()">
               <ion-icon name="grid-outline" slot="start"></ion-icon>
               Volver al Listado
             </ion-button>
