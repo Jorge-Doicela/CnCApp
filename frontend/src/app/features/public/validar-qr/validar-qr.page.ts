@@ -181,6 +181,7 @@ export class ValidarQrPage implements OnInit, OnDestroy {
     
     try {
       this.isLoading = true;
+      this.mostrandoEscaner = false; // Ocultar escáner al validar
       this.resultadoValidacion = false;
       this.certificadoData = null;
       this.capacitacionData = null;
