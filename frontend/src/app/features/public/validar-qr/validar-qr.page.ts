@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject, NgZone } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, NgZone, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule, ToastController, LoadingController } from '@ionic/angular';
@@ -17,7 +17,11 @@ import {
   arrowBackOutline,
   cameraOutline,
   closeOutline,
-  imageOutline
+  imageOutline,
+  refreshOutline,
+  schoolOutline,
+  locationOutline,
+  informationCircleOutline
 } from 'ionicons/icons';
 import { Html5Qrcode, Html5QrcodeScannerState } from 'html5-qrcode';
 
@@ -46,6 +50,7 @@ export class ValidarQrPage implements OnInit, OnDestroy {
   private certificadosService = inject(CertificadosService);
   private capacitacionesService = inject(CapacitacionesService);
   private ngZone = inject(NgZone);
+  private cdr = inject(ChangeDetectorRef);
 
   constructor(
     private route: ActivatedRoute,
@@ -62,7 +67,11 @@ export class ValidarQrPage implements OnInit, OnDestroy {
       arrowBackOutline,
       cameraOutline,
       closeOutline,
-      imageOutline
+      imageOutline,
+      refreshOutline,
+      schoolOutline,
+      locationOutline,
+      informationCircleOutline
     });
   }
 
@@ -73,7 +82,6 @@ export class ValidarQrPage implements OnInit, OnDestroy {
         this.hashCode = params['hash'];
         this.validarCertificado();
       } else {
-        // Si no hay hash, iniciamos el escáner automáticamente
         this.iniciarEscaner();
       }
     });
@@ -90,8 +98,8 @@ export class ValidarQrPage implements OnInit, OnDestroy {
     
     this.mostrandoEscaner = true;
     this.resultadoValidacion = false;
+    this.cdr.detectChanges();
     
-    // Pequeño delay para que el DOM se renderice
     setTimeout(async () => {
       try {
         if (this.html5Qrcode) {
@@ -116,6 +124,7 @@ export class ValidarQrPage implements OnInit, OnDestroy {
         console.error('Error al iniciar cámara:', err);
         this.presentToast('No se pudo acceder a la cámara o el permiso fue denegado', 'danger');
         this.mostrandoEscaner = false;
+        this.cdr.detectChanges();
       }
     }, 300);
   }
@@ -133,6 +142,7 @@ export class ValidarQrPage implements OnInit, OnDestroy {
       this.html5Qrcode = null;
     }
     this.mostrandoEscaner = false;
+    this.cdr.detectChanges();
   }
 
   procesarCodigoEscaneado(text: string) {
@@ -157,11 +167,8 @@ export class ValidarQrPage implements OnInit, OnDestroy {
     const file = event.target.files[0];
     if (!file) return;
 
-    const loading = await this.loadingController.create({
-      message: 'Analizando imagen...',
-      spinner: 'crescent'
-    });
-    await loading.present();
+    this.isLoading = true;
+    this.cdr.detectChanges();
 
     try {
       const html5QrCode = new Html5Qrcode(this.QR_READER_ID);
@@ -169,43 +176,34 @@ export class ValidarQrPage implements OnInit, OnDestroy {
       this.procesarCodigoEscaneado(result);
     } catch (err) {
       this.presentToast('No se encontró un código QR válido en la imagen', 'warning');
-    } finally {
-      loading.dismiss();
+      this.isLoading = false;
+      this.cdr.detectChanges();
     }
   }
 
   async validarCertificado() {
     if (!this.hashCode) return;
 
-    let loadingElement: HTMLIonLoadingElement | null = null;
-    
     try {
       this.isLoading = true;
-      this.mostrandoEscaner = false; // Ocultar escáner al validar
+      this.mostrandoEscaner = false;
       this.resultadoValidacion = false;
       this.certificadoData = null;
       this.capacitacionData = null;
+      this.cdr.detectChanges();
 
-      loadingElement = await this.loadingController.create({
-        message: 'Verificando autenticidad...',
-        spinner: 'crescent'
-      });
-      await loadingElement.present();
-
-      // Consultar el servicio
       const certificado = await firstValueFrom(this.certificadosService.verifyCertificateByHash(this.hashCode));
 
       if (!certificado) {
-        this.mensajeValidacion = 'El código escaneado no corresponde a ningún certificado emitido por el CNC.';
+        this.mensajeValidacion = 'El código no corresponde a un certificado emitido oficialmente por el CNC.';
         this.esValido = false;
-        this.resultadoValidacion = true;
       } else {
         this.certificadoData = certificado;
         this.capacitacionData = certificado.capacitacion;
         this.mensajeValidacion = 'Certificado verificado oficialmente por el Consejo Nacional de Competencias.';
         this.esValido = true;
-        this.resultadoValidacion = true;
       }
+      this.resultadoValidacion = true;
 
     } catch (error) {
       console.error('Error en validación:', error);
@@ -215,10 +213,15 @@ export class ValidarQrPage implements OnInit, OnDestroy {
       this.presentToast('Hubo un problema al verificar el certificado', 'danger');
     } finally {
       this.isLoading = false;
-      if (loadingElement) {
-        await loadingElement.dismiss();
-      }
+      this.cdr.detectChanges();
     }
+  }
+
+  reiniciarBusqueda() {
+    this.hashCode = '';
+    this.resultadoValidacion = false;
+    this.mostrandoEscaner = false;
+    this.iniciarEscaner();
   }
 
   async obtenerDatosCapacitacion(idCapacitacion: number) {

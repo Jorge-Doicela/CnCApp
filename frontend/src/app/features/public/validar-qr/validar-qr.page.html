@@ -64,84 +64,88 @@
       <div class="validation-column animate-fade-up" style="animation-delay: 0.2s;">
 
         <!-- Escáner QR de Validación -->
-        <div class="modern-card validation-form-card">
+        <div class="modern-card validation-form-card" *ngIf="!resultadoValidacion">
           <div class="form-header">
             <h3>Validar certificado</h3>
-            <p>Apunta la cámara del dispositivo al código QR del certificado</p>
+            <p>Apunta la cámara al código QR</p>
           </div>
 
-          <!-- Contenedor del Escáner -->
-          <div class="scanner-wrapper" *ngIf="mostrandoEscaner">
+          <!-- Spinner Local -->
+          <div class="local-loading" *ngIf="isLoading">
+            <ion-spinner name="crescent"></ion-spinner>
+            <p>Verificando...</p>
+          </div>
+
+          <!-- Contenedor del Escáner (solo si no está cargando) -->
+          <div class="scanner-wrapper" *ngIf="mostrandoEscaner && !isLoading">
             <div id="qr-reader-public" class="qr-reader-base"></div>
             
             <div class="scanner-actions">
               <ion-button fill="clear" color="medium" (click)="fileInput.click()">
                 <ion-icon name="image-outline" slot="start"></ion-icon>
-                Subir imagen desde galería
+                Subir de galería
               </ion-button>
               <input #fileInput type="file" (change)="seleccionarImagen($event)" accept="image/*" hidden>
-              
-              <ion-button fill="clear" color="primary" *ngIf="!mostrandoEscaner" (click)="iniciarEscaner()">
-                <ion-icon name="camera-outline" slot="start"></ion-icon>
-                Reintentar cámara
-              </ion-button>
             </div>
           </div>
 
           <!-- Ayuda visual -->
-          <div class="scan-help" *ngIf="!resultadoValidacion">
+          <div class="scan-help" *ngIf="!isLoading">
             <ion-icon name="information-circle-outline"></ion-icon>
-            <p>Si el QR es válido, verás los detalles del certificado automáticamente.</p>
+            <p>El sistema reconocerá el código automáticamente.</p>
           </div>
         </div>
 
         <!-- Resultados -->
-        <div class="modern-card result-card" *ngIf="resultadoValidacion"
+        <div class="modern-card result-card animate-fade-up" *ngIf="resultadoValidacion"
           [ngClass]="{'valid': esValido, 'invalid': !esValido}">
-
+          
           <div class="result-header">
-            <div class="result-icon-wrapper">
+            <div class="status-badge">
               <ion-icon [name]="esValido ? 'checkmark-circle' : 'alert-circle'"></ion-icon>
             </div>
-            <div class="result-title">
-              <h4>{{ esValido ? 'Certificado Válido' : 'Certificado No Válido' }}</h4>
+            <div class="status-text">
+              <h2>{{ esValido ? 'Certificado Válido' : 'Certificado No Válido' }}</h2>
               <p>{{ mensajeValidacion }}</p>
             </div>
           </div>
 
-          <div class="certificate-details" *ngIf="esValido && certificadoData">
-            <div class="detail-row">
-              <span class="label">Expedido a:</span>
-              <span class="value person-name">{{ certificadoData.usuario?.nombre }}</span>
-            </div>
-
-            <div class="separator"></div>
-
-            <div class="detail-grid">
-              <div class="detail-item">
+          <div class="result-body" *ngIf="esValido && certificadoData">
+            <div class="info-grid">
+              <div class="info-item full">
+                <span class="label">EXPEDIDO A:</span>
+                <span class="value name">{{ certificadoData.usuario?.nombre || 'N/A' }}</span>
+              </div>
+              
+              <div class="info-item">
                 <ion-icon name="calendar-outline"></ion-icon>
-                <div class="detail-text">
-                  <span class="label">Fecha</span>
+                <div>
+                  <span class="label">FECHA</span>
                   <span class="value">{{ formatearFecha(certificadoData.fechaEmision) }}</span>
                 </div>
               </div>
-
-              <div class="detail-item">
+              
+              <div class="info-item">
                 <ion-icon name="time-outline"></ion-icon>
-                <div class="detail-text">
-                  <span class="label">Duración</span>
-                  <span class="value">{{ capacitacionData?.horas || 'N/A' }} horas</span>
+                <div>
+                  <span class="label">DURACIÓN</span>
+                  <span class="value">{{ capacitacionData?.horas || 0 }} horas</span>
                 </div>
               </div>
             </div>
 
-            <div class="detail-row full-width">
-              <span class="label">Capacitación:</span>
-              <span class="value course-name">{{ capacitacionData?.nombre || 'No disponible' }}</span>
+            <div class="training-info" *ngIf="capacitacionData">
+              <span class="label">CAPACITACIÓN:</span>
+              <span class="value training-name">{{ capacitacionData.nombre }}</span>
             </div>
-
           </div>
 
+          <div class="result-footer">
+            <ion-button expand="block" fill="outline" shape="round" color="dark" (click)="reiniciarBusqueda()">
+              <ion-icon name="refresh-outline" slot="start"></ion-icon>
+              Validar otro certificado
+            </ion-button>
+          </div>
         </div>
 
       </div>
