@@ -104,7 +104,8 @@
           <div class="luxury-badge" [ngClass]="{
             'badge-pendiente': inscripcion.estadoReal === 'Pendiente' || inscripcion.estadoReal === 'Próximamente' || inscripcion.estadoReal === 'Aprobada',
             'badge-finalizada': inscripcion.estadoReal === 'Finalizada',
-            'badge-curso': inscripcion.estadoReal === 'En Curso'
+            'badge-curso': inscripcion.estadoReal === 'En Curso',
+            'badge-activa': inscripcion.estadoReal.toLowerCase() === 'activa'
           }">
             <ion-icon [name]="inscripcion.estadoReal === 'Finalizada' ? 'checkmark-circle' : (inscripcion.estadoReal === 'En Curso' ? 'play-circle' : 'time')"></ion-icon>
             {{ inscripcion.estadoReal }}

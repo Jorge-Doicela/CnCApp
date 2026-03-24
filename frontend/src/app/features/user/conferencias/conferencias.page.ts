@@ -126,14 +126,32 @@ export class ConferenciasPage implements OnInit {
     }
 
     const cap = inscripcion.capacitacion;
-    if (!cap?.fechaInicio || !cap?.fechaFin) return estadoInsc;
+    // Si no hay fechas, devolver el estado original (ej: "Activa")
+    if (!cap?.fechaInicio) return estadoInsc;
 
     try {
       const hoy = new Date();
-      const inicio = new Date(cap.fechaInicio);
-      const fin = new Date(cap.fechaFin);
       
-      // Normalizar para comparación solo por días
+      // Helper para parsear fechas de forma segura para evitar problemas de zona horaria (UTC vs Local)
+      const safeParse = (d: any) => {
+        if (!d) return null;
+        if (d instanceof Date) return d;
+        // Si es string YYYY-MM-DD...
+        const str = String(d);
+        if (str.includes('-')) {
+          const parts = str.split('T')[0].split('-');
+          if (parts.length === 3) {
+            return new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+          }
+        }
+        return new Date(d);
+      };
+
+      const inicio = safeParse(cap.fechaInicio);
+      const fin = safeParse(cap.fechaFin || cap.fechaInicio); // Fallback: si no hay fechaFin, se asume que termina el mismo día que inicia
+      
+      if (!inicio || !fin) return estadoInsc;
+
       const hoySinHora = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate()).getTime();
       const inicioSinHora = new Date(inicio.getFullYear(), inicio.getMonth(), inicio.getDate()).getTime();
       const finSinHora = new Date(fin.getFullYear(), fin.getMonth(), fin.getDate()).getTime();
@@ -141,22 +159,21 @@ export class ConferenciasPage implements OnInit {
       // 1. Caso: Ya terminó (Pasó el día de fin)
       if (hoySinHora > finSinHora) return 'Finalizada';
 
-      // 2. Caso: Mismo día de fin
+      // 2. Caso: Mismo día de fin -> Revisar hora
       if (hoySinHora === finSinHora) {
         if (cap.horaFin) {
           const [h, m] = cap.horaFin.split(':').map(Number);
-          const fDate = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate(), h || 23, m || 59);
-          if (hoy > fDate) return 'Finalizada';
+          const horaFinDate = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate(), h || 23, m || 59);
+          if (hoy > horaFinDate) return 'Finalizada';
         }
       }
 
-      // 3. Caso: En Curso (Estamos entre inicio y fin)
+      // 3. Caso: En Curso
       if (hoySinHora >= inicioSinHora && hoySinHora <= finSinHora) {
-        // Podríamos refinar con horas aquí también, pero por ahora "Día de curso" = En Curso
         return 'En Curso';
       }
 
-      // 4. Caso: Próximamente (El inicio es en el futuro)
+      // 4. Caso: Próximamente
       if (hoySinHora < inicioSinHora) {
         return 'Próximamente';
       }
