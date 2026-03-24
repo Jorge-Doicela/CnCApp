@@ -716,10 +716,63 @@ ion-content {
   to { opacity: 1; }
 }
 
-// Animaciones
-.animate-fade-up {
-  opacity: 0;
-  animation: fadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+// Escáner
+.scanner-wrapper {
+  background: #0f172a;
+  border-radius: 20px;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 24px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+  
+  .qr-reader-base {
+    width: 100%;
+    min-height: 280px;
+    background: black;
+  }
+  
+  .scanner-actions {
+    width: 100%;
+    padding: 16px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+    background: rgba(15, 23, 42, 0.95);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    
+    ion-button {
+      --color: white;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin: 0;
+    }
+  }
+}
+
+.scan-help {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 16px;
+    background: #f1f5f9;
+    border-radius: 16px;
+    color: #475569;
+    
+    ion-icon {
+        font-size: 1.4rem;
+        color: var(--trust-blue-primary);
+    }
+    
+    p {
+        margin: 0;
+        font-size: 0.9rem;
+        line-height: 1.4;
+    }
 }
 
 @keyframes fadeInUp {

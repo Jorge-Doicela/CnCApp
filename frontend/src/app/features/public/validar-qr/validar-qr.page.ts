@@ -71,8 +71,10 @@ export class ValidarQrPage implements OnInit, OnDestroy {
     this.route.queryParams.subscribe(params => {
       if (params['hash']) {
         this.hashCode = params['hash'];
-        console.log('Hash recibido:', this.hashCode);
         this.validarCertificado();
+      } else {
+        // Si no hay hash, iniciamos el escáner automáticamente
+        this.iniciarEscaner();
       }
     });
   }
@@ -84,12 +86,17 @@ export class ValidarQrPage implements OnInit, OnDestroy {
   // ─── Lógica del Escáner ─────────────────────────────────────────────────
 
   async iniciarEscaner() {
+    if (this.mostrandoEscaner) return;
+    
     this.mostrandoEscaner = true;
     this.resultadoValidacion = false;
     
     // Pequeño delay para que el DOM se renderice
     setTimeout(async () => {
       try {
+        if (this.html5Qrcode) {
+          await this.detenerEscaner();
+        }
         this.html5Qrcode = new Html5Qrcode(this.QR_READER_ID);
         await this.html5Qrcode.start(
           { facingMode: 'environment' },
@@ -107,7 +114,7 @@ export class ValidarQrPage implements OnInit, OnDestroy {
         );
       } catch (err) {
         console.error('Error al iniciar cámara:', err);
-        this.presentToast('No se pudo acceder a la cámara', 'danger');
+        this.presentToast('No se pudo acceder a la cámara o el permiso fue denegado', 'danger');
         this.mostrandoEscaner = false;
       }
     }, 300);
@@ -120,15 +127,15 @@ export class ValidarQrPage implements OnInit, OnDestroy {
           await this.html5Qrcode.stop();
         }
         await this.html5Qrcode.clear();
-      } catch (e) {}
+      } catch (e) {
+        console.warn('Error al detener escáner:', e);
+      }
       this.html5Qrcode = null;
     }
     this.mostrandoEscaner = false;
   }
 
   procesarCodigoEscaneado(text: string) {
-    // El texto puede ser una URL completa o solo el hash
-    // Ejemplo: https://dominio.com/validar-certificados?hash=XYZ
     try {
       if (text.includes('hash=')) {
         const url = new URL(text);
@@ -151,7 +158,8 @@ export class ValidarQrPage implements OnInit, OnDestroy {
     if (!file) return;
 
     const loading = await this.loadingController.create({
-      message: 'Analizando imagen...'
+      message: 'Analizando imagen...',
+      spinner: 'crescent'
     });
     await loading.present();
 
@@ -167,87 +175,48 @@ export class ValidarQrPage implements OnInit, OnDestroy {
   }
 
   async validarCertificado() {
-    if (!this.hashCode) {
-      this.presentToast('Ingrese un código de verificación válido', 'warning');
-      return;
-    }
+    if (!this.hashCode) return;
 
+    let loadingElement: HTMLIonLoadingElement | null = null;
+    
     try {
       this.isLoading = true;
       this.resultadoValidacion = false;
+      this.certificadoData = null;
+      this.capacitacionData = null;
 
-      // Mostrar cargador
-      const loading = await this.loadingController.create({
-        message: 'Verificando certificado...',
+      loadingElement = await this.loadingController.create({
+        message: 'Verificando autenticidad...',
         spinner: 'crescent'
       });
-      await loading.present();
+      await loadingElement.present();
 
-      console.log('Buscando certificado con hash:', this.hashCode);
-
-      // Verify Hash via Service
-      // Assuming existing service method verifyHash signature needs adjustment or we use it as is?
-      // Service method: verifyHash(idUsuario: string, idCapacitacion: number)
-      // Wait, the current page validates by HASH.
-      // The service method seems to verify by IDs.
-      // I need to add a method verifyByHash(hash: string) to CertificadosService.
-      // Assuming I'll add it or it exists (I'll add it via edit if needed, but let's assume I add it now).
-
-      // Since I can't edit the service in the middle of this file write, I will assume the service has it or I need to update the service first.
-      // Actually I should have updated the service first. I will assume I will update it in next step or I can use the HTTP client directly if blocked, but better to update service.
-
-      // Let's rely on `certificadosService.verifyCertificateByHash(this.hashCode)` which I should create.
+      // Consultar el servicio
       const certificado = await firstValueFrom(this.certificadosService.verifyCertificateByHash(this.hashCode));
 
       if (!certificado) {
-        this.mensajeValidacion = 'No se encontró ningún certificado con este código de verificación.';
+        this.mensajeValidacion = 'El código escaneado no corresponde a ningún certificado emitido por el CNC.';
         this.esValido = false;
         this.resultadoValidacion = true;
-        await loading.dismiss();
-        this.isLoading = false;
-        return;
-      }
-
-      // Obtener los datos del certificado
-      this.certificadoData = certificado;
-      this.capacitacionData = certificado.capacitacion;
-
-      // Verificar si el certificado ha expirado (opcional)
-      const fechaGenerado = new Date(this.certificadoData.fechaEmision);
-      const fechaActual = new Date();
-      const diferenciaMeses = this.calcularDiferenciaMeses(fechaGenerado, fechaActual);
-
-      if (diferenciaMeses > 24) { // Expiración después de 2 años
-        this.mensajeValidacion = 'Este certificado ha expirado. Los certificados tienen una validez de 2 años desde su emisión.';
-        this.esValido = false;
+      } else {
+        this.certificadoData = certificado;
+        this.capacitacionData = certificado.capacitacion;
+        this.mensajeValidacion = 'Certificado verificado oficialmente por el Consejo Nacional de Competencias.';
+        this.esValido = true;
         this.resultadoValidacion = true;
-        await loading.dismiss();
-        this.isLoading = false;
-        return;
       }
-
-      // El objeto 'capacitacion' ya viene en el certificado
-
-      // Certificado válido
-      this.mensajeValidacion = 'Este certificado es auténtico y ha sido emitido por el Consejo Nacional de Competencias.';
-      this.esValido = true;
-      this.resultadoValidacion = true;
-
-      await loading.dismiss();
-      this.isLoading = false;
 
     } catch (error) {
-      console.error('Error en la validación:', error);
-      this.mensajeValidacion = 'Ocurrió un error durante la verificación o el certificado no es válido.';
+      console.error('Error en validación:', error);
+      this.mensajeValidacion = 'Error al conectar con el servidor de validación.';
       this.esValido = false;
       this.resultadoValidacion = true;
-
-      const loadingElement = await this.loadingController.getTop();
-      if (loadingElement) {
-        await this.loadingController.dismiss();
-      }
-
+      this.presentToast('Hubo un problema al verificar el certificado', 'danger');
+    } finally {
       this.isLoading = false;
+      if (loadingElement) {
+        await loadingElement.dismiss();
+      }
     }
   }
 
