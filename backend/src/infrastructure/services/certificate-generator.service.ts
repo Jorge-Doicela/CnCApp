@@ -345,6 +345,21 @@ export class CertificateGeneratorService {
             let y = qrConfig ? qrConfig.y - (size / 2) : doc.page.height - size - 50;
 
             doc.image(qrBuffer, x, y, { fit: [size, size] });
+
+            // Extract hash from content URL to show it as text
+            // content is like: https://dominio.com/validar-certificados?hash=abc123...
+            const hashMatch = content.match(/hash=([a-f0-9]+)/i);
+            const hash = hashMatch ? hashMatch[1] : null;
+
+            if (hash) {
+                doc.fillColor('#64748b')
+                   .font('Inter')
+                   .fontSize(7)
+                   .text(`CÓDIGO DE VERIFICACIÓN: ${hash.toUpperCase()}`, x, y + size + 2, {
+                       width: size,
+                       align: 'center'
+                   });
+            }
         } catch (e) {
             console.error('Error rendering QR:', e);
         }
