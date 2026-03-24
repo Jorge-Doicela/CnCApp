@@ -19,7 +19,13 @@ import {
   trashOutline,
   swapVerticalOutline,
   addCircleOutline,
-  close
+  locationOutline,
+  chevronBackOutline,
+  pauseCircleOutline,
+  playCircleOutline,
+  filterOutline, // Added for explicit mapping
+  mapOutline, // Added for explicit mapping
+  informationCircleOutline // Added for explicit mapping
 } from 'ionicons/icons';
 import { firstValueFrom } from 'rxjs';
 
@@ -49,19 +55,26 @@ export class CrudentidadesPage implements OnInit {
     private modalController: ModalController
   ) {
     addIcons({
-      searchOutline,
-      search,
-      funnelOutline,
-      businessOutline,
-      checkmarkCircleOutline,
-      closeCircleOutline,
-      alertCircleOutline,
-      keyOutline,
-      createOutline,
-      trashOutline,
-      swapVerticalOutline,
-      addCircleOutline,
-      close
+      'search-outline': searchOutline,
+      'search': search,
+      'filter-outline': filterOutline,
+      'map-outline': mapOutline,
+      'checkmark-circle-outline': checkmarkCircleOutline,
+      'close-circle-outline': closeCircleOutline,
+      'add-circle-outline': addCircleOutline,
+      'alert-circle-outline': alertCircleOutline,
+      'key-outline': keyOutline,
+      'information-circle-outline': informationCircleOutline,
+      'create-outline': createOutline,
+      'trash-outline': trashOutline,
+      'swap-vertical-outline': swapVerticalOutline,
+      'location-outline': locationOutline,
+      'business-outline': businessOutline,
+      'chevron-back-outline': chevronBackOutline,
+      'pause-circle-outline': pauseCircleOutline,
+      'play-circle-outline': playCircleOutline,
+      'funnel-outline': filterOutline,
+      'layers-outline': businessOutline // Usando businessOutline como fallback para layers si no está importado o similar
     });
   }
 
