@@ -115,6 +115,7 @@ ion-content {
   .gradient-text {
     background: linear-gradient(135deg, var(--primary-blue), var(--accent-indigo));
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
   }
 
@@ -135,6 +136,13 @@ ion-content {
   grid-template-columns: repeat(3, 1fr);
   gap: 20px;
   margin-bottom: 40px;
+
+  &.single-stat {
+    grid-template-columns: 1fr;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+  }
 }
 
 .stat-glass-card {

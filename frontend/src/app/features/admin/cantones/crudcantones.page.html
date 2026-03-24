@@ -1,9 +1,9 @@
-<ion-header [translucent]="true">
+<ion-header class="ion-no-border">
   <ion-toolbar color="primary">
     <ion-buttons slot="start">
-      <ion-button fill="clear" color="medium" size="small" routerLink="/configuracion-maestros">
-        <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
-        Volver al Panel
+      <ion-button fill="clear" color="light" size="small" routerLink="/configuracion-maestros">
+        <ion-icon name="chevron-back-outline" slot="start"></ion-icon>
+        Volver
       </ion-button>
     </ion-buttons>
     <ion-title class="ion-text-center">Gestión de Cantones</ion-title>
@@ -11,153 +11,154 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true" class="ion-padding">
-  <ion-card class="main-card">
-    <div class="logo-container ion-text-center">
-      <img src="../../../../assets/cnc.png" alt="Logo Cantones" class="logo">
+<ion-content [fullscreen]="true">
+  <!-- Modern Header / Navigation -->
+  <div class="glass-header">
+    <div class="header-content container">
+      <div class="nav-left">
+        <div class="back-pill" routerLink="/configuracion-maestros">
+          <ion-icon name="chevron-back-outline"></ion-icon>
+          <span>Panel</span>
+        </div>
+      </div>
+      <div class="nav-center">
+        <img src="../../../../assets/cnc.png" alt="CNC Logo" class="nav-logo">
+      </div>
+      <div class="nav-right">
+        <div class="status-indicator">
+          <div class="pulse-dot"></div>
+          <span>Sistema Activo</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dashboard-wrapper container">
+    <!-- Hero Section -->
+    <header class="hero-section animate-fade-in">
+      <span class="eyebrow">ADMINISTRACIÓN DE MAESTROS</span>
+      <h1 class="page-title">Gestión de <span class="gradient-text">Cantones</span></h1>
+      <p class="section-subtitle">Administra los cantones y su pertenencia provincial dentro del territorio nacional.</p>
+    </header>
+
+    <!-- Stats Grid -->
+    <div class="stats-grid single-stat">
+      <div class="stat-glass-card animate-up" style="animation-delay: 0.1s;">
+        <div class="stat-icon-box bg-blue">
+          <ion-icon name="location-outline"></ion-icon>
+        </div>
+        <div class="stat-data">
+          <h3>{{ totalCantones }}</h3>
+          <p>Total Cantones</p>
+        </div>
+      </div>
     </div>
 
-    <!-- Buscador y filtros -->
-    <ion-card-content>
-      <div class="search-section fade-in">
-        <h3 class="section-title">Administración de Cantones</h3>
-        <div class="search-container">
-          <ion-item class="search-item" lines="none">
-            <ion-icon name="search-outline" slot="start" color="primary"></ion-icon>
-            <ion-input placeholder="Buscar cantón por nombre o código" [(ngModel)]="searchTerm"
-              (ionInput)="filtrarCantones()"></ion-input>
-            <ion-button slot="end" fill="clear" (click)="filtrarCantones()">
-              <ion-icon name="search"></ion-icon>
-            </ion-button>
-          </ion-item>
+    <!-- Main Content Area -->
+    <div class="main-content-grid">
+      <!-- Search & Filters Sidebar -->
+      <aside class="search-glass-card animate-up" style="animation-delay: 0.4s;">
+        <div class="card-header">
+          <ion-icon name="search-outline"></ion-icon>
+          <span>Buscador Maestro</span>
+        </div>
+        
+        <div class="search-controls">
+          <div class="custom-input-group">
+            <ion-icon name="search" class="input-icon"></ion-icon>
+            <input type="text" [(ngModel)]="searchTerm" (input)="filtrarCantones()" 
+                   placeholder="Nombre o código..." class="premium-input">
+          </div>
 
-          <div class="filter-container">
-            <ion-item class="filter-item" lines="none">
-              <ion-icon name="map-outline" slot="start" color="primary"></ion-icon>
-              <ion-label>Provincia</ion-label>
-              <ion-select [(ngModel)]="filtroProvincia" interface="action-sheet" placeholder="Todas"
-                (ionChange)="filtrarCantones()">
-                <ion-select-option value="todas">Todas las provincias</ion-select-option>
-                <ion-select-option *ngFor="let provincia of provincias"
-                  [value]="provincia.Codigo_Provincia || provincia.id">
+          <div class="filter-group">
+            <label class="filter-label">Provincia:</label>
+            <div class="premium-select-wrapper">
+              <ion-icon name="map-outline" class="select-icon"></ion-icon>
+              <select [(ngModel)]="filtroProvincia" (change)="filtrarCantones()" class="premium-select">
+                <option value="todas">Todas las provincias</option>
+                <option *ngFor="let provincia of provincias" [value]="provincia.Codigo_Provincia || provincia.id">
                   {{ provincia.Nombre_Provincia || provincia.nombre }}
-                </ion-select-option>
-              </ion-select>
-            </ion-item>
-
-            <ion-item class="filter-item" lines="none">
-              <ion-icon name="checkmark-circle-outline" slot="start" color="primary"></ion-icon>
-              <ion-label>Estado</ion-label>
-              <ion-select [(ngModel)]="filtroEstado" interface="action-sheet" placeholder="Todos"
-                (ionChange)="filtrarCantones()">
-                <ion-select-option value="todos">Todos</ion-select-option>
-                <ion-select-option value="activo">Activo</ion-select-option>
-                <ion-select-option value="inactivo">Inactivo</ion-select-option>
-              </ion-select>
-            </ion-item>
-          </div>
-        </div>
-
-        <!-- Botón para crear nuevo cantón -->
-        <ion-button expand="block" color="primary" (click)="crearCanton()" class="create-button" [disabled]="cargando">
-          <ion-icon name="add-circle-outline" slot="start"></ion-icon>
-          Crear Nuevo Cantón
-        </ion-button>
-      </div>
-
-      <!-- Estadísticas -->
-      <div class="stats-section fade-in" style="animation-delay: 0.1s;">
-        <h3 class="section-title">Estadísticas</h3>
-        <div class="stats-container">
-          <div class="stat-card">
-            <div class="stat-icon">
-              <ion-icon name="map-outline" color="primary"></ion-icon>
-            </div>
-            <div class="stat-details">
-              <span class="stat-value">{{ cantonesFiltrados.length }}</span>
-              <span class="stat-label">Cantidad</span>
+                </option>
+              </select>
             </div>
           </div>
 
-          <div class="stat-card">
-            <div class="stat-icon">
-              <ion-icon name="checkmark-circle-outline" color="success"></ion-icon>
-            </div>
-            <div class="stat-details">
-              <span class="stat-value">{{ cantonesActivos }}</span>
-              <span class="stat-label">Activos</span>
-            </div>
-          </div>
-
-          <div class="stat-card">
-            <div class="stat-icon">
-              <ion-icon name="close-circle-outline" color="danger"></ion-icon>
-            </div>
-            <div class="stat-details">
-              <span class="stat-value">{{ cantonesInactivos }}</span>
-              <span class="stat-label">Inactivos</span>
+          <div class="filter-pill-group">
+            <label class="filter-label">Estado:</label>
+            <div class="pill-selector">
+              <div class="pill" [class.active]="filtroEstado === 'todos'" (click)="filtroEstado = 'todos'; filtrarCantones()">Todos</div>
+              <div class="pill" [class.active]="filtroEstado === 'activo'" (click)="filtroEstado = 'activo'; filtrarCantones()">Activos</div>
+              <div class="pill" [class.active]="filtroEstado === 'inactivo'" (click)="filtroEstado = 'inactivo'; filtrarCantones()">Inactivos</div>
             </div>
           </div>
-        </div>
-      </div>
 
-      <!-- Lista de cantones -->
-      <div class="cantones-section fade-in" style="animation-delay: 0.2s;">
-        <div class="section-header">
-          <h3 class="section-title">Listado de Cantones</h3>
-          <span class="results-count">{{ cantonesFiltrados.length }} registros</span>
+          <button class="primary-pill-btn" (click)="crearCanton()" [disabled]="cargando">
+            <ion-icon name="add-circle-outline"></ion-icon>
+            Nuevo Cantón
+          </button>
         </div>
+      </aside>
 
-        <div *ngIf="cargando" class="ion-text-center ion-padding">
-          <ion-spinner name="crescent" color="primary"></ion-spinner>
-          <p>Cargando cantones...</p>
-        </div>
-
-        <div *ngIf="!cargando && cantonesFiltrados.length === 0" class="empty-state">
-          <ion-icon name="alert-circle-outline" color="medium"></ion-icon>
-          <h4>No se encontraron cantones</h4>
-          <p>No hay cantones que coincidan con los criterios de búsqueda. Intenta modificar los filtros.</p>
+      <!-- Results Section -->
+      <section class="results-area">
+        <div class="results-header">
+          <h2 class="results-title">Listado</h2>
+          <div class="count-badge">{{ cantonesFiltrados.length }} Registros</div>
         </div>
 
-        <div class="cantones-grid" *ngIf="!cargando && cantonesFiltrados.length > 0">
-          <div class="canton-card" *ngFor="let canton of cantonesFiltrados"
-            [ngClass]="{'active-card': canton.estado, 'inactive-card': !canton.estado}">
-            <div class="canton-header">
-              <div class="canton-title">
-                <h4>{{ canton.nombre_canton }}</h4>
-                <span class="canton-badge" [ngClass]="{'active': canton.estado, 'inactive': !canton.estado}">
-                  {{ canton.estado ? 'Activo' : 'Inactivo' }}
-                </span>
+        <!-- Loading / Empty -->
+        <div *ngIf="cargando" class="loading-state">
+          <ion-spinner name="crescent"></ion-spinner>
+          <p>Cargando información...</p>
+        </div>
+
+        <div *ngIf="cantonesFiltrados.length === 0 && !cargando" class="empty-glass-state animate-fade-in">
+          <ion-icon name="alert-circle-outline"></ion-icon>
+          <h3>Sin resultados</h3>
+          <p>No hay cantones que coincidan con tu búsqueda.</p>
+        </div>
+
+        <!-- Cantones Masonry Grid -->
+        <div class="cantones-masonry" *ngIf="!cargando">
+          <div class="canton-glass-card animate-up" 
+               *ngFor="let canton of cantonesFiltrados; let i = index"
+               [style.animation-delay]="(0.05 * i) + 's'">
+            
+            <div class="card-top">
+              <div class="code-tag">ID: {{ canton.codigo_canton }}</div>
+              <div class="status-badge" [class.active]="canton.estado">
+                {{ canton.estado ? 'Activo' : 'Inactivo' }}
               </div>
             </div>
-            <div class="canton-content">
-              <div class="canton-detail">
-                <ion-icon name="key-outline" color="primary"></ion-icon>
-                <span>{{ canton.codigo_canton }}</span>
-              </div>
-              <div class="canton-detail">
-                <ion-icon name="location-outline" color="primary"></ion-icon>
+
+            <div class="card-body">
+              <h4 class="canton-name">{{ canton.nombre_canton }}</h4>
+              <div class="sub-info">
+                <ion-icon name="map-outline"></ion-icon>
                 <span>{{ canton.nombre_provincia }}</span>
               </div>
             </div>
-            <div class="canton-actions">
-              <ion-button fill="clear" color="primary"
-                (click)="editarCanton(canton.id || canton.Id_Canton || canton.codigo_canton)">
-                <ion-icon name="create-outline"></ion-icon>
-                Editar
-              </ion-button>
-              <ion-button fill="clear" color="danger" (click)="confirmarEliminacion(canton)">
-                <ion-icon name="trash-outline"></ion-icon>
-                Eliminar
-              </ion-button>
-              <ion-button fill="clear" [color]="canton.estado ? 'warning' : 'success'" (click)="cambiarEstado(canton)">
-                <ion-icon name="swap-vertical-outline"></ion-icon>
-                {{ canton.estado ? 'Desactivar' : 'Activar' }}
-              </ion-button>
+
+            <div class="card-footer">
+              <div class="action-pills">
+                <button class="icon-pill edit" (click)="editarCanton(canton.id || canton.Id_Canton || canton.codigo_canton)" title="Editar">
+                  <ion-icon name="create-outline"></ion-icon>
+                </button>
+                <button class="icon-pill state" 
+                        [class.deactivate]="canton.estado"
+                        (click)="cambiarEstado(canton)" 
+                        [title]="canton.estado ? 'Desactivar' : 'Activar'">
+                  <ion-icon [name]="canton.estado ? 'pause-circle-outline' : 'play-circle-outline'"></ion-icon>
+                </button>
+                <button class="icon-pill delete" (click)="confirmarEliminacion(canton)" title="Eliminar">
+                  <ion-icon name="trash-outline"></ion-icon>
+                </button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </ion-card-content>
-  </ion-card>
+      </section>
+    </div>
+  </div>
 </ion-content>
+n-content>
