@@ -66,11 +66,17 @@ export class GenerateCertificadoUseCase {
     ): Promise<string> {
         logger.info(`[GEN_CERT] Iniciando proceso para Usuario=${usuarioId}, Cap=${capacitacionId}${force ? ' (FORCE)' : ''}${preFetchedData ? ' (PRE-FETCH)' : ''}`);
 
-        // 0. Check if already exists
+        // 0. Check if already exists AND file exists on disk
         const existing = await this.certificadoRepository.findByUserAndCapacitacion(usuarioId, capacitacionId);
         if (existing && !force) {
             const url = existing.pdfUrl || '';
-            return url;
+            const filePath = path.join(process.cwd(), url.startsWith('/') ? url.slice(1) : url);
+            
+            // If DB says it exists but file is gone (e.g., Railway restart), we continue to regenerate
+            if (fs.existsSync(filePath)) {
+                return url;
+            }
+            logger.info(`[GEN_CERT] Registro existe en DB pero archivo no encontrado en ${filePath}. Regenerando...`);
         }
 
         if (existing && force) {

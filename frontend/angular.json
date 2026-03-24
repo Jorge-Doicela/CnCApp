@@ -35,7 +35,15 @@
               "src/global.scss",
               "src/theme/variables.scss"
             ],
-            "scripts": []
+            "scripts": [],
+            "allowedCommonJsDependencies": [
+              "leaflet",
+              "pdfmake",
+              "qrcode",
+              "crypto-js",
+              "raf",
+              "core-js"
+            ]
           },
           "configurations": {
             "production": {
