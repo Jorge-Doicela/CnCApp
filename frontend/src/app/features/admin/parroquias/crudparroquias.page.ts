@@ -25,7 +25,10 @@ import {
   swapVerticalOutline,
   locationOutline,
   close,
-  arrowBackOutline
+  arrowBackOutline,
+  chevronBackOutline,
+  pauseCircleOutline,
+  playCircleOutline
 } from 'ionicons/icons';
 import { firstValueFrom } from 'rxjs';
 
@@ -57,22 +60,25 @@ export class CrudparroquiasPage implements OnInit {
     private toastController: ToastController
   ) {
     addIcons({
-      searchOutline,
-      search,
-      filterOutline,
-      mapOutline,
-      checkmarkCircleOutline,
-      closeCircleOutline,
-      addCircleOutline,
-      alertCircleOutline,
-      keyOutline,
-      informationCircleOutline,
-      createOutline,
-      trashOutline,
-      swapVerticalOutline,
-      locationOutline,
-      close,
-      arrowBackOutline
+      'search-outline': searchOutline,
+      'search': search,
+      'filter-outline': filterOutline,
+      'map-outline': mapOutline,
+      'checkmark-circle-outline': checkmarkCircleOutline,
+      'close-circle-outline': closeCircleOutline,
+      'add-circle-outline': addCircleOutline,
+      'alert-circle-outline': alertCircleOutline,
+      'key-outline': keyOutline,
+      'information-circle-outline': informationCircleOutline,
+      'create-outline': createOutline,
+      'trash-outline': trashOutline,
+      'swap-vertical-outline': swapVerticalOutline,
+      'location-outline': locationOutline,
+      'close': close,
+      'arrow-back-outline': arrowBackOutline,
+      'chevron-back-outline': chevronBackOutline,
+      'pause-circle-outline': pauseCircleOutline,
+      'play-circle-outline': playCircleOutline
     });
   }
 
