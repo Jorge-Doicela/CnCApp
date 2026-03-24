@@ -9,51 +9,48 @@
 </ion-header>
 
 <ion-content>
-  <!-- 1. HERO COMPACT -->
-  <div class="hero-compact animate-fade-up">
-    <div class="container text-left">
-      <span class="eyebrow">Mi Formación</span>
-      <h1>Tu progreso <span>académico</span></h1>
-      <p>Rastrea tus cursos activos, consulta detalles de asistencia y obtén tus certificados oficiales.</p>
+  <!-- 1. HERO PREMIUM HEADER -->
+  <div class="hero-premium-header animate-fade-up">
+    <div class="container">
+      <a routerLink="/home" class="back-control">
+        <ion-icon name="chevron-back-outline"></ion-icon>
+        Volver al Panel de Control
+      </a>
+
+      <div class="header-flex-container">
+        <div class="title-area">
+          <div class="eyebrow-pill">
+            <ion-icon name="shield-checkmark"></ion-icon>
+            Administración Central
+          </div>
+          <h1>Gestión de Capacitaciones</h1>
+          <p>Centro de control para la gestión académica y certificación automatizada.</p>
+        </div>
+
+        <!-- THE PILL -->
+        <div class="stat-pill-container animate-fade-up" style="animation-delay: 0.1s;">
+          <div class="stat-item">
+            <span class="num reg">{{ inscripciones.length }}</span>
+            <span class="label">Registradas</span>
+          </div>
+          <div class="stat-item">
+            <span class="num act">0</span>
+            <span class="label">Activas</span>
+          </div>
+          <div class="stat-item">
+            <span class="num fin">{{ getCapacitacionesPorEstado('Finalizada') }}</span>
+            <span class="label">Finalizadas</span>
+          </div>
+          <div class="stat-item">
+            <span class="num cer">{{ getCapacitacionesConCertificado() }}</span>
+            <span class="label">Certificados</span>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
   <div class="container section-padding">
-
-    <!-- 2. STATS STRIP -->
-    <div class="stats-strip animate-fade-up" style="animation-delay: 0.1s;">
-      <div class="premium-stat-card">
-        <div class="stat-icon primary"><ion-icon name="calendar-outline"></ion-icon></div>
-        <div class="stat-content">
-          <span class="val">{{ inscripciones.length }}</span>
-          <span class="lab">Inscripciones</span>
-        </div>
-      </div>
-
-      <div class="premium-stat-card">
-        <div class="stat-icon success"><ion-icon name="checkmark-done-outline"></ion-icon></div>
-        <div class="stat-content">
-          <span class="val">{{ getCapacitacionesPorEstado('Finalizada') }}</span>
-          <span class="lab">Completadas</span>
-        </div>
-      </div>
-
-      <div class="premium-stat-card">
-        <div class="stat-icon warning"><ion-icon name="time-outline"></ion-icon></div>
-        <div class="stat-content">
-          <span class="val">{{ getCapacitacionesPorEstado('Pendiente') }}</span>
-          <span class="lab">Pendientes</span>
-        </div>
-      </div>
-
-      <div class="premium-stat-card">
-        <div class="stat-icon tertiary"><ion-icon name="ribbon-outline"></ion-icon></div>
-        <div class="stat-content">
-          <span class="val">{{ getCapacitacionesConCertificado() }}</span>
-          <span class="lab">Certificados</span>
-        </div>
-      </div>
-    </div>
 
     <!-- 3. FILTERS (MODERN CHIPS) -->
     <div class="filter-container-premium animate-fade-up" style="animation-delay: 0.2s;">
@@ -104,10 +101,17 @@
            [style.animation-delay]="(0.3 + (i * 0.05)) + 's'">
         
         <div class="card-premium-header">
-          <span class="status-pill" [ngClass]="inscripcion.estadoInscripcion.toLowerCase()">
-            {{ inscripcion.estadoInscripcion }}
-          </span>
-          <ion-icon name="school" class="header-icon"></ion-icon>
+          <div class="luxury-badge" [ngClass]="{
+            'badge-pendiente': inscripcion.estadoReal === 'Pendiente' || inscripcion.estadoReal === 'Próximamente' || inscripcion.estadoReal === 'Aprobada',
+            'badge-finalizada': inscripcion.estadoReal === 'Finalizada',
+            'badge-curso': inscripcion.estadoReal === 'En Curso'
+          }">
+            <ion-icon [name]="inscripcion.estadoReal === 'Finalizada' ? 'checkmark-circle' : (inscripcion.estadoReal === 'En Curso' ? 'play-circle' : 'time')"></ion-icon>
+            {{ inscripcion.estadoReal }}
+          </div>
+          <div class="card-icon-wrapper">
+            <ion-icon name="school-outline"></ion-icon>
+          </div>
         </div>
 
         <div class="card-body">
@@ -126,13 +130,8 @@
               <ion-icon name="location-outline"></ion-icon>
               <span>{{ inscripcion.capacitacion?.lugar }}</span>
             </div>
-            <div class="info-row">
-              <ion-icon name="ribbon-outline"></ion-icon>
-              <span>{{ inscripcion.capacitacion?.horas }} Horas certificadas</span>
-            </div>
           </div>
         </div>
-
         <div class="card-actions">
           <ion-button 
             *ngIf="inscripcion.capacitacion?.certificado && inscripcion.estadoInscripcion === 'Finalizada'"

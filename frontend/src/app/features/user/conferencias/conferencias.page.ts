@@ -116,18 +116,77 @@ export class ConferenciasPage implements OnInit {
     this.resolverYCargar();
   }
 
+  /** Determina el estado real basándose en la fecha/hora actual */
+  private calcularEstadoReal(inscripcion: any): string {
+    const estadoInsc = inscripcion.estadoInscripcion;
+    
+    // Si ya está marcada como Finalizada, Cancelada o Rechazada explícitamente, respetar eso
+    if (['Finalizada', 'Cancelada', 'Rechazada'].includes(estadoInsc)) {
+      return estadoInsc;
+    }
+
+    const cap = inscripcion.capacitacion;
+    if (!cap?.fechaInicio || !cap?.fechaFin) return estadoInsc;
+
+    try {
+      const hoy = new Date();
+      const inicio = new Date(cap.fechaInicio);
+      const fin = new Date(cap.fechaFin);
+      
+      // Normalizar para comparación solo por días
+      const hoySinHora = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate()).getTime();
+      const inicioSinHora = new Date(inicio.getFullYear(), inicio.getMonth(), inicio.getDate()).getTime();
+      const finSinHora = new Date(fin.getFullYear(), fin.getMonth(), fin.getDate()).getTime();
+
+      // 1. Caso: Ya terminó (Pasó el día de fin)
+      if (hoySinHora > finSinHora) return 'Finalizada';
+
+      // 2. Caso: Mismo día de fin
+      if (hoySinHora === finSinHora) {
+        if (cap.horaFin) {
+          const [h, m] = cap.horaFin.split(':').map(Number);
+          const fDate = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate(), h || 23, m || 59);
+          if (hoy > fDate) return 'Finalizada';
+        }
+      }
+
+      // 3. Caso: En Curso (Estamos entre inicio y fin)
+      if (hoySinHora >= inicioSinHora && hoySinHora <= finSinHora) {
+        // Podríamos refinar con horas aquí también, pero por ahora "Día de curso" = En Curso
+        return 'En Curso';
+      }
+
+      // 4. Caso: Próximamente (El inicio es en el futuro)
+      if (hoySinHora < inicioSinHora) {
+        return 'Próximamente';
+      }
+
+    } catch (e) {
+      console.error('[ConferenciasPage] Error calculando estado:', e);
+    }
+
+    return estadoInsc;
+  }
+
   getCapacitacionesPorEstado(estado: string): number {
-    return this.inscripciones.filter(i => i.estadoInscripcion === estado).length;
+    return this.inscripciones.filter(i => {
+      const realEst = this.calcularEstadoReal(i);
+      if (estado === 'Pendiente') return realEst === 'Pendiente' || realEst === 'Aprobada';
+      return realEst === estado;
+    }).length;
   }
 
   getCapacitacionesConCertificado(): number {
     return this.inscripciones.filter(i =>
-      i.capacitacion?.certificado === true && i.estadoInscripcion === 'Finalizada'
+      i.capacitacion?.certificado === true && this.calcularEstadoReal(i) === 'Finalizada'
     ).length;
   }
 
   filtrarCapacitaciones() {
-    let resultado = [...this.inscripciones];
+    let resultado = this.inscripciones.map(i => ({
+      ...i,
+      estadoReal: this.calcularEstadoReal(i)
+    }));
 
     if (this.searchTerm?.trim()) {
       const term = this.searchTerm.toLowerCase().trim();
@@ -137,7 +196,12 @@ export class ConferenciasPage implements OnInit {
     }
 
     if (this.filtroEstado !== 'todos') {
-      resultado = resultado.filter(i => i.estadoInscripcion === this.filtroEstado);
+      resultado = resultado.filter(i => {
+        if (this.filtroEstado === 'Pendiente') {
+          return i.estadoReal === 'Pendiente' || i.estadoReal === 'Aprobada';
+        }
+        return i.estadoReal === this.filtroEstado;
+      });
     }
 
     this.inscripcionesFiltradas = resultado;
