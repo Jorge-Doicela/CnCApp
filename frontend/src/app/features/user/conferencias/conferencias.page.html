@@ -1,201 +1,173 @@
 <ion-header [translucent]="true">
-  <ion-toolbar color="primary">
+  <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/home"></ion-back-button>
+      <ion-back-button defaultHref="/home" text=""></ion-back-button>
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
-    <ion-title class="ion-text-center">Mis Conferencias</ion-title>
+    <ion-title>Mis Capacitaciones</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true" class="ion-padding">
-  <ion-card class="main-card">
-    <div class="logo-container ion-text-center">
-      <img src="../../../../assets/cnc.png" alt="Logo CNC" class="logo">
+<ion-content>
+  <!-- 1. HERO COMPACT -->
+  <div class="hero-compact animate-fade-up">
+    <div class="container text-left">
+      <span class="eyebrow">Mi Formación</span>
+      <h1>Tu progreso <span>académico</span></h1>
+      <p>Rastrea tus cursos activos, consulta detalles de asistencia y obtén tus certificados oficiales.</p>
+    </div>
+  </div>
+
+  <div class="container section-padding">
+
+    <!-- 2. STATS STRIP -->
+    <div class="stats-strip animate-fade-up" style="animation-delay: 0.1s;">
+      <div class="premium-stat-card">
+        <div class="stat-icon primary"><ion-icon name="calendar-outline"></ion-icon></div>
+        <div class="stat-content">
+          <span class="val">{{ inscripciones.length }}</span>
+          <span class="lab">Inscripciones</span>
+        </div>
+      </div>
+
+      <div class="premium-stat-card">
+        <div class="stat-icon success"><ion-icon name="checkmark-done-outline"></ion-icon></div>
+        <div class="stat-content">
+          <span class="val">{{ getCapacitacionesPorEstado('Finalizada') }}</span>
+          <span class="lab">Completadas</span>
+        </div>
+      </div>
+
+      <div class="premium-stat-card">
+        <div class="stat-icon warning"><ion-icon name="time-outline"></ion-icon></div>
+        <div class="stat-content">
+          <span class="val">{{ getCapacitacionesPorEstado('Pendiente') }}</span>
+          <span class="lab">Pendientes</span>
+        </div>
+      </div>
+
+      <div class="premium-stat-card">
+        <div class="stat-icon tertiary"><ion-icon name="ribbon-outline"></ion-icon></div>
+        <div class="stat-content">
+          <span class="val">{{ getCapacitacionesConCertificado() }}</span>
+          <span class="lab">Certificados</span>
+        </div>
+      </div>
     </div>
 
-    <ion-card-content>
-      <div class="welcome-section fade-in">
-        <h2 class="welcome-title">Bienvenido al Apartado de Conferencias</h2>
-        <p class="welcome-text">
-          Aquí encontrarás todas las conferencias a las que te has inscrito del Consejo Nacional de Competencias.
-          Revisa la información de cada una y accede a tus certificados cuando estén disponibles.
-        </p>
+    <!-- 3. FILTERS (MODERN CHIPS) -->
+    <div class="filter-container-premium animate-fade-up" style="animation-delay: 0.2s;">
+      <div class="search-wrapper">
+        <ion-searchbar 
+          placeholder="Buscar capacitación..." 
+          [(ngModel)]="searchTerm"
+          (ionInput)="filtrarCapacitaciones()">
+        </ion-searchbar>
       </div>
+      
+      <div class="chips-row">
+        <div class="filter-chip" [class.active]="filtroEstado === 'todos'" (click)="filtroEstado = 'todos'; filtrarCapacitaciones()">Todos</div>
+        <div class="filter-chip" [class.active]="filtroEstado === 'Pendiente'" (click)="filtroEstado = 'Pendiente'; filtrarCapacitaciones()">Pendientes</div>
+        <div class="filter-chip" [class.active]="filtroEstado === 'Finalizada'" (click)="filtroEstado = 'Finalizada'; filtrarCapacitaciones()">Completadas</div>
+        <div class="filter-chip" [class.active]="filtroEstado === 'Cancelada'" (click)="filtroEstado = 'Cancelada'; filtrarCapacitaciones()">Canceladas</div>
+      </div>
+    </div>
 
-      <!-- Estadísticas -->
-      <div class="stats-section fade-in" style="animation-delay: 0.1s;">
-        <h3 class="section-title">Resumen de Conferencias</h3>
-        <div class="stats-container">
-          <div class="stat-card">
-            <div class="stat-icon">
-              <ion-icon name="calendar-outline" color="primary"></ion-icon>
-            </div>
-            <div class="stat-details">
-              <span class="stat-value">{{ inscripciones.length }}</span>
-              <span class="stat-label">Total Conferencias</span>
-            </div>
-          </div>
+    <!-- 4. SKELETON LOADING -->
+    <div *ngIf="loading" class="skeleton-grid">
+      <div class="skeleton-card" *ngFor="let i of [1,2,3]">
+        <div class="sk-header"></div>
+        <div class="sk-title"></div>
+        <div class="sk-line"></div>
+        <div class="sk-line-sm"></div>
+        <div class="sk-button"></div>
+      </div>
+    </div>
 
-          <div class="stat-card">
-            <div class="stat-icon">
-              <ion-icon name="checkmark-done-outline" color="success"></ion-icon>
-            </div>
-            <div class="stat-details">
-              <span class="stat-value">{{ getCapacitacionesPorEstado('Finalizada') }}</span>
-              <span class="stat-label">Completadas</span>
-            </div>
-          </div>
+    <div *ngIf="!loading && errorMsg" class="premium-empty animate-fade-up">
+      <ion-icon name="alert-circle-outline" class="empty-illustration" style="color: #ef4444; opacity: 1;"></ion-icon>
+      <h4>Algo salió mal</h4>
+      <p>{{ errorMsg }}</p>
+      <ion-button fill="clear" (click)="recargar()" color="primary">Reintentar</ion-button>
+    </div>
 
-          <div class="stat-card">
-            <div class="stat-icon">
-              <ion-icon name="time-outline" color="warning"></ion-icon>
-            </div>
-            <div class="stat-details">
-              <span class="stat-value">{{ getCapacitacionesPorEstado('Pendiente') }}</span>
-              <span class="stat-label">Pendientes</span>
-            </div>
-          </div>
+    <div *ngIf="!loading && !errorMsg && inscripcionesFiltradas.length === 0" class="premium-empty animate-fade-up">
+      <ion-icon name="calendar-outline" class="empty-illustration"></ion-icon>
+      <h4>No hay cursos que mostrar</h4>
+      <p>Parece que aún no tienes inscripciones registradas en esta categoría.</p>
+      <ion-button fill="clear" routerLink="/catalogo-capacitaciones">Ver Catálogo</ion-button>
+    </div>
 
-          <div class="stat-card">
-            <div class="stat-icon">
-              <ion-icon name="ribbon-outline" color="tertiary"></ion-icon>
+    <div class="conferencias-grid" *ngIf="!loading && inscripcionesFiltradas.length > 0">
+      <div class="glass-card animate-fade-up" 
+           *ngFor="let inscripcion of inscripcionesFiltradas; let i = index"
+           [style.animation-delay]="(0.3 + (i * 0.05)) + 's'">
+        
+        <div class="card-premium-header">
+          <span class="status-pill" [ngClass]="inscripcion.estadoInscripcion.toLowerCase()">
+            {{ inscripcion.estadoInscripcion }}
+          </span>
+          <ion-icon name="school" class="header-icon"></ion-icon>
+        </div>
+
+        <div class="card-body">
+          <h3>{{ inscripcion.capacitacion?.nombre }}</h3>
+          
+          <div class="info-list">
+            <div class="info-row">
+              <ion-icon name="calendar-clear-outline"></ion-icon>
+              <span>{{ inscripcion.capacitacion?.fechaInicio | date:'dd/MM/yyyy' }}</span>
             </div>
-            <div class="stat-details">
-              <span class="stat-value">{{ getCapacitacionesConCertificado() }}</span>
-              <span class="stat-label">Certificados</span>
+            <div class="info-row">
+              <ion-icon name="time-outline"></ion-icon>
+              <span>{{ inscripcion.capacitacion?.horaInicio }} - {{ inscripcion.capacitacion?.horaFin }}</span>
+            </div>
+            <div class="info-row">
+              <ion-icon name="location-outline"></ion-icon>
+              <span>{{ inscripcion.capacitacion?.lugar }}</span>
+            </div>
+            <div class="info-row">
+              <ion-icon name="ribbon-outline"></ion-icon>
+              <span>{{ inscripcion.capacitacion?.horas }} Horas certificadas</span>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Filtros -->
-      <div class="filter-section fade-in" style="animation-delay: 0.2s;">
-        <div class="filter-container">
-          <ion-item class="filter-item">
-            <ion-icon name="search-outline" slot="start" color="primary"></ion-icon>
-            <ion-input placeholder="Buscar por nombre" [(ngModel)]="searchTerm"
-              (ionChange)="filtrarCapacitaciones()"></ion-input>
-          </ion-item>
+        <div class="card-actions">
+          <ion-button 
+            *ngIf="inscripcion.capacitacion?.certificado && inscripcion.estadoInscripcion === 'Finalizada'"
+            class="pill-btn main" 
+            expand="block" 
+            (click)="iraGenerarCertificado(inscripcion.Id_Capacitacion)">
+            <ion-icon name="document-text-outline" slot="start"></ion-icon>
+            Ver Certificado
+          </ion-button>
 
-          <ion-item class="filter-item">
-            <ion-icon name="options-outline" slot="start" color="primary"></ion-icon>
-            <ion-label>Estado</ion-label>
-            <ion-select [(ngModel)]="filtroEstado" (ionChange)="filtrarCapacitaciones()">
-              <ion-select-option value="todos">Todos</ion-select-option>
-              <ion-select-option value="Pendiente">Pendientes</ion-select-option>
-              <ion-select-option value="Finalizada">Completadas</ion-select-option>
-              <ion-select-option value="Cancelada">Canceladas</ion-select-option>
-            </ion-select>
-          </ion-item>
-        </div>
-      </div>
+          <ion-button 
+            *ngIf="inscripcion.estadoInscripcion === 'Finalizada' && !inscripcion.capacitacion?.certificado"
+            class="pill-btn sec" 
+            expand="block" 
+            disabled="true"
+            fill="outline">
+            <ion-icon name="time-outline" slot="start"></ion-icon>
+            Certificado en Trámite
+          </ion-button>
 
-      <!-- Conferencias -->
-      <div class="capacitaciones-section fade-in" style="animation-delay: 0.3s;">
-        <h3 class="section-title">Mis Conferencias y Capacitaciones</h3>
-
-        <div *ngIf="loading" class="loading-container">
-          <ion-spinner name="crescent" color="primary"></ion-spinner>
-          <p>Cargando conferencias...</p>
-        </div>
-
-        <!-- Error state -->
-        <div *ngIf="!loading && errorMsg" class="empty-state" style="color: var(--ion-color-danger);">
-          <ion-icon name="alert-circle-outline" color="danger"></ion-icon>
-          <h4>{{ errorMsg }}</h4>
-          <ion-button fill="outline" color="primary" (click)="recargar()">
-            <ion-icon name="refresh-outline" slot="start"></ion-icon>
-            Reintentar
+          <ion-button 
+            class="pill-btn sec" 
+            expand="block" 
+            fill="outline"
+            (click)="verDetallesCapacitacion(inscripcion)">
+            <ion-icon name="eye-outline" slot="start"></ion-icon>
+            Detalles Completos
           </ion-button>
         </div>
-
-        <div *ngIf="!loading && !errorMsg && inscripcionesFiltradas.length === 0" class="empty-state">
-          <ion-icon name="calendar-outline" color="medium"></ion-icon>
-          <h4>No se encontraron conferencias</h4>
-          <p>Actualmente no estás inscrito en ninguna conferencia o no hay resultados para tu búsqueda.</p>
-        </div>
-
-        <div class="capacitaciones-grid" *ngIf="!loading && inscripcionesFiltradas.length > 0">
-          <ion-card class="capacitacion-card" *ngFor="let inscripcion of inscripcionesFiltradas">
-            <div class="capacitacion-header" [ngClass]="{
-              'estado-pendiente': inscripcion.estadoInscripcion === 'Pendiente',
-              'estado-completada': inscripcion.estadoInscripcion === 'Finalizada',
-              'estado-cancelada': inscripcion.estadoInscripcion === 'Cancelada'
-            }">
-              <ion-icon name="calendar" *ngIf="inscripcion.estadoInscripcion === 'Pendiente'"></ion-icon>
-              <ion-icon name="checkmark-circle" *ngIf="inscripcion.estadoInscripcion === 'Finalizada'"></ion-icon>
-              <ion-icon name="close-circle" *ngIf="inscripcion.estadoInscripcion === 'Cancelada'"></ion-icon>
-              <div class="status-badge">
-                <span *ngIf="inscripcion.estadoInscripcion === 'Pendiente'">Pendiente</span>
-                <span *ngIf="inscripcion.estadoInscripcion === 'Finalizada'">Completada</span>
-                <span *ngIf="inscripcion.estadoInscripcion === 'Cancelada'">Cancelada</span>
-              </div>
-            </div>
-
-            <ion-card-content>
-              <h2 class="capacitacion-title">{{ inscripcion.capacitacion?.nombre }}</h2>
-
-              <div class="capacitacion-details">
-                <div class="detail-item">
-                  <ion-icon name="information-circle-outline"></ion-icon>
-                  <span>{{ inscripcion.capacitacion?.descripcion }}</span>
-                </div>
-
-                <div class="detail-item">
-                  <ion-icon name="calendar-outline"></ion-icon>
-                  <span>{{ inscripcion.capacitacion?.fechaInicio | date:'dd/MM/yyyy' }}</span>
-                </div>
-
-                <div class="detail-item"
-                  *ngIf="inscripcion.capacitacion?.horaInicio && inscripcion.capacitacion?.horaFin">
-                  <ion-icon name="time-outline"></ion-icon>
-                  <span>{{ inscripcion.capacitacion?.horaInicio }} - {{ inscripcion.capacitacion?.horaFin }}</span>
-                </div>
-
-                <div class="detail-item">
-                  <ion-icon name="desktop-outline"></ion-icon>
-                  <span>{{ inscripcion.capacitacion?.modalidad }}</span>
-                </div>
-
-                <div class="detail-item">
-                  <ion-icon name="location-outline"></ion-icon>
-                  <span>{{ inscripcion.capacitacion?.lugar }}</span>
-                </div>
-
-                <div class="detail-item">
-                  <ion-icon name="hourglass-outline"></ion-icon>
-                  <span>{{ inscripcion.capacitacion?.horas }} Horas</span>
-                </div>
-
-                <!-- Enlaces Virtuales (Check if property exists on interface, assuming yes for now) -->
-                <!-- Note: Based on errors, properties were UpperCase in UserRequest, but likely changed to lowerCase in model refactor. I will use lowerCase safe access -->
-              </div>
-
-              <div class="capacitacion-actions">
-                <ion-button color="primary" expand="block"
-                  *ngIf="inscripcion.capacitacion?.certificado === true && inscripcion.estadoInscripcion === 'Finalizada'"
-                  (click)="iraGenerarCertificado(inscripcion.Id_Capacitacion)">
-                  <ion-icon name="document-text-outline" slot="start"></ion-icon>
-                  Visualizar Certificado
-                </ion-button>
-
-                <ion-button color="medium" expand="block" fill="outline"
-                  *ngIf="inscripcion.estadoInscripcion === 'Finalizada' && !inscripcion.capacitacion?.certificado">
-                  <ion-icon name="time-outline" slot="start"></ion-icon>
-                  Certificado en proceso
-                </ion-button>
-
-                <ion-button color="warning" expand="block" fill="outline"
-                  (click)="verDetallesCapacitacion(inscripcion)">
-                  <ion-icon name="eye-outline" slot="start"></ion-icon>
-                  Ver detalles
-                </ion-button>
-              </div>
-            </ion-card-content>
-          </ion-card>
-        </div>
       </div>
-    </ion-card-content>
-  </ion-card>
+    </div>
+  </div>
+
+  <!-- Dashboard Footer logic consistent with Home -->
+  <div class="ion-text-center ion-padding" style="opacity: 0.5; font-size: 0.8rem; margin-top: 40px;">
+    &copy; 2026 Consejo Nacional de Competencias - Ecuador
+  </div>
 </ion-content>
