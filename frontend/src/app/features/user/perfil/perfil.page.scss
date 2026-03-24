@@ -407,16 +407,37 @@ ion-content.premium-content {
   gap: 16px;
   padding: 8px;
 
-  .info-content {
-    flex: 1;
-    h3 { margin: 0; font-size: 0.95rem; font-weight: 700; color: var(--ion-color-dark); }
-    p { margin: 2px 0 0 0; font-size: 0.75rem; color: var(--ion-color-medium); }
-  }
+  .bio-action-btn {
+    padding: 10px 16px;
+    border-radius: 14px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    background: rgba(30, 58, 138, 0.1);
+    color: var(--ion-color-primary);
+    box-shadow: 0 4px 10px rgba(30, 58, 138, 0.05);
 
-  ion-toggle {
-    --handle-background: white;
-    --background: #e2e8f0;
-    --background-checked: var(--ion-color-primary);
+    &.active {
+      background: #1e3a8a;
+      color: white;
+      box-shadow: 0 8px 20px rgba(30, 58, 138, 0.25);
+    }
+
+    &:hover:not(:disabled) {
+      transform: translateY(-2px);
+      filter: brightness(1.1);
+    }
+
+    &:disabled {
+      background: #f1f5f9;
+      color: #94a3b8;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
   }
 }
 

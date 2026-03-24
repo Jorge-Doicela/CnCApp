@@ -40,7 +40,7 @@ import { environment } from 'src/environments/environment';
     CommonModule, FormsModule, RouterLink,
     IonHeader, IonToolbar, IonButtons, IonButton, IonTitle, 
     IonBackButton, IonContent, IonSpinner, IonIcon, 
-    IonAvatar, IonToggle, IonModal, IonInput
+    IonAvatar, IonModal, IonInput
   ]
 })
 export class PerfilPage implements OnInit {
@@ -54,6 +54,7 @@ export class PerfilPage implements OnInit {
   platformLabel: string = 'Biometría';
   platformIcon: string = 'finger-print-outline';
   biometriaActiva: boolean = false;
+  biometriaDisponible: boolean = false;
   
   // Biometric Verification Modal state
   mostrarModalBio: boolean = false;
@@ -119,143 +120,60 @@ export class PerfilPage implements OnInit {
     else this.platformIcon = 'finger-print-outline';
 
     try {
+      this.biometriaDisponible = await WebAuthnUtil.isAvailable();
       const value = await this.secureStorage.get('biometria_activada');
       this.biometriaActiva = value === 'true';
     } catch (e) {
       console.error('Error al verificar biometría:', e);
+      this.biometriaDisponible = false;
     }
   }
 
-  async toggleBiometria(event: any) {
-    const isChecked = event.detail.checked;
-    
-    // Evitamos bucles si el cambio fue provocado por nosotros mismos al resetear el toggle
-    if (isChecked === this.biometriaActiva) return;
-
-    // REGLA DE ORO: Si no hay datos de usuario, no podemos activar biometría (necesitamos el CI)
+  /**
+   * Nueva lógica por botón en lugar de switch para máxima fiabilidad
+   */
+  async solicitarCambioBiometria() {
+    // REGLA DE ORO: Si no hay datos de usuario, no podemos activar biometría
     if (!this.datosUsuario) {
-      const errAlert = await this.alertController.create({
-        header: 'Perfil no cargado',
-        message: 'Por favor, espera a que tus datos de perfil se carguen completamente antes de configurar la biometría.',
-        buttons: ['OK']
-      });
-      await errAlert.present();
-      setTimeout(() => {
-        if (event.target) event.target.checked = false;
-        this.cdr.detectChanges();
-      }, 100);
+      this.presentToast('Cargando perfil...', 'warning');
       return;
     }
 
-    // Feedback inmediato: Mostramos un loading ligero para que el usuario sepa que algo pasa
-    const loading = await this.loadingController.create({
-      message: 'Verificando hardware...',
-      duration: 5000 // Aumentamos un poco el safe timeout del spinner
-    });
-    await loading.present();
-
-    try {
-      // Caso 1: DESACTIVAR
-      if (this.biometriaActiva) {
-          await loading.dismiss();
-          const alert = await this.alertController.create({
-            header: 'Desactivar Biometría',
-            message: '¿Estás seguro de que deseas desactivar el acceso biométrico?',
-            buttons: [
-              {
-                text: 'Cancelar',
-                role: 'cancel',
-                handler: () => {
-                  setTimeout(() => {
-                    if (event.target) event.target.checked = true;
-                    this.cdr.detectChanges();
-                  }, 100);
-                }
-              },
-              {
-                text: 'Desactivar',
-                cssClass: 'danger',
-                handler: async () => {
-                  await this.secureStorage.set('biometria_activada', 'false');
-                  await this.secureStorage.remove('bio_token');
-                  await this.secureStorage.remove('bio_ci');
-                  await this.secureStorage.remove('bio_credential_id');
-                  this.biometriaActiva = false;
-                  this.presentToast('Biometría desactivada correctamente', 'secondary');
-                }
-              }
-            ]
-          });
-          await alert.present();
-          return;
+    if (this.biometriaActiva) {
+      // DESACTIVAR
+      const alert = await this.alertController.create({
+        header: 'Desactivar Biometría',
+        message: '¿Estás seguro de que deseas desactivar el acceso rápido?',
+        buttons: [
+          { text: 'Cancelar', role: 'cancel' },
+          {
+            text: 'Desactivar',
+            cssClass: 'danger',
+            handler: async () => {
+              await this.secureStorage.set('biometria_activada', 'false');
+              await this.secureStorage.remove('bio_token');
+              await this.secureStorage.remove('bio_ci');
+              await this.secureStorage.remove('bio_credential_id');
+              this.biometriaActiva = false;
+              this.presentToast('Biometría desactivada', 'secondary');
+              this.cdr.detectChanges();
+            }
+          }
+        ]
+      });
+      await alert.present();
+    } else {
+      // ACTIVAR
+      if (!this.biometriaDisponible) {
+        this.presentToast('Biometría no compatible con este equipo', 'warning');
+        return;
       }
-
-      // Caso 2: ACTIVAR
-      const isNative = Capacitor.isNativePlatform();
       
-      // Timeout manual drástico para evitar que la UI se "congele" sin mensaje
-      const checkPromise = isNative 
-        ? this.fingerprintAIO.isAvailable({ requireStrongBiometrics: false })
-        : WebAuthnUtil.isAvailable();
-      
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('TIMEOUT_HARDWARE')), 3000)
-      );
-
-      const result = await Promise.race([checkPromise, timeoutPromise]);
-      let isBiometricAvailable = false;
-
-      if (isNative) {
-         isBiometricAvailable = (result === 'biometric' || result === 'finger' || result === 'face');
-      } else {
-         isBiometricAvailable = !!result;
-      }
-
-      await loading.dismiss();
-
-      if (!isBiometricAvailable) {
-         const noAioAlert = await this.alertController.create({
-           header: 'Biometría no disponible',
-           message: 'Tu dispositivo o navegador no soporta autenticación biométrica segura en este momento.',
-           buttons: ['OK']
-         });
-         await noAioAlert.present();
-         
-         setTimeout(() => {
-            if (event.target) event.target.checked = false;
-            this.cdr.detectChanges();
-         }, 100);
-         return;
-      }
-
-      // TODO OK: Mostramos el modal premium
-      this.toggleEventActual = event;
       this.mostrarModalBio = true;
       this.passVerificacion = '';
       this.verPassword = false;
       this.activacionExitosa = false;
-      
-      // Forzamos actualización para asegurar que el modal se "dispare" inmediatamente
       this.cdr.detectChanges();
-
-    } catch (error: any) {
-      if (loading) await loading.dismiss();
-      console.error('Error toggle biometria:', error);
-      
-      let msg = 'El sensor biométrico no respondió. Inténtalo de nuevo o reinicia la app.';
-      if (error.message !== 'TIMEOUT_HARDWARE') msg = 'Error de hardware: ' + (error.message || 'Desconocido');
-      
-      const errAlert = await this.alertController.create({
-        header: 'Aviso de Seguridad',
-        message: msg,
-        buttons: ['OK']
-      });
-      await errAlert.present();
-
-      setTimeout(() => {
-        if (event.target) event.target.checked = false;
-        this.cdr.detectChanges();
-      }, 100);
     }
   }
 

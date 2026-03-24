@@ -171,9 +171,16 @@
             </div>
             <div class="info-content">
               <h3>{{ platformLabel }}</h3>
-              <p>Seguridad mediante {{ platformLabel }}</p>
+              <p *ngIf="biometriaDisponible">Seguridad mediante {{ platformLabel }}</p>
+              <p *ngIf="!biometriaDisponible" class="danger-text">No disponible en este navegador/equipo</p>
             </div>
-            <ion-toggle [checked]="biometriaActiva" (ionChange)="toggleBiometria($event)"></ion-toggle>
+            
+            <button class="bio-action-btn" 
+                    [class.active]="biometriaActiva" 
+                    (click)="solicitarCambioBiometria()" 
+                    [disabled]="!biometriaDisponible && !biometriaActiva">
+              {{ biometriaActiva ? 'DESACTIVAR' : 'CONFIGURAR' }}
+            </button>
           </div>
         </div>
 
