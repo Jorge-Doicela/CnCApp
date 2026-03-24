@@ -54,6 +54,56 @@ ion-header {
 // ------------------------------------------
 // HERO & GREETING (Expanded with Pill)
 // ------------------------------------------
+.signature-warning-banner {
+  margin: 16px 24px 0;
+  padding: 16px 20px;
+  background: #fffbeb;
+  border: 1px solid #fef3c7;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  animation: fadeDown 0.5s ease-out;
+
+  ion-icon {
+    font-size: 28px;
+    color: #f59e0b;
+    flex-shrink: 0;
+  }
+
+  .warning-text {
+    flex: 1;
+
+    h4 {
+      margin: 0 0 2px;
+      font-size: 1rem;
+      font-weight: 850;
+      color: #92400e;
+    }
+
+    p {
+      margin: 0;
+      font-size: 0.85rem;
+      color: #b45309;
+      line-height: 1.4;
+      font-weight: 500;
+    }
+  }
+
+  ion-button {
+    --border-radius: 12px;
+    font-weight: 800;
+    font-size: 0.75rem;
+    height: 36px;
+  }
+}
+
+@keyframes fadeDown {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 .hero-premium-header {
   padding: 60px 0 40px;
   background: white;

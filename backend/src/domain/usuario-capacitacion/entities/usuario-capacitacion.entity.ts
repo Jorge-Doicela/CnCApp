@@ -9,8 +9,11 @@ export interface UsuarioCapacitacion {
     usuario?: {
         id: number;
         nombre: string;
+        primerNombre?: string;
+        primerApellido?: string;
         email?: string | null;
         fotoPerfilUrl?: string | null;
+        firmaUrl?: string | null;
     };
     capacitacion?: {
         id: number;

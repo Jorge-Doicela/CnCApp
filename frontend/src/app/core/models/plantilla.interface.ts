@@ -20,6 +20,7 @@ export interface FirmaConfig {
     y: number;
     width: number;
     height: number;
+    isDynamic?: boolean;
 }
 
 export interface PlantillaCertificado {

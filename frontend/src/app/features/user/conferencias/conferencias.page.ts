@@ -23,6 +23,7 @@ export class ConferenciasPage implements OnInit {
   inscripcionesFiltradas: any[] = [];
   loading = false;
   errorMsg = '';
+  showSignatureWarning = false;
 
   searchTerm = '';
   filtroEstado = 'todos';
@@ -107,8 +108,22 @@ export class ConferenciasPage implements OnInit {
         this.errorMsg = ErrorHandlerUtil.getErrorMessage(err);
       }
     } finally {
+      this.checkSignatureStatus();
       this.loading = false;
       this.cdr.detectChanges();
+    }
+  }
+
+  private checkSignatureStatus() {
+    const user = this.authService.currentUser();
+    // 5 is likely the role ID for Expositor, or we check the name
+    const isExpositor = user?.rol?.nombre?.toLowerCase().includes('expositor') || user?.rol?.id === 5;
+    const hasConferenciasAsExpositor = this.inscripciones.some(i => i.rolCapacitacion === 'Expositor');
+    
+    if (isExpositor && hasConferenciasAsExpositor && !user?.firmaUrl) {
+      this.showSignatureWarning = true;
+    } else {
+      this.showSignatureWarning = false;
     }
   }
 

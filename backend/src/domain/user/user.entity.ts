@@ -22,6 +22,12 @@ export interface User {
     rol?: Role;
     entidadId: number;
     entidad?: Entity;
+    fotoPerfilUrl?: string | null;
+    firmaUrl?: string | null;
+    authUid?: string;
+    estado?: number;
+    createdAt?: Date;
+    updatedAt?: Date;
 }
 
 export interface Role {

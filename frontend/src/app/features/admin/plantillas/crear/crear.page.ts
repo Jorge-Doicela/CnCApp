@@ -422,7 +422,7 @@ export class CrearPage implements OnInit {
         if (!this.plantilla.firmas) {
             this.plantilla.firmas = [];
         }
-        const nuevaFirma = {
+        const nuevaFirma: any = {
             id: 'firma_' + Date.now(),
             nombrePersona: '',
             cargo: '',
@@ -431,9 +431,28 @@ export class CrearPage implements OnInit {
             x: 420,
             y: 450,
             width: 150,
-            height: 80
+            height: 80,
+            isDynamic: false
         };
         this.plantilla.firmas.push(nuevaFirma);
+        this.cdr.detectChanges();
+    }
+
+    onDynamicChange(firma: any, index: number) {
+        if (firma.isDynamic) {
+            // Find next available dynamic index
+            const dynamicFirmas = this.plantilla.firmas?.filter(f => f.id.startsWith('dynamic_expositor_')) || [];
+            const nextIndex = dynamicFirmas.length + 1;
+            firma.id = `dynamic_expositor_${nextIndex}`;
+            firma.nombrePersona = `[DINÁMICO: EXPOSITOR ${nextIndex}]`;
+            firma.cargo = 'EXPOSITOR';
+            firma.imagenUrl = 'assets/img/dynamic-signature-placeholder.png'; // Placeholder for designer
+        } else {
+            firma.id = 'firma_' + Date.now();
+            firma.nombrePersona = '';
+            firma.cargo = '';
+            firma.imagenUrl = '';
+        }
         this.cdr.detectChanges();
     }
 

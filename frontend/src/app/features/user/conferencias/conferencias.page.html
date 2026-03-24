@@ -1,4 +1,15 @@
 <ion-content>
+    <!-- Signature Warning for Expositores -->
+    <div class="signature-warning-banner" *ngIf="showSignatureWarning">
+        <ion-icon name="warning-outline"></ion-icon>
+        <div class="warning-text">
+            <h4>Firma faltante</h4>
+            <p>Eres expositor en capacitaciones, pero no has subido tu firma. Los certificados no se generarán correctamente hasta que lo hagas.</p>
+        </div>
+        <ion-button size="small" fill="solid" color="warning" routerLink="/ver-perfil">
+            Subir ahora
+        </ion-button>
+    </div>
   <!-- 1. HERO PREMIUM HEADER -->
   <div class="hero-premium-header animate-fade-up">
     <div class="container">

@@ -173,34 +173,64 @@
 
                             <div *ngFor="let firma of plantilla.firmas; let i = index" class="firma-config-item">
                                 <div class="firma-header">
-                                    <span>Firma #{{ i + 1 }}</span>
-                                    <ion-button fill="clear" color="danger" size="small" (click)="removeFirma(i)">
-                                        <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
-                                    </ion-button>
-                                </div>
-                                <div class="control-row">
-                                    <div class="control-group">
-                                        <label>Nombre</label>
-                                        <ion-input [(ngModel)]="firma.nombrePersona" placeholder="Ej: Myriam Zarzosa"></ion-input>
-                                    </div>
-                                    <div class="control-group">
-                                        <label>Cargo</label>
-                                        <ion-input [(ngModel)]="firma.cargo" placeholder="Ej: Secretaria Ejecutiva"></ion-input>
+                                    <span>Firma #{{ i + 1 }} {{ firma.isDynamic ? '(DINÁMICA)' : '' }}</span>
+                                    <div class="header-actions">
+                                        <ion-toggle [(ngModel)]="firma.isDynamic" (ionChange)="onDynamicChange(firma, i)" 
+                                            labelPlacement="start">Dinámica</ion-toggle>
+                                        <ion-button fill="clear" color="danger" size="small" (click)="removeFirma(i)">
+                                            <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+                                        </ion-button>
                                     </div>
                                 </div>
-                                <div class="control-row">
-                                    <div class="control-group">
-                                        <label>Institución</label>
-                                        <ion-input [(ngModel)]="firma.institucion" placeholder="Opcional"></ion-input>
-                                    </div>
-                                    <div class="control-group">
-                                        <label>Imagen Firma (PNG transparente)</label>
-                                        <div class="firma-upload" (click)="firmaInput.click()">
-                                            <ion-icon name="cloud-upload-outline" *ngIf="!firma.imagenUrl"></ion-icon>
-                                            <img [src]="firma.imagenUrl" *ngIf="firma.imagenUrl" class="mini-firma">
-                                            <span *ngIf="!firma.imagenUrl">Subir</span>
+                                
+                                <ng-container *ngIf="!firma.isDynamic">
+                                    <div class="control-row">
+                                        <div class="control-group">
+                                            <label>Nombre</label>
+                                            <ion-input [(ngModel)]="firma.nombrePersona" placeholder="Ej: Myriam Zarzosa"></ion-input>
                                         </div>
-                                        <input #firmaInput type="file" (change)="onFirmaImageSelected($event, i)" accept="image/*" hidden>
+                                        <div class="control-group">
+                                            <label>Cargo</label>
+                                            <ion-input [(ngModel)]="firma.cargo" placeholder="Ej: Secretaria Ejecutiva"></ion-input>
+                                        </div>
+                                    </div>
+                                    <div class="control-row">
+                                        <div class="control-group">
+                                            <label>Institución</label>
+                                            <ion-input [(ngModel)]="firma.institucion" placeholder="Opcional"></ion-input>
+                                        </div>
+                                        <div class="control-group">
+                                            <label>Imagen Firma (PNG transparente)</label>
+                                            <div class="firma-upload" (click)="firmaInput.click()">
+                                                <ion-icon name="cloud-upload-outline" *ngIf="!firma.imagenUrl"></ion-icon>
+                                                <img [src]="firma.imagenUrl" *ngIf="firma.imagenUrl" class="mini-firma">
+                                                <span *ngIf="!firma.imagenUrl">Subir</span>
+                                            </div>
+                                            <input #firmaInput type="file" (change)="onFirmaImageSelected($event, i)" accept="image/*" hidden>
+                                        </div>
+                                    </div>
+                                </ng-container>
+
+                                <div class="control-row" *ngIf="firma.isDynamic">
+                                    <div class="dynamic-help">
+                                        <ion-icon name="information-circle-outline"></ion-icon>
+                                        Se usará la firma del <strong>Expositor #{{ firma.id.split('_').pop() }}</strong> asignado a la capacitación.
+                                    </div>
+                                </div>
+
+                                <!-- Position & Size for both Dynamic and Static -->
+                                <div class="control-row">
+                                    <div class="control-group">
+                                        <label>Posición X</label>
+                                        <ion-input type="number" [(ngModel)]="firma.x"></ion-input>
+                                    </div>
+                                    <div class="control-group">
+                                        <label>Posición Y</label>
+                                        <ion-input type="number" [(ngModel)]="firma.y"></ion-input>
+                                    </div>
+                                    <div class="control-group">
+                                        <label>Ancho (px)</label>
+                                        <ion-input type="number" [(ngModel)]="firma.width"></ion-input>
                                     </div>
                                 </div>
                             </div>

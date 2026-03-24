@@ -125,6 +125,47 @@ export class GenerateCertificadoUseCase {
         const fileName = `cert_${usuarioId}_${capacitacionId}_${hash.substring(0, 8)}.pdf`;
         const outputPath = path.join(certificatesDir, fileName);
 
+        // 4. Handle Dynamic Signatures
+        let finalFirmas = (plantilla.configuracion as any)?.firmas || [];
+        
+        // 4.1 Check if there's any dynamic signature placeholder
+        const containsDynamicFirma = finalFirmas.some((f: any) => f.id && f.id.startsWith('dynamic_expositor_'));
+        
+        if (containsDynamicFirma) {
+            logger.info(`[GEN_CERT] Buscando firmas dinámicas para Cap=${capacitacionId}...`);
+            const todasInscripciones = await this.usuarioCapacitacionRepository.findByCapacitacionId(capacitacionId);
+            const expositores = todasInscripciones.filter((i: any) => i.rolCapacitacion === 'Expositor' && i.usuario?.firmaUrl);
+            
+            logger.info(`[GEN_CERT] Encontrados ${expositores.length} expositores con firma.`);
+
+            finalFirmas = finalFirmas.map((f: any) => {
+                if (f.id && f.id.startsWith('dynamic_expositor_')) {
+                    // Map dynamic_expositor_1 to the 1st expositor, dynamic_expositor_2 to 2nd, etc.
+                    const index = parseInt(f.id.split('_').pop() || '1') - 1;
+                    const expositor = expositores[index];
+
+                    if (expositor && expositor.usuario) {
+                        const u = expositor.usuario;
+                        const fullName = [u.primerNombre, u.primerApellido]
+                            .filter(Boolean)
+                            .join(' ')
+                            .toUpperCase() || u.nombre.toUpperCase();
+
+                        return {
+                            ...f,
+                            nombrePersona: fullName,
+                            cargo: 'EXPOSITOR',
+                            imagenUrl: u.firmaUrl
+                        };
+                    } else {
+                        // Fallback: Si no hay expositor para este slot, lo dejamos como está
+                        return f;
+                    }
+                }
+                return f;
+            });
+        }
+
         // 4. Generate PDF
         try {
             await this.generatorService.generate(
@@ -133,7 +174,7 @@ export class GenerateCertificadoUseCase {
                 data,
                 qrCodeUrl,
                 outputPath,
-                (plantilla.configuracion as any)?.firmas || [],
+                finalFirmas,
                 preFetchedData?.backgroundBuffer
             );
         } catch (genErr) {

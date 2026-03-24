@@ -501,6 +501,20 @@ ion-content {
                 text-transform: uppercase;
                 letter-spacing: 0.05em;
             }
+
+            .header-actions {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+
+                ion-toggle {
+                    --handle-width: 14px;
+                    --handle-height: 14px;
+                    font-size: 11px;
+                    font-weight: 700;
+                    color: #64748b;
+                }
+            }
         }
 
         .firma-upload {
@@ -566,4 +580,26 @@ ion-content {
     padding: 4px 8px;
     border-radius: 4px;
     border-left: 3px solid var(--ion-color-warning);
-}
+}
+.dynamic-help {
+    width: 100%;
+    background: rgba(37, 99, 235, 0.1);
+    border: 1px solid rgba(37, 99, 235, 0.2);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 12px;
+    color: #1d4ed8;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+
+    ion-icon {
+        font-size: 18px;
+    }
+
+    strong {
+        color: #1e3a8a;
+    }
+}
+
