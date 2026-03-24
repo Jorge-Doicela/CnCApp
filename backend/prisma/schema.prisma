@@ -112,10 +112,14 @@ model EducacionBasica {
 }
 
 model Provincia {
-  id       Int       @id @default(autoincrement()) @map("id_provincia")
-  nombre   String    @unique @map("nombre_provincia") @db.VarChar(100)
-  cantones Canton[]
-  usuarios Usuario[]
+  id        Int       @id @default(autoincrement()) @map("id_provincia")
+  nombre    String    @unique @map("nombre_provincia") @db.VarChar(100)
+  codigo    String?   @unique @map("codigo") @db.VarChar(50)
+  estado    Boolean   @default(true) @map("estado")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @default(now()) @updatedAt @map("updated_at")
+  cantones  Canton[]
+  usuarios  Usuario[]
 
   @@map("provincias")
 }
@@ -123,6 +127,10 @@ model Provincia {
 model Canton {
   id          Int         @id @default(autoincrement()) @map("id_canton")
   nombre      String      @map("nombre_canton") @db.VarChar(100)
+  codigo      String?     @unique @map("codigo") @db.VarChar(50)
+  estado      Boolean     @default(true) @map("estado")
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @default(now()) @updatedAt @map("updated_at")
   provinciaId Int         @map("id_provincia")
   provincia   Provincia   @relation(fields: [provinciaId], references: [id], onDelete: Cascade)
   usuarios    Usuario[]
@@ -132,11 +140,15 @@ model Canton {
 }
 
 model Parroquia {
-  id       Int    @id @default(autoincrement()) @map("id_parroquia")
-  nombre   String @map("nombre_parroquia") @db.VarChar(100)
-  cantonId Int    @map("id_canton")
-  canton   Canton @relation(fields: [cantonId], references: [id], onDelete: Cascade)
-  usuarios Usuario[]
+  id        Int      @id @default(autoincrement()) @map("id_parroquia")
+  nombre    String   @map("nombre_parroquia") @db.VarChar(100)
+  codigo    String?  @unique @map("codigo") @db.VarChar(50)
+  estado    Boolean  @default(true) @map("estado")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+  cantonId  Int      @map("id_canton")
+  canton    Canton   @relation(fields: [cantonId], references: [id], onDelete: Cascade)
+  usuarios  Usuario[]
 
   @@map("parroquias")
 }
