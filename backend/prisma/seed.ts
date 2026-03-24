@@ -335,7 +335,8 @@ async function main() {
             // Soporte para etiquetas literales PRESENCIAL y VIRTUAL pedidas por el usuario
             ...cantonesInstitucionesList.map(n => ({ nombre: n, tipo: 'PRESENCIAL', tipoInstitucionId: tid('PRESENCIAL') })),
             { nombre: 'QUITO', tipo: 'VIRTUAL', tipoInstitucionId: tid('VIRTUAL') },
-            ...cantonesInstitucionesList.map(n => ({ nombre: n, tipo: 'MUNICIPAL PRESENCIAL Y VIRTUAL', tipoInstitucionId: tid('MUNICIPAL PRESENCIAL Y VIRTUAL') }))
+            ...cantonesInstitucionesList.map(n => ({ nombre: n, tipo: 'MUNICIPAL PRESENCIAL Y VIRTUAL', tipoInstitucionId: tid('MUNICIPAL PRESENCIAL Y VIRTUAL') })),
+            ...mancomunidadesList.map(n => ({ nombre: n, tipo: 'MANCOMUNIDADES Y CONSORCIOS', tipoInstitucionId: tid('MANCOMUNIDADES Y CONSORCIOS') }))
         ];
 
         await prisma.institucionSistema.createMany({
