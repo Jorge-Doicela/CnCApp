@@ -40,11 +40,11 @@
         <form (ngSubmit)="loginUser()">
 
           <div class="input-group">
-            <ion-label position="stacked">Cédula de Identidad</ion-label>
+            <ion-label position="stacked">Cédula o Email</ion-label>
             <div class="custom-input-wrapper">
               <ion-icon name="person-outline" class="input-icon"></ion-icon>
-              <ion-input [value]="ci()" (ionInput)="updateCi($event)" type="text" maxlength="10"
-                placeholder="Ingrese su cédula" mode="md" autocomplete="off" name="no-fill-ci">
+              <ion-input [value]="ci()" (ionInput)="updateCi($event)" type="text" maxlength="100"
+                placeholder="Ingrese su cédula o email" mode="md" autocomplete="off" name="no-fill-ci">
               </ion-input>
             </div>
           </div>

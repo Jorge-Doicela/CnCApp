@@ -228,12 +228,6 @@ export class LoginPage implements OnInit {
       return;
     }
 
-    // Validar formato de cédula (básico)
-    if (ciValue.length !== 10) {
-      this.presentToast('La cédula debe tener 10 dígitos', 'warning');
-      return;
-    }
-
     const loading = await this.loadingController.create({
       message: 'Iniciando sesión...',
       spinner: 'crescent'
