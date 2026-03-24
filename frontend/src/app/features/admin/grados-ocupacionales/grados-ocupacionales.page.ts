@@ -1,7 +1,7 @@
 import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import {
     IonHeader, IonToolbar, IonTitle, IonContent, IonButtons,
     IonMenuButton, IonCard, IonCardHeader, IonCardTitle,
@@ -12,7 +12,8 @@ import {
 import { addIcons } from 'ionicons';
 import {
     addCircleOutline, createOutline, trashOutline,
-    searchOutline, ribbonOutline
+    searchOutline, ribbonOutline, chevronBackOutline,
+    search, layersOutline, close
 } from 'ionicons/icons';
 import { GradosOcupacionalesService, GradoOcupacional } from './services/grados.service';
 import { firstValueFrom } from 'rxjs';
@@ -20,13 +21,12 @@ import { firstValueFrom } from 'rxjs';
 @Component({
     selector: 'app-grados-ocupacionales',
     templateUrl: './grados-ocupacionales.page.html',
+    styleUrls: ['./grados-ocupacionales.page.scss'],
     standalone: true,
     imports: [
-        CommonModule, FormsModule,
+        CommonModule, FormsModule, RouterLink,
         IonHeader, IonToolbar, IonTitle, IonContent, IonButtons,
-        IonMenuButton, IonCard, IonCardHeader, IonCardTitle,
-        IonCardContent, IonItem, IonButton, IonIcon,
-        IonInput, IonCardSubtitle, IonBackButton
+        IonIcon
     ],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -48,7 +48,11 @@ export class GradosOcupacionalesPage implements OnInit {
             'create-outline': createOutline,
             'trash-outline': trashOutline,
             'search-outline': searchOutline,
-            'ribbon-outline': ribbonOutline
+            'ribbon-outline': ribbonOutline,
+            'chevron-back-outline': chevronBackOutline,
+            'search': search,
+            'layers-outline': layersOutline,
+            'close': close
         });
     }
 

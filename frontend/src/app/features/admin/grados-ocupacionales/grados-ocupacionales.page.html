@@ -1,73 +1,119 @@
-<ion-header [translucent]="true">
-    <ion-toolbar color="primary">
-        <ion-buttons slot="start">
-            <ion-back-button defaultHref="/configuracion-maestros"></ion-back-button>
-            <ion-menu-button></ion-menu-button>
-        </ion-buttons>
-        <ion-title>Gestión de Grados Ocupacionales</ion-title>
+<ion-header class="ion-no-border">
+    <ion-toolbar color="primary" class="ion-hide">
+        <ion-title>Grados Ocupacionales</ion-title>
     </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true" class="ion-padding">
-    <div class="admin-container">
-        <ion-card class="welcome-card">
-            <ion-card-header>
-                <div class="header-flex">
-                    <div>
-                        <ion-card-subtitle>Administración de Catálogos</ion-card-subtitle>
-                        <ion-card-title>Grados Ocupacionales</ion-card-title>
-                    </div>
-                    <ion-button color="success" (click)="iraCrearGrado()">
-                        <ion-icon slot="start" name="add-circle-outline"></ion-icon>
-                        Nuevo Grado
-                    </ion-button>
+<ion-content [fullscreen]="true">
+    <!-- Modern Header / Navigation -->
+    <div class="glass-header">
+        <div class="header-content container">
+            <div class="nav-left">
+                <div class="back-pill" routerLink="/configuracion-maestros">
+                    <ion-icon name="chevron-back-outline"></ion-icon>
+                    <span>Panel</span>
                 </div>
-            </ion-card-header>
-
-            <ion-card-content>
-                <div class="search-bar">
-                    <ion-item lines="none" class="search-item">
-                        <ion-icon name="search-outline" slot="start"></ion-icon>
-                        <ion-input placeholder="Buscar grado ocupacional..." [(ngModel)]="searchTerm"
-                            (ionInput)="filterGrados()" [debounce]="300"></ion-input>
-                    </ion-item>
+            </div>
+            <div class="nav-center">
+                <img src="../../../../assets/cnc.png" alt="CNC Logo" class="nav-logo">
+            </div>
+            <div class="nav-right">
+                <div class="status-indicator">
+                    <div class="pulse-dot"></div>
+                    <span>Catálogo Activo</span>
                 </div>
-
-                <div class="table-responsive">
-                    <table class="admin-table">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Nombre</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr *ngFor="let g of filteredGrados">
-                                <td>{{ g.id }}</td>
-                                <td>
-                                    <div class="display-flex align-center">
-                                        <ion-icon name="ribbon-outline" color="primary"
-                                            class="ion-margin-end"></ion-icon>
-                                        {{ g.nombre }}
-                                    </div>
-                                </td>
-                                <td>
-                                    <ion-button fill="clear" color="primary" (click)="iraEditarGrado(g.id)">
-                                        <ion-icon slot="icon-only" name="create-outline"></ion-icon>
-                                    </ion-button>
-                                    <ion-button fill="clear" color="danger" (click)="confirmarEliminar(g.id)">
-                                        <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
-                                    </ion-button>
-                                </td>
-                            </tr>
-                            <tr *ngIf="filteredGrados.length === 0">
-                                <td colspan="3" class="ion-text-center">No se encontraron resultados</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </ion-card-content>
-        </ion-card>
+            </div>
+        </div>
     </div>
-</ion-content>
+
+    <div class="dashboard-wrapper container">
+        <!-- Hero Section -->
+        <header class="hero-section animate-fade-in">
+            <span class="eyebrow">ADMINISTRACIÓN DE MAESTROS</span>
+            <h1 class="page-title">Grados <span class="gradient-text">Ocupacionales</span></h1>
+            <p class="section-subtitle">Gestiona los niveles jerárquicos y escalas ocupacionales del personal institucional.</p>
+        </header>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid single-stat">
+            <div class="stat-glass-card animate-up" style="animation-delay: 0.1s;">
+                <div class="stat-icon-box bg-blue">
+                    <ion-icon name="ribbon-outline"></ion-icon>
+                </div>
+                <div class="stat-data">
+                    <h3>{{ filteredGrados.length }}</h3>
+                    <p>Registros en Catálogo</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="main-content-grid">
+            <!-- Search & Filters Sidebar -->
+            <aside class="search-glass-card animate-up" style="animation-delay: 0.4s;">
+                <div class="card-header">
+                    <ion-icon name="search-outline"></ion-icon>
+                    <span>Buscador</span>
+                </div>
+                
+                <div class="search-controls">
+                    <div class="custom-input-group">
+                        <ion-icon name="search" class="input-icon"></ion-icon>
+                        <input type="text" [(ngModel)]="searchTerm" (input)="filterGrados()" 
+                               placeholder="Nombre del grado..." class="premium-input">
+                    </div>
+
+                    <button class="primary-pill-btn" (click)="iraCrearGrado()">
+                        <ion-icon name="add-circle-outline"></ion-icon>
+                        Nuevo Grado
+                    </button>
+                </div>
+            </aside>
+
+            <!-- Results Area -->
+            <section class="results-area">
+                <div class="results-header">
+                    <h2 class="results-title">Listado</h2>
+                    <div class="count-badge">{{ filteredGrados.length }} Grados</div>
+                </div>
+
+                <div *ngIf="filteredGrados.length === 0" class="empty-glass-state animate-fade-in">
+                    <ion-icon name="layers-outline"></ion-icon>
+                    <h3>Sin resultados</h3>
+                    <p>No se encontraron grados que coincidan con la búsqueda.</p>
+                </div>
+
+                <!-- Grados Masonry Grid -->
+                <div class="grados-masonry" *ngIf="filteredGrados.length > 0">
+                    <div class="grado-glass-card animate-up" 
+                         *ngFor="let g of filteredGrados; let i = index"
+                         [style.animation-delay]="(0.05 * i) + 's'">
+                        
+                        <div class="card-top">
+                            <div class="code-tag">REF ID: {{ g.id }}</div>
+                            <div class="status-badge active">Habilitado</div>
+                        </div>
+
+                        <h3 class="grado-name">{{ g.nombre }}</h3>
+                        
+                        <div class="sub-info">
+                            <ion-icon name="ribbon-outline"></ion-icon>
+                            <span>Clasificación Ocupacional</span>
+                        </div>
+
+                        <div class="card-footer">
+                            <div class="action-pills">
+                                <button class="icon-pill edit" (click)="iraEditarGrado(g.id)" title="Editar">
+                                    <ion-icon name="create-outline"></ion-icon>
+                                </button>
+                                <button class="icon-pill delete" (click)="confirmarEliminar(g.id)" title="Eliminar">
+                                    <ion-icon name="trash-outline"></ion-icon>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</ion-content>
