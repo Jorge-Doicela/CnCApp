@@ -6,6 +6,13 @@ import { Router, RouterLink } from '@angular/router';
 import { AlertController, LoadingController, ToastController } from '@ionic/angular';
 import { CatalogoService } from 'src/app/shared/services/catalogo.service';
 import { firstValueFrom } from 'rxjs';
+import { addIcons } from 'ionicons';
+import {
+  addCircleOutline, createOutline, trashOutline,
+  searchOutline, trophyOutline, checkmarkCircleOutline,
+  closeCircleOutline, search, layersOutline,
+  calendarOutline, swapVerticalOutline, chevronBackOutline
+} from 'ionicons/icons';
 
 @Component({
   selector: 'app-crudcompetencias',
@@ -33,7 +40,22 @@ export class CrudcompetenciasPage implements OnInit {
     private alertController: AlertController,
     private loadingController: LoadingController,
     private toastController: ToastController
-  ) { }
+  ) {
+    addIcons({
+      'add-circle-outline': addCircleOutline,
+      'create-outline': createOutline,
+      'trash-outline': trashOutline,
+      'search-outline': searchOutline,
+      'search': search,
+      'trophy-outline': trophyOutline,
+      'checkmark-circle-outline': checkmarkCircleOutline,
+      'close-circle-outline': closeCircleOutline,
+      'layers-outline': layersOutline,
+      'calendar-outline': calendarOutline,
+      'swap-vertical-outline': swapVerticalOutline,
+      'chevron-back-outline': chevronBackOutline
+    });
+  }
 
   ngOnInit() {
     this.cargarDatos();
