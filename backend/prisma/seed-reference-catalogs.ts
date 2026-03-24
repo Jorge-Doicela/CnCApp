@@ -6,7 +6,8 @@ import { resolverNombreCantonOficial } from './data/gad-canton-nombres-oficiales
 import {
     bomberosList,
     empresasPublicasList,
-    registrosPropiedadList
+    registrosPropiedadList, consejosCantonalesList, juntasCantonalesList,
+    provinciasInstitucionesList, cantonesInstitucionesList, parroquiasInstitucionesList
 } from './data/form-options-index';
 import { educacionBasicaList } from './data/form-options-educacion';
 
@@ -103,7 +104,8 @@ export async function ensureMunicipalInstitucionesSistema(prisma: PrismaClient):
     const data = [
         ...bomberosList.map((nombre) => ({ nombre, tipo: TIPO_INSTITUCION_MUNICIPAL_CANTONES })),
         ...empresasPublicasList.map((nombre) => ({ nombre, tipo: TIPO_INSTITUCION_MUNICIPAL_CANTONES })),
-        ...registrosPropiedadList.map((nombre) => ({ nombre, tipo: TIPO_INSTITUCION_MUNICIPAL_CANTONES }))
+        ...registrosPropiedadList.map((nombre) => ({ nombre, tipo: TIPO_INSTITUCION_MUNICIPAL_CANTONES })),
+        ...juntasCantonalesList.map((nombre) => ({ nombre, tipo: TIPO_INSTITUCION_MUNICIPAL_CANTONES }))
     ];
 
     const result = await prisma.institucionSistema.createMany({
