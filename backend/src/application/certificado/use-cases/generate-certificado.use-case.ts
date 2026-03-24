@@ -183,8 +183,6 @@ export class GenerateCertificadoUseCase {
         }
 
         // 5. Save in DB
-        // Nota: Si estamos en /tmp, la URL pública será inválida, 
-        // pero registramos el intento para que aparezca en el listado.
         const publicUrl = isUsingTmp ? `/tmp/${fileName}` : `/uploads/certificados/${fileName}`;
         
         try {
