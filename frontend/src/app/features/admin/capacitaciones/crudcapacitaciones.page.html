@@ -219,9 +219,9 @@
             </ion-button>
 
             <ion-button fill="clear" class="action-btn btn-warning" (click)="mostrarConfirmacion(cap.id)"
-              *ngIf="cap.estado === 'Finalizada' && !cap.certificado && !isConferencista">
-              <ion-icon name="sparkles-outline" slot="start"></ion-icon>
-              Emitir Certificados
+              *ngIf="cap.estado === 'Finalizada' && !isConferencista">
+              <ion-icon [name]="cap.certificado ? 'refresh-outline' : 'sparkles-outline'" slot="start"></ion-icon>
+              {{ cap.certificado ? 'Re-emitir Certificados' : 'Emitir Certificados' }}
             </ion-button>
 
             <ion-button fill="clear" class="action-btn btn-danger" (click)="confirmarEliminar(cap.id)" *ngIf="!isConferencista">

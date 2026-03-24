@@ -9,21 +9,32 @@ export class GenerateAllCertificadosUseCase {
         @inject(GenerateCertificadoUseCase) private generateCertificadoUseCase: GenerateCertificadoUseCase
     ) { }
 
-    async execute(capacitacionId: number): Promise<void> {
+    async execute(capacitacionId: number, force: boolean = false): Promise<{ success: number; failed: number; errors: string[] }> {
+        const result = { success: 0, failed: 0, errors: [] as string[] };
+        
         // Encontrar todos los asistentes (que marcaron asistencia)
         const participantes = await this.usuarioCapacitacionRepository.findByCapacitacionId(capacitacionId);
 
-        // Filtrar a los que asistieron (aunque supuestamente ya se borraron los que no)
+        // Filtrar a los que asistieron
         const asistentes = participantes.filter(p => p.asistio === true);
 
-        // Generar un certificado para cada asistente en paralelo (o en serie para evitar desborde de memoria)
+        if (asistentes.length === 0) {
+            throw new Error('No hay participantes con asistencia confirmada para generar certificados');
+        }
+
+        // Generar un certificado para cada asistente
         for (const asistente of asistentes) {
             try {
-                await this.generateCertificadoUseCase.execute(asistente.usuarioId, capacitacionId);
-            } catch (error) {
-                console.error(`Error generando certificado para usuario ${asistente.usuarioId}:`, error);
-                // Si falla un certificado, registrar error pero continuar con los demás
+                await this.generateCertificadoUseCase.execute(asistente.usuarioId, capacitacionId, force);
+                result.success++;
+            } catch (error: any) {
+                const errorMsg = `Usuario ${asistente.usuarioId}: ${error.message || error}`;
+                console.error(`Error generando certificado:`, errorMsg);
+                result.failed++;
+                result.errors.push(errorMsg);
             }
         }
+
+        return result;
     }
 }

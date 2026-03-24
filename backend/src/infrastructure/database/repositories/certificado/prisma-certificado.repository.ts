@@ -70,4 +70,10 @@ export class PrismaCertificadoRepository implements CertificadoRepository {
     async count(): Promise<number> {
         return await prisma.certificado.count();
     }
+
+    async delete(id: number): Promise<void> {
+        await prisma.certificado.delete({
+            where: { id }
+        });
+    }
 }

@@ -53,15 +53,20 @@ export class GenerateCertificadoUseCase {
         };
     }
 
-    async execute(usuarioId: number, capacitacionId: number): Promise<string> {
-        logger.info(`[GEN_CERT] Iniciando proceso para Usuario=${usuarioId}, Cap=${capacitacionId}`);
+    async execute(usuarioId: number, capacitacionId: number, force: boolean = false): Promise<string> {
+        logger.info(`[GEN_CERT] Iniciando proceso para Usuario=${usuarioId}, Cap=${capacitacionId}${force ? ' (FORCE)' : ''}`);
 
         // 0. Check if already exists
         const existing = await this.certificadoRepository.findByUserAndCapacitacion(usuarioId, capacitacionId);
-        if (existing) {
+        if (existing && !force) {
             const url = existing.pdfUrl || '';
             logger.info(`[GEN_CERT] Certificado ya existe para Usuario=${usuarioId}, Cap=${capacitacionId}. URL: ${url}`);
             return url;
+        }
+
+        if (existing && force) {
+            logger.info(`[GEN_CERT] Re-emisión forzada. Eliminando registro previo ID=${existing.id}`);
+            await this.certificadoRepository.delete(existing.id);
         }
 
         // 0.5 Check Attendance

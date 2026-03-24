@@ -10,13 +10,12 @@
       <div class="header-flex-container">
         <div class="title-area">
           <div class="eyebrow-pill">
-            <ion-icon name="shield-checkmark"></ion-icon>
-            Administración Central
+            <ion-icon name="sparkles"></ion-icon>
+            BIENVENIDO A TU PORTAL
           </div>
-          <h1>Gestión de Capacitaciones</h1>
-          <p>Centro de control para la gestión académica y certificación automatizada.</p>
+          <h1>Mis Capacitaciones</h1>
+          <p>Consulta tus inscripciones, accede a clases virtuales y descarga tus certificados oficiales.</p>
         </div>
-
         <!-- THE PILL -->
         <div class="stat-pill-container animate-fade-up" style="animation-delay: 0.1s;">
           <div class="stat-item">
@@ -125,12 +124,22 @@
         </div>
         <div class="card-actions">
           <ion-button 
-            *ngIf="inscripcion.capacitacion?.certificado && inscripcion.estadoInscripcion === 'Finalizada'"
+            *ngIf="inscripcion.capacitacion?.certificado && inscripcion.estadoReal === 'Finalizada' && inscripcion.asistio"
             class="pill-btn main" 
             expand="block" 
-            (click)="iraGenerarCertificado(inscripcion.Id_Capacitacion)">
-            <ion-icon name="document-text-outline" slot="start"></ion-icon>
-            Ver Certificado
+            (click)="iraGenerarCertificado(inscripcion.capacitacion.id)">
+            <ion-icon name="ribbon-outline" slot="start"></ion-icon>
+            Obtener Certificado
+          </ion-button>
+
+          <ion-button 
+            *ngIf="inscripcion.capacitacion?.certificado && inscripcion.estadoReal === 'Finalizada' && !inscripcion.asistio"
+            class="pill-btn sec" 
+            expand="block" 
+            disabled="true"
+            fill="outline">
+            <ion-icon name="alert-circle-outline" slot="start"></ion-icon>
+            Asistencia No Registrada
           </ion-button>
 
           <ion-button 

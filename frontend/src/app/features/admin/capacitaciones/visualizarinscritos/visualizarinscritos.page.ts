@@ -481,16 +481,22 @@ export class VisualizarinscritosPage implements OnInit {
 
     try {
       // Marcar certificado emitido y generar todos en paralelo
-      await Promise.all([
-        firstValueFrom(this.capacitacionesService.updateCapacitacion(this.idCapacitacion, { certificado: true })),
-        firstValueFrom(this.capacitacionesService.generateAllCertificates(this.idCapacitacion))
-      ]);
+      // Usamos force: true porque este botón suele usarse para re-emitir
+      await firstValueFrom(this.capacitacionesService.updateCapacitacion(this.idCapacitacion, { certificado: true }));
+      const results = await firstValueFrom(this.capacitacionesService.generateAllCertificates(this.idCapacitacion, true));
 
       if (this.infoCapacitacion) {
         this.infoCapacitacion = { ...this.infoCapacitacion, certificado: true };
       }
       this.cdr.markForCheck();
-      this.mostrarToast('Certificados emitidos correctamente', 'success');
+
+      if (results.failed === 0) {
+        this.mostrarToast(`¡Éxito! Se han generado ${results.success} certificados.`, 'success');
+      } else {
+        const errorMsg = `Se generaron ${results.success} certificados, pero ${results.failed} fallaron. Revise los datos técnicos.`;
+        this.mostrarToast(errorMsg, 'warning');
+        console.warn('[GEN_CERT_RESULTS]', results.errors);
+      }
     } catch (error) {
       this.mostrarToast(ErrorHandlerUtil.getErrorMessage(error), 'danger');
     } finally {

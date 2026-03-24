@@ -29,12 +29,12 @@ export class CertificadoController {
 
     generate = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const { usuarioId, capacitacionId } = req.body;
+            const { usuarioId, capacitacionId, force } = req.body;
             if (!usuarioId || !capacitacionId) {
                 res.status(400).json({ message: 'usuarioId y capacitacionId son requeridos' });
                 return;
             }
-            const certificado = await this.generateUseCase.execute(Number(usuarioId), Number(capacitacionId));
+            const certificado = await this.generateUseCase.execute(Number(usuarioId), Number(capacitacionId), !!force);
             res.status(201).json(certificado);
         } catch (error) {
             next(error);
@@ -43,13 +43,13 @@ export class CertificadoController {
 
     generateAll = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const { capacitacionId } = req.body;
+            const { capacitacionId, force } = req.body;
             if (!capacitacionId) {
                 res.status(400).json({ message: 'capacitacionId es requerido' });
                 return;
             }
-            await this.generateAllUseCase.execute(Number(capacitacionId));
-            res.status(200).json({ message: 'Certificados generados correctamente a los asistentes' });
+            const results = await this.generateAllUseCase.execute(Number(capacitacionId), !!force);
+            res.status(200).json(results);
         } catch (error) {
             next(error);
         }

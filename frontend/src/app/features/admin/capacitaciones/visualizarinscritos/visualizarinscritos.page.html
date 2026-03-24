@@ -287,12 +287,13 @@
             <h4>{{ infoCapacitacion.certificado ? 'Ciclo de Certificación Completado' : 'Protocolo de Certificación' }}</h4>
             <p>{{ infoCapacitacion.certificado ? 'Los certificados digitales han sido generados y enviados a los buzones privados de los participantes confirmados.' : 'El evento ha finalizado. Puede proceder a la emisión de certificados oficiales para los participantes que asistieron.' }}</p>
             
-            <div class="cert-summary" *ngIf="!infoCapacitacion.certificado">
+            <div class="cert-summary" *ngIf="!infoCapacitacion.certificado || totalAsistentes > 0">
               <span><ion-icon name="people-outline"></ion-icon> {{ totalAsistentes }} Certificables</span>
             </div>
 
-            <ion-button expand="block" class="emit-btn" (click)="mostrarConfirmacionCertificados()" *ngIf="!infoCapacitacion.certificado" [disabled]="totalAsistentes === 0">
-              EMITIR CERTIFICADOS AHORA
+            <ion-button expand="block" [class.emit-btn]="!infoCapacitacion.certificado" [class.update-btn]="infoCapacitacion.certificado" (click)="mostrarConfirmacionCertificados()" [disabled]="totalAsistentes === 0">
+              <ion-icon [name]="infoCapacitacion.certificado ? 'refresh-outline' : 'sparkles-outline'" slot="start"></ion-icon>
+              {{ infoCapacitacion.certificado ? 'ACTUALIZAR / RE-EMITIR CERTIFICADOS' : 'EMITIR CERTIFICADOS AHORA' }}
             </ion-button>
           </div>
         </div>

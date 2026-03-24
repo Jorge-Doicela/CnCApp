@@ -143,9 +143,15 @@ export class CapacitacionesService {
         return this.http.get<{ count: number }>(`${environment.apiUrl}/certificados/count`);
     }
 
-    generateAllCertificates(capacitacionId: number): Observable<any> {
+    generateAllCertificates(capacitacionId: number, force: boolean = false): Observable<any> {
         return this.http.post<any>(`${environment.apiUrl}/certificados/generate-all`, {
-            capacitacionId
+            capacitacionId,
+            force
         });
+    }
+
+    // --- Plantillas ---
+    getPlantillas(): Observable<any[]> {
+        return this.http.get<any[]>(`${environment.apiUrl}/plantillas`);
     }
 }

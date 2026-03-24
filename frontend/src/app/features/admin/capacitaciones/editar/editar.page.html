@@ -245,20 +245,38 @@
           </div>
         </section>
 
-        <!-- VISTA PREVIA DE CERTIFICADO (BLOQUEADA SI EXISTE) -->
-        <section class="certificate-locked" *ngIf="capacitacion.certificado">
-          <div class="warning-message">
-            <ion-icon name="shield-checkmark-outline"></ion-icon>
-            EMISIÓN BLOQUEADA: Los certificados ya han sido generados para este evento.
+        <!-- SECCIÓN 4: PARÁMETROS DE CERTIFICACIÓN -->
+        <section class="form-section">
+          <h3 class="section-title">
+            <ion-icon name="ribbon-outline"></ion-icon>
+            Certificación y Diplomas
+          </h3>
+
+          <div class="certification-toggle-edit">
+            <div class="toggle-info">
+              <label>¿Emitir certificados para este evento?</label>
+              <p>Habilita la generación de diplomas para los asistentes.</p>
+            </div>
+            <ion-toggle [(ngModel)]="capacitacion.certificado" name="certificado" mode="ios" [disabled]="capacitacion.estado === EstadoCapacitacion.PENDIENTE"></ion-toggle>
           </div>
-          
-          <div class="cert-preview-box">
-            <ion-icon name="ribbon" class="cert-icon"></ion-icon>
-            <h4>{{ capacitacion.nombre }}</h4>
-            <p class="cert-description">El diseño y los datos de este diploma ya están vinculados a los inscritos.</p>
-            <div class="cert-meta">
-              <span>{{ capacitacion.fechaInicio | date:'MMM yyyy' | uppercase }}</span>
-              <span>{{ capacitacion.horas }} HORAS ACADÉMICAS</span>
+
+          <div class="form-group slide-down" *ngIf="capacitacion.certificado">
+            <ion-item class="form-item" lines="none" [disabled]="capacitacionOriginal.certificado && capacitacion.estado === EstadoCapacitacion.REALIZADA && false">
+              <ion-icon name="document-text-outline" slot="start"></ion-icon>
+              <ion-label position="floating">Plantilla de Certificado <span class="required">*</span></ion-label>
+              <ion-select [(ngModel)]="capacitacion.plantillaId" name="plantillaId" required #plantillaModel="ngModel" interface="popover">
+                <ion-select-option *ngFor="let p of plantillasList" [value]="p.id">
+                  {{ p.nombre }} {{ p.activa ? '(ACTIVA)' : '' }}
+                </ion-select-option>
+              </ion-select>
+            </ion-item>
+            <div class="error-message" *ngIf="plantillaModel.invalid && (plantillaModel.dirty || plantillaModel.touched)">
+              <ion-icon name="alert-circle-outline"></ion-icon>
+              Debe seleccionar una plantilla para emitir certificados.
+            </div>
+            <div class="info-message warning" *ngIf="capacitacionOriginal.certificado" style="background: rgba(var(--ion-color-warning-rgb), 0.1); color: var(--ion-color-warning); padding: 8px; border-radius: 6px; margin-top: 8px; font-size: 0.9em;">
+              <ion-icon name="information-circle-outline"></ion-icon>
+              Ya se han emitido certificados. Cambiar la plantilla afectará a las nuevas emisiones o re-emisiones.
             </div>
           </div>
         </section>

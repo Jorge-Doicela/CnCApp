@@ -75,6 +75,7 @@ export class EditarPage implements OnInit {
   entidadesList: any[] = [];
   expositoresList: any[] = [];
   participantesList: any[] = [];
+  plantillasList: any[] = [];
 
   private capacitacionesService = inject(CapacitacionesService);
   private catalogoService = inject(CatalogoService);
@@ -137,7 +138,8 @@ export class EditarPage implements OnInit {
       await Promise.all([
         this.cargarCapacitacion(),
         this.cargarEntidades(),
-        this.cargarUsuarios()
+        this.cargarUsuarios(),
+        this.cargarPlantillas()
       ]);
 
       // Inyectar datos en variables de UX
@@ -225,6 +227,24 @@ export class EditarPage implements OnInit {
     this.participantesList = todos.filter(u => 
       u.rol?.codigo === 'USUARIO'
     );
+  }
+
+  async cargarPlantillas() {
+    try {
+      const data = await firstValueFrom(this.capacitacionesService.getPlantillas());
+      this.plantillasList = data || [];
+      
+      // Si no tiene plantilla asignada, pre-seleccionar la "Activa"
+      if (!this.capacitacion.plantillaId && this.plantillasList.length > 0) {
+        const activa = this.plantillasList.find(p => p.activa);
+        if (activa) {
+          this.capacitacion.plantillaId = activa.id;
+          console.log(`[EDIT] Pre-seleccionada plantilla activa ID=${activa.id}`);
+        }
+      }
+    } catch (error) {
+      console.error('Error cargando plantillas:', error);
+    }
   }
 
   onModalidadChange() {

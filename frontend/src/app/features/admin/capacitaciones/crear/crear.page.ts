@@ -55,12 +55,15 @@ export class CrearPage implements OnInit {
     idsUsuarios: [] as number[],
     expositores: [] as number[],
     latitud: undefined as number | undefined,
-    longitud: undefined as number | undefined
+    longitud: undefined as number | undefined,
+    certificado: false,
+    plantillaId: null as number | null
   };
 
   entidades: any[] = [];
   usuarios: any[] = [];
   usuariosDisponibles: any[] = [];
+  plantillas: any[] = [];
 
   cargandoDatos = true;
   guardando = false;
@@ -153,10 +156,19 @@ export class CrearPage implements OnInit {
     this.cdr.markForCheck();
 
     try {
-      const [entidadesResult, usuariosResult] = await Promise.all([
+      const [entidadesResult, usuariosResult, plantillasResult] = await Promise.all([
         firstValueFrom(this.catalogoService.getItems('entidades')),
-        firstValueFrom(this.usuarioService.getUsuarios())
+        firstValueFrom(this.usuarioService.getUsuarios()),
+        firstValueFrom(this.capacitacionesService.getPlantillas())
       ]);
+
+      // Plantillas
+      this.plantillas = plantillasResult || [];
+      const activa = this.plantillas.find(p => p.activa);
+      if (activa) {
+        this.capacitacion.plantillaId = activa.id;
+        console.log(`[CREATE] Pre-seleccionada plantilla activa ID=${activa.id}`);
+      }
 
       // Entidades
       this.entidades = entidadesResult || [];
@@ -368,7 +380,9 @@ export class CrearPage implements OnInit {
       idsUsuarios: [],
       expositores: [],
       latitud: undefined,
-      longitud: undefined
+      longitud: undefined,
+      certificado: false,
+      plantillaId: null
     };
 
     this.duracionHoras = 2;
