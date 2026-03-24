@@ -1,59 +1,119 @@
-<ion-header [translucent]="true">
-  <ion-toolbar color="primary">
-    <ion-buttons slot="start">
-      <ion-button fill="clear" color="medium" size="small" routerLink="/configuracion-maestros">
-        <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
-        Volver al Panel
-      </ion-button>
-    </ion-buttons>
-    <ion-title class="ion-text-center">Gestión de Cargos</ion-title>
+<ion-header class="ion-no-border">
+  <ion-toolbar color="primary" class="ion-hide">
+    <ion-title>Gestión de Cargos</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true" class="ion-padding">
-  <ion-card class="main-card">
-    <ion-card-header>
-      <ion-card-title>Administración de Cargos Instituciones</ion-card-title>
-      <ion-card-subtitle>Gestione el catálogo de cargos disponibles</ion-card-subtitle>
-    </ion-card-header>
-
-    <ion-card-content>
-      <!-- Buscador -->
-      <ion-item class="search-item">
-        <ion-icon name="search-outline" slot="start" color="primary"></ion-icon>
-        <ion-input placeholder="Buscar cargo..." [(ngModel)]="searchTerm" (ionInput)="filterCargos()"></ion-input>
-      </ion-item>
-
-      <!-- Botón Crear -->
-      <ion-button expand="block" color="primary" (click)="iraCrearCargo()" class="create-button ion-margin-top">
-        <ion-icon name="add-circle-outline" slot="start"></ion-icon>
-        Crear Nuevo Cargo
-      </ion-button>
-
-      <!-- Lista -->
-      <div class="list-container ion-margin-top">
-        <ion-list *ngIf="filteredCargos.length > 0">
-          <ion-item *ngFor="let cargo of filteredCargos">
-            <ion-icon name="briefcase-outline" slot="start" color="secondary"></ion-icon>
-            <ion-label>
-              <h2>{{ cargo.nombre }}</h2>
-            </ion-label>
-            <ion-buttons slot="end">
-              <ion-button color="primary" (click)="iraEditarCargo(cargo.id)">
-                <ion-icon name="create-outline" slot="icon-only"></ion-icon>
-              </ion-button>
-              <ion-button color="danger" (click)="confirmarEliminar(cargo.id)">
-                <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
-              </ion-button>
-            </ion-buttons>
-          </ion-item>
-        </ion-list>
-
-        <!-- Empty State -->
-        <div *ngIf="filteredCargos.length === 0" class="ion-text-center ion-padding">
-          <p>No se encontraron cargos.</p>
+<ion-content [fullscreen]="true">
+  <!-- Modern Header / Navigation -->
+  <div class="glass-header">
+    <div class="header-content container">
+      <div class="nav-left">
+        <div class="back-pill" routerLink="/configuracion-maestros">
+          <ion-icon name="chevron-back-outline"></ion-icon>
+          <span>Panel</span>
         </div>
       </div>
-    </ion-card-content>
-  </ion-card>
-</ion-content>
+      <div class="nav-center">
+        <img src="../../../../assets/cnc.png" alt="CNC Logo" class="nav-logo">
+      </div>
+      <div class="nav-right">
+        <div class="status-indicator">
+          <div class="pulse-dot"></div>
+          <span>Sistema Activo</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dashboard-wrapper container">
+    <!-- Hero Section -->
+    <header class="hero-section animate-fade-in">
+      <span class="eyebrow">ADMINISTRACIÓN DE MAESTROS</span>
+      <h1 class="page-title">Gestión de <span class="gradient-text">Cargos</span></h1>
+      <p class="section-subtitle">Administra el catálogo de cargos y funciones dentro de las instituciones.</p>
+    </header>
+
+    <!-- Stats Grid -->
+    <div class="stats-grid single-stat">
+      <div class="stat-glass-card animate-up" style="animation-delay: 0.1s;">
+        <div class="stat-icon-box bg-blue">
+          <ion-icon name="briefcase-outline"></ion-icon>
+        </div>
+        <div class="stat-data">
+          <h3>{{ filteredCargos.length }}</h3>
+          <p>Cargos Registrados</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="main-content-grid">
+      <!-- Search & Filters Sidebar -->
+      <aside class="search-glass-card animate-up" style="animation-delay: 0.4s;">
+        <div class="card-header">
+          <ion-icon name="search-outline"></ion-icon>
+          <span>Buscador Inteligente</span>
+        </div>
+        
+        <div class="search-controls">
+          <div class="custom-input-group">
+            <ion-icon name="search" class="input-icon"></ion-icon>
+            <input type="text" [(ngModel)]="searchTerm" (input)="filterCargos()" 
+                   placeholder="Buscar cargo..." class="premium-input">
+          </div>
+
+          <button class="primary-pill-btn" (click)="iraCrearCargo()">
+            <ion-icon name="add-circle-outline"></ion-icon>
+            Nuevo Cargo
+          </button>
+        </div>
+      </aside>
+
+      <!-- Results Area -->
+      <section class="results-area">
+        <div class="results-header">
+          <h2 class="results-title">Listado Maestro</h2>
+          <div class="count-badge">{{ filteredCargos.length }} Cargos</div>
+        </div>
+
+        <div *ngIf="filteredCargos.length === 0" class="empty-glass-state animate-fade-in">
+          <ion-icon name="layers-outline"></ion-icon>
+          <h3>Sin coincidencias</h3>
+          <p>No encontramos cargos con el término de búsqueda actual.</p>
+        </div>
+
+        <!-- Cargos Masonry Grid -->
+        <div class="cargos-masonry" *ngIf="filteredCargos.length > 0">
+          <div class="cargo-glass-card animate-up" 
+               *ngFor="let cargo of filteredCargos; let i = index"
+               [style.animation-delay]="(0.05 * i) + 's'">
+            
+            <div class="card-top">
+              <div class="code-tag">ID: {{ cargo.id }}</div>
+              <div class="status-badge active">Disponible</div>
+            </div>
+
+            <h3 class="cargo-name">{{ cargo.nombre }}</h3>
+            
+            <div class="sub-info">
+              <ion-icon name="briefcase-outline"></ion-icon>
+              <span>Función Institucional</span>
+            </div>
+
+            <div class="card-footer">
+              <div class="action-pills">
+                <button class="icon-pill edit" (click)="iraEditarCargo(cargo.id)" title="Editar">
+                  <ion-icon name="create-outline"></ion-icon>
+                </button>
+                <button class="icon-pill delete" (click)="confirmarEliminar(cargo.id)" title="Eliminar">
+                  <ion-icon name="trash-outline"></ion-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</ion-content>

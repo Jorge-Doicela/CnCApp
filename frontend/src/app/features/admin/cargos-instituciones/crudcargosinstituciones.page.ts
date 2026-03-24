@@ -12,7 +12,12 @@ import {
 import { addIcons } from 'ionicons';
 import {
   addCircleOutline, createOutline, trashOutline,
-  searchOutline, briefcaseOutline
+  searchOutline, briefcaseOutline, calendarOutline,
+  chevronBackOutline, pauseCircleOutline, playCircleOutline,
+  close, search, funnelOutline, businessOutline,
+  checkmarkCircleOutline, closeCircleOutline, alertCircleOutline,
+  keyOutline, swapVerticalOutline, locationOutline,
+  callOutline, mailOutline, layersOutline
 } from 'ionicons/icons';
 import { CargService, Cargo } from './services/cargos.service';
 import { firstValueFrom } from 'rxjs';
@@ -45,11 +50,29 @@ export class CrudcargosinstitucionesPage implements OnInit {
     private toastController: ToastController
   ) {
     addIcons({
-      'add-circle-outline': addCircleOutline,
+      'search-outline': searchOutline,
+      'search': search,
+      'filter-outline': funnelOutline, // funnel usado como filter
+      'funnel-outline': funnelOutline,
+      'business-outline': businessOutline,
+      'checkmark-circle-outline': checkmarkCircleOutline,
+      'close-circle-outline': closeCircleOutline,
+      'alert-circle-outline': alertCircleOutline,
+      'key-outline': keyOutline,
       'create-outline': createOutline,
       'trash-outline': trashOutline,
-      'search-outline': searchOutline,
-      'briefcase-outline': briefcaseOutline
+      'swap-vertical-outline': swapVerticalOutline,
+      'add-circle-outline': addCircleOutline,
+      'location-outline': locationOutline,
+      'call-outline': callOutline,
+      'mail-outline': mailOutline,
+      'calendar-outline': calendarOutline,
+      'briefcase-outline': briefcaseOutline,
+      'chevron-back-outline': chevronBackOutline,
+      'pause-circle-outline': pauseCircleOutline,
+      'play-circle-outline': playCircleOutline,
+      'layers-outline': briefcaseOutline, // Fallback
+      'close': close
     });
   }
 
