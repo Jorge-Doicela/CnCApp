@@ -371,14 +371,14 @@ export class PerfilPage implements OnInit {
     try {
       const image = await Camera.getPhoto({
         quality: 90,
-        allowEditing: true, // Habilitar edición para mejor encuadre
-        resultType: CameraResultType.Base64,
+        allowEditing: true,
+        resultType: CameraResultType.DataUrl, // DataUrl is more robust as it includes the prefix
         source: source,
-        width: 800, // Limitar tamaño para eficiencia
+        width: 800,
         correctOrientation: true
       });
-      if (image.base64String) {
-        await this.subirFoto(image.base64String, image.format);
+      if (image.dataUrl) {
+        await this.subirFoto(image.dataUrl);
       }
     } catch (error: any) {
       if (error?.message !== 'User cancelled photos app') {
@@ -393,6 +393,7 @@ export class PerfilPage implements OnInit {
     try {
       await firstValueFrom(this.http.put(`${environment.apiUrl}/users/me`, { fotoPerfilUrl: null }));
       this.datosUsuario.Imagen_Perfil = null;
+      this.authService.updateCurrentUser({ fotoPerfilUrl: undefined });
       this.presentToast('Foto de perfil eliminada', 'success');
       this.calcularLogros(); // Actualizar logros
       this.cdr.detectChanges();
@@ -406,17 +407,19 @@ export class PerfilPage implements OnInit {
   }
 
 
-  async subirFoto(base64: string, format: string = 'jpeg') {
+  async subirFoto(dataUrl: string) {
     const loading = await this.loadingController.create({ message: 'Subiendo imagen...', spinner: 'crescent' });
     await loading.present();
     try {
-      const fotoUrl = `data:image/${format};base64,${base64}`;
+      const fotoUrl = dataUrl;
       const response: any = await firstValueFrom(this.http.put(`${environment.apiUrl}/users/me`, { fotoPerfilUrl: fotoUrl }));
       
       if (response && response.fotoPerfilUrl) {
         this.datosUsuario.Imagen_Perfil = response.fotoPerfilUrl;
+        this.authService.updateCurrentUser({ fotoPerfilUrl: response.fotoPerfilUrl });
       } else {
         this.datosUsuario.Imagen_Perfil = fotoUrl; // Fallback a base64 local
+        this.authService.updateCurrentUser({ fotoPerfilUrl: fotoUrl });
       }
       
       this.presentToast('Foto de perfil actualizada', 'success');
@@ -540,6 +543,7 @@ export class PerfilPage implements OnInit {
     try {
       await firstValueFrom(this.http.put(`${environment.apiUrl}/users/me`, { fotoPerfilUrl: path }));
       this.datosUsuario.Imagen_Perfil = path;
+      this.authService.updateCurrentUser({ fotoPerfilUrl: path });
       this.presentToast('Avatar actualizado', 'success');
       this.calcularLogros();
       this.cdr.detectChanges();

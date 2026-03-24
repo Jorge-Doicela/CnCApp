@@ -2,6 +2,7 @@
 
 **Sistema de gestión de capacitaciones y certificaciones**  
 **Propietario:** Consejo Nacional de Competencias (CNC) del Ecuador  
+**Desarrollador:** Jorge Doicela  
 
 **Versión del documento:** 1.1 (marzo 2026)  
 **Audiencia:** Usuarios finales, administradores institucionales, conferencistas y personal de soporte.
