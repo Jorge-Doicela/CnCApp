@@ -215,6 +215,7 @@ model Certificado {
   pdfUrl         String?      @map("pdf_url")
   capacitacion   Capacitacion @relation(fields: [capacitacionId], references: [id], onDelete: Cascade)
   usuario        Usuario      @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  @@unique([usuarioId, capacitacionId], name: "usuario_capacitacion_unique")
   @@index([fechaEmision])
   @@index([usuarioId])
   @@index([capacitacionId])

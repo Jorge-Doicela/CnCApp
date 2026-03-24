@@ -594,8 +594,17 @@ async function main() {
                     // If training is finished and user assisted, generate certificate
                     if (training.estado === 'Finalizada') {
                         try {
-                            await prisma.certificado.create({
-                                data: {
+                            // Con la nueva restricción @@unique([usuarioId, capacitacionId]), 
+                            // e.code === 'P2002' ahora capturará este par duplicado.
+                            await prisma.certificado.upsert({
+                                where: {
+                                    usuario_capacitacion_unique: {
+                                        usuarioId: user.id,
+                                        capacitacionId: training.id
+                                    }
+                                },
+                                update: {}, // No actualizamos nada si ya existe
+                                create: {
                                     usuarioId: user.id,
                                     capacitacionId: training.id,
                                     codigoQR: `CERT-${training.id}-${user.id}-${randomUUID()}`,
@@ -603,10 +612,7 @@ async function main() {
                                 }
                             });
                         } catch (e) {
-                            if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
-                                continue;
-                            }
-                            throw e;
+                            console.warn(`[seed] No se pudo crear/actualizar certificado para usuario ${user.id} en capacitacion ${training.id}:`, e);
                         }
                     }
                 }
