@@ -10,6 +10,11 @@ RUN npm install
 # Copiar el resto del código
 COPY . .
 
+# Asegurar que existan los archivos de entorno para evitar errores de compilación
+RUN mkdir -p src/environments && \
+    ( [ -f src/environments/environment.ts ] || echo "export const environment = { production: false, apiUrl: '/api' };" > src/environments/environment.ts ) && \
+    ( [ -f src/environments/environment.prod.ts ] || echo "export const environment = { production: true, apiUrl: '/api' };" > src/environments/environment.prod.ts )
+
 # Construir la aplicación Angular/Ionic para producción
 RUN npm run build
 
