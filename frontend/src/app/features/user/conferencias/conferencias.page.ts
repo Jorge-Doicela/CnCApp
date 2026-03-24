@@ -2,7 +2,7 @@ import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { AlertController, ToastController, ModalController } from '@ionic/angular';
 import { DetalleCapacitacionModalComponent } from './components/detalle-capacitacion-modal/detalle-capacitacion-modal.component';
 import { CapacitacionesService } from '../../admin/capacitaciones/services/capacitaciones.service';
@@ -15,7 +15,7 @@ import { firstValueFrom } from 'rxjs';
   templateUrl: './conferencias.page.html',
   styleUrls: ['./conferencias.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule],
+  imports: [CommonModule, FormsModule, IonicModule, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ConferenciasPage implements OnInit {
