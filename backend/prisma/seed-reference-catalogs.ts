@@ -72,7 +72,11 @@ export async function seedGeoSqlProvincias(prisma: PrismaClient): Promise<void> 
 
         const targetNombre = targetNombreMap.get(provNormalized) ?? prov.provincia;
         const createdProv = await prisma.provincia.create({
-            data: { nombre: targetNombre }
+            data: { 
+                nombre: targetNombre,
+                estado: true,
+                codigo: prov.provincia.substring(0, 3).toUpperCase() // Generamos un código por defecto
+            }
         });
 
         for (const cant of prov.cantones) {
@@ -80,7 +84,9 @@ export async function seedGeoSqlProvincias(prisma: PrismaClient): Promise<void> 
             const createdCant = await prisma.canton.create({
                 data: {
                     nombre: nombreOficial,
-                    provinciaId: createdProv.id
+                    provinciaId: createdProv.id,
+                    estado: true,
+                    codigo: nombreOficial.substring(0, 3).toUpperCase()
                 }
             });
 
@@ -88,7 +94,9 @@ export async function seedGeoSqlProvincias(prisma: PrismaClient): Promise<void> 
                 await prisma.parroquia.createMany({
                     data: cant.parroquias.map((p) => ({
                         nombre: p,
-                        cantonId: createdCant.id
+                        cantonId: createdCant.id,
+                        estado: true,
+                        codigo: p.substring(0, 3).toUpperCase()
                     }))
                 });
             }

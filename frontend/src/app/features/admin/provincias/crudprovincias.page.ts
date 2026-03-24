@@ -83,7 +83,10 @@ export class CrudprovinciasPage implements OnInit {
 
     try {
       const data = await firstValueFrom(this.catalogoService.getItems('provincias'));
-      this.provincias = data || [];
+      this.provincias = (data || []).map(p => ({
+        ...p,
+        estado: p.estado === undefined || p.estado === null ? true : p.estado
+      }));
 
       // Sort manually with safety checks
       this.provincias.sort((a, b) => {
@@ -112,10 +115,11 @@ export class CrudprovinciasPage implements OnInit {
         (provincia.nombre || '').toLowerCase().includes(term) ||
         (provincia.codigo || '').toLowerCase().includes(term);
 
-      // Filtrar por estado
+      // Filtrar por estado (con fallback a true si es undefined)
+      const provEstado = provincia.estado === undefined || provincia.estado === null ? true : provincia.estado;
       const matchesEstado = this.filtroEstado === 'todos' ||
-        (this.filtroEstado === 'activo' && provincia.estado) ||
-        (this.filtroEstado === 'inactivo' && !provincia.estado);
+        (this.filtroEstado === 'activo' && provEstado) ||
+        (this.filtroEstado === 'inactivo' && !provEstado);
 
       return matchesSearchTerm && matchesEstado;
     });
