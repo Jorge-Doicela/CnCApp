@@ -24,6 +24,9 @@ import {
   callOutline,
   mailOutline,
   calendarOutline,
+  chevronBackOutline,
+  pauseCircleOutline,
+  playCircleOutline,
   close
 } from 'ionicons/icons';
 
@@ -55,23 +58,29 @@ export class CrudinstitucionesPage implements OnInit {
     private toastController: ToastController
   ) {
     addIcons({
-      searchOutline,
-      search,
-      funnelOutline,
-      businessOutline,
-      checkmarkCircleOutline,
-      closeCircleOutline,
-      alertCircleOutline,
-      keyOutline,
-      createOutline,
-      trashOutline,
-      swapVerticalOutline,
-      addCircleOutline,
-      locationOutline,
-      callOutline,
-      mailOutline,
-      calendarOutline,
-      close
+      'search-outline': searchOutline,
+      'search': search,
+      'filter-outline': funnelOutline, // funnelOutline usado como filter
+      'funnel-outline': funnelOutline,
+      'business-outline': businessOutline,
+      'checkmark-circle-outline': checkmarkCircleOutline,
+      'close-circle-outline': closeCircleOutline,
+      'alert-circle-outline': alertCircleOutline,
+      'key-outline': keyOutline,
+      'create-outline': createOutline,
+      'trash-outline': trashOutline,
+      'swap-vertical-outline': swapVerticalOutline,
+      'add-circle-outline': addCircleOutline,
+      'location-outline': locationOutline,
+      'call-outline': callOutline,
+      'mail-outline': mailOutline,
+      'calendar-outline': calendarOutline,
+      'chevron-back-outline': chevronBackOutline,
+      'pause-circle-outline': pauseCircleOutline,
+      'play-circle-outline': playCircleOutline,
+      'information-circle-outline': searchOutline, // Fallback si no está importado o similar
+      'layers-outline': businessOutline,
+      'close': close
     });
   }
 

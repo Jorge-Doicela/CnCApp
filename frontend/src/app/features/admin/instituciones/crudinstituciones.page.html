@@ -1,160 +1,159 @@
-<ion-header [translucent]="true">
-  <ion-toolbar color="primary">
-    <ion-buttons slot="start">
-      <ion-button fill="clear" color="medium" size="small" routerLink="/configuracion-maestros">
-        <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
-        Volver al Panel
-      </ion-button>
-    </ion-buttons>
-    <ion-title class="ion-text-center">Gestión de Instituciones</ion-title>
-    <ion-progress-bar *ngIf="isLoading" type="indeterminate"></ion-progress-bar>
+<ion-header class="ion-no-border">
+  <ion-toolbar color="primary" class="ion-hide">
+    <ion-title>Gestión de Instituciones</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true" class="ion-padding">
-  <ion-card class="main-card">
-    <div class="logo-container ion-text-center">
-      <img src="assets/cnc.png" alt="Logo Instituciones" class="logo">
+<ion-content [fullscreen]="true">
+  <!-- Modern Header / Navigation -->
+  <div class="glass-header">
+    <div class="header-content container">
+      <div class="nav-left">
+        <div class="back-pill" routerLink="/configuracion-maestros">
+          <ion-icon name="chevron-back-outline"></ion-icon>
+          <span>Panel</span>
+        </div>
+      </div>
+      <div class="nav-center">
+        <img src="assets/cnc.png" alt="CNC Logo" class="nav-logo">
+      </div>
+      <div class="nav-right">
+        <div class="status-indicator">
+          <div class="pulse-dot"></div>
+          <span>Sistema Activo</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dashboard-wrapper container">
+    <!-- Hero Section -->
+    <header class="hero-section animate-fade-in">
+      <span class="eyebrow">ADMINISTRACIÓN DE MAESTROS</span>
+      <h1 class="page-title">Gestión de <span class="gradient-text">Instituciones</span></h1>
+      <p class="section-subtitle">Administra los organismos e instituciones registradas en la plataforma.</p>
+    </header>
+
+    <!-- Stats Grid -->
+    <div class="stats-grid single-stat">
+      <div class="stat-glass-card animate-up" style="animation-delay: 0.1s;">
+        <div class="stat-icon-box bg-blue">
+          <ion-icon name="business-outline"></ion-icon>
+        </div>
+        <div class="stat-data">
+          <h3>{{ instituciones.length }}</h3>
+          <p>Instituciones Totales</p>
+        </div>
+      </div>
     </div>
 
-    <!-- Buscador y filtros -->
-    <ion-card-content>
-      <div class="search-section fade-in">
-        <h3 class="section-title">Administración de Instituciones</h3>
-        <div class="search-container">
-          <ion-item class="search-item" lines="none">
-            <ion-icon name="search-outline" slot="start" color="primary"></ion-icon>
-            <ion-input placeholder="Buscar institución..." [(ngModel)]="searchTerm" (ionInput)="filtrarInstituciones()"
-              [debounce]="300">
-            </ion-input>
-          </ion-item>
-
-          <div class="filter-container">
-            <ion-item class="filter-item" lines="none">
-              <ion-icon name="checkmark-circle-outline" slot="start" color="primary"></ion-icon>
-              <ion-select [(ngModel)]="filtroEstado" interface="popover" (ionChange)="filtrarInstituciones()">
-                <ion-select-option value="todos">Todos los estados</ion-select-option>
-                <ion-select-option value="true">Activos</ion-select-option>
-                <ion-select-option value="false">Inactivos</ion-select-option>
-              </ion-select>
-            </ion-item>
-
-            <ion-item class="filter-item" lines="none">
-              <ion-icon name="funnel-outline" slot="start" color="primary"></ion-icon>
-              <ion-select [(ngModel)]="ordenarPor" interface="popover" (ionChange)="filtrarInstituciones()">
-                <ion-select-option value="nombre">Por Nombre</ion-select-option>
-                <ion-select-option value="id">Por ID</ion-select-option>
-              </ion-select>
-            </ion-item>
-          </div>
+    <!-- Main Content Grid -->
+    <div class="main-content-grid">
+      <!-- Search & Filters Sidebar -->
+      <aside class="search-glass-card animate-up" style="animation-delay: 0.4s;">
+        <div class="card-header">
+          <ion-icon name="search-outline"></ion-icon>
+          <span>Buscador Inteligente</span>
         </div>
+        
+        <div class="search-controls">
+          <div class="custom-input-group">
+            <ion-icon name="search" class="input-icon"></ion-icon>
+            <input type="text" [(ngModel)]="searchTerm" (input)="filtrarInstituciones()" 
+                   placeholder="Nombre o ID..." class="premium-input">
+          </div>
 
-        <!-- Botón para crear nueva institución -->
-        <ion-button expand="block" shape="round" color="primary" (click)="crearInstitucion()" class="create-button">
-          <ion-icon name="add-circle-outline" slot="start"></ion-icon>
-          Crear Nueva Institución
-        </ion-button>
-      </div>
-
-      <!-- Estadísticas -->
-      <div class="stats-section fade-in">
-        <h3 class="section-title">Resumen</h3>
-        <div class="stats-container">
-          <div class="stat-card">
-            <div class="stat-icon primary">
-              <ion-icon name="business-outline"></ion-icon>
-            </div>
-            <div class="stat-details">
-              <span class="stat-value">{{ instituciones.length }}</span>
-              <span class="stat-label">Total</span>
+          <div class="filter-group">
+            <label class="filter-label">Ordenar por:</label>
+            <div class="premium-select-wrapper">
+              <ion-icon name="funnel-outline" class="select-icon"></ion-icon>
+              <select [(ngModel)]="ordenarPor" (change)="filtrarInstituciones()" class="premium-select">
+                <option value="nombre">Nombre</option>
+                <option value="id">Identificador</option>
+              </select>
             </div>
           </div>
 
-          <div class="stat-card">
-            <div class="stat-icon success">
-              <ion-icon name="checkmark-circle-outline"></ion-icon>
-            </div>
-            <div class="stat-details">
-              <span class="stat-value">{{ institucionesActivas }}</span>
-              <span class="stat-label">Activas</span>
-            </div>
-          </div>
-
-          <div class="stat-card">
-            <div class="stat-icon danger">
-              <ion-icon name="close-circle-outline"></ion-icon>
-            </div>
-            <div class="stat-details">
-              <span class="stat-value">{{ instituciones.length - institucionesActivas }}</span>
-              <span class="stat-label">Inactivas</span>
+          <div class="filter-pill-group">
+            <label class="filter-label">Estado:</label>
+            <div class="pill-selector">
+              <div class="pill" [class.active]="filtroEstado === 'todos'" (click)="filtroEstado = 'todos'; filtrarInstituciones()">Todos</div>
+              <div class="pill" [class.active]="filtroEstado === 'true'" (click)="filtroEstado = 'true'; filtrarInstituciones()">Activos</div>
+              <div class="pill" [class.active]="filtroEstado === 'false'" (click)="filtroEstado = 'false'; filtrarInstituciones()">Inactivos</div>
             </div>
           </div>
-        </div>
-      </div>
 
-      <!-- Lista de instituciones -->
-      <div class="instituciones-section fade-in">
-        <div class="section-header">
-          <h3 class="section-title">Listado de Instituciones</h3>
-          <span class="results-count">{{ institucionesFiltradas.length }} resultados</span>
+          <button class="primary-pill-btn" (click)="crearInstitucion()" [disabled]="isLoading">
+            <ion-icon name="add-circle-outline"></ion-icon>
+            Nueva Institución
+          </button>
         </div>
+      </aside>
 
-        <!-- Skeleton Loading -->
-        <div *ngIf="isLoading && instituciones.length === 0">
-          <ion-list>
-            <ion-item *ngFor="let i of [1,2,3,4]">
-              <ion-thumbnail slot="start">
-                <ion-skeleton-text [animated]="true"></ion-skeleton-text>
-              </ion-thumbnail>
-              <ion-label>
-                <h3><ion-skeleton-text [animated]="true" style="width: 50%"></ion-skeleton-text></h3>
-                <p><ion-skeleton-text [animated]="true" style="width: 80%"></ion-skeleton-text></p>
-              </ion-label>
-            </ion-item>
-          </ion-list>
+      <!-- Results Area -->
+      <section class="results-area">
+        <div class="results-header">
+          <h2 class="results-title">Listado Maestro</h2>
+          <div class="count-badge">{{ institucionesFiltradas.length }} Instituciones</div>
         </div>
 
-        <div *ngIf="!isLoading && institucionesFiltradas.length === 0" class="empty-state">
-          <ion-icon name="alert-circle-outline" color="medium"></ion-icon>
-          <h4>No se encontraron instituciones</h4>
-          <p>Intenta ajustar los filtros de búsqueda.</p>
+        <!-- Loading / Empty States -->
+        <div *ngIf="isLoading && instituciones.length === 0" class="loading-state">
+          <ion-spinner name="crescent"></ion-spinner>
+          <p>Sincronizando datos...</p>
         </div>
 
-        <div class="admin-grid" *ngIf="institucionesFiltradas.length > 0">
-          <div class="admin-card" *ngFor="let institucion of institucionesFiltradas">
-            <div class="admin-header">
-              <div class="admin-title">
-                <h4>{{ institucion.nombre }}</h4>
-                <span class="admin-badge active">
-                  Activo
-                </span>
+        <div *ngIf="!isLoading && institucionesFiltradas.length === 0" class="empty-glass-state animate-fade-in">
+          <ion-icon name="layers-outline"></ion-icon>
+          <h3>Sin coincidencias</h3>
+          <p>No encontramos instituciones con los filtros actuales.</p>
+        </div>
+
+        <!-- Instituciones Masonry Grid -->
+        <div class="instituciones-masonry" *ngIf="institucionesFiltradas.length > 0">
+          <div class="institucion-glass-card animate-up" 
+               *ngFor="let institucion of institucionesFiltradas; let i = index"
+               [style.animation-delay]="(0.05 * i) + 's'">
+            
+            <div class="card-top">
+              <div class="code-tag">ID: {{ institucion.id }}</div>
+              <div class="status-badge" [class.active]="institucion.estado !== false">
+                {{ institucion.estado !== false ? 'Activo' : 'Inactivo' }}
               </div>
             </div>
-            <div class="admin-content">
-              <div class="admin-detail">
-                <ion-icon name="key-outline" color="primary"></ion-icon>
-                <span>ID: {{ institucion.id }}</span>
+
+            <h3 class="institucion-name">{{ institucion.nombre }}</h3>
+            
+            <div class="sub-info-grid">
+              <div class="sub-info" *ngIf="institucion.tipo">
+                <ion-icon name="information-circle-outline"></ion-icon>
+                <span>{{ institucion.tipo }}</span>
               </div>
-              <div *ngIf="institucion.tipo" class="admin-detail">
-                <ion-icon name="information-circle-outline" color="primary"></ion-icon>
-                <span>Tipo: {{ institucion.tipo }}</span>
-              </div>
-              <div class="admin-detail">
-                <ion-icon name="calendar-outline" color="primary"></ion-icon>
+              <div class="sub-info">
+                <ion-icon name="calendar-outline"></ion-icon>
                 <span>{{ institucion.fecha_ultima_actualizacion | date:'dd/MM/yyyy' }}</span>
               </div>
             </div>
-            <div class="admin-actions">
-              <ion-button fill="clear" color="primary" (click)="editarInstitucion(institucion.id)">
-                <ion-icon name="create-outline" slot="icon-only"></ion-icon>
-              </ion-button>
-              <ion-button fill="clear" color="danger" (click)="confirmarEliminar(institucion)">
-                <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
-              </ion-button>
+
+            <div class="card-footer">
+              <div class="action-pills">
+                <button class="icon-pill edit" (click)="editarInstitucion(institucion.id)" title="Editar">
+                  <ion-icon name="create-outline"></ion-icon>
+                </button>
+                <button class="icon-pill state" 
+                        [class.deactivate]="institucion.estado !== false"
+                        (click)="cambiarEstado(institucion)" 
+                        [title]="institucion.estado !== false ? 'Desactivar' : 'Activar'">
+                  <ion-icon [name]="institucion.estado !== false ? 'pause-circle-outline' : 'play-circle-outline'"></ion-icon>
+                </button>
+                <button class="icon-pill delete" (click)="confirmarEliminar(institucion)" title="Eliminar">
+                  <ion-icon name="trash-outline"></ion-icon>
+                </button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </ion-card-content>
-  </ion-card>
+      </section>
+    </div>
+  </div>
 </ion-content>
