@@ -53,48 +53,51 @@ export class GenerateCertificadoUseCase {
         };
     }
 
-    async execute(usuarioId: number, capacitacionId: number, force: boolean = false): Promise<string> {
-        logger.info(`[GEN_CERT] Iniciando proceso para Usuario=${usuarioId}, Cap=${capacitacionId}${force ? ' (FORCE)' : ''}`);
+    async execute(
+        usuarioId: number, 
+        capacitacionId: number, 
+        force: boolean = false,
+        preFetchedData?: {
+            usuario?: any;
+            capacitacion?: any;
+            plantilla?: any;
+            backgroundBuffer?: Buffer;
+        }
+    ): Promise<string> {
+        logger.info(`[GEN_CERT] Iniciando proceso para Usuario=${usuarioId}, Cap=${capacitacionId}${force ? ' (FORCE)' : ''}${preFetchedData ? ' (PRE-FETCH)' : ''}`);
 
         // 0. Check if already exists
         const existing = await this.certificadoRepository.findByUserAndCapacitacion(usuarioId, capacitacionId);
         if (existing && !force) {
             const url = existing.pdfUrl || '';
-            logger.info(`[GEN_CERT] Certificado ya existe para Usuario=${usuarioId}, Cap=${capacitacionId}. URL: ${url}`);
             return url;
         }
 
         if (existing && force) {
-            logger.info(`[GEN_CERT] Re-emisión forzada. Eliminando registro previo ID=${existing.id}`);
             await this.certificadoRepository.delete(existing.id);
         }
 
-        // 0.5 Check Attendance
+        // 0.5 Check Attendance (Optimizable if we pass inscripcion too, but let's keep it simple for now)
         const inscripcion = await this.usuarioCapacitacionRepository.findByUserAndCapacitacion(usuarioId, capacitacionId);
         if (!inscripcion || !inscripcion.asistio) {
-            logger.warn(`[GEN_CERT] Usuario=${usuarioId} no puede recibir certificado en Cap=${capacitacionId} (Asistencia: ${!!inscripcion?.asistio})`);
             throw new Error('El usuario no tiene asistencia confirmada para este evento');
         }
 
-        // 1. Fetch data
-        const usuario = await this.userRepository.findById(usuarioId);
-        const capacitacion = await this.capacitacionRepository.findById(capacitacionId);
+        // 1. Fetch data or use pre-fetched
+        const usuario = preFetchedData?.usuario || await this.userRepository.findById(usuarioId);
+        const capacitacion = preFetchedData?.capacitacion || await this.capacitacionRepository.findById(capacitacionId);
 
         if (!usuario || !capacitacion) {
             throw new NotFoundError('Usuario o Capacitación no encontrada');
         }
 
-        const capAny = capacitacion as any;
-        const plantillaId = capAny.plantillaId;
-        if (!plantillaId) {
-            logger.error(`[GEN_CERT] Capacitación ID=${capacitacionId} no tiene plantilla asignada.`);
-            throw new Error('La capacitación no tiene una plantilla asignada');
-        }
-
-        const plantilla = await this.plantillaRepository.findById(plantillaId);
-        if (!plantilla) {
-            throw new NotFoundError(`Plantilla ID=${plantillaId} no encontrada`);
-        }
+        const plantilla = preFetchedData?.plantilla || await (async () => {
+            const capAny = capacitacion as any;
+            if (!capAny.plantillaId) throw new Error('La capacitación no tiene una plantilla asignada');
+            const p = await this.plantillaRepository.findById(capAny.plantillaId);
+            if (!p) throw new NotFoundError(`Plantilla ID=${capAny.plantillaId} no encontrada`);
+            return p;
+        })();
 
         // 2. Prepare content
         const data = this.prepareCertificateData({ ...usuario, rolCapacitacion: inscripcion.rolCapacitacion }, capacitacion);
@@ -115,29 +118,26 @@ export class GenerateCertificadoUseCase {
                 fs.mkdirSync(certificatesDir, { recursive: true });
             }
         } catch (e) {
-            logger.warn(`[GEN_CERT] Fallo al crear directorio en ${certificatesDir}: ${e}. Usando /tmp para el archivo temporal.`);
             certificatesDir = os.tmpdir();
             isUsingTmp = true;
         }
 
         const fileName = `cert_${usuarioId}_${capacitacionId}_${hash.substring(0, 8)}.pdf`;
         const outputPath = path.join(certificatesDir, fileName);
-        logger.info(`[GEN_CERT] Ruta seleccionada: ${outputPath}`);
 
         // 4. Generate PDF
         try {
-            logger.info(`[GEN_CERT] Generando PDF: ${fileName} con plantilla ${plantilla.id}`);
             await this.generatorService.generate(
                 plantilla.imagenUrl || '',
                 config as any,
                 data,
                 qrCodeUrl,
                 outputPath,
-                (plantilla.configuracion as any)?.firmas || []
+                (plantilla.configuracion as any)?.firmas || [],
+                preFetchedData?.backgroundBuffer
             );
         } catch (genErr) {
-            logger.error(`[GEN_CERT] Error CRÍTICO en generatorService.generate: ${genErr}`);
-            // Si falla la escritura en disco, el proceso se detiene aquí.
+            logger.error(`[GEN_CERT] Error en generatorService.generate: ${genErr}`);
             throw genErr;
         }
 

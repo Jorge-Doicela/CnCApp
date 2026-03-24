@@ -4,6 +4,7 @@ import fs from 'fs';
 import path from 'path';
 import { injectable } from 'tsyringe';
 import { env } from '../../config/env';
+import logger from '../../config/logger';
 
 interface CertificateData {
     nombreParticipante: string;
@@ -54,58 +55,29 @@ export class CertificateGeneratorService {
         data: CertificateData,
         qrCodeContent: string,
         outputPath: string,
-        firmas?: FirmaConfig[]
+        firmas?: FirmaConfig[],
+        backgroundImgBuffer?: Buffer
     ): Promise<void> {
         return new Promise(async (resolve, reject) => {
             try {
-                // 1. Create PDF Document (Landscape usually for certificates)
-                const doc = new PDFDocument({
-                    size: 'A4',
-                    layout: 'landscape',
-                    margin: 0
-                });
-
+                const doc = new PDFDocument({ size: 'A4', layout: 'landscape', margin: 0 });
                 const stream = fs.createWriteStream(outputPath);
                 doc.pipe(stream);
 
-                // 1.5 Register Custom Fonts
-                const fontsDir = path.join(process.cwd(), 'public', 'fonts');
-                const fontFiles = [
-                    { name: 'Montserrat', file: 'Montserrat-Regular.ttf' },
-                    { name: 'Montserrat-Bold', file: 'Montserrat-Bold.ttf' },
-                    { name: 'PlayfairDisplay', file: 'PlayfairDisplay-Regular.ttf' },
-                    { name: 'GreatVibes', file: 'GreatVibes-Regular.ttf' },
-                    { name: 'Poppins', file: 'Poppins-Regular.ttf' },
-                    { name: 'Poppins-Bold', file: 'Poppins-Bold.ttf' },
-                    { name: 'Inter', file: 'Inter-Regular.ttf' },
-                    { name: 'Inter-Bold', file: 'Inter-Bold.ttf' }
-                ];
-
-                for (const font of fontFiles) {
-                    const fontPath = path.join(fontsDir, font.file);
-                    if (fs.existsSync(fontPath)) {
-                        doc.registerFont(font.name, fontPath);
-                    }
-                }
-
-                // Fallbacks for Inter if not present
-                if (!fs.existsSync(path.join(fontsDir, 'Inter-Bold.ttf')) && fs.existsSync(path.join(fontsDir, 'Poppins-Bold.ttf'))) {
-                    doc.registerFont('Inter-Bold', path.join(fontsDir, 'Poppins-Bold.ttf'));
-                }
-                if (!fs.existsSync(path.join(fontsDir, 'Inter-Regular.ttf')) && fs.existsSync(path.join(fontsDir, 'Poppins-Regular.ttf'))) {
-                    doc.registerFont('Inter', path.join(fontsDir, 'Poppins-Regular.ttf'));
-                }
+                this.registerFonts(doc);
 
                 // 2. Load Background Image
-                await this.renderBackground(doc, plantillaImagenUrl);
+                if (backgroundImgBuffer) {
+                    doc.image(backgroundImgBuffer, 0, 0, { width: doc.page.width, height: doc.page.height });
+                } else {
+                    await this.renderBackground(doc, plantillaImagenUrl);
+                }
 
                 // 3. Draw Text Fields
                 for (const [key, fieldConfig] of Object.entries(config)) {
                     if (key === 'codigoQR') continue;
 
                     let text = data[key];
-                    
-                    // If field has a custom template, use it and interpolate
                     if (fieldConfig.textoTemplate) {
                         text = fieldConfig.textoTemplate;
                         for (const [dataKey, dataValue] of Object.entries(data)) {
@@ -129,23 +101,43 @@ export class CertificateGeneratorService {
                 // 5. Generate and Draw QR Code
                 await this.renderQRCode(doc, qrCodeContent, config['codigoQR']);
 
-                // 6. Finalize
                 doc.end();
 
-                stream.on('finish', () => {
-                    console.log(`[CERT_GEN] PDF guardado exitosamente: ${outputPath}`);
-                    resolve();
-                });
-                stream.on('error', (err) => {
-                    console.error(`[CERT_GEN] Error en el stream de escritura: ${err}`);
-                    reject(err);
-                });
+                stream.on('finish', () => resolve());
+                stream.on('error', (err) => reject(err));
 
             } catch (error) {
-                console.error(`[CERT_GEN] Error general durante la generación: ${error}`);
                 reject(error);
             }
         });
+    }
+
+    private registerFonts(doc: PDFKit.PDFDocument) {
+        const fontsDir = path.join(process.cwd(), 'public', 'fonts');
+        const fontFiles = [
+            { name: 'Montserrat', file: 'Montserrat-Regular.ttf' },
+            { name: 'Montserrat-Bold', file: 'Montserrat-Bold.ttf' },
+            { name: 'PlayfairDisplay', file: 'PlayfairDisplay-Regular.ttf' },
+            { name: 'GreatVibes', file: 'GreatVibes-Regular.ttf' },
+            { name: 'Poppins', file: 'Poppins-Regular.ttf' },
+            { name: 'Poppins-Bold', file: 'Poppins-Bold.ttf' },
+            { name: 'Inter', file: 'Inter-Regular.ttf' },
+            { name: 'Inter-Bold', file: 'Inter-Bold.ttf' }
+        ];
+
+        for (const font of fontFiles) {
+            const fontPath = path.join(fontsDir, font.file);
+            if (fs.existsSync(fontPath)) {
+                doc.registerFont(font.name, fontPath);
+            }
+        }
+
+        if (!fs.existsSync(path.join(fontsDir, 'Inter-Bold.ttf')) && fs.existsSync(path.join(fontsDir, 'Poppins-Bold.ttf'))) {
+            doc.registerFont('Inter-Bold', path.join(fontsDir, 'Poppins-Bold.ttf'));
+        }
+        if (!fs.existsSync(path.join(fontsDir, 'Inter-Regular.ttf')) && fs.existsSync(path.join(fontsDir, 'Poppins-Regular.ttf'))) {
+            doc.registerFont('Inter', path.join(fontsDir, 'Poppins-Regular.ttf'));
+        }
     }
 
     /**
@@ -197,30 +189,48 @@ export class CertificateGeneratorService {
         }
     }
 
-    private async renderBackground(doc: PDFKit.PDFDocument, url: string) {
-        if (!url) return;
+    async fetchImageBuffer(url: string): Promise<Buffer | null> {
         try {
-            // Priority 1: Data URL
-            if (url.startsWith('data:image')) {
-                doc.image(url, 0, 0, { width: doc.page.width, height: doc.page.height });
-                return;
-            }
+            return await this.fetchBuffer(url);
+        } catch (e) {
+            logger.error(`[CERT_GEN] Error pre-fetching image buffer (${url}):`, e);
+            return null;
+        }
+    }
 
-            // Priority 2: Local Path resolution (bypass network)
-            const localPath = this.resolveLocalPath(url);
-            if (localPath && fs.existsSync(localPath)) {
-                doc.image(localPath, 0, 0, { width: doc.page.width, height: doc.page.height });
-                return;
-            }
+    private async fetchBuffer(url: string): Promise<Buffer | null> {
+        if (!url) return null;
 
-            // Priority 3: Remote Fetch (with timeout)
-            if (url.startsWith('http')) {
-                const response = await this.fetchWithTimeout(url);
-                const arrayBuffer = await response.arrayBuffer();
-                doc.image(Buffer.from(arrayBuffer), 0, 0, { width: doc.page.width, height: doc.page.height });
+        // Data URL
+        if (url.startsWith('data:image')) {
+            const base64Data = url.split(',')[1];
+            return Buffer.from(base64Data, 'base64');
+        }
+
+        // Local Path
+        const localPath = this.resolveLocalPath(url);
+        if (localPath && fs.existsSync(localPath)) {
+            return fs.readFileSync(localPath);
+        }
+
+        // Remote URL
+        if (url.startsWith('http')) {
+            const response = await this.fetchWithTimeout(url);
+            const arrayBuffer = await response.arrayBuffer();
+            return Buffer.from(arrayBuffer);
+        }
+
+        return null;
+    }
+
+    private async renderBackground(doc: PDFKit.PDFDocument, url: string) {
+        try {
+            const buffer = await this.fetchBuffer(url);
+            if (buffer) {
+                doc.image(buffer, 0, 0, { width: doc.page.width, height: doc.page.height });
             }
         } catch (e) {
-            console.error(`[CERT_GEN] Error renderBackground (${url}):`, e);
+            logger.error(`[CERT_GEN] Error renderBackground (${url}):`, e);
         }
     }
 
