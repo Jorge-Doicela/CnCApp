@@ -30,7 +30,7 @@ export class BiometriaService {
     if (isNative) {
       try {
         // FingerprintAIO.isAvailable returns a string of the type or throws if not available
-        const result = await this.fingerprintAIO.isAvailable();
+        const result = await this.fingerprintAIO.isAvailable({ requireStrongBiometrics: false });
         // Potential values: "finger", "face", "biometric" on Android; "OK" sometimes on iOS or older versions
         available = !!result; 
         this.platformLabel.set('Biometría del Dispositivo');
