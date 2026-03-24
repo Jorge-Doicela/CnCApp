@@ -143,29 +143,30 @@ export class CertificateGeneratorService {
     /**
      * Resuelve una URL o ruta a una ruta de archivo local si es posible.
      * Si la URL apunta a nuestro propio servidor (según env.BASE_URL), la convierte a ruta de disco.
-     */
-    private resolveLocalPath(url: string): string | null {
+     */    private resolveLocalPath(url: string): string | null {
         if (!url) return null;
 
-        // Caso 1: Es una ruta relativa (empieza con /uploads o /public)
+        // Caso 1: Es una ruta relativa (empieza con /uploads)
         if (url.startsWith('/uploads/')) {
-            return path.join(process.cwd(), 'public', url);
+            // Buscamos en la raíz del proyecto, NO dentro de public
+            return path.join(process.cwd(), url);
         }
 
         // Caso 2: Es una URL absoluta que apunta a nuestro servidor
         const baseUrl = env.BASE_URL.endsWith('/') ? env.BASE_URL.slice(0, -1) : env.BASE_URL;
         if (url.startsWith(baseUrl)) {
             const relativePath = url.replace(baseUrl, '');
-            // Asegurarse de que si la ruta resultante empieza por /public no la dupliquemos
-            if (relativePath.startsWith('/public')) {
+            // Si la ruta contiene /uploads/, resolver desde la raíz del proyecto
+            if (relativePath.includes('/uploads/')) {
                 return path.join(process.cwd(), relativePath);
             }
+            // Otros archivos estáticos en public
             return path.join(process.cwd(), 'public', relativePath);
         }
 
         // Caso 3: Es una ruta de sistema de archivos (absoluta o relativa al root)
         if (!url.startsWith('http') && !url.startsWith('data:')) {
-            return path.isAbsolute(url) ? url : path.join(process.cwd(), 'public', url);
+            return path.isAbsolute(url) ? url : path.join(process.cwd(), url);
         }
 
         return null;
@@ -228,9 +229,14 @@ export class CertificateGeneratorService {
             const buffer = await this.fetchBuffer(url);
             if (buffer) {
                 doc.image(buffer, 0, 0, { width: doc.page.width, height: doc.page.height });
+            } else {
+                // FALLBACK: Blanco si no hay imagen
+                doc.rect(0, 0, doc.page.width, doc.page.height).fill('#ffffff');
             }
         } catch (e) {
             logger.error(`[CERT_GEN] Error renderBackground (${url}):`, e);
+            // FALLBACK: Blanco si falla la carga
+            doc.rect(0, 0, doc.page.width, doc.page.height).fill('#ffffff');
         }
     }
 

@@ -8,4 +8,5 @@ export interface CertificadoRepository {
     findByUserAndCapacitacion(userId: number, capacitacionId: number): Promise<Certificado | null>;
     count(): Promise<number>;
     delete(id: number): Promise<void>;
+    deleteByUserAndCapacitacion(userId: number, capacitacionId: number): Promise<void>;
 }

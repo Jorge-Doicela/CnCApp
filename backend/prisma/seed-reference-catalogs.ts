@@ -71,33 +71,52 @@ export async function seedGeoSqlProvincias(prisma: PrismaClient): Promise<void> 
         if (!allowedProvNormalized.has(provNormalized)) continue;
 
         const targetNombre = targetNombreMap.get(provNormalized) ?? prov.provincia;
-        const createdProv = await prisma.provincia.create({
-            data: { 
-                nombre: targetNombre,
-                estado: true,
-                codigo: prov.provincia.substring(0, 3).toUpperCase() // Generamos un código por defecto
-            }
+        
+        let createdProv = await prisma.provincia.findFirst({
+            where: { nombre: targetNombre }
         });
+
+        if (!createdProv) {
+            createdProv = await prisma.provincia.create({
+                data: { 
+                    nombre: targetNombre,
+                    estado: true,
+                    codigo: prov.provincia.substring(0, 5).toUpperCase()
+                }
+            });
+        }
 
         for (const cant of prov.cantones) {
             const nombreOficial = resolverNombreCantonOficial(prov.provincia, cant.nombre);
-            const createdCant = await prisma.canton.create({
-                data: {
+            
+            let createdCant = await prisma.canton.findFirst({
+                where: { 
                     nombre: nombreOficial,
-                    provinciaId: createdProv.id,
-                    estado: true,
-                    codigo: nombreOficial.substring(0, 3).toUpperCase()
+                    provinciaId: createdProv.id
                 }
             });
+
+            if (!createdCant) {
+                createdCant = await prisma.canton.create({
+                    data: {
+                        nombre: nombreOficial,
+                        provinciaId: createdProv.id,
+                        estado: true,
+                        codigo: `${createdProv.id}-${nombreOficial.substring(0, 8).toUpperCase()}`
+                    }
+                });
+            }
 
             if (cant.parroquias && cant.parroquias.length > 0) {
                 await prisma.parroquia.createMany({
                     data: cant.parroquias.map((p) => ({
                         nombre: p,
-                        cantonId: createdCant.id,
+                        cantonId: createdCant!.id,
                         estado: true,
-                        codigo: p.substring(0, 3).toUpperCase()
-                    }))
+                        // Generamos un código más único combinando el ID del cantón
+                        codigo: `${createdCant!.id}-${p.substring(0, 5).toUpperCase()}`
+                    })),
+                    skipDuplicates: true
                 });
             }
         }

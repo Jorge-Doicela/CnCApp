@@ -63,6 +63,8 @@ export class ConfirmarAsistenciaQrPage implements OnInit, OnDestroy {
 
   // ─── Iniciar escáner de cámara ──────────────────────────────────────────
   async iniciarEscaner() {
+    if (this.escaneando) return;
+
     this.estado = 'escaneando';
     this.escaneando = true;
     this.cdr.detectChanges(); 
@@ -86,47 +88,53 @@ export class ConfirmarAsistenciaQrPage implements OnInit, OnDestroy {
       }
     }
 
-    // Pequeño delay para que Angular pinte el div en DOM
-    await this.delay(200);
+    // Pequeño delay para asegurar que el div esté en el DOM antes de montar el scanner
+    await this.delay(300);
 
     try {
+      if (this.html5Qrcode) {
+        await this.detenerEscaner();
+      }
+      
       this.html5Qrcode = new Html5Qrcode(this.QR_READER_ID);
 
       await this.html5Qrcode.start(
-        { facingMode: 'environment' }, // Cámara trasera por defecto
+        { facingMode: 'environment' }, 
         {
           fps: 10,
-          qrbox: { width: 250, height: 250 },
-          aspectRatio: 1.0,
-          disableFlip: false
+          qrbox: (viewfinderWidth, viewfinderHeight) => {
+            const minEdge = Math.min(viewfinderWidth, viewfinderHeight);
+            const qrboxSize = Math.floor(minEdge * 0.7);
+            return { width: qrboxSize, height: qrboxSize };
+          },
+          aspectRatio: 1.0
         },
         (decodedText: string) => {
-          // QR detectado exitosamente — ejecutar en zona de Angular
           this.ngZone.run(async () => {
             await this.detenerEscaner();
             await this.procesarCodigo(decodedText);
           });
         },
         (_error: any) => {
-          // Errores de frame son normales durante el escaneo — ignorar
+          // Errores de frame ignorados
         }
       );
 
     } catch (err: any) {
+      console.error('[QR_ASISTENCIA] Error starting scanner:', err);
       this.estado = 'inicial';
       this.escaneando = false;
 
       if (err?.message?.includes('Permission') || err?.message?.includes('NotAllowed')) {
         this.camaraDisponible = false;
-        this.mostrarToast('Permiso de cámara denegado. Usa el campo manual.', 'warning');
+        this.mostrarToast('Permiso de cámara denegado.', 'warning');
       } else {
-        this.mostrarToast('No se pudo iniciar la cámara. Intenta de nuevo.', 'danger');
+        this.mostrarToast('No se pudo iniciar la cámara.', 'danger');
       }
       this.cdr.detectChanges();
     }
   }
 
-  // ─── Detener escáner ────────────────────────────────────────────────────
   async detenerEscaner() {
     if (this.html5Qrcode) {
       try {
@@ -135,12 +143,13 @@ export class ConfirmarAsistenciaQrPage implements OnInit, OnDestroy {
           await this.html5Qrcode.stop();
         }
         await this.html5Qrcode.clear();
-      } catch (_) {
-        // ignorar errores al detener
+      } catch (e) {
+        console.warn('[QR_ASISTENCIA] Error stopping scanner:', e);
       }
       this.html5Qrcode = null;
     }
     this.escaneando = false;
+    this.cdr.detectChanges();
   }
 
   // ─── Cancelar escaneo y volver al inicio ────────────────────────────────

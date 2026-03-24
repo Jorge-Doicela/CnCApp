@@ -192,16 +192,18 @@ export class GenerateCertificadoUseCase {
         const publicUrl = isUsingTmp ? `/tmp/${fileName}` : `/uploads/certificados/${fileName}`;
         
         try {
+            // Borramos TODOS los duplicados previos (por si ya existen varios)
+            await this.certificadoRepository.deleteByUserAndCapacitacion(usuarioId, capacitacionId);
+
             await this.certificadoRepository.create({
                 usuarioId,
                 capacitacionId,
                 codigoQR: hash,
                 pdfUrl: publicUrl
             });
-            logger.info(`[GEN_CERT] Certificado registrado en DB. URL: ${publicUrl}`);
+            logger.info(`[GEN_CERT] Certificado registrado/actualizado en DB. URL: ${publicUrl}`);
         } catch (dbErr) {
             logger.error(`[GEN_CERT] Error guardando registro en DB: ${dbErr}`);
-            // Continuamos para intentar enviar el correo aunque falle el registro DB
         }
 
         // 6. Send Email (Async)

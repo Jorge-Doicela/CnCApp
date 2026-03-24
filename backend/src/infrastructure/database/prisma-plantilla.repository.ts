@@ -5,11 +5,12 @@ import { env } from '../../config/env';
 
 export class PrismaPlantillaRepository implements PlantillaRepository {
     async create(plantilla: Partial<Plantilla>): Promise<Plantilla> {
-        const { nombre, imagenUrl, configuracion, activa } = plantilla;
+        const { nombre, imagenUrl, base64Imagen, configuracion, activa } = plantilla;
         const p = await prisma.plantilla.create({
             data: {
                 nombre: nombre!,
                 imagenUrl: imagenUrl!,
+                base64Imagen: base64Imagen || null,
                 configuracion: configuracion || {},
                 activa: activa || false
             }
@@ -30,7 +31,6 @@ export class PrismaPlantillaRepository implements PlantillaRepository {
         });
         return p ? this.mapToEntity(p) : null;
     }
-
     private mapToEntity(p: any): Plantilla {
         // 1. Resolver URL absoluta
         if (p.imagenUrl && !p.imagenUrl.startsWith('http') && !p.imagenUrl.startsWith('data:')) {
@@ -38,6 +38,8 @@ export class PrismaPlantillaRepository implements PlantillaRepository {
             const path = p.imagenUrl.startsWith('/') ? p.imagenUrl : `/${p.imagenUrl}`;
             p.imagenUrl = `${baseUrl}${path}`;
         }
+        
+        // Ensure base64Imagen is explicitly mapped (it might be in 'p' from Prisma)
 
         // 2. Normalizar configuración (fallback para datos viejos)
         if (p.configuracion && (p.configuracion.elements || !p.configuracion.nombreUsuario)) {
@@ -52,12 +54,13 @@ export class PrismaPlantillaRepository implements PlantillaRepository {
     }
 
     async update(id: number, plantilla: Partial<Plantilla>): Promise<Plantilla> {
-        const { nombre, imagenUrl, configuracion, activa } = plantilla;
+        const { nombre, imagenUrl, base64Imagen, configuracion, activa } = plantilla;
         const p = await prisma.plantilla.update({
             where: { id },
             data: {
                 nombre,
                 imagenUrl,
+                base64Imagen,
                 configuracion,
                 activa
             }

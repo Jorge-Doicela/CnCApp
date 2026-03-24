@@ -317,6 +317,7 @@ model Plantilla {
   id             Int            @id @default(autoincrement()) @map("id_plantilla")
   nombre         String         @map("nombre") @db.VarChar(200)
   imagenUrl      String?        @map("imagen_url")
+  base64Imagen   String?        @map("base64_imagen") @db.Text
   configuracion  Json?          @default("{}") @map("configuracion")
   activa         Boolean        @default(true) @map("activa")
   createdAt      DateTime       @default(now()) @map("created_at")

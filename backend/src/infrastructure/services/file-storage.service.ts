@@ -61,6 +61,41 @@ export class FileStorageService {
     }
 
     /**
+     * Restaura un archivo a partir de su base64 si no existe en disco.
+     * @param publicUrl URL relativa del archivo (e.g., /uploads/plantillas/...)
+     * @param base64Data Datos base64 originales
+     */
+    restoreBase64(publicUrl: string, base64Data: string): void {
+        if (!publicUrl || !base64Data || !publicUrl.includes('/uploads/')) return;
+
+        try {
+            // Extraer la ruta relativa después de 'uploads/'
+            const parts = publicUrl.split('/uploads/');
+            const relativePath = parts[parts.length - 1];
+            const filePath = path.join(this.uploadDir, relativePath);
+
+            if (!fs.existsSync(filePath)) {
+                // Limpiar el prefijo data:image/... si existe
+                const data = base64Data.includes('base64,') 
+                    ? base64Data.split('base64,')[1] 
+                    : base64Data;
+                
+                const buffer = Buffer.from(data, 'base64');
+                const targetDir = path.dirname(filePath);
+                
+                if (!fs.existsSync(targetDir)) {
+                    fs.mkdirSync(targetDir, { recursive: true });
+                }
+
+                fs.writeFileSync(filePath, buffer);
+                console.log(`[FILE_STORAGE] Archivo restaurado exitosamente: ${filePath}`);
+            }
+        } catch (error) {
+            console.error('[FILE_STORAGE] Error restaurando archivo:', error);
+        }
+    }
+
+    /**
      * Deletes a file given its public URL
      * @param publicUrl 
      */
@@ -71,7 +106,7 @@ export class FileStorageService {
             const parts = publicUrl.split('/uploads/');
             if (parts.length < 2) return;
 
-            const relativePath = parts[1];
+            const relativePath = parts[parts.length - 1];
             const filePath = path.join(this.uploadDir, relativePath);
 
             if (fs.existsSync(filePath)) {

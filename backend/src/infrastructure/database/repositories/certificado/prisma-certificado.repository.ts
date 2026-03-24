@@ -76,4 +76,37 @@ export class PrismaCertificadoRepository implements CertificadoRepository {
             where: { id }
         });
     }
+
+    async deleteByUserAndCapacitacion(userId: number, capacitacionId: number): Promise<void> {
+        await prisma.certificado.deleteMany({
+            where: {
+                usuarioId: userId,
+                capacitacionId: capacitacionId
+            }
+        });
+    }
+
+    async upsert(data: Partial<Certificado>): Promise<Certificado> {
+        const certificado = await prisma.certificado.upsert({
+            where: {
+                usuario_capacitacion_unique: {
+                    usuarioId: data.usuarioId!,
+                    capacitacionId: data.capacitacionId!
+                }
+            },
+            update: {
+                codigoQR: data.codigoQR!,
+                pdfUrl: data.pdfUrl,
+                fechaEmision: data.fechaEmision || new Date()
+            },
+            create: {
+                usuarioId: data.usuarioId!,
+                capacitacionId: data.capacitacionId!,
+                codigoQR: data.codigoQR!,
+                fechaEmision: data.fechaEmision || new Date(),
+                pdfUrl: data.pdfUrl
+            }
+        });
+        return CertificadoMapper.toDomain(certificado);
+    }
 }

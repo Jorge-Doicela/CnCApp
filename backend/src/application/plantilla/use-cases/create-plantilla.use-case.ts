@@ -12,7 +12,10 @@ export class CreatePlantillaUseCase {
     ) { }
 
     async execute(plantilla: Partial<Plantilla>): Promise<Plantilla> {
-        if (plantilla.imagenUrl) {
+        if (plantilla.imagenUrl && plantilla.imagenUrl.startsWith('data:')) {
+            // Keep original base64 for persistence
+            plantilla.base64Imagen = plantilla.imagenUrl;
+            // Save to file and use URL for frontend
             plantilla.imagenUrl = await this.fileStorageService.saveBase64(plantilla.imagenUrl, 'plantillas');
         }
 

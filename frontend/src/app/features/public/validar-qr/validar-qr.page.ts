@@ -191,12 +191,39 @@ export class ValidarQrPage implements OnInit, OnDestroy {
     this.cdr.detectChanges();
 
     try {
-      const html5QrCode = new Html5Qrcode(this.QR_READER_ID);
-      const result = await html5QrCode.scanFile(file, true);
-      this.procesarCodigoEscaneado(result);
+      // 1. Detener escáner de cámara si está activo
+      if (this.html5Qrcode) {
+        try {
+          if (this.html5Qrcode.getState() === Html5QrcodeScannerState.SCANNING) {
+            await this.html5Qrcode.stop();
+          }
+          await this.html5Qrcode.clear();
+        } catch (e) {
+          console.warn('Error al limpiar escáner previo:', e);
+        }
+        this.html5Qrcode = null;
+      }
+
+      // 2. Crear una instancia temporal para escanear el archivo (sin ID de contenedor necesario para scanFile)
+      // Aunque la librería permite usar el ID, para scanFile es más limpio así si no queremos renderizar.
+      // Pero para mantener compatibilidad con versiones que lo requieren, usamos el ID.
+      const tempScanner = new Html5Qrcode(this.QR_READER_ID);
+      
+      try {
+        const result = await tempScanner.scanFile(file, true);
+        this.ngZone.run(() => {
+          this.procesarCodigoEscaneado(result);
+        });
+      } finally {
+        // Siempre limpiar la instancia temporal
+        try { await tempScanner.clear(); } catch(e){}
+      }
+
     } catch (err) {
+      console.error('Error al escanear archivo:', err);
       this.presentToast('No se encontró un código QR válido en la imagen', 'warning');
       this.isLoading = false;
+      this.mostrandoEscaner = false; // Volver al estado inicial si falla
       this.cdr.detectChanges();
     }
   }

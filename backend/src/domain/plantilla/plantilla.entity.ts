@@ -13,6 +13,7 @@ export class Plantilla {
         public id: number,
         public nombre: string,
         public imagenUrl: string | null,
+        public base64Imagen: string | null = null,
         public configuracion: PlantillaConfig | any, // Using any for flexibility with JSON
         public activa: boolean,
         public createdAt?: Date,

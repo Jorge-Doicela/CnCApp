@@ -86,16 +86,6 @@ export class CertificadoController {
                 return;
             }
             const certificados = await this.getByUserUseCase.execute(req.userId);
-            
-            // On-the-fly verification for Railway ephemeral storage
-            for (const cert of certificados) {
-                try {
-                    await this.generateUseCase.execute(cert.usuarioId, cert.capacitacionId);
-                } catch (e) {
-                    // Silently fail if regeneration fails (might be missing templates, etc.)
-                }
-            }
-
             res.json(certificados);
         } catch (error) {
             next(error);
