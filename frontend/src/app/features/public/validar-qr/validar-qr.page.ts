@@ -24,6 +24,8 @@ import {
   informationCircleOutline
 } from 'ionicons/icons';
 import { Html5Qrcode, Html5QrcodeScannerState } from 'html5-qrcode';
+import { Camera } from '@capacitor/camera';
+import { Capacitor } from '@capacitor/core';
 
 @Component({
   selector: 'app-validar-qr',
@@ -100,6 +102,24 @@ export class ValidarQrPage implements OnInit, OnDestroy {
     this.resultadoValidacion = false;
     this.cdr.detectChanges();
     
+    // Check permissions explicitly if on native mobile
+    if (Capacitor.isNativePlatform()) {
+      try {
+        const perm = await Camera.checkPermissions();
+        if (perm.camera !== 'granted') {
+          const request = await Camera.requestPermissions();
+          if (request.camera !== 'granted') {
+             this.presentToast('Permiso de cámara necesario para escanear', 'warning');
+             this.mostrandoEscaner = false;
+             this.cdr.detectChanges();
+             return;
+          }
+        }
+      } catch (e) {
+        console.warn('[QR_VALIDAR] Error verificando permisos nativos:', e);
+      }
+    }
+
     setTimeout(async () => {
       try {
         if (this.html5Qrcode) {

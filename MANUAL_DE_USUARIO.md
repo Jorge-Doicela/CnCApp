@@ -989,43 +989,6 @@ flowchart TB
   I --> P
   S --> P
 ```
-
-### G.6 Plantilla para capturas de pantalla (sección lista para completar)
-
-> Recomendación: guarde capturas en `docs/img/manual/` y use nombres estables.
-
-#### G.6.1 Portada y acceso
-
-![Pantalla de inicio](docs/img/manual/01-home.png)
-![Pantalla de login](docs/img/manual/02-login.png)
-![Pantalla de registro](docs/img/manual/03-register.png)
-
-#### G.6.2 Usuario
-
-![Perfil usuario](docs/img/manual/10-perfil.png)
-![Explorar conferencias](docs/img/manual/11-conferencias.png)
-![Asistencia QR](docs/img/manual/12-asistencia-qr.png)
-![Mis certificados](docs/img/manual/13-mis-certificados.png)
-
-#### G.6.3 Conferencista
-
-![Gestión de capacitaciones conferencista](docs/img/manual/20-conf-capacitaciones.png)
-![Visualizar inscritos](docs/img/manual/21-conf-inscritos.png)
-![Gestión de plantillas conferencista](docs/img/manual/22-conf-plantillas.png)
-
-#### G.6.4 Administrador
-
-![Gestión de usuarios](docs/img/manual/30-admin-usuarios.png)
-![Gestión de roles](docs/img/manual/31-admin-roles.png)
-![Configuración maestros](docs/img/manual/32-admin-maestros.png)
-![Dashboard reportes](docs/img/manual/33-admin-reportes.png)
-
-#### G.6.5 Validación y certificados
-
-![Validación pública de certificado](docs/img/manual/40-validar-certificado.png)
-![Resultado certificado válido](docs/img/manual/41-validacion-ok.png)
-![Resultado certificado no válido](docs/img/manual/42-validacion-fail.png)
-
 ---
 
 *Fin del manual de usuario.*

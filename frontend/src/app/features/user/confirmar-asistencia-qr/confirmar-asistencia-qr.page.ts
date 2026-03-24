@@ -12,6 +12,8 @@ import { CapacitacionesService, ConfirmarAsistenciaQRResult } from '../../admin/
 import { ToastController, LoadingController } from '@ionic/angular';
 import { ErrorHandlerUtil } from 'src/app/shared/utils/error-handler.util';
 import { Html5Qrcode, Html5QrcodeScannerState } from 'html5-qrcode';
+import { Camera } from '@capacitor/camera';
+import { Capacitor } from '@capacitor/core';
 
 type EstadoConfirmacion = 'inicial' | 'escaneando' | 'exito' | 'ya_confirmado' | 'error';
 
@@ -63,7 +65,26 @@ export class ConfirmarAsistenciaQrPage implements OnInit, OnDestroy {
   async iniciarEscaner() {
     this.estado = 'escaneando';
     this.escaneando = true;
-    this.cdr.detectChanges(); // Necesitamos que el DOM se actualice antes de montar el scanner
+    this.cdr.detectChanges(); 
+
+    // Check permissions explicitly if on native mobile
+    if (Capacitor.isNativePlatform()) {
+      try {
+        const perm = await Camera.checkPermissions();
+        if (perm.camera !== 'granted') {
+          const request = await Camera.requestPermissions();
+          if (request.camera !== 'granted') {
+             this.mostrarToast('Permiso de cámara necesario para escanear', 'warning');
+             this.estado = 'inicial';
+             this.escaneando = false;
+             this.cdr.detectChanges();
+             return;
+          }
+        }
+      } catch (e) {
+        console.warn('[QR_ASISTENCIA] Error verificando permisos nativos:', e);
+      }
+    }
 
     // Pequeño delay para que Angular pinte el div en DOM
     await this.delay(200);
