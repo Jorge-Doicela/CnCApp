@@ -18,11 +18,16 @@ export class LoginUserUseCase {
         @inject('TokenProvider') private readonly tokenProvider: TokenProvider
     ) { }
 
-    async execute(ci: string, password?: string, biometricToken?: string): Promise<LoginResult> {
-        console.log(`[LOGIN_DEBUG] Iniciando intento de login para CI: "${ci}" (Modo: ${biometricToken ? 'Biométrico' : 'Password'})`);
-        const user = await this.userRepository.findByCi(ci);
+    async execute(identifier: string, password?: string, biometricToken?: string): Promise<LoginResult> {
+        const isEmail = identifier.includes('@');
+        console.log(`[LOGIN_DEBUG] Iniciando intento de login para ${isEmail ? 'Email' : 'CI'}: "${identifier}" (Modo: ${biometricToken ? 'Biométrico' : 'Password'})`);
+        
+        const user = isEmail 
+            ? await this.userRepository.findByEmail(identifier)
+            : await this.userRepository.findByCi(identifier);
+
         if (!user) {
-            console.log(`[LOGIN_DEBUG] Usuario NO encontrado para CI: "${ci}"`);
+            console.log(`[LOGIN_DEBUG] Usuario NO encontrado para ${isEmail ? 'Email' : 'CI'}: "${identifier}"`);
             throw new AuthenticationError('Credenciales inválidas');
         }
 
