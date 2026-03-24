@@ -18,6 +18,10 @@ export const cargosList = [
     'VOCAL DE JUNTA PARROQUIAL',
     'SERVIDOR PÚBLICO (NJS)',
     'SERVIDOR PÚBLICO (TÉCNICO)',
+    'BOMBERO',
+    'POLICIA',
+    'VICEALCALDE',
+    'VICEPREFECTO',
     'CIUDADANÍA'
 ];
 
