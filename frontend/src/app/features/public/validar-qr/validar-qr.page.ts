@@ -1,9 +1,8 @@
-import { IonicModule } from '@ionic/angular';
-import { FormsModule } from '@angular/forms';
+import { Component, OnInit, OnDestroy, inject, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { IonicModule, ToastController, LoadingController } from '@ionic/angular';
 import { ActivatedRoute, RouterModule } from '@angular/router';
-import { ToastController, LoadingController } from '@ionic/angular';
 import { CertificadosService } from 'src/app/features/admin/certificados/services/certificados.service';
 import { CapacitacionesService } from 'src/app/features/admin/capacitaciones/services/capacitaciones.service';
 import { firstValueFrom } from 'rxjs';
@@ -15,8 +14,12 @@ import {
   alertCircle,
   calendarOutline,
   timeOutline,
-  arrowBackOutline
+  arrowBackOutline,
+  cameraOutline,
+  closeOutline,
+  imageOutline
 } from 'ionicons/icons';
+import { Html5Qrcode, Html5QrcodeScannerState } from 'html5-qrcode';
 
 @Component({
   selector: 'app-validar-qr',
@@ -25,7 +28,7 @@ import {
   standalone: true,
   imports: [CommonModule, FormsModule, IonicModule, RouterModule]
 })
-export class ValidarQrPage implements OnInit {
+export class ValidarQrPage implements OnInit, OnDestroy {
 
   hashCode: string = '';
   isLoading: boolean = false;
@@ -35,8 +38,14 @@ export class ValidarQrPage implements OnInit {
   certificadoData: any = null;
   capacitacionData: any = null;
 
+  // Scanner state
+  mostrandoEscaner: boolean = false;
+  private html5Qrcode: Html5Qrcode | null = null;
+  private readonly QR_READER_ID = 'qr-reader-public';
+
   private certificadosService = inject(CertificadosService);
   private capacitacionesService = inject(CapacitacionesService);
+  private ngZone = inject(NgZone);
 
   constructor(
     private route: ActivatedRoute,
@@ -50,7 +59,10 @@ export class ValidarQrPage implements OnInit {
       alertCircle,
       calendarOutline,
       timeOutline,
-      arrowBackOutline
+      arrowBackOutline,
+      cameraOutline,
+      closeOutline,
+      imageOutline
     });
   }
 
@@ -63,6 +75,95 @@ export class ValidarQrPage implements OnInit {
         this.validarCertificado();
       }
     });
+  }
+
+  ngOnDestroy() {
+    this.detenerEscaner();
+  }
+
+  // ─── Lógica del Escáner ─────────────────────────────────────────────────
+
+  async iniciarEscaner() {
+    this.mostrandoEscaner = true;
+    this.resultadoValidacion = false;
+    
+    // Pequeño delay para que el DOM se renderice
+    setTimeout(async () => {
+      try {
+        this.html5Qrcode = new Html5Qrcode(this.QR_READER_ID);
+        await this.html5Qrcode.start(
+          { facingMode: 'environment' },
+          {
+            fps: 10,
+            qrbox: { width: 250, height: 250 },
+            aspectRatio: 1.0
+          },
+          (decodedText: string) => {
+            this.ngZone.run(() => {
+              this.procesarCodigoEscaneado(decodedText);
+            });
+          },
+          () => {}
+        );
+      } catch (err) {
+        console.error('Error al iniciar cámara:', err);
+        this.presentToast('No se pudo acceder a la cámara', 'danger');
+        this.mostrandoEscaner = false;
+      }
+    }, 300);
+  }
+
+  async detenerEscaner() {
+    if (this.html5Qrcode) {
+      try {
+        if (this.html5Qrcode.getState() === Html5QrcodeScannerState.SCANNING) {
+          await this.html5Qrcode.stop();
+        }
+        await this.html5Qrcode.clear();
+      } catch (e) {}
+      this.html5Qrcode = null;
+    }
+    this.mostrandoEscaner = false;
+  }
+
+  procesarCodigoEscaneado(text: string) {
+    // El texto puede ser una URL completa o solo el hash
+    // Ejemplo: https://dominio.com/validar-certificados?hash=XYZ
+    try {
+      if (text.includes('hash=')) {
+        const url = new URL(text);
+        this.hashCode = url.searchParams.get('hash') || '';
+      } else {
+        this.hashCode = text;
+      }
+      
+      this.detenerEscaner();
+      this.validarCertificado();
+    } catch (e) {
+      this.hashCode = text;
+      this.detenerEscaner();
+      this.validarCertificado();
+    }
+  }
+
+  async seleccionarImagen(event: any) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const loading = await this.loadingController.create({
+      message: 'Analizando imagen...'
+    });
+    await loading.present();
+
+    try {
+      const html5QrCode = new Html5Qrcode(this.QR_READER_ID);
+      const result = await html5QrCode.scanFile(file, true);
+      this.procesarCodigoEscaneado(result);
+    } catch (err) {
+      this.presentToast('No se encontró un código QR válido en la imagen', 'warning');
+    } finally {
+      loading.dismiss();
+    }
   }
 
   async validarCertificado() {

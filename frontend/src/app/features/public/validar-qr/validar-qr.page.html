@@ -63,26 +63,59 @@
       <!-- Columna Derecha: Formulario y Resultados -->
       <div class="validation-column animate-fade-up" style="animation-delay: 0.2s;">
 
-        <!-- Formulario -->
+        <!-- Formulario y Escáner -->
         <div class="modern-card validation-form-card">
           <div class="form-header">
-            <h3>Validar certificado manualmente</h3>
-            <p>Ingrese el código único del documento</p>
+            <h3>Validar certificado</h3>
+            <p>Escanea el código QR o ingresa el ID manualmente</p>
           </div>
 
-          <div class="input-group">
-            <ion-item lines="none" class="custom-input">
-              <ion-icon name="key-outline" slot="start" color="primary"></ion-icon>
-              <ion-label position="stacked">Código de verificación</ion-label>
-              <ion-input [(ngModel)]="hashCode" placeholder="Ej: A1B2-C3D4-E5F6"></ion-input>
-            </ion-item>
+          <!-- Selector de Modo (Manual/Cámara) -->
+          <div class="mode-selector">
+            <ion-segment [value]="mostrandoEscaner ? 'camera' : 'manual'">
+              <ion-segment-button value="manual" (click)="detenerEscaner()">
+                <ion-label>Manual</ion-label>
+              </ion-segment-button>
+              <ion-segment-button value="camera" (click)="iniciarEscaner()">
+                <ion-label>Cámara</ion-label>
+              </ion-segment-button>
+            </ion-segment>
           </div>
 
-          <ion-button expand="block" shape="round" class="validate-btn" (click)="validarCertificado()"
-            [disabled]="isLoading || !hashCode">
-            <span *ngIf="!isLoading">Verificar Certificado</span>
-            <ion-spinner name="crescent" *ngIf="isLoading"></ion-spinner>
-          </ion-button>
+          <!-- Contenedor de Escáner -->
+          <div class="scanner-wrapper" *ngIf="mostrandoEscaner">
+            <div id="qr-reader-public" class="qr-reader-base"></div>
+            
+            <div class="scanner-actions">
+              <ion-button fill="clear" color="medium" (click)="fileInput.click()">
+                <ion-icon name="image-outline" slot="start"></ion-icon>
+                Subir imagen
+              </ion-button>
+              <input #fileInput type="file" (change)="seleccionarImagen($event)" accept="image/*" hidden>
+              
+              <ion-button fill="clear" color="danger" (click)="detenerEscaner()">
+                <ion-icon name="close-outline" slot="start"></ion-icon>
+                Cerrar cámara
+              </ion-button>
+            </div>
+          </div>
+
+          <!-- Entrada Manual -->
+          <div class="manual-wrapper" *ngIf="!mostrandoEscaner">
+            <div class="input-group">
+              <ion-item lines="none" class="custom-input">
+                <ion-icon name="key-outline" slot="start" color="primary"></ion-icon>
+                <ion-label position="stacked">Código de verificación</ion-label>
+                <ion-input [(ngModel)]="hashCode" placeholder="Ej: A1B2-C3D4-E5F6" (keyup.enter)="validarCertificado()"></ion-input>
+              </ion-item>
+            </div>
+
+            <ion-button expand="block" shape="round" class="validate-btn" (click)="validarCertificado()"
+              [disabled]="isLoading || !hashCode">
+              <span *ngIf="!isLoading">Verificar Certificado</span>
+              <ion-spinner name="crescent" *ngIf="isLoading"></ion-spinner>
+            </ion-button>
+          </div>
         </div>
 
         <!-- Resultados -->
