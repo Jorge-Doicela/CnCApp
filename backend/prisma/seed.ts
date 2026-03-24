@@ -8,7 +8,7 @@ import {
     privadoList, ciudadaniaList,
     regimenEspecialList, mancomunidadesList,
     bomberosList, empresasPublicasList,
-    registrosPropiedadList, consejosCantonalesList,
+    registrosPropiedadList, consejosCantonalesList, juntasCantonalesList,
     provinciasInstitucionesList, cantonesInstitucionesList, parroquiasInstitucionesList
 } from './data/form-options-index';
 import {
@@ -328,6 +328,7 @@ async function main() {
             ...empresasPublicasList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)', tipoInstitucionId: tid('MUNICIPAL') })),
             ...registrosPropiedadList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)', tipoInstitucionId: tid('MUNICIPAL') })),
             ...consejosCantonalesList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)', tipoInstitucionId: tid('MUNICIPAL') })),
+            ...juntasCantonalesList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)', tipoInstitucionId: tid('MUNICIPAL') })),
             // GADs Provinciales, Municipales (Presenciales) y Parroquiales
             ...provinciasInstitucionesList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL PROVINCIAL', tipoInstitucionId: tid('PROVINCIAL') })),
             ...cantonesInstitucionesList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)', tipoInstitucionId: tid('MUNICIPAL') })),
