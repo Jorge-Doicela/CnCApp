@@ -252,12 +252,24 @@
             Certificación y Diplomas
           </h3>
 
-          <div class="certification-toggle-edit">
-            <div class="toggle-info">
-              <label>¿Emitir certificados para este evento?</label>
-              <p>Habilita la generación de diplomas para los asistentes.</p>
+          <div class="certification-selector-edit" style="margin-bottom: 24px;">
+            <div class="cert-option-card-edit" [class.selected]="!capacitacion.certificado" 
+                 (click)="capacitacion.estado !== EstadoCapacitacion.PENDIENTE ? capacitacion.certificado = false : null">
+              <div class="opt-icon"><ion-icon name="close-circle-outline"></ion-icon></div>
+              <div class="opt-text">
+                <span class="opt-title">Deshabilitar Diplomas</span>
+                <span class="opt-desc">No se emitirán documentos.</span>
+              </div>
             </div>
-            <ion-toggle [(ngModel)]="capacitacion.certificado" name="certificado" mode="ios" [disabled]="capacitacion.estado === EstadoCapacitacion.PENDIENTE"></ion-toggle>
+            
+            <div class="cert-option-card-edit highlighted" [class.selected]="capacitacion.certificado" 
+                 (click)="capacitacion.estado !== EstadoCapacitacion.PENDIENTE ? capacitacion.certificado = true : null">
+              <div class="opt-icon"><ion-icon name="ribbon-outline"></ion-icon></div>
+              <div class="opt-text">
+                <span class="opt-title">Habilitar Diplomas</span>
+                <span class="opt-desc">Permitir descarga de certificados.</span>
+              </div>
+            </div>
           </div>
 
           <div class="form-group slide-down" *ngIf="capacitacion.certificado">

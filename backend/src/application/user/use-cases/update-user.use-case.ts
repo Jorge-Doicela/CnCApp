@@ -25,7 +25,7 @@ export class UpdateUserUseCase {
             if (user.fotoPerfilUrl) {
                 await this.fileStorageService.deleteFile(user.fotoPerfilUrl);
             }
-            userData.fotoPerfilUrl = await this.fileStorageService.saveBase64(userData.fotoPerfilUrl, 'profiles');
+            userData.fotoPerfilUrl = await this.fileStorageService.saveBase64(userData.fotoPerfilUrl, 'perfiles');
         } else if (userData.fotoPerfilUrl === null || userData.fotoPerfilUrl === '') {
             // User wants to remove their photo
             if (user.fotoPerfilUrl) {

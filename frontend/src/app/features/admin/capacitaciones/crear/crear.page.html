@@ -293,12 +293,24 @@
             <span>CONFIGURACIÓN DE CERTIFICADO</span>
           </div>
           
-          <div class="certification-toggle-container" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0;">
-            <div class="toggle-label">
-              <span style="font-weight: 700; color: var(--text-primary); display: block;">¿Generar certificados?</span>
-              <span style="font-size: 0.8rem; color: var(--text-muted);">Los asistentes podrán descargar su diploma al finalizar.</span>
+          <div class="certification-selector" style="margin-top: 20px;">
+            <div class="cert-option-card" [class.selected]="!capacitacion.certificado" (click)="capacitacion.certificado = false">
+              <div class="opt-icon"><ion-icon name="close-circle-outline"></ion-icon></div>
+              <div class="opt-text">
+                <span class="opt-title">Sin Certificados</span>
+                <span class="opt-desc">Evento informativo o sin diploma.</span>
+              </div>
+              <div class="opt-check" *ngIf="!capacitacion.certificado"><ion-icon name="checkmark-circle"></ion-icon></div>
             </div>
-            <ion-toggle [(ngModel)]="capacitacion.certificado" name="certificado" mode="ios"></ion-toggle>
+            
+            <div class="cert-option-card highlighted" [class.selected]="capacitacion.certificado" (click)="capacitacion.certificado = true">
+              <div class="opt-icon"><ion-icon name="ribbon-outline"></ion-icon></div>
+              <div class="opt-text">
+                <span class="opt-title">Emitir Certificados</span>
+                <span class="opt-desc">Habilitar descarga de diplomas.</span>
+              </div>
+              <div class="opt-check" *ngIf="capacitacion.certificado"><ion-icon name="checkmark-circle"></ion-icon></div>
+            </div>
           </div>
 
           <div class="field-group slide-down" *ngIf="capacitacion.certificado" style="margin-top: 15px;">
