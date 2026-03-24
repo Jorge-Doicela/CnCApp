@@ -8,6 +8,11 @@ import { validarCedula } from './validar-cedula';
 export function validarDocumentoIdentidad(documento: string): boolean {
     if (!documento || documento.length < 5) return false;
     
+    // Si contiene un @, es un email y no validamos como cédula
+    if (documento.includes('@')) {
+        return true;
+    }
+
     // Si tiene exactamente 10 dígitos y solo números, asumimos que es cédula ecuatoriana y la validamos
     if (/^\d{10}$/.test(documento)) {
         return validarCedula(documento);

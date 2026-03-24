@@ -47,7 +47,7 @@ const registerSchema = z.object({
 });
 
 const loginSchema = z.object({
-    ci: z.string().min(5, 'El documento debe tener al menos 5 caracteres').max(20, 'El documento no debe exceder los 20 caracteres').refine(validarDocumentoIdentidad, 'Documento de identidad inválido o Cédula incorrecta'),
+    ci: z.string().min(5, 'El documento o email debe tener al menos 5 caracteres').max(100, 'El identificador no debe exceder los 100 caracteres').refine(validarDocumentoIdentidad, 'Documento de identidad o Email inválido'),
     password: z.string().min(1, 'La contraseña es requerida').optional(),
     biometricToken: z.string().optional()
 });
