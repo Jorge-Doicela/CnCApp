@@ -20,8 +20,10 @@ echo "🧹 Limpiando imágenes antiguas..."
 docker image prune -f
 
 # 4. Sembrar la base de datos (Ejecutar seeders)
-echo "⏳ Esperando 10 segundos a que los servicios estén listos..."
-sleep 10
+echo "⏳ Esperando 15 segundos a que la base de datos esté lista..."
+sleep 15
+echo "🏗️  Aplicando migraciones (Esquema de BD)..."
+docker compose exec -T backend npx prisma migrate deploy
 echo "🌱 Sembrando la base de datos..."
 docker compose exec -T backend npx prisma db seed
 
