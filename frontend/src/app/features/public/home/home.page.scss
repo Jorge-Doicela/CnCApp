@@ -1290,53 +1290,73 @@ ion-header {
 // ------------------------------------------
 .final-cta-section {
   background: #f8fafc;
-  padding-top: 20px; // Reduced from 40px
-  padding-bottom: 40px;
+  padding-top: 10px; 
+  padding-bottom: 30px;
   
   .cta-glass-card {
     background: #1e3a8a;
     background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
-    border-radius: 24px; // Slightly smaller radius
-    padding: 32px 24px; // Much more compact
-    text-align: center;
+    border-radius: 20px;
+    padding: 24px 40px; // Slim height, wide sides
+    text-align: left; // Align left for horizontal
     color: white;
-    box-shadow: 0 20px 40px -10px rgba(30, 58, 138, 0.3);
+    box-shadow: 0 15px 35px -10px rgba(30, 58, 138, 0.25);
+    display: flex; // Horizontal layout
+    align-items: center;
+    justify-content: space-between;
+    gap: 30px;
+
+    .cta-text-content {
+      flex: 1;
+    }
 
     h2 {
-      font-size: 1.75rem; // Reduced from 2.4rem
+      font-size: 1.5rem; // Even smaller
       font-weight: 850;
-      margin-bottom: 8px;
+      margin-bottom: 4px;
       letter-spacing: -0.02em;
       color: #ffffff;
     }
 
     p {
-      font-size: 0.95rem; // Reduced from 1.05rem
+      font-size: 0.9rem;
       color: rgba(255, 255, 255, 0.85);
-      margin-bottom: 20px; // Reduced from 30px
-      max-width: 440px;
-      margin-left: auto;
-      margin-right: auto;
-      line-height: 1.5;
+      margin-bottom: 0; // Remove bottom margin
+      max-width: 100%;
+      line-height: 1.4;
     }
 
     .cta-btn-primary {
       background: #ffffff;
       color: #1e3a8a;
-      padding: 12px 32px; // Reduced from 18px 40px
-      border-radius: 99px;
+      padding: 12px 28px;
+      border-radius: 12px; // Match card style
       font-weight: 800;
-      font-size: 0.95rem; // Reduced from 1.1rem
+      font-size: 0.9rem;
       border: none;
       cursor: pointer;
       transition: all 0.3s;
-      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+      white-space: nowrap; // Don't wrap button text
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 
       &:hover {
         transform: translateY(-2px);
         background: #f8fafc;
-        box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
       }
+    }
+  }
+}
+
+@media (max-width: 800px) {
+  .final-cta-section .cta-glass-card {
+    flex-direction: column;
+    text-align: center;
+    padding: 32px 24px;
+    gap: 20px;
+
+    .cta-btn-primary {
+      width: 100%;
     }
   }
 }
