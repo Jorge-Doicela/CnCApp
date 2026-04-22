@@ -45,20 +45,27 @@ const level = () => {
     return isDevelopment ? 'debug' : 'warn';
 };
 
+// Determinar si estamos en Vercel
+const isVercel = process.env.VERCEL === '1' || !!process.env.VERCEL;
+
 // Crear transports
-const transports = [
-    // Console transport
+const transports: winston.transport[] = [
+    // Console transport siempre activo
     new winston.transports.Console(),
-
-    // File transport para errores
-    new winston.transports.File({
-        filename: 'logs/error.log',
-        level: 'error',
-    }),
-
-    // File transport para todos los logs
-    new winston.transports.File({ filename: 'logs/combined.log' }),
 ];
+
+// Solo agregar transports de archivo si no estamos en Vercel
+if (!isVercel) {
+    transports.push(
+        // File transport para errores
+        new winston.transports.File({
+            filename: 'logs/error.log',
+            level: 'error',
+        }),
+        // File transport para todos los logs
+        new winston.transports.File({ filename: 'logs/combined.log' })
+    );
+}
 
 // Crear logger
 const logger = winston.createLogger({
