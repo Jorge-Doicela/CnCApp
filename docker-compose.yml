@@ -30,13 +30,13 @@ services:
       target: production
     container_name: cnc-backend
     restart: unless-stopped
+    env_file:
+      - .env
     environment:
-      NODE_ENV: ${NODE_ENV:-production}
+      NODE_ENV: production
       PORT: 3000
+      # Sobrescribimos DATABASE_URL para usar el contenedor local de Postgres en lugar de Neon
       DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-cnc_db}?schema=public
-      JWT_SECRET: ${JWT_SECRET}
-      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
-      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost}
     ports:
       - "${BACKEND_PORT:-3000}:3000"
     depends_on:
@@ -46,7 +46,8 @@ services:
       - cnc-network
     volumes:
       - backend_uploads:/app/uploads
-    command: sh -c "npx prisma migrate deploy && node dist/app.js"
+    # Ejecutamos migraciones, seeders y finalmente la app
+    command: sh -c "npx prisma migrate deploy && npx prisma db seed && node dist/app.js"
 
   # Frontend (Nginx)
   frontend:
