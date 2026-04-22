@@ -6,6 +6,7 @@
       <!-- Left: Brand (CNC) -->
       <div class="brand-section" (click)="navegarModulo('/')">
         <ion-menu-button class="mobile-menu-btn"></ion-menu-button>
+        <img src="assets/images/ui/logo-header.png" class="brand-logo-img" alt="CNC Logo">
         <div class="brand-identity">
           <div class="brand-acronym">CNC</div>
           <div class="brand-tagline">Ecuador</div>
@@ -176,8 +177,16 @@
     flex-shrink: 0;
   }
 
+  .brand-logo-img {
+    height: 38px;
+    width: 38px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 1.5px solid #e2e8f0;
+  }
+
   .brand-identity {
-    border-left: 3px solid #1e3a8a;
+    border-left: 2px solid #e2e8f0;
     padding-left: 14px;
     line-height: 1;
   }
