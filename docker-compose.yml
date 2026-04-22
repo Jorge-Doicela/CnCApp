@@ -31,7 +31,7 @@ services:
     container_name: cnc-backend
     restart: unless-stopped
     env_file:
-      - .env
+      - backend/.env
     environment:
       NODE_ENV: production
       PORT: 3000

@@ -1,9 +1,9 @@
 import { Router } from 'express';
 import { container } from 'tsyringe';
-import { UpdateCapacitacionUseCase } from '@application/capacitacion/use-cases/update-capacitacion.use-case';
-import logger from '@config/logger';
-import { EstadoCapacitacionEnum } from '@shared/constants/enums';
-import prisma from '@config/database';
+import { UpdateCapacitacionUseCase } from '../../../application/capacitacion/use-cases/update-capacitacion.use-case';
+import logger from '../../../config/logger';
+import { EstadoCapacitacionEnum } from '../../../domain/shared/constants/enums';
+import prisma from '../../../config/database';
 
 const router = Router();
 
