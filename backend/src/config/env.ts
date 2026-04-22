@@ -10,6 +10,8 @@ const envSchema = z.object({
     NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
     PORT: z.string().transform(Number).default('3000'),
     API_PREFIX: z.string().default('/api'),
+    LOG_LEVEL: z.enum(['error', 'warn', 'info', 'http', 'debug']).default('info'),
+    DEBUG_API: z.string().transform(v => v === 'true').default('false'),
 
     // Database
     DATABASE_URL: z.string().url({ message: "DATABASE_URL must be a valid URL" }),

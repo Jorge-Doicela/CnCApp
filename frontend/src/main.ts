@@ -13,6 +13,14 @@ import { AppComponent } from './app/app.component';
 import { routes } from './app/app.routes';
 
 import { FingerprintAIO } from '@awesome-cordova-plugins/fingerprint-aio/ngx';
+import { environment } from './environments/environment';
+
+if (environment.production) {
+  console.log = () => {};
+  console.debug = () => {};
+  console.info = () => {};
+  console.warn = () => {};
+}
 
 bootstrapApplication(AppComponent, {
   providers: [

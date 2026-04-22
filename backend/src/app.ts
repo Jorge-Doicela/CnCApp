@@ -100,8 +100,10 @@ if (env.RATE_LIMIT_MAX_REQUESTS > 0) {
 app.use(compression());
 
 // Logging de peticiones
-if (env.NODE_ENV === 'development') {
+if (env.NODE_ENV === 'development' && env.DEBUG_API) {
     app.use(morgan('dev'));
+} else if (env.NODE_ENV === 'development') {
+    app.use(morgan('tiny'));
 } else {
     app.use(morgan('combined'));
 }
@@ -114,8 +116,8 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(express.static('public'));
 app.use('/uploads', express.static('uploads'));
 
-// Debug Middleware (solo en desarrollo)
-if (env.NODE_ENV === 'development') {
+// Debug Middleware (solo si está activado explícitamente)
+if (env.DEBUG_API) {
     app.use((req, _res, next) => {
         console.log(`[DEBUG_API] ${new Date().toISOString()} - ${req.method} ${req.url}`);
         console.log('[DEBUG_API] Headers:', {

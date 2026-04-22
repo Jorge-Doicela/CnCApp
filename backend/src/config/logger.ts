@@ -1,4 +1,5 @@
 import winston from 'winston';
+import { env } from './env';
 
 // Definir niveles de log personalizados
 const levels = {
@@ -38,11 +39,9 @@ const prodFormat = winston.format.combine(
     winston.format.json()
 );
 
-// Determinar nivel según entorno
+// Determinar nivel según entorno o configuración
 const level = () => {
-    const env = process.env.NODE_ENV || 'development';
-    const isDevelopment = env === 'development';
-    return isDevelopment ? 'debug' : 'warn';
+    return env.LOG_LEVEL || 'info';
 };
 
 // Determinar si estamos en Vercel
