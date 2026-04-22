@@ -1,16 +1,3 @@
-<ion-header class="ion-no-border">
-    <ion-toolbar class="luxury-toolbar">
-        <ion-buttons slot="start">
-            <ion-menu-button color="primary"></ion-menu-button>
-        </ion-buttons>
-        <div class="toolbar-status-wrapper" slot="end" style="padding-right: 16px;">
-            <div class="status-pill premium">
-                <span class="dot pulse"></span>
-                Admin Panel
-            </div>
-        </div>
-    </ion-toolbar>
-</ion-header>
 
 <ion-content [fullscreen]="true">
 
@@ -74,30 +61,33 @@
                             </div>
                         </div>
 
-                        <!-- Entidad -->
-                        <div class="filter-group">
-                            <ion-label>Entidad Organizadora</ion-label>
-                            <ion-item lines="none" class="glass-input">
-                                <ion-icon name="business-outline" slot="start"></ion-icon>
-                                <ion-select placeholder="Todas las entidades" [(ngModel)]="filtros().entidadId" (ionChange)="actualizarFiltros()">
-                                    <ion-select-option [value]="undefined">Todas</ion-select-option>
-                                    <ion-select-option *ngFor="let ent of entidades()" [value]="ent.id">{{ ent.nombre }}</ion-select-option>
-                                </ion-select>
-                            </ion-item>
-                        </div>
+                        <!-- Entidad y Modalidad lado a lado -->
+                        <div class="filter-row-compact">
+                            <!-- Entidad -->
+                            <div class="filter-group">
+                                <ion-label>Entidad Organizadora</ion-label>
+                                <ion-item lines="none" class="glass-input">
+                                    <ion-icon name="business-outline" slot="start"></ion-icon>
+                                    <ion-select placeholder="Todas las entidades" [(ngModel)]="filtros().entidadId" (ionChange)="actualizarFiltros()">
+                                        <ion-select-option [value]="undefined">Todas</ion-select-option>
+                                        <ion-select-option *ngFor="let ent of entidades()" [value]="ent.id">{{ ent.nombre }}</ion-select-option>
+                                    </ion-select>
+                                </ion-item>
+                            </div>
 
-                        <!-- Modalidad -->
-                        <div class="filter-group">
-                            <ion-label>Modalidad</ion-label>
-                            <ion-item lines="none" class="glass-input">
-                                <ion-icon name="school-outline" slot="start"></ion-icon>
-                                <ion-select placeholder="Todas las modalidades" [(ngModel)]="filtros().modalidad" (ionChange)="actualizarFiltros()">
-                                    <ion-select-option value="">Todas</ion-select-option>
-                                    <ion-select-option value="Presencial">Presencial</ion-select-option>
-                                    <ion-select-option value="Virtual">Virtual</ion-select-option>
-                                    <ion-select-option value="Híbrido">Híbrido</ion-select-option>
-                                </ion-select>
-                            </ion-item>
+                            <!-- Modalidad -->
+                            <div class="filter-group">
+                                <ion-label>Modalidad</ion-label>
+                                <ion-item lines="none" class="glass-input">
+                                    <ion-icon name="school-outline" slot="start"></ion-icon>
+                                    <ion-select placeholder="Todas las modalidades" [(ngModel)]="filtros().modalidad" (ionChange)="actualizarFiltros()">
+                                        <ion-select-option value="">Todas</ion-select-option>
+                                        <ion-select-option value="Presencial">Presencial</ion-select-option>
+                                        <ion-select-option value="Virtual">Virtual</ion-select-option>
+                                        <ion-select-option value="Híbrido">Híbrido</ion-select-option>
+                                    </ion-select>
+                                </ion-item>
+                            </div>
                         </div>
                     </div>
                 </div>

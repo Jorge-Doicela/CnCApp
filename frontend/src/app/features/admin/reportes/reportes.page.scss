@@ -277,7 +277,7 @@
 // --- Filtros Premium ---
 .filters-container {
     max-width: 1400px;
-    margin: 0 auto 2rem;
+    margin: 0 auto 1.5rem;
     padding: 0 16px;
     @media (max-width: 600px) {
         padding: 0 8px;
@@ -290,7 +290,7 @@
     -webkit-backdrop-filter: blur(12px);
     border: 1px solid rgba(255, 255, 255, 0.4);
     border-radius: 20px;
-    padding: 1rem;
+    padding: 0.75rem 1rem;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
 }
 
@@ -298,8 +298,8 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1.2rem;
-    padding-bottom: 0.8rem;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
     border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 
     .filter-title {
@@ -324,18 +324,29 @@
 }
 
 .filter-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.filter-row-compact {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
-    gap: 1.5rem;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+    
+    .glass-input {
+        padding: 0 4px;
+        ion-icon { display: none; } // Remove icons to save horizontal space
+    }
 }
 
 .filter-group {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 4px;
 
     ion-label {
-        font-size: 0.85rem;
+        font-size: 0.75rem;
         font-weight: 600;
         color: #666;
         margin-left: 4px;
@@ -349,6 +360,9 @@
     border: 1px solid rgba(255, 255, 255, 0.8) !important;
     border-radius: 12px;
     --background: transparent;
+    --min-height: 44px;
+    color-scheme: light; // Force light theme for native browser controls
+    color: #0f172a !important;
     transition: all 0.3s ease;
 
     &:hover {
@@ -358,13 +372,30 @@
 
     ion-icon {
         color: #888;
-        margin-right: 8px;
+        margin-right: 4px;
+        font-size: 1.1rem;
     }
 
     ion-input, ion-select {
-        --padding-start: 10px;
-        font-size: 0.95rem;
-        color: var(--ion-color-dark);
+        --padding-start: 6px;
+        font-size: 0.85rem;
+        color: #0f172a !important; 
+        --color: #0f172a !important;
+        --placeholder-color: #64748b !important;
+        --placeholder-opacity: 1 !important;
+        font-weight: 600;
+        color-scheme: light !important;
+    }
+
+    // Force native date input internal text color
+    input[type="date"] {
+        color: #0f172a !important;
+        &::-webkit-datetime-edit-text,
+        &::-webkit-datetime-edit-month-field,
+        &::-webkit-datetime-edit-day-field,
+        &::-webkit-datetime-edit-year-field {
+            color: #0f172a !important;
+        }
     }
 }
 
