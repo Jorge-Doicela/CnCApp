@@ -81,16 +81,29 @@ app.use(cors({
 }));
 
 // Rate Limiting - Prevenir ataques de fuerza bruta
+// Se aplica un límite estricto solo a las rutas de autenticación y un límite
+// amplio al resto de la API, ya que múltiples usuarios pueden compartir la misma IP en red local.
+const authLimiter = rateLimit({
+    windowMs: env.RATE_LIMIT_WINDOW_MS,        // 15 minutos
+    max: 50,                                    // máx 50 intentos de login por IP
+    message: 'Demasiados intentos de autenticación desde esta IP, intenta de nuevo más tarde',
+    skipSuccessfulRequests: true                // no contar las peticiones exitosas
+});
+
 if (env.RATE_LIMIT_MAX_REQUESTS > 0) {
-    const limiter = rateLimit({
+    const generalLimiter = rateLimit({
         windowMs: env.RATE_LIMIT_WINDOW_MS,
-        max: env.RATE_LIMIT_MAX_REQUESTS,
+        max: env.RATE_LIMIT_MAX_REQUESTS * 10, // 10x más permisivo para la API general
         message: 'Demasiadas peticiones desde esta IP, intenta de nuevo más tarde'
     });
-    app.use('/api/', limiter);
+    app.use('/api/', generalLimiter);
+    logger.info(`Rate limiting general: ${env.RATE_LIMIT_MAX_REQUESTS * 10} req/${env.RATE_LIMIT_WINDOW_MS}ms`);
 } else {
-    logger.info('Rate limiting esta desactivado (RATE_LIMIT_MAX_REQUESTS = 0)');
+    logger.info('Rate limiting general esta desactivado (RATE_LIMIT_MAX_REQUESTS = 0)');
 }
+
+// Aplicar límite estricto solo a rutas de autenticación (sensibles a fuerza bruta)
+app.use('/api/auth/', authLimiter);
 
 // ============================================
 // MIDDLEWARE GENERAL

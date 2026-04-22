@@ -39,10 +39,10 @@ ion-content {
 .main-container {
   max-width: 1300px;
   margin: 0 auto;
-  padding: 40px 32px 100px;
+  padding: 10px 24px 60px;
 
   @media (max-width: 768px) {
-    padding: 24px 16px 80px;
+    padding: 10px 16px 40px;
   }
 }
 
@@ -60,54 +60,54 @@ ion-content {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 32px;
-  margin-bottom: 60px;
+  gap: 24px;
+  margin-bottom: 16px;
   flex-wrap: wrap;
 
   .header-left {
     flex: 1;
-    min-width: 300px;
+    min-width: min(100%, 300px);
     
     .eyebrow {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      font-size: 0.75rem;
+      gap: 6px;
+      font-size: 0.7rem;
       font-weight: 800;
       text-transform: uppercase;
-      letter-spacing: 0.15em;
+      letter-spacing: 0.12em;
       color: var(--accent-indigo);
-      margin-bottom: 12px;
-      padding: 6px 12px;
+      margin-bottom: 8px;
+      padding: 4px 10px;
       background: rgba(99, 102, 241, 0.08);
       border-radius: 100px;
       border: 1px solid rgba(99, 102, 241, 0.1);
     }
 
     h1 {
-      font-size: 3.5rem;
+      font-size: 2.2rem;
       font-weight: 950;
       color: var(--text-primary);
-      letter-spacing: -0.05em;
+      letter-spacing: -0.04em;
       margin: 0;
-      line-height: 1;
+      line-height: 1.1;
       background: linear-gradient(135deg, #0f172a 0%, #334155 100%);
       -webkit-background-clip: text;
       background-clip: text;
       -webkit-text-fill-color: transparent;
 
       @media (max-width: 768px) {
-        font-size: 2.5rem;
+        font-size: 2rem;
       }
     }
 
     p {
-      font-size: 1.25rem;
+      font-size: 1.05rem;
       color: var(--text-secondary);
-      margin: 16px 0 0;
+      margin: 10px 0 0;
       font-weight: 500;
       max-width: 600px;
-      line-height: 1.5;
+      line-height: 1.4;
     }
   }
 
@@ -115,7 +115,7 @@ ion-content {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    gap: 20px;
+    gap: 16px;
     
     .compact-stats {
       margin: 0;
@@ -123,20 +123,19 @@ ion-content {
 
     .new-btn {
       --background: linear-gradient(135deg, var(--accent-blue), var(--accent-indigo));
-      --border-radius: 18px;
-      --padding-start: 28px;
-      --padding-end: 28px;
-      --box-shadow: 0 15px 30px -10px rgba(37, 99, 235, 0.4);
-      height: 60px;
+      --border-radius: 14px;
+      --padding-start: 24px;
+      --padding-end: 24px;
+      --box-shadow: 0 10px 20px -8px rgba(37, 99, 235, 0.3);
+      height: 48px;
       font-weight: 800;
-      font-size: 1.05rem;
+      font-size: 0.95rem;
       margin: 0;
       width: 100%;
       transition: var(--transition-pop);
 
       &:hover {
-        transform: translateY(-5px) scale(1.02);
-        --box-shadow: 0 25px 40px -12px rgba(37, 99, 235, 0.5);
+        transform: translateY(-3px);
       }
     }
 
@@ -151,13 +150,13 @@ ion-content {
 // ── Compact Integrated Stats (Pill Capsule Design) ──
 .compact-stats {
   display: flex;
-  gap: 32px;
-  margin-top: 28px;
-  padding: 12px 32px;
+  gap: 24px;
+  margin-top: 12px;
+  padding: 8px 24px;
   background: white;
   border-radius: 100px;
   width: fit-content;
-  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.05);
   border: 1px solid rgba(0, 0, 0, 0.02);
   animation: f-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) both 0.2s;
 
@@ -166,32 +165,32 @@ ion-content {
     flex-direction: column;
     align-items: center;
     position: relative;
-    min-width: 60px;
+    min-width: 50px;
 
     &:not(:last-child)::after {
       content: '';
       position: absolute;
-      right: -16px;
-      top: 15%;
-      height: 70%;
+      right: -12px;
+      top: 20%;
+      height: 60%;
       width: 1px;
       background: #f1f5f9;
     }
     
     .val {
-      font-size: 2rem;
+      font-size: 1.4rem;
       font-weight: 800;
       color: #1e293b;
       line-height: 1;
       letter-spacing: -0.02em;
     }
     .lab {
-      font-size: 0.65rem;
+      font-size: 0.6rem;
       font-weight: 900;
       color: #64748b;
       text-transform: uppercase;
       letter-spacing: 0.08em;
-      margin-top: 8px;
+      margin-top: 4px;
       white-space: nowrap;
     }
 
@@ -201,12 +200,17 @@ ion-content {
   }
 
   @media (max-width: 600px) {
-    gap: 16px;
-    padding: 10px 20px;
+    gap: 8px;
+    padding: 6px 12px;
+    width: 100%;
+    justify-content: space-between;
+    
     .mini-stat {
       min-width: auto;
-      .val { font-size: 1.5rem; }
-      &:not(:last-child)::after { right: -8px; }
+      flex: 1;
+      .val { font-size: 1.1rem; }
+      .lab { font-size: 0.55rem; }
+      &:not(:last-child)::after { right: -4px; }
     }
   }
 }
@@ -214,15 +218,15 @@ ion-content {
 // ── Control Center (Search & Filters) ────────
 .control-center {
   @extend .glass-effect;
-  border-radius: var(--radius-xl);
-  padding: 32px;
-  margin-bottom: 60px;
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  margin-bottom: 16px;
 
   .search-wrapper {
     display: flex;
     align-items: center;
-    gap: 16px;
-    margin-bottom: 24px;
+    gap: 12px;
+    margin-bottom: 16px;
     width: 100%;
 
     .custom-premium-search {
@@ -230,22 +234,21 @@ ion-content {
       display: flex;
       align-items: center;
       background: #f1f5f9;
-      border-radius: 20px;
-      padding: 0 20px;
-      height: 60px;
+      border-radius: 14px;
+      padding: 0 16px;
+      height: 48px;
       transition: var(--transition-premium);
       border: 1px solid rgba(0, 0, 0, 0.05);
 
       &:focus-within {
         background: white;
         border-color: var(--accent-blue);
-        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
       }
 
       .search-icon {
-        font-size: 1.4rem;
+        font-size: 1.2rem;
         color: var(--text-muted);
-        margin-right: 12px;
+        margin-right: 8px;
       }
 
       .search-input {
@@ -254,78 +257,49 @@ ion-content {
         background: transparent;
         height: 100%;
         color: var(--text-primary);
-        font-size: 1rem;
+        font-size: 0.95rem;
         font-weight: 500;
         outline: none;
-
-        &::placeholder {
-          color: var(--text-muted);
-        }
-      }
-
-      .clear-search-btn {
-        --color: var(--text-muted);
-        margin: 0;
-        --padding-start: 8px;
-        --padding-end: 0;
-        font-size: 1.2rem;
-        &:hover { --color: var(--accent-rose); }
       }
     }
 
     .filter-toggle {
       --color: var(--text-secondary);
-      height: 60px; // Match search bar height
-      width: 60px;
+      height: 48px;
+      width: 48px;
       @extend .glass-effect;
-      border-radius: 20px;
+      border-radius: 14px;
       margin: 0;
-      transition: var(--transition-pop);
-      display: flex;
-      align-items: center;
-      justify-content: center;
       
       &:hover {
         background: white;
         color: var(--accent-blue);
-        transform: scale(1.05);
-      }
-      &.active {
-        background: var(--accent-blue);
-        color: white;
-        border-color: var(--accent-blue);
-        --color: white;
       }
     }
   }
 
   .quick-filters {
     display: flex;
-    gap: 12px;
+    gap: 8px;
     flex-wrap: wrap;
     
     .filter-chip {
-      padding: 12px 24px;
+      padding: 6px 14px;
       border-radius: 100px;
       background: rgba(241, 245, 249, 0.8);
-      border: 1px solid rgba(0,0,0,0.03);
       color: var(--text-secondary);
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       font-weight: 700;
       cursor: pointer;
-      transition: var(--transition-premium);
 
       &:hover {
         background: white;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        transform: translateY(-1px);
       }
 
       &.active {
         background: var(--text-primary);
         color: white;
-        border-color: var(--text-primary);
-        box-shadow: 0 10px 20px -5px rgba(15, 23, 42, 0.3);
       }
     }
   }
@@ -336,22 +310,22 @@ ion-content {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 32px;
+  margin-bottom: 10px;
   
   h2 {
-    font-size: 1.75rem;
-    font-weight: 950;
+    font-size: 1.25rem;
+    font-weight: 900;
     color: var(--text-primary);
     margin: 0;
-    letter-spacing: -0.04em;
+    letter-spacing: -0.02em;
   }
 
   .results-count {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     font-weight: 800;
     color: var(--text-muted);
     background: #f1f5f9;
-    padding: 6px 16px;
+    padding: 4px 12px;
     border-radius: 100px;
   }
 }
@@ -360,164 +334,149 @@ ion-content {
 .capacitacion-card {
   @extend .glass-effect;
   background: white;
-  border-radius: var(--radius-xl);
-  padding: 48px;
-  margin-bottom: 32px;
+  border-radius: 20px;
+  padding: 16px 18px;
+  margin-bottom: 14px;
   transition: var(--transition-premium);
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 12px;
+  border: 1px solid rgba(0,0,0,0.03);
 
   &::after {
     content: '';
     position: absolute;
     inset: 0;
-    border-radius: var(--radius-xl);
+    border-radius: var(--radius-lg);
     border: 2px solid transparent;
     transition: var(--transition-premium);
     pointer-events: none;
   }
 
   &:hover {
-    transform: translateY(-12px) scale(1.005);
+    transform: translateY(-4px);
   }
 
-  // Refined Hover Effects (Balanced State Awareness)
-  &.state-active:hover {
-    box-shadow: 0 40px 80px -15px rgba(37, 99, 235, 0.25);
-    &::after { 
-      border-color: rgba(37, 99, 235, 0.4);
-      border-width: 2px;
-    }
-  }
+  // Refined Hover Effects
+  &.state-active:hover { box-shadow: 0 15px 30px -10px rgba(37, 99, 235, 0.15); }
+  &.state-done:hover { box-shadow: 0 15px 30px -10px rgba(13, 148, 136, 0.15); }
 
-  &.state-done:hover {
-    box-shadow: 0 40px 80px -15px rgba(13, 148, 136, 0.25);
-    &::after { 
-      border-color: rgba(13, 148, 136, 0.4);
-      border-width: 2px;
-    }
-  }
-
-  &.state-canceled:hover {
-    box-shadow: 0 40px 80px -15px rgba(225, 29, 72, 0.25);
-    &::after { 
-      border-color: rgba(225, 29, 72, 0.4);
-      border-width: 2px;
-    }
-  }
-
-  // Status Ribbons & Indicators
   .card-header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    gap: 24px;
+    gap: 16px;
 
     .title-area {
       flex: 1;
       h3 {
-        font-size: 2.25rem;
-        font-weight: 950;
+        font-size: 1.25rem;
+        font-weight: 800;
         color: var(--text-primary);
-        margin: 0 0 16px;
-        line-height: 1.1;
-        letter-spacing: -0.04em;
+        margin: 0 0 2px;
+        line-height: 1.3;
+        letter-spacing: -0.01em;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
       }
       .description {
-        font-size: 1.15rem;
-        line-height: 1.6;
+        font-size: 0.88rem;
+        line-height: 1.5;
         color: var(--text-secondary);
         margin: 0;
-        max-width: 850px;
-        font-weight: 500;
+        max-width: 800px;
+        font-weight: 400;
+        opacity: 0.8;
       }
     }
 
     .status-area {
+      position: absolute;
+      top: 16px;
+      right: 18px;
       display: flex;
       flex-direction: column;
       align-items: flex-end;
-      gap: 12px;
+      gap: 6px;
 
       .premium-badge {
-        padding: 8px 16px;
-        border-radius: 12px;
-        font-size: 0.75rem;
-        font-weight: 900;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 0.6rem;
+        font-weight: 800;
         text-transform: uppercase;
-        letter-spacing: 0.1em;
         display: flex;
         align-items: center;
-        gap: 6px;
+        gap: 4px;
+        letter-spacing: 0.05em;
+        background: #f1f5f9;
+        color: var(--text-secondary);
+        border: 1px solid rgba(0,0,0,0.05);
 
-        &.active { background: #eff6ff; color: var(--accent-blue); border: 1px solid rgba(37, 99, 235, 0.1); }
-        &.done { background: #f0fdf4; color: var(--accent-teal); border: 1px solid rgba(13, 148, 136, 0.1); }
-        &.canceled { background: #fef2f2; color: var(--accent-rose); border: 1px solid rgba(225, 29, 72, 0.1); }
+        &.done { background: rgba(13, 148, 136, 0.08); color: var(--accent-teal); border-color: rgba(13, 148, 136, 0.1); }
+        &.active { background: rgba(37, 99, 235, 0.08); color: var(--accent-blue); border-color: rgba(37, 99, 235, 0.1); }
       }
 
       .certificate-tag {
-        font-size: 0.85rem;
+        font-size: 0.75rem;
         font-weight: 700;
         color: var(--accent-amber);
         display: flex;
         align-items: center;
-        gap: 6px;
+        gap: 4px;
         background: #fffbeb;
-        padding: 6px 12px;
-        border-radius: 8px;
+        padding: 4px 10px;
+        border-radius: 6px;
       }
     }
   }
 
   .card-content {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 32px;
-    padding: 32px 0;
-    border-top: 1px solid #f1f5f9;
-    border-bottom: 1px solid #f1f5f9;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px 24px;
+    padding: 12px 0;
+    border-top: 1px solid rgba(0,0,0,0.04);
+    border-bottom: 1px solid rgba(0,0,0,0.04);
+
+    @media (max-width: 600px) {
+      grid-template-columns: 1fr;
+    }
 
     .info-item {
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: 8px;
 
       .icon-box {
-        width: 44px;
-        height: 44px;
-        border-radius: 12px;
-        background: #f8fafc;
+        width: 20px;
+        height: 20px;
+        background: transparent;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.2rem;
-        color: var(--accent-blue);
-        transition: var(--transition-pop);
+        font-size: 1.1rem;
+        color: var(--accent-indigo);
+        opacity: 0.7;
       }
 
       .info-text {
         display: flex;
         flex-direction: column;
         .label {
-          font-size: 0.7rem;
-          font-weight: 800;
+          font-size: 0.6rem;
+          font-weight: 700;
           color: var(--text-muted);
           text-transform: uppercase;
           letter-spacing: 0.05em;
+          margin-bottom: 1px;
         }
         .value {
-          font-size: 1rem;
-          font-weight: 700;
+          font-size: 0.85rem;
+          font-weight: 600;
           color: var(--text-primary);
         }
-      }
-
-      &:hover .icon-box {
-        background: var(--accent-blue);
-        color: white;
-        transform: scale(1.1);
       }
     }
   }
@@ -526,40 +485,68 @@ ion-content {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 24px;
-    flex-wrap: wrap;
+    gap: 16px;
+    margin-top: 4px;
+
+    .footer-left {
+      .capacity-tag {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        background: #f1f5f9;
+        padding: 4px 10px;
+        border-radius: 100px;
+        
+        ion-icon { color: var(--accent-blue); font-size: 0.9rem; }
+        span { font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); }
+        strong { color: var(--text-primary); margin-left: 2px; }
+      }
+    }
 
     .actions-group {
       display: flex;
-      gap: 12px;
+      gap: 6px;
       flex-wrap: wrap;
+      justify-content: flex-end;
 
       .action-btn {
-        --background: #f1f5f9;
+        --background: #f8fafc;
         --color: var(--text-secondary);
-        --border-radius: 14px;
-        --padding-start: 20px;
-        --padding-end: 20px;
-        height: 50px;
-        font-weight: 750;
-        font-size: 0.95rem;
+        --border: 1px solid #e2e8f0;
+        --border-radius: 8px;
+        --padding-start: 10px;
+        --padding-end: 10px;
+        height: 32px;
+        font-weight: 700;
+        font-size: 0.72rem;
         margin: 0;
-        transition: var(--transition-pop);
+        text-transform: uppercase;
+        letter-spacing: 0.02em;
 
-        &::part(native) { border: 1px solid transparent; }
+        &::part(native) { border: 1px solid #e2e8f0; }
 
         &:hover {
           --background: white;
-          transform: translateY(-4px);
-          box-shadow: 0 12px 20px -5px rgba(0,0,0,0.1);
           --color: var(--accent-blue);
-          &::part(native) { border-color: var(--accent-blue); }
+          transform: translateY(-1px);
         }
 
-        &.btn-success:hover { --color: var(--accent-teal); &::part(native) { border-color: var(--accent-teal); } }
-        &.btn-warning:hover { --color: var(--accent-amber); &::part(native) { border-color: var(--accent-amber); } }
-        &.btn-danger:hover { --color: var(--accent-rose); &::part(native) { border-color: var(--accent-rose); } }
+        &.btn-success { --color: var(--accent-teal); }
+        &.btn-warning { --color: var(--accent-amber); }
+        &.btn-danger { 
+          --background: transparent;
+          --color: var(--accent-rose);
+          --padding-start: 6px;
+          --padding-end: 6px;
+          &::part(native) { border: none; }
+        }
       }
+    }
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      align-items: flex-start;
+      .actions-group { width: 100%; justify-content: flex-start; margin-top: 8px; }
     }
   }
 }

@@ -1,7 +1,7 @@
 <ion-content>
   <div class="main-container">
     <!-- Navegación Superior -->
-    <div class="page-back-nav" style="padding: 10px 0; margin-bottom: 30px;">
+    <div class="page-back-nav" style="padding: 10px 0; margin-bottom: 10px;">
       <ion-button fill="clear" color="medium" size="small" (click)="volver()" style="font-weight: 800; --padding-start: 0;">
         <ion-icon name="chevron-back-outline" slot="start"></ion-icon>
         Volver al Panel de Control
@@ -184,13 +184,10 @@
         </div>
 
         <div class="card-footer">
-          <div class="info-item">
-            <div class="icon-box" style="background: rgba(37, 99, 235, 0.05); color: var(--accent-blue);">
-              <ion-icon name="people"></ion-icon>
-            </div>
-            <div class="info-text">
-              <span class="label">Capacidad de Registro</span>
-              <span class="value">{{ cap.cuposDisponibles }} Cupos disponibles</span>
+          <div class="footer-left">
+            <div class="capacity-tag">
+              <ion-icon name="people-outline"></ion-icon>
+              <span>Capacidad: <strong>{{ cap.cuposDisponibles }} Cupos</strong></span>
             </div>
           </div>
 
