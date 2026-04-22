@@ -1356,32 +1356,26 @@ ion-header {
 // ------------------------------------------
 .dashboard-footer {
   background: #ffffff;
-  padding: 40px 0;
+  padding: 24px 0; // Reduced from 40px
   text-align: center;
   border-top: 1px solid rgba(0, 0, 0, 0.05);
   margin-top: 0;
 
   p {
-    font-size: 0.85rem;
+    font-size: 0.8rem; // Slightly smaller
     color: #94a3b8;
     font-weight: 500;
-    letter-spacing: 0.03em;
+    letter-spacing: 0.02em;
     margin: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 12px;
 
-    &::before {
-      content: '';
-      width: 20px;
-      height: 1px;
-      background: #e2e8f0;
-    }
-
+    &::before,
     &::after {
       content: '';
-      width: 20px;
+      width: 16px;
       height: 1px;
       background: #e2e8f0;
     }
