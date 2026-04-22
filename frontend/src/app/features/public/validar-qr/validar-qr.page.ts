@@ -106,10 +106,17 @@ export class ValidarQrPage implements OnInit, OnDestroy {
     if (Capacitor.isNativePlatform()) {
       try {
         const perm = await Camera.checkPermissions();
+        if (perm.camera === 'denied') {
+          this.presentToast('El acceso a la cámara está bloqueado. Por favor, actívalo en los ajustes de tu teléfono.', 'danger');
+          this.mostrandoEscaner = false;
+          this.cdr.detectChanges();
+          return;
+        }
+        
         if (perm.camera !== 'granted') {
           const request = await Camera.requestPermissions();
           if (request.camera !== 'granted') {
-             this.presentToast('Permiso de cámara necesario para escanear', 'warning');
+             this.presentToast('Se requiere permiso de cámara para escanear el certificado.', 'warning');
              this.mostrandoEscaner = false;
              this.cdr.detectChanges();
              return;
