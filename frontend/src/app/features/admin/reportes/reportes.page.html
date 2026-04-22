@@ -208,7 +208,7 @@
                 </div>
 
                 <!-- Visual Analytics -->
-                <div class="section-title" style="margin-top: 40px;">
+                <div class="section-title" style="margin-top: 24px;">
                     <h2>Análisis Visual y Tendencias</h2>
                     <span class="results-count">Últimos 6 meses</span>
                 </div>
@@ -227,7 +227,7 @@
                 </div>
 
                 <!-- Recent Activity & Status -->
-                <div class="section-title" style="margin-top: 40px;">
+                <div class="section-title" style="margin-top: 24px;">
                     <h2>Resumen Operativo</h2>
                     <span class="results-count">Actividad & Modalidades</span>
                 </div>
@@ -292,7 +292,7 @@
                 </div>
 
                 <!-- Demographics & Inclusion -->
-                <div class="section-title" style="margin-top: 40px;">
+                <div class="section-title" style="margin-top: 24px;">
                     <h2>Diversidad y Territorio</h2>
                     <span class="results-count">Segmentación 360°</span>
                 </div>
@@ -358,7 +358,7 @@
                                 <p>Presencia territorial (Top 5)</p>
                             </div>
                         </div>
-                        <div class="summary-list vertical" style="max-height: 300px; overflow-y: auto;">
+                        <div class="summary-list vertical">
                             <div *ngFor="let prov of stats()?.topProvincias; let i = index" class="region-item">
                                 <div class="region-left">
                                     <span class="rank" [class.gold]="i===0" [class.silver]="i===1" [class.bronze]="i===2">{{i+1}}</span>

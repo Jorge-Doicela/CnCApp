@@ -279,7 +279,7 @@
         </div>
 
         <!-- Certificación -->
-        <div class="section-header" style="margin-top: 40px;">
+        <div class="section-header" style="margin-top: 20px;">
           <div class="section-icon-wrapper" style="background: rgba(var(--ion-color-success-rgb), 0.1); color: var(--ion-color-success);">
             <ion-icon name="ribbon-outline"></ion-icon>
           </div>
@@ -293,7 +293,7 @@
             <span>CONFIGURACIÓN DE CERTIFICADO</span>
           </div>
           
-          <div class="certification-selector" style="margin-top: 20px;">
+          <div class="certification-selector" style="margin-top: 10px;">
             <div class="cert-option-card" [class.selected]="!capacitacion.certificado" (click)="capacitacion.certificado = false">
               <div class="opt-icon"><ion-icon name="close-circle-outline"></ion-icon></div>
               <div class="opt-text">
@@ -313,7 +313,7 @@
             </div>
           </div>
 
-          <div class="field-group slide-down" *ngIf="capacitacion.certificado" style="margin-top: 15px;">
+          <div class="field-group slide-down" *ngIf="capacitacion.certificado" style="margin-top: 10px;">
             <label class="field-label">Plantilla de Diseño <span class="required">*</span></label>
             <div class="select-wrapper">
               <ion-select [(ngModel)]="capacitacion.plantillaId" name="plantillaId" required #plantillaModel="ngModel" interface="popover" placeholder="Seleccionar diseño de diploma">

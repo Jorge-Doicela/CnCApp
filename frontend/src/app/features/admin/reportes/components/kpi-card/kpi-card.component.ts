@@ -105,7 +105,7 @@ export class KpiCardComponent {
             series: [{ name: '', data: [] }],
             chart: {
                 type: "area",
-                height: 50,
+                height: 40,
                 sparkline: { enabled: true },
                 animations: { 
                     enabled: true, 

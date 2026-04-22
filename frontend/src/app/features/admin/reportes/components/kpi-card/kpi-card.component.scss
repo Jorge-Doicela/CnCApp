@@ -8,12 +8,12 @@
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.5);
-    border-radius: 32px;
+    border-radius: 20px;
     box-shadow: 
         0 10px 40px -10px rgba(31, 38, 135, 0.05),
         0 2px 4px rgba(0,0,0,0.01);
-    padding: 1.75rem;
-    min-height: 180px;
+    padding: 1rem 1.25rem;
+    min-height: 120px;
     transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
     overflow: hidden;
     display: flex;
@@ -62,18 +62,18 @@
 .card-header {
     display: flex;
     align-items: center;
-    gap: 1.25rem;
-    margin-bottom: 1.5rem;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
 }
 
 .card-icon {
-    width: 56px;
-    height: 56px;
-    border-radius: 20px;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.6rem;
+    font-size: 1.25rem;
     flex-shrink: 0;
     background: #fff;
     color: var(--card-color);
@@ -85,7 +85,7 @@
 .card-data {
     .label {
         display: block;
-        font-size: 0.75rem;
+        font-size: 0.65rem;
         font-weight: 700;
         color: #64748b;
         text-transform: uppercase;
@@ -93,7 +93,7 @@
         margin-bottom: 4px;
     }
     .value {
-        font-size: 2rem;
+        font-size: 1.75rem;
         font-weight: 900;
         color: #0f172a;
         margin: 0;
@@ -107,14 +107,14 @@
     display: flex;
     align-items: flex-end;
     justify-content: space-between;
-    gap: 1.5rem;
-    margin-top: auto;
+    gap: 1rem;
+    margin-top: 0.5rem;
 }
 
 .footer-info {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 0.5rem;
 }
 
 .trend {
@@ -124,7 +124,7 @@
     font-size: 0.8rem;
     font-weight: 800;
     color: #94a3b8;
-    padding: 6px 12px;
+    padding: 4px 10px;
     background: #f8fafc;
     border-radius: 100px;
     border: 1px solid #f1f5f9;
@@ -157,9 +157,9 @@
 
 .micro-chart {
     flex: 1;
-    max-width: 140px;
-    height: 50px;
-    margin-bottom: -5px;
+    max-width: 100px;
+    height: 40px;
+    margin-bottom: -4px;
     margin-right: -5px;
     filter: drop-shadow(0 4px 6px rgba(0,0,0,0.05));
 

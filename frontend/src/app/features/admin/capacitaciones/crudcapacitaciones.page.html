@@ -130,12 +130,17 @@
         [style.animation-delay]="(0.4 + i * 0.08) + 's'"
         [class.state-active]="cap.estado.toLowerCase() === 'activa' || cap.estado.toLowerCase() === 'en progreso' || cap.estado.toLowerCase() === 'programada' || cap.estado.toLowerCase() === 'pendiente'"
         [class.state-done]="cap.estado.toLowerCase() === 'finalizada' || cap.estado.toLowerCase() === 'realizada'"
-        [class.state-canceled]="cap.estado.toLowerCase() === 'cancelada'">
+        [class.state-canceled]="cap.estado.toLowerCase() === 'cancelada'"
+        [class.is-expanded]="isExpanded(cap.id)">
         
-        <div class="card-header">
+        <div class="card-header" (click)="toggleExpand(cap.id)">
           <div class="title-area">
             <h3>{{ cap.nombre }}</h3>
-            <p class="description">{{ cap.descripcion }}</p>
+            <div class="collapsed-info" *ngIf="!isExpanded(cap.id)">
+              <span><ion-icon name="location-outline"></ion-icon> {{ cap.lugar }}</span>
+              <span class="sep">•</span>
+              <span><ion-icon name="calendar-clear-outline"></ion-icon> {{ cap.fechaInicio | date:'dd MMM' }}</span>
+            </div>
           </div>
           <div class="status-area">
             <span class="premium-badge" 
@@ -145,85 +150,88 @@
               <ion-icon [name]="cap.estado.toLowerCase() === 'finalizada' ? 'checkmark-circle' : 'ellipse'"></ion-icon>
               {{ cap.estado }}
             </span>
-            <div class="certificate-tag" *ngIf="cap.certificado">
-              <ion-icon name="ribbon"></ion-icon>
-              Certificación Emitida
-            </div>
+            <ion-button fill="clear" class="expand-toggle-btn">
+              <ion-icon [name]="isExpanded(cap.id) ? 'chevron-up-outline' : 'chevron-down-outline'"></ion-icon>
+            </ion-button>
           </div>
         </div>
 
-        <div class="card-content">
-          <div class="info-item" [class.clickable]="cap.lugar" (click)="cap.lugar ? abrirMapa(cap.lugar) : null" [title]="cap.lugar ? 'Ver en Google Maps' : ''">
-            <div class="icon-box"><ion-icon name="location-outline"></ion-icon></div>
-            <div class="info-text">
-              <span class="label">Ubicación / Sede</span>
-              <span class="value">{{ cap.lugar }}</span>
+        <div class="expandable-content" [class.show]="isExpanded(cap.id)">
+          <p class="description">{{ cap.descripcion }}</p>
+          
+          <div class="card-content">
+            <div class="info-item" [class.clickable]="cap.lugar" (click)="cap.lugar ? abrirMapa(cap.lugar) : null">
+              <div class="icon-box"><ion-icon name="location-outline"></ion-icon></div>
+              <div class="info-text">
+                <span class="label">Ubicación / Sede</span>
+                <span class="value">{{ cap.lugar }}</span>
+              </div>
             </div>
-          </div>
-          <div class="info-item">
-            <div class="icon-box"><ion-icon name="calendar-clear-outline"></ion-icon></div>
-            <div class="info-text">
-              <span class="label">Fecha Inicio</span>
-              <span class="value">{{ cap.fechaInicio | date:'dd MMM, yyyy' }}</span>
+            <div class="info-item">
+              <div class="icon-box"><ion-icon name="calendar-clear-outline"></ion-icon></div>
+              <div class="info-text">
+                <span class="label">Fecha Inicio</span>
+                <span class="value">{{ cap.fechaInicio | date:'dd MMM, yyyy' }}</span>
+              </div>
             </div>
-          </div>
-          <div class="info-item">
-            <div class="icon-box"><ion-icon name="videocam-outline"></ion-icon></div>
-            <div class="info-text">
-              <span class="label">Modalidad</span>
-              <span class="value">{{ cap.modalidad }}</span>
+            <div class="info-item">
+              <div class="icon-box"><ion-icon name="videocam-outline"></ion-icon></div>
+              <div class="info-text">
+                <span class="label">Modalidad</span>
+                <span class="value">{{ cap.modalidad }}</span>
+              </div>
             </div>
-          </div>
-          <div class="info-item">
-            <div class="icon-box"><ion-icon name="time-outline"></ion-icon></div>
-            <div class="info-text">
-              <span class="label">Carga Horaria</span>
-              <span class="value">{{ cap.horas }} Horas</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="card-footer">
-          <div class="footer-left">
-            <div class="capacity-tag">
-              <ion-icon name="people-outline"></ion-icon>
-              <span>Capacidad: <strong>{{ cap.cuposDisponibles }} Cupos</strong></span>
+            <div class="info-item">
+              <div class="icon-box"><ion-icon name="time-outline"></ion-icon></div>
+              <div class="info-text">
+                <span class="label">Carga Horaria</span>
+                <span class="value">{{ cap.horas }} Horas</span>
+              </div>
             </div>
           </div>
 
-          <div class="actions-group">
-            <ion-button fill="clear" class="action-btn" (click)="iraEditarCapacitacion(cap.id)" *ngIf="!isConferencista">
-              <ion-icon name="create-outline" slot="start"></ion-icon>
-              Editar
-            </ion-button>
-            <ion-button fill="clear" class="action-btn" (click)="verDetalles(cap)">
-              <ion-icon name="eye-outline" slot="start"></ion-icon>
-              Detalles
-            </ion-button>
-            <ion-button fill="clear" class="action-btn" (click)="iraVisualizarinscritos(cap.id)">
-              <ion-icon name="people-outline" slot="start"></ion-icon>
-              Participantes
-            </ion-button>
-            <ion-button fill="clear" class="action-btn" (click)="mostrarQRDelEvento(cap)">
-              <ion-icon name="qr-code-outline" slot="start"></ion-icon>
-              QR / Imprimir
-            </ion-button>
-            
-            <ion-button fill="clear" class="action-btn btn-success" (click)="finalizarCapacitacion(cap.id)"
-              *ngIf="(cap.estado === 'Activa' || cap.estado === 'Pendiente') && !isConferencista">
-              <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
-              Cerrar Evento
-            </ion-button>
+          <div class="card-footer">
+            <div class="footer-left">
+              <div class="capacity-tag">
+                <ion-icon name="people-outline"></ion-icon>
+                <span>Capacidad: <strong>{{ cap.cuposDisponibles }} Cupos</strong></span>
+              </div>
+            </div>
 
-            <ion-button fill="clear" class="action-btn btn-warning" (click)="mostrarConfirmacion(cap.id)"
-              *ngIf="cap.estado === 'Finalizada' && !isConferencista">
-              <ion-icon [name]="cap.certificado ? 'refresh-outline' : 'sparkles-outline'" slot="start"></ion-icon>
-              {{ cap.certificado ? 'Re-emitir Certificados' : 'Emitir Certificados' }}
-            </ion-button>
+            <div class="actions-group">
+              <ion-button fill="clear" class="action-btn" (click)="iraEditarCapacitacion(cap.id); $event.stopPropagation()" *ngIf="!isConferencista">
+                <ion-icon name="create-outline" slot="start"></ion-icon>
+                Editar
+              </ion-button>
+              <ion-button fill="clear" class="action-btn" (click)="verDetalles(cap); $event.stopPropagation()">
+                <ion-icon name="eye-outline" slot="start"></ion-icon>
+                Detalles
+              </ion-button>
+              <ion-button fill="clear" class="action-btn" (click)="iraVisualizarinscritos(cap.id); $event.stopPropagation()">
+                <ion-icon name="people-outline" slot="start"></ion-icon>
+                Participantes
+              </ion-button>
+              <ion-button fill="clear" class="action-btn" (click)="mostrarQRDelEvento(cap); $event.stopPropagation()">
+                <ion-icon name="qr-code-outline" slot="start"></ion-icon>
+                QR / Imprimir
+              </ion-button>
+              
+              <ion-button fill="clear" class="action-btn btn-success" (click)="finalizarCapacitacion(cap.id); $event.stopPropagation()"
+                *ngIf="(cap.estado === 'Activa' || cap.estado === 'Pendiente') && !isConferencista">
+                <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
+                Cerrar
+              </ion-button>
 
-            <ion-button fill="clear" class="action-btn btn-danger" (click)="confirmarEliminar(cap.id)" *ngIf="!isConferencista">
-              <ion-icon name="trash-bin-outline" slot="start"></ion-icon>
-            </ion-button>
+              <ion-button fill="clear" class="action-btn btn-warning" (click)="mostrarConfirmacion(cap.id); $event.stopPropagation()"
+                *ngIf="cap.estado === 'Finalizada' && !isConferencista">
+                <ion-icon [name]="cap.certificado ? 'refresh-outline' : 'sparkles-outline'" slot="start"></ion-icon>
+                {{ cap.certificado ? 'Re-emitir' : 'Certificados' }}
+              </ion-button>
+
+              <ion-button fill="clear" class="action-btn btn-danger" (click)="confirmarEliminar(cap.id); $event.stopPropagation()" *ngIf="!isConferencista">
+                <ion-icon name="trash-bin-outline" slot="start"></ion-icon>
+              </ion-button>
+            </div>
           </div>
         </div>
       </div>

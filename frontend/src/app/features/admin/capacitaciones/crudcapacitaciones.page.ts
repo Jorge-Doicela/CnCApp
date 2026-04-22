@@ -20,7 +20,7 @@ import {
   videocamOutline, people, createOutline, peopleOutline, checkmarkDoneOutline, 
   trashBinOutline, ellipse, checkmarkCircle, eyeOutline, closeOutline,
   linkOutline, time, businessOutline, qrCodeOutline, printOutline,
-  copyOutline
+  copyOutline, chevronUpOutline
 } from 'ionicons/icons';
 
 @Component({
@@ -54,6 +54,7 @@ export class CrudcapacitacionesPage implements OnInit {
   generandoQR: boolean = false;
   infoCapacitacionQR: Capacitacion | null = null;
 
+  expandedCards: Set<number> = new Set<number>();
   private capacitacionesService = inject(CapacitacionesService);
   private authService = inject(AuthService);
   private cdr = inject(ChangeDetectorRef);
@@ -74,7 +75,7 @@ export class CrudcapacitacionesPage implements OnInit {
       videocamOutline, people, createOutline, peopleOutline, checkmarkDoneOutline,
       trashBinOutline, ellipse, checkmarkCircle, eyeOutline, closeOutline,
       linkOutline, time, businessOutline, qrCodeOutline, printOutline,
-      copyOutline
+      copyOutline, chevronUpOutline
     });
   }
 
@@ -433,6 +434,19 @@ export class CrudcapacitacionesPage implements OnInit {
     if (!lugar) return;
     const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(lugar)}`;
     window.open(url, '_blank');
+  }
+  
+  toggleExpand(id: number) {
+    if (this.expandedCards.has(id)) {
+      this.expandedCards.delete(id);
+    } else {
+      this.expandedCards.add(id);
+    }
+    this.cdr.markForCheck();
+  }
+  
+  isExpanded(id: number): boolean {
+    return this.expandedCards.has(id);
   }
 
   // --- QR Actions ---
