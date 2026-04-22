@@ -87,53 +87,52 @@
              [style.animation-delay]="(0.3 + i * 0.05) + 's'"
              (click)="iraDetallesUsuario(usuario.id)">
           
-          <div class="card-top">
-            <div class="avatar-wrapper shadow-blue">
-              <div class="user-avatar" [style.background]="'hsla(' + (i * 45) + ', 70%, 50%, 0.1)'" 
+          <!-- New Compact Header -->
+          <div class="card-header-compact">
+            <div class="avatar-side">
+              <div class="user-avatar-mini" [style.background]="'hsla(' + (i * 45) + ', 70%, 50%, 0.1)'" 
                    [style.color]="'hsla(' + (i * 45) + ', 70%, 40%, 1)'">
                 {{ getInicial(usuario) }}
               </div>
             </div>
-            <div class="badge-row">
-              <span class="badge" [ngClass]="{
-                'admin': usuario.rol?.nombre === 'Administrador',
-                'user': usuario.rol?.nombre !== 'Administrador' && usuario.rol?.nombre
-              }">
-                {{ usuario.rol?.nombre || 'S/R' }}
-              </span>
+            
+            <div class="info-side">
+              <div class="top-row">
+                <h3 title="{{ formatNombre(usuario) }}">{{ formatNombre(usuario) }}</h3>
+                <span class="badge-mini" [ngClass]="{
+                  'admin': usuario.rol?.nombre === 'Administrador',
+                  'user': usuario.rol?.nombre !== 'Administrador' && usuario.rol?.nombre
+                }">
+                  {{ usuario.rol?.nombre || 'S/R' }}
+                </span>
+              </div>
+              <p class="ci-subtext">{{ usuario.ci }}</p>
             </div>
           </div>
 
-          <div class="card-info">
-            <h3 title="{{ formatNombre(usuario) }}">{{ formatNombre(usuario) }}</h3>
-            <p class="ci-text">{{ usuario.ci }}</p>
-
-            <div class="data-points">
-              <div class="point">
-                <ion-icon name="business-outline"></ion-icon>
-                <span>{{ usuario.entidad?.nombre || 'Sin Entidad' }}</span>
-              </div>
-              <div class="point">
-                <ion-icon name="people-outline"></ion-icon>
-                <span>{{ getTipoParticipante(usuario.tipoParticipanteId || usuario.tipoParticipante?.id) }}</span>
-              </div>
-              <div class="point email" *ngIf="usuario.email">
-                <ion-icon name="mail-outline"></ion-icon>
-                <span>{{ usuario.email }}</span>
-              </div>
+          <!-- Compact Body -->
+          <div class="card-body-compact">
+            <div class="data-point-mini">
+              <ion-icon name="business-outline"></ion-icon>
+              <span>{{ usuario.entidad?.nombre || 'Sin Entidad' }}</span>
+            </div>
+            <div class="data-point-mini email" *ngIf="usuario.email">
+              <ion-icon name="mail-outline"></ion-icon>
+              <span>{{ usuario.email }}</span>
             </div>
           </div>
 
-          <div class="card-actions">
-            <div class="action-btn view" (click)="iraDetallesUsuario(usuario.id); $event.stopPropagation()" title="Ver Perfil">
+          <!-- Compact Actions -->
+          <div class="card-actions-mini">
+            <button class="mini-btn view" (click)="iraDetallesUsuario(usuario.id); $event.stopPropagation()" title="Ver Perfil">
               <ion-icon name="person-outline"></ion-icon>
-            </div>
-            <div class="action-btn edit" (click)="iraEditarUsuario(usuario.id); $event.stopPropagation()" title="Editar">
+            </button>
+            <button class="mini-btn edit" (click)="iraEditarUsuario(usuario.id); $event.stopPropagation()" title="Editar">
               <ion-icon name="create-outline"></ion-icon>
-            </div>
-            <div class="action-btn delete" (click)="confirmarEliminar(usuario); $event.stopPropagation()" title="Eliminar">
+            </button>
+            <button class="mini-btn delete" (click)="confirmarEliminar(usuario); $event.stopPropagation()" title="Eliminar">
               <ion-icon name="trash-outline"></ion-icon>
-            </div>
+            </button>
           </div>
         </div>
       </div>

@@ -26,7 +26,7 @@ const envSchema = z.object({
 
     // Rate Limiting
     RATE_LIMIT_WINDOW_MS: z.string().transform(Number).default('900000'), // 15 minutes
-    RATE_LIMIT_MAX_REQUESTS: z.string().transform(Number).default('100'),
+    RATE_LIMIT_MAX_REQUESTS: z.string().transform(Number).default('1000'),
 
     // CORS
     ALLOWED_ORIGINS: z.string().transform(origins => origins.split(',')).default('http://localhost:8100,http://localhost:4200'),
