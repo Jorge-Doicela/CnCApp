@@ -25,6 +25,7 @@ import usuarioCapacitacionRoutes from './infrastructure/web/routes/usuario-capac
 import competenciaRoutes from './infrastructure/web/routes/competencia.routes';
 import { catalogoRoutes } from './infrastructure/web/routes/catalogo.routes';
 import { gradoOcupacionalRoutes } from './infrastructure/web/routes/grado-ocupacional.routes';
+import cronRoutes from './infrastructure/web/routes/cron.routes';
 
 // Importar middleware
 import { errorHandler } from './infrastructure/web/middleware/error.middleware';
@@ -154,6 +155,7 @@ app.use('/api/reportes', reportesRoutes);
 app.use('/api/plantillas', plantillaRoutes);
 app.use('/api/usuarios-capacitaciones', usuarioCapacitacionRoutes);
 app.use('/api/competencias', competenciaRoutes);
+app.use('/api/cron', cronRoutes);
 
 // ============================================
 // MANEJO DE ERRORES
@@ -171,19 +173,21 @@ app.use(errorHandler);
 
 import { checkDatabaseConnection } from './config/database';
 
-app.listen(PORT, async () => {
-    logger.info(`Server running on port ${PORT} in ${env.NODE_ENV} mode`);
-    logger.info(`URL: http://localhost:${PORT}`);
+if (process.env.NODE_ENV !== 'test' && !process.env.VERCEL) {
+    app.listen(PORT, async () => {
+        logger.info(`Server running on port ${PORT} in ${env.NODE_ENV} mode`);
+        logger.info(`URL: http://localhost:${PORT}`);
 
-    // Verificar conexión a DB antes de iniciar procesos secundarios
-    const isDbConnected = await checkDatabaseConnection();
+        // Verificar conexión a DB antes de iniciar procesos secundarios
+        const isDbConnected = await checkDatabaseConnection();
 
-    if (isDbConnected) {
-        // Iniciar el scheduler de finalización automática de capacitaciones
-        initCapacitacionScheduler();
-    } else {
-        logger.warn('⚠️ [Server] El scheduler no se inició debido a problemas de conexión con la base de datos');
-    }
-});
+        if (isDbConnected) {
+            // Iniciar el scheduler de finalización automática de capacitaciones
+            initCapacitacionScheduler();
+        } else {
+            logger.warn('⚠️ [Server] El scheduler no se inició debido a problemas de conexión con la base de datos');
+        }
+    });
+}
 
 export default app;
