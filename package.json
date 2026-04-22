@@ -6,10 +6,15 @@
         "dev:frontend": "cd frontend && npm start",
         "build:backend": "cd backend && npm run build",
         "build:frontend": "cd frontend && npm run build",
-        "install:all": "cd backend && npm install && cd ../frontend && npm install"
+        "install:all": "cd backend && npm install && cd ../frontend && npm install",
+        "system:check": "node scripts/system-check.js",
+        "db:sync": "cd backend && npm run prisma:migrate",
+        "test:all": "npm run build:backend && npm run build:frontend",
+        "prepare": "husky install"
     },
     "devDependencies": {
         "@capacitor/cli": "^7.0.1",
+        "husky": "^9.1.7",
         "typescript": "^5.9.3"
     },
     "dependencies": {

@@ -1,9 +1,9 @@
 import { Router } from 'express';
 import { container } from 'tsyringe';
-import { UpdateCapacitacionUseCase } from '../../../application/capacitacion/use-cases/update-capacitacion.use-case';
-import logger from '../../../config/logger';
-import { EstadoCapacitacionEnum } from '../../../domain/shared/constants/enums';
-import prisma from '../../../config/database';
+import { UpdateCapacitacionUseCase } from '@application/capacitacion/use-cases/update-capacitacion.use-case';
+import logger from '@config/logger';
+import { EstadoCapacitacionEnum } from '@shared/constants/enums';
+import prisma from '@config/database';
 
 const router = Router();
 
@@ -54,10 +54,10 @@ router.get('/process-trainings', async (req, res) => {
             }
         }
 
-        res.status(200).json({ message: `Processed ${processed} trainings` });
+        return res.status(200).json({ message: `Processed ${processed} trainings` });
     } catch (err: any) {
         logger.error(`[Cron] Error processing trainings: ${err.message}`);
-        res.status(500).json({ error: err.message });
+        return res.status(500).json({ error: err.message });
     }
 });
 

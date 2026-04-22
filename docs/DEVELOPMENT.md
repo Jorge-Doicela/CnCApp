@@ -22,6 +22,8 @@ Este proyecto sigue estrictamente:
 - **Clean Architecture** en el Backend: Independencia de frameworks, testabilidad e independencia de la UI.
 - **Standalone Components** en el Frontend (Angular 19+): Arquitectura moderna sin NgModules, enfocada en modularidad y lazy loading.
 - **Type Safety**: TypeScript estricto en todo el stack. `any` está prohibido salvo excepciones documentadas.
+- **Path Aliases**: Uso de alias (`@core`, `@application`, etc.) para mantener imports limpios y desacoplados.
+- **Calidad Automatizada**: Uso de Git Hooks (Husky) para validar cada commit.
 
 ---
 
@@ -125,21 +127,25 @@ export class AuthService {
 
 ### Paso 1: Levantar Servicios
 
-Recomendamos usar terminales divididas:
+Recomendamos usar terminales divididas o los scripts unificados de la raíz:
 
-**Terminal 1 (Base de Datos):**
+**Gestión Unificada (Recomendado):**
 ```bash
-docker-compose up postgres
+# En la raíz del proyecto
+npm run install:all      # Instala dependencias en todo el proyecto
+npm run system:check     # Ejecuta verificación completa del sistema
+npm run db:sync          # Sincroniza esquema de base de datos
+npm run test:all         # Ejecuta pruebas de compilación totales
 ```
 
-**Terminal 2 (Backend):**
+**Terminal 1 (Backend):**
 ```bash
 cd backend
 npm run dev
 # Salida esperada: "Server running on port 3000"
 ```
 
-**Terminal 3 (Frontend):**
+**Terminal 2 (Frontend):**
 ```bash
 cd frontend
 npm start
@@ -198,7 +204,10 @@ Nuestro ESLint está configurado para no permitir:
 - `any` explícito.
 - `console.log` en producción.
 
-Corre el linter antes de cada commit:
+**Calidad en Commits (Husky):**
+El proyecto utiliza **Husky** para ejecutar validaciones automáticas antes de cada commit. Al intentar realizar un commit, se ejecutarán automáticamente pruebas de linting y salud del sistema. Si fallan, el commit será rechazado.
+
+Para correr el linter manualmente:
 ```bash
 npm run lint --prefix backend
 npm run lint --prefix frontend

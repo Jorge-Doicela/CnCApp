@@ -192,8 +192,8 @@ Esta documentación se actualiza regularmente:
 
 ## Versión
 
-**Última actualización**: Enero 2025
-**Versión del sistema**: 1.0.0
+**Última actualización**: Abril 2026
+**Versión del sistema**: 1.1.0 (Professionalization Update)
 
 ---
 

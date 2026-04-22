@@ -201,9 +201,18 @@ Después de ejecutar `npm run prisma:seed`:
 
 ---
 
-## Scripts Disponibles
+### Root (Gestión del Proyecto)
 
-### Backend
+```bash
+npm run install:all      # Instala dependencias en todo el proyecto
+npm run system:check     # Ejecuta verificación completa del sistema
+npm run db:sync          # Sincroniza esquema de base de datos
+npm run build:backend    # Compila el backend
+npm run build:frontend   # Compila el frontend
+npm run test:all         # Ejecuta pruebas de compilación totales
+```
+
+### Backend (Clean Architecture)
 
 ```bash
 cd backend
@@ -212,10 +221,9 @@ npm run build            # Compilar TypeScript
 npm start                # Producción
 npm run prisma:migrate   # Ejecutar migraciones
 npm run prisma:seed      # Cargar datos de prueba
-npm run prisma:studio    # GUI para ver datos
 ```
 
-### Frontend
+### Frontend (Standalone Components)
 
 ```bash
 cd frontend
@@ -264,7 +272,20 @@ npx cap open android
 
 ¡Las contribuciones son bienvenidas! Lee nuestra [Guía de Contribución](docs/CONTRIBUTING.md).
 
-### Flujo de Trabajo
+### Flujo de Trabajo y Calidad
+
+El proyecto utiliza **Husky** para asegurar la calidad del código antes de cada commit. Al intentar realizar un commit, se ejecutarán automáticamente:
+- `system:check`: Verificación de salud del sistema.
+- `lint`: Verificación de reglas de estilo en backend y frontend.
+
+### Path Aliases (Rutas Limpias)
+
+Se utilizan alias de rutas para evitar imports relativos complejos:
+- `@application/*`: Capa de aplicación del backend.
+- `@domain/*`: Capa de dominio del backend.
+- `@infrastructure/*`: Capa de infraestructura del backend.
+- `@app/*`: Raíz de la aplicación frontend.
+- `@core/*`: Módulo core del frontend.
 
 1. Fork el repositorio
 2. Crea una rama feature (`git checkout -b feature/AmazingFeature`)

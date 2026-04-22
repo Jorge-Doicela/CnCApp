@@ -133,6 +133,16 @@ docker-compose logs -f
 
 ## 🛠️ Comandos Útiles
 
+### Root (Gestión Unificada)
+
+```bash
+# Desde la raíz del proyecto
+npm run install:all      # Instala todo
+npm run system:check     # Verifica salud del sistema
+npm run db:sync          # Sincroniza DB
+npm run test:all         # Verifica compilación total
+```
+
 ### Backend
 
 ```bash
@@ -146,7 +156,6 @@ npm start                # Iniciar en producción
 # Base de datos
 npm run prisma:studio    # Ver datos en GUI (http://localhost:5555)
 npm run prisma:seed      # Volver a cargar datos de prueba
-npx prisma migrate reset # ⚠️ RESETEAR TODO (borra datos)
 ```
 
 ### Frontend
@@ -158,6 +167,10 @@ npm start                # Desarrollo (http://localhost:8100)
 npm run build            # Compilar para producción
 npm test                 # Ejecutar tests
 ```
+
+### Git & Calidad (Husky)
+
+El proyecto incluye **Husky**. Al hacer `git commit`, se ejecutarán automáticamente pruebas de linting y salud del sistema. Si fallan, el commit será rechazado para proteger la rama principal.
 
 ---
 

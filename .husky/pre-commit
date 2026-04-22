@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "Checking project before commit..."
+npm run system:check
+cd backend && npm run lint
+cd ../frontend && npm run lint
