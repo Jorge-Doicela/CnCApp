@@ -93,7 +93,7 @@ export class ConfirmarAsistenciaQrPage implements OnInit, OnDestroy {
         if (status.camera !== 'granted') {
           const request = await BarcodeScanner.requestPermissions();
           if (request.camera !== 'granted') {
-            this.mostrarToast('Permiso de cámara denegado. Actívalo en ajustes.', 'warning');
+            this.mostrarToast('Permiso de cámara denegado. Actívalo en los ajustes de tu teléfono.', 'warning');
             this.estado = 'inicial';
             this.escaneando = false;
             this.cdr.detectChanges();
@@ -102,18 +102,31 @@ export class ConfirmarAsistenciaQrPage implements OnInit, OnDestroy {
         }
 
         // 2. Asegurar que el módulo de Google Play Services esté listo
-        const isSupported = await BarcodeScanner.isGoogleBarcodeScannerModuleAvailable();
-        if (!isSupported.available) {
-          const loadingModule = await this.loadingController.create({ 
-            message: 'Iniciando módulo de escaneo...',
-            duration: 5000 
-          });
-          await loadingModule.present();
-          await BarcodeScanner.installGoogleBarcodeScannerModule();
-          await loadingModule.dismiss();
+        // Importante: En algunos dispositivos sin Play Services esto puede fallar.
+        try {
+          const isSupported = await BarcodeScanner.isGoogleBarcodeScannerModuleAvailable();
+          if (!isSupported.available) {
+            const loadingModule = await this.loadingController.create({ 
+              message: 'Preparando motor de escaneo (esto solo ocurre la primera vez)...',
+              duration: 10000 
+            });
+            await loadingModule.present();
+            await BarcodeScanner.installGoogleBarcodeScannerModule();
+            await loadingModule.dismiss();
+            
+            // Re-verificar tras instalar
+            const retrySupported = await BarcodeScanner.isGoogleBarcodeScannerModuleAvailable();
+            if (!retrySupported.available) {
+               throw new Error('El módulo de escaneo de Google no está disponible en este dispositivo.');
+            }
+          }
+        } catch (moduleErr: any) {
+          console.warn('[QR_ASISTENCIA] Google Module fail, will try fallback if possible', moduleErr);
+          // Si falla el módulo de Google, permitimos que intente el escáner interno si el plugin lo soporta,
+          // o que caiga al modo Web si estamos en un WebView que lo permita.
         }
 
-        // 3. Lanzar el escáner nativo (Dialogo del sistema)
+        // 3. Lanzar el escáner nativo (Diálogo del sistema o Vista nativa)
         const { barcodes } = await BarcodeScanner.scan({
           formats: [BarcodeFormat.QrCode]
         });
@@ -123,7 +136,7 @@ export class ConfirmarAsistenciaQrPage implements OnInit, OnDestroy {
             this.procesarCodigo(barcodes[0].displayValue);
           });
         } else {
-          // El usuario canceló el diálogo nativo
+          // El usuario canceló el diálogo nativo (botón atrás o cerrar)
           this.estado = 'inicial';
           this.escaneando = false;
         }
@@ -137,7 +150,11 @@ export class ConfirmarAsistenciaQrPage implements OnInit, OnDestroy {
           code: err?.code,
           name: err?.name
         }, 'error');
-        // No salimos aquí, permitimos que intente el fallback si el error es recuperable
+        
+        // Si el error es crítico y somos nativos, informamos al usuario antes de intentar el fallback web
+        if (err?.message?.includes('Google Play Services') || err?.message?.includes('not available')) {
+          this.mostrarToast('El servicio de escaneo nativo no está disponible. Revisa Google Play Services.', 'warning');
+        }
       }
     }
 
