@@ -199,11 +199,12 @@ export class EditarPage implements OnInit {
       normalizedData.modalidad = normalizedData.modalidad?.toUpperCase() || 'PRESENCIAL';
     }
 
-    // 3. Normalizar Tipo de Evento
-    if (!normalizedData.tipoEvento) {
-      normalizedData.tipoEvento = 'CAPACITACIÓN';
-    } else {
-      normalizedData.tipoEvento = normalizedData.tipoEvento.toUpperCase();
+    // 4. Normalizar Fechas para input[type="date"]
+    if (normalizedData.fechaInicio) {
+      normalizedData.fechaInicio = normalizedData.fechaInicio.split('T')[0];
+    }
+    if (normalizedData.fechaFin) {
+      normalizedData.fechaFin = normalizedData.fechaFin.split('T')[0];
     }
 
     this.capacitacion = normalizedData;

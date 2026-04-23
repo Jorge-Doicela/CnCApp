@@ -454,6 +454,7 @@ form {
 @media (max-width: 992px) {
   .login-split-layout {
     flex-direction: column;
+    padding: 0 8px; // Outer safety buffer
   }
 
   .branding-section {
@@ -461,8 +462,13 @@ form {
   }
 
   .form-section {
-    padding: 24px;
+    padding: 40px 24px; // Consistent safe padding
     justify-content: flex-start;
-    padding-top: 85px; // Lowered from 60px
+    padding-top: 40px; 
+    
+    .login-card-wrapper {
+        width: 100%;
+        max-width: 100%; // Let the parent padding handle it
+    }
   }
 }

@@ -57,7 +57,7 @@
                 <ion-icon name="calendar-outline"></ion-icon>
                 <div class="meta-content">
                   <span class="meta-label">Fecha y Hora</span>
-                  <span class="meta-value">{{ infoCapacitacion.fechaInicio | date:'dd MMMM, yyyy' }} • {{ infoCapacitacion.horaInicio || '--:--' }}</span>
+                  <span class="meta-value">{{ infoCapacitacion.fechaInicio | date:'dd MMMM, yyyy':'UTC' }} • {{ infoCapacitacion.horaInicio || '--:--' }}</span>
                 </div>
               </div>
 

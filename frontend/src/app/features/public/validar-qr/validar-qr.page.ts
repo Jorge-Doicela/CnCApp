@@ -26,6 +26,8 @@ import {
 import { Html5Qrcode, Html5QrcodeScannerState } from 'html5-qrcode';
 import { Camera } from '@capacitor/camera';
 import { Capacitor } from '@capacitor/core';
+import { environment } from 'src/environments/environment';
+import { BarcodeScanner, BarcodeFormat } from '@capacitor-mlkit/barcode-scanning';
 
 @Component({
   selector: 'app-validar-qr',
@@ -102,31 +104,47 @@ export class ValidarQrPage implements OnInit, OnDestroy {
     this.resultadoValidacion = false;
     this.cdr.detectChanges();
     
-    // Check permissions explicitly if on native mobile
+    // CASE 1: NATIVE PLATFORM (Android/iOS)
     if (Capacitor.isNativePlatform()) {
       try {
-        const perm = await Camera.checkPermissions();
-        if (perm.camera === 'denied') {
-          this.presentToast('El acceso a la cámara está bloqueado. Por favor, actívalo en los ajustes de tu teléfono.', 'danger');
-          this.mostrandoEscaner = false;
-          this.cdr.detectChanges();
-          return;
-        }
-        
-        if (perm.camera !== 'granted') {
-          const request = await Camera.requestPermissions();
-          if (request.camera !== 'granted') {
+        const { camera } = await BarcodeScanner.checkPermissions();
+        if (camera !== 'granted') {
+          const { camera: newStatus } = await BarcodeScanner.requestPermissions();
+          if (newStatus !== 'granted') {
              this.presentToast('Se requiere permiso de cámara para escanear el certificado.', 'warning');
              this.mostrandoEscaner = false;
              this.cdr.detectChanges();
              return;
           }
         }
-      } catch (e) {
-        console.warn('[QR_VALIDAR] Error verificando permisos nativos:', e);
+
+        const isSupported = await BarcodeScanner.isGoogleBarcodeScannerModuleAvailable();
+        if (!isSupported.available) {
+          await BarcodeScanner.installGoogleBarcodeScannerModule();
+        }
+
+        const { barcodes } = await BarcodeScanner.scan({
+          formats: [BarcodeFormat.QrCode]
+        });
+
+        if (barcodes && barcodes.length > 0) {
+          this.ngZone.run(() => {
+            this.procesarCodigoEscaneado(barcodes[0].displayValue);
+          });
+        } else {
+          this.mostrandoEscaner = false;
+        }
+        this.cdr.detectChanges();
+        return; // Exit native flow
+
+      } catch (err: any) {
+        console.error('[QR_VALIDAR] Native scanner error:', err);
+        this.remoteLog('Native scanner failure (Public)', { message: err?.message }, 'error');
+        // Fallback to web scanner
       }
     }
 
+    // CASE 2: WEB / FALLBACK
     setTimeout(async () => {
       try {
         if (this.html5Qrcode) {
@@ -147,8 +165,17 @@ export class ValidarQrPage implements OnInit, OnDestroy {
           },
           () => {}
         );
-      } catch (err) {
+      } catch (err: any) {
         console.error('Error al iniciar cámara:', err);
+
+        // Remote log for debugging
+        this.remoteLog('Error starting camera (Public QR)', { 
+          message: err?.message, 
+          name: err?.name,
+          isNative: Capacitor.isNativePlatform(),
+          origin: window.location.origin
+        }, 'error');
+
         this.presentToast('No se pudo acceder a la cámara o el permiso fue denegado', 'danger');
         this.mostrandoEscaner = false;
         this.cdr.detectChanges();
@@ -322,5 +349,17 @@ export class ValidarQrPage implements OnInit, OnDestroy {
     });
 
     await toast.present();
+  }
+
+  private async remoteLog(message: string, data: any = {}, level: string = 'info') {
+    try {
+      await fetch(`${environment.apiUrl}/debug/log`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ level, message, data })
+      });
+    } catch (e) {
+      console.error('Failed to send remote log', e);
+    }
   }
 }

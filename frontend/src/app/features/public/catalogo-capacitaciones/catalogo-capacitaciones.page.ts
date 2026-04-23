@@ -153,16 +153,48 @@ export class CatalogoCapacitacionesPage implements OnInit {
   }
 
   haIniciado(cap: Capacitacion) {
-    if (!cap.fechaInicio) return false;
     const ahora = new Date();
-    const fechaHoraInicio = new Date(cap.fechaInicio);
-    if (cap.horaInicio) {
-      const [h, m] = cap.horaInicio.split(':').map(Number);
-      fechaHoraInicio.setHours(h ?? 0, m ?? 0, 0, 0);
-    } else {
-      fechaHoraInicio.setHours(0, 0, 0, 0);
+    
+    // Helper para parsear sin desfase de zona horaria
+    const parseSafe = (d: any) => {
+      if (!d) return null;
+      const str = String(d);
+      if (str.includes('-')) {
+        const parts = str.split('T')[0].split('-');
+        return new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+      }
+      return new Date(d);
+    };
+
+    // 1. Si hay fecha de fin, cerrar inscripciones solo cuando termine el evento
+    if (cap.fechaFin) {
+      const fechaFin = parseSafe(cap.fechaFin);
+      if (fechaFin) {
+        if (cap.horaFin) {
+          const [h, m] = cap.horaFin.split(':').map(Number);
+          fechaFin.setHours(h, m, 59, 999);
+        } else {
+          fechaFin.setHours(23, 59, 59, 999);
+        }
+        return ahora > fechaFin;
+      }
     }
-    return ahora >= fechaHoraInicio;
+
+    // 2. Si solo hay fecha de inicio, permitir inscripción hasta que pase esa fecha
+    if (!cap.fechaInicio) return false;
+    const fechaHoraInicio = parseSafe(cap.fechaInicio);
+    if (fechaHoraInicio) {
+      if (cap.horaInicio) {
+        const [h, m] = cap.horaInicio.split(':').map(Number);
+        fechaHoraInicio.setHours(h, m, 0, 0);
+      } else {
+        // Si no hay hora, permitir hasta el final del día de inicio
+        fechaHoraInicio.setHours(23, 59, 59, 999);
+      }
+      return ahora > fechaHoraInicio;
+    }
+
+    return false;
   }
 
   async inscribirse(idCapacitacion: number) {

@@ -276,9 +276,11 @@ export class UsuarioCapacitacionController {
                     fechaHoraInicio.setHours(0, 0, 0, 0);
                 }
 
-                if (ahora < fechaHoraInicio) {
+                // Permitimos confirmar asistencia hasta 1 hora antes del inicio para flexibilidad
+                const margenGracia = 60 * 60 * 1000; // 1 hora
+                if (ahora.getTime() < (fechaHoraInicio.getTime() - margenGracia)) {
                     res.status(400).json({
-                        message: 'No puedes registrar asistencia: el evento aún no ha comenzado.'
+                        message: 'No puedes registrar asistencia: el evento aún no ha comenzado. Inténtalo más tarde.'
                     });
                     return;
                 }

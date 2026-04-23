@@ -49,7 +49,7 @@ import { Capacitacion } from 'src/app/core/models/capacitacion.interface';
             <div class="card-icon"><ion-icon name="calendar-outline"></ion-icon></div>
             <div class="card-info">
               <label>Fecha del Evento</label>
-              <p>{{ capacitacion?.fechaInicio | date:'fullDate' }}</p>
+              <p>{{ capacitacion?.fechaInicio | date:'fullDate':'UTC' }}</p>
             </div>
           </div>
 

@@ -127,7 +127,7 @@
         </div>
         <div class="info-row" *ngIf="resultadoCapacitacion.fechaInicio">
           <ion-icon name="calendar-outline" color="primary"></ion-icon>
-          <span>{{ resultadoCapacitacion.fechaInicio | date:'dd/MM/yyyy' }}</span>
+          <span>{{ resultadoCapacitacion.fechaInicio | date:'dd/MM/yyyy':'UTC' }}</span>
         </div>
         <div class="info-row" *ngIf="resultadoCapacitacion.lugar">
           <ion-icon name="location-outline" color="primary"></ion-icon>
@@ -162,7 +162,7 @@
         </div>
         <div class="info-row" *ngIf="resultadoCapacitacion.fechaInicio">
           <ion-icon name="calendar-outline" color="primary"></ion-icon>
-          <span>{{ resultadoCapacitacion.fechaInicio | date:'dd/MM/yyyy' }}</span>
+          <span>{{ resultadoCapacitacion.fechaInicio | date:'dd/MM/yyyy':'UTC' }}</span>
         </div>
       </div>
 

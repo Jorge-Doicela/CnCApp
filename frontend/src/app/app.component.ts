@@ -17,7 +17,6 @@ import { filter } from 'rxjs/operators';
 import { firstValueFrom } from 'rxjs';
 import { HeaderComponent } from './shared/components/header/header.component';
 import { Platform } from '@ionic/angular/standalone';
-import { environment } from 'src/environments/environment';
 import { App } from '@capacitor/app';
 
 @Component({
@@ -101,39 +100,20 @@ export class AppComponent implements OnInit, OnDestroy {
     this.initializeApp();
   }
 
-  private async remoteLog(message: string, data: any = {}, level: string = 'info') {
-    console.log(`[REMOTE_LOG] ${message}`, data);
-    try {
-      await fetch(`${environment.apiUrl}/debug/log`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ level, message, data })
-      });
-    } catch (e) {
-      console.error('Failed to send remote log', e);
-    }
-  }
-
   initializeApp() {
-    this.remoteLog('Initializing BackButton handler...');
-
     // Exponer función global para que Java la llame
     (window as any).onNativeBack = () => {
-      this.remoteLog('onNativeBack called from Java');
       this.handleBackButton();
     };
 
     // Usar plugin de Capacitor como respaldo
     App.addListener('backButton', ({ canGoBack }) => {
-      this.remoteLog('Capacitor App.backButton event', { canGoBack });
       this.handleBackButton();
     });
 
     this.platform.ready().then(() => {
-      this.remoteLog('Platform ready.');
       // Prioridad muy alta para capturar el evento antes que el sistema
       this.platform.backButton.subscribeWithPriority(10000, async () => {
-        this.remoteLog('Ionic platform.backButton event');
         this.handleBackButton();
       });
     });
@@ -146,28 +126,17 @@ export class AppComponent implements OnInit, OnDestroy {
     const isRoot = rootPages.some(p => currentUrl === p || currentUrl.split('?')[0] === p);
     const isMenuOpen = await this.menuCtrl.isOpen();
 
-    await this.remoteLog('Processing Back Button', {
-      currentUrl,
-      canGoBack,
-      isRoot,
-      isMenuOpen
-    });
-
     // 1. Cerrar menú si está abierto
     if (isMenuOpen) {
-      await this.remoteLog('Action: Closing menu');
       await this.menuCtrl.close();
       return;
     }
 
     if (canGoBack) {
-      await this.remoteLog('Action: Navigating back via navCtrl');
       this.navCtrl.back();
     } else if (!isRoot) {
-      await this.remoteLog('Action: Force navigating back (fallback)');
       this.navCtrl.back();
     } else {
-      await this.remoteLog('Action: Preventing exit from root page');
       const toast = await this.toastController.create({
         message: 'Use el menú lateral para navegar o cerrar sesión.',
         duration: 2000,

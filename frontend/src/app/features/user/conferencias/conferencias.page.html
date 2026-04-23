@@ -121,7 +121,7 @@
           <div class="info-list">
             <div class="info-row">
               <ion-icon name="calendar-clear-outline"></ion-icon>
-              <span>{{ inscripcion.capacitacion?.fechaInicio | date:'dd/MM/yyyy' }}</span>
+              <span>{{ inscripcion.capacitacion?.fechaInicio | date:'dd/MM/yyyy':'UTC' }}</span>
             </div>
             <div class="info-row">
               <ion-icon name="time-outline"></ion-icon>

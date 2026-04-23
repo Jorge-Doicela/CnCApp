@@ -71,7 +71,6 @@ app.use(cors({
         if (allowedOrigins.indexOf(origin) !== -1 || allowedOrigins.includes('*')) {
             callback(null, true);
         } else {
-            console.log(`[CORS_REJECTED] Origin: ${origin}`);
             callback(new Error('Not allowed by CORS'));
         }
     },
@@ -129,33 +128,12 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(express.static('public'));
 app.use('/uploads', express.static('uploads'));
 
-// Debug Middleware (solo si está activado explícitamente)
-if (env.DEBUG_API) {
-    app.use((req, _res, next) => {
-        console.log(`[DEBUG_API] ${new Date().toISOString()} - ${req.method} ${req.url}`);
-        console.log('[DEBUG_API] Headers:', {
-            authorization: req.get('Authorization') ? 'Bearer [HIDDEN]' : 'None',
-            origin: req.get('Origin')
-        });
-        next();
-    });
-} else {
-    app.use((_req, _res, next) => next());
-}
+app.use((_req, _res, next) => next());
 
 // ============================================
 // RUTAS
 // ============================================
 
-// Debug Log Capture (For remote debugging)
-app.post('/api/debug/log', (req, res) => {
-    const { level, message, data } = req.body;
-    const logMsg = `[FRONTEND_REMOTE] ${message}`;
-    if (level === 'error') logger.error(logMsg, data);
-    else if (level === 'warn') logger.warn(logMsg, data);
-    else logger.info(logMsg, data);
-    res.status(200).send();
-});
 
 // Health Check
 app.get('/health', (_req, res) => {
@@ -168,6 +146,16 @@ app.use('/api', ubicacionRoutes); // Provincias y Cantones
 app.use('/api/auth', authRoutes);
 
 // Rutas Restringidas (Requieren Auth)
+// Debug Log Capture (For remote debugging) - Restored for Camera troubleshooting
+app.post('/api/debug/log', (req, res) => {
+    const { level, message, data } = req.body;
+    if (level === 'error' || level === 'warn') {
+        const logMsg = `[FRONTEND_REMOTE] ${message}`;
+        if (level === 'error') logger.error(logMsg, data);
+        else logger.warn(logMsg, data);
+    }
+    res.status(200).send();
+});
 app.use('/api/users', userRoutes);
 app.use('/api/rol', rolRoutes); // Singular to match frontend service
 app.use('/api/entidades', entidadRoutes); // Plural to match frontend service

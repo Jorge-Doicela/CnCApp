@@ -34,17 +34,28 @@ export class InscribirUsuarioUseCase {
 
             if (!isStaff && capacitacion.fechaInicio) {
                 const ahora = new Date();
-                const fechaHoraInicio = new Date(capacitacion.fechaInicio);
-                if (capacitacion.horaInicio) {
-                    const [h, m] = capacitacion.horaInicio.split(':').map(Number);
-                    fechaHoraInicio.setHours(h ?? 0, m ?? 0, 0, 0);
+                
+                // Determinamos la fecha/hora de finalización si existe, o usamos el final del día de inicio
+                let fechaHoraFin: Date;
+                if (capacitacion.fechaFin) {
+                    fechaHoraFin = new Date(capacitacion.fechaFin);
+                    if (capacitacion.horaFin) {
+                        const [h, m] = capacitacion.horaFin.split(':').map(Number);
+                        fechaHoraFin.setHours(h ?? 23, m ?? 59, 59, 999);
+                    } else {
+                        fechaHoraFin.setHours(23, 59, 59, 999);
+                    }
                 } else {
-                    fechaHoraInicio.setHours(0, 0, 0, 0);
+                    fechaHoraFin = new Date(capacitacion.fechaInicio);
+                    fechaHoraFin.setHours(23, 59, 59, 999);
                 }
 
-                if (ahora >= fechaHoraInicio) {
-                    throw new ValidationError('Las inscripciones están cerradas porque el evento ya ha comenzado.');
+                // Permitimos inscripción mientras el evento no haya terminado oficialmente
+                if (ahora > fechaHoraFin) {
+                    throw new ValidationError('Las inscripciones están cerradas porque el evento ya ha finalizado.');
                 }
+                
+                // Nota: Eliminamos el bloqueo de "ya comenzó" para permitir registros de último minuto o durante el evento.
             }
 
             if (capacitacion.cuposDisponibles !== null && capacitacion.cuposDisponibles <= 0) {

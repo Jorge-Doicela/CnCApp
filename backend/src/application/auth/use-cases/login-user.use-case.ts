@@ -20,37 +20,30 @@ export class LoginUserUseCase {
 
     async execute(identifier: string, password?: string, biometricToken?: string): Promise<LoginResult> {
         const isEmail = identifier.includes('@');
-        console.log(`[LOGIN_DEBUG] Iniciando intento de login para ${isEmail ? 'Email' : 'CI'}: "${identifier}" (Modo: ${biometricToken ? 'Biométrico' : 'Password'})`);
         
         const user = isEmail 
             ? await this.userRepository.findByEmail(identifier)
             : await this.userRepository.findByCi(identifier);
 
         if (!user) {
-            console.log(`[LOGIN_DEBUG] Usuario NO encontrado para ${isEmail ? 'Email' : 'CI'}: "${identifier}"`);
             throw new AuthenticationError('Credenciales inválidas');
         }
 
-        console.log(`[LOGIN_DEBUG] Usuario encontrado: ID=${user.id}, Nombre="${user.nombre}"`);
 
         // LOGIN POR TOKEN BIOMÉTRICO (Nivel 2)
         if (biometricToken) {
             if (!user.biometricToken || user.biometricToken !== biometricToken) {
-                console.log(`[LOGIN_DEBUG] Token biométrico inválido para usuario ID=${user.id}`);
                 throw new AuthenticationError('Sesión biométrica expirada o no configurada. Por favor, use su contraseña.');
             }
-            console.log(`[LOGIN_DEBUG] Autenticación por token biométrico exitosa para ID=${user.id}`);
         } 
         // LOGIN POR CONTRASEÑA (Normal / Primera vez)
         else if (password) {
             if (!user.password) {
-                console.log(`[LOGIN_DEBUG] Usuario no tiene contraseña establecida.`);
                 throw new AuthenticationError('Credenciales inválidas');
             }
 
             const isValid = await this.passwordEncoder.verify(password, user.password);
             if (!isValid) {
-                console.log(`[LOGIN_DEBUG] Contraseña incorrecta para usuario ID=${user.id}`);
                 throw new AuthenticationError('Credenciales inválidas');
             }
         } else {
@@ -58,16 +51,13 @@ export class LoginUserUseCase {
         }
 
         if (user.estado === 0) {
-            console.log(`[LOGIN_DEBUG] Intento de login en cuenta inactiva/bloqueada ID=${user.id}`);
             throw new AuthenticationError('Su cuenta se encuentra inactiva o bloqueada. Contacte al administrador.');
         }
 
         if (user.estado === 2) {
-            console.log(`[LOGIN_DEBUG] Intento de login en cuenta pendiente de verificación por correo ID=${user.id}`);
             throw new AuthenticationError('Debes verificar tu correo electrónico antes de poder iniciar sesión.');
         }
 
-        console.log(`[LOGIN_DEBUG] Login exitoso para usuario ID=${user.id}. Generando tokens...`);
 
         const tokens = this.tokenProvider.generateTokens({
             userId: user.id,

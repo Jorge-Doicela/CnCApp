@@ -559,6 +559,7 @@ ion-content {
 @media (max-width: 900px) {
   .register-split-layout {
     flex-direction: column;
+    padding: 0 8px; // Outer safety buffer
   }
 
   .branding-section {
@@ -566,8 +567,9 @@ ion-content {
   }
 
   .form-section {
-    padding: 20px;
+    padding: 40px 24px; // Increased for better breathing room
     justify-content: flex-start;
+    box-sizing: border-box;
   }
 
   .wizard-actions {

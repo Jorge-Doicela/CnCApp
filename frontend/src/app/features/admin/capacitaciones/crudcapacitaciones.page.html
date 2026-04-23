@@ -139,7 +139,7 @@
             <div class="collapsed-info" *ngIf="!isExpanded(cap.id)">
               <span><ion-icon name="location-outline"></ion-icon> {{ cap.lugar }}</span>
               <span class="sep">•</span>
-              <span><ion-icon name="calendar-clear-outline"></ion-icon> {{ cap.fechaInicio | date:'dd MMM' }}</span>
+              <span><ion-icon name="calendar-clear-outline"></ion-icon> {{ cap.fechaInicio | date:'dd MMM':'UTC' }}</span>
             </div>
           </div>
           <div class="status-area">
@@ -171,7 +171,7 @@
               <div class="icon-box"><ion-icon name="calendar-clear-outline"></ion-icon></div>
               <div class="info-text">
                 <span class="label">Fecha Inicio</span>
-                <span class="value">{{ cap.fechaInicio | date:'dd MMM, yyyy' }}</span>
+                <span class="value">{{ cap.fechaInicio | date:'dd MMM, yyyy':'UTC' }}</span>
               </div>
             </div>
             <div class="info-item">
@@ -282,7 +282,7 @@
             </div>
             <div class="detail-group">
               <label><ion-icon name="calendar-clear-outline"></ion-icon> Periodo</label>
-              <p>{{ (selectedCapacitacion.fechaInicio | date:'dd MMM') || 'N/A' }} - {{ (selectedCapacitacion.fechaFin | date:'dd MMM, yyyy') || 'N/A' }}</p>
+              <p>{{ (selectedCapacitacion.fechaInicio | date:'dd MMM':'UTC') || 'N/A' }} - {{ (selectedCapacitacion.fechaFin | date:'dd MMM, yyyy':'UTC') || 'N/A' }}</p>
             </div>
             <div class="detail-group">
               <label><ion-icon name="time-outline"></ion-icon> Horario</label>

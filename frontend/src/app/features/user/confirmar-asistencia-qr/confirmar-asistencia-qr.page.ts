@@ -14,6 +14,8 @@ import { ErrorHandlerUtil } from 'src/app/shared/utils/error-handler.util';
 import { Html5Qrcode, Html5QrcodeScannerState } from 'html5-qrcode';
 import { Camera } from '@capacitor/camera';
 import { Capacitor } from '@capacitor/core';
+import { environment } from 'src/environments/environment';
+import { BarcodeScanner, BarcodeFormat } from '@capacitor-mlkit/barcode-scanning';
 
 type EstadoConfirmacion = 'inicial' | 'escaneando' | 'exito' | 'ya_confirmado' | 'error';
 
@@ -49,6 +51,9 @@ export class ConfirmarAsistenciaQrPage implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
+    console.log('[QR_ASISTENCIA] Platform:', Capacitor.getPlatform());
+    console.log('[QR_ASISTENCIA] Is Native:', Capacitor.isNativePlatform());
+
     // Verificar si hay un parámetro QR en la URL (deep links futuros)
     const urlParams = new URLSearchParams(window.location.search);
     const qrParam = urlParams.get('qr');
@@ -58,7 +63,18 @@ export class ConfirmarAsistenciaQrPage implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.detenerEscaner();
+    if (Capacitor.isNativePlatform()) {
+      this.stopNativeScanner();
+    } else {
+      this.detenerEscaner();
+    }
+  }
+
+  async stopNativeScanner() {
+    try {
+      // In some versions we might need to call something, but usually just closing works.
+      // For mlkit-barcode-scanning, we just stop the process if it was internal.
+    } catch (e) {}
   }
 
   // ─── Iniciar escáner de cámara ──────────────────────────────────────────
@@ -69,25 +85,63 @@ export class ConfirmarAsistenciaQrPage implements OnInit, OnDestroy {
     this.escaneando = true;
     this.cdr.detectChanges(); 
 
-    // Check permissions explicitly if on native mobile
+    // CASE 1: NATIVE PLATFORM (Android/iOS)
     if (Capacitor.isNativePlatform()) {
       try {
-        const perm = await Camera.checkPermissions();
-        if (perm.camera !== 'granted') {
-          const request = await Camera.requestPermissions();
+        // 1. Verificar/Solicitar permisos explícitamente
+        const status = await BarcodeScanner.checkPermissions();
+        if (status.camera !== 'granted') {
+          const request = await BarcodeScanner.requestPermissions();
           if (request.camera !== 'granted') {
-             this.mostrarToast('Permiso de cámara necesario para escanear', 'warning');
-             this.estado = 'inicial';
-             this.escaneando = false;
-             this.cdr.detectChanges();
-             return;
+            this.mostrarToast('Permiso de cámara denegado. Actívalo en ajustes.', 'warning');
+            this.estado = 'inicial';
+            this.escaneando = false;
+            this.cdr.detectChanges();
+            return;
           }
         }
-      } catch (e) {
-        console.warn('[QR_ASISTENCIA] Error verificando permisos nativos:', e);
+
+        // 2. Asegurar que el módulo de Google Play Services esté listo
+        const isSupported = await BarcodeScanner.isGoogleBarcodeScannerModuleAvailable();
+        if (!isSupported.available) {
+          const loadingModule = await this.loadingController.create({ 
+            message: 'Iniciando módulo de escaneo...',
+            duration: 5000 
+          });
+          await loadingModule.present();
+          await BarcodeScanner.installGoogleBarcodeScannerModule();
+          await loadingModule.dismiss();
+        }
+
+        // 3. Lanzar el escáner nativo (Dialogo del sistema)
+        const { barcodes } = await BarcodeScanner.scan({
+          formats: [BarcodeFormat.QrCode]
+        });
+
+        if (barcodes && barcodes.length > 0) {
+          this.ngZone.run(() => {
+            this.procesarCodigo(barcodes[0].displayValue);
+          });
+        } else {
+          // El usuario canceló el diálogo nativo
+          this.estado = 'inicial';
+          this.escaneando = false;
+        }
+        this.cdr.detectChanges();
+        return;
+
+      } catch (err: any) {
+        console.error('[QR_ASISTENCIA] Native scanner error:', err);
+        this.remoteLog('Native scanner failure', { 
+          message: err?.message,
+          code: err?.code,
+          name: err?.name
+        }, 'error');
+        // No salimos aquí, permitimos que intente el fallback si el error es recuperable
       }
     }
 
+    // CASE 2: WEB / FALLBACK
     // Pequeño delay para asegurar que el div esté en el DOM antes de montar el scanner
     await this.delay(300);
 
@@ -122,6 +176,15 @@ export class ConfirmarAsistenciaQrPage implements OnInit, OnDestroy {
 
     } catch (err: any) {
       console.error('[QR_ASISTENCIA] Error starting scanner:', err);
+      
+      // Remote log for debugging
+      this.remoteLog('Error starting camera scanner', { 
+        message: err?.message, 
+        name: err?.name,
+        isNative: Capacitor.isNativePlatform(),
+        origin: window.location.origin
+      }, 'error');
+
       this.estado = 'inicial';
       this.escaneando = false;
 
@@ -220,5 +283,17 @@ export class ConfirmarAsistenciaQrPage implements OnInit, OnDestroy {
       buttons: [{ text: 'Cerrar', role: 'cancel' }]
     });
     await toast.present();
+  }
+
+  private async remoteLog(message: string, data: any = {}, level: string = 'info') {
+    try {
+      await fetch(`${environment.apiUrl}/debug/log`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ level, message, data })
+      });
+    } catch (e) {
+      console.error('Failed to send remote log', e);
+    }
   }
 }
