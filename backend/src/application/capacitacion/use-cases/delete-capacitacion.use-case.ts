@@ -16,6 +16,7 @@ export class DeleteCapacitacionUseCase {
             throw new NotFoundError('Capacitación no encontrada');
         }
 
+        /* 
         // Impedir borrado de capacitaciones finalizadas o con certificados
         if (capacitacion.estado === EstadoCapacitacionEnum.REALIZADA) {
             throw new ValidationError('No se puede eliminar una capacitación que ya ha finalizado');
@@ -24,6 +25,7 @@ export class DeleteCapacitacionUseCase {
         if (capacitacion.certificado) {
             throw new ValidationError('No se puede eliminar una capacitación que ya tiene certificados emitidos');
         }
+        */
 
         await this.capacitacionRepository.delete(id);
     }
