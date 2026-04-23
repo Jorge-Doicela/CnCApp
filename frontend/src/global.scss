@@ -174,38 +174,83 @@ ion-app.has-global-header ion-router-outlet {
         padding-left: 12px !important;
         padding-right: 12px !important;
         padding-top: 10px !important;
-        padding-bottom: 24px !important; // Further reduced
-        margin-top: 8px !important;
-        margin-bottom: 8px !important;
+        padding-bottom: 12px !important; // Further reduced
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+    }
+
+    // Hide redundant hero sections in CRUD pages to save space
+    .hero-section {
+        display: none !important;
     }
 
     // 3. Card & Section Densification
     .form-section, .form-card, .glass-card, .apple-card, .summary-card, .modern-card, .detail-card, .form-container.glass, 
     .search-glass-card, .stat-glass-card, .institucion-glass-card, .feature-card, .dash-card, .role-card, .stat-card,
-    .premium-info-card, .cert-item-card, .cert-preview-card, .user-card-premium {
-        padding: 12px !important; // Minimum safe padding
-        margin-bottom: 10px !important;
-        border-radius: 14px !important; // Slightly more compact radius
+    .premium-info-card, .cert-item-card, .cert-preview-card, .user-card-premium, [class*="-glass-card"] {
+        padding: 10px !important; // Further reduced
+        margin-bottom: 8px !important;
+        border-radius: 12px !important;
         min-height: auto !important;
+
+        .card-top, .card-header { 
+            padding: 4px 0 !important;
+            margin-bottom: 6px !important; 
+            border-bottom-width: 1px !important;
+        }
+        .card-body { padding: 4px 0 !important; }
+        .card-footer { padding-top: 8px !important; margin-top: 8px !important; border-top-width: 1px !important; }
+        
+        .prov-name, .canton-name, .parroquia-name, .item-name, .role-name, .user-name, .entidad-name, h3, h4 { 
+            font-size: 0.95rem !important; 
+            margin-bottom: 2px !important; 
+            font-weight: 800 !important;
+        }
+
+        .sub-info, .card-meta, .section-label, .role-description { 
+            margin-bottom: 4px !important; 
+            font-size: 0.65rem !important; 
+            gap: 4px !important;
+        }
+
+        .action-pills, .action-buttons {
+            gap: 4px !important;
+            display: flex !important;
+            flex-direction: row !important;
+            
+            .icon-pill, ion-button {
+                flex: 1 !important;
+                height: 36px !important;
+                border-radius: 8px !important;
+                margin: 0 !important;
+                ion-icon { font-size: 1rem !important; }
+            }
+        }
     }
 
     .admin-header, .page-header, .glass-header {
-        margin-bottom: 12px !important;
-        margin-top: 4px !important;
-        padding: 0 !important;
+        margin-bottom: 8px !important;
+        margin-top: 0px !important;
+        padding: 4px 0 !important;
         height: auto !important;
         text-align: left !important;
         
-        .title-group h1 { font-size: 1.5rem !important; }
-        p { margin-top: 2px !important; font-size: 0.8rem !important; }
+        .title-group h1 { font-size: 1.3rem !important; }
+        p { margin-top: 2px !important; font-size: 0.75rem !important; }
         .eyebrow, .pill-label, .cert-category { margin-bottom: 4px !important; font-size: 0.6rem !important; padding: 2px 8px !important; }
+    }
+
+    // Hide Ionic Header if Custom Header is present
+    ion-header:has(+ ion-content .glass-header) {
+        display: none !important;
     }
 
     // 4. Grid & Layout Density
     .field-group, .form-group, .data-grid, .stats-grid, .kpi-grid, .charts-container, .main-content-grid, 
-    .instituciones-masonry, .clean-grid, .dashboard-grid, .premium-stats-grid, .location-grid, .cert-grid, .cert-info-grid {
-        gap: 10px !important;
-        margin-bottom: 10px !important;
+    .instituciones-masonry, .provincias-masonry, .cantones-masonry, .parroquias-masonry, .roles-grid, .clean-grid, 
+    .dashboard-grid, .premium-stats-grid, .location-grid, .cert-grid, .cert-info-grid {
+        gap: 8px !important;
+        margin-bottom: 8px !important;
         grid-template-columns: 1fr !important;
         display: flex !important;
         flex-direction: column !important;
@@ -269,5 +314,20 @@ ion-app.has-global-header ion-router-outlet {
         .step-dot { width: 32px !important; height: 32px !important; font-size: 0.8rem !important; }
         .step-label { font-size: 0.65rem !important; }
         .progress-bar { top: 16px !important; }
+    }
+
+    // 9. Results & Stats Compaction
+    .results-header {
+        margin-bottom: 12px !important;
+        .results-title { font-size: 1.1rem !important; }
+        .count-badge { padding: 4px 10px !important; font-size: 0.7rem !important; }
+    }
+
+    .stat-glass-card {
+        padding: 10px !important;
+        gap: 12px !important;
+        .stat-icon-box { width: 44px !important; height: 44px !important; font-size: 1.2rem !important; border-radius: 12px !important; }
+        .stat-data h3 { font-size: 1.3rem !important; }
+        .stat-data p { font-size: 0.65rem !important; }
     }
 }

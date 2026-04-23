@@ -195,7 +195,7 @@ export class LoginPage implements OnInit {
               await loading.dismiss();
               if (response.success) {
                 this.presentToast('Bienvenido, acceso biometrico exitoso', 'success');
-                this.router.navigate(['/home']);
+                this.router.navigate(['/home'], { replaceUrl: true });
               } else {
                 this.presentToast('Error en la sesión biométrica', 'danger');
               }
@@ -244,7 +244,7 @@ export class LoginPage implements OnInit {
           // Update user session data immediately (AuthService handles state)
           this.presentToast('Sesión iniciada correctamente', 'success');
           // Redirect to Home Page (Unified Dashboard) for all users
-          this.router.navigate(['/home']);
+          this.router.navigate(['/home'], { replaceUrl: true });
         } else {
           this.presentToast(response.message || 'Error al iniciar sesión', 'danger');
         }
@@ -275,7 +275,7 @@ export class LoginPage implements OnInit {
 
   // Deprecated redirect method removed in favor of direct navigation to /home
   redirigirUsuario(rolId: number) {
-    this.router.navigate(['/home']);
+    this.router.navigate(['/home'], { replaceUrl: true });
   }
 
   iraRegister() {

@@ -147,6 +147,16 @@ if (env.DEBUG_API) {
 // RUTAS
 // ============================================
 
+// Debug Log Capture (For remote debugging)
+app.post('/api/debug/log', (req, res) => {
+    const { level, message, data } = req.body;
+    const logMsg = `[FRONTEND_REMOTE] ${message}`;
+    if (level === 'error') logger.error(logMsg, data);
+    else if (level === 'warn') logger.warn(logMsg, data);
+    else logger.info(logMsg, data);
+    res.status(200).send();
+});
+
 // Health Check
 app.get('/health', (_req, res) => {
     res.status(200).json({ status: 'ok', message: 'Servidor funcionando correctamente' });

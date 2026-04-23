@@ -428,7 +428,7 @@ export class RegisterPage {
               (window as any).grecaptcha?.reset();
             }
           } catch(e) {}
-          this.router.navigate(['/login']);
+          this.router.navigate(['/login'], { replaceUrl: true });
         } else {
           try { 
             if (this.recaptchaWidgetId !== null) {

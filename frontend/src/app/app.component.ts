@@ -4,7 +4,7 @@ import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import {
   IonApp, IonMenu, IonHeader, IonToolbar, IonTitle, IonContent,
   IonList, IonItem, IonIcon, IonLabel, IonItemDivider, IonRouterOutlet,
-  MenuController, AlertController
+  MenuController, AlertController, NavController, ToastController
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -16,6 +16,9 @@ import { UsuarioService } from './features/user/services/usuario.service';
 import { filter } from 'rxjs/operators';
 import { firstValueFrom } from 'rxjs';
 import { HeaderComponent } from './shared/components/header/header.component';
+import { Platform } from '@ionic/angular/standalone';
+import { environment } from 'src/environments/environment';
+import { App } from '@capacitor/app';
 
 @Component({
   selector: 'app-root',
@@ -55,13 +58,17 @@ export class AppComponent implements OnInit, OnDestroy {
 
   private usuarioService = inject(UsuarioService);
 
+  @ViewChild(IonRouterOutlet, { static: true }) routerOutlet!: IonRouterOutlet;
   @ViewChild('menuFocusTarget', { read: ElementRef }) menuFocusTarget!: ElementRef;
   @ViewChild('mainContent', { read: ElementRef }) mainContent!: ElementRef;
 
   constructor(
     private router: Router,
     private menuCtrl: MenuController,
-    private alertController: AlertController
+    private alertController: AlertController,
+    private platform: Platform,
+    private navCtrl: NavController,
+    private toastController: ToastController
   ) {
     addIcons({
       homeOutline, logInOutline, personAddOutline, personCircleOutline, informationCircleOutline, locationOutline, bookOutline, documentTextOutline, calendarOutline, qrCodeOutline, logOutOutline, textOutline, alertCircleOutline, barcodeOutline, mapOutline, checkmarkCircleOutline, closeOutline, saveOutline, arrowBackOutline, searchOutline, search, addCircleOutline, closeCircleOutline, keyOutline, createOutline, trashOutline, swapVerticalOutline, personOutline, schoolOutline, checkmarkCircle, alertCircle, time, timeOutline, people, laptopOutline, gitMergeOutline, linkOutline, openOutline, peopleOutline, businessOutline, arrowForwardOutline, checkmarkOutline, addOutline, ribbonOutline, refreshOutline, ribbon, hourglassOutline, toggleOutline, wifiOutline, peopleCircleOutline, briefcaseOutline, lockClosedOutline, checkmarkDoneOutline, business, personCircle, mailOutline, analyticsOutline, downloadOutline, warningOutline, desktopOutline, shieldCheckmarkOutline, funnelOutline, trophyOutline, arrowBack, pinOutline, idCardOutline, imageOutline, cloudUploadOutline, layersOutline, eyeOutline, addCircle, filterOutline, create, playOutline, appsOutline, shieldCheckmark, apps, add, checkmarkDoneCircleOutline, callOutline, maleFemaleOutline, globeOutline, person, fingerPrintOutline, settingsOutline, flagOutline, arrowForwardCircle, easel, chevronForward, statsChart, arrowForward, colorPaletteOutline, rocketOutline, helpCircleOutline, sparklesOutline, busOutline, carOutline, navigateOutline, medalOutline, bodyOutline, swapHorizontalOutline, gitNetworkOutline, barChartOutline, scaleOutline, libraryOutline, walletOutline, carSportOutline, chevronForwardOutline, waterOutline, leafOutline, airplaneOutline, calculatorOutline, optionsOutline, fileTrayFullOutline, fitnessOutline, buildOutline, constructOutline, calendar, closeCircle, camera, gridOutline, statsChartOutline, 'list-outline': listOutline
@@ -90,6 +97,85 @@ export class AppComponent implements OnInit, OnDestroy {
           // this.verificarRolEnCambioRuta();
         }
       });
+
+    this.initializeApp();
+  }
+
+  private async remoteLog(message: string, data: any = {}, level: string = 'info') {
+    console.log(`[REMOTE_LOG] ${message}`, data);
+    try {
+      await fetch(`${environment.apiUrl}/debug/log`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ level, message, data })
+      });
+    } catch (e) {
+      console.error('Failed to send remote log', e);
+    }
+  }
+
+  initializeApp() {
+    this.remoteLog('Initializing BackButton handler...');
+
+    // Exponer función global para que Java la llame
+    (window as any).onNativeBack = () => {
+      this.remoteLog('onNativeBack called from Java');
+      this.handleBackButton();
+    };
+
+    // Usar plugin de Capacitor como respaldo
+    App.addListener('backButton', ({ canGoBack }) => {
+      this.remoteLog('Capacitor App.backButton event', { canGoBack });
+      this.handleBackButton();
+    });
+
+    this.platform.ready().then(() => {
+      this.remoteLog('Platform ready.');
+      // Prioridad muy alta para capturar el evento antes que el sistema
+      this.platform.backButton.subscribeWithPriority(10000, async () => {
+        this.remoteLog('Ionic platform.backButton event');
+        this.handleBackButton();
+      });
+    });
+  }
+
+  private async handleBackButton() {
+    const currentUrl = this.router.url;
+    const canGoBack = this.routerOutlet?.canGoBack();
+    const rootPages = ['/login', '/register', '/home', '/', '/dashboard'];
+    const isRoot = rootPages.some(p => currentUrl === p || currentUrl.split('?')[0] === p);
+    const isMenuOpen = await this.menuCtrl.isOpen();
+
+    await this.remoteLog('Processing Back Button', {
+      currentUrl,
+      canGoBack,
+      isRoot,
+      isMenuOpen
+    });
+
+    // 1. Cerrar menú si está abierto
+    if (isMenuOpen) {
+      await this.remoteLog('Action: Closing menu');
+      await this.menuCtrl.close();
+      return;
+    }
+
+    if (canGoBack) {
+      await this.remoteLog('Action: Navigating back via navCtrl');
+      this.navCtrl.back();
+    } else if (!isRoot) {
+      await this.remoteLog('Action: Force navigating back (fallback)');
+      this.navCtrl.back();
+    } else {
+      await this.remoteLog('Action: Preventing exit from root page');
+      const toast = await this.toastController.create({
+        message: 'Use el menú lateral para navegar o cerrar sesión.',
+        duration: 2000,
+        position: 'bottom',
+        cssClass: 'premium-toast'
+      });
+      await toast.present();
+    }
   }
 
   // Signal for reactive header visibility
@@ -292,7 +378,7 @@ export class AppComponent implements OnInit, OnDestroy {
     // But for speed we can just clear.
     this.authService.clearAuthData();
     this.closeMenu();
-    this.router.navigate(['/login']);
+    this.router.navigate(['/login'], { replaceUrl: true });
   }
 
   getIconForModule(modulo: string): string {
