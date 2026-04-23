@@ -6,6 +6,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { Capacitor } from '@capacitor/core';
+import { Browser } from '@capacitor/browser';
 import { addIcons } from 'ionicons';
 import {
     cloudDownloadOutline, eyeOutline, arrowBackOutline,
@@ -363,6 +365,7 @@ export class CertificacionesPage implements OnInit {
     private http = inject(HttpClient);
     private router = inject(Router);
     private cdr = inject(ChangeDetectorRef);
+    private toastController = inject(ToastController);
 
     constructor() {
         addIcons({ cloudDownloadOutline, eyeOutline, arrowBackOutline, ribbonOutline, ribbon, checkmarkCircle, calendarOutline, qrCodeOutline, chevronForward });
@@ -445,9 +448,33 @@ export class CertificacionesPage implements OnInit {
         this.router.navigate(['/ver-certificaciones'], { queryParams: { idCapacitacion: cert.capacitacionId } });
     }
 
-    generarPDF(action: 'download' | 'open') {
+    async generarPDF(action: 'download' | 'open') {
         if (!this.pdfUrl) return;
-        window.open(this.pdfUrl, '_blank');
+
+        try {
+            if (Capacitor.isNativePlatform()) {
+                await Browser.open({ url: this.pdfUrl });
+                if (action === 'download') {
+                    await this.mostrarToast('Se abrio el documento. Usa el menu del navegador para descargarlo.', 'primary');
+                }
+                return;
+            }
+
+            if (action === 'download') {
+                const anchor = document.createElement('a');
+                anchor.href = this.pdfUrl;
+                anchor.target = '_blank';
+                anchor.rel = 'noopener noreferrer';
+                anchor.download = 'certificado.pdf';
+                anchor.click();
+                return;
+            }
+
+            window.open(this.pdfUrl, '_blank', 'noopener,noreferrer');
+        } catch (error) {
+            console.error('[CERTIFICADOS] No se pudo abrir el PDF', error);
+            await this.mostrarToast('No se pudo abrir el documento. Intentalo nuevamente.', 'danger');
+        }
     }
 
     getImageUrl(path: string | undefined): string | null {
@@ -463,5 +490,15 @@ export class CertificacionesPage implements OnInit {
         this.plantillaData = null;
         this.router.navigate(['/ver-certificaciones'], { queryParams: { idCapacitacion: null } });
         this.cdr.detectChanges();
+    }
+
+    private async mostrarToast(message: string, color: 'primary' | 'danger' = 'primary') {
+        const toast = await this.toastController.create({
+            message,
+            duration: 2500,
+            color,
+            position: 'bottom'
+        });
+        await toast.present();
     }
 }
