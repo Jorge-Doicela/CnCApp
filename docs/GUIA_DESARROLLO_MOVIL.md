@@ -35,10 +35,46 @@ npx cap run android --live-reload --port 4200 --host 192.168.7.141
 ## Solución de Problemas Comunes
 
 ### Error: "Unable to delete directory" (Archivos bloqueados)
-Si al compilar te da un error de que no puede borrar carpetas, ejecuta esto para liberar los procesos:
+Si al compilar te da un error de que no puede borrar carpetas, usa este script de recuperación automática:
 ```powershell
-Stop-Process -Name "java" -Force -ErrorAction SilentlyContinue
-Remove-Item -Recurse -Force .\android\app\build
+# run-android-safe.ps1 (ejecutar desde la raiz del proyecto CnCApp)
+param(
+  [string]$HostIp = "192.168.7.141",
+  [int]$Port = 4200
+)
+
+$ErrorActionPreference = "Stop"
+
+Write-Host "1) Configurando JAVA_HOME..."
+$env:JAVA_HOME = "C:\Program Files\Android\Android Studio\jbr"
+
+Write-Host "2) Deteniendo daemons de Gradle..."
+Push-Location .\android
+try {
+  .\gradlew.bat --stop | Out-Host
+} finally {
+  Pop-Location
+}
+
+Write-Host "3) Limpiando carpeta android\app\build..."
+if (Test-Path ".\android\app\build") {
+  Remove-Item -Recurse -Force ".\android\app\build"
+}
+
+Write-Host "4) Sincronizando Capacitor..."
+npx cap sync android | Out-Host
+
+Write-Host "5) Lanzando app con Live Reload..."
+npx cap run android --live-reload --port $Port --host $HostIp
+```
+
+Uso:
+```powershell
+# Opcion A: guardalo como .\run-android-safe.ps1
+.\run-android-safe.ps1
+
+# Opcion B: con IP/puerto personalizados
+.\run-android-safe.ps1 -HostIp "192.168.7.141" -Port 4200
 ```
 
 ### Error: "No se pudo conectar con el backend"
