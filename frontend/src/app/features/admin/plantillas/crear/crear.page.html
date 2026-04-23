@@ -46,26 +46,27 @@
                             </ion-input>
                         </ion-item>
 
-                        <!-- Upload Image -->
-                        <ion-item class="form-item" *ngIf="!plantilla.imagenUrl">
+                        <!-- Upload / Replace Image -->
+                        <ion-item class="form-item">
                             <ion-label position="stacked">Imagen de Fondo *</ion-label>
-                            <div class="upload-area" (click)="fileInput.click()">
+                            <div *ngIf="!plantilla.imagenUrl" class="upload-area" (click)="fileInput.click()">
                                 <ion-icon name="cloud-upload-outline"></ion-icon>
                                 <p>Haz clic para subir imagen</p>
                                 <span>PNG, JPG (máx. 5MB)</span>
                             </div>
-                            <input #fileInput type="file" (change)="onFileSelected($event)" accept="image/*" hidden>
-                        </ion-item>
-
-                        <!-- Image Preview -->
-                        <ion-item class="form-item" *ngIf="plantilla.imagenUrl">
-                            <ion-label position="stacked">Imagen Cargada</ion-label>
-                            <div class="image-preview">
+                            <div *ngIf="plantilla.imagenUrl" class="image-preview">
                                 <img [src]="plantilla.imagenUrl" alt="Preview">
-                                <ion-button fill="clear" color="danger" size="small" (click)="eliminarImagen()">
-                                    <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
-                                </ion-button>
+                                <div class="image-actions">
+                                    <ion-button fill="clear" color="primary" size="small" (click)="fileInput.click()">
+                                        Cambiar imagen
+                                    </ion-button>
+                                    <ion-button fill="clear" color="danger" size="small" (click)="eliminarImagen()">
+                                        Eliminar
+                                    </ion-button>
+                                </div>
+                                <p class="image-helper">Haz clic en "Cambiar imagen" para reemplazar el fondo actual.</p>
                             </div>
+                            <input #fileInput type="file" (change)="onFileSelected($event)" accept="image/*" hidden>
                         </ion-item>
 
                         <!-- Fields Configuration -->

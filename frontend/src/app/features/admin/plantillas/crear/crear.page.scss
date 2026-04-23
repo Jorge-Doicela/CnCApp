@@ -180,11 +180,26 @@ ion-content {
             display: block;
         }
 
+        .image-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+            padding: 12px 12px 8px;
+            background: rgba(255, 255, 255, 0.92);
+        }
+
         ion-button {
-            position: absolute;
-            top: 8px;
-            right: 8px;
+            position: static;
+            margin: 0;
             --background: rgba(255, 255, 255, 0.9);
+        }
+
+        .image-helper {
+            margin: 10px 0 0;
+            font-size: 12px;
+            color: var(--ion-color-medium);
+            line-height: 1.4;
         }
     }
 
@@ -602,4 +617,4 @@ ion-content {
         color: #1e3a8a;
     }
 }
-
+

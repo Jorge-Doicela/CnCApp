@@ -9,6 +9,7 @@ import { environment } from 'src/environments/environment';
 import { Capacitor } from '@capacitor/core';
 import { Browser } from '@capacitor/browser';
 import { addIcons } from 'ionicons';
+import { AuthService } from 'src/app/features/auth/services/auth.service';
 import {
     cloudDownloadOutline, eyeOutline, arrowBackOutline,
     ribbonOutline, ribbon, checkmarkCircle,
@@ -41,6 +42,7 @@ export class MisCertificadosPage implements OnInit {
     private router = inject(Router);
     private cdr = inject(ChangeDetectorRef);
     private toastController = inject(ToastController);
+    private authService = inject(AuthService);
 
     constructor() {
         addIcons({ cloudDownloadOutline, eyeOutline, arrowBackOutline, ribbonOutline, ribbon, checkmarkCircle, calendarOutline, qrCodeOutline, chevronForward });
@@ -49,12 +51,12 @@ export class MisCertificadosPage implements OnInit {
     ngOnInit() {
         // Combinamos la escucha de parámetros de ruta y de consulta
         this.route.queryParamMap.subscribe(queryParams => {
-            const idParam = queryParams.get('idCapacitacion') || 
-                            this.route.snapshot.paramMap.get('Id_Capacitacion');
-            
-            this.idCapacitacion = idParam ? Number(idParam) : null;
+            const rawId = queryParams.get('idCapacitacion') ?? this.route.snapshot.paramMap.get('Id_Capacitacion');
+            const parsedId = rawId ? Number(rawId) : NaN;
 
-            if (this.idCapacitacion && !isNaN(this.idCapacitacion)) {
+            this.idCapacitacion = Number.isInteger(parsedId) && parsedId > 0 ? parsedId : null;
+
+            if (this.idCapacitacion !== null) {
                 this.cargarUnCertificado(this.idCapacitacion);
             } else {
                 this.idCapacitacion = null;
@@ -86,12 +88,21 @@ export class MisCertificadosPage implements OnInit {
         try {
             console.log('[CERTIFICADOS] Cargando certificado para capacitación:', idCapacitacion);
             const certs = await firstValueFrom(this.http.get<any[]>(`${environment.apiUrl}/certificados/my`)) || [];
-            const cert = certs.find((c: any) => c.capacitacionId === idCapacitacion);
+            const cert = certs.find((c: any) => {
+                const capacitacionId = Number(c?.capacitacionId ?? c?.Id_Capacitacion ?? c?.capacitacion?.id);
+                return Number.isInteger(capacitacionId) && capacitacionId === idCapacitacion;
+            });
 
             if (cert) {
+                const currentUser = this.authService.currentUser() || null;
+                const usuario = cert.usuario || currentUser || { nombre: 'Participante' };
+                if (!usuario.nombre && currentUser?.nombre) {
+                    usuario.nombre = currentUser.nombre;
+                }
+
                 this.certificadoData = {
                     ...cert,
-                    usuario: cert.usuario || { nombre: 'Participante' },
+                    usuario,
                     capacitacion: cert.capacitacion || { nombre: 'Capacitación' },
                     fecha: cert.fechaEmision ? new Date(cert.fechaEmision).toLocaleDateString() : 'N/A'
                 };
@@ -166,6 +177,14 @@ export class MisCertificadosPage implements OnInit {
         this.plantillaData = null;
         this.router.navigate(['/mis-certificados'], { queryParams: { idCapacitacion: null } });
         this.cdr.detectChanges();
+    }
+
+    async onPreviewImageError(event: Event) {
+        const target = event.target as HTMLImageElement;
+        if (target) {
+            target.src = 'assets/certificados/placeholder-cert.png';
+            target.onerror = null;
+        }
     }
 
     private async mostrarToast(message: string, color: 'primary' | 'danger' = 'primary') {

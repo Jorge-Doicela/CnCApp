@@ -33,7 +33,7 @@ import {
     </ion-header>
 
     <ion-content [fullscreen]="true" class="ion-padding">
-      
+
       <!-- Loading State -->
       <div *ngIf="loading" class="ion-text-center ion-padding">
         <ion-spinner name="crescent" color="primary"></ion-spinner>
@@ -60,7 +60,7 @@ import {
               <p class="user-placeholder">{{ certificadoData.usuario?.nombre }}</p>
             </div>
           </div>
-          
+
           <ion-card-header>
             <div class="cert-category">CERTIFICADO OFICIAL</div>
             <ion-card-title>{{ (certificadoData.capacitacion?.nombre || 'Capacitación').toUpperCase() }}</ion-card-title>
@@ -114,11 +114,11 @@ import {
                 </div>
                 <div class="cert-date">{{ cert.createdAt | date:'longDate' }}</div>
             </div>
-            
+
             <ion-card-content>
               <h4 class="cert-name">{{ cert.capacitacion?.nombre || 'Certificado de Capacitación' }}</h4>
               <p class="cert-desc">{{ cert.capacitacion?.descripcion || 'Completado con éxito' }}</p>
-              
+
               <div class="cert-footer-info">
                   <span class="badge-verified">
                      <ion-icon name="checkmark-circle"></ion-icon>
@@ -220,7 +220,7 @@ import {
         color: var(--primary-color);
         margin-bottom: 4px;
     }
-    
+
     .cert-info-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -374,12 +374,12 @@ export class CertificacionesPage implements OnInit {
     ngOnInit() {
         // Combinamos la escucha de parámetros de ruta y de consulta
         this.route.queryParamMap.subscribe(queryParams => {
-            const idParam = queryParams.get('idCapacitacion') || 
-                            this.route.snapshot.paramMap.get('Id_Capacitacion');
-            
-            this.idCapacitacion = idParam ? Number(idParam) : null;
+            const rawId = queryParams.get('idCapacitacion') ?? this.route.snapshot.paramMap.get('Id_Capacitacion');
+            const parsedId = rawId ? Number(rawId) : NaN;
 
-            if (this.idCapacitacion && !isNaN(this.idCapacitacion)) {
+            this.idCapacitacion = Number.isInteger(parsedId) && parsedId > 0 ? parsedId : null;
+
+            if (this.idCapacitacion !== null) {
                 this.cargarUnCertificado(this.idCapacitacion);
             } else {
                 this.idCapacitacion = null;
@@ -411,7 +411,10 @@ export class CertificacionesPage implements OnInit {
         try {
             console.log('[CERTIFICADOS] Cargando certificado para capacitación:', idCapacitacion);
             const certs = await firstValueFrom(this.http.get<any[]>(`${environment.apiUrl}/certificados/my`)) || [];
-            const cert = certs.find((c: any) => c.capacitacionId === idCapacitacion);
+            const cert = certs.find((c: any) => {
+                const capacitacionId = Number(c?.capacitacionId ?? c?.Id_Capacitacion ?? c?.capacitacion?.id);
+                return Number.isInteger(capacitacionId) && capacitacionId === idCapacitacion;
+            });
 
             if (cert) {
                 this.certificadoData = {
