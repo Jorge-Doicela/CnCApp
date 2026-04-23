@@ -53,6 +53,7 @@ const transports: winston.transport[] = [
     new winston.transports.Console(),
 ];
 
+/* 
 // Solo agregar transports de archivo si no estamos en Vercel
 if (!isVercel) {
     transports.push(
@@ -65,6 +66,7 @@ if (!isVercel) {
         new winston.transports.File({ filename: 'logs/combined.log' })
     );
 }
+*/
 
 // Crear logger
 const logger = winston.createLogger({
