@@ -110,6 +110,7 @@ export class MisCertificadosPage implements OnInit {
                 // Recuperar datos de la plantilla para la vista previa
                 this.plantillaData = cert.capacitacion?.plantilla || null;
                 console.log('[CERTIFICADOS] Plantilla cargada:', this.plantillaData?.nombre || 'Ninguna');
+                console.log('[CERTIFICADOS] Configuración de plantilla:', this.plantillaData?.configuracion);
 
                 const baseUrl = environment.apiUrl.replace('/api', '');
                 this.pdfUrl = `${baseUrl}${cert.pdfUrl}`;
@@ -195,5 +196,71 @@ export class MisCertificadosPage implements OnInit {
             position: 'bottom'
         });
         await toast.present();
+    }
+
+    getConfiguredFields(): { key: string, config: any }[] {
+        if (!this.plantillaData?.configuracion) {
+            console.log('[CERTIFICADOS] No hay configuración de plantilla');
+            return [];
+        }
+
+        const fields = Object.entries(this.plantillaData.configuracion)
+            .filter(([key]) => key !== 'codigoQR' && key !== 'firmas') // Excluir QR y firmas
+            .map(([key, config]) => ({ key, config }));
+
+        console.log('[CERTIFICADOS] Campos configurados encontrados:', fields.length, fields);
+        return fields;
+    }
+
+    getFieldLabel(key: string): string {
+        const labels: Record<string, string> = {
+            nombreUsuario: 'Participante',
+            curso: 'Curso/Capacitación',
+            fecha: 'Fecha de Emisión',
+            cedula: 'Cédula',
+            rol: 'Rol',
+            horas: 'Horas',
+            parrafo: 'Descripción'
+        };
+        return labels[key] || key.charAt(0).toUpperCase() + key.slice(1);
+    }
+
+    getFieldValue(key: string): string {
+        if (!this.certificadoData) return 'N/A';
+
+        switch (key) {
+            case 'nombreUsuario':
+                return this.certificadoData.usuario?.nombre || 'N/A';
+            case 'curso':
+                return this.certificadoData.capacitacion?.nombre || 'N/A';
+            case 'fecha':
+                return this.certificadoData.fecha || 'N/A';
+            case 'cedula':
+                return this.certificadoData.usuario?.ci || 'N/A';
+            case 'rol':
+                return this.certificadoData.usuario?.rol?.nombre || 'Participante';
+            case 'horas':
+                return this.certificadoData.capacitacion?.horas || 'N/A';
+            case 'parrafo':
+                // Para párrafos con template, procesar los placeholders
+                const config = this.plantillaData?.configuracion?.[key];
+                if (config?.textoTemplate) {
+                    let text = config.textoTemplate;
+                    const data = {
+                        usuario: this.certificadoData.usuario?.nombre || '',
+                        curso: this.certificadoData.capacitacion?.nombre || '',
+                        fecha: this.certificadoData.fecha || '',
+                        horas: this.certificadoData.capacitacion?.horas || '',
+                        modalidad: this.certificadoData.capacitacion?.modalidad || 'virtual'
+                    };
+                    Object.entries(data).forEach(([k, v]) => {
+                        text = text.replace(new RegExp(`{{${k}}}`, 'g'), v);
+                    });
+                    return text;
+                }
+                return 'N/A';
+            default:
+                return this.certificadoData[key] || 'N/A';
+        }
     }
 }

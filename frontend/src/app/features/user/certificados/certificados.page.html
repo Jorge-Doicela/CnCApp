@@ -31,16 +31,30 @@
     <!-- SINGLE CERTIFICATE VIEW (Preview) -->
     <div *ngIf="!loading && idCapacitacion && certificadoData" class="preview-container">
         <ion-card class="cert-preview-card">
-            <ng-container *ngIf="plantillaData?.imagenUrl; else noPreview">
+            <ng-container *ngIf="pdfUrl; else imagePreview">
                 <div class="pdf-snapshot">
-                    <img [src]="getImageUrl(plantillaData?.imagenUrl) || 'assets/certificados/placeholder-cert.png'"
-                        (error)="onPreviewImageError($event)" class="bg-img">
-                    <div class="snapshot-overlay">
-                        <div class="qr-placeholder"></div>
-                        <p class="user-placeholder">{{ certificadoData.usuario?.nombre }}</p>
-                    </div>
+                    <iframe [src]="pdfUrl" class="pdf-object"></iframe>
+                </div>
+                <div class="pdf-details-warning ion-padding">
+                    <p>Si tu navegador no muestra la vista previa, abre el certificado en otra pestaña.</p>
+                    <ion-button fill="outline" size="small" [href]="pdfUrl" target="_blank">
+                        Abrir certificado en nueva pestaña
+                    </ion-button>
                 </div>
             </ng-container>
+
+            <ng-template #imagePreview>
+                <ng-container *ngIf="plantillaData?.imagenUrl; else noPreview">
+                    <div class="pdf-snapshot">
+                        <img [src]="getImageUrl(plantillaData?.imagenUrl) || 'assets/certificados/placeholder-cert.png'"
+                            (error)="onPreviewImageError($event)" class="bg-img">
+                        <div class="snapshot-overlay">
+                            <div class="qr-placeholder"></div>
+                            <p class="user-placeholder">{{ certificadoData.usuario?.nombre }}</p>
+                        </div>
+                    </div>
+                </ng-container>
+            </ng-template>
 
             <ng-template #noPreview>
                 <div class="no-preview-placeholder ion-padding ion-text-center">
@@ -70,6 +84,17 @@
                         <div>
                             <small>Código QR</small>
                             <p>Verificado</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Campos dinámicos configurados en la plantilla -->
+                <div class="cert-fields-section" *ngIf="plantillaData?.configuracion">
+                    <h4>Detalles del Certificado</h4>
+                    <div class="cert-fields-grid">
+                        <div class="field-item" *ngFor="let field of getConfiguredFields()">
+                            <div class="field-label">{{ getFieldLabel(field.key) }}</div>
+                            <div class="field-value">{{ getFieldValue(field.key) }}</div>
                         </div>
                     </div>
                 </div>
