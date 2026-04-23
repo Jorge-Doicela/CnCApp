@@ -268,34 +268,10 @@
               <ion-item class="form-field">
                 <ion-label>GAD *</ion-label>
                 <ion-select [(ngModel)]="autoridad.gadAutoridad" (ngModelChange)="guardarProgreso()"
-                  placeholder="Seleccione un GAD" interface="popover">
-                  <ng-container *ngIf="autoridad.nivelGobierno == resolvedIds.nivelMancomunidad">
-                    <ion-select-option *ngFor="let m of datosrecuperados.mancomunidades" [value]="m.nombre">
-                      {{ m.nombre }}
-                    </ion-select-option>
-                  </ng-container>
-                  <ng-container *ngIf="autoridad.nivelGobierno == resolvedIds.nivelRegimenEspecial">
-                    <ion-select-option *ngFor="let r of datosrecuperados.regimenesEspeciales" [value]="r.nombre">
-                      {{ r.nombre }}
-                    </ion-select-option>
-                  </ng-container>
-                  <ng-container
-                    *ngIf="autoridad.nivelGobierno == resolvedIds.nivelMunicipal || autoridad.nivelGobierno == resolvedIds.nivelParroquial">
-                    <ion-select-option *ngFor="let c of datosrecuperados.cantones" [value]="c.nombre">
-                      {{ c.nombre }}
-                    </ion-select-option>
-                  </ng-container>
-                  <ng-container *ngIf="autoridad.nivelGobierno == resolvedIds.nivelProvincial">
-                    <ion-select-option *ngFor="let p of datosrecuperados.provincias" [value]="p.nombre">
-                      {{ p.nombre }}
-                    </ion-select-option>
-                  </ng-container>
-                  <ng-container *ngIf="getInstitucionesPorNivel(autoridad.nivelGobierno).length > 0">
-                    <ion-select-option *ngFor="let i of getInstitucionesPorNivel(autoridad.nivelGobierno)"
-                      [value]="i.nombre">
-                      {{ i.nombre }}
-                    </ion-select-option>
-                  </ng-container>
+                  placeholder="Seleccione una opción" interface="popover">
+                  <ion-select-option *ngFor="let item of getGadsParaNivel(autoridad.nivelGobierno)" [value]="item.nombre">
+                    {{ item.nombre }}
+                  </ion-select-option>
                 </ion-select>
               </ion-item>
             </div>
@@ -328,34 +304,10 @@
               <ion-item class="form-field">
                 <ion-label>GAD *</ion-label>
                 <ion-select [(ngModel)]="funcionarioGad.gadFuncionarioGad" (ngModelChange)="guardarProgreso()"
-                  placeholder="Seleccione un GAD" interface="popover">
-                  <ng-container *ngIf="funcionarioGad.nivelGobierno == resolvedIds.nivelMancomunidad">
-                    <ion-select-option *ngFor="let m of datosrecuperados.mancomunidades" [value]="m.nombre">
-                      {{ m.nombre }}
-                    </ion-select-option>
-                  </ng-container>
-                  <ng-container *ngIf="funcionarioGad.nivelGobierno == resolvedIds.nivelRegimenEspecial">
-                    <ion-select-option *ngFor="let r of datosrecuperados.regimenesEspeciales" [value]="r.nombre">
-                      {{ r.nombre }}
-                    </ion-select-option>
-                  </ng-container>
-                  <ng-container
-                    *ngIf="funcionarioGad.nivelGobierno == resolvedIds.nivelMunicipal || funcionarioGad.nivelGobierno == resolvedIds.nivelParroquial">
-                    <ion-select-option *ngFor="let c of datosrecuperados.cantones" [value]="c.nombre">
-                      {{ c.nombre }}
-                    </ion-select-option>
-                  </ng-container>
-                  <ng-container *ngIf="funcionarioGad.nivelGobierno == resolvedIds.nivelProvincial">
-                    <ion-select-option *ngFor="let p of datosrecuperados.provincias" [value]="p.nombre">
-                      {{ p.nombre }}
-                    </ion-select-option>
-                  </ng-container>
-                  <ng-container *ngIf="getInstitucionesPorNivel(funcionarioGad.nivelGobierno).length > 0">
-                    <ion-select-option *ngFor="let i of getInstitucionesPorNivel(funcionarioGad.nivelGobierno)"
-                      [value]="i.nombre">
-                      {{ i.nombre }}
-                    </ion-select-option>
-                  </ng-container>
+                  placeholder="Seleccione una opción" interface="popover">
+                  <ion-select-option *ngFor="let item of getGadsParaNivel(funcionarioGad.nivelGobierno)" [value]="item.nombre">
+                    {{ item.nombre }}
+                  </ion-select-option>
                 </ion-select>
               </ion-item>
               <ion-item class="form-field">
@@ -375,15 +327,26 @@
             <h3 class="section-title">Datos Institucionales</h3>
             <div class="field-group">
               <ion-item class="form-field">
+                <ion-label position="floating">Nivel de gobierno u otro *</ion-label>
+                <ion-select [ngModel]="institucion.institucionNivelGobiernoId" (ionChange)="updateInstitucionTipo($event.detail.value)"
+                  placeholder="[Seleccione un nivel o categoría]" interface="popover">
+                  <ion-select-option *ngFor="let e of datosrecuperados.entidades" [value]="e.id">
+                    {{ e.nombre }}
+                  </ion-select-option>
+                </ion-select>
+              </ion-item>
+              <ion-item class="form-field">
                 <ion-label position="floating">Institución *</ion-label>
                 <ion-select [(ngModel)]="institucion.institucion" (ngModelChange)="guardarProgreso()"
-                  placeholder="Seleccione (incluye educación básica)" interface="popover"
+                  placeholder="Seleccione institución" interface="popover"
                   [disabled]="!opcionesInstitucionCombinadas.length">
                   <ion-select-option *ngFor="let opt of opcionesInstitucionCombinadas" [value]="opt.value">
                     {{ opt.label }}
                   </ion-select-option>
                 </ion-select>
               </ion-item>
+            </div>
+            <div class="field-group">
               <ion-item class="form-field">
                 <ion-label position="floating">Grado Ocupacional *</ion-label>
                 <ion-select [(ngModel)]="institucion.gradoOcupacional" (ngModelChange)="guardarProgreso()"

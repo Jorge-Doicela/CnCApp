@@ -37,12 +37,11 @@ async function safeDeleteMany(label: string, run: () => Promise<unknown>): Promi
 }
 
 const TIPO_INSTITUCION_NOMBRES_SEED = [
-    'PROVINCIAL',
-    'MUNICIPAL',
-    'PARROQUIAL RURAL',
+    'INSTITUCIÓN — NIVEL PROVINCIAL',
+    'INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)',
+    'INSTITUCIÓN — NIVEL PARROQUIAL RURAL',
     'GREMIOS',
-    'CENTRAL',
-    'OTRAS INSTITUCIONES DEL ESTADO',
+    'INSTITUCIÓN — NIVEL CENTRAL',
     'COOPERANTES',
     'ACADEMIA',
     'EDUCACIÓN GENERAL BÁSICA Y BACHILLERATO',
@@ -312,11 +311,11 @@ async function main() {
 
         const institucionesArray = [
             ...gremiosList.map(n => ({ nombre: n, tipo: 'GREMIOS', tipoInstitucionId: tid('GREMIOS') })),
-            ...entidadesCentralesList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL CENTRAL', tipoInstitucionId: tid('CENTRAL') })),
+            ...entidadesCentralesList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL CENTRAL', tipoInstitucionId: tid('INSTITUCIÓN — NIVEL CENTRAL') })),
             ...otrasInstitucionesEstadoList.map((n) => ({
                 nombre: n,
                 tipo: 'OTRAS INSTITUCIONES DEL ESTADO',
-                tipoInstitucionId: tid('OTRAS INSTITUCIONES DEL ESTADO')
+                tipoInstitucionId: tid('INSTITUCIÓN — NIVEL CENTRAL') // Map to Central for consistency
             })),
             ...cooperantesList.map(n => ({ nombre: n, tipo: 'COOPERANTES', tipoInstitucionId: tid('COOPERANTES') })),
             ...academiaList.map(n => ({ nombre: n, tipo: 'ACADEMIA', tipoInstitucionId: tid('ACADEMIA') })),
@@ -324,15 +323,15 @@ async function main() {
             ...ciudadaniaList.map(n => ({ nombre: n, tipo: 'CIUDADANÍA', tipoInstitucionId: tid('CIUDADANÍA') })),
             ...regimenEspecialList.map(n => ({ nombre: n, tipo: 'RÉGIMEN ESPECIAL', tipoInstitucionId: tid('RÉGIMEN ESPECIAL') })),
             // Municipales additions (también se re-aseguran al final del seed con skipDuplicates)
-            ...bomberosList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)', tipoInstitucionId: tid('MUNICIPAL') })),
-            ...empresasPublicasList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)', tipoInstitucionId: tid('MUNICIPAL') })),
-            ...registrosPropiedadList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)', tipoInstitucionId: tid('MUNICIPAL') })),
-            ...consejosCantonalesList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)', tipoInstitucionId: tid('MUNICIPAL') })),
-            ...juntasCantonalesList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)', tipoInstitucionId: tid('MUNICIPAL') })),
+            ...bomberosList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)', tipoInstitucionId: tid('INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)') })),
+            ...empresasPublicasList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)', tipoInstitucionId: tid('INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)') })),
+            ...registrosPropiedadList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)', tipoInstitucionId: tid('INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)') })),
+            ...consejosCantonalesList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)', tipoInstitucionId: tid('INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)') })),
+            ...juntasCantonalesList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)', tipoInstitucionId: tid('INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)') })),
             // GADs Provinciales, Municipales (Presenciales) y Parroquiales
-            ...provinciasInstitucionesList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL PROVINCIAL', tipoInstitucionId: tid('PROVINCIAL') })),
-            ...cantonesInstitucionesList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)', tipoInstitucionId: tid('MUNICIPAL') })),
-            ...parroquiasInstitucionesList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL PARROQUIAL RURAL', tipoInstitucionId: tid('PARROQUIAL RURAL') })),
+            ...provinciasInstitucionesList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL PROVINCIAL', tipoInstitucionId: tid('INSTITUCIÓN — NIVEL PROVINCIAL') })),
+            ...cantonesInstitucionesList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)', tipoInstitucionId: tid('INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)') })),
+            ...parroquiasInstitucionesList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL PARROQUIAL RURAL', tipoInstitucionId: tid('INSTITUCIÓN — NIVEL PARROQUIAL RURAL') })),
             // Soporte para etiquetas literales PRESENCIAL y VIRTUAL pedidas por el usuario
             ...cantonesInstitucionesList.map(n => ({ nombre: n, tipo: 'PRESENCIAL', tipoInstitucionId: tid('PRESENCIAL') })),
             { nombre: 'QUITO', tipo: 'VIRTUAL', tipoInstitucionId: tid('VIRTUAL') },

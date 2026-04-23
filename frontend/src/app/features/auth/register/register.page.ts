@@ -75,11 +75,45 @@ export class RegisterPage {
   gradosOcupacionales = signal<any[]>([]);
   instituciones = signal<any[]>([]);
   educacionBasica = signal<any[]>([]);
+  gadParroquias = signal<any[]>([]);
 
   opcionesInstitucionCombinadas = computed(() => {
-    const sys = (this.instituciones() || []).map((i: any) => ({ value: `i:${i.id}`, label: i.nombre }));
-    const eb = (this.educacionBasica() || []).map((e: any) => ({ value: `e:${e.id}`, label: e.nombre }));
-    return [...sys, ...eb].sort((a, b) => a.label.localeCompare(b.label, 'es'));
+    const labor = this.laborData();
+    const selectedTipoId = labor.institucion?.institucionNivelGobiernoId;
+    
+    if (!selectedTipoId) return [];
+
+    // Buscar si el tipo seleccionado es "EDUCACIÓN GENERAL BÁSICA"
+    const tipoSelected = this.entidades().find(e => e.id === selectedTipoId);
+    const esEducacion = tipoSelected?.nombre?.toUpperCase().includes('EDUCACIÓN');
+    const esMancomunidad = tipoSelected?.nombre?.toUpperCase().includes('MANCOMUNIDADES');
+    const esRegimenEspecial = tipoSelected?.nombre?.toUpperCase().includes('RÉGIMEN ESPECIAL');
+
+    if (esEducacion) {
+      return (this.educacionBasica() || []).map((e: any) => ({ value: `e:${e.id}`, label: e.nombre }));
+    }
+    
+    if (esMancomunidad) {
+      return (this.mancomunidades() || []).map((m: any) => ({ value: `m:${m.id}`, label: m.nombre }));
+    }
+
+    if (esRegimenEspecial) {
+      return (this.regimenesEspeciales() || []).map((r: any) => ({ value: `r:${r.id}`, label: r.nombre }));
+    }
+
+    // Para el resto, filtrar instituciones_sistema por tipoInstitucionId
+    // Esto cubre: Central, Academia, Privado, Municipal, Provincial, Parroquial, etc.
+    return (this.instituciones() || [])
+      .filter((i: any) => i.tipoInstitucionId === selectedTipoId)
+      .map((i: any) => ({ value: `i:${i.id}`, label: i.nombre }))
+      .sort((a, b) => a.label.localeCompare(b.label, 'es'));
+  });
+
+  opcionesMunicipioCombinadas = computed(() => {
+    const resIds = this.state.resolvedIds();
+    return (this.instituciones() || [])
+      .filter((i: any) => i.tipoInstitucionId === resIds.nivelMunicipal)
+      .sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
   });
 
   // Local UI state
@@ -139,7 +173,7 @@ export class RegisterPage {
 
   async loadCatalogos() {
     try {
-      const [provinciasResp, cantonesResp, generosResp, etniasResp, tiposParticipanteResp, nacionalidadesResp, cargosResp, entidadesResp, regimenesEspecialesResp, mancomunidadesResp, competenciasResp, gradosOcupacionalesResp, institucionesResp, educacionBasicaResp] = await Promise.all([
+      const [provinciasResp, cantonesResp, generosResp, etniasResp, tiposParticipanteResp, nacionalidadesResp, cargosResp, entidadesResp, regimenesEspecialesResp, mancomunidadesResp, competenciasResp, gradosOcupacionalesResp, institucionesResp, educacionBasicaResp, gadParroquiasResp] = await Promise.all([
         firstValueFrom(this.catalogoService.getItems('provincias')),
         firstValueFrom(this.catalogoService.getItems('cantones')),
         firstValueFrom(this.catalogoService.getItems('generos')),
@@ -153,7 +187,8 @@ export class RegisterPage {
         firstValueFrom(this.catalogoService.getItems('public/competencias')),
         firstValueFrom(this.catalogoService.getItems('public/grados-ocupacionales')),
         firstValueFrom(this.catalogoService.getItems('public/instituciones')),
-        firstValueFrom(this.catalogoService.getItems('public/educacion-basica'))
+        firstValueFrom(this.catalogoService.getItems('public/educacion-basica')),
+        firstValueFrom(this.catalogoService.getItems('public/gad-parroquias'))
       ]);
 
       // Only active ones, sorted (Backend returns id, nombre, estado, etc.)
@@ -179,6 +214,7 @@ export class RegisterPage {
       this.gradosOcupacionales.set(gradosOcupacionalesResp || []);
       this.instituciones.set(institucionesResp || []);
       this.educacionBasica.set(educacionBasicaResp || []);
+      this.gadParroquias.set(gadParroquiasResp || []);
 
       // Resolve Dynamic IDs
       const findIdByCodigo = (list: any[], codigo: string, fallback: number) => {
@@ -196,14 +232,14 @@ export class RegisterPage {
         tipoCiudadano: findIdByCodigo(tiposParticipanteResp, 'CIUDADANO', TipoParticipanteEnum.CIUDADANO),
         tipoFuncionario: findIdByCodigo(tiposParticipanteResp, 'FUNCIONARIO_GAD', TipoParticipanteEnum.FUNCIONARIO_GAD),
         tipoInstitucion: findIdByCodigo(tiposParticipanteResp, 'INSTITUCION', TipoParticipanteEnum.INSTITUCION),
-        nivelProvincial: findIdByNombre(entidadesResp, 'PROVINCIAL', NivelGobiernoEnum.PROVINCIAL),
-        nivelMunicipal: findIdByNombre(entidadesResp, 'MUNICIPAL', NivelGobiernoEnum.MUNICIPAL),
-        nivelParroquial: findIdByNombre(entidadesResp, 'PARROQUIAL RURAL', NivelGobiernoEnum.PARROQUIAL),
+        nivelProvincial: findIdByNombre(entidadesResp, 'INSTITUCIÓN — NIVEL PROVINCIAL', NivelGobiernoEnum.PROVINCIAL),
+        nivelMunicipal: findIdByNombre(entidadesResp, 'INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)', NivelGobiernoEnum.MUNICIPAL),
+        nivelParroquial: findIdByNombre(entidadesResp, 'INSTITUCIÓN — NIVEL PARROQUIAL RURAL', NivelGobiernoEnum.PARROQUIAL),
         nivelMancomunidad: findIdByNombre(entidadesResp, 'MANCOMUNIDADES Y CONSORCIOS', NivelGobiernoEnum.MANCOMUNIDADES),
         nivelRegimenEspecial: findIdByNombre(entidadesResp, 'RÉGIMEN ESPECIAL', NivelGobiernoEnum.REGIMEN_ESPECIAL),
       };
 
-      this.state.updateUserData({ resolvedIds: newResolvedIds } as any);
+      this.state.setResolvedIds(newResolvedIds);
 
       // If reloading from session and we already had a provinciaId, restore the filtered cantones list immediately.
       const currentProv = this.userData().provinciaId;
@@ -215,6 +251,13 @@ export class RegisterPage {
       console.error('Error loading catalogues', e);
       this.presentToast('Error al cargar datos del formulario', 'danger');
     }
+  }
+
+  updateInstitucionTipo(tipoId: number) {
+    this.state.updateLaborData({
+      institucionNivelGobiernoId: tipoId,
+      institucionId: undefined
+    });
   }
 
   onProvinciaChange(event: any) {

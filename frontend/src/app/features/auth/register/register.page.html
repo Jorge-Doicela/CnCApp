@@ -344,22 +344,25 @@
                   (ionChange)="state.updateUserData({autoridadGad: $event.detail.value})"
                   placeholder="[Seleccione un GAD]" class="custom-select w-full" style="width: 100%;">
                   @if (state.laborData().autoridad?.nivelgobierno === state.resolvedIds().nivelMancomunidad) {
-                  @for (m of mancomunidades(); track m.id) {
-                  <ion-select-option [value]="m.nombre">{{ m.nombre }}</ion-select-option>
-                  }
+                    @for (m of mancomunidades(); track m.id) {
+                      <ion-select-option [value]="m.nombre">{{ m.nombre }}</ion-select-option>
+                    }
                   } @else if (state.laborData().autoridad?.nivelgobierno === state.resolvedIds().nivelRegimenEspecial) {
-                  @for (r of regimenesEspeciales(); track r.id) {
-                  <ion-select-option [value]="r.nombre">{{ r.nombre }}</ion-select-option>
-                  }
-                  } @else if (state.laborData().autoridad?.nivelgobierno === state.resolvedIds().nivelMunicipal ||
-                  state.laborData().autoridad?.nivelgobierno === state.resolvedIds().nivelParroquial) {
-                  @for (c of cantones(); track c.id) {
-                  <ion-select-option [value]="c.nombre">{{ c.nombre }}</ion-select-option>
-                  }
+                    @for (r of regimenesEspeciales(); track r.id) {
+                      <ion-select-option [value]="r.nombre">{{ r.nombre }}</ion-select-option>
+                    }
+                  } @else if (state.laborData().autoridad?.nivelgobierno === state.resolvedIds().nivelMunicipal) {
+                    @for (muni of opcionesMunicipioCombinadas(); track muni.id) {
+                      <ion-select-option [value]="muni.nombre">{{ muni.nombre }}</ion-select-option>
+                    }
+                  } @else if (state.laborData().autoridad?.nivelgobierno === state.resolvedIds().nivelParroquial) {
+                    @for (parr of gadParroquias(); track parr.id) {
+                      <ion-select-option [value]="parr.nombre">{{ parr.nombre }}</ion-select-option>
+                    }
                   } @else {
-                  @for (p of provincias(); track p.id) {
-                  <ion-select-option [value]="p.nombre">{{ p.nombre }}</ion-select-option>
-                  }
+                    @for (p of provincias(); track p.id) {
+                      <ion-select-option [value]="p.nombre">{{ p.nombre }}</ion-select-option>
+                    }
                   }
                 </ion-select>
               </div>
@@ -417,22 +420,25 @@
                   (ionChange)="state.updateUserData({funcionarioGad: $event.detail.value})"
                   placeholder="[Seleccione un GAD]" class="custom-select w-full" style="width: 100%;">
                   @if (state.laborData().funcionarioGad?.nivelgobierno === state.resolvedIds().nivelMancomunidad) {
-                  @for (m of mancomunidades(); track m.id) {
-                  <ion-select-option [value]="m.nombre">{{ m.nombre }}</ion-select-option>
-                  }
+                    @for (m of mancomunidades(); track m.id) {
+                      <ion-select-option [value]="m.nombre">{{ m.nombre }}</ion-select-option>
+                    }
                   } @else if (state.laborData().funcionarioGad?.nivelgobierno === state.resolvedIds().nivelRegimenEspecial) {
-                  @for (r of regimenesEspeciales(); track r.id) {
-                  <ion-select-option [value]="r.nombre">{{ r.nombre }}</ion-select-option>
-                  }
-                  } @else if (state.laborData().funcionarioGad?.nivelgobierno === state.resolvedIds().nivelMunicipal ||
-                  state.laborData().funcionarioGad?.nivelgobierno === state.resolvedIds().nivelParroquial) {
-                  @for (c of cantones(); track c.id) {
-                  <ion-select-option [value]="c.nombre">{{ c.nombre }}</ion-select-option>
-                  }
+                    @for (r of regimenesEspeciales(); track r.id) {
+                      <ion-select-option [value]="r.nombre">{{ r.nombre }}</ion-select-option>
+                    }
+                  } @else if (state.laborData().funcionarioGad?.nivelgobierno === state.resolvedIds().nivelMunicipal) {
+                    @for (muni of opcionesMunicipioCombinadas(); track muni.id) {
+                      <ion-select-option [value]="muni.nombre">{{ muni.nombre }}</ion-select-option>
+                    }
+                  } @else if (state.laborData().funcionarioGad?.nivelgobierno === state.resolvedIds().nivelParroquial) {
+                    @for (parr of gadParroquias(); track parr.id) {
+                      <ion-select-option [value]="parr.nombre">{{ parr.nombre }}</ion-select-option>
+                    }
                   } @else {
-                  @for (p of provincias(); track p.id) {
-                  <ion-select-option [value]="p.nombre">{{ p.nombre }}</ion-select-option>
-                  }
+                    @for (p of provincias(); track p.id) {
+                      <ion-select-option [value]="p.nombre">{{ p.nombre }}</ion-select-option>
+                    }
                   }
                 </ion-select>
               </div>
@@ -443,6 +449,22 @@
           <!-- Institución -->
           @if (state.laborData().tipoParticipanteId === state.resolvedIds().tipoInstitucion) {
           <div class="form-grid" style="margin-top: 20px;">
+            
+            <!-- Fila 0: Nivel de Gobierno / Tipo de Institución -->
+            <div class="input-group" style="grid-column: span 2;">
+              <ion-label>Nivel de gobierno u otro *</ion-label>
+              <div class="custom-input-wrapper">
+                <ion-select interface="popover" [value]="state.laborData().institucion?.institucionNivelGobiernoId"
+                  (ionChange)="updateInstitucionTipo($event.detail.value)"
+                  placeholder="[Seleccione un nivel o categoría]" class="custom-select w-full" style="width: 100%;">
+                  @for (e of entidades(); track e.id) {
+                    @if (e.codigo !== 'CIUDADANIA') {
+                      <ion-select-option [value]="e.id">{{ e.nombre }}</ion-select-option>
+                    }
+                  }
+                </ion-select>
+              </div>
+            </div>
 
             <!-- Fila 1: Instituciones | Grados Ocupacionales -->
             <div class="input-group">

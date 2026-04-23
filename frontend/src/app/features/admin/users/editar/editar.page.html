@@ -345,10 +345,22 @@
           <!-- Institución -->
           <div *ngIf="usuario.tipoParticipante == resolvedIds.tipoInstitucion" class="field-groups-container">
             <div class="field-group">
+              <ion-label>Nivel de gobierno u otro *</ion-label>
+              <div class="custom-input-wrapper">
+                <ion-select [ngModel]="institucion.institucionNivelGobiernoId" (ionChange)="updateInstitucionTipo($event.detail.value)"
+                  placeholder="[Seleccione un nivel o categoría]" interface="popover">
+                  <ion-select-option *ngFor="let e of datosrecuperados.entidades" [value]="e.id">
+                    {{ e.nombre }}
+                  </ion-select-option>
+                </ion-select>
+              </div>
+            </div>
+
+            <div class="field-group">
               <ion-label>Institución</ion-label>
               <div class="custom-input-wrapper">
                 <ion-select [(ngModel)]="institucion.institucion" interface="popover"
-                  placeholder="Seleccione (incluye educación básica)"
+                  placeholder="Seleccione institución"
                   [disabled]="!opcionesInstitucionCombinadas.length">
                   <ion-select-option *ngFor="let opt of opcionesInstitucionCombinadas" [value]="opt.value">
                     {{ opt.label }}

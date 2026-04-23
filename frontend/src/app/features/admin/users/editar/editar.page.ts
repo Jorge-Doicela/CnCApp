@@ -81,7 +81,7 @@ export class EditarPage implements OnInit {
   // Objetos para tipos específicos
   autoridad = { cargo: '', nivelGobierno: '', gadAutoridad: '' };
   funcionarioGad = { cargo: '', competencias: [] as any[], nivelGobierno: '', gadFuncionarioGad: '' };
-  institucion = { institucion: '', gradoOcupacional: '', cargo: '' };
+  institucion = { institucion: '', institucionNivelGobiernoId: undefined as number | undefined, gradoOcupacional: '', cargo: '' };
 
   opcionesInstitucionCombinadas: { value: string; label: string }[] = [];
 
@@ -409,20 +409,6 @@ export class EditarPage implements OnInit {
     }
   }
 
-  rebuildOpcionesInstitucionCombinadas() {
-    const sys = (this.datosrecuperados.instituciones || []).map((i: any) => ({
-      value: `i:${i.id}`,
-      label: i.nombre
-    }));
-    const eb = (this.datosrecuperados.educacionBasica || []).map((e: any) => ({
-      value: `e:${e.id}`,
-      label: e.nombre
-    }));
-    this.opcionesInstitucionCombinadas = [...sys, ...eb].sort((a, b) =>
-      a.label.localeCompare(b.label, 'es')
-    );
-    this.cdr.markForCheck();
-  }
 
   async obtenerInstituciones() {
     try {
@@ -431,7 +417,7 @@ export class EditarPage implements OnInit {
     } catch (error) {
       console.error('Error instituciones:', error);
     } finally {
-      this.rebuildOpcionesInstitucionCombinadas();
+      this.rebuildOpcionesInstitucion();
     }
   }
 
@@ -442,8 +428,48 @@ export class EditarPage implements OnInit {
     } catch (error) {
       console.error('Error educación básica:', error);
     } finally {
-      this.rebuildOpcionesInstitucionCombinadas();
+      this.rebuildOpcionesInstitucion();
     }
+  }
+
+  updateInstitucionTipo(tipoId: number) {
+    this.institucion.institucionNivelGobiernoId = tipoId;
+    this.institucion.institucion = '';
+    this.rebuildOpcionesInstitucion();
+    this.cdr.markForCheck();
+  }
+
+  rebuildOpcionesInstitucion() {
+    const selectedTipoId = this.institucion.institucionNivelGobiernoId;
+    if (!selectedTipoId) {
+      this.opcionesInstitucionCombinadas = [];
+      return;
+    }
+
+    const tipoSelected = this.datosrecuperados.entidades.find(e => e.id === selectedTipoId);
+    const esEducacion = tipoSelected?.nombre?.toUpperCase().includes('EDUCACIÓN');
+    const esMancomunidad = tipoSelected?.nombre?.toUpperCase().includes('MANCOMUNIDADES');
+    const esRegimenEspecial = tipoSelected?.nombre?.toUpperCase().includes('RÉGIMEN ESPECIAL');
+
+    if (esEducacion) {
+      this.opcionesInstitucionCombinadas = (this.datosrecuperados.educacionBasica || []).map((e: any) => ({ value: `e:${e.id}`, label: e.nombre }));
+    } else if (esMancomunidad) {
+      this.opcionesInstitucionCombinadas = (this.datosrecuperados.mancomunidades || []).map((m: any) => ({ value: `m:${m.id}`, label: m.nombre }));
+    } else if (esRegimenEspecial) {
+      this.opcionesInstitucionCombinadas = (this.datosrecuperados.regimenesEspeciales || []).map((r: any) => ({ value: `r:${r.id}`, label: r.nombre }));
+    } else {
+      this.opcionesInstitucionCombinadas = (this.datosrecuperados.instituciones || [])
+        .filter((i: any) => i.tipoInstitucionId === selectedTipoId)
+        .map((i: any) => ({ value: `i:${i.id}`, label: i.nombre }));
+    }
+
+    this.opcionesInstitucionCombinadas.sort((a, b) => a.label.localeCompare(b.label, 'es'));
+  }
+
+  getOpcionesMunicipioCombinadas() {
+    return (this.datosrecuperados.instituciones || [])
+      .filter((i: any) => i.tipoInstitucionId === this.resolvedIds.nivelMunicipal)
+      .sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
   }
 
   async obtenerEntidades() {
@@ -730,9 +756,9 @@ export class EditarPage implements OnInit {
     this.resolvedIds.tipoInstitucion = findIdByCodigo(this.datosrecuperados.tiposParticipante, 'INSTITUCION') || TipoParticipanteEnum.INSTITUCION;
 
     // Resolver Niveles de Gobierno (Entidades)
-    this.resolvedIds.nivelProvincial = findIdByNombre(this.datosrecuperados.entidades, 'PROVINCIAL') || NivelGobiernoEnum.PROVINCIAL;
-    this.resolvedIds.nivelMunicipal = findIdByNombre(this.datosrecuperados.entidades, 'MUNICIPAL') || NivelGobiernoEnum.MUNICIPAL;
-    this.resolvedIds.nivelParroquial = findIdByNombre(this.datosrecuperados.entidades, 'PARROQUIAL RURAL') || NivelGobiernoEnum.PARROQUIAL;
+    this.resolvedIds.nivelProvincial = findIdByNombre(this.datosrecuperados.entidades, 'INSTITUCIÓN — NIVEL PROVINCIAL') || NivelGobiernoEnum.PROVINCIAL;
+    this.resolvedIds.nivelMunicipal = findIdByNombre(this.datosrecuperados.entidades, 'INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)') || NivelGobiernoEnum.MUNICIPAL;
+    this.resolvedIds.nivelParroquial = findIdByNombre(this.datosrecuperados.entidades, 'INSTITUCIÓN — NIVEL PARROQUIAL RURAL') || NivelGobiernoEnum.PARROQUIAL;
     this.resolvedIds.nivelMancomunidad = findIdByNombre(this.datosrecuperados.entidades, 'MANCOMUNIDADES Y CONSORCIOS') || NivelGobiernoEnum.MANCOMUNIDADES;
     this.resolvedIds.nivelRegimenEspecial = findIdByNombre(this.datosrecuperados.entidades, 'RÉGIMEN ESPECIAL') || NivelGobiernoEnum.REGIMEN_ESPECIAL;
 
@@ -746,8 +772,10 @@ export class EditarPage implements OnInit {
       return this.datosrecuperados.mancomunidades;
     } else if (n === this.resolvedIds.nivelRegimenEspecial) {
       return this.datosrecuperados.regimenesEspeciales;
-    } else if (n === this.resolvedIds.nivelMunicipal || n === this.resolvedIds.nivelParroquial) {
-      return this.datosrecuperados.cantones;
+    } else if (n === this.resolvedIds.nivelMunicipal) {
+      return this.getOpcionesMunicipioCombinadas();
+    } else if (n === this.resolvedIds.nivelParroquial) {
+      return this.datosrecuperados.gadParroquias;
     } else {
       // PROVINCIAL or others
       return this.datosrecuperados.provincias;

@@ -38,6 +38,7 @@ export interface RegisterStateModel {
 
     /** Número (legacy) o `i:id` / `e:id` para catálogo unificado */
     institucionId?: number | string;
+    institucionNivelGobiernoId?: number;
     institucionCargoId?: number;
     institucionGradoOcupacionalId?: number;
 
