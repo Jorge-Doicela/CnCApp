@@ -18,7 +18,6 @@ import { firstValueFrom } from 'rxjs';
 import { HeaderComponent } from './shared/components/header/header.component';
 import { Platform } from '@ionic/angular/standalone';
 import { App } from '@capacitor/app';
-import { SplashScreen } from '@capacitor/splash-screen';
 
 @Component({
   selector: 'app-root',
@@ -117,9 +116,6 @@ export class AppComponent implements OnInit, OnDestroy {
       this.platform.backButton.subscribeWithPriority(10000, async () => {
         this.handleBackButton();
       });
-
-      // Ocultar splash screen cuando la app esté lista
-      SplashScreen.hide();
     });
   }
 
