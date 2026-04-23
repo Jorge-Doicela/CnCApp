@@ -102,6 +102,10 @@ ion-content {
       margin: 0;
       letter-spacing: -0.05em;
       line-height: 1;
+
+      @media (max-width: 768px) {
+        font-size: 1.5rem;
+      }
       
       span {
         color: #64748b;
@@ -115,6 +119,11 @@ ion-content {
       margin-top: 12px;
       max-width: 600px;
       line-height: 1.6;
+
+      @media (max-width: 768px) {
+        font-size: 0.9rem;
+        margin-top: 4px;
+      }
     }
   }
 }
@@ -159,6 +168,13 @@ ion-content {
       ion-icon {
         font-size: 24px;
         color: white;
+      }
+
+      @media (max-width: 768px) {
+        width: 36px;
+        height: 36px;
+        border-radius: 12px;
+        ion-icon { font-size: 18px; }
       }
     }
 
@@ -227,6 +243,11 @@ ion-content {
   padding: 48px;
   max-width: 1000px;
   margin: 0 auto;
+
+  @media (max-width: 768px) {
+    padding: 16px;
+    border-radius: 20px;
+  }
 }
 
 .form-section {

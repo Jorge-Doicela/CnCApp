@@ -97,7 +97,7 @@ ion-content {
       -webkit-text-fill-color: transparent;
 
       @media (max-width: 768px) {
-        font-size: 2rem;
+        font-size: 1.6rem;
       }
     }
 
@@ -199,9 +199,10 @@ ion-content {
     .amber-text { color: #d97706 !important; }
   }
 
-  @media (max-width: 600px) {
+  @media (max-width: 768px) {
     gap: 8px;
     padding: 6px 12px;
+    margin-top: 8px;
     width: 100%;
     justify-content: space-between;
     
@@ -209,7 +210,7 @@ ion-content {
       min-width: auto;
       flex: 1;
       .val { font-size: 1.1rem; }
-      .lab { font-size: 0.55rem; }
+      .lab { font-size: 0.5rem; letter-spacing: 0; }
       &:not(:last-child)::after { right: -4px; }
     }
   }
@@ -222,12 +223,23 @@ ion-content {
   padding: 16px;
   margin-bottom: 16px;
 
+  @media (max-width: 768px) {
+    padding: 12px;
+    margin-bottom: 12px;
+    border-radius: 16px;
+  }
+
   .search-wrapper {
     display: flex;
     align-items: center;
     gap: 12px;
     margin-bottom: 16px;
     width: 100%;
+
+    @media (max-width: 768px) {
+      gap: 8px;
+      margin-bottom: 10px;
+    }
 
     .custom-premium-search {
       flex: 1;
@@ -239,6 +251,11 @@ ion-content {
       height: 48px;
       transition: var(--transition-premium);
       border: 1px solid rgba(0, 0, 0, 0.05);
+
+      @media (max-width: 768px) {
+        height: 42px;
+        padding: 0 12px;
+      }
 
       &:focus-within {
         background: white;
@@ -260,6 +277,7 @@ ion-content {
         font-size: 0.95rem;
         font-weight: 500;
         outline: none;
+        @media (max-width: 768px) { font-size: 0.85rem; }
       }
     }
 
@@ -271,6 +289,12 @@ ion-content {
       border-radius: 14px;
       margin: 0;
       
+      @media (max-width: 768px) {
+        height: 42px;
+        width: 42px;
+        border-radius: 12px;
+      }
+
       &:hover {
         background: white;
         color: var(--accent-blue);
@@ -291,6 +315,11 @@ ion-content {
       font-size: 0.85rem;
       font-weight: 700;
       cursor: pointer;
+
+      @media (max-width: 768px) {
+        padding: 4px 10px;
+        font-size: 0.75rem;
+      }
 
       &:hover {
         background: white;
@@ -318,6 +347,7 @@ ion-content {
     color: var(--text-primary);
     margin: 0;
     letter-spacing: -0.02em;
+    @media (max-width: 768px) { font-size: 1rem; }
   }
 
   .results-count {
@@ -327,6 +357,7 @@ ion-content {
     background: #f1f5f9;
     padding: 4px 12px;
     border-radius: 100px;
+    @media (max-width: 768px) { font-size: 0.7rem; padding: 2px 8px; }
   }
 }
 
@@ -335,9 +366,16 @@ ion-content {
   @extend .glass-effect;
   background: white;
   border-radius: 20px;
-  padding: 16px 18px;
-  margin-bottom: 14px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
   transition: var(--transition-premium);
+
+  @media (max-width: 768px) {
+    padding: 10px 12px;
+    border-radius: 14px;
+    margin-bottom: 8px;
+    gap: 8px;
+  }
   position: relative;
   display: flex;
   flex-direction: column;
@@ -374,6 +412,10 @@ ion-content {
     align-items: flex-start;
     gap: 20px;
 
+    @media (max-width: 768px) {
+      gap: 12px;
+    }
+
     .title-area {
       flex: 1;
       cursor: pointer;
@@ -387,6 +429,12 @@ ion-content {
         font-weight: 600;
         color: var(--text-muted);
 
+        @media (max-width: 768px) {
+          gap: 8px;
+          font-size: 0.65rem;
+          margin-top: 2px;
+        }
+
         span {
           display: flex;
           align-items: center;
@@ -398,7 +446,7 @@ ion-content {
       }
 
       h3 {
-        font-size: 1.25rem;
+        font-size: 1.15rem;
         font-weight: 800;
         color: var(--text-primary);
         margin: 0 0 2px;
@@ -406,6 +454,10 @@ ion-content {
         letter-spacing: -0.01em;
         word-wrap: break-word;
         overflow-wrap: break-word;
+
+        @media (max-width: 768px) {
+          font-size: 0.95rem;
+        }
       }
     }
 
@@ -415,6 +467,8 @@ ion-content {
       align-items: flex-end;
       gap: 6px;
       flex-shrink: 0; // Prevent badge from shrinking
+
+      @media (max-width: 768px) { gap: 4px; }
 
       .premium-badge {
         padding: 4px 10px;
@@ -430,6 +484,8 @@ ion-content {
         color: var(--text-secondary);
         border: 1px solid rgba(0,0,0,0.05);
 
+        @media (max-width: 768px) { padding: 2px 6px; font-size: 0.55rem; }
+
         &.done { background: rgba(13, 148, 136, 0.08); color: var(--accent-teal); border-color: rgba(13, 148, 136, 0.1); }
         &.active { background: rgba(37, 99, 235, 0.08); color: var(--accent-blue); border-color: rgba(37, 99, 235, 0.1); }
       }
@@ -444,6 +500,7 @@ ion-content {
         background: #fffbeb;
         padding: 4px 10px;
         border-radius: 6px;
+        @media (max-width: 768px) { font-size: 0.65rem; padding: 2px 6px; }
       }
 
       .expand-toggle-btn {
@@ -454,6 +511,8 @@ ion-content {
         width: 28px;
         --color: var(--text-muted);
         transition: var(--transition-pop);
+
+        @media (max-width: 768px) { height: 24px; width: 24px; }
 
         &:hover { --color: var(--accent-indigo); }
       }

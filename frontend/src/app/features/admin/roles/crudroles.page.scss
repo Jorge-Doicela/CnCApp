@@ -14,12 +14,21 @@
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 16px;
+
+  @media (max-width: 768px) {
+    padding: 0 12px;
+  }
 }
 
 .section-padding {
-  padding-top: 32px;
-  padding-bottom: 60px;
+  padding-top: 24px;
+  padding-bottom: 40px;
+
+  @media (max-width: 768px) {
+    padding-top: 16px;
+    padding-bottom: 30px;
+  }
 }
 
 .admin-header {
@@ -32,19 +41,30 @@
   flex-wrap: wrap;
   gap: 16px;
 
+  @media (max-width: 768px) {
+    padding-bottom: 12px;
+    margin-bottom: 16px;
+    gap: 8px;
+  }
+
   .header-content {
     h1 {
-      font-size: 1.8rem;
+      font-size: 1.6rem;
       font-weight: 700;
       color: #1e293b;
       margin: 0 0 4px 0;
       letter-spacing: -0.02em;
+
+      @media (max-width: 768px) {
+        font-size: 1.3rem;
+      }
     }
 
     p {
       font-size: 0.95rem;
       color: #64748b;
       margin: 0;
+      @media (max-width: 768px) { font-size: 0.8rem; }
     }
   }
 }
@@ -58,6 +78,11 @@
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 16px;
   margin-bottom: 32px;
+
+  @media (max-width: 768px) {
+    margin-bottom: 16px;
+    gap: 10px;
+  }
 }
 
 // ------------------------------------------
@@ -74,12 +99,20 @@
   align-items: center;
   flex-wrap: wrap;
 
+  @media (max-width: 768px) {
+    padding: 12px;
+    margin-bottom: 12px;
+    gap: 10px;
+    border-radius: 12px;
+  }
+
   .search-box {
     flex: 1;
     min-width: 250px;
     --background: #f8fafc;
     --border-radius: 12px;
     font-size: 0.9rem;
+    @media (max-width: 768px) { --height: 40px; }
   }
 
   .filter-select {
@@ -87,6 +120,7 @@
     --background: #f8fafc;
     --border-radius: 12px;
     --placeholder-opacity: 1;
+    @media (max-width: 768px) { --height: 40px; }
   }
 
   .btn-create {
@@ -96,6 +130,7 @@
     text-transform: none;
     letter-spacing: 0;
     --box-shadow: 0 4px 12px rgba(var(--ion-color-primary-rgb), 0.25);
+    @media (max-width: 768px) { height: 40px; font-size: 0.85rem; }
   }
 }
 
@@ -104,8 +139,13 @@
 // ------------------------------------------
 .roles-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-  gap: 24px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
 }
 
 .role-card {
@@ -117,6 +157,10 @@
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   flex-direction: column;
+
+  @media (max-width: 768px) {
+    border-radius: 14px;
+  }
 
   &:hover {
     transform: translateY(-4px);
@@ -137,18 +181,23 @@
   }
 
   .card-header {
-    padding: 20px 24px;
+    padding: 16px 20px;
     border-bottom: 1px solid #f1f5f9;
     display: flex;
     justify-content: space-between;
     align-items: center;
     transition: background 0.2s;
 
+    @media (max-width: 768px) {
+      padding: 10px 14px;
+    }
+
     h3 {
       font-size: 1.1rem;
       font-weight: 700;
       margin: 0;
       color: #1e293b;
+      @media (max-width: 768px) { font-size: 0.95rem; }
     }
 
     .status-badge {
@@ -157,6 +206,8 @@
       padding: 4px 10px;
       border-radius: 99px;
       text-transform: uppercase;
+
+      @media (max-width: 768px) { font-size: 0.6rem; padding: 2px 8px; }
 
       &.active {
         background: #ecfdf5;
@@ -171,8 +222,12 @@
   }
 
   .card-body {
-    padding: 24px;
+    padding: 20px;
     flex: 1;
+
+    @media (max-width: 768px) {
+      padding: 12px;
+    }
 
     .section-label {
       font-size: 0.8rem;
@@ -184,12 +239,16 @@
       display: flex;
       align-items: center;
       gap: 6px;
+
+      @media (max-width: 768px) { font-size: 0.65rem; margin-bottom: 8px; }
     }
 
     .modules-list {
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
+
+      @media (max-width: 768px) { gap: 6px; }
 
       .module-chip {
         font-size: 0.8rem;
@@ -198,6 +257,8 @@
         padding: 6px 12px;
         border-radius: 8px;
         font-weight: 500;
+
+        @media (max-width: 768px) { font-size: 0.7rem; padding: 4px 8px; }
       }
 
       .more-chip {
@@ -210,6 +271,8 @@
         cursor: pointer;
         transition: background 0.2s;
 
+        @media (max-width: 768px) { font-size: 0.7rem; padding: 4px 8px; }
+
         &:hover {
           background: #dbeafe;
         }
@@ -220,6 +283,7 @@
       color: #cbd5e1;
       font-style: italic;
       font-size: 0.9rem;
+      @media (max-width: 768px) { font-size: 0.75rem; }
     }
   }
 
@@ -230,12 +294,17 @@
     justify-content: flex-end;
     gap: 8px;
 
+    @media (max-width: 768px) {
+      padding: 10px 14px;
+    }
+
     ion-button {
       --padding-start: 8px;
       --padding-end: 8px;
       height: 32px;
       font-size: 0.85rem;
       font-weight: 600;
+      @media (max-width: 768px) { height: 28px; font-size: 0.75rem; }
     }
   }
 }

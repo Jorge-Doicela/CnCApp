@@ -403,6 +403,11 @@ ion-content {
   position: relative;
   overflow: hidden;
 
+  @media (max-width: 768px) {
+    padding: 16px;
+    border-radius: 20px;
+  }
+
   &:hover {
     transform: translateY(-8px);
     box-shadow: 0 30px 60px rgba(0,0,0,0.08);
@@ -413,6 +418,10 @@ ion-content {
     display: flex;
     justify-content: space-between;
     margin-bottom: 24px;
+
+    @media (max-width: 768px) {
+      margin-bottom: 12px;
+    }
 
     .code-tag {
       font-size: 0.65rem;
@@ -448,12 +457,22 @@ ion-content {
     margin: 0 0 16px;
     letter-spacing: -0.02em;
     line-height: 1.2;
+
+    @media (max-width: 768px) {
+      font-size: 1.1rem;
+      margin-bottom: 8px;
+    }
   }
 
   .sub-info-grid {
     display: grid;
     gap: 12px;
     margin-bottom: 30px;
+
+    @media (max-width: 768px) {
+      gap: 6px;
+      margin-bottom: 16px;
+    }
 
     .sub-info {
       display: flex;
@@ -463,18 +482,31 @@ ion-content {
       font-size: 0.85rem;
       font-weight: 600;
 
-      ion-icon { color: var(--primary-blue); font-size: 1.2rem; }
+      @media (max-width: 768px) {
+        font-size: 0.75rem;
+        gap: 6px;
+      }
+
+      ion-icon { color: var(--primary-blue); font-size: 1.2rem; @media (max-width: 768px) { font-size: 1rem; } }
     }
   }
 
   .card-footer {
     border-top: 1px solid #f1f5f9;
     padding-top: 24px;
+
+    @media (max-width: 768px) {
+      padding-top: 12px;
+    }
   }
 
   .action-pills {
     display: flex;
     gap: 12px;
+
+    @media (max-width: 768px) {
+      gap: 8px;
+    }
 
     .icon-pill {
       flex: 1;
@@ -489,10 +521,16 @@ ion-content {
       transition: all 0.2s;
       color: #64748b;
 
+      @media (max-width: 768px) {
+        height: 40px;
+        border-radius: 12px;
+      }
+
       ion-icon {
         font-size: 1.5rem;
         display: block;
         color: inherit;
+        @media (max-width: 768px) { font-size: 1.2rem; }
       }
 
       &:hover { background: #f8fafc; transform: translateY(-2px); }
