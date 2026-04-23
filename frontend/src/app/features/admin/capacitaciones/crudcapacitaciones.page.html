@@ -316,8 +316,8 @@
               </div>
             </div>
             
-            <div class="virtual-link" *ngIf="selectedCapacitacion.enlaceVirtual">
-              <ion-button fill="solid" [href]="selectedCapacitacion.enlaceVirtual" target="_blank" class="link-btn">
+            <div class="virtual-link" *ngIf="tieneEnlaceVirtualValido(selectedCapacitacion)">
+              <ion-button fill="solid" [href]="getEnlaceVirtualSeguro(selectedCapacitacion)" target="_blank" rel="noopener noreferrer" class="link-btn">
                 <ion-icon name="link-outline" slot="start"></ion-icon>
                 Acceder al Aula Virtual
               </ion-button>

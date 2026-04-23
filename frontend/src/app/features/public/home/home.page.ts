@@ -170,8 +170,6 @@ export class HomePage implements OnInit {
       'business': business,
       'person-add': personAdd,
       'person': person,
-      'search': searchOutline,
-      'create': createOutline,
       // Landing Page Icons
       'checkmark-circle': checkmarkCircle,
       'star': star,

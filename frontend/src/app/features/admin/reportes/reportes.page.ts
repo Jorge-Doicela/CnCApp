@@ -2,8 +2,7 @@ import { Component, OnInit, signal, ChangeDetectionStrategy, inject } from '@ang
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
-    IonHeader, IonToolbar, IonContent, IonButtons,
-    IonMenuButton, IonIcon,
+    IonContent, IonIcon,
     IonSpinner, IonButton, IonBadge, IonSelect, IonSelectOption,
     IonItem, IonLabel, IonInput
 } from '@ionic/angular/standalone';
@@ -36,8 +35,7 @@ import { RolesChartComponent } from './components/roles-chart/roles-chart.compon
     standalone: true,
     imports: [
         CommonModule, FormsModule,
-        IonHeader, IonToolbar, IonContent, IonButtons,
-        IonMenuButton, IonIcon, IonBadge, IonSelect, IonSelectOption,
+        IonContent, IonIcon, IonBadge, IonSelect, IonSelectOption,
         IonItem, IonLabel, IonInput,
         IonSpinner, IonButton,
         KpiCardComponent, TrendChartComponent, RolesChartComponent,

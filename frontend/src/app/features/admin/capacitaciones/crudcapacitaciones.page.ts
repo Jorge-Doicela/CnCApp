@@ -430,6 +430,17 @@ export class CrudcapacitacionesPage implements OnInit {
     this.cdr.markForCheck();
   }
 
+  getEnlaceVirtualSeguro(cap: Capacitacion | null): string | null {
+    const raw = cap?.enlaceVirtual?.trim();
+    if (!raw) return null;
+    if (!/^https?:\/\//i.test(raw)) return null;
+    return raw;
+  }
+
+  tieneEnlaceVirtualValido(cap: Capacitacion | null): boolean {
+    return !!this.getEnlaceVirtualSeguro(cap);
+  }
+
   abrirMapa(lugar: string) {
     if (!lugar) return;
     const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(lugar)}`;
