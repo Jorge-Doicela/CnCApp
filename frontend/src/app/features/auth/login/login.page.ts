@@ -219,8 +219,8 @@ export class LoginPage implements OnInit {
   }
 
   async loginUser() {
-    const ciValue = this.ci();
-    const passwordValue = this.password();
+    const ciValue = this.ci().trim();
+    const passwordValue = this.password().trim();
 
     // Validar que los campos no estén vacíos
     if (!ciValue || !passwordValue) {

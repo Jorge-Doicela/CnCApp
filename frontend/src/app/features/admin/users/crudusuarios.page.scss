@@ -46,11 +46,11 @@
   align-items: center;
 
   .btn-back {
-    --color: #64748b;
-    font-weight: 600;
-    font-size: 0.85rem;
+    --color: var(--primary);
+    font-weight: 700;
+    font-size: 0.9rem;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.08em;
     transition: var(--transition);
     --padding-start: 0; // Removed extra padding
     --padding-end: 8px;

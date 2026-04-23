@@ -161,16 +161,17 @@ ion-content {
   .login-card-wrapper {
     width: 100%;
     max-width: 420px;
+    margin-top: 35px; // Shifted down for better vertical balance
   }
 
   .mobile-logo {
-    width: 80px; // Reduced from 100px
-    margin-bottom: 24px; // Reduced from 40px
+    width: 55px; // Reduced to reclaim space
+    margin-bottom: 8px; // Minimal margin
   }
 }
 
 .header-actions {
-  margin-bottom: 16px; // Reduced from 30px
+  margin-bottom: 4px; // Minimal margin
 
   .back-btn {
     --padding-start: 8px;
@@ -195,18 +196,18 @@ ion-content {
 }
 
 .form-header {
-  margin-bottom: 24px; // Reduced from 40px
+  margin-bottom: 10px; // Very compact
 
   h2 {
-    font-size: 1.8rem; // Reduced from 2.2rem
+    font-size: 1.4rem; // Compact title
     font-weight: 800;
     color: #1e293b;
-    margin: 0 0 6px 0;
-    letter-spacing: -0.03em;
+    margin: 0 0 2px 0;
+    letter-spacing: -0.02em;
   }
 
   p {
-    font-size: 0.9rem; // Reduced from 1rem
+    font-size: 0.8rem; // Smaller subtext
     color: #64748b;
     margin: 0;
   }
@@ -216,7 +217,7 @@ ion-content {
 // INPUT STYLES
 // ------------------------------------------------
 .input-group {
-  margin-bottom: 16px; // Reduced from 24px
+  margin-bottom: 6px; // Tighter inputs
 
   ion-label {
     color: #334155;
@@ -287,12 +288,18 @@ ion-content {
   }
 }
 
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 2px; // Ensure tight grouping
+}
+
 // ------------------------------------------------
 // BUTTONS
 // ------------------------------------------------
 .submit-btn {
-  margin-top: 20px; // Reduced from 32px
-  height: 48px; // Reduced from 52px
+  margin-top: 8px; // Minimal gap
+  height: 42px; // Ultra compact
   --border-radius: 12px;
   font-weight: 700;
   font-size: 1rem;
@@ -307,7 +314,7 @@ ion-content {
 }
 
 .divider {
-  margin: 16px 0; // Reduced from 30px
+  margin: 10px 0; // Reduced from 16px
   text-align: center;
   position: relative;
 
@@ -334,7 +341,7 @@ ion-content {
 }
 
 .register-btn {
-  height: 48px; // Reduced from 52px
+  height: 44px; // Further reduced from 48px
   --border-radius: 12px;
   font-weight: 600;
   text-transform: none;
@@ -348,12 +355,96 @@ ion-content {
 }
 
 .footer-terms {
-  margin-top: 24px; // Reduced from 40px
+  margin-top: 16px; // Reduced from 24px
   text-align: center;
 
   p {
     font-size: 0.85rem;
     color: #94a3b8;
+  }
+}
+
+// ------------------------------------------------
+// BIOMETRIC LOGIN REDESIGN
+// ------------------------------------------------
+.biometric-login-area {
+  margin-top: 8px; // Tight alignment
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.biometric-pill {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  padding: 6px 16px; // Minimal padding
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  width: 100%;
+  max-width: none; // Match input width
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+
+  &:hover {
+    background: #ffffff;
+    border-color: var(--ion-color-primary);
+    box-shadow: 0 15px 35px rgba(var(--ion-color-primary-rgb), 0.15);
+    transform: translateY(-4px) scale(1.02);
+
+    .bio-icon-wrapper {
+      background: var(--ion-color-primary);
+      color: white;
+      transform: rotate(10deg);
+      box-shadow: 0 8px 20px rgba(var(--ion-color-primary-rgb), 0.3);
+    }
+    
+    .bio-label {
+      color: var(--ion-color-primary);
+    }
+  }
+
+  &:active {
+    transform: scale(0.96);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+
+  .bio-icon-wrapper {
+    width: 40px; // Smaller icon
+    height: 40px;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ion-color-primary);
+    font-size: 1.4rem; // Smaller icon font
+    transition: all 0.4s ease;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+  }
+
+  .bio-text-wrapper {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+
+    .bio-label {
+      font-size: 0.8rem; // Smaller label
+      font-weight: 850;
+      color: #1e293b;
+      letter-spacing: -0.01em;
+      transition: color 0.3s ease;
+    }
+
+    .bio-sublabel {
+      font-size: 0.7rem; // Smaller sublabel
+      font-weight: 600;
+      color: #64748b;
+      margin-top: 0;
+    }
   }
 }
 
@@ -372,6 +463,6 @@ ion-content {
   .form-section {
     padding: 24px;
     justify-content: flex-start;
-    padding-top: 60px;
+    padding-top: 85px; // Lowered from 60px
   }
 }

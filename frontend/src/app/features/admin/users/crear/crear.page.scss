@@ -36,14 +36,14 @@ ion-content {
   margin-bottom: 20px;
 
   .btn-back {
-    --color: #64748b;
+    --color: var(--primary);
     --padding-start: 0;
     --padding-end: 0;
     height: auto;
     font-weight: 700;
-    font-size: 0.75rem;
+    font-size: 0.85rem;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.1em;
     transition: var(--transition);
     
     ion-icon {

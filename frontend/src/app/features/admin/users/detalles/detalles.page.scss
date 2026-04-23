@@ -36,27 +36,35 @@ ion-content {
     .nav-left {
         display: flex;
         align-items: center;
-        gap: 4px; // Reduced from 16px
 
-        ion-button {
-            --color: var(--text-main); // Darker and more visible
+        .btn-back-full {
+            --color: var(--primary-alt);
             margin: 0;
-            margin-left: -8px;
-            --padding-start: 0;
-            --padding-end: 0;
+            margin-left: -12px;
+            --padding-start: 8px;
+            --padding-end: 8px;
+            height: 44px;
+            transition: all 0.3s ease;
 
             ion-icon {
-                font-size: 22px; // Slightly larger
-                font-weight: bold;
+                font-size: 20px;
+                font-weight: 800;
+                margin-right: 4px;
             }
-        }
 
-        .nav-title {
-            font-size: 14px;
-            font-weight: 800;
-            color: #64748b;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
+            .nav-title {
+                font-size: 14px;
+                font-weight: 800;
+                text-transform: uppercase;
+                letter-spacing: 0.08em;
+                margin-left: 4px;
+                color: inherit;
+            }
+
+            &:hover {
+                --color: var(--primary);
+                opacity: 1;
+            }
         }
     }
 

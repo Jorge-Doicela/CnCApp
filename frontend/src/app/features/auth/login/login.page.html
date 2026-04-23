@@ -71,10 +71,18 @@
             @else { Ingresar <ion-icon name="arrow-forward-outline" slot="end"></ion-icon> }
           </ion-button>
 
-          <ion-button expand="block" fill="clear" color="secondary" class="biometric-button fade-in" style="animation-delay: 0.35s; margin-top: 10px;" (click)="triggerManualBiometricLogin()">
-            <ion-icon [name]="biometricIcon" slot="start"></ion-icon>
-            {{ biometricLabel }}
-          </ion-button>
+          <!-- Modern Biometric Login -->
+          <div class="biometric-login-area animate-fade-up" style="animation-delay: 0.35s;">
+            <div class="biometric-pill" (click)="triggerManualBiometricLogin()">
+              <div class="bio-icon-wrapper">
+                <ion-icon [name]="biometricIcon"></ion-icon>
+              </div>
+              <div class="bio-text-wrapper">
+                <span class="bio-label">Acceso Seguro</span>
+                <span class="bio-sublabel">{{ biometricLabel }}</span>
+              </div>
+            </div>
+          </div>
 
 
         </form>
