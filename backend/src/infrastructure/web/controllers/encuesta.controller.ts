@@ -58,6 +58,10 @@ export class EncuestaController {
     checkIfResponded = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
             const authReq = req as AuthRequest;
+            if (!authReq.userId) {
+                res.status(401).json({ message: 'Usuario no autenticado' });
+                return;
+            }
             const encuestaId = Number(req.params.id);
             const responded = await this.encuestaRepository.hasUserResponded(encuestaId, authReq.userId);
             res.json({ responded });

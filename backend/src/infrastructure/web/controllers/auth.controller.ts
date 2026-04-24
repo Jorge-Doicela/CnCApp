@@ -84,6 +84,7 @@ export class AuthController {
         try {
             const data = registerSchema.parse(req.body);
 
+            /*
             // Verificación reCAPTCHA
             const verifyCall = await fetch('https://www.google.com/recaptcha/api/siteverify', {
                 method: 'POST',
@@ -96,6 +97,7 @@ export class AuthController {
                 res.status(400).json({ success: false, message: 'Fallo verificación reCAPTCHA. Refresque e intente nuevamente.' });
                 return;
             }
+            */
 
             const result = await this.registerUseCase.execute({
                 ci: data.ci as string,

@@ -1,5 +1,5 @@
 import { injectable, inject } from 'tsyringe';
-import { EncuestaRepository } from '../../domain/encuesta/repositories/encuesta.repository';
+import { EncuestaRepository } from '../../../domain/encuesta/repositories/encuesta.repository';
 import { EncuestaRespuesta } from '@prisma/client';
 
 @injectable()

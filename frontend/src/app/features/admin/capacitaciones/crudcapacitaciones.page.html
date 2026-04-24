@@ -150,6 +150,10 @@
               <ion-icon [name]="cap.estado.toLowerCase() === 'finalizada' ? 'checkmark-circle' : 'ellipse'"></ion-icon>
               {{ cap.estado }}
             </span>
+            <span class="certificate-tag pulse-subtle" *ngIf="cap.certificado">
+              <ion-icon name="ribbon"></ion-icon>
+              CERTIFICADO
+            </span>
             <ion-button fill="clear" class="expand-toggle-btn">
               <ion-icon [name]="isExpanded(cap.id) ? 'chevron-up-outline' : 'chevron-down-outline'"></ion-icon>
             </ion-button>
@@ -211,6 +215,10 @@
                 <ion-icon name="people-outline" slot="start"></ion-icon>
                 Participantes
               </ion-button>
+              <ion-button fill="clear" [color]="cap.certificado ? 'warning' : 'primary'" (click)="mostrarConfirmacion(cap)" *ngIf="!isConferencista">
+                <ion-icon [name]="cap.certificado ? 'refresh-outline' : 'ribbon-outline'" slot="start"></ion-icon>
+                {{ cap.certificado ? 'Re-emitir Certificados' : 'Emitir Certificados' }}
+              </ion-button>
               <ion-button fill="clear" class="action-btn" (click)="mostrarQRDelEvento(cap); $event.stopPropagation()">
                 <ion-icon name="qr-code-outline" slot="start"></ion-icon>
                 QR / Imprimir
@@ -222,11 +230,6 @@
                 Cerrar
               </ion-button>
 
-              <ion-button fill="clear" class="action-btn btn-warning" (click)="mostrarConfirmacion(cap.id); $event.stopPropagation()"
-                *ngIf="cap.estado === 'Finalizada' && !isConferencista">
-                <ion-icon [name]="cap.certificado ? 'refresh-outline' : 'sparkles-outline'" slot="start"></ion-icon>
-                {{ cap.certificado ? 'Re-emitir' : 'Certificados' }}
-              </ion-button>
 
               <ion-button fill="clear" class="action-btn btn-danger" (click)="confirmarEliminar(cap.id); $event.stopPropagation()" *ngIf="!isConferencista">
                 <ion-icon name="trash-bin-outline" slot="start"></ion-icon>

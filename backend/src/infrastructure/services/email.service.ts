@@ -108,33 +108,49 @@ export class EmailService {
         }
 
         const mailOptions = {
-            from: `"Capacitaciones CNC" <${env.SMTP_USER}>`,
+            from: `"Consejo Nacional de Competencias" <${env.SMTP_USER}>`,
             to,
-            subject: `¡Certificado Disponible! - ${courseName}`,
+            subject: `🎓 ¡Certificado Disponible! - ${courseName}`,
             html: `
-                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333;">
-                    <div style="text-align: center; margin-bottom: 20px;">
-                        <h2 style="color: #003366; margin: 0;">¡Felicidades por tu Logro!</h2>
+                <div style="font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid #e2e8f0;">
+                    <div style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); padding: 40px 20px; text-align: center; color: #ffffff;">
+                        <div style="margin-bottom: 20px; opacity: 0.9;">
+                             <img src="https://capacitacion.competencias.gob.ec/assets/img/logo-white.png" alt="CNC Logo" style="height: 50px; width: auto;" onerror="this.style.display='none'">
+                        </div>
+                        <h1 style="margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.02em;">¡FELICIDADES POR TU LOGRO!</h1>
+                        <p style="margin: 10px 0 0; opacity: 0.8; font-size: 16px;">Has completado exitosamente tu capacitación</p>
                     </div>
-                    <p style="font-size: 16px;">Hola <strong>${userName}</strong>,</p>
-                    <p style="font-size: 16px;">Has completado exitosamente la capacitación: <strong>${courseName}</strong>.</p>
-                    <p style="font-size: 16px;">Adjunto a este correo encontrarás tu certificado digital validado por el Consejo Nacional de Competencias.</p>
                     
-                    <div style="background: #f1f5f9; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #003366;">
-                        <p style="margin: 0; font-size: 14px; color: #475569;">
-                            Este certificado cuenta con un código QR de verificación único que garantiza su autenticidad.
+                    <div style="padding: 40px 30px; color: #334155;">
+                        <p style="font-size: 18px; margin-top: 0;">Estimado(a) <strong>${userName}</strong>,</p>
+                        <p style="font-size: 16px; line-height: 1.6;">Es un honor para el <strong>Consejo Nacional de Competencias</strong> informarte que tu certificado por completar la capacitación:</p>
+                        
+                        <div style="background-color: #f8fafc; padding: 20px; border-radius: 12px; border-left: 4px solid #6366f1; margin: 25px 0;">
+                            <p style="margin: 0; font-size: 18px; font-weight: 700; color: #1e293b;">${courseName}</p>
+                            <p style="margin: 5px 0 0; font-size: 14px; color: #64748b;">Emitido el ${new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                        </div>
+
+                        <p style="font-size: 16px; line-height: 1.6;">Adjunto a este correo encontrarás el documento oficial en formato PDF. Este certificado cuenta con un <strong>código QR de verificación único</strong> que garantiza su validez legal y académica a nivel nacional.</p>
+                        
+                        <div style="margin: 35px 0; text-align: center;">
+                            <p style="font-size: 14px; color: #94a3b8; margin-bottom: 15px;">¿No puedes ver el adjunto? También puedes descargarlo desde tu perfil:</p>
+                            <a href="${env.FRONTEND_URL}/perfil/certificados" style="background-color: #2563eb; color: white; padding: 14px 30px; text-decoration: none; border-radius: 10px; font-weight: 700; font-size: 16px; display: inline-block; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);">
+                                Ir a mis Certificados
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div style="background-color: #f1f5f9; padding: 30px; text-align: center; border-top: 1px solid #e2e8f0;">
+                        <p style="margin: 0; font-size: 12px; color: #64748b; line-height: 1.5;">
+                            Este es un mensaje automático generado por el Sistema de Capacitaciones del CNC.<br>
+                            © ${new Date().getFullYear()} Consejo Nacional de Competencias. Todos los derechos reservados.
                         </p>
                     </div>
-
-                    <p style="font-size: 14px; color: #666;">También puedes descargarlo en cualquier momento desde tu perfil en la plataforma.</p>
-                    
-                    <hr style="border: none; border-top: 1px solid #eaeaea; margin: 30px 0;" />
-                    <p style="font-size: 12px; color: #999; text-align: center;">Atentamente,<br>El Equipo de Capacitaciones CNC</p>
                 </div>
             `,
             attachments: [
                 {
-                    filename: `Certificado_${courseName.replace(/[^a-zA-Z0-0]/g, '_')}.pdf`,
+                    filename: `Certificado_${courseName.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`,
                     path: filePath
                 }
             ]

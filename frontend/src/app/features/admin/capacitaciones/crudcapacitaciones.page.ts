@@ -352,19 +352,23 @@ export class CrudcapacitacionesPage implements OnInit {
   }
 
   // Generación de certificados
-  async mostrarConfirmacion(Id_Capacitacion: number) {
+  async mostrarConfirmacion(cap: Capacitacion) {
+    const yaEmitidos = cap.certificado === true;
+    
     const alert = await this.alertController.create({
-      header: 'Confirmar emisión de certificados',
-      message: `Se emitirán certificados para todos los asistentes confirmados. Los usuarios que no marcaron asistencia no recibirán certificado. ¿Desea continuar?`,
+      header: yaEmitidos ? 'Re-emitir certificados' : 'Confirmar emisión de certificados',
+      message: yaEmitidos 
+        ? 'Esta capacitación ya tiene certificados emitidos. ¿Desea re-emitirlos todos? (Útil si cambió la plantilla o firmas).'
+        : `Se emitirán certificados para todos los asistentes confirmados. Los usuarios que no marcaron asistencia no recibirán certificado. ¿Desea continuar?`,
       buttons: [
         {
           text: 'Cancelar',
           role: 'cancel'
         },
         {
-          text: 'Emitir certificados',
+          text: yaEmitidos ? 'Re-emitir (Forzar)' : 'Emitir certificados',
           handler: () => {
-            this.iraGenerarCertificado(Id_Capacitacion);
+            this.iraGenerarCertificado(cap.id!, yaEmitidos);
           }
         }
       ]
@@ -373,16 +377,16 @@ export class CrudcapacitacionesPage implements OnInit {
     this.cdr.markForCheck();
   }
 
-  async iraGenerarCertificado(Id_Capacitacion: number) {
+  async iraGenerarCertificado(Id_Capacitacion: number, force: boolean = false) {
     const loading = await this.loadingController.create({
-      message: 'Generando certificados y códigos QR... Por favor espere.',
+      message: force ? 'Regenerando todos los certificados... Por favor espere.' : 'Generando certificados y códigos QR... Por favor espere.',
       spinner: 'crescent'
     });
     await loading.present();
 
     try {
       // 1. Llamar al servicio de generación masiva (Backend real)
-      await firstValueFrom(this.capacitacionesService.generateAllCertificates(Id_Capacitacion));
+      await firstValueFrom(this.capacitacionesService.generateAllCertificates(Id_Capacitacion, force));
 
       // 2. Marcar la capacitación como que ya tiene certificados (Actualización de flag)
       await firstValueFrom(this.capacitacionesService.updateCapacitacion(Id_Capacitacion, { certificado: true }));

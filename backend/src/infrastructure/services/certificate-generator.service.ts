@@ -241,45 +241,43 @@ export class CertificateGeneratorService {
     }
 
     private renderRichText(doc: PDFKit.PDFDocument, text: string, config: FieldConfig) {
-        const baseFont = config.fontFamily || 'Helvetica';
+        const baseFont = config.fontFamily || 'Montserrat';
         const boldFont = baseFont.includes('Bold') ? baseFont : `${baseFont}-Bold`;
         
-        doc.fillColor(config.color || '#000000').fontSize(config.fontSize || 12);
+        doc.fillColor(config.color || '#1e293b').fontSize(config.fontSize || 12);
 
         const options: PDFKit.Mixins.TextOptions = {
-            width: config.width,
+            width: config.width || 500,
             align: (config.textAlign as any) || 'center',
-            underline: config.isUnderline
+            lineGap: 2
         };
 
-        // Calculate heights/positions
-        // PDFKit text() returns the doc, but we need the height for vertical centering
-        // doc.heightOfString is helpful
-        const totalHeight = doc.heightOfString(text.replace(/<b>|<\/b>/g, ''), options);
-        let renderX = config.width ? config.x - (config.width / 2) : config.x;
+        // Calculate heights for precise vertical centering
+        const cleanText = text.replace(/<b>|<\/b>/g, '');
+        const totalHeight = doc.heightOfString(cleanText, options);
+        
+        // If config.width is not provided, we center relative to config.x
+        let renderX = config.width ? config.x - (config.width / 2) : config.x - 250;
         let renderY = config.y - (totalHeight / 2);
 
-        // Simple parser for <b> tags
+        // Reset cursor to the calculated start position
+        doc.text('', renderX, renderY, options);
+
+        // Simple parser for <b> tags with support for mixed styles in the same block
         const parts = text.split(/(<b>.*?<\/b>)/g);
         
-        let currentX = renderX;
-        let currentY = renderY;
-
-        // If it's a block with width, PDFKit handles wrapping best if we use the standard text() call
-        // But for mixed styles in a wrapped block, we use the 'continued: true' feature of PDFKit
-        
-        doc.text('', renderX, renderY, options); // Set cursor
-
         parts.forEach((part, index) => {
             const isBold = part.startsWith('<b>') && part.endsWith('</b>');
             const content = isBold ? part.slice(3, -4) : part;
             
             if (!content) return;
 
+            // Apply font style
             try {
                 doc.font(isBold ? boldFont : baseFont);
             } catch (e) {
-                doc.font(baseFont);
+                // Fallback to default if custom font fails
+                doc.font(isBold ? 'Helvetica-Bold' : 'Helvetica');
             }
 
             const isLast = index === parts.length - 1;
