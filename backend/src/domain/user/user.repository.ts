@@ -6,6 +6,7 @@ export interface UserRepository {
     findById(id: number): Promise<User | null>;
     findProfileById(id: number): Promise<User | null>;
     findByAuthUid(authUid: string): Promise<User | null>;
+    findByBiometricToken(token: string): Promise<User | null>;
     findAll(): Promise<User[]>;
     save(user: User): Promise<User>;
     update(id: number, user: Partial<User>): Promise<User>;

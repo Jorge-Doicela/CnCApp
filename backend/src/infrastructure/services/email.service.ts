@@ -15,6 +15,20 @@ export class EmailService {
             auth: {
                 user: env.SMTP_USER,
                 pass: env.SMTP_PASS
+            },
+            tls: {
+                // Necesario para algunos servidores de Office 365 y entornos locales
+                rejectUnauthorized: false,
+                ciphers: 'SSLv3'
+            }
+        });
+        
+        // Verificar conexión al inicio (opcional, ayuda al debug)
+        this.transporter.verify((error, success) => {
+            if (error) {
+                console.error('[EMAIL_SERVICE] Error de configuración SMTP:', error);
+            } else {
+                console.log('[EMAIL_SERVICE] Servidor de correo listo para enviar mensajes');
             }
         });
     }
@@ -94,10 +108,14 @@ export class EmailService {
         };
 
         try {
-            await this.transporter.sendMail(mailOptions);
-            console.log(`[EMAIL_SERVICE] Correo de confirmación enviado a ${to}`);
-        } catch (error) {
-            console.error(`[EMAIL_SERVICE] Error enviando correo de confirmación a ${to}:`, error);
+            console.log(`[EMAIL_SERVICE] Intentando enviar correo de confirmación a ${to}...`);
+            const info = await this.transporter.sendMail(mailOptions);
+            console.log(`[EMAIL_SERVICE] Correo de confirmación enviado exitosamente a ${to}. ID: ${info.messageId}`);
+        } catch (error: any) {
+            console.error(`[EMAIL_SERVICE] Error crítico enviando correo de confirmación a ${to}:`, error.message);
+            if (error.code === 'EAUTH') {
+                console.error('[EMAIL_SERVICE] Error de autenticación: Verifica SMTP_USER y SMTP_PASS. En Office 365 asegúrate de que SMTP AUTH esté habilitado para esta cuenta.');
+            }
         }
     }
 
@@ -161,6 +179,32 @@ export class EmailService {
             logger.info(`[EMAIL_SERVICE] Certificado enviado exitosamente a ${to}`);
         } catch (error) {
             console.error(`[EMAIL_SERVICE] Fallo en el envío de certificado a ${to}:`, error);
+        }
+    }
+
+    async sendTestEmail(to: string): Promise<void> {
+        const mailOptions = {
+            from: `"Prueba de Sistema" <${env.SMTP_USER}>`,
+            to,
+            subject: 'Prueba de Conexión SMTP - Sistema CNC',
+            html: `
+                <div style="font-family: Arial, sans-serif; padding: 20px;">
+                    <h2 style="color: #003366;">Prueba de Conexión Exitosa</h2>
+                    <p>Este es un correo de prueba enviado desde el <strong>Sistema CNC</strong>.</p>
+                    <p>Si estás recibiendo esto, significa que la configuración SMTP es correcta.</p>
+                    <hr>
+                    <p style="font-size: 12px; color: #666;">Fecha y hora del envío: ${new Date().toLocaleString()}</p>
+                </div>
+            `
+        };
+
+        try {
+            console.log(`[EMAIL_SERVICE] Enviando correo de PRUEBA a ${to}...`);
+            const info = await this.transporter.sendMail(mailOptions);
+            console.log(`[EMAIL_SERVICE] Prueba enviada exitosamente. ID: ${info.messageId}`);
+        } catch (error: any) {
+            console.error(`[EMAIL_SERVICE] Falló la prueba de envío a ${to}:`, error.message);
+            throw error;
         }
     }
 }

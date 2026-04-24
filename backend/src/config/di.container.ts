@@ -21,6 +21,7 @@ import { RequestPasswordResetUseCase } from '../application/auth/use-cases/reque
 import { ResetPasswordUseCase } from '../application/auth/use-cases/reset-password.use-case';
 import { StoreBiometricTokenUseCase } from '../application/auth/use-cases/store-biometric-token.use-case';
 import { InvalidateRefreshTokenUseCase } from '../application/auth/use-cases/invalidate-refresh-token.use-case';
+import { VerifyEmailUseCase } from '../application/auth/use-cases/verify-email.use-case';
 
 // Import User Use Cases
 import { GetUserProfileUseCase } from '../application/user/use-cases/get-user-profile.use-case';
@@ -161,6 +162,7 @@ container.registerSingleton(RequestPasswordResetUseCase);
 container.registerSingleton(ResetPasswordUseCase);
 container.registerSingleton(StoreBiometricTokenUseCase);
 container.registerSingleton(InvalidateRefreshTokenUseCase);
+container.registerSingleton(VerifyEmailUseCase);
 
 // User Use Cases
 container.registerSingleton(GetUserProfileUseCase);

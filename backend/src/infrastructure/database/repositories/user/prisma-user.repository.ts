@@ -68,7 +68,7 @@ export class PrismaUserRepository implements UserRepository {
                             create: [{
                                 cargo: user.autoridad.cargo,
                                 entidad: user.autoridad.gadAutoridad,
-                                nivelGobierno: user.autoridad.nivelGobierno
+                                nivelGobierno: String(user.autoridad.nivelgobierno || user.autoridad.nivelGobierno || '')
                             }]
                         }
                     }),
@@ -77,7 +77,7 @@ export class PrismaUserRepository implements UserRepository {
                             create: [{
                                 cargo: user.funcionarioGad.cargo,
                                 departamento: user.funcionarioGad.gadFuncionarioGad,
-                                nivelGobierno: user.funcionarioGad.nivelGobierno,
+                                nivelGobierno: String(user.funcionarioGad.nivelgobierno || user.funcionarioGad.nivelGobierno || ''),
                                 ...(user.funcionarioGad.competencias?.length > 0 && {
                                     competencias: {
                                         connect: user.funcionarioGad.competencias.map((c: any) => ({ id: Number(c) }))
@@ -88,10 +88,7 @@ export class PrismaUserRepository implements UserRepository {
                     }),
                     ...(user.institucion && {
                         instituciones: {
-                            create: [{
-                                institucionId: Number(user.institucion.institucion),
-                                gradoOcupacionalId: user.institucion.gradoOcupacional ? Number(user.institucion.gradoOcupacional) : null
-                            }]
+                            create: [parseInstitucionUsuarioRow(user.institucion)]
                         }
                     })
                 },
@@ -226,7 +223,7 @@ export class PrismaUserRepository implements UserRepository {
                             create: [{
                                 cargo: userData.autoridad.cargo,
                                 entidad: userData.autoridad.gadAutoridad,
-                                nivelGobierno: userData.autoridad.nivelGobierno
+                                nivelGobierno: String(userData.autoridad.nivelgobierno || userData.autoridad.nivelGobierno || '')
                             }]
                         })
                     }
@@ -238,7 +235,7 @@ export class PrismaUserRepository implements UserRepository {
                             create: [{
                                 cargo: userData.funcionarioGad.cargo,
                                 departamento: userData.funcionarioGad.gadFuncionarioGad,
-                                nivelGobierno: userData.funcionarioGad.nivelGobierno,
+                                nivelGobierno: String(userData.funcionarioGad.nivelgobierno || userData.funcionarioGad.nivelGobierno || ''),
                                 ...(userData.funcionarioGad.competencias?.length > 0 && {
                                     competencias: {
                                         set: userData.funcionarioGad.competencias.map((c: any) => ({ id: Number(c) }))
@@ -342,6 +339,38 @@ export class PrismaUserRepository implements UserRepository {
     async findByEmail(email: string): Promise<User | null> {
         const user = await prisma.usuario.findFirst({
             where: { email },
+            include: {
+                rol: true,
+                entidad: true,
+                provincia: true,
+                canton: true,
+                parroquia: true,
+                gadParroquia: true,
+                tipoParticipante: true,
+                genero: true,
+                etnia: true,
+                nacionalidad: true,
+                autoridades: true,
+                funcionarios: {
+                    include: {
+                        competencias: true
+                    }
+                },
+                instituciones: {
+                    include: {
+                        institucion: true,
+                        educacionBasica: true,
+                        gradoOcupacional: true
+                    }
+                }
+            }
+        });
+        return user ? UserMapper.toDomain(user) : null;
+    }
+
+    async findByBiometricToken(token: string): Promise<User | null> {
+        const user = await prisma.usuario.findFirst({
+            where: { biometricToken: token },
             include: {
                 rol: true,
                 entidad: true,

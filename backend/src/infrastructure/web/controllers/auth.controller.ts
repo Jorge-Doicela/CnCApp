@@ -12,6 +12,7 @@ import { StoreBiometricTokenUseCase } from '../../../application/auth/use-cases/
 import { AuthRequest } from '../middleware/auth.middleware';
 import { InvalidateRefreshTokenUseCase } from '../../../application/auth/use-cases/invalidate-refresh-token.use-case';
 import { VerifyEmailUseCase } from '../../../application/auth/use-cases/verify-email.use-case';
+import { EmailService } from '../../services/email.service';
 import { env } from '../../../config/env';
 
 // Strip password from user object before sending to client
@@ -43,7 +44,7 @@ const registerSchema = z.object({
     parroquiaId: z.number().optional(),
     gadParroquiaId: z.number().int().optional(),
     estado: z.number().optional(),
-    recaptchaToken: z.string().min(1, 'Token de reCAPTCHA es requerido')
+    recaptchaToken: z.string().optional()
 });
 
 const loginSchema = z.object({
@@ -77,7 +78,8 @@ export class AuthController {
         @inject(RefreshTokenUseCase) private refreshTokenUseCase: RefreshTokenUseCase,
         @inject(StoreBiometricTokenUseCase) private storeBiometricTokenUseCase: StoreBiometricTokenUseCase,
         @inject(InvalidateRefreshTokenUseCase) private invalidateRefreshTokenUseCase: InvalidateRefreshTokenUseCase,
-        @inject(VerifyEmailUseCase) private verifyEmailUseCase: VerifyEmailUseCase
+        @inject(VerifyEmailUseCase) private verifyEmailUseCase: VerifyEmailUseCase,
+        @inject(EmailService) private emailService: EmailService
     ) { }
 
     register = async (req: Request, res: Response, next: NextFunction) => {
@@ -269,6 +271,23 @@ export class AuthController {
         } catch (error) {
             console.error('[Verify Email Controller]', error);
             res.redirect(`${env.FRONTEND_URL}/login?verified=error`);
+        }
+    };
+
+    testEmail = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const email = req.query.email as string || 'ismael02doicela@gmail.com';
+            await this.emailService.sendTestEmail(email);
+            res.json({
+                success: true,
+                message: `Correo de prueba enviado a ${email}. Revisa tu bandeja de entrada (y spam).`
+            });
+        } catch (error: any) {
+            res.status(500).json({
+                success: false,
+                message: 'Error al enviar el correo de prueba',
+                error: error.message
+            });
         }
     };
 }

@@ -19,16 +19,17 @@ export enum RolCapacitacionEnum {
  * Roles de Usuario en el Sistema (IDs)
  */
 export enum RoleIdEnum {
-    ADMINISTRADOR = 11,
-    USUARIO = 12
+    ADMINISTRADOR = 7,
+    CONFERENCISTA = 8,
+    USUARIO = 9
 }
 
 /**
  * Tipos de Participante (IDs)
  */
 export enum TipoParticipanteIdEnum {
-    AUTORIDAD = 13,
-    CIUDADANO = 14,
-    FUNCIONARIO_GAD = 15,
-    INSTITUCION = 16
+    AUTORIDAD = 9,
+    CIUDADANO = 10,
+    FUNCIONARIO_GAD = 11,
+    INSTITUCION = 12
 }

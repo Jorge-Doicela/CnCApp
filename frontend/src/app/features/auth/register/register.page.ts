@@ -615,7 +615,7 @@ export class RegisterPage {
   }
 
   ngAfterViewInit() {
-    this.initRecaptcha(); // --- ACTIVADO PARA PRODUCCIÓN ---
+    // this.initRecaptcha(); // --- DESACTIVADO ---
   }
 
   initRecaptcha() {
@@ -887,17 +887,7 @@ export class RegisterPage {
       return;
     }
 
-    let recaptchaToken = '';
-    if (this.recaptchaWidgetId !== null) {
-       recaptchaToken = (window as any).grecaptcha?.getResponse(this.recaptchaWidgetId);
-    } else {
-       recaptchaToken = (window as any).grecaptcha?.getResponse();
-    }
-
-    if (!recaptchaToken) {
-      this.presentToast('Por favor, verifique que no es un robot', 'warning');
-      return;
-    }
+    const recaptchaToken = ''; // Desactivado por solicitud del usuario
 
     // Doble validación final por si hubo recarga de página (ej. se borró la contraseña)
     if (!this.validateStep2() || !this.validateStep3() || !this.validateStep4()) {

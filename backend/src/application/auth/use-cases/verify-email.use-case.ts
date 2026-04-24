@@ -11,13 +11,13 @@ export class VerifyEmailUseCase {
 
     async execute(token: string): Promise<boolean> {
         try {
-            const payload = await this.tokenProvider.verify(token);
-            if (!payload || typeof payload !== 'object' || !payload.userId) {
-                return false;
-            }
+            if (!token) return false;
 
-            const user = await this.userRepository.findById(payload.userId);
+            // Buscamos al usuario que tenga este token de activación
+            const user = await this.userRepository.findByBiometricToken(token);
+            
             if (!user) {
+                console.error('[VERIFY_EMAIL] No se encontró usuario con el token proporcionado');
                 return false;
             }
 
@@ -29,13 +29,15 @@ export class VerifyEmailUseCase {
             // Activar la cuenta si está en estado pendiente de verificación (2)
             if (user.estado === 2) {
                 user.estado = 1;
+                user.biometricToken = null; // Limpiar el token tras la verificación
                 await this.userRepository.save(user);
+                console.log(`[VERIFY_EMAIL] Usuario ${user.email} activado exitosamente`);
                 return true;
             }
 
-            return false; // Otro estado bloqueado
+            return false;
         } catch (error) {
-            console.error('[VERIFY_EMAIL] Token inválido o expirado:', error);
+            console.error('[VERIFY_EMAIL] Error durante la verificación:', error);
             return false;
         }
     }
