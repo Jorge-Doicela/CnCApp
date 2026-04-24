@@ -1,77 +1,69 @@
 #!/bin/bash
 
-# Comprobar si se pasó la IP/Dominio como argumento
-if [ -z "$1" ]; then
-    echo "❌ Error: Debes proporcionar la IP o Dominio del servidor."
-    echo "Uso: ./setup-server.sh <IP_O_DOMINIO>"
+# --- 1. LEER CONFIGURACIÓN DESDE config.json ---
+CONFIG_FILE="config.json"
+if [ ! -f "$CONFIG_FILE" ]; then
+    echo "❌ Error: No se encontró config.json"
     exit 1
 fi
 
-NUEVA_IP=$1
+# Extraer valores del JSON (usando grep/sed para máxima compatibilidad)
+NUEVA_IP=$(grep '"serverIp":' $CONFIG_FILE | sed -E 's/.*"serverIp": "([^"]+)".*/\1/')
+BACKEND_PORT=$(grep '"backendPort":' $CONFIG_FILE | sed -E 's/.*"backendPort": ([0-9]+).*/\1/')
+FRONTEND_PORT=$(grep '"frontendPort":' $CONFIG_FILE | sed -E 's/.*"frontendPort": ([0-9]+).*/\1/')
 
-echo "🚀 Iniciando actualización maestra para el servidor ($NUEVA_IP)..."
+if [ -z "$NUEVA_IP" ]; then
+    echo "❌ Error: No se pudo leer la IP de config.json"
+    exit 1
+fi
 
-# 1. Actualizar backend/.env (CORS y BASE_URL)
+echo "🚀 Iniciando despliegue maestro en: http://$NUEVA_IP"
+
+# --- 2. SINCRONIZAR ARCHIVOS ---
+
+# Actualizar backend/.env
 if [ -f "backend/.env" ]; then
-    # Usamos sed para buscar cualquier IP local vieja y poner la nueva
-    sed -i "s/192\.168\.[0-9]\+\.[0-9]\+/$NUEVA_IP/g" backend/.env
+    sed -i "s|BASE_URL=\"http://[^\"]*\"|BASE_URL=\"http://$NUEVA_IP:$BACKEND_PORT\"|g" backend/.env
+    sed -i "s|FRONTEND_URL=\"http://[^\"]*\"|FRONTEND_URL=\"http://$NUEVA_IP:$FRONTEND_PORT\"|g" backend/.env
+    sed -i "s/[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}/$NUEVA_IP/g" backend/.env
     echo "✅ backend/.env actualizado."
 fi
 
-# 2. Actualizar frontend/src/environments/environment.ts
-if [ -f "frontend/src/environments/environment.ts" ]; then
-    sed -i "s/192\.168\.[0-9]\+\.[0-9]\+/$NUEVA_IP/g" frontend/src/environments/environment.ts
-    echo "✅ environment.ts actualizado."
-fi
+# Actualizar frontend environments
+for ENV_FILE in "frontend/src/environments/environment.ts" "frontend/src/environments/environment.prod.ts"; do
+    if [ -f "$ENV_FILE" ]; then
+        sed -i "s|apiUrl: 'http://[^/]*/api'|apiUrl: 'http://$NUEVA_IP:$BACKEND_PORT/api'|g" "$ENV_FILE"
+        sed -i "s|redirectUrl: 'http://[^/]*/recuperar-password'|redirectUrl: 'http://$NUEVA_IP:$FRONTEND_PORT/recuperar-password'|g" "$ENV_FILE"
+        sed -i "s/[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}/$NUEVA_IP/g" "$ENV_FILE"
+        echo "✅ $ENV_FILE actualizado."
+    fi
+done
 
-# 3. Actualizar frontend/src/environments/environment.prod.ts
-if [ -f "frontend/src/environments/environment.prod.ts" ]; then
-    sed -i "s/192\.168\.[0-9]\+\.[0-9]\+/$NUEVA_IP/g" frontend/src/environments/environment.prod.ts
-    echo "✅ environment.prod.ts actualizado."
-fi
-
-# 4. Actualizar Nginx (Opcional si usas el archivo que creamos)
+# Actualizar Nginx si existe
 if [ -f "nginx/cnc-app.conf" ]; then
     sed -i "s/tu-dominio\.com/$NUEVA_IP/g" nginx/cnc-app.conf
     echo "✅ nginx/cnc-app.conf actualizado."
 fi
 
-# 5. Reiniciar Docker Compose
-echo "📦 Reconstruyendo contenedores Docker..."
+# --- 3. DESPLIEGUE CON DOCKER ---
+echo "📦 Levantando servicios con Docker Compose..."
 docker-compose up -d --build
 
-# 7. Configuración Automática de Crontab (Mantenimiento Pro)
-echo "⏰ Configurando tareas de mantenimiento automático (Backups y Limpieza)..."
-
-# Rutas absolutas para el cron
+# --- 4. CONFIGURACIÓN DE MANTENIMIENTO (CRON) ---
 PROYECTO_DIR=$(pwd)
 BACKUP_SCRIPT="$PROYECTO_DIR/scripts/backup-db.sh"
 CLEAN_SCRIPT="$PROYECTO_DIR/scripts/limpiar-servidor.sh"
 
-# Asegurar permisos de ejecución
-chmod +x "$BACKUP_SCRIPT"
-chmod +x "$CLEAN_SCRIPT"
+chmod +x "$BACKUP_SCRIPT" 2>/dev/null
+chmod +x "$CLEAN_SCRIPT" 2>/dev/null
 
-# Crear crontab temporal
-crontab -l > temp_cron 2>/dev/null
-
-# Añadir Backup diario si no existe (2 AM)
-if ! grep -q "backup-db.sh" temp_cron; then
-    echo "0 2 * * * /bin/bash $BACKUP_SCRIPT" >> temp_cron
-    echo "✅ Tarea de Backup añadida (Diaria 2:00 AM)"
+# Configurar crontab si los scripts existen
+if [ -f "$BACKUP_SCRIPT" ]; then
+    (crontab -l 2>/dev/null | grep -v "backup-db.sh"; echo "0 2 * * * /bin/bash $BACKUP_SCRIPT") | crontab -
+    echo "✅ Backup diario configurado (2:00 AM)."
 fi
-
-# Añadir Limpieza semanal si no existe (Domingo 3 AM)
-if ! grep -q "limpiar-servidor.sh" temp_cron; then
-    echo "0 3 * * 0 /bin/bash $CLEAN_SCRIPT" >> temp_cron
-    echo "✅ Tarea de Limpieza añadida (Semanal Domingo 3:00 AM)"
-fi
-
-# Aplicar crontab y borrar temporal
-crontab temp_cron
-rm temp_cron
 
 echo ""
-echo "✨ ¡CONFIGURACIÓN TOTAL COMPLETADA! ✨"
-echo "El servidor ahora es autónomo: se respalda y se limpia solo."
-echo "URL actual: http://$NUEVA_IP"
+echo "✨ ¡DESPLIEGUE COMPLETADO EXITOSAMENTE! ✨"
+echo "Servidor listo en: http://$NUEVA_IP"
+echo "Puertos: Backend ($BACKEND_PORT), Frontend ($FRONTEND_PORT)"

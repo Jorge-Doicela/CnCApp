@@ -55,9 +55,14 @@ cp .env.docker .env
 # 3. Iniciar todos los servicios
 docker-compose up -d
 
-# 4. Acceder a la aplicación
-# Frontend: http://localhost
-# Backend: http://localhost:3000
+# 4. Configurar IP y Puertos
+# Edita el archivo config.json en la raíz
+# serverIp: tu IP local o dominio del servidor
+
+# 5. Sincronizar y Lanzar
+.\actualizar-ip.ps1        # En Windows
+# O en el servidor:
+bash setup-server.sh
 ```
 
 **Documentación completa**: [`docs/DOCKER_SETUP.md`](docs/DOCKER_SETUP.md)
@@ -74,7 +79,11 @@ npm run prisma:migrate
 npm run prisma:seed
 npm run dev
 
-# 2. Configurar Frontend (nueva terminal)
+# 2. Configurar IP (Obligatorio)
+# Edita config.json con tu IP local (ej. 192.168.7.141)
+.\actualizar-ip.ps1
+
+# 3. Configurar Frontend (nueva terminal)
 cd frontend
 npm install
 npm start

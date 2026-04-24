@@ -1,57 +1,68 @@
-# 🚀 Guía de Despliegue en Producción (Linux) - CnCApp
+# 🚀 Guía de Despliegue en Producción - CnCApp
 
-Este sistema ha sido diseñado bajo una arquitectura de **"Soberanía de Datos"**: todo es interno, independiente y automatizado.
+Este sistema utiliza un modelo de **Configuración Centralizada** para facilitar el despliegue tanto en entornos de desarrollo local como en servidores de producción.
 
-## 1. Requisitos del Servidor Linux
-*   **SO**: Ubuntu 22.04 LTS o superior (recomendado).
-*   **Docker**: Docker Engine y Docker Compose instalados.
-*   **Firewall (UFW)**: Abrir puertos esenciales:
-    ```bash
-    sudo ufw allow 80/tcp   # HTTP
-    sudo ufw allow 443/tcp  # HTTPS
-    sudo ufw allow 22/tcp   # SSH
-    ```
+## ⚙️ 1. Fuente de Verdad Única: `config.json`
 
-## 2. Instalación por Primera Vez
-1.  **Clonar el repositorio** (en privado):
-    ```bash
-    git clone https://github.com/tu-usuario/tu-repo.git /opt/cnc-app
-    cd /opt/cnc-app
-    ```
-2.  **Configurar Variables de Entorno**:
-    *   Crea el archivo `backend/.env` (puedes copiar el de desarrollo).
-    *   Asegúrate de que `NODE_ENV=production` y de usar claves JWT seguras (ya configuradas).
+Todo el proyecto (Frontend, Backend y Android) se configura desde un solo archivo en la raíz: **`config.json`**.
 
-## 3. El Comando Maestro (Automatización Total)
-Para configurar el servidor, actualizar la IP y activar el mantenimiento automático, solo ejecuta:
-```bash
-chmod +x setup-server.sh
-./setup-server.sh tu-dominio.com  # O tu IP pública
+```json
+{
+  "serverIp": "192.168.7.141",
+  "backendPort": 3005,
+  "frontendPort": 4200
+}
 ```
 
-### ¿Qué hace este comando por ti?
-*   **Sincronización**: Actualiza las URLs en el Frontend y Backend instantáneamente.
-*   **Auto-Mantenimiento**: Instala tareas en el sistema para:
-    *   **Backups**: Cada noche a las 2:00 AM (`scripts/backup-db.sh`).
-    *   **Limpieza**: Cada domingo a las 3:00 AM (`scripts/limpiar-servidor.sh`).
-*   **Docker**: Levanta todos los servicios con límites de memoria y rotación de logs.
+---
 
-## 4. Política de Archivos y Espacio
-*   **Logs**: Limitados a 30MB totales por servicio (rotación automática de Docker).
-*   **Certificados (PDF)**: Se borran automáticamente cada 30 días para ahorrar espacio. **No te preocupes:** si un usuario pide su certificado un año después, el sistema lo regenera al instante desde la base de datos.
-*   **Subidas**: Límite estricto de **5MB** por archivo para evitar saturación.
+## 💻 2. Desarrollo (Windows)
 
-## 5. La App (APK Inmortal)
-Para que no tengas que reinstalar la App si cambias de servidor:
-1.  Usa un **Dominio** (ej: `api.tu-app.com`) en lugar de una IP.
-2.  Ejecuta `.\actualizar-ip.ps1 api.tu-app.com` en tu máquina Windows.
-3.  Genera el APK firmado en Android Studio.
-4.  **Si cambias de servidor**, solo apunta el dominio a la nueva IP. ¡La App seguirá funcionando!
+Si cambias de red o quieres probar en un dispositivo físico Android:
 
-## 6. Seguridad y SSL
-Recomendamos usar Nginx en el host (fuera de Docker) con Certbot:
-```bash
-sudo apt install certbot python3-certbot-nginx
-sudo certbot --nginx -d tu-dominio.com
-```
-(Usa la plantilla `nginx/cnc-app.conf` que ya está lista en el proyecto).
+1.  Edita la IP en `config.json`.
+2.  Sincroniza el proyecto ejecutando en PowerShell:
+    ```powershell
+    .\actualizar-ip.ps1
+    ```
+3.  **Para Android (Live Reload):** El script te dará el comando exacto al finalizar, similar a este:
+    ```powershell
+    npx cap run android --live-reload --port 4200 --host 192.168.7.141
+    ```
+
+---
+
+## 🌐 3. Despliegue en Servidor (Linux)
+
+Para poner el sistema en marcha en un servidor Linux (vía Docker):
+
+1.  Sube el código al servidor.
+2.  Edita `config.json` con la IP pública o el Dominio del servidor.
+3.  Ejecuta el **Comando Maestro**:
+    ```bash
+    bash setup-server.sh
+    ```
+
+### ¿Qué hace `setup-server.sh` por ti?
+*   **Sincronización Total**: Lee `config.json` y actualiza automáticamente los archivos `.env`, `environment.ts` y configuraciones de Nginx.
+*   **Docker**: Levanta todos los servicios (`docker-compose`) con límites de memoria y rotación de logs.
+*   **Auto-Mantenimiento**:
+    *   **Backups**: Configura una tarea diaria a las 2:00 AM (`scripts/backup-db.sh`).
+    *   **Limpieza**: Configura una tarea semanal de archivos temporales (`scripts/limpiar-servidor.sh`).
+
+---
+
+## 🔒 4. Seguridad Recomendada
+
+Para producción real, se recomienda usar **SSL (HTTPS)**:
+1.  Apunta un dominio a tu IP.
+2.  Instala Certbot: `sudo apt install certbot python3-certbot-nginx`.
+3.  Genera el certificado: `sudo certbot --nginx -d tu-dominio.com`.
+4.  Usa la plantilla de configuración en `nginx/cnc-app.conf`.
+
+---
+
+## 🛠️ 5. Mantenimiento de Espacio
+*   **Logs**: Limitados a 30MB por servicio.
+*   **Certificados PDF**: Se limpian automáticamente cada 30 días. El sistema los regenera bajo demanda si el usuario los solicita de nuevo.
+*   **Subidas**: Límite estricto de **5MB** por archivo (configurable en `config.json` y `.env`).

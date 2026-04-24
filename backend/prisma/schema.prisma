@@ -37,7 +37,7 @@ model Usuario {
   authUid            String?               @unique @map("auth_uid")
   nombre             String                @map("nombre_usuario") @db.VarChar(200)
   ci                 String                @unique @map("ci_usuario") @db.VarChar(20)
-  email              String?               @map("email_usuario") @db.VarChar(200)
+  email              String?               @unique @map("email_usuario") @db.VarChar(200)
   telefono           String?               @map("telefono_usuario") @db.VarChar(20)
   password           String                @map("password") @db.VarChar(255)
   rolId              Int?                  @map("rol_usuario")

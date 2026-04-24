@@ -33,6 +33,8 @@ const envSchema = z.object({
 
     // Storage
     UPLOAD_DIR: z.string().default('uploads'),
+    MAX_FILE_SIZE: z.string().transform(Number).default('10485760'),
+    MAX_JSON_SIZE: z.string().default('50mb'),
     BASE_URL: z.string().url().default('http://localhost:3000'),
     FRONTEND_URL: z.string().url().default('http://localhost:8100'),
 
