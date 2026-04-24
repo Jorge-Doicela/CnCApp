@@ -1079,8 +1079,29 @@ export class CrearPage implements OnInit {
   // Obtener entidades
   async obtenerEntidades() {
     try {
-      const data = await firstValueFrom(this.catalogoService.getItems('public/tipos-institucion'));
-      this.datosrecuperados.entidades = data || [];
+      const data = await firstValueFrom(this.catalogoService.getItems('public/entidades'));
+      const preferredOrder = [
+        'PROVINCIAL',
+        'MUNICIPAL',
+        'PARROQUIAL RURAL',
+        'GREMIOS',
+        'GOBIERNO CENTRAL',
+        'OTRAS INSTITUCIONES DEL ESTADO',
+        'COOPERANTES',
+        'ACADEMIA',
+        'EDUCACIÓN GENERAL BÁSICA Y BACHILLERATO',
+        'CIUDADANÍA',
+        'MANCOMUNIDADES Y CONSORCIOS',
+        'RÉGIMEN ESPECIAL'
+      ];
+      this.datosrecuperados.entidades = (data || []).sort((a: any, b: any) => {
+        const indexA = preferredOrder.indexOf(a.nombre_entidad || a.nombre);
+        const indexB = preferredOrder.indexOf(b.nombre_entidad || b.nombre);
+        if (indexA !== -1 && indexB !== -1) return indexA - indexB;
+        if (indexA !== -1) return -1;
+        if (indexB !== -1) return 1;
+        return (a.nombre_entidad || a.nombre || '').localeCompare(b.nombre_entidad || b.nombre || '');
+      });
     } catch (err) {
       console.error(err);
     } finally {
@@ -1191,11 +1212,11 @@ export class CrearPage implements OnInit {
     this.resolvedIds.tipoInstitucion = findIdByCodigo(this.datosrecuperados.tiposParticipante, 'INSTITUCION') || TipoParticipanteEnum.INSTITUCION;
 
     // Resolver Niveles de Gobierno (Entidades)
-    this.resolvedIds.nivelProvincial = findIdByNombre(this.datosrecuperados.entidades, 'INSTITUCIÓN — NIVEL PROVINCIAL') || NivelGobiernoEnum.PROVINCIAL;
-    this.resolvedIds.nivelMunicipal = findIdByNombre(this.datosrecuperados.entidades, 'INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)') || NivelGobiernoEnum.MUNICIPAL;
-    this.resolvedIds.nivelParroquial = findIdByNombre(this.datosrecuperados.entidades, 'INSTITUCIÓN — NIVEL PARROQUIAL RURAL') || NivelGobiernoEnum.PARROQUIAL;
-    this.resolvedIds.nivelMancomunidad = findIdByNombre(this.datosrecuperados.entidades, 'MANCOMUNIDADES Y CONSORCIOS') || NivelGobiernoEnum.MANCOMUNIDADES;
-    this.resolvedIds.nivelRegimenEspecial = findIdByNombre(this.datosrecuperados.entidades, 'RÉGIMEN ESPECIAL') || NivelGobiernoEnum.REGIMEN_ESPECIAL;
+    this.resolvedIds.nivelProvincial = findIdByCodigo(this.datosrecuperados.entidades, 'NIVEL_PROVINCIAL') || NivelGobiernoEnum.PROVINCIAL;
+    this.resolvedIds.nivelMunicipal = findIdByCodigo(this.datosrecuperados.entidades, 'NIVEL_MUNICIPAL') || NivelGobiernoEnum.MUNICIPAL;
+    this.resolvedIds.nivelParroquial = findIdByCodigo(this.datosrecuperados.entidades, 'NIVEL_PARROQUIAL') || NivelGobiernoEnum.PARROQUIAL;
+    this.resolvedIds.nivelMancomunidad = findIdByCodigo(this.datosrecuperados.entidades, 'MANCOMUNIDADES') || NivelGobiernoEnum.MANCOMUNIDADES;
+    this.resolvedIds.nivelRegimenEspecial = findIdByCodigo(this.datosrecuperados.entidades, 'REGIMEN_ESPECIAL') || NivelGobiernoEnum.REGIMEN_ESPECIAL;
 
     console.log('[ADMIN_CREAR_DEBUG] IDs Dinámicos Resueltos:', this.resolvedIds);
   }

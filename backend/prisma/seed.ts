@@ -48,11 +48,7 @@ const TIPO_INSTITUCION_NOMBRES_SEED = [
     'EDUCACIÓN GENERAL BÁSICA Y BACHILLERATO',
     'CIUDADANÍA',
     'MANCOMUNIDADES Y CONSORCIOS',
-    'RÉGIMEN ESPECIAL',
-    'PRIVADO', // Se mantiene por integridad de datos previa
-    'PRESENCIAL',
-    'VIRTUAL',
-    'MUNICIPAL PRESENCIAL Y VIRTUAL'
+    'RÉGIMEN ESPECIAL'
 ] as const;
 
 type TipoInstMap = Record<string, { id: number }>;
@@ -219,13 +215,9 @@ async function main() {
             { nombre: 'COOPERANTES', codigo: 'COOPERANTES' },
             { nombre: 'ACADEMIA', codigo: 'ACADEMIA' },
             { nombre: 'EDUCACIÓN GENERAL BÁSICA Y BACHILLERATO', codigo: 'EDUCACION' },
-            { nombre: 'PRIVADO', codigo: 'PRIVADO' },
             { nombre: 'CIUDADANÍA', codigo: 'CIUDADANIA' },
             { nombre: 'MANCOMUNIDADES Y CONSORCIOS', codigo: 'MANCOMUNIDADES' },
-            { nombre: 'RÉGIMEN ESPECIAL', codigo: 'REGIMEN_ESPECIAL' },
-            { nombre: 'PRESENCIAL', codigo: 'PRESENCIAL' },
-            { nombre: 'VIRTUAL', codigo: 'VIRTUAL' },
-            { nombre: 'MUNICIPAL PRESENCIAL Y VIRTUAL', codigo: 'MUNICIPAL_HIBRIDO' }
+            { nombre: 'RÉGIMEN ESPECIAL', codigo: 'REGIMEN_ESPECIAL' }
         ];
 
         for (const cat of categoriasEntidad) {
@@ -292,7 +284,6 @@ async function main() {
             })),
             ...cooperantesList.map(n => ({ nombre: n, tipo: 'COOPERANTES', tipoInstitucionId: tid('COOPERANTES') })),
             ...academiaList.map(n => ({ nombre: n, tipo: 'ACADEMIA', tipoInstitucionId: tid('ACADEMIA') })),
-            ...privadoList.map(n => ({ nombre: n, tipo: 'PRIVADO', tipoInstitucionId: tid('PRIVADO') })),
             ...ciudadaniaList.map(n => ({ nombre: n, tipo: 'CIUDADANÍA', tipoInstitucionId: tid('CIUDADANÍA') })),
             ...regimenEspecialList.map(n => ({ nombre: n, tipo: 'RÉGIMEN ESPECIAL', tipoInstitucionId: tid('RÉGIMEN ESPECIAL') })),
             // Municipales additions (también se re-aseguran al final del seed con skipDuplicates)
@@ -305,10 +296,6 @@ async function main() {
             ...provinciasInstitucionesList.map(n => ({ nombre: n, tipo: 'PROVINCIAL', tipoInstitucionId: tid('PROVINCIAL') })),
             ...cantonesInstitucionesList.map(n => ({ nombre: n, tipo: 'MUNICIPAL', tipoInstitucionId: tid('MUNICIPAL') })),
             ...parroquiasInstitucionesList.map(n => ({ nombre: n, tipo: 'PARROQUIAL RURAL', tipoInstitucionId: tid('PARROQUIAL RURAL') })),
-            // Soporte para etiquetas literales PRESENCIAL y VIRTUAL pedidas por el usuario
-            ...cantonesInstitucionesList.map(n => ({ nombre: n, tipo: 'PRESENCIAL', tipoInstitucionId: tid('PRESENCIAL') })),
-            { nombre: 'QUITO', tipo: 'VIRTUAL', tipoInstitucionId: tid('VIRTUAL') },
-            ...cantonesInstitucionesList.map(n => ({ nombre: n, tipo: 'MUNICIPAL PRESENCIAL Y VIRTUAL', tipoInstitucionId: tid('MUNICIPAL PRESENCIAL Y VIRTUAL') })),
             ...mancomunidadesList.map(n => ({ nombre: n, tipo: 'MANCOMUNIDADES Y CONSORCIOS', tipoInstitucionId: tid('MANCOMUNIDADES Y CONSORCIOS') }))
         ];
 
