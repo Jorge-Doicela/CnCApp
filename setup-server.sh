@@ -49,6 +49,13 @@ fi
 echo "📦 Levantando servicios con Docker Compose..."
 docker-compose up -d --build
 
+echo "⏳ Esperando a que el backend esté listo para las migraciones..."
+sleep 10
+
+echo "🗄️ Aplicando migraciones y cargando datos iniciales (Seed)..."
+docker exec cnc-backend npx prisma migrate deploy
+docker exec cnc-backend npx prisma db seed
+
 # --- 4. CONFIGURACIÓN DE MANTENIMIENTO (CRON) ---
 PROYECTO_DIR=$(pwd)
 BACKUP_SCRIPT="$PROYECTO_DIR/scripts/backup-db.sh"

@@ -80,7 +80,7 @@ npm run prisma:seed
 npm run dev
 
 # 2. Configurar IP (Obligatorio)
-# Edita config.json con tu IP local (ej. 192.168.7.141)
+# Edita config.json con tu IP local (ej. 192.168.1.223)
 .\actualizar-ip.ps1
 
 # 3. Configurar Frontend (nueva terminal)

@@ -60,7 +60,7 @@ services:
     networks:
       - cnc-network
     volumes:
-      - backend_uploads:/app/uploads
+      - backend_uploads:/app/public/uploads
     logging:
       driver: "json-file"
       options:

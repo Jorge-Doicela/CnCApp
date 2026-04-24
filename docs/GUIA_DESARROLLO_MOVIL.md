@@ -21,13 +21,13 @@ npm run start -- --host 0.0.0.0
 ```
 *Espera a que diga "Compiled successfully".*
 * **Para ver en PC**: Abre [http://localhost:4200](http://localhost:4200)
-* **Para ver en Móvil**: Abre la App o usa [http://192.168.7.141:4200](http://192.168.7.141:4200)
+* **Para ver en Móvil**: Abre la App o usa [http://192.168.1.223:4200](http://192.168.1.223:4200)
 
 ### 3. Sincronizar con el Teléfono (USB)
 Abre una TERCERA terminal en la raíz (`CnCApp`) y lanza la App al móvil:
 ```powershell
 $env:JAVA_HOME = "C:\Program Files\Android\Android Studio\jbr"
-npx cap run android --live-reload --port 4200 --host 192.168.7.141
+npx cap run android --live-reload --port 4200 --host 192.168.1.223
 ```
 
 ---
@@ -39,7 +39,7 @@ Si al compilar te da un error de que no puede borrar carpetas, usa este script d
 ```powershell
 # run-android-safe.ps1 (ejecutar desde la raiz del proyecto CnCApp)
 param(
-  [string]$HostIp = "192.168.7.141",
+  [string]$HostIp = "192.168.1.223",
   [int]$Port = 4200
 )
 
@@ -74,7 +74,7 @@ Uso:
 .\run-android-safe.ps1
 
 # Opcion B: con IP/puerto personalizados
-.\run-android-safe.ps1 -HostIp "192.168.7.141" -Port 4200
+.\run-android-safe.ps1 -HostIp "192.168.1.223" -Port 4200
 ```
 
 ### Error: "No se pudo conectar con el backend"
