@@ -310,7 +310,7 @@
                             <ion-icon name="briefcase-outline" class="input-icon"></ion-icon>
                             <ion-select interface="action-sheet" [value]="state.laborData().tipoParticipanteId"
                                 (ionChange)="state.updateUserData({tipoParticipanteId: $event.detail.value})"
-                                placeholder="Seleccione" class="custom-select w-full" style="width: 100%;">
+                                placeholder="[Seleccione un elemento]" class="custom-select w-full" style="width: 100%;">
                                 @for (tp of tiposParticipante(); track tp.id) {
                                 <ion-select-option [value]="tp.id">{{ tp.nombre }}</ion-select-option>
                                 }
@@ -341,7 +341,7 @@
                             <div class="custom-input-wrapper">
                                 <ion-select interface="popover" [value]="state.laborData().autoridad?.nivelgobierno"
                                     (ionChange)="state.updateUserData({autoridadNivelGobiernoId: $event.detail.value}); laborProvinciaId.set(null); laborCantonId.set(null)"
-                                    placeholder="[Seleccione un nivel o categoría]" class="custom-select w-full"
+                                    placeholder="[Seleccione un elemento]" class="custom-select w-full"
                                     style="width: 100%;">
                                     @for (e of entidadesGads(); track e.id) {
                                     <ion-select-option [value]="e.id">{{ e.nombre }}</ion-select-option>
@@ -357,13 +357,15 @@
                             <div class="custom-input-wrapper">
                                 <ion-select interface="popover" [value]="state.laborData().autoridad?.gadAutoridad"
                                     (ionChange)="state.updateUserData({autoridadGad: $event.detail.value})"
-                                    placeholder="[Seleccione]" class="custom-select w-full" style="width: 100%;">
+                                    placeholder="[Seleccione un elemento]" class="custom-select w-full" style="width: 100%;">
                                     @for (opt of opcionesGAD(); track opt.value) {
                                     <ion-select-option [value]="opt.value">{{ opt.label }}</ion-select-option>
                                     }
                                 </ion-select>
                             </div>
                         </div>
+
+
                     </div>
                     }
 
@@ -405,7 +407,7 @@
                                 <ion-select interface="popover"
                                     [value]="state.laborData().funcionarioGad?.nivelgobierno"
                                     (ionChange)="state.updateUserData({funcionarioNivelGobiernoId: $event.detail.value}); laborProvinciaId.set(null); laborCantonId.set(null)"
-                                    placeholder="[Seleccione un nivel o categoría]" class="custom-select w-full"
+                                    placeholder="[Seleccione un elemento]" class="custom-select w-full"
                                     style="width: 100%;">
                                     @for (e of entidadesGads(); track e.id) {
                                     <ion-select-option [value]="e.id">{{ e.nombre }}</ion-select-option>
@@ -452,7 +454,7 @@
                                 <ion-select interface="popover"
                                     [value]="state.laborData().funcionarioGad?.gadFuncionarioGad"
                                     (ionChange)="state.updateUserData({funcionarioGad: $event.detail.value})"
-                                    placeholder="[Seleccione]" class="custom-select w-full" style="width: 100%;">
+                                    placeholder="[Seleccione un elemento]" class="custom-select w-full" style="width: 100%;">
                                     @for (opt of opcionesGAD(); track opt.value) {
                                     <ion-select-option [value]="opt.value">{{ opt.label }}</ion-select-option>
                                     }
@@ -473,9 +475,9 @@
                                 <ion-select interface="popover"
                                     [value]="state.laborData().institucion?.institucionNivelGobiernoId"
                                     (ionChange)="updateInstitucionTipo($event.detail.value); laborProvinciaId.set(null); laborCantonId.set(null)"
-                                    placeholder="[Seleccione un nivel o categoría]" class="custom-select w-full"
+                                    placeholder="[Seleccione un elemento]" class="custom-select w-full"
                                     style="width: 100%;">
-                                    @for (e of tiposInstitucion(); track e.id) {
+                                    @for (e of entidadesGads(); track e.id) {
                                     <ion-select-option [value]="e.id">{{ e.nombre }}</ion-select-option>
                                     }
                                 </ion-select>

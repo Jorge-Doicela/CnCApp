@@ -66,7 +66,7 @@ export class RegisterPage {
   etnias = signal<Etnia[]>([]);
   nacionalidades = signal<any[]>([]);
   tiposParticipante = signal<TipoParticipante[]>([]);
-  tiposInstitucion = computed(() => this.entidadesGads() || []);
+  tiposInstitucion = signal<any[]>([]);
 
   // Labor Specific Catalogs
   cargos = signal<any[]>([]);
@@ -81,15 +81,26 @@ export class RegisterPage {
 
   opcionesInstitucionCombinadas = computed(() => {
     const labor = this.laborData();
+    const resIds = this.state.resolvedIds();
     const selectedTipoId = labor.institucion?.institucionNivelGobiernoId;
     
     if (!selectedTipoId) return [];
 
     // Buscar si el tipo seleccionado es "EDUCACIÓN GENERAL BÁSICA"
-    const tipoSelected = this.tiposInstitucion().find(e => e.id === selectedTipoId);
+    const tipoSelected = this.tiposInstitucion().find((e: any) => e.id === selectedTipoId);
     const esEducacion = tipoSelected?.nombre?.toUpperCase().includes('EDUCACIÓN');
     const esMancomunidad = tipoSelected?.nombre?.toUpperCase().includes('MANCOMUNIDADES');
     const esRegimenEspecial = tipoSelected?.nombre?.toUpperCase().includes('RÉGIMEN ESPECIAL');
+
+    // Determinar si el nivel seleccionado es MUNICIPAL (por ID o por nombre)
+    const selectedEntidad = this.entidadesGads().find((e: any) => e.id === selectedTipoId);
+    const esMunicipal = (selectedEntidad?.nombre || '').toUpperCase().includes('MUNICIPAL') || 
+                       selectedTipoId === resIds.nivelMunicipal;
+
+    // Si el tipo seleccionado es "MUNICIPAL", usar la lista autorizada
+    if (esMunicipal) {
+      return this.munisAutorizados.map(name => ({ value: `i:${name}`, label: name }));
+    }
 
     if (esEducacion) {
       return (this.educacionBasica() || []).map((e: any) => ({ value: `e:${e.id}`, label: e.nombre }));
@@ -117,16 +128,121 @@ export class RegisterPage {
     }
 
     return filtered
-      .map((i: any) => ({ value: `i:${i.id}`, label: i.nombre }))
+      .map((i: any) => {
+        const prov = this.provincias().find(p => p.id === i.id_provincia);
+        const prefix = prov ? `${prov.nombre.toUpperCase()} / ` : '';
+        return { value: `i:${i.id}`, label: `${prefix}${i.nombre.toUpperCase()}` };
+      })
       .sort((a, b) => a.label.localeCompare(b.label, 'es'));
   });
 
   opcionesMunicipioCombinadas = computed(() => {
     const resIds = this.state.resolvedIds();
-    return (this.instituciones() || [])
-      .filter((i: any) => i.tipoInstitucionId === resIds.nivelMunicipal)
-      .sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
+    return this.munisAutorizados.map(name => ({ value: name, label: name }));
   });
+
+  entidadesGads = computed(() => {
+    const todos = this.tiposInstitucion() || [];
+    
+    return todos
+      .filter((e: any) => {
+        const name = (e.nombre || '').toUpperCase();
+        return name.includes('MUNICIPAL') || 
+               name.includes('PARROQUIAL') || 
+               name.includes('PROVINCIAL') || 
+               name.includes('MANCOMU') || 
+               name.includes('OTRO') ||
+               name.includes('OTRA');
+      })
+      .map((e: any) => {
+        const name = (e.nombre || '').toUpperCase();
+        let label = e.nombre;
+        if (name.includes('MUNICIPAL')) label = 'Municipal';
+        else if (name.includes('PARROQUIAL')) label = 'Parroquial Rural';
+        else if (name.includes('PROVINCIAL')) label = 'Provincial';
+        else if (name.includes('MANCOMU')) label = 'Mancomunidad y Consorcios';
+        else if (name.includes('OTRO') || name.includes('OTRA')) label = 'OTRO';
+        
+        return { ...e, nombre: label };
+      })
+      .sort((a: any, b: any) => a.nombre.localeCompare(b.nombre, 'es'));
+  });
+
+  munisAutorizados = [
+    "AZUAY / NABON", "AZUAY / PUCARA", "AZUAY / SANTA ISABEL", "AZUAY / CHORDELEG",
+    "AZUAY / SAN FERNANDO", "AZUAY / OÑA", "AZUAY / GIRON", "AZUAY / GUALACEO",
+    "AZUAY / CUENCA", "AZUAY / EL PAN", "AZUAY / PAUTE", "AZUAY / SEVILLA DE ORO",
+    "AZUAY / GUACHAPALA", "AZUAY / CAMILO PONCE ENRIQUEZ", "AZUAY / SIGSIG",
+    "BOLIVAR / SAN MIGUEL", "BOLIVAR / GUARANDA", "BOLIVAR / ECHEANDIA",
+    "BOLIVAR / LAS NAVES", "BOLIVAR / CALUMA", "BOLIVAR / CHILLANES",
+    "BOLIVAR / SAN JOSE DE CHIMBO", "CAÑAR / AZOGUES", "CAÑAR / CAÑAR",
+    "CAÑAR / DELEG", "CAÑAR / EL TAMBO", "CAÑAR / LA TRONCAL", "CAÑAR / BIBLIAN",
+    "CAÑAR / SUSCAL", "CARCHI / SAN PEDRO DE HUACA", "CARCHI / TULCAN",
+    "CARCHI / MIRA", "CARCHI / MONTUFAR", "CARCHI / ESPEJO", "CARCHI / LA MANA",
+    "COTOPAXI / SALCEDO", "COTOPAXI / SIGCHOS", "COTOPAXI / PUJILI",
+    "COTOPAXI / SAQUISILI", "COTOPAXI / PANGUA", "COTOPAXI / LA MANA",
+    "COTOPAXI / LATACUNGA", "CHIMBORAZO / PALLATANGA", "CHIMBORAZO / ALAUSI",
+    "CHIMBORAZO / CHUNCHI", "CHIMBORAZO / GUAMOTE", "CHIMBORAZO / CUMANDA",
+    "CHIMBORAZO / CHAMBO", "CHIMBORAZO / GUANO", "CHIMBORAZO / RIOBAMBA",
+    "CHIMBORAZO / PENIPE", "CHIMBORAZO / COLTA", "EL ORO / PORTOVELO",
+    "EL ORO / CHILLA", "EL ORO / PIÑAS", "EL ORO / MARCABELI", "EL ORO / HUAQUILLAS",
+    "EL ORO / ATAHUALPA", "EL ORO / EL GUABO", "EL ORO / ZARUMA", "EL ORO / MACHALA",
+    "EL ORO / BALSAS", "EL ORO / SANTA ROSA", "EL ORO / PASAJE", "EL ORO / ARENILLAS",
+    "EL ORO / LAS LAJAS", "ESMERALDAS / SAN LORENZO", "ESMERALDAS / QUININDE",
+    "ESMERALDAS / ATACAMES", "ESMERALDAS / RIO VERDE", "ESMERALDAS / MUISNE",
+    "ESMERALDAS / ELOY ALFARO", "ESMERALDAS / ESMERALDAS", "GUAYAS / BALAO",
+    "GUAYAS / NARANJAL", "GUAYAS / SALITRE (URBINA JADO)", "GUAYAS / SAN JACINTO DE YAGUACHI",
+    "GUAYAS / DAULE", "GUAYAS / ALFREDO BAQUERIZO MORENO", "GUAYAS / BALZAR",
+    "GUAYAS / DURAN", "GUAYAS / MILAGRO", "GUAYAS / ISIDRO AYORA", "GUAYAS / COLIMES",
+    "GUAYAS / NARANJITO", "GUAYAS / CORONEL MARCELINO MARIDUEÑA", "GUAYAS / EL TRIUNFO",
+    "GUAYAS / EL EMPALME", "GUAYAS / PEDRO CARBO", "GUAYAS / NOBOL",
+    "GUAYAS / LOMAS DE SARGENTILLO", "GUAYAS / PALESTINA", "GUAYAS / SIMON BOLIVAR",
+    "GUAYAS / PLAYAS", "GUAYAS / SANTA LUCIA", "GUAYAS / GUAYAQUIL",
+    "GUAYAS / SAMBORONDON", "GUAYAS / GENERAL ANTONIO ELIZALDE",
+    "IMBABURA / SAN MIGUEL DE URCUQUI", "IMBABURA / COTACACHI", "IMBABURA / IBARRA",
+    "IMBABURA / PIMAMPIRO", "IMBABURA / ANTONIO ANTE", "IMBABURA / OTAVALO",
+    "LOJA / CELICA", "LOJA / MACARA", "LOJA / SOZORANGA", "LOJA / SARAGURO",
+    "LOJA / OLMEDO", "LOJA / CALVAS", "LOJA / CATAMAYO", "LOJA / ESPINDOLA",
+    "LOJA / CHAGUARPAMBA", "LOJA / PINDAL", "LOJA / LOJA", "LOJA / GONZANAMA",
+    "LOJA / ZAPOTILLO", "LOJA / PUYANGO", "LOJA / QUILANGA", "LOJA / PALTAS",
+    "LOS RIOS / PUEBLO VIEJO", "LOS RIOS / BABA", "LOS RIOS / BUENA FE",
+    "LOS RIOS / BABAHOYO", "LOS RIOS / MONTALVO", "LOS RIOS / VINCES",
+    "LOS RIOS / QUEVEDO", "LOS RIOS / URDANETA", "LOS RIOS / VENTANAS",
+    "LOS RIOS / VALENCIA", "LOS RIOS / QUINSALOMA", "LOS RIOS / MOCACHE",
+    "LOS RIOS / PALENQUE", "MANABI / PAJAN", "MANABI / SUCRE", "MANABI / EL CARMEN",
+    "MANABI / JUNIN", "MANABI / SAN VICENTE", "MANABI / JARAMIJO",
+    "MANABI / PEDERNALES", "MANABI / PUERTO LOPEZ", "MANABI / ROCAFUERTE",
+    "MANABI / PICHINCHA", "MANABI / 24 DE MAYO", "MANABI / PORTOVIEJO",
+    "MANABI / MONTECRISTI", "MANABI / BOLIVAR", "MANABI / JAMA", "MANABI / TOSAGUA",
+    "MANABI / OLMEDO", "MANABI / SANTA ANA", "MANABI / CHONE", "MANABI / JIPIJAPA",
+    "MANABI / FLAVIO ALFARO", "MANABI / MANTA", "MORONA SANTIAGO / HUAMBOYA",
+    "MORONA SANTIAGO / MORONA", "MORONA SANTIAGO / SANTIAGO",
+    "MORONA SANTIAGO / SAN JUAN BOSCO", "MORONA SANTIAGO / SUCUA",
+    "MORONA SANTIAGO / TAISHA", "MORONA SANTIAGO / GUALAQUIZA",
+    "MORONA SANTIAGO / TIWINTZA", "MORONA SANTIAGO / PABLO VI",
+    "MORONA SANTIAGO / PALORA", "MORONA SANTIAGO / LIMON INDANZA",
+    "MORONA SANTIAGO / LOGROÑO", "NAPO / ARCHIDONA", "NAPO / TENA",
+    "NAPO / CARLOS JULIO AROSEMENA", "NAPO / QUIJOS", "NAPO / EL CHACO",
+    "ORELLANA / AGUARICO", "ORELLANA / ORELLANA", "ORELLANA / LORETO",
+    "ORELLANA / LA JOYA DE LOS SACHAS", "PASTAZA / ARAJUNO", "PASTAZA / MERA",
+    "PASTAZA / SANTA CLARA", "PASTAZA / PASTAZA", "PICHINCHA / QUITO",
+    "PICHINCHA / MEJIA", "PICHINCHA / RUMIÑAHUI", "PICHINCHA / SAN MIGUEL DE LOS BANCOS",
+    "PICHINCHA / CAYAMBE", "PICHINCHA / PEDRO VICENTE MALDONADO",
+    "PICHINCHA / PEDRO MONCAYO", "PICHINCHA / PUERTO QUITO", "SANTA ELENA / SALINAS",
+    "SANTA ELENA / SANTA ELENA", "SANTA ELENA / LIBERTAD", "SANTO DOMINGO / LA CONCORDIA",
+    "SANTO DOMINGO / SANTO DOMINGO DE LOS TSACHILAS", "SUCUMBIOS / CUYABENO",
+    "SUCUMBIOS / SHUSHUFINDI", "SUCUMBIOS / PUTUMAYO", "SUCUMBIOS / CASCALES",
+    "SUCUMBIOS / LAGO AGRIO", "SUCUMBIOS / SUCUMBIOS", "SUCUMBIOS / GONZALO PIZARRO",
+    "TUNGURAHUA / CEVALLOS", "TUNGURAHUA / PATATE", "TUNGURAHUA / AMBATO",
+    "TUNGURAHUA / QUERO", "TUNGURAHUA / SANTIAGO DE PILLARO", "TUNGURAHUA / BAÑOS",
+    "TUNGURAHUA / TISALEO", "TUNGURAHUA / MOCHA", "TUNGURAHUA / SAN PEDRO DE PELILEO",
+    "ZAMORA CHINCHIPE / ZAMORA", "ZAMORA CHINCHIPE / YACUAMBI",
+    "ZAMORA CHINCHIPE / EL PANGUI", "ZAMORA CHINCHIPE / CENTINELA DEL CONDOR",
+    "ZAMORA CHINCHIPE / YANTZAZA", "ZAMORA CHINCHIPE / PAQUISHA",
+    "ZAMORA CHINCHIPE / PALANDA", "ZAMORA CHINCHIPE / CHINCHIPE",
+    "ZAMORA CHINCHIPE / NANGARITZA", "ZONAS NO DELIMITADAS / MANGA DEL CURA",
+    "ZONAS NO DELIMITADAS / LAS GOLONDRINAS", "ZONAS NO DELIMITADAS / EL PIEDRERO"
+  ];
 
   // Dynamic GAD List based on selected level (for Autoridad and Funcionario)
   opcionesGAD = computed(() => {
@@ -143,6 +259,16 @@ export class RegisterPage {
 
     if (!nivelId) return [];
 
+    // Determinar si el nivel seleccionado es MUNICIPAL (por ID o por nombre)
+    const selectedEntidad = this.entidadesGads().find((e: any) => e.id === nivelId);
+    const esMunicipal = (selectedEntidad?.nombre || '').toUpperCase().includes('MUNICIPAL') || 
+                       nivelId === resIds.nivelMunicipal;
+
+    // Para nivel Municipal, usar la lista autorizada
+    if (esMunicipal) {
+      return this.munisAutorizados.map(name => ({ value: name, label: name }));
+    }
+
     // Apply Jurisdiction filters for Territorial GADs
     const provId = this.laborProvinciaId();
     const cantId = this.laborCantonId();
@@ -151,17 +277,15 @@ export class RegisterPage {
       return (this.provincias() || []).map(p => ({ value: p.nombre, label: p.nombre }));
     }
 
-    if (nivelId === resIds.nivelMunicipal) {
-      let munis = (this.instituciones() || []).filter(i => i.tipoInstitucionId === resIds.nivelMunicipal);
-      if (provId) munis = munis.filter(i => i.id_provincia === provId);
-      return munis.map(i => ({ value: i.nombre, label: i.nombre }));
-    }
-
     if (nivelId === resIds.nivelParroquial) {
       let parrs = (this.gadParroquias() || []);
       if (provId) parrs = parrs.filter((p: any) => p.id_provincia === provId);
       if (cantId) parrs = parrs.filter((p: any) => p.id_canton === cantId);
-      return parrs.map((p: any) => ({ value: p.nombre, label: p.nombre }));
+      return parrs.map((p: any) => {
+        const prov = this.provincias().find(pr => pr.id === p.id_provincia);
+        const prefix = prov ? `${prov.nombre.toUpperCase()} / ` : '';
+        return { value: p.nombre, label: `${prefix}${p.nombre.toUpperCase()}` };
+      }).sort((a, b) => a.label.localeCompare(b.label, 'es'));
     }
 
     if (nivelId === resIds.nivelMancomunidad) {
@@ -189,7 +313,6 @@ export class RegisterPage {
 
     // Default: try to filter by the entity level ID
     let filtered = (this.instituciones() || []).filter(i => i.tipoInstitucionId === nivelId);
-    if (provId) filtered = filtered.filter(i => i.id_provincia === provId);
     
     return filtered
         .map(i => ({ value: i.nombre, label: i.nombre }))
@@ -197,27 +320,7 @@ export class RegisterPage {
   });
 
   labelGAD = computed(() => {
-    const labor = this.laborData();
-    const tpid = labor.tipoParticipanteId;
-    const resIds = this.state.resolvedIds();
-    const nivelId = tpid === resIds.tipoAutoridad 
-      ? labor.autoridad?.nivelgobierno 
-      : labor.funcionarioGad?.nivelgobierno;
-
-    if (!nivelId) return 'GAD *';
-
-    const entidad = this.entidades().find(e => e.id === nivelId);
-    const nombre = (entidad?.nombre_entidad || entidad?.nombre || '').toUpperCase();
-
-    if (nombre.includes('PROVINCIAL')) return 'Provincia *';
-    if (nombre.includes('MUNICIPAL')) return 'Municipio / GAD Municipal *';
-    if (nombre.includes('PARROQUIAL')) return 'Parroquia / GAD Parroquial *';
-    if (nombre.includes('MANCOMUNIDAD')) return 'Mancomunidad / Consorcio *';
-    if (nombre.includes('RÉGIMEN ESPECIAL')) return 'Régimen Especial *';
-    if (nombre.includes('CENTRAL')) return 'Entidad de Gobierno Central *';
-    if (nombre.includes('OTRAS')) return 'Institución *';
-    
-    return 'Entidad / Institución *';
+    return 'GAD *';
   });
 
   // Local UI state
@@ -233,26 +336,6 @@ export class RegisterPage {
     const provId = this.laborProvinciaId();
     if (!provId) return [];
     return this.cantones().filter(c => c.Id_Provincia === provId);
-  });
-
-  // Simplified list for GAD roles
-  entidadesGads = computed(() => {
-    const all = this.entidades() || [];
-    const preferredOrder = [
-      'MANCOMUNIDADES Y CONSORCIOS',
-      'MUNICIPAL',
-      'OTRO',
-      'PARROQUIAL RURAL',
-      'PROVINCIAL'
-    ];
-
-    return all
-      .filter(e => preferredOrder.includes(e.nombre_entidad || e.nombre))
-      .sort((a, b) => {
-        const indexA = preferredOrder.indexOf(a.nombre_entidad || a.nombre);
-        const indexB = preferredOrder.indexOf(b.nombre_entidad || b.nombre);
-        return indexA - indexB;
-      });
   });
 
   cargosAutoridad = computed(() => {
@@ -392,7 +475,7 @@ export class RegisterPage {
       this.instituciones.set(institucionesResp || []);
       this.educacionBasica.set(educacionBasicaResp || []);
       this.gadParroquias.set(gadParroquiasResp || []);
-      // this.tiposInstitucion.set(tiposInstitucionResp || []); // No longer needed as it's computed
+      this.tiposInstitucion.set(tiposInstitucionResp || []);
 
       // Resolve Dynamic IDs
       const findIdByCodigo = (list: any[], codigo: string, fallback: number) => {
@@ -401,7 +484,10 @@ export class RegisterPage {
       };
 
       const findIdByNombre = (list: any[], nombre: string, fallback: number) => {
-        const match = list.find((i: any) => i.nombre === nombre);
+        const match = list.find((i: any) => 
+          (i.nombre || '').toUpperCase() === nombre.toUpperCase() || 
+          (i.nombre_entidad || '').toUpperCase() === nombre.toUpperCase()
+        );
         return match ? match.id : fallback;
       };
 
@@ -410,11 +496,11 @@ export class RegisterPage {
         tipoCiudadano: findIdByCodigo(tiposParticipanteResp, 'CIUDADANO', TipoParticipanteEnum.CIUDADANO),
         tipoFuncionario: findIdByCodigo(tiposParticipanteResp, 'FUNCIONARIO_GAD', TipoParticipanteEnum.FUNCIONARIO_GAD),
         tipoInstitucion: findIdByCodigo(tiposParticipanteResp, 'INSTITUCION', TipoParticipanteEnum.INSTITUCION),
-        nivelProvincial: findIdByCodigo(entidadesResp, 'NIVEL_PROVINCIAL', NivelGobiernoEnum.PROVINCIAL),
-        nivelMunicipal: findIdByCodigo(entidadesResp, 'NIVEL_MUNICIPAL', NivelGobiernoEnum.MUNICIPAL),
-        nivelParroquial: findIdByCodigo(entidadesResp, 'NIVEL_PARROQUIAL', NivelGobiernoEnum.PARROQUIAL),
-        nivelMancomunidad: findIdByCodigo(entidadesResp, 'MANCOMUNIDADES', NivelGobiernoEnum.MANCOMUNIDADES),
-        nivelRegimenEspecial: findIdByCodigo(entidadesResp, 'REGIMEN_ESPECIAL', NivelGobiernoEnum.REGIMEN_ESPECIAL),
+        nivelProvincial: findIdByCodigo(entidadesResp, 'NIVEL_PROVINCIAL', findIdByNombre(entidadesResp, 'Provincial', NivelGobiernoEnum.PROVINCIAL)),
+        nivelMunicipal: findIdByCodigo(entidadesResp, 'NIVEL_MUNICIPAL', findIdByNombre(entidadesResp, 'Municipal', NivelGobiernoEnum.MUNICIPAL)),
+        nivelParroquial: findIdByCodigo(entidadesResp, 'NIVEL_PARROQUIAL', findIdByNombre(entidadesResp, 'Parroquial', NivelGobiernoEnum.PARROQUIAL)),
+        nivelMancomunidad: findIdByCodigo(entidadesResp, 'MANCOMUNIDADES', findIdByNombre(entidadesResp, 'Mancomunidad', NivelGobiernoEnum.MANCOMUNIDADES)),
+        nivelRegimenEspecial: findIdByCodigo(entidadesResp, 'REGIMEN_ESPECIAL', findIdByNombre(entidadesResp, 'Regimen Especial', NivelGobiernoEnum.REGIMEN_ESPECIAL)),
       };
 
       this.state.setResolvedIds(newResolvedIds);
