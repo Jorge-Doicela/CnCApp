@@ -47,7 +47,7 @@ fi
 
 # --- 3. DESPLIEGUE CON DOCKER ---
 echo "📦 Levantando servicios con Docker Compose..."
-docker-compose up -d --build
+docker compose up -d --build
 
 echo "⏳ Esperando a que el backend esté listo para las migraciones..."
 sleep 10
