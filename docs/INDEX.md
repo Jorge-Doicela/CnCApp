@@ -37,6 +37,7 @@ Esta documentación está organizada por temas para facilitar su consulta:
 | [Despliegue CNC](DESPLIEGUE_CNC.md) | Guía específica para servidor del CNC | SysAdmins, DevOps |
 | [Configuración SMTP](CONFIGURACION_SMTP.md) | Guía para Office 365 institucional | SysAdmins |
 | [Publicación Tiendas](PUBLICACION_TIENDAS.md) | Requisitos Play Store y App Store | Gestión, Desarrolladores |
+| [Generación de APK](GENERACION_APK.md) | Guía para crear y firmar la App | Desarrolladores |
 
 ### Colaboración
 

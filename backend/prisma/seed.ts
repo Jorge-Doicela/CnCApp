@@ -370,9 +370,10 @@ async function main() {
         for (const u of usersData) {
             const hashedPasswordForUser = await bcrypt.hash(u.password, SALT_ROUNDS);
             await prisma.usuario.upsert({
-                where: { email: u.email },
+                where: { ci: u.ci },
                 update: {
                     rolId: u.roleId,
+                    email: u.email,
                     estado: 1
                 },
                 create: {

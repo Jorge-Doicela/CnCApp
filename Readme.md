@@ -176,6 +176,7 @@ Toda la documentación técnica está en [`/docs`](docs/):
 |-----------|-------------|
 | **[Despliegue CNC](docs/DESPLIEGUE_CNC.md)** | Guía para servidor 192.168.1.223 |
 | **[Publicación Tiendas](docs/PUBLICACION_TIENDAS.md)** | Requisitos Play Store y App Store |
+| **[Generación de APK](docs/GENERACION_APK.md)** | Manual para crear APK y firmar con licencia |
 | **[Configuración SMTP](docs/CONFIGURACION_SMTP.md)** | Guía para Office 365 |
 | **[Sincronización IP](docs/DEPLOY_GUIDE.md)** | Uso de config.json para cambios de red |
 | **[Catálogos Registro](docs/LISTAS_FORMULARIO_REGISTRO.md)** | IDs para formularios de registro |
