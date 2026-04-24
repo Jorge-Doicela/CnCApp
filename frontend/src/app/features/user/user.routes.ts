@@ -36,5 +36,10 @@ export const USER_ROUTES: Routes = [
         path: 'confirmar-asistencia',
         loadComponent: () => import('./confirmar-asistencia-qr/confirmar-asistencia-qr.page').then(m => m.ConfirmarAsistenciaQrPage),
         canActivate: [authGuard]
+    },
+    {
+        path: 'encuesta',
+        loadComponent: () => import('./encuesta/encuesta.page').then(m => m.EncuestaPage),
+        canActivate: [authGuard]
     }
 ];

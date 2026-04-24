@@ -26,6 +26,7 @@ import competenciaRoutes from './infrastructure/web/routes/competencia.routes';
 import { catalogoRoutes } from './infrastructure/web/routes/catalogo.routes';
 import { gradoOcupacionalRoutes } from './infrastructure/web/routes/grado-ocupacional.routes';
 import cronRoutes from './infrastructure/web/routes/cron.routes';
+import encuestaRoutes from './infrastructure/web/routes/encuesta.routes';
 
 // Importar middleware
 import { errorHandler } from './infrastructure/web/middleware/error.middleware';
@@ -168,6 +169,7 @@ app.use('/api/reportes', reportesRoutes);
 app.use('/api/plantillas', plantillaRoutes);
 app.use('/api/usuarios-capacitaciones', usuarioCapacitacionRoutes);
 app.use('/api/competencias', competenciaRoutes);
+app.use('/api/encuestas', encuestaRoutes);
 app.use('/api/cron', cronRoutes);
 
 // ============================================

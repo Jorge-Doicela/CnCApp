@@ -12,6 +12,7 @@ import { PrismaEntidadRepository } from '../infrastructure/database/prisma-entid
 import { PrismaReportesRepository } from '../infrastructure/database/repositories/reportes/prisma-reportes.repository';
 import { PrismaParroquiaRepository } from '../infrastructure/database/repositories/ubicacion/prisma-parroquia.repository';
 import { PrismaCompetenciaRepository } from '../infrastructure/database/repositories/competencia/prisma-competencia.repository';
+import { PrismaEncuestaRepository } from '../infrastructure/database/repositories/encuesta/prisma-encuesta.repository';
 
 import { RegisterUserUseCase } from '../application/auth/use-cases/register-user.use-case';
 import { LoginUserUseCase } from '../application/auth/use-cases/login-user.use-case';
@@ -82,6 +83,7 @@ import { GetInscritosUseCase } from '../application/usuario-capacitacion/use-cas
 import { InscribirUsuarioUseCase } from '../application/usuario-capacitacion/use-cases/inscribir-usuario.use-case';
 import { EliminarInscripcionUseCase } from '../application/usuario-capacitacion/use-cases/eliminar-inscripcion.use-case';
 import { ActualizarAsistenciaUseCase } from '../application/usuario-capacitacion/use-cases/actualizar-asistencia.use-case';
+import { SubmitEncuestaUseCase } from '../application/encuesta/use-cases/submit-encuesta.use-case';
 
 // Import Controllers
 import { AuthController } from '../infrastructure/web/controllers/auth.controller';
@@ -94,6 +96,7 @@ import { RolController } from '../infrastructure/web/controllers/rol.controller'
 import { EntidadController } from '../infrastructure/web/controllers/entidad.controller';
 import { CompetenciaController } from '../infrastructure/web/controllers/competencia.controller';
 import { InstitucionController } from '../infrastructure/web/controllers/institucion.controller';
+import { EncuestaController } from '../infrastructure/web/controllers/encuesta.controller';
 import { UsuarioCapacitacionController } from '../infrastructure/web/controllers/usuario-capacitacion.controller';
 import { PrismaUsuarioCapacitacionRepository } from '../infrastructure/repositories/usuario-capacitacion.repository.impl';
 
@@ -135,6 +138,7 @@ container.register('CertificadoRepository', { useClass: PrismaCertificadoReposit
 container.register('InstitucionRepository', { useClass: PrismaInstitucionRepository });
 container.register('ReportesRepository', { useClass: PrismaReportesRepository });
 container.register('CompetenciaRepository', { useClass: PrismaCompetenciaRepository });
+container.register('EncuestaRepository', { useClass: PrismaEncuestaRepository });
 
 // Ubicacion
 container.register('ProvinciaRepository', { useClass: PrismaProvinciaRepository });
@@ -209,6 +213,7 @@ container.registerSingleton(GetCompetenciaByIdUseCase);
 container.registerSingleton(CreateCompetenciaUseCase);
 container.registerSingleton(UpdateCompetenciaUseCase);
 container.registerSingleton(DeleteCompetenciaUseCase);
+container.registerSingleton(SubmitEncuestaUseCase);
 
 // Institucion Use Cases (tiene campo 'tipo' extra, mantiene su propio servicio)
 container.registerSingleton(GetAllInstitucionesUseCase);
@@ -234,6 +239,7 @@ container.registerSingleton(ReportesController);
 container.registerSingleton(UbicacionController);
 container.registerSingleton(InstitucionController);
 container.registerSingleton(CompetenciaController);
+container.registerSingleton(EncuestaController);
 // Nota: CargoController y GradoOcupacionalController son instancias directas
 // gestionadas en simple-entities.config.ts (no necesitan tsyringe)
 

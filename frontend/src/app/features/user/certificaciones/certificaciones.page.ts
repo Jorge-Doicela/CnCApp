@@ -12,8 +12,10 @@ import { addIcons } from 'ionicons';
 import {
     cloudDownloadOutline, eyeOutline, arrowBackOutline,
     ribbonOutline, ribbon, checkmarkCircle,
-    calendarOutline, qrCodeOutline, chevronForward
+    calendarOutline, qrCodeOutline, chevronForward,
+    informationCircleOutline
 } from 'ionicons/icons';
+import { EncuestaService } from '../../../core/services/encuesta.service';
 
 
 
@@ -86,11 +88,22 @@ import {
             </div>
 
             <div class="preview-actions">
-              <ion-button expand="block" (click)="generarPDF('download')" class="main-btn">
+              <!-- Survey Block -->
+              <div *ngIf="encuestaPendiente" class="survey-block">
+                <div class="survey-notice">
+                  <ion-icon name="information-circle-outline"></ion-icon>
+                  <p>Para descargar su certificado, primero debe completar la encuesta de satisfacción.</p>
+                </div>
+                <ion-button expand="block" color="warning" (click)="irAEncuesta()" class="survey-btn">
+                  Completar Encuesta de Satisfacción
+                </ion-button>
+              </div>
+
+              <ion-button expand="block" (click)="generarPDF('download')" class="main-btn" [disabled]="encuestaPendiente">
                 <ion-icon name="cloud-download-outline" slot="start"></ion-icon>
                 Descargar Documento
               </ion-button>
-              <ion-button expand="block" fill="outline" (click)="generarPDF('open')" class="sec-btn">
+              <ion-button expand="block" fill="outline" (click)="generarPDF('open')" class="sec-btn" [disabled]="encuestaPendiente">
                 <ion-icon name="eye-outline" slot="start"></ion-icon>
                 Ver en Pantalla Completa
               </ion-button>
@@ -245,6 +258,25 @@ import {
         gap: 12px;
         margin-top: 20px;
 
+        .survey-block {
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            padding: 16px;
+            border-radius: 16px;
+            margin-bottom: 8px;
+            
+            .survey-notice {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                color: #92400e;
+                margin-bottom: 12px;
+                ion-icon { font-size: 24px; }
+                p { font-size: 0.85rem; font-weight: 500; margin: 0; line-height: 1.4; }
+            }
+            .survey-btn { --border-radius: 12px; font-weight: 700; }
+        }
+
         .main-btn { --background: #0f172a; --border-radius: 14px; --height: 52px; font-weight: 800; }
         .sec-btn { --border-radius: 14px; --height: 52px; font-weight: 800; }
     }
@@ -366,9 +398,13 @@ export class CertificacionesPage implements OnInit {
     private router = inject(Router);
     private cdr = inject(ChangeDetectorRef);
     private toastController = inject(ToastController);
+    private encuestaService = inject(EncuestaService);
+
+    encuestaPendiente = false;
+    encuestaId: number | null = null;
 
     constructor() {
-        addIcons({ cloudDownloadOutline, eyeOutline, arrowBackOutline, ribbonOutline, ribbon, checkmarkCircle, calendarOutline, qrCodeOutline, chevronForward });
+        addIcons({ cloudDownloadOutline, eyeOutline, arrowBackOutline, ribbonOutline, ribbon, checkmarkCircle, calendarOutline, qrCodeOutline, chevronForward, informationCircleOutline });
     }
 
     ngOnInit() {
@@ -431,6 +467,9 @@ export class CertificacionesPage implements OnInit {
                 const baseUrl = environment.apiUrl.replace('/api', '');
                 this.pdfUrl = `${baseUrl}${cert.pdfUrl}`;
                 console.log('[CERTIFICADOS] Certificado encontrado:', cert.id);
+
+                // Verificar encuesta
+                await this.verificarEncuesta(idCapacitacion);
             } else {
                 console.warn('[CERTIFICADOS] No se encontró certificado para ID:', idCapacitacion);
                 this.certificadoData = null;
@@ -493,6 +532,33 @@ export class CertificacionesPage implements OnInit {
         this.plantillaData = null;
         this.router.navigate(['/ver-certificaciones'], { queryParams: { idCapacitacion: null } });
         this.cdr.detectChanges();
+    }
+
+    async verificarEncuesta(idCapacitacion: number) {
+        try {
+            const encuesta = await firstValueFrom(this.encuestaService.getEncuestaByCapacitacion(idCapacitacion)) as any;
+            if (encuesta) {
+                this.encuestaId = encuesta.id;
+                const res = await firstValueFrom(this.encuestaService.checkIfResponded(encuesta.id)) as { responded: boolean };
+                this.encuestaPendiente = !res.responded;
+            } else {
+                this.encuestaPendiente = false;
+                this.encuestaId = null;
+            }
+        } catch (e) {
+            this.encuestaPendiente = false;
+            this.encuestaId = null;
+        }
+        this.cdr.detectChanges();
+    }
+
+    irAEncuesta() {
+        this.router.navigate(['/encuesta'], {
+            queryParams: {
+                capacitacionId: this.idCapacitacion,
+                encuestaId: this.encuestaId
+            }
+        });
     }
 
     private async mostrarToast(message: string, color: 'primary' | 'danger' = 'primary') {

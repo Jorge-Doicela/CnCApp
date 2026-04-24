@@ -1,0 +1,148 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Encuesta de Satisfacción</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <div class="survey-container">
+    <div class="survey-header">
+      <h2>Encuesta de satisfacción: Modelos de gestión de las competencias y funciones descentralizadas - Riobamba, 16 de abril de 2026</h2>
+      <p class="intro-text">
+        El objetivo de ésta encuesta es conocer su opinión sobre el servicio recibido para así mejorar los procesos de fortalecimiento institucional que ejecuta el CNC. 
+        La información proporcionada es confidencial y tiene el único objetivo de mejorar nuestra gestión. El CNC será responsable del tratamiento de los datos personales.
+      </p>
+    </div>
+
+    <form (ngSubmit)="onSubmit()">
+      <!-- SECTION 1: NIVEL DE GOBIERNO -->
+      <div class="section-card">
+        <ion-list-header>
+          <ion-label>Nivel de gobierno de su institución *</ion-label>
+        </ion-list-header>
+        <ion-radio-group [(ngModel)]="formData.nivelGobierno" name="nivelGobierno" required>
+          <ion-item lines="none" class="custom-radio">
+            <ion-radio value="Provincial">Provincial</ion-radio>
+          </ion-item>
+          <ion-item lines="none" class="custom-radio">
+            <ion-radio value="Municipal">Municipal</ion-radio>
+          </ion-item>
+          <ion-item lines="none" class="custom-radio">
+            <ion-radio value="Parroquial rural">Parroquial rural</ion-radio>
+          </ion-item>
+          <ion-item lines="none" class="custom-radio">
+            <ion-radio value="Gobierno Central">Gobierno Central</ion-radio>
+          </ion-item>
+          <ion-item lines="none" class="custom-radio">
+            <ion-radio value="Otras Instituciones del Estado">Otras Instituciones del Estado</ion-radio>
+          </ion-item>
+          <ion-item lines="none" class="custom-radio">
+            <ion-radio value="Otras (ciudadanía, particulares)">Otras (ciudadanía, particulares)</ion-radio>
+          </ion-item>
+        </ion-radio-group>
+      </div>
+
+      <!-- SECTION 2: CRITERIOS DE SATISFACCIÓN (Matrix) -->
+      <div class="section-card">
+        <ion-list-header>
+          <ion-label>Criterios de satisfacción sobre la capacitación *</ion-label>
+        </ion-list-header>
+        <div class="matrix-container">
+          <div class="matrix-legend">
+            <span>1: Nada satisfecho</span>
+            <span>2: Poco satisfecho</span>
+            <span>3: Satisfecho</span>
+            <span>4: Totalmente satisfecho</span>
+          </div>
+
+          <div class="matrix-row" *ngFor="let item of satisfaccionItems">
+            <div class="matrix-question">{{ item.label }}</div>
+            <div class="matrix-options">
+              <ion-radio-group [(ngModel)]="formData[item.key]" [name]="item.key">
+                <div class="radio-buttons">
+                  <ion-radio [value]="1" labelPlacement="stacked">1</ion-radio>
+                  <ion-radio [value]="2" labelPlacement="stacked">2</ion-radio>
+                  <ion-radio [value]="3" labelPlacement="stacked">3</ion-radio>
+                  <ion-radio [value]="4" labelPlacement="stacked">4</ion-radio>
+                </div>
+              </ion-radio-group>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 3: IMPLEMENTACIÓN (Matrix) -->
+      <div class="section-card">
+        <ion-list-header>
+          <ion-label>Implementación del conocimiento *</ion-label>
+        </ion-list-header>
+        <div class="matrix-container">
+          <div class="matrix-legend">
+            <span>1: Nada probable</span>
+            <span>2: Poco probable</span>
+            <span>3: Muy probable</span>
+            <span>4: Totalmente probable</span>
+          </div>
+
+          <div class="matrix-row" *ngFor="let item of implementacionItems">
+            <div class="matrix-question">{{ item.label }}</div>
+            <div class="matrix-options">
+              <ion-radio-group [(ngModel)]="formData[item.key]" [name]="item.key">
+                <div class="radio-buttons">
+                  <ion-radio [value]="1" labelPlacement="stacked">1</ion-radio>
+                  <ion-radio [value]="2" labelPlacement="stacked">2</ion-radio>
+                  <ion-radio [value]="3" labelPlacement="stacked">3</ion-radio>
+                  <ion-radio [value]="4" labelPlacement="stacked">4</ion-radio>
+                </div>
+              </ion-radio-group>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 4: CAUSAS LIMITANTES -->
+      <div class="section-card" *ngIf="isLowProbability()">
+        <ion-list-header>
+          <ion-label>En caso de que sea nada o poco probable aplicar estos conocimientos, por favor señale la causa que limitaría esa aplicación:</ion-label>
+        </ion-list-header>
+        <ion-item lines="none">
+          <ion-checkbox [(ngModel)]="causas.apoyo" name="causa1">Limitado apoyo institucional para implementarlos.</ion-checkbox>
+        </ion-item>
+        <ion-item lines="none">
+          <ion-checkbox [(ngModel)]="causas.recursos" name="causa2">Los recursos (tecnológicos, humanos, administrativos, financieros) son insuficientes.</ion-checkbox>
+        </ion-item>
+        <ion-item lines="none">
+          <ion-checkbox [(ngModel)]="causas.rotacion" name="causa3">El personal capacitado tiene alta rotación en la institución.</ion-checkbox>
+        </ion-item>
+      </div>
+
+      <!-- SECTION 5: RECOMENDACIONES -->
+      <div class="section-card">
+        <ion-list-header>
+          <ion-label>¿Cuáles serían sus recomendaciones para mejorar la capacitación recibida? *</ion-label>
+        </ion-list-header>
+        <ion-textarea [(ngModel)]="formData.recomendaciones" name="recomendaciones" rows="4" placeholder="Escriba aquí..." required></ion-textarea>
+      </div>
+
+      <!-- SECTION 6: OTROS TEMAS -->
+      <div class="section-card">
+        <ion-list-header>
+          <ion-label>¿Qué otros temas de capacitación le gustaría recibir por parte del CNC? *</ion-label>
+        </ion-list-header>
+        <ion-textarea [(ngModel)]="formData.temasInteres" name="temasInteres" rows="4" placeholder="Escriba aquí..." required></ion-textarea>
+      </div>
+
+      <div class="footer-note">
+        <p>¡Muchas gracias por su colaboración!</p>
+      </div>
+
+      <ion-button expand="block" type="submit" [disabled]="!isFormValid() || submitting" class="submit-btn">
+        <ion-spinner *ngIf="submitting" name="crescent"></ion-spinner>
+        <span *ngIf="!submitting">Enviar Encuesta</span>
+      </ion-button>
+    </form>
+  </div>
+</ion-content>

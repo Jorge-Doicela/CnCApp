@@ -232,9 +232,9 @@ export class RegisterPage {
         tipoCiudadano: findIdByCodigo(tiposParticipanteResp, 'CIUDADANO', TipoParticipanteEnum.CIUDADANO),
         tipoFuncionario: findIdByCodigo(tiposParticipanteResp, 'FUNCIONARIO_GAD', TipoParticipanteEnum.FUNCIONARIO_GAD),
         tipoInstitucion: findIdByCodigo(tiposParticipanteResp, 'INSTITUCION', TipoParticipanteEnum.INSTITUCION),
-        nivelProvincial: findIdByNombre(entidadesResp, 'INSTITUCIÓN — NIVEL PROVINCIAL', NivelGobiernoEnum.PROVINCIAL),
-        nivelMunicipal: findIdByNombre(entidadesResp, 'INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)', NivelGobiernoEnum.MUNICIPAL),
-        nivelParroquial: findIdByNombre(entidadesResp, 'INSTITUCIÓN — NIVEL PARROQUIAL RURAL', NivelGobiernoEnum.PARROQUIAL),
+        nivelProvincial: findIdByNombre(entidadesResp, 'PROVINCIAL', NivelGobiernoEnum.PROVINCIAL),
+        nivelMunicipal: findIdByNombre(entidadesResp, 'MUNICIPAL', NivelGobiernoEnum.MUNICIPAL),
+        nivelParroquial: findIdByNombre(entidadesResp, 'PARROQUIAL RURAL', NivelGobiernoEnum.PARROQUIAL),
         nivelMancomunidad: findIdByNombre(entidadesResp, 'MANCOMUNIDADES Y CONSORCIOS', NivelGobiernoEnum.MANCOMUNIDADES),
         nivelRegimenEspecial: findIdByNombre(entidadesResp, 'RÉGIMEN ESPECIAL', NivelGobiernoEnum.REGIMEN_ESPECIAL),
       };

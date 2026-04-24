@@ -79,6 +79,7 @@ model Usuario {
   tipoParticipante   TipoParticipante?      @relation(fields: [tipoParticipanteId], references: [id])
   tipoInstitucion    TipoInstitucion?       @relation(fields: [tipoInstitucionId], references: [id])
   inscripciones      UsuarioCapacitacion[]
+  respuestasEncuesta EncuestaRespuesta[]
   @@index([createdAt])
   @@index([rolId])
   @@index([entidadId])
@@ -178,12 +179,59 @@ model Capacitacion {
   certificados     Certificado[]
   inscripciones    UsuarioCapacitacion[]
   entidadesEncargadas Entidad[]             @relation("CapacitacionEntidades")
+  encuestas        EncuestaSatisfaction[]
 
   @@index([estado])
   @@index([fechaInicio])
   @@index([fechaFin])
   @@index([createdAt])
   @@map("capacitaciones")
+}
+
+model EncuestaSatisfaction {
+  id               Int      @id @default(autoincrement()) @map("id_encuesta")
+  capacitacionId   Int      @map("id_capacitacion")
+  titulo           String   @map("titulo") @db.VarChar(300)
+  descripcion      String?  @map("descripcion") @db.Text
+  fecha            DateTime @default(now()) @map("fecha")
+  
+  capacitacion     Capacitacion @relation(fields: [capacitacionId], references: [id], onDelete: Cascade)
+  respuestas       EncuestaRespuesta[]
+  
+  @@map("encuestas_satisfaccion")
+}
+
+model EncuestaRespuesta {
+  id               Int      @id @default(autoincrement()) @map("id_respuesta")
+  encuestaId       Int      @map("id_encuesta")
+  usuarioId        Int      @map("id_usuario")
+  
+  nivelGobierno    String?  @map("nivel_gobierno")
+  
+  // Matrix 1: Satisfacción (1-4)
+  satisfaccionObjetivo    Int? @map("satisfaccion_objetivo")
+  satisfaccionMetodologia Int? @map("satisfaccion_metodologia")
+  satisfaccionUtilidad    Int? @map("satisfaccion_utilidad")
+  satisfaccionConocimiento Int? @map("satisfaccion_conocimiento")
+  satisfaccionTiempo      Int? @map("satisfaccion_tiempo")
+  
+  // Matrix 2: Implementación (1-4)
+  probabilidadAplicacion Int? @map("probabilidad_aplicacion")
+  probabilidadFacilitacion Int? @map("probabilidad_facilitacion")
+  
+  // Causas limitantes (JSON o String multilínea)
+  causaLimitacion  String?  @map("causa_limitacion") @db.Text
+  
+  recomendaciones  String?  @map("recomendaciones") @db.Text
+  temasInteres     String?  @map("temas_interes") @db.Text
+  
+  createdAt        DateTime @default(now()) @map("created_at")
+  
+  encuesta         EncuestaSatisfaction @relation(fields: [encuestaId], references: [id], onDelete: Cascade)
+  usuario          Usuario              @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  
+  @@unique([encuestaId, usuarioId])
+  @@map("respuestas_encuesta")
 }
 
 model UsuarioCapacitacion {

@@ -37,18 +37,19 @@ async function safeDeleteMany(label: string, run: () => Promise<unknown>): Promi
 }
 
 const TIPO_INSTITUCION_NOMBRES_SEED = [
-    'INSTITUCIÓN — NIVEL PROVINCIAL',
-    'INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)',
-    'INSTITUCIÓN — NIVEL PARROQUIAL RURAL',
+    'PROVINCIAL',
+    'MUNICIPAL',
+    'PARROQUIAL RURAL',
     'GREMIOS',
-    'INSTITUCIÓN — NIVEL CENTRAL',
+    'GOBIERNO CENTRAL',
+    'OTRAS INSTITUCIONES DEL ESTADO',
     'COOPERANTES',
     'ACADEMIA',
     'EDUCACIÓN GENERAL BÁSICA Y BACHILLERATO',
-    'PRIVADO',
     'CIUDADANÍA',
     'MANCOMUNIDADES Y CONSORCIOS',
     'RÉGIMEN ESPECIAL',
+    'PRIVADO', // Se mantiene por integridad de datos previa
     'PRESENCIAL',
     'VIRTUAL',
     'MUNICIPAL PRESENCIAL Y VIRTUAL'
@@ -208,25 +209,32 @@ async function main() {
             update: { nombre: 'Institución' },
             create: { nombre: 'Institución', codigo: 'INSTITUCION' }
         });
-        await prisma.entidad.createMany({
-            data: [
-                { nombre: 'INSTITUCIÓN — NIVEL PROVINCIAL', codigo: 'NIVEL_PROVINCIAL' },
-                { nombre: 'INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)', codigo: 'NIVEL_MUNICIPAL' },
-                { nombre: 'INSTITUCIÓN — NIVEL PARROQUIAL RURAL', codigo: 'NIVEL_PARROQUIAL' },
-                { nombre: 'GREMIOS', codigo: 'GREMIOS' },
-                { nombre: 'INSTITUCIÓN — NIVEL CENTRAL', codigo: 'NIVEL_CENTRAL' },
-                { nombre: 'COOPERANTES', codigo: 'COOPERANTES' },
-                { nombre: 'ACADEMIA', codigo: 'ACADEMIA' },
-                { nombre: 'EDUCACIÓN GENERAL BÁSICA Y BACHILLERATO', codigo: 'EDUCACION' },
-                { nombre: 'PRIVADO', codigo: 'PRIVADO' },
-                { nombre: 'CIUDADANÍA', codigo: 'CIUDADANIA' },
-                { nombre: 'MANCOMUNIDADES Y CONSORCIOS', codigo: 'MANCOMUNIDADES' },
-                { nombre: 'RÉGIMEN ESPECIAL', codigo: 'REGIMEN_ESPECIAL' },
-                { nombre: 'PRESENCIAL', codigo: 'PRESENCIAL' },
-                { nombre: 'VIRTUAL', codigo: 'VIRTUAL' },
-                { nombre: 'MUNICIPAL PRESENCIAL Y VIRTUAL', codigo: 'MUNICIPAL_HIBRIDO' }
-            ]
-        });
+        const categoriasEntidad = [
+            { nombre: 'PROVINCIAL', codigo: 'NIVEL_PROVINCIAL' },
+            { nombre: 'MUNICIPAL', codigo: 'NIVEL_MUNICIPAL' },
+            { nombre: 'PARROQUIAL RURAL', codigo: 'NIVEL_PARROQUIAL' },
+            { nombre: 'GREMIOS', codigo: 'GREMIOS' },
+            { nombre: 'GOBIERNO CENTRAL', codigo: 'NIVEL_CENTRAL' },
+            { nombre: 'OTRAS INSTITUCIONES DEL ESTADO', codigo: 'OTRAS' },
+            { nombre: 'COOPERANTES', codigo: 'COOPERANTES' },
+            { nombre: 'ACADEMIA', codigo: 'ACADEMIA' },
+            { nombre: 'EDUCACIÓN GENERAL BÁSICA Y BACHILLERATO', codigo: 'EDUCACION' },
+            { nombre: 'PRIVADO', codigo: 'PRIVADO' },
+            { nombre: 'CIUDADANÍA', codigo: 'CIUDADANIA' },
+            { nombre: 'MANCOMUNIDADES Y CONSORCIOS', codigo: 'MANCOMUNIDADES' },
+            { nombre: 'RÉGIMEN ESPECIAL', codigo: 'REGIMEN_ESPECIAL' },
+            { nombre: 'PRESENCIAL', codigo: 'PRESENCIAL' },
+            { nombre: 'VIRTUAL', codigo: 'VIRTUAL' },
+            { nombre: 'MUNICIPAL PRESENCIAL Y VIRTUAL', codigo: 'MUNICIPAL_HIBRIDO' }
+        ];
+
+        for (const cat of categoriasEntidad) {
+            await prisma.entidad.upsert({
+                where: { codigo: cat.codigo },
+                update: { nombre: cat.nombre },
+                create: cat
+            });
+        }
 
         console.log('Seeding Institution Types (upsert)...');
         const tiposInst = await upsertTiposInstitucion(prisma);
@@ -276,11 +284,11 @@ async function main() {
 
         const institucionesArray = [
             ...gremiosList.map(n => ({ nombre: n, tipo: 'GREMIOS', tipoInstitucionId: tid('GREMIOS') })),
-            ...entidadesCentralesList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL CENTRAL', tipoInstitucionId: tid('INSTITUCIÓN — NIVEL CENTRAL') })),
+            ...entidadesCentralesList.map(n => ({ nombre: n, tipo: 'GOBIERNO CENTRAL', tipoInstitucionId: tid('GOBIERNO CENTRAL') })),
             ...otrasInstitucionesEstadoList.map((n) => ({
                 nombre: n,
                 tipo: 'OTRAS INSTITUCIONES DEL ESTADO',
-                tipoInstitucionId: tid('INSTITUCIÓN — NIVEL CENTRAL') // Map to Central for consistency
+                tipoInstitucionId: tid('OTRAS INSTITUCIONES DEL ESTADO')
             })),
             ...cooperantesList.map(n => ({ nombre: n, tipo: 'COOPERANTES', tipoInstitucionId: tid('COOPERANTES') })),
             ...academiaList.map(n => ({ nombre: n, tipo: 'ACADEMIA', tipoInstitucionId: tid('ACADEMIA') })),
@@ -288,15 +296,15 @@ async function main() {
             ...ciudadaniaList.map(n => ({ nombre: n, tipo: 'CIUDADANÍA', tipoInstitucionId: tid('CIUDADANÍA') })),
             ...regimenEspecialList.map(n => ({ nombre: n, tipo: 'RÉGIMEN ESPECIAL', tipoInstitucionId: tid('RÉGIMEN ESPECIAL') })),
             // Municipales additions (también se re-aseguran al final del seed con skipDuplicates)
-            ...bomberosList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)', tipoInstitucionId: tid('INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)') })),
-            ...empresasPublicasList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)', tipoInstitucionId: tid('INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)') })),
-            ...registrosPropiedadList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)', tipoInstitucionId: tid('INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)') })),
-            ...consejosCantonalesList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)', tipoInstitucionId: tid('INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)') })),
-            ...juntasCantonalesList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)', tipoInstitucionId: tid('INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)') })),
+            ...bomberosList.map(n => ({ nombre: n, tipo: 'MUNICIPAL', tipoInstitucionId: tid('MUNICIPAL') })),
+            ...empresasPublicasList.map(n => ({ nombre: n, tipo: 'MUNICIPAL', tipoInstitucionId: tid('MUNICIPAL') })),
+            ...registrosPropiedadList.map(n => ({ nombre: n, tipo: 'MUNICIPAL', tipoInstitucionId: tid('MUNICIPAL') })),
+            ...consejosCantonalesList.map(n => ({ nombre: n, tipo: 'MUNICIPAL', tipoInstitucionId: tid('MUNICIPAL') })),
+            ...juntasCantonalesList.map(n => ({ nombre: n, tipo: 'MUNICIPAL', tipoInstitucionId: tid('MUNICIPAL') })),
             // GADs Provinciales, Municipales (Presenciales) y Parroquiales
-            ...provinciasInstitucionesList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL PROVINCIAL', tipoInstitucionId: tid('INSTITUCIÓN — NIVEL PROVINCIAL') })),
-            ...cantonesInstitucionesList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)', tipoInstitucionId: tid('INSTITUCIÓN — NIVEL MUNICIPAL (CANTONES)') })),
-            ...parroquiasInstitucionesList.map(n => ({ nombre: n, tipo: 'INSTITUCIÓN — NIVEL PARROQUIAL RURAL', tipoInstitucionId: tid('INSTITUCIÓN — NIVEL PARROQUIAL RURAL') })),
+            ...provinciasInstitucionesList.map(n => ({ nombre: n, tipo: 'PROVINCIAL', tipoInstitucionId: tid('PROVINCIAL') })),
+            ...cantonesInstitucionesList.map(n => ({ nombre: n, tipo: 'MUNICIPAL', tipoInstitucionId: tid('MUNICIPAL') })),
+            ...parroquiasInstitucionesList.map(n => ({ nombre: n, tipo: 'PARROQUIAL RURAL', tipoInstitucionId: tid('PARROQUIAL RURAL') })),
             // Soporte para etiquetas literales PRESENCIAL y VIRTUAL pedidas por el usuario
             ...cantonesInstitucionesList.map(n => ({ nombre: n, tipo: 'PRESENCIAL', tipoInstitucionId: tid('PRESENCIAL') })),
             { nombre: 'QUITO', tipo: 'VIRTUAL', tipoInstitucionId: tid('VIRTUAL') },
