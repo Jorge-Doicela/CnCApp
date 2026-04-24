@@ -13,16 +13,16 @@
         "prisma:migrate": "prisma migrate dev",
         "prisma:migrate:prod": "prisma migrate deploy",
         "prisma:studio": "prisma studio",
-        "prisma:seed": "tsx prisma/seed.ts",
-        "prisma:migrate:genero-etnia": "tsx prisma/migrate-genero-etnia-catalogs.ts",
-        "prisma:seed:geo": "tsx prisma/seed-geo.ts",
-        "prisma:seed:municipal": "tsx prisma/seed-municipal-additions.ts",
+        "prisma:seed": "npx tsx prisma/seed.ts",
+        "prisma:migrate:genero-etnia": "npx tsx prisma/migrate-genero-etnia-catalogs.ts",
+        "prisma:seed:geo": "npx tsx prisma/seed-geo.ts",
+        "prisma:seed:municipal": "npx tsx prisma/seed-municipal-additions.ts",
         "test": "jest",
         "system:check": "node scripts/system-check.js",
         "lint": "eslint \"src/**/*.ts\""
     },
     "prisma": {
-        "seed": "tsx prisma/seed.ts"
+        "seed": "npx tsx prisma/seed.ts"
     },
     "keywords": [
         "cnc",

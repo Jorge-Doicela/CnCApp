@@ -295,6 +295,14 @@ export class RegisterPage {
     this.state.prevStep();
   }
 
+  handleHeaderBack() {
+    if (this.step() > 1) {
+      this.prev();
+    } else {
+      this.router.navigate(['/home']);
+    }
+  }
+
   // --- Validation Helpers ---
 
   validateStep2(): boolean {
@@ -330,33 +338,11 @@ export class RegisterPage {
   }
 
   // Algoritmo de validación de Cédula Ecuatoriana
-  // Algoritmo de validación de Documento de Identidad
+  // Algoritmo de validación de Documento de Identidad (Universal)
   validarCedula(cedula: string): boolean {
-    if (!cedula || cedula.length < 5) return false;
-
-    // Si no tiene exactamente 10 numéricos, se acepta como documento extranjero (pasaporte, etc)
-    if (!/^\d{10}$/.test(cedula)) return true;
-
-    const digitoRegion = parseInt(cedula.substring(0, 2), 10);
-    // Válido para 01-24 y 30 (ecuatorianos en el exterior o nacionalizados)
-    if ((digitoRegion < 1 || digitoRegion > 24) && digitoRegion !== 30) return false;
-
-    const tercerDigito = parseInt(cedula.substring(2, 3), 10);
-    // Para personas naturales el tercer dígito es menor a 6
-    if (tercerDigito >= 6) return false;
-
-    const ultimoDigito = parseInt(cedula.substring(9, 10), 10);
-    
-    let sum = 0;
-    const coeficients = [2, 1, 2, 1, 2, 1, 2, 1, 2];
-    for (let i = 0; i < 9; i++) {
-      let val = parseInt(cedula[i], 10) * coeficients[i];
-      if (val >= 10) val -= 9;
-      sum += val;
-    }
-    const verifier = (sum % 10 === 0) ? 0 : 10 - (sum % 10);
-
-    return verifier === ultimoDigito;
+    if (!cedula) return false;
+    // Permitimos cualquier documento entre 5 y 20 caracteres para soportar pasaportes extranjeros
+    return cedula.length >= 5 && cedula.length <= 20;
   }
 
   validateStep3(): boolean {

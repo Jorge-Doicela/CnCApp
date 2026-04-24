@@ -317,7 +317,7 @@ export class HomePage implements OnInit {
       'Confirmar asistencia': 'confirmar-asistencia',
       'historia': 'home/historia',
       'direccion': 'home/direccion',
-      'norma': 'home/norma',
+      'norma': 'home/norma-regul',
       'informacion': 'home/informacion',
       'servi-progra': 'home/servi-progra',
       'validar-certificados': 'validar-certificados',

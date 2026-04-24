@@ -67,7 +67,7 @@ services:
         max-size: "10m"
         max-file: "3"
     # Ejecutamos migraciones, seeders y finalmente la app
-    command: sh -c "npx prisma migrate deploy && npx prisma db seed && node dist/app.js"
+    command: sh -c "npx prisma migrate deploy && node dist/app.js"
 
   # Frontend (Nginx)
   frontend:

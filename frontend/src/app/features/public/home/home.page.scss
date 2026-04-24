@@ -199,7 +199,7 @@ ion-header {
 // ------------------------------------------
 .hero-wrapper {
   position: relative;
-  padding: 60px 0 50px;
+  padding: 100px 0 50px; // Balanced padding
   background: radial-gradient(circle at top right, rgba(30, 58, 138, 0.05), transparent),
               radial-gradient(circle at bottom left, rgba(2, 132, 199, 0.03), transparent),
               #ffffff;
@@ -273,7 +273,7 @@ ion-header {
   .hero-pill-tray-wrapper {
     display: flex;
     justify-content: center;
-    margin-top: 60px; // Increased from 40px for breathing room
+    margin-top: 30px; // Reduced from 60px to bring it closer to text
   }
 
   .hero-pill-tray {
@@ -334,7 +334,7 @@ ion-header {
   }
 
   @media (max-width: 600px) {
-    padding: 40px 0 30px;
+    padding: 10px 0 30px; // Compacted now that global safe-area is active
 
     h2 {
       font-size: 2rem;
@@ -359,7 +359,7 @@ ion-header {
     .hero-nav-separator {
       width: 80%;
       height: 1.5px;
-      margin: 8px 0;
+      margin: 4px 0; // Reduced from 8px to bring buttons closer
     }
 
     .hero-pill {
@@ -371,153 +371,118 @@ ion-header {
   }
 }
 
-// Bento Grid Quick Access Styles (Modern & Dynamic)
-.bento-grid-container {
+// Unified Quick Access Area (Harmony & Cohesion)
+.quick-access-area {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  max-width: 480px;
+  gap: 16px;
+  max-width: 440px;
   margin: 60px auto 0;
-  padding: 0 10px;
+  padding: 20px;
+  background: #f8fafc; // Soft background to unify
+  border-radius: 32px;
+  border: 1px solid #f1f5f9;
 
-  .bento-row {
-    display: flex;
-    gap: 12px;
-    width: 100%;
-  }
-
-  .bento-item {
-    background: #ffffff;
-    border-radius: 20px;
+  // Featured Action Card
+  .featured-action-card {
+    background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+    border-radius: 24px;
     padding: 20px;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
-    border: 1px solid rgba(0, 0, 0, 0.03);
     display: flex;
-    position: relative;
-    overflow: hidden;
+    align-items: center;
+    gap: 16px;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 10px 20px -5px rgba(30, 58, 138, 0.2);
+    transition: transform 0.2s ease;
 
-    &:active {
-      transform: scale(0.97);
-      background: #f8fafc;
+    &:active { transform: scale(0.98); }
+
+    .action-icon {
+      width: 52px;
+      height: 52px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
     }
 
-    // Featured Card (Validar Certificados)
-    &.featured {
-      width: 100%;
-      background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
-      color: #ffffff;
-      padding: 24px;
-      align-items: center;
-      gap: 16px;
-      box-shadow: 0 12px 25px -5px rgba(30, 58, 138, 0.3);
+    .action-info {
+      flex: 1;
+      text-align: left;
+      .action-title { display: block; font-size: 1.05rem; font-weight: 850; letter-spacing: -0.01em; }
+      .action-desc { margin: 2px 0 0; font-size: 0.8rem; color: rgba(255, 255, 255, 0.8); }
+    }
 
-      .bento-icon-wrap {
-        width: 54px;
-        height: 54px;
-        background: rgba(255, 255, 255, 0.2);
+    .action-arrow { font-size: 1.4rem; opacity: 0.7; }
+  }
+
+  // Grid of Tiles (The Harmony Part)
+  .secondary-actions-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+
+    .action-tile {
+      background: white;
+      border-radius: 20px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      border: 1px solid #f1f5f9;
+      transition: all 0.2s ease;
+
+      &:hover { border-color: #cbd5e1; background: #ffffff; }
+      &:active { transform: scale(0.95); background: #f8fafc; }
+
+      .tile-icon {
+        width: 44px;
+        height: 44px;
+        background: #eff6ff;
+        color: #1e3a8a;
         border-radius: 14px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.8rem;
-      }
-
-      .bento-text {
-        flex: 1;
-        text-align: left;
-        
-        .label {
-          display: block;
-          font-size: 1.15rem;
-          font-weight: 850;
-          letter-spacing: -0.02em;
-        }
-
-        p {
-          margin: 2px 0 0;
-          font-size: 0.85rem;
-          color: rgba(255, 255, 255, 0.8);
-          font-weight: 500;
-        }
-      }
-
-      .bento-arrow {
-        font-size: 1.8rem;
-        opacity: 0.8;
-      }
-    }
-
-    // Small Square Cards
-    &.small {
-      flex: 1;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      padding: 22px 10px;
-      text-align: center;
-
-      ion-icon {
-        font-size: 1.6rem;
-        color: #1e3a8a;
+        font-size: 1.3rem;
       }
 
       span {
-        font-size: 0.85rem;
+        font-size: 0.8rem;
         font-weight: 750;
         color: #475569;
         text-transform: uppercase;
-        letter-spacing: 0.02em;
-      }
-
-      &:hover {
-        background: #f1f5f9;
-        ion-icon { transform: translateY(-2px); }
-      }
-    }
-
-    // Medium Wide Card
-    &.medium {
-      width: 100%;
-      align-items: center;
-      gap: 16px;
-      padding: 16px 20px;
-      background: #f8fafc;
-      border: 1px dashed #cbd5e1;
-
-      ion-icon {
-        font-size: 1.4rem;
-        color: #64748b;
-      }
-
-      span {
-        flex: 1;
-        text-align: left;
-        font-size: 0.95rem;
-        font-weight: 700;
-        color: #475569;
-      }
-
-      .mini-arrow {
-        font-size: 1.2rem;
-        color: #cbd5e1;
+        letter-spacing: 0.03em;
       }
     }
   }
 
+  // Bottom Utility Bar
+  .utility-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 20px;
+    background: white;
+    border-radius: 16px;
+    border: 1px solid #f1f5f9;
+    color: #64748b;
+    cursor: pointer;
+
+    ion-icon:first-child { font-size: 1.2rem; color: #94a3b8; }
+    span { flex: 1; text-align: left; font-size: 0.85rem; font-weight: 600; }
+    ion-icon:last-child { font-size: 1rem; color: #cbd5e1; }
+  }
+
   @media (max-width: 600px) {
     margin-top: 40px;
-    gap: 10px;
-    
-    .bento-row { gap: 10px; }
-    
-    .bento-item.featured {
-      padding: 20px;
-      .bento-icon-wrap { width: 44px; height: 44px; font-size: 1.5rem; }
-      .bento-text .label { font-size: 1.05rem; }
-    }
+    padding: 16px;
+    max-width: 100%;
   }
 }
 
@@ -626,18 +591,18 @@ ion-header {
   }
 
   @media (max-width: 600px) {
-    padding: 28px; // Increased from 20px
-    gap: 20px;
-    margin-bottom: 12px; // Ensure cards don't touch
+    padding: 16px; // Compact padding
+    gap: 15px;
+    margin-bottom: 8px; // Reduced gap between cards
     
     .icon-box {
-      width: 52px; // Restored size
-      height: 52px;
-      font-size: 1.5rem;
+      width: 44px; // Slightly smaller
+      height: 44px;
+      font-size: 1.3rem;
     }
     
-    h3 { font-size: 1.15rem; }
-    p { font-size: 0.95rem; }
+    h3 { font-size: 1.05rem; }
+    p { font-size: 0.88rem; }
   }
 }
 
@@ -1463,8 +1428,8 @@ ion-header {
 // ------------------------------------------
 .final-cta-section {
   background: #f8fafc;
-  padding-top: 80px; // Increased from 10px to separate from grid
-  padding-bottom: 50px;
+  padding-top: 20px; // Reduced from 80px to avoid dead space
+  padding-bottom: 30px;
   
   .cta-glass-card {
     background: #1e3a8a;
@@ -1536,10 +1501,10 @@ ion-header {
 
 @media (max-width: 600px) {
   .final-cta-section .cta-glass-card {
-    padding: 60px 24px;
+    padding: 30px 20px; // Compacted from 60px
     
     h2 {
-      font-size: 2rem;
+      font-size: 1.6rem;
     }
   }
 }

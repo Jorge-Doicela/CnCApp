@@ -26,9 +26,9 @@
 
         <!-- Header Actions -->
         <div class="header-actions">
-          <ion-button fill="clear" routerLink="/home" class="back-btn" color="medium">
+          <ion-button fill="clear" (click)="handleHeaderBack()" class="back-btn" color="medium">
             <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
-            Volver al Inicio
+            {{ step() > 1 ? 'Atrás' : 'Volver al Inicio' }}
           </ion-button>
         </div>
 

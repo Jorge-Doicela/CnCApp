@@ -462,13 +462,12 @@ form {
   }
 
   .form-section {
-    padding: 40px 24px; // Consistent safe padding
+    padding: 60px 20px 40px; // Increased to definitely clear the notch
     justify-content: flex-start;
-    padding-top: 40px; 
     
     .login-card-wrapper {
         width: 100%;
-        max-width: 100%; // Let the parent padding handle it
+        max-width: 100%; 
     }
   }
 }

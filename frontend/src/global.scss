@@ -169,14 +169,14 @@ ion-app.has-global-header ion-router-outlet {
     p, .section-subtitle, .hero-subtitle, .cert-desc { font-size: 0.85rem !important; line-height: 1.4 !important; }
     
     // 2. Global Containers & Whitespace
-    .container, .main-container, .dashboard-wrapper, .content-wrapper, .hero-section, .admin-hero, .hero-wrapper, 
+    .container, .main-container, .dashboard-wrapper, .content-wrapper, .hero-section, .admin-hero, .hero-wrapper, .form-section,
     .glass-container-premium, .profile-hero-section, .premium-section, .list-header {
-        padding-left: 12px !important;
-        padding-right: 12px !important;
-        padding-top: 10px !important;
-        padding-bottom: 12px !important; // Further reduced
-        margin-top: 0 !important;
-        margin-bottom: 0 !important;
+        padding-left: var(--app-side-padding, 16px);
+        padding-right: var(--app-side-padding, 16px);
+        padding-top: calc(env(safe-area-inset-top) + var(--app-top-padding, 20px));
+        padding-bottom: 20px;
+        margin-top: 0;
+        margin-bottom: 0;
     }
 
     // Hide redundant hero sections in CRUD pages to save space
@@ -185,13 +185,13 @@ ion-app.has-global-header ion-router-outlet {
     }
 
     // 3. Card & Section Densification
-    .form-section, .form-card, .glass-card, .apple-card, .summary-card, .modern-card, .detail-card, .form-container.glass, 
+    .form-card, .glass-card, .apple-card, .summary-card, .modern-card, .detail-card, .form-container.glass, 
     .search-glass-card, .stat-glass-card, .institucion-glass-card, .feature-card, .dash-card, .role-card, .stat-card,
     .premium-info-card, .cert-item-card, .cert-preview-card, .user-card-premium, [class*="-glass-card"] {
-        padding: 10px !important; // Further reduced
-        margin-bottom: 8px !important;
-        border-radius: 12px !important;
-        min-height: auto !important;
+        padding: 16px;
+        margin-bottom: 12px;
+        border-radius: 16px;
+        min-height: auto;
 
         .card-top, .card-header { 
             padding: 4px 0 !important;

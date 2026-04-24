@@ -525,7 +525,7 @@ export class CrearPage implements OnInit {
     }
   }
 
-  // Función para validar la identificación (Cédula Ecuador o Documento Extranjero)
+  // Función para validar la identificación (Universal: Cédula Ecuador, Pasaporte o Documento Extranjero)
   validarCedula() {
     const identification = this.usuarioGeneral.ci;
 
@@ -536,62 +536,14 @@ export class CrearPage implements OnInit {
       return;
     }
 
-    const isNumeric = /^\d+$/.test(identification);
     const length = identification.length;
 
-    // Caso 1: Cédula Ecuatoriana (10 dígitos numéricos)
-    if (isNumeric && length === 10) {
-      const provincia = parseInt(identification.substring(0, 2), 10);
-      const tercerDigito = parseInt(identification.substring(2, 3), 10);
-
-      // Validar provincia (01-24 o 30)
-      if (!((provincia >= 1 && provincia <= 24) || provincia === 30)) {
-        this.mensajeValidacionCedula = `Provincia inválida (${provincia})`;
-        this.cedulaValidada = false;
-        this.cdr.markForCheck();
-        return;
-      }
-
-      // Validar tercer dígito (debe ser < 6 para personas naturales)
-      if (tercerDigito >= 6) {
-        this.mensajeValidacionCedula = 'El tercer dígito debe ser menor a 6';
-        this.cedulaValidada = false;
-        this.cdr.markForCheck();
-        return;
-      }
-
-      // Algoritmo Modulo 10
-      const digitoVerificador = parseInt(identification.charAt(9), 10);
-      let suma = 0;
-      for (let i = 0; i < 9; i++) {
-        let valor = parseInt(identification.charAt(i), 10);
-        if (i % 2 === 0) { // Posiciones impares (0, 2, 4, 6, 8)
-          valor *= 2;
-          if (valor > 9) valor -= 9;
-        }
-        suma += valor;
-      }
-
-      const residuo = suma % 10;
-      const digitoCalculado = residuo === 0 ? 0 : 10 - residuo;
-
-      if (digitoVerificador === digitoCalculado) {
-        this.mensajeValidacionCedula = 'Cédula ecuatoriana válida';
-        this.cedulaValidada = true;
-      } else {
-        this.mensajeValidacionCedula = 'Número de cédula inválido';
-        this.cedulaValidada = false;
-      }
-    }
-    // Caso 2: Documento Extranjero / Pasaporte
-    // Todo lo que tenga al menos 5 caracteres y no haya caído en validación estricta de 10 dígitos arriba
-    else if (length >= 5 && (!isNumeric || length !== 10)) {
-      this.mensajeValidacionCedula = 'Documento extranjero/Pasaporte aceptado';
-      this.cedulaValidada = true; // Lo aceptamos para no bloquear extranjeros
-    }
-    // Caso 3: Incompleto o inválido
-    else {
-      this.mensajeValidacionCedula = 'Cédula debe tener 10 dígitos o pasaporte al menos 5';
+    // Permitimos cualquier documento entre 5 y 20 caracteres para soportar pasaportes extranjeros
+    if (length >= 5 && length <= 20) {
+      this.mensajeValidacionCedula = 'Documento de identidad aceptado';
+      this.cedulaValidada = true;
+    } else {
+      this.mensajeValidacionCedula = 'El documento debe tener entre 5 y 20 caracteres';
       this.cedulaValidada = false;
     }
 

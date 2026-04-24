@@ -28,46 +28,44 @@
             </div>
           </div>
 
-          <!-- Bento Grid Quick Access (New Layout) -->
-          <div class="bento-grid-container animate-fade-up" style="animation-delay: 0.5s;">
+          <!-- Unified Quick Access Area (Harmony Version) -->
+          <div class="quick-access-area animate-fade-up" style="animation-delay: 0.5s;">
             
-            <!-- Validar Certificados (Featured Large Card) -->
-            <div class="bento-item featured" (click)="navegarModulo('validar-certificados')">
-              <div class="bento-icon-wrap"><ion-icon name="qr-code-outline"></ion-icon></div>
-              <div class="bento-text">
-                <span class="label">Validar Certificados</span>
-                <p>Verifica títulos oficiales al instante</p>
+            <!-- Featured Action -->
+            <div class="featured-action-card" (click)="navegarModulo('validar-certificados')">
+              <div class="action-icon"><ion-icon name="qr-code-outline"></ion-icon></div>
+              <div class="action-info">
+                <span class="action-title">Validar Certificados</span>
+                <p class="action-desc">Verifica títulos oficiales al instante</p>
               </div>
-              <ion-icon name="arrow-forward-circle" class="bento-arrow"></ion-icon>
+              <ion-icon name="arrow-forward" class="action-arrow"></ion-icon>
             </div>
 
-            <!-- Smaller Square Cards -->
-            <div class="bento-row">
-              <div class="bento-item small" (click)="navegarModulo('informacion')">
-                <ion-icon name="information-circle-outline"></ion-icon>
+            <!-- Grid of Secondary Actions -->
+            <div class="secondary-actions-grid">
+              <div class="action-tile" (click)="navegarModulo('informacion')">
+                <div class="tile-icon"><ion-icon name="information-circle-outline"></ion-icon></div>
                 <span>Nosotros</span>
               </div>
-              <div class="bento-item small" (click)="navegarModulo('servi-progra')">
-                <ion-icon name="calendar-outline"></ion-icon>
+              <div class="action-tile" (click)="navegarModulo('servi-progra')">
+                <div class="tile-icon"><ion-icon name="calendar-outline"></ion-icon></div>
                 <span>Servicios</span>
               </div>
-            </div>
-
-            <div class="bento-row">
-              <div class="bento-item small" (click)="navegarModulo('direccion')">
-                <ion-icon name="location-outline"></ion-icon>
+              <div class="action-tile" (click)="navegarModulo('direccion')">
+                <div class="tile-icon"><ion-icon name="location-outline"></ion-icon></div>
                 <span>Dirección</span>
               </div>
-              <div class="bento-item small" (click)="navegarModulo('historia')">
-                <ion-icon name="book-outline"></ion-icon>
+              <div class="action-tile" (click)="navegarModulo('historia')">
+                <div class="tile-icon"><ion-icon name="book-outline"></ion-icon></div>
                 <span>Historia</span>
               </div>
             </div>
 
-            <div class="bento-item medium" (click)="navegarModulo('norma')">
+            <!-- Bottom Utility Link -->
+            <div class="utility-bar" (click)="navegarModulo('norma')">
               <ion-icon name="document-text-outline"></ion-icon>
-              <span>Norma Reguladora</span>
-              <ion-icon name="chevron-forward" class="mini-arrow"></ion-icon>
+              <span>Norma Reguladora de Capacitaciones</span>
+              <ion-icon name="chevron-forward"></ion-icon>
             </div>
           </div>
         </div>
