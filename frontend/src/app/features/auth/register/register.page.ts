@@ -615,7 +615,7 @@ export class RegisterPage {
   }
 
   ngAfterViewInit() {
-    // this.initRecaptcha(); // --- DESACTIVADO PARA PRUEBAS LOCALES ---
+    this.initRecaptcha(); // --- ACTIVADO PARA PRODUCCIÓN ---
   }
 
   initRecaptcha() {
@@ -624,7 +624,7 @@ export class RegisterPage {
         clearInterval(checkGrecaptcha);
         try {
           this.recaptchaWidgetId = (window as any).grecaptcha.render('register-recaptcha-wrapper', {
-            'sitekey': '6LeIFo8sAAAAANn2CU_a1H2DgyagspGvU3OTsfps',
+            'sitekey': '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI',
             'theme': 'light'
           });
         } catch(e) { console.error('Recaptcha init err', e); }
@@ -887,7 +887,6 @@ export class RegisterPage {
       return;
     }
 
-    /* 
     let recaptchaToken = '';
     if (this.recaptchaWidgetId !== null) {
        recaptchaToken = (window as any).grecaptcha?.getResponse(this.recaptchaWidgetId);
@@ -899,8 +898,6 @@ export class RegisterPage {
       this.presentToast('Por favor, verifique que no es un robot', 'warning');
       return;
     }
-    */
-    const recaptchaToken = 'bypass_local'; // Bypass para desarrollo
 
     // Doble validación final por si hubo recarga de página (ej. se borró la contraseña)
     if (!this.validateStep2() || !this.validateStep3() || !this.validateStep4()) {
