@@ -34,6 +34,9 @@ Esta documentación está organizada por temas para facilitar su consulta:
 | [Deployment Guide](DEPLOYMENT.md) | Despliegue en producción | DevOps, SysAdmins |
 | [Seguridad](SECURITY.md) | Políticas y mejores prácticas | Todos |
 | [Troubleshooting](TROUBLESHOOTING.md) | Solución de problemas comunes | Desarrolladores, DevOps |
+| [Despliegue CNC](DESPLIEGUE_CNC.md) | Guía específica para servidor del CNC | SysAdmins, DevOps |
+| [Configuración SMTP](CONFIGURACION_SMTP.md) | Guía para Office 365 institucional | SysAdmins |
+| [Publicación Tiendas](PUBLICACION_TIENDAS.md) | Requisitos Play Store y App Store | Gestión, Desarrolladores |
 
 ### Colaboración
 
@@ -63,6 +66,9 @@ docs/
 ├── CONTRIBUTING.md               # Contribución
 ├── TESTING.md                    # Testing
 ├── TROUBLESHOOTING.md            # Solución de problemas
+├── DESPLIEGUE_CNC.md             # Guía de despliegue institucional
+├── CONFIGURACION_SMTP.md         # Guía de correo institucional
+├── PUBLICACION_TIENDAS.md        # Guía de publicación en tiendas
 ├── CHANGELOG.md                  # Historial de cambios
 │
 ├── architecture/                 # Diagramas y diseños detallados

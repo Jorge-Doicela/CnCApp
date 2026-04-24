@@ -8,7 +8,7 @@ Todo el proyecto (Frontend, Backend y Android) se configura desde un solo archiv
 
 ```json
 {
-  "serverIp": "192.168.7.141",
+  "serverIp": "192.168.1.223",
   "backendPort": 3005,
   "frontendPort": 4200
 }
@@ -27,7 +27,7 @@ Si cambias de red o quieres probar en un dispositivo físico Android:
     ```
 3.  **Para Android (Live Reload):** El script te dará el comando exacto al finalizar, similar a este:
     ```powershell
-    npx cap run android --live-reload --port 4200 --host 192.168.7.141
+    npx cap run android --live-reload --port 4200 --host 192.168.1.223
     ```
 
 ---

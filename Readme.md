@@ -174,8 +174,12 @@ Toda la documentación técnica está en [`/docs`](docs/):
 
 | Documento | Descripción |
 |-----------|-------------|
+| **[Despliegue CNC](docs/DESPLIEGUE_CNC.md)** | Guía para servidor 192.168.1.223 |
+| **[Publicación Tiendas](docs/PUBLICACION_TIENDAS.md)** | Requisitos Play Store y App Store |
+| **[Configuración SMTP](docs/CONFIGURACION_SMTP.md)** | Guía para Office 365 |
+| **[Sincronización IP](docs/DEPLOY_GUIDE.md)** | Uso de config.json para cambios de red |
+| **[Catálogos Registro](docs/LISTAS_FORMULARIO_REGISTRO.md)** | IDs para formularios de registro |
 | **[Inicio Rápido](docs/QUICK_START.md)** | Configuración en 5 minutos |
-| **[Guía de Prisma](docs/PRISMA_GUIDE.md)** | Prisma en local, Docker y producción |
 | **[Backend](docs/BACKEND.md)** | Configuración completa del backend |
 | **[Docker Setup](docs/DOCKER_SETUP.md)** | Despliegue con Docker |
 
