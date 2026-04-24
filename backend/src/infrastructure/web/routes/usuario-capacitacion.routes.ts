@@ -7,7 +7,7 @@ import { ROLES } from '../../../domain/shared/constants/roles.constants';
 const router = Router();
 const controller = container.resolve(UsuarioCapacitacionController);
 
-const STAFF_ROLES = [ROLES.ADMINISTRADOR, ROLES.CONFERENCISTA];
+// const STAFF_ROLES = [ROLES.ADMINISTRADOR, ROLES.CONFERENCISTA];
 
 // Todas las rutas requieren autenticación
 router.use(authenticate);

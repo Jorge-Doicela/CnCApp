@@ -465,8 +465,8 @@ export class CrearPage implements OnInit {
         const file = event.target.files[0];
         if (!file) return;
 
-        if (file.size > 2 * 1024 * 1024) {
-            this.mostrarToast('La firma no debe superar 2MB', 'warning');
+        if (file.size > 5 * 1024 * 1024) {
+            this.mostrarToast('La firma no debe superar 5MB', 'warning');
             return;
         }
 

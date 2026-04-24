@@ -107,41 +107,6 @@ async function main() {
 
     try {
         // ============================================
-        // STEP 0: CLEAN DATABASE (FULL RESET)
-        // ============================================
-        // Limpiar en orden inverso para evitar errores de claves foráneas
-        const regimenesEspeciales = ['CONSEJO DE GOBIERNO DE RÉGIMEN ESPECIAL DE GALÁPAGOS'];
-
-        console.log('Cleaning existing data...');
-        await safeDeleteMany('certificados', () => prisma.certificado.deleteMany());
-        await safeDeleteMany('usuarios_capacitaciones', () => prisma.usuarioCapacitacion.deleteMany());
-        await safeDeleteMany('capacitaciones', () => prisma.capacitacion.deleteMany());
-        await safeDeleteMany('plantillas', () => prisma.plantilla.deleteMany());
-        await safeDeleteMany('instituciones_usuario', () => prisma.institucionUsuario.deleteMany());
-        await safeDeleteMany('funcionarios_gad', () => prisma.funcionarioGAD.deleteMany());
-        await safeDeleteMany('autoridades', () => prisma.autoridad.deleteMany());
-        await safeDeleteMany('usuarios', () => prisma.usuario.deleteMany());
-        await safeDeleteMany('gad_parroquias', () => prisma.gadParroquia.deleteMany());
-        await safeDeleteMany('parroquias', () => prisma.parroquia.deleteMany());
-        await safeDeleteMany('cantones', () => prisma.canton.deleteMany());
-        await safeDeleteMany('provincias', () => prisma.provincia.deleteMany());
-        await safeDeleteMany('entidades', () => prisma.entidad.deleteMany());
-        await safeDeleteMany('roles', () => prisma.rol.deleteMany());
-        await safeDeleteMany('mancomunidades', () => prisma.mancomunidad.deleteMany());
-        await safeDeleteMany('instituciones_sistema', () => prisma.institucionSistema.deleteMany());
-        await safeDeleteMany('cargos', () => prisma.cargo.deleteMany());
-        await safeDeleteMany('competencias', () => prisma.competencia.deleteMany());
-        await safeDeleteMany('generos', () => prisma.genero.deleteMany());
-        await safeDeleteMany('etnias', () => prisma.etnia.deleteMany());
-        await safeDeleteMany('tipos_participante', () => prisma.tipoParticipante.deleteMany());
-        await safeDeleteMany('nacionalidades', () => prisma.nacionalidad.deleteMany());
-        await safeDeleteMany('grados_ocupacionales', () => prisma.gradoOcupacional.deleteMany());
-        await safeDeleteMany('tipo_institucion', () => prisma.tipoInstitucion.deleteMany());
-        await safeDeleteMany('regimen_especial', () => prisma.regimenEspecial.deleteMany());
-
-        console.log('System clean\n');
-
-        // ============================================
         // STEP 1: ROLES
         // ============================================
         console.log('Configuring Roles (upsert por codigo)...');
@@ -345,7 +310,8 @@ async function main() {
         });
 
         await prisma.mancomunidad.createMany({
-            data: mancomunidadesList.map(n => ({ nombre: n }))
+            data: mancomunidadesList.map(n => ({ nombre: n })),
+            skipDuplicates: true
         });
         await prisma.regimenEspecial.createMany({
             data: regimenEspecialList.map(n => ({ nombre: n })),
@@ -372,31 +338,15 @@ async function main() {
         const hashedPassword = await bcrypt.hash('AdminPassword123!', SALT_ROUNDS);
 
         const usersData = [
-            // Administrators (Pichincha)
-            { nombre: 'ADMINISTRADOR 1', ci: '1710000009', email: 'admin1@cnc.gob.ec', roleId: adminRole.id, authUid: 'admin-01' },
-            { nombre: 'ADMINISTRADOR 2', ci: '1710000017', email: 'admin2@cnc.gob.ec', roleId: adminRole.id, authUid: 'admin-02' },
-
-            // Conferencistas
-            { nombre: 'DR. RICARDO PAZMIÑO', ci: '1710000025', email: 'ricardo.pazmino@capacitacion.ec', roleId: conferencistaRole.id, authUid: 'conf-01' },
-            { nombre: 'MAG. ELENA VITERI', ci: '1710000033', email: 'elena.viteri@consultoria.com', roleId: conferencistaRole.id, authUid: 'conf-02' },
-            { nombre: 'ING. SEBASTIÁN NOBOA', ci: '1710000041', email: 'snoboa@expertos.org', roleId: conferencistaRole.id, authUid: 'conf-03' },
-
-            // Participants (Varied Regions)
-            { nombre: 'FABIÁN IZQUIERDO', ci: '1710000058', email: 'fizquierdo@quito.gob.ec', roleId: usuarioRole.id, authUid: 'user-01' },
-            { nombre: 'LAURA ALCIVAR', ci: '1710000066', email: 'laura.alcivar@manta.gob.ec', roleId: usuarioRole.id, authUid: 'user-02' },
-            { nombre: 'GIOVANNY CASTILLO', ci: '1710000074', email: 'gcastillo@cuenca.gob.ec', roleId: usuarioRole.id, authUid: 'user-03' },
-            { nombre: 'DIANA MORALES', ci: '1710000082', email: 'dmorales@guayaquil.gob.ec', roleId: usuarioRole.id, authUid: 'user-04' },
-            { nombre: 'ROBERTO CHIRIBOGA', ci: '1710000090', email: 'rchiriboga@ibarra.gob.ec', roleId: usuarioRole.id, authUid: 'user-05' },
-            { nombre: 'XIMENA SALTOS', ci: '1710000108', email: 'xsaltos@portoviejo.gob.ec', roleId: usuarioRole.id, authUid: 'user-06' },
-            { nombre: 'MARCO TULIO', ci: '1710000116', email: 'mtulio@galapagos.gob.ec', roleId: usuarioRole.id, authUid: 'user-07' },
-            { nombre: 'PATRICIO RIVERA', ci: '1710000124', email: 'privera@latacunga.gob.ec', roleId: usuarioRole.id, authUid: 'user-08' },
-            { nombre: 'SOFÍA ENDARA', ci: '1710000132', email: 'sendara@ambato.gob.ec', roleId: usuarioRole.id, authUid: 'user-09' },
-            { nombre: 'ANDRÉS VELASCO', ci: '1710000140', email: 'avelasco@tulcan.gob.ec', roleId: usuarioRole.id, authUid: 'user-10' },
-            { nombre: 'MARÍA FERNANDA REYES', ci: '1710000157', email: 'mfreyes@loja.gob.ec', roleId: usuarioRole.id, authUid: 'user-11' },
-            { nombre: 'CARLOS ANDRÉS MORA', ci: '1710000165', email: 'cmora@esmeraldas.gob.ec', roleId: usuarioRole.id, authUid: 'user-12' },
-            { nombre: 'VERÓNICA CASTRO', ci: '1710000173', email: 'vcastro@babahoyo.gob.ec', roleId: usuarioRole.id, authUid: 'user-13' },
-            { nombre: 'JOSÉ IGNACIO PINTO', ci: '1710000181', email: 'jpinto@macas.gob.ec', roleId: usuarioRole.id, authUid: 'user-14' },
-            { nombre: 'ANA LUCÍA SALAS', ci: '1710000199', email: 'asalas@puyo.gob.ec', roleId: usuarioRole.id, authUid: 'user-15' },
+            // Root System Administrator
+            { 
+                nombre: 'ADMINISTRADOR DEL SISTEMA', 
+                ci: '1700000000', 
+                email: 'admin@cnc.gob.ec', 
+                password: 'AdminPassword123!', // Change this in production
+                roleId: adminRole.id, 
+                authUid: 'admin-root' 
+            }
         ];
 
         const createdUsers = [];
@@ -422,204 +372,38 @@ async function main() {
             );
         }
 
-        for (const [index, u] of usersData.entries()) {
-            const user = await prisma.usuario.create({
-                data: {
+        for (const u of usersData) {
+            const hashedPasswordForUser = await bcrypt.hash(u.password, SALT_ROUNDS);
+            await prisma.usuario.upsert({
+                where: { email: u.email },
+                update: {
+                    rolId: u.roleId,
+                    estado: 1
+                },
+                create: {
                     nombre: u.nombre,
                     primerNombre: u.nombre.split(' ')[0],
                     primerApellido: u.nombre.split(' ').slice(1).join(' '),
                     ci: u.ci,
                     email: u.email,
-                    password: hashedPassword,
+                    password: hashedPasswordForUser,
                     rolId: u.roleId,
                     authUid: u.authUid,
-                    tipoParticipanteId: u.roleId === adminRole.id ? tipoAutoridad.id : tipoCiudadano.id,
-                    tipoInstitucionId: u.roleId === adminRole.id ? tid('CENTRAL') : tid('CIUDADANÍA'),
-                    generoId: generos[index % generos.length].id,
-                    etniaId: etnias[index % etnias.length].id,
-                    provinciaId: provinciasList[index % provinciasList.length].id,
+                    tipoParticipanteId: tipoAutoridad.id,
+                    tipoInstitucionId: tid('INSTITUCIÓN — NIVEL CENTRAL'),
+                    generoId: generos[0].id,
+                    etniaId: etnias[0].id,
+                    provinciaId: provinciasList[0].id,
                     estado: 1
                 }
             });
-            createdUsers.push(user);
         }
 
         // ============================================
-        // STEP 5: TEMPLATES & TRAINING
+        // STEP 5: CLEAN PRESENTATION (No dummy trainings)
         // ============================================
-        console.log('Configuring Professional Templates...');
-        const defaultTemplateConfig = {
-            nombreUsuario: { x: 420, y: 300, fontSize: 32, color: '#1a1a1a' },
-            curso: { x: 420, y: 370, fontSize: 18, color: '#333333' },
-            fecha: { x: 420, y: 450, fontSize: 14, color: '#666666' }
-        };
-
-        const templateStd = await prisma.plantilla.create({
-            data: {
-                nombre: 'CERTIFICADO INSTITUCIONAL CNC - ESTÁNDAR',
-                imagenUrl: '/uploads/plantillas/92850c1d-6ede-4f7c-8bea-020af569ff0c.jpeg',
-                configuracion: defaultTemplateConfig,
-                activa: true
-            }
-        });
-
-        const templateExec = await prisma.plantilla.create({
-            data: {
-                nombre: 'CERTIFICADO DE EXCELENCIA GERENCIAL GAD',
-                imagenUrl: '/uploads/plantillas/92850c1d-6ede-4f7c-8bea-020af569ff0c.jpeg',
-                configuracion: defaultTemplateConfig,
-                activa: false
-            }
-        });
-
-        console.log('Launching Training Portfolio...');
-        const trainingSessions = [
-            {
-                nombre: 'DIPLOMADO EN GESTIÓN PÚBLICA TERRITORIAL 2025',
-                descripcion: 'Programa integral para la modernización de la gestión en los Gobiernos Autónomos Descentralizados.',
-                fechaInicio: new Date('2025-01-10'), fechaFin: new Date('2025-02-15'),
-                lugar: 'QUITO / VIRTUAL', cupos: 500, modalidad: 'Híbrida', estado: 'Finalizada', pId: templateStd.id
-            },
-            {
-                nombre: 'TALLER PRÁCTICO: PLANIFICACIÓN Y POAS 2026',
-                descripcion: 'Metodologías ágiles para el diseño de planes operativos anuales con enfoque en resultados.',
-                fechaInicio: new Date('2025-03-01'), fechaFin: new Date('2025-03-05'),
-                lugar: 'GUAYAQUIL', cupos: 150, modalidad: 'Presencial', estado: 'Activa', pId: templateStd.id
-            },
-            {
-                nombre: 'SIMPOSIO INTERNACIONAL DE CIUDADES SOSTENIBLES',
-                descripcion: 'Intercambio de experiencias globales en resiliencia urbana y cambio climático.',
-                fechaInicio: new Date('2025-05-20'), fechaFin: new Date('2025-05-22'),
-                lugar: 'CUENCA', cupos: 300, modalidad: 'Presencial', estado: 'Activa', pId: templateExec.id
-            },
-            {
-                nombre: 'CURSO AVANZADO: VIALIDAD RURAL Y PUENTES',
-                descripcion: 'Diseño técnico y mantenimiento preventivo de infraestructura vial para provincias.',
-                fechaInicio: new Date('2025-02-05'), fechaFin: new Date('2025-02-28'),
-                lugar: 'VIRTUAL', cupos: 100, modalidad: 'Virtual', estado: 'En Progreso', pId: templateStd.id
-            },
-            {
-                nombre: 'INDUCCIÓN PARA NUEVAS AUTORIDADES LOCALES',
-                descripcion: 'Marco normativo y responsabilidades legales en el ejercicio del cargo público.',
-                fechaInicio: new Date('2025-06-15'), fechaFin: new Date('2025-06-20'),
-                lugar: 'QUITO', cupos: 1000, modalidad: 'Presencial', estado: 'Programada', pId: templateStd.id
-            },
-            {
-                nombre: 'SEMINARIO: PRESUPUESTO PARTICIPATIVO Y CIUDADANÍA',
-                descripcion: 'Mecanismos legales de participación ciudadana en el ciclo presupuestario.',
-                fechaInicio: new Date('2024-11-01'), fechaFin: new Date('2024-11-10'),
-                lugar: 'MANTA', cupos: 200, modalidad: 'Semipresencial', estado: 'Finalizada', pId: templateStd.id
-            },
-            {
-                nombre: 'TALLER DE LIDERAZGO PARA MUJERES EN GOBIERNOS LOCALES',
-                descripcion: 'Potenciando la participación política y técnica de las mujeres en la gestión territorial.',
-                fechaInicio: new Date('2025-04-10'), fechaFin: new Date('2025-04-12'),
-                lugar: 'PORTOVIEJO', cupos: 100, modalidad: 'Presencial', estado: 'Programada', pId: templateStd.id
-            },
-            {
-                nombre: 'CURSO DE CIBERSEGURIDAD PARA FUNCIONARIOS PÚBLICOS',
-                descripcion: 'Protección de datos y seguridad de la información en entornos gubernamentales.',
-                fechaInicio: new Date('2025-03-15'), fechaFin: new Date('2025-04-15'),
-                lugar: 'VIRTUAL', cupos: 1000, modalidad: 'Virtual', estado: 'Activa', pId: templateStd.id
-            },
-            {
-                nombre: 'ENCUENTRO DE GADS FRONTERIZOS: COOPERACIÓN BINACIONAL',
-                descripcion: 'Estrategias conjuntas para el desarrollo de zonas de frontera y gestión de recursos.',
-                fechaInicio: new Date('2025-07-01'), fechaFin: new Date('2025-07-03'),
-                lugar: 'TULCÁN', cupos: 150, modalidad: 'Presencial', estado: 'Programada', pId: templateExec.id
-            }
-        ];
-
-        const createdTrainings = [];
-        const mods = ['PRESENCIAL', 'VIRTUAL', 'PRESENCIAL Y VIRTUAL'];
-
-        console.log('Seeding Regimenes Especiales...');
-        for (const nombre of regimenesEspeciales) {
-            try {
-                await prisma.regimenEspecial.upsert({
-                    where: { nombre },
-                    update: {},
-                    create: { nombre },
-                });
-            } catch (e) {
-                console.warn(`[seed] regimen_especial upsert omitido para "${nombre}":`, e);
-            }
-        }
-        for (const [index, t] of trainingSessions.entries()) {
-            const session = await prisma.capacitacion.create({
-                data: {
-                    nombre: t.nombre,
-                    descripcion: t.descripcion,
-                    fechaInicio: t.fechaInicio,
-                    fechaFin: t.fechaFin,
-                    lugar: t.lugar,
-                    cuposDisponibles: t.cupos,
-                    modalidad: mods[index % mods.length],
-                    estado: t.estado,
-                    plantillaId: t.pId,
-                    horas: Math.floor(Math.random() * 40) + 5
-                }
-            });
-            createdTrainings.push(session);
-        }
-
-        // ============================================
-        // STEP 6: REGISTRATIONS & CERTIFICATES (Massive)
-        // ============================================
-        console.log('Distributing Registrations and Generating Metrics...');
-
-        // Randomly register users to various trainings to populate metrics
-        for (const user of createdUsers.slice(5)) { // Only participants
-            for (const training of createdTrainings) {
-                // 70% probability of registration
-                if (Math.random() > 0.3) {
-                    try {
-                        await prisma.usuarioCapacitacion.create({
-                            data: {
-                                usuarioId: user.id,
-                                capacitacionId: training.id,
-                                asistio: training.estado === 'Finalizada',
-                                rolCapacitacion: 'Participante',
-                                estadoInscripcion: 'Activa'
-                            }
-                        });
-                    } catch (e) {
-                        if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
-                            continue;
-                        }
-                        throw e;
-                    }
-
-                    // If training is finished and user assisted, generate certificate
-                    if (training.estado === 'Finalizada') {
-                        try {
-                            // Con la nueva restricción @@unique([usuarioId, capacitacionId]), 
-                            // e.code === 'P2002' ahora capturará este par duplicado.
-                            await prisma.certificado.upsert({
-                                where: {
-                                    usuario_capacitacion_unique: {
-                                        usuarioId: user.id,
-                                        capacitacionId: training.id
-                                    }
-                                },
-                                update: {}, // No actualizamos nada si ya existe
-                                create: {
-                                    usuarioId: user.id,
-                                    capacitacionId: training.id,
-                                    codigoQR: `CERT-${training.id}-${user.id}-${randomUUID()}`,
-                                    pdfUrl: `/certificates/cert_${training.id}_${user.id}.pdf`
-                                }
-                            });
-                        } catch (e) {
-                            console.warn(`[seed] No se pudo crear/actualizar certificado para usuario ${user.id} en capacitacion ${training.id}:`, e);
-                        }
-                    }
-                }
-            }
-        }
-
         console.log('\nFINAL PRODUCT DATA LOADED SUCCESSFULLY');
-        console.log('System ready for Presentation and Launch.');
+        console.log('System ready for Presentation (Catalogs loaded, Super Admin created).');
 
     } catch (error) {
         seedFailed = true;
@@ -664,11 +448,8 @@ async function main() {
                 nUsers === 0
             ) {
                 console.log(
-                    `[seed] Geo incompleto (${nProv}/${EXPECTED_PROVINCIAS_SEED}) y sin usuarios; reiniciando catálogo geográfico...`
+                    `[seed] Geo incompleto (${nProv}/${EXPECTED_PROVINCIAS_SEED}) y sin usuarios; intentando completar catálogo...`
                 );
-                await safeDeleteMany('parroquias (repair)', () => prisma.parroquia.deleteMany());
-                await safeDeleteMany('cantones (repair)', () => prisma.canton.deleteMany());
-                await safeDeleteMany('provincias (repair)', () => prisma.provincia.deleteMany());
                 await seedGeoSqlProvincias(prisma);
             }
         } catch (e) {

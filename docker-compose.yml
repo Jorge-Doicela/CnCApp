@@ -11,9 +11,14 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       POSTGRES_DB: ${POSTGRES_DB:-cnc_db}
     ports:
-      - "${POSTGRES_PORT:-5432}:5432"
+      - "${POSTGRES_PORT:-5435}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     networks:
       - cnc-network
     healthcheck:
@@ -34,11 +39,21 @@ services:
       - backend/.env
     environment:
       NODE_ENV: production
-      PORT: 3000
+      PORT: 3005
       # Sobrescribimos DATABASE_URL para usar el contenedor local de Postgres en lugar de Neon
       DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-cnc_db}?schema=public
     ports:
-      - "${BACKEND_PORT:-3000}:3000"
+      - "${BACKEND_PORT:-3005}:3005"
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+    healthcheck:
+      test: ["CMD-SHELL", "node -e 'fetch(\"http://localhost:3005/api/health\").then(r => process.exit(r.ok ? 0 : 1))'"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     depends_on:
       postgres:
         condition: service_healthy
@@ -46,6 +61,11 @@ services:
       - cnc-network
     volumes:
       - backend_uploads:/app/uploads
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     # Ejecutamos migraciones, seeders y finalmente la app
     command: sh -c "npx prisma migrate deploy && npx prisma db seed && node dist/app.js"
 
@@ -58,9 +78,14 @@ services:
     container_name: cnc-frontend
     restart: unless-stopped
     ports:
-      - "${FRONTEND_PORT:-80}:8080"
+      - "${FRONTEND_PORT:-8085}:8080"
     depends_on:
       - backend
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     networks:
       - cnc-network
 

@@ -42,7 +42,7 @@ export class JWTService {
     static verify(token: string): JWTPayload {
         try {
             return jwt.verify(token, this.SECRET) as JWTPayload;
-        } catch (error) {
+        } catch {
             throw new Error('Invalid or expired token');
         }
     }

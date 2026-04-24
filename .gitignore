@@ -1,49 +1,31 @@
-# Dependencies
-/node_modules/
-backend/node_modules/
-frontend/node_modules/
+# Ignorar dependencias y caché de compilación
+node_modules/
+.npm/
+.angular/
+.gradle/
+dist/
+build/
+www/
+capacitor-cordova-android-plugins/
 
-# Build outputs
-frontend/www/
-frontend/dist/
-backend/dist/
-
-# Environment variables
+# Ignorar variables de entorno (Cada servidor debe tener su propio .env)
 .env
+.env.production
 .env.local
-.env.docker
-backend/.env
 
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# OS
+# Ignorar archivos del sistema y editores
 .DS_Store
 Thumbs.db
-
-# Logs
+.vscode/
+.idea/
 *.log
-npm-debug.log*
-backend/*.log
 
-# Testing
-coverage/
+# Ignorar datos locales de Docker (Importante para no subir la DB de prueba)
+postgres_data/
+backend_uploads/
 
-# Android
+# Ignorar archivos de Android compilados
 android/app/build/
 android/.gradle/
-android/local.properties
-
-# Capacitor
-.capacitor/
-
-# Angular
-frontend/.angular/
-
-# Temporary files
-*.tmp
-build-errors.txt
+*.apk
+*.aab

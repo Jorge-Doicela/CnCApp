@@ -31,6 +31,7 @@ interface RegisterDto {
     funcionarioGad?: any;
     institucion?: any;
     rolId?: number;
+    entidadId?: number;
     parroquiaId?: number;
     gadParroquiaId?: number;
     estado?: number;
@@ -153,9 +154,9 @@ export class RegisterUserUseCase {
             cantonId: data.cantonId,
             parroquiaId: data.parroquiaId || data.autoridad?.parroquiaId || data.funcionarioGad?.parroquiaId || null,
             gadParroquiaId: data.gadParroquiaId ?? null,
-            estado: 2, // 2 = PENDIENTE DE VERIFICACIÓN, 1 = ACTIVO, 0 = INACTIVO/BROQUEADO
+            estado: data.estado ?? 2, // 2 = PENDIENTE DE VERIFICACIÓN, 1 = ACTIVO, 0 = INACTIVO/BROQUEADO
             rolId: finalRolId,
-            entidadId: (cncEntity ? cncEntity.id : null),
+            entidadId: data.entidadId ?? (cncEntity ? cncEntity.id : null),
             tipoParticipanteId: data.tipoParticipanteId || null,
             createdAt: now,
             updatedAt: now,

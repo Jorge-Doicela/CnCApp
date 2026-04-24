@@ -155,15 +155,18 @@ export async function seedGadParroquias(prisma: PrismaClient): Promise<void> {
         console.warn('[seed] gad-parroquias.json no encontrado; omitiendo catálogo GAD parroquias.');
         return;
     }
-    const raw = fs.readFileSync(jsonPath, 'utf8');
-    const nombres = JSON.parse(raw) as string[];
-    if (!Array.isArray(nombres) || nombres.length === 0) {
-        console.warn('[seed] gad-parroquias.json vacío o inválido.');
+
+    // PROTECCIÓN: Solo cargar si la tabla está vacía
+    const count = await prisma.gadParroquia.count();
+    if (count > 0) {
+        console.log(`[seed] Catálogo gad_parroquias ya tiene ${count} registros. Saltando carga para proteger datos.`);
         return;
     }
+
+    const raw = fs.readFileSync(jsonPath, 'utf8');
+    const nombres = JSON.parse(raw) as string[];
+    
     await prisma.$transaction(async (tx) => {
-        await tx.usuario.updateMany({ data: { gadParroquiaId: null } });
-        await tx.gadParroquia.deleteMany({});
         const batch = 500;
         for (let i = 0; i < nombres.length; i += batch) {
             const slice = nombres.slice(i, i + batch).map((nombre) => ({ nombre }));
@@ -173,15 +176,17 @@ export async function seedGadParroquias(prisma: PrismaClient): Promise<void> {
     console.log(`[seed] gad_parroquias cargadas: ${nombres.length} registros`);
 }
 
-/**
- * Catálogo educación básica (75 filas; pueden repetirse nombres).
- * Elimina vínculos en instituciones_usuario que apunten a educacion_basica y recrea el catálogo.
- */
 export async function seedEducacionBasica(prisma: PrismaClient): Promise<void> {
     const nombres = [...educacionBasicaList];
+
+    // PROTECCIÓN: Solo cargar si la tabla está vacía
+    const count = await prisma.educacionBasica.count();
+    if (count > 0) {
+        console.log(`[seed] Catálogo educacion_basica ya tiene ${count} registros. Saltando carga.`);
+        return;
+    }
+
     await prisma.$transaction(async (tx) => {
-        await tx.institucionUsuario.deleteMany({ where: { educacionBasicaId: { not: null } } });
-        await tx.educacionBasica.deleteMany({});
         const batch = 200;
         for (let i = 0; i < nombres.length; i += batch) {
             const slice = nombres.slice(i, i + batch).map((nombre) => ({ nombre }));

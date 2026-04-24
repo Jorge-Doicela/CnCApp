@@ -120,9 +120,9 @@ if (env.NODE_ENV === 'development' && env.DEBUG_API) {
     app.use(morgan('combined'));
 }
 
-// Parsear JSON
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+// Parsear JSON con límite configurado
+app.use(express.json({ limit: env.MAX_FILE_SIZE || '5mb' }));
+app.use(express.urlencoded({ extended: true, limit: env.MAX_FILE_SIZE || '5mb' }));
 
 // Servir archivos estáticos (Certificados, etc.)
 app.use(express.static('public'));
@@ -195,6 +195,10 @@ if (process.env.NODE_ENV !== 'test' && !process.env.VERCEL) {
         const isDbConnected = await checkDatabaseConnection();
 
         if (isDbConnected) {
+            // Asegurar que el administrador y roles base existan (Independiente del seed)
+            const { bootstrapSystem } = await import('./infrastructure/database/bootstrap');
+            await bootstrapSystem();
+            
             // Iniciar el scheduler de finalización automática de capacitaciones
             initCapacitacionScheduler();
         } else {

@@ -32,9 +32,12 @@ RUN apk add --no-cache openssl
 
 # Copiar archivos necesarios desde la etapa de construcción
 COPY --from=builder /app/package*.json ./
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/prisma ./prisma
+
+# Instalar solo dependencias de producción para ahorrar espacio
+RUN npm install --omit=dev && npx prisma generate
+
+COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/public ./public
 
 # Exponer el puerto del backend

@@ -101,6 +101,7 @@ export class CrearPage implements OnInit {
     idUsuario: ''
   };
 
+  institucion = {
     /** `i:id` = instituciones_sistema, `e:id` = educacion_basica */
     institucion: undefined as string | undefined,
     institucionNivelGobiernoId: undefined as number | undefined,
@@ -134,16 +135,16 @@ export class CrearPage implements OnInit {
     mancomunidades: [] as any[],
     regimenesEspeciales: [] as any[],
     nacionalidades: [] as any[],
-  }
+  };
 
   datosconcatenar = {
     provinciasConCantones: [] as any[],
-  }
+  };
 
   datosbusqueda = {
     selectedProvincia: 0,
     selectedCanton: 0
-  }
+  };
 
   // Estado de la página
   isLoading: boolean = false;
@@ -959,6 +960,7 @@ export class CrearPage implements OnInit {
 
     this.institucion = {
       institucion: undefined,
+      institucionNivelGobiernoId: undefined,
       gradoOcupacional: undefined,
       cargo: '',
       idUsuario: ''

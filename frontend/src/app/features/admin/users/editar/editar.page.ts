@@ -289,6 +289,7 @@ export class EditarPage implements OnInit {
               : `i:${Number(rawInst)}`;
         this.institucion = {
           institucion: instStr,
+          institucionNivelGobiernoId: data.institucion.institucionNivelGobiernoId || data.entidadId || undefined,
           gradoOcupacional: data.institucion.gradoOcupacionalId?.toString() || data.institucion.gradoOcupacional || '',
           cargo: data.institucion.cargo || ''
         };
@@ -554,9 +555,9 @@ export class EditarPage implements OnInit {
     const file = event.target.files[0];
     if (!file) return;
 
-    // Validar tamaño del archivo (máximo 2MB)
-    if (file.size > 2 * 1024 * 1024) {
-      this.presentToast('El tamaño de la firma no debe exceder 2MB', 'warning');
+    // Validar tamaño del archivo (máximo 5MB para coincidir con el servidor)
+    if (file.size > 5 * 1024 * 1024) {
+      this.presentToast('El tamaño del archivo no debe exceder los 5MB', 'warning');
       return;
     }
 

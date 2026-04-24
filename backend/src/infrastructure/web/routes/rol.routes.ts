@@ -1,8 +1,7 @@
 import { Router } from 'express';
 import { container } from 'tsyringe';
 import { RolController } from '../controllers/rol.controller';
-import { authenticate, authorize, requireModule } from '../middleware/auth.middleware';
-import { ADMIN_ROLES } from '../../../domain/shared/constants/roles.constants';
+import { authenticate, requireModule } from '../middleware/auth.middleware';
 
 const router = Router();
 const rolController = container.resolve(RolController);

@@ -138,9 +138,11 @@ export class UserController {
                 etniaId: data.etniaId || undefined,
                 nacionalidadId: data.nacionalidadId || undefined,
                 rolId: data.rolId || undefined,
+                entidadId: data.entidadId || undefined,
                 parroquiaId: data.parroquiaId || undefined,
                 gadParroquiaId: data.gadParroquiaId || undefined,
                 fechaNacimiento: data.fechaNacimiento || undefined,
+                estado: data.estado !== undefined ? data.estado : undefined,
                 autoridad: data.autoridad,
                 funcionarioGad: data.funcionarioGad,
                 institucion: data.institucion

@@ -193,6 +193,7 @@ export class RegisterStateService {
             } : undefined,
             institucion: tpid == resIds.tipoInstitucion ? {
                 institucion: this.state().institucionId,
+                institucionNivelGobiernoId: this.state().institucionNivelGobiernoId,
                 cargo: this.state().institucionCargoId,
                 gradoOcupacional: this.state().institucionGradoOcupacionalId
             } : undefined
@@ -232,6 +233,18 @@ export class RegisterStateService {
     }
 
     updateUserData(data: Partial<RegisterStateModel>) {
+        this.updateState(data);
+    }
+
+    updateLaborData(data: Partial<RegisterStateModel>) {
+        this.updateState(data);
+    }
+
+    setResolvedIds(resolvedIds: RegisterStateModel['resolvedIds']) {
+        this.updateState({ resolvedIds });
+    }
+
+    private updateState(data: Partial<RegisterStateModel>) {
         this.state.update(s => {
             // Normalización de tipos (Strings de ion-select a Numbers para validación estricta)
             const normalizedData = { ...data };
@@ -240,20 +253,20 @@ export class RegisterStateService {
                 'tipoParticipanteId', 'provinciaId', 'cantonId',
                 'generoId', 'etniaId', 'nacionalidadId',
                 'autoridadNivelGobiernoId', 'funcionarioNivelGobiernoId',
-                'institucionId', 'institucionCargoId', 'institucionGradoOcupacionalId'
+                'institucionNivelGobiernoId', 'institucionId', 'institucionCargoId', 'institucionGradoOcupacionalId'
             ];
 
             numericFields.forEach(field => {
                 if (
                     field === 'institucionId' &&
-                    typeof data.institucionId === 'string' &&
-                    String(data.institucionId).includes(':')
+                    typeof (data as any)[field] === 'string' &&
+                    String((data as any)[field]).includes(':')
                 ) {
-                    (normalizedData as any).institucionId = data.institucionId;
+                    (normalizedData as any)[field] = (data as any)[field];
                     return;
                 }
-                if (data[field] !== undefined && typeof data[field] === 'string') {
-                    (normalizedData as any)[field] = Number(data[field]);
+                if ((data as any)[field] !== undefined && typeof (data as any)[field] === 'string') {
+                    (normalizedData as any)[field] = Number((data as any)[field]);
                 }
             });
 
