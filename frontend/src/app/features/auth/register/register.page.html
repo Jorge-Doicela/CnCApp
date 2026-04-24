@@ -416,45 +416,13 @@
                             </div>
                         </div>
 
-                        <!-- Filtros de Jurisdicción -->
-                        @if (state.laborData().funcionarioGad?.nivelgobierno) {
                         <div class="input-group">
-                            <ion-label>Filtrar por Provincia</ion-label>
-                            <div class="custom-input-wrapper">
-                                <ion-select interface="popover" [value]="laborProvinciaId()"
-                                    (ionChange)="laborProvinciaId.set($event.detail.value); laborCantonId.set(null)"
-                                    placeholder="[Todas]" class="custom-select w-full" style="width: 100%;">
-                                    <ion-select-option [value]="null">Todas</ion-select-option>
-                                    @for (p of provincias(); track p.id) {
-                                    <ion-select-option [value]="p.id">{{ p.nombre }}</ion-select-option>
-                                    }
-                                </ion-select>
-                            </div>
-                        </div>
-
-                        <div class="input-group">
-                            <ion-label>Filtrar por Cantón</ion-label>
-                            <div class="custom-input-wrapper">
-                                <ion-select interface="popover" [value]="laborCantonId()"
-                                    [disabled]="!laborProvinciaId()"
-                                    (ionChange)="laborCantonId.set($event.detail.value)"
-                                    placeholder="[Todos]" class="custom-select w-full" style="width: 100%;">
-                                    <ion-select-option [value]="null">Todos</ion-select-option>
-                                    @for (c of laborFilteredCantones(); track c.id) {
-                                    <ion-select-option [value]="c.id">{{ c.nombre }}</ion-select-option>
-                                    }
-                                </ion-select>
-                            </div>
-                        </div>
-                        }
-
-                        <div class="input-group">
-                            <ion-label>{{ labelGAD() }}</ion-label>
+                            <ion-label>GAD *</ion-label>
                             <div class="custom-input-wrapper">
                                 <ion-select interface="popover"
                                     [value]="state.laborData().funcionarioGad?.gadFuncionarioGad"
                                     (ionChange)="state.updateUserData({funcionarioGad: $event.detail.value})"
-                                    placeholder="[Seleccione un elemento]" class="custom-select w-full" style="width: 100%;">
+                                    placeholder="[Seleccione un GAD]" class="custom-select w-full" style="width: 100%;">
                                     @for (opt of opcionesGAD(); track opt.value) {
                                     <ion-select-option [value]="opt.value">{{ opt.label }}</ion-select-option>
                                     }
@@ -468,70 +436,18 @@
                     @if (state.laborData().tipoParticipanteId === state.resolvedIds().tipoInstitucion) {
                     <div class="form-grid" style="margin-top: 20px;">
 
-                        <!-- Fila 0: Nivel de Gobierno / Tipo de Institución -->
-                        <div class="input-group" style="grid-column: span 2;">
-                            <ion-label>Nivel de gobierno u otro *</ion-label>
-                            <div class="custom-input-wrapper">
-                                <ion-select interface="popover"
-                                    [value]="state.laborData().institucion?.institucionNivelGobiernoId"
-                                    (ionChange)="updateInstitucionTipo($event.detail.value); laborProvinciaId.set(null); laborCantonId.set(null)"
-                                    placeholder="[Seleccione un elemento]" class="custom-select w-full"
-                                    style="width: 100%;">
-                                    @for (e of entidadesGads(); track e.id) {
-                                    <ion-select-option [value]="e.id">{{ e.nombre }}</ion-select-option>
-                                    }
-                                </ion-select>
-                            </div>
-                        </div>
 
-                        <!-- Filtros de Jurisdicción -->
-                        @if (state.laborData().institucion?.institucionNivelGobiernoId) {
-                        <div class="input-group">
-                            <ion-label>Filtrar por Provincia</ion-label>
-                            <div class="custom-input-wrapper">
-                                <ion-select interface="popover" [value]="laborProvinciaId()"
-                                    (ionChange)="laborProvinciaId.set($event.detail.value); laborCantonId.set(null)"
-                                    placeholder="[Todas]" class="custom-select w-full" style="width: 100%;">
-                                    <ion-select-option [value]="null">Todas</ion-select-option>
-                                    @for (p of provincias(); track p.id) {
-                                    <ion-select-option [value]="p.id">{{ p.nombre }}</ion-select-option>
-                                    }
-                                </ion-select>
-                            </div>
-                        </div>
-
-                        <div class="input-group">
-                            <ion-label>Filtrar por Cantón</ion-label>
-                            <div class="custom-input-wrapper">
-                                <ion-select interface="popover" [value]="laborCantonId()"
-                                    [disabled]="!laborProvinciaId()"
-                                    (ionChange)="laborCantonId.set($event.detail.value)"
-                                    placeholder="[Todos]" class="custom-select w-full" style="width: 100%;">
-                                    <ion-select-option [value]="null">Todos</ion-select-option>
-                                    @for (c of laborFilteredCantones(); track c.id) {
-                                    <ion-select-option [value]="c.id">{{ c.nombre }}</ion-select-option>
-                                    }
-                                </ion-select>
-                            </div>
-                        </div>
-                        }
 
                         <!-- Fila 1: Instituciones | Grados Ocupacionales -->
                         <div class="input-group">
                             <ion-label>Instituciones *</ion-label>
                             <div class="custom-input-wrapper">
                                 <ion-select interface="popover" [value]="state.laborData().institucion?.institucion"
-                                    [disabled]="!state.laborData().institucion?.institucionNivelGobiernoId"
                                     (ionChange)="state.updateLaborData({institucionId: $event.detail.value})"
-                                    [placeholder]="state.laborData().institucion?.institucionNivelGobiernoId ? '[Seleccione una institución]' : '[Primero seleccione un nivel]'"
+                                    placeholder="[Seleccione una institución]"
                                     class="custom-select w-full" style="width: 100%;">
                                     @for (i of opcionesInstitucionCombinadas(); track i.value) {
                                     <ion-select-option [value]="i.value">{{ i.label }}</ion-select-option>
-                                    }
-                                    @if (opcionesInstitucionCombinadas().length === 0 &&
-                                    state.laborData().institucion?.institucionNivelGobiernoId) {
-                                    <ion-select-option [disabled]="true">No se encontraron
-                                        instituciones</ion-select-option>
                                     }
                                 </ion-select>
                             </div>

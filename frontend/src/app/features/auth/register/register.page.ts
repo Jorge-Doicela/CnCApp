@@ -69,12 +69,93 @@ export class RegisterPage {
   tiposInstitucion = signal<any[]>([]);
 
   // Labor Specific Catalogs
-  cargos = signal<any[]>([]);
+  cargosOriginal = signal<any[]>([]);
+  cargos = computed(() => {
+    const labor = this.laborData();
+    const resIds = this.state.resolvedIds();
+    const tpid = labor.tipoParticipanteId;
+    
+    if (tpid === resIds.tipoFuncionario) {
+      return [
+        { id: 101, nombre: 'Asesor(a)' },
+        { id: 102, nombre: 'Director(a) Dirección/Dpto./Unidad' },
+        { id: 103, nombre: 'Jefe Dpto./Unidad' },
+        { id: 104, nombre: 'Técnico' },
+        { id: 105, nombre: 'Otro' }
+      ];
+    }
+    
+    if (tpid === resIds.tipoInstitucion) {
+      const listaInstitucion = [
+        "Secretario(a) del Ministro(a)", "Abogado(a)", "Asistente de abogacía", "Asistente de comunicación social",
+        "Comunicador social", "Analista de planificación", "Secretaria(o) ejecutiva(o) de coordinación",
+        "Analista económico", "Administrador base de datos", "Analista de información",
+        "Analista legal y monitoreo de inversión", "Analista de servicio al inversionista",
+        "Analista de seguimiento y evaluación de políticas públicas", "Analista de diseño de políticas públicas",
+        "Analista de fomento productivo", "Tesorero general", "Analista de compras públicas",
+        "Analista de contabilidad", "Asistente financiero", "Contador general", "Analista de presupuesto",
+        "Asistente de presupuesto", "Recepcionista", "Analista administrativo", "Analista de activos fijos",
+        "Asistente administrativo", "Asistente de transportación", "Técnico de archivo",
+        "Analista de atención al ciudadano", "Analista de talento humano", "Asistente de talento humano",
+        "Analista de tecnologías de la información", "Asistente de tecnologías de la información", "Otro"
+      ];
+      return listaInstitucion.map((name, index) => ({ id: 400 + index, nombre: name }));
+    }
+    
+    return this.cargosOriginal();
+  });
   entidades = signal<any[]>([]); // "Nivel de gobierno u otro"
   mancomunidades = signal<any[]>([]);
   regimenesEspeciales = signal<any[]>([]);
-  competencias = signal<any[]>([]);
-  gradosOcupacionales = signal<any[]>([]);
+  competenciasOriginal = signal<any[]>([]);
+  competencias = computed(() => {
+    // Lista autorizada proporcionada por el usuario
+    const lista = [
+      "Áridos y pétreos",
+      "Cooperación Internacional",
+      "Dragado",
+      "Fomento de actividades productivas y agropecuarias",
+      "Forestación y reforestación",
+      "Fortalecimiento General",
+      "Gestión ambiental",
+      "Infraestructura física, equipamientos y espacios públicos",
+      "Patrimonio",
+      "Prevención, protección, socorro y extinción",
+      "Protección integral de derechos",
+      "Riego y drenaje",
+      "Servicios públicos",
+      "Tránsito, transporte terrestre y seguridad vial",
+      "Vialidad"
+    ];
+    return lista.map((name, index) => ({ id: 200 + index, nombre: name }));
+  });
+  gradosOcupacionalesOriginal = signal<any[]>([]);
+  gradosOcupacionales = computed(() => {
+    const lista = [
+      "Servidor Público de Servicios 1",
+      "Servidor Público de Servicios 2",
+      "Servidor Público de Apoyo 1",
+      "Servidor Público de Apoyo 2",
+      "Servidor Público de Apoyo 3",
+      "Servidor Público de Apoyo 4",
+      "Servidor Público 1",
+      "Servidor Público 2",
+      "Servidor Público 3",
+      "Servidor Público 4",
+      "Servidor Público 5",
+      "Servidor Público 6",
+      "Servidor Público 7",
+      "Servidor Público 8",
+      "Servidor Público 9",
+      "Servidor Público 10",
+      "Servidor Público 11",
+      "Servidor Público 12",
+      "Servidor Público 13",
+      "Servidor Público 14",
+      "Otro"
+    ];
+    return lista.map((name, index) => ({ id: 300 + index, nombre: name }));
+  });
   instituciones = signal<any[]>([]);
   educacionBasica = signal<any[]>([]);
   gadParroquias = signal<any[]>([]);
@@ -84,7 +165,10 @@ export class RegisterPage {
     const resIds = this.state.resolvedIds();
     const selectedTipoId = labor.institucion?.institucionNivelGobiernoId;
     
-    if (!selectedTipoId) return [];
+    // Si no hay nivel seleccionado, mostramos todas las instituciones del sistema por defecto
+    if (!selectedTipoId) {
+      return this.instisAutorizadas.map(name => ({ value: `i:${name}`, label: name }));
+    }
 
     // Buscar si el tipo seleccionado es "EDUCACIÓN GENERAL BÁSICA"
     const tipoSelected = this.tiposInstitucion().find((e: any) => e.id === selectedTipoId);
@@ -94,12 +178,24 @@ export class RegisterPage {
 
     // Determinar si el nivel seleccionado es MUNICIPAL (por ID o por nombre)
     const selectedEntidad = this.entidadesGads().find((e: any) => e.id === selectedTipoId);
-    const esMunicipal = (selectedEntidad?.nombre || '').toUpperCase().includes('MUNICIPAL') || 
-                       selectedTipoId === resIds.nivelMunicipal;
+    const entidadNombre = (selectedEntidad?.nombre || '').toUpperCase();
+    const esMunicipal = entidadNombre.includes('MUNICIPAL') || selectedTipoId === resIds.nivelMunicipal;
+    const esOtro = entidadNombre.includes('OTRO') || entidadNombre.includes('OTRA');
+    const esParroquial = entidadNombre.includes('PARROQUIAL') || selectedTipoId === resIds.nivelParroquial;
 
     // Si el tipo seleccionado es "MUNICIPAL", usar la lista autorizada
     if (esMunicipal) {
       return this.munisAutorizados.map(name => ({ value: `i:${name}`, label: name }));
+    }
+
+    // Si el tipo seleccionado es "PARROQUIAL RURAL", usar la lista autorizada
+    if (esParroquial) {
+      return this.parrsAutorizadas.map(name => ({ value: `p:${name}`, label: name }));
+    }
+
+    // Si el tipo seleccionado es "OTRO", usar la lista autorizada
+    if (esOtro) {
+      return this.parrsAutorizadas.map(name => ({ value: `o:${name}`, label: name }));
     }
 
     if (esEducacion) {
@@ -244,6 +340,126 @@ export class RegisterPage {
     "ZONAS NO DELIMITADAS / LAS GOLONDRINAS", "ZONAS NO DELIMITADAS / EL PIEDRERO"
   ];
 
+  parrsAutorizadas = [
+    "AZUAY / SANTA ISABEL / SAN SALVADOR DE CAÑARIBAMBA", "AZUAY / CUENCA / SAYAUSI", "AZUAY / CUENCA / SIDCAY",
+    "AZUAY / CUENCA / RICAURTE", "AZUAY / CUENCA / QUINGEO", "AZUAY / CUENCA / OCTAVIO CORDERO PALACIOS",
+    "AZUAY / CUENCA / NULTI", "AZUAY / CUENCA / MOLLETURO", "AZUAY / CUENCA / LLACAO", "AZUAY / CUENCA / CUMBE",
+    "AZUAY / CHORDELEG / LA UNION", "AZUAY / CUENCA / CHIQUINTAD", "AZUAY / CUENCA / CHAUCHA",
+    "AZUAY / CUENCA / BAÑOS", "AZUAY / CHORDELEG / SAN MARTIN DE PUZHIO", "AZUAY / CHORDELEG / PRINCIPAL",
+    "AZUAY / CHORDELEG / LUIS GALARZA ORELLANA", "AZUAY / CAMILO PONCE ENRIQUEZ / EL CARMEN DE PIJILI",
+    "AZUAY / CUENCA / SININCAY", "AZUAY / CUENCA / TURI", "AZUAY / CUENCA / VALLE",
+    "AZUAY / CUENCA / VICTORIA DEL PORTETE", "AZUAY / EL PAN / SAN VICENTE", "AZUAY / GIRON / ASUNCION",
+    "AZUAY / GUALACEO / DANIEL CORDOVA TORAL", "AZUAY / GUALACEO / JADAN", "AZUAY / GUALACEO / LUIS CORDERO VEGA",
+    "AZUAY / GUALACEO / MARIANO MORENO", "AZUAY / CUENCA / SAN JOAQUIN", "AZUAY / NABON / COCHAPATA",
+    "AZUAY / NABON / EL PROGRESO", "AZUAY / NABON / LAS NIEVES (CHAYA)", "AZUAY / OÑA / SUSUDEL",
+    "AZUAY / PAUTE / CHICAN (GUILLERMO ORTEGA)", "AZUAY / PAUTE / DUG-DUG", "AZUAY / PAUTE / EL CABO",
+    "AZUAY / PAUTE / GUARAINAG", "AZUAY / PAUTE / SAN CRISTOBAL", "AZUAY / PAUTE / TOMEBAMBA",
+    "AZUAY / SAN FERNANDO / CHUMBLIN", "AZUAY / SANTA ISABEL / ABDON CALDERON (LA UNIÓN)",
+    "AZUAY / SANTA ISABEL / ZHAGLLI", "AZUAY / SEVILLA DE ORO / AMALUZA", "AZUAY / SIGSIG / CUCHIL",
+    "AZUAY / SIGSIG / GIMA", "AZUAY / SIGSIG / GUEL", "AZUAY / SIGSIG / LADO", "AZUAY / SIGSIG / SAN BARTOLOME",
+    "AZUAY / SIGSIG / SAN JOSE DE RARANGA", "AZUAY / SEVILLA DE ORO / PALMAS", "AZUAY / PUCARA / SAN RAFAEL DE SHARUG",
+    "AZUAY / PAUTE / BULAN (JOSÉ VÍCTOR IZQUIERDO)", "AZUAY / GUALACEO / SIMON BOLIVAR",
+    "AZUAY / GUALACEO / SAN JUAN", "AZUAY / GUALACEO / REMIGIO CRESPO TORAL", "AZUAY / GIRON / SAN GERARDO",
+    "AZUAY / CUENCA / TARQUI", "AZUAY / CUENCA / PACCHA", "AZUAY / CUENCA / CHECA (JIDCAY)",
+    "AZUAY / GUALACEO / ZHIDMAD", "AZUAY / CUENCA / SANTA ANA", "BOLIVAR / GUARANDA / SIMIATUG",
+    "BOLIVAR / GUARANDA / SALINAS", "BOLIVAR / SAN JOSE DE CHIMBO / SAN SEBASTIAN",
+    "BOLIVAR / CHILLANES / SAN JOSE DEL TAMBO (TAMBOPAMBA)", "BOLIVAR / GUARANDA / FACUNDO VELA",
+    "BOLIVAR / GUARANDA / JULIO E. MORENO", "BOLIVAR / GUARANDA / SAN LORENZO",
+    "BOLIVAR / GUARANDA / SAN LUIS DE PAMBIL", "BOLIVAR / GUARANDA / SAN SIMON (YACOTO)",
+    "BOLIVAR / GUARANDA / SANTAFE (SANTA FE)", "BOLIVAR / SAN JOSE DE CHIMBO / ASUNCION (ASANCOTO)",
+    "BOLIVAR / SAN JOSE DE CHIMBO / MAGDALENA (CHAPACOTO)", "BOLIVAR / SAN JOSE DE CHIMBO / TELIMBELA",
+    "BOLIVAR / SAN MIGUEL / BILOVAN", "BOLIVAR / SAN MIGUEL / REGULO DE MORA", "BOLIVAR / SAN MIGUEL / SAN PABLO",
+    "BOLIVAR / SAN MIGUEL / SAN VICENTE", "BOLIVAR / SAN MIGUEL / SANTIAGO", "BOLIVAR / SAN MIGUEL / BALSAPAMBA",
+    "CAÑAR / CAÑAR / SAN ANTONIO", "CAÑAR / CAÑAR / VENTURA", "CAÑAR / CAÑAR / ZHUD",
+    "CAÑAR / DELEG / SOLANO", "CAÑAR / LA TRONCAL / MANUEL J. CALLE", "CAÑAR / LA TRONCAL / PANCHO NEGRO",
+    "CAÑAR / CAÑAR / HONORATO VASQUEZ", "CAÑAR / CAÑAR / GUALLETURO", "CAÑAR / CAÑAR / GENERAL MORALES",
+    "CAÑAR / CAÑAR / DUCUR", "CAÑAR / CAÑAR / CHOROCOPTE", "CAÑAR / CAÑAR / CHONTAMARCA",
+    "CAÑAR / BIBLIAN / TURUPAMBA", "CAÑAR / BIBLIAN / NAZON", "CAÑAR / BIBLIAN / JERUSALEN",
+    "CAÑAR / AZOGUES / TADAY", "CAÑAR / AZOGUES / SAN MIGUEL", "CAÑAR / AZOGUES / RIVERA",
+    "CAÑAR / AZOGUES / LUIS CORDERO", "CAÑAR / AZOGUES / JAVIER LOYOLA", "CAÑAR / AZOGUES / GUAPAN",
+    "CAÑAR / CAÑAR / INGAPIRCA", "CAÑAR / BIBLIAN / SAN FRANCISCO DE SAGEO", "CAÑAR / AZOGUES / PINDILIG",
+    "CAÑAR / AZOGUES / COJITAMBO", "CAÑAR / CAÑAR / JUNCAL", "CARCHI / MIRA / CONCEPCION",
+    "CARCHI / MONTUFAR / CRISTOBAL COLON", "CARCHI / TULCAN / PIOTER", "CARCHI / TULCAN / EL CHICAL",
+    "CARCHI / TULCAN / EL CARMELO (EL PUN)", "CARCHI / SAN PEDRO DE HUACA / MARISCAL SUCRE",
+    "CARCHI / MONTUFAR / PIARTAL", "CARCHI / MONTUFAR / LA PAZ", "CARCHI / MONTUFAR / FERNANDEZ SALVADOR",
+    "CARCHI / MONTUFAR / CHITAN DE NAVARRETE", "CARCHI / MIRA / JUAN MONTALVO", "CARCHI / TULCAN / TUFIÑO",
+    "CARCHI / MIRA / JIJON Y CAAMAÑO", "CARCHI / ESPEJO / SAN ISIDRO", "CARCHI / ESPEJO / LA LIBERTAD (ALIZO)",
+    "CARCHI / ESPEJO / EL GOALTAL", "CARCHI / LA MANA / SAN VICENTE DE PUSIR", "CARCHI / LA MANA / MONTE OLIVO",
+    "CARCHI / LA MANA / LOS ANDES", "CARCHI / LA MANA / GARCIA MORENO", "CARCHI / TULCAN / TOBAR DONOSO (LA BOCANA)",
+    "CARCHI / TULCAN / SANTA MARTHA DE CUBA", "CARCHI / TULCAN / JULIO ANDRADE (OREJUELA)",
+    "CARCHI / TULCAN / URBINA (TAYA)", "CARCHI / TULCAN / MALDONADO", "CARCHI / LA MANA / SAN RAFAEL",
+    "COTOPAXI / PANGUA / RAMON CAMPAÑA", "COTOPAXI / PUJILI / ANGAMARCA", "COTOPAXI / PUJILI / GUANGAJE",
+    "COTOPAXI / PUJILI / TINGO", "COTOPAXI / PUJILI / ZUMBAHUA", "COTOPAXI / SALCEDO / CUSUBAMBA",
+    "COTOPAXI / SALCEDO / MULLIQUINDIL (SANTA ANA)", "COTOPAXI / SALCEDO / MULALILLO",
+    "COTOPAXI / SALCEDO / PANSALEO", "COTOPAXI / SAQUISILI / CANCHAGUA", "COTOPAXI / SAQUISILI / CHANTILIN",
+    "COTOPAXI / SAQUISILI / COCHAPAMBA", "COTOPAXI / SIGCHOS / CHUGCHILAN", "COTOPAXI / SIGCHOS / ISINLIVI",
+    "COTOPAXI / SIGCHOS / LAS PAMPAS", "COTOPAXI / LA MANA / GUASAGANDA", "COTOPAXI / LA MANA / PUCAYACU",
+    "COTOPAXI / LATACUNGA / 11 DE NOVIEMBRE (ILINCHI)", "COTOPAXI / SALCEDO / ANTONIO JOSE HOLGUIN",
+    "COTOPAXI / PUJILI / PILALO", "COTOPAXI / PUJILI / LA VICTORIA", "COTOPAXI / SIGCHOS / PALO QUEMADO",
+    "COTOPAXI / LATACUNGA / ALAQUES (ALAQUEZ)", "COTOPAXI / LATACUNGA / BELISARIO QUEVEDO", "COTOPAXI / LATACUNGA"
+  ];
+
+  instisAutorizadas = [
+    "AGENCIA DE REGULACIÓN Y CONTROL EL AGUA", "AGENCIA DE REGULACIÓN Y CONTROL MINERO (ARCOM)",
+    "AGENCIA NACIONAL DE REGULACION Y CONTROL DEL TRANSPORTE TERRESTRE TRANSITO Y SEGURIDAD VIAL",
+    "AGENCIA NACIONAL DE TRANSITO", "Agencia Nacional de Tránsito", "AGROCALIDAD", "Asamblea Nacional",
+    "ASOCIACION DE MUNICIPALIDADES ECUATORIANAS", "Banco de Desarrollo del Ecuador, BP.",
+    "Banco del Desarrollo del Ecuador B.P.", "BanEcuador B.P.", "BENEMÉRITO CUERPO DE BOMBEROS DE GUAYAQUIL",
+    "BOMBEROS", "CASA DE LA CULTURA CHIMBORAZO", "Casa de la Cultura Ecuatoriana Núcleo del Guayas",
+    "CASA DE LA CULTURA NÚCLEO DE CHIMBORAZO", "CCPD", "CNE DELEGACIÓN PROVINCIAL ELECTORAL DE ZAMORA CHINCHIPE",
+    "CNE DELEGACION PROVINCIAL ELECTORAL SANTO DOMINGO DE LOS TSACHILAS", "CONAGOPARE AZUAY",
+    "Conagopare el oro", "Conagopare El Oro", "CONAGOPARE EL ORO", "CONAGOPARE GUAYAS", "CONAGOPARE TUNGURAHUA",
+    "Concejo de Gobierno del Pueblo Shuar Arutam", "Conferencia Plurinacional e Intercultural de Soberania Alimentaria",
+    "CONFERENCIA PLURINACIONAL E INTERCULTURAL DE SOBERANÍA ALIMENTARIA", "CONSEJO CANTONAL DE PROTECCION DE DERECHOS DE AZOGUES",
+    "Consejo Cantonal para la Protección de Derechos de Arajuno", "Consejo Cantonal Para la Protección de Derechos del Cantón Huamboya",
+    "CONSEJO DE EDUCACION SUPERIOR", "Consejo de Gobierno del Régimen Especial de Galápagos", "CONSEJO DE LA JUDICATURA",
+    "Consejo de Participación Ciudadana y Control Social", "Consejo de Protección de Drechos del Distrito Metropolitano de Quito",
+    "Consejo Nacional de Competencias", "CONSEJO NACIONAL ELECTORAL", "Consejo Nacional para la Igualdad de Género",
+    "CONSEJO NACIONAL PARA LA IGUALDAD INTERGENERACIONAL", "CONSORCIO DE GOBIERNOS PROVINCIALES DEL ECUADOR (CONGOPE)",
+    "CONSORCIO DE MUNICIPIOS AMAZONICOS Y GALÁPAGOS", "Consulado", "Contraloría General del Estado",
+    "COORDINACION ZONAL SERVICIO INTEGRADO DE SEGURIDAD ECU IBARRA", "Corporación Nacional de Telecomunicaciones",
+    "Corporación ProIdeas", "Cuerpo de Bomberos del Cantón El Tambo", "CUERPO DE BOMBEROS DEL CANTÓN SUSCAL",
+    "CUERPO DE BOMBEROS MUNICIPAL DEL CANTÓN PASTAZA", "Defensoria del Pueblo, Zonal cuatro",
+    "DIRECCIÓN GENERAL DE REGISTRO CIVIL, IDENTIFICACIÓN Y CEDULACIÓN", "DIRECCION NACIONAL DE REGISTRO DE DATOS PUBLICOS",
+    "EMPRESA ELECTRICA PUBLICA ESTRATÉGICA CORPORACIÓN NACIONAL DE ELECTRICIDAD CNEL EP",
+    "Empresa Publica Cuerpo de Bomberos de Milagro", "EMPRESA PUBLICA DE ARIDOS Y ASFALTOS DEL AZUAY ASFALTAR EP",
+    "Empresa Pública del Agua", "EMPRESA PÚBLICA DE LA MANCOMUNIDAD DE TRANSITO, TRANSPORTE TERRESTRE Y SEGURIDAD VIAL DE LA PROVINCIA DE",
+    "EMPRESA PUBLICA DE MOVILIDAD DE LA MANCOMUNIDAD DE COTOPAXI", "EMPRESA PÚBLICA DE OBRAS, BIENES Y SERVICIOS SANTA ELENA E.P.",
+    "EMPRESA PÚBLICA MUNICIPAL DE ASEO DE CUENCA", "EMPRESA PUBLICA MUNICIPAL DE MOVILIDAD, TRANSITO Y TRANSPORTE DE MILAGRO",
+    "EMUCE EP", "EpPetroecuador", "ESCUELA POLITECNICA NACIONAL", "ESCUELA SUPERIOR POLITÉCNICA DE CHIMBORAZO",
+    "ESCUELA SUPERIOR POLITECNICA DEL LITORAL", "ESPE INNOVATIVA EP", "FARMASOL", "FOSCQ", "FUERZA AÉREA ECUATORIANA",
+    "FUERZA AREA ECUATORIANA", "FUNDACIÓN MUNICIPAL TURISMO PARA CUENCA",
+    "Gobierno Autonomo Descentralizado Municipal del Cantón La Joya de los Sachas", "Gobiernos Autónomos descentralizados(GADS)",
+    "GOLDENCONST Cia. Ltda.", "Gran Victor Eventos", "HOSPITAL PROVINCIAL GENERAL ISIDRO AYORA", "IESS",
+    "Instituto Antártico Ecuatoriano", "Instituto de fomento al talento humano", "INSTITUTO GEOGRÁFICO MILITAR",
+    "Instituto Nacional de Estadística y Censos", "Instituto Nacional de Evaluación Educativa",
+    "INSTITUTO NACIONAL DE INVESTIGACIÓN GEOLÓGICO MINERO METALURGICO", "Instituto Nacional de Patrimonio Cultural",
+    "MANCOMUNIDAD MUNDO VERDE O DEL BUEN VIVIR SUMAK SAWKAY", "Ministerio de Agricultura, Ganadería, Acuacultura y Pesca",
+    "Ministerio de Comercio Exterior", "Ministerio de Coordinación de la Producción, Empleo y Competitividad",
+    "Ministerio de Cultura y Patrimonio", "Ministerio de Desarrollo Urbano y Vivienda", "Ministerio de Educación",
+    "Ministerio de Electricidad y Energía Renovable", "Ministerio de Finanzas", "Ministerio de Hidrocarburos",
+    "Ministerio de Inclusión Económica y Social", "Ministerio de Industrias y Productividad",
+    "Ministerio de Justicia, Derechos Humanos y Culto", "Ministerio del ambiente", "Ministerio del Ambiente",
+    "Ministerio del Deporte", "Ministerio del Interior", "Ministerio de Minería", "Ministerio de Relaciones Exteriores y Movilidad Humana",
+    "Ministerio de Relaciones Laborales", "MINISTERIO DE SALUD", "Ministerio de Salud Pública",
+    "Ministerio de Telecomunicaciones y de la Sociedad de la Información", "Ministerio de Transporte y Obras Públicas",
+    "Ministerio de Turismo", "Otros", "PETROAMAZONAS EP", "Plan Binacional de Desarrollo de la Región Fronteriza, Capítulo Ecuador",
+    "Plan Binacional de Desarrollo de la Región Fronteriza, CapítulO Ecuador", "PNUD", "Presidencia de la República",
+    "Procuraduría General del Estado", "PROGRAMA DE REPARACION INTEGRAL Y SOCIAL", "Registro Civil",
+    "REGISTRO DE LA PROPIEDAD DEL CANTÓN SANTO DOMINGO", "Secretaria de Educación Superior Ciencia Tecnología e Innovación",
+    "Secretaría Nacional de Comunicación", "Secretaría Nacional de Educación Superior, Ciencia, Tecnología e Innovación",
+    "Secretaria Nacional de Gestión de la Política", "Secretaria Nacional de Gestión de Riesgos.",
+    "Secretaría Nacional de la Administración Pública", "Secretaria Nacional del Agua.",
+    "SECRETARIA NACIONAL DE PLANIFICACION Y DESARROLLO", "Secretaría Nacional de Planificación y Desarrollo",
+    "Secretaría Técnica de Cooperación Internacional", "SECRETARIA TÉCNICA PARA LA GESTIÓN INCLUSIVA EN DISCAPACIDADES",
+    "SECRETARIA TECNICA PLAN TODA UNA VIDA", "SEGURIDAD", "Sercop", "Servicio de Contratación de obras",
+    "Servicio de Gestión Inmobiliaria del Sector Público", "SERVICIO INTEGRADO DE SEGURIDAD ECU PORTOVIEJO",
+    "SERVICIO INTEGRADO DE SEGURIDAD ECU SAMBORONDON", "Servicio Nacional de Contratación Pública", "Supercom",
+    "SUPERINTENDENCIA DE BANCOS", "TAME AMAZONIA", "Universidad Central del Ecuador", "Universidad de Cuenca",
+    "Universidad Nacional de Loja", "Universidad Península de Santa Elena", "Universidad Regional Amazónica IKIAM",
+    "UNIVERSIDAD TECNICA DE MACHALA", "UNIVERSIDAD TÉCNICA LUIS VARGAS TORRES", "UPSJ"
+  ];
+
   // Dynamic GAD List based on selected level (for Autoridad and Funcionario)
   opcionesGAD = computed(() => {
     const labor = this.laborData();
@@ -261,12 +477,24 @@ export class RegisterPage {
 
     // Determinar si el nivel seleccionado es MUNICIPAL (por ID o por nombre)
     const selectedEntidad = this.entidadesGads().find((e: any) => e.id === nivelId);
-    const esMunicipal = (selectedEntidad?.nombre || '').toUpperCase().includes('MUNICIPAL') || 
-                       nivelId === resIds.nivelMunicipal;
+    const entidadNombre = (selectedEntidad?.nombre || '').toUpperCase();
+    const esMunicipal = entidadNombre.includes('MUNICIPAL') || nivelId === resIds.nivelMunicipal;
+    const esOtro = entidadNombre.includes('OTRO') || entidadNombre.includes('OTRA');
+    const esParroquial = entidadNombre.includes('PARROQUIAL') || nivelId === resIds.nivelParroquial;
 
     // Para nivel Municipal, usar la lista autorizada
     if (esMunicipal) {
       return this.munisAutorizados.map(name => ({ value: name, label: name }));
+    }
+
+    // Para nivel Parroquial Rural, usar la lista autorizada
+    if (esParroquial) {
+      return this.parrsAutorizadas.map(name => ({ value: name, label: name }));
+    }
+
+    // Para nivel OTRO, usar la lista autorizada
+    if (esOtro) {
+      return this.parrsAutorizadas.map(name => ({ value: name, label: name }));
     }
 
     // Apply Jurisdiction filters for Territorial GADs
@@ -442,7 +670,7 @@ export class RegisterPage {
       this.etnias.set(etniasResp || []);
       this.nacionalidades.set(nacionalidadesResp || []);
       this.tiposParticipante.set(tiposParticipanteResp || []);
-      this.cargos.set(cargosResp || []);
+      this.cargosOriginal.set(cargosResp || []);
       const preferredOrder = [
         'PROVINCIAL',
         'MUNICIPAL',
@@ -470,8 +698,8 @@ export class RegisterPage {
       this.entidades.set(sortedEntidades);
       this.regimenesEspeciales.set(regimenesEspecialesResp || []);
       this.mancomunidades.set(mancomunidadesResp || []);
-      this.competencias.set(competenciasResp || []);
-      this.gradosOcupacionales.set(gradosOcupacionalesResp || []);
+      this.competenciasOriginal.set(competenciasResp || []);
+      this.gradosOcupacionalesOriginal.set(gradosOcupacionalesResp || []);
       this.instituciones.set(institucionesResp || []);
       this.educacionBasica.set(educacionBasicaResp || []);
       this.gadParroquias.set(gadParroquiasResp || []);
@@ -645,22 +873,8 @@ export class RegisterPage {
       return false;
     }
 
-    if (data.tipoParticipanteId === resIds.tipoAutoridad) { // Autoridad
-      if (!data.autoridad?.cargo || !data.autoridad?.nivelgobierno || !data.autoridad?.gadAutoridad) {
-        this.presentToast('Complete todos los campos para Autoridad', 'warning');
-        return false;
-      }
-    } else if (data.tipoParticipanteId === resIds.tipoFuncionario) { // Funcionario
-      if (!data.funcionarioGad?.cargo || !data.funcionarioGad?.nivelgobierno || !data.funcionarioGad?.gadFuncionarioGad || !data.funcionarioGad?.competencias || data.funcionarioGad.competencias.length === 0) {
-        this.presentToast('Complete todos los campos para Funcionario GAD, incluyendo competencias', 'warning');
-        return false;
-      }
-    } else if (data.tipoParticipanteId === resIds.tipoInstitucion) { // Institucion
-      if (!data.institucion?.institucion || !data.institucion?.gradoOcupacional || !data.institucion?.cargo) {
-        this.presentToast('Complete todos los campos para Institución (institución, grado ocupacional y cargo)', 'warning');
-        return false;
-      }
-    }
+    // Validación flexible: Permitimos continuar aunque falten datos opcionales
+    return true;
 
     return true;
   }
