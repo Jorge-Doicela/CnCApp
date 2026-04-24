@@ -27,6 +27,49 @@
               </div>
             </div>
           </div>
+
+          <!-- Bento Grid Quick Access (New Layout) -->
+          <div class="bento-grid-container animate-fade-up" style="animation-delay: 0.5s;">
+            
+            <!-- Validar Certificados (Featured Large Card) -->
+            <div class="bento-item featured" (click)="navegarModulo('validar-certificados')">
+              <div class="bento-icon-wrap"><ion-icon name="qr-code-outline"></ion-icon></div>
+              <div class="bento-text">
+                <span class="label">Validar Certificados</span>
+                <p>Verifica títulos oficiales al instante</p>
+              </div>
+              <ion-icon name="arrow-forward-circle" class="bento-arrow"></ion-icon>
+            </div>
+
+            <!-- Smaller Square Cards -->
+            <div class="bento-row">
+              <div class="bento-item small" (click)="navegarModulo('informacion')">
+                <ion-icon name="information-circle-outline"></ion-icon>
+                <span>Nosotros</span>
+              </div>
+              <div class="bento-item small" (click)="navegarModulo('servi-progra')">
+                <ion-icon name="calendar-outline"></ion-icon>
+                <span>Servicios</span>
+              </div>
+            </div>
+
+            <div class="bento-row">
+              <div class="bento-item small" (click)="navegarModulo('direccion')">
+                <ion-icon name="location-outline"></ion-icon>
+                <span>Dirección</span>
+              </div>
+              <div class="bento-item small" (click)="navegarModulo('historia')">
+                <ion-icon name="book-outline"></ion-icon>
+                <span>Historia</span>
+              </div>
+            </div>
+
+            <div class="bento-item medium" (click)="navegarModulo('norma')">
+              <ion-icon name="document-text-outline"></ion-icon>
+              <span>Norma Reguladora</span>
+              <ion-icon name="chevron-forward" class="mini-arrow"></ion-icon>
+            </div>
+          </div>
         </div>
       </div>
     </div>

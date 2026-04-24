@@ -17,8 +17,13 @@
 }
 
 .section-padding {
-  padding-top: 40px;
-  padding-bottom: 40px;
+  padding-top: 60px;
+  padding-bottom: 60px;
+
+  @media (max-width: 600px) {
+    padding-top: 50px;
+    padding-bottom: 50px;
+  }
 }
 
 // ------------------------------------------
@@ -268,7 +273,7 @@ ion-header {
   .hero-pill-tray-wrapper {
     display: flex;
     justify-content: center;
-    margin-top: 40px;
+    margin-top: 60px; // Increased from 40px for breathing room
   }
 
   .hero-pill-tray {
@@ -366,6 +371,156 @@ ion-header {
   }
 }
 
+// Bento Grid Quick Access Styles (Modern & Dynamic)
+.bento-grid-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 480px;
+  margin: 60px auto 0;
+  padding: 0 10px;
+
+  .bento-row {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .bento-item {
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(0, 0, 0, 0.03);
+    display: flex;
+    position: relative;
+    overflow: hidden;
+
+    &:active {
+      transform: scale(0.97);
+      background: #f8fafc;
+    }
+
+    // Featured Card (Validar Certificados)
+    &.featured {
+      width: 100%;
+      background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+      color: #ffffff;
+      padding: 24px;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 12px 25px -5px rgba(30, 58, 138, 0.3);
+
+      .bento-icon-wrap {
+        width: 54px;
+        height: 54px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+      }
+
+      .bento-text {
+        flex: 1;
+        text-align: left;
+        
+        .label {
+          display: block;
+          font-size: 1.15rem;
+          font-weight: 850;
+          letter-spacing: -0.02em;
+        }
+
+        p {
+          margin: 2px 0 0;
+          font-size: 0.85rem;
+          color: rgba(255, 255, 255, 0.8);
+          font-weight: 500;
+        }
+      }
+
+      .bento-arrow {
+        font-size: 1.8rem;
+        opacity: 0.8;
+      }
+    }
+
+    // Small Square Cards
+    &.small {
+      flex: 1;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 22px 10px;
+      text-align: center;
+
+      ion-icon {
+        font-size: 1.6rem;
+        color: #1e3a8a;
+      }
+
+      span {
+        font-size: 0.85rem;
+        font-weight: 750;
+        color: #475569;
+        text-transform: uppercase;
+        letter-spacing: 0.02em;
+      }
+
+      &:hover {
+        background: #f1f5f9;
+        ion-icon { transform: translateY(-2px); }
+      }
+    }
+
+    // Medium Wide Card
+    &.medium {
+      width: 100%;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 20px;
+      background: #f8fafc;
+      border: 1px dashed #cbd5e1;
+
+      ion-icon {
+        font-size: 1.4rem;
+        color: #64748b;
+      }
+
+      span {
+        flex: 1;
+        text-align: left;
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: #475569;
+      }
+
+      .mini-arrow {
+        font-size: 1.2rem;
+        color: #cbd5e1;
+      }
+    }
+  }
+
+  @media (max-width: 600px) {
+    margin-top: 40px;
+    gap: 10px;
+    
+    .bento-row { gap: 10px; }
+    
+    .bento-item.featured {
+      padding: 20px;
+      .bento-icon-wrap { width: 44px; height: 44px; font-size: 1.5rem; }
+      .bento-text .label { font-size: 1.05rem; }
+    }
+  }
+}
+
 
 // ------------------------------------------
 // CARDS & GRIDS (Stripe Style)
@@ -375,15 +530,15 @@ ion-header {
 .clean-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-  gap: 20px;
-  margin-top: -20px; // Reduced pull-up
+  gap: 32px; // Increased from 20px
+  margin-top: 0px; // Removed pull-up for more space on mobile
 }
 
 .feature-card {
   background: #ffffff;
   border: 1px solid rgba(0, 0, 0, 0.05);
-  border-radius: 20px; // Slightly smaller radius for compact look
-  padding: 24px; // Much more compact
+  border-radius: 20px; 
+  padding: 32px; // Increased from 24px for premium feel
   transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
   display: flex;
   flex-direction: row; // Horizontal layout
@@ -471,17 +626,18 @@ ion-header {
   }
 
   @media (max-width: 600px) {
-    padding: 20px;
-    gap: 16px;
+    padding: 28px; // Increased from 20px
+    gap: 20px;
+    margin-bottom: 12px; // Ensure cards don't touch
     
     .icon-box {
-      width: 44px;
-      height: 44px;
-      font-size: 1.3rem;
+      width: 52px; // Restored size
+      height: 52px;
+      font-size: 1.5rem;
     }
     
-    h3 { font-size: 1.05rem; }
-    p { font-size: 0.88rem; }
+    h3 { font-size: 1.15rem; }
+    p { font-size: 0.95rem; }
   }
 }
 
@@ -1307,8 +1463,8 @@ ion-header {
 // ------------------------------------------
 .final-cta-section {
   background: #f8fafc;
-  padding-top: 10px; 
-  padding-bottom: 30px;
+  padding-top: 80px; // Increased from 10px to separate from grid
+  padding-bottom: 50px;
   
   .cta-glass-card {
     background: #1e3a8a;

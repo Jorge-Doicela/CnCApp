@@ -315,12 +315,12 @@ export class HomePage implements OnInit {
       'Validar certificados': 'validar-certificados',
       'Ver capacitaciones': 'ver-conferencias',
       'Confirmar asistencia': 'confirmar-asistencia',
-      // Public Pages
       'historia': 'home/historia',
       'direccion': 'home/direccion',
-      'norma-regul': 'home/norma-regul',
+      'norma': 'home/norma',
       'informacion': 'home/informacion',
       'servi-progra': 'home/servi-progra',
+      'validar-certificados': 'validar-certificados',
       // Bento/Admin shortcuts
       'Usuarios': 'gestionar-usuarios',
       'Conferencias': 'gestionar-capacitaciones',
