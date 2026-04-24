@@ -8,16 +8,29 @@
 </ion-header>
 
 <ion-content [fullscreen]="true" class="ion-padding">
-  <div class="survey-container">
+  <div *ngIf="loading" class="ion-text-center ion-padding loading-container">
+    <ion-spinner name="crescent" color="primary"></ion-spinner>
+    <p>Cargando encuesta...</p>
+  </div>
+
+  <div class="survey-container" *ngIf="!loading && encuestaData">
     <div class="survey-header">
-      <h2>Encuesta de satisfacción: Modelos de gestión de las competencias y funciones descentralizadas - Riobamba, 16 de abril de 2026</h2>
-      <p class="intro-text">
-        El objetivo de ésta encuesta es conocer su opinión sobre el servicio recibido para así mejorar los procesos de fortalecimiento institucional que ejecuta el CNC. 
-        La información proporcionada es confidencial y tiene el único objetivo de mejorar nuestra gestión. El CNC será responsable del tratamiento de los datos personales.
-      </p>
+      <h2>{{ encuestaData.titulo }}</h2>
+      <p class="intro-text">{{ encuestaData.descripcion }}</p>
     </div>
 
-    <form (ngSubmit)="onSubmit()">
+    <div class="already-responded" *ngIf="yaRespondio">
+      <div class="success-icon-box">
+        <ion-icon name="checkmark-done-circle-outline"></ion-icon>
+      </div>
+      <h3>¡Encuesta completada!</h3>
+      <p>Ya hemos recibido tu opinión sobre esta capacitación. Tu participación es fundamental para seguir mejorando nuestra gestión.</p>
+      <ion-button expand="block" fill="outline" color="primary" routerLink="/home">
+        Volver al Inicio
+      </ion-button>
+    </div>
+
+    <form (ngSubmit)="onSubmit()" *ngIf="!yaRespondio">
       <!-- SECTION 1: NIVEL DE GOBIERNO -->
       <div class="section-card">
         <ion-list-header>

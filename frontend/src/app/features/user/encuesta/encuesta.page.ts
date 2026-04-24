@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule, NavController, ToastController } from '@ionic/angular';
@@ -17,10 +17,14 @@ export class EncuestaPage implements OnInit {
   private encuestaService = inject(EncuestaService);
   private navCtrl = inject(NavController);
   private toastCtrl = inject(ToastController);
+  private cdr = inject(ChangeDetectorRef);
 
   capacitacionId: number = 0;
   encuestaId: number = 0;
   submitting = false;
+  encuestaData: any = null;
+  loading = true;
+  yaRespondio = false;
 
   formData: any = {
     nivelGobierno: '',
@@ -57,10 +61,40 @@ export class EncuestaPage implements OnInit {
   ngOnInit() {
     this.route.queryParams.subscribe(params => {
       this.capacitacionId = Number(params['capacitacionId']);
-      this.encuestaId = Number(params['encuestaId']);
+      // El encuestaId ya no es estrictamente necesario pasarlo, podemos obtenerlo del backend
       
-      if (!this.capacitacionId || !this.encuestaId) {
+      if (!this.capacitacionId) {
         this.showToast('Información de capacitación no válida', 'danger');
+        this.navCtrl.back();
+        return;
+      }
+
+      this.cargarEncuesta();
+    });
+  }
+
+  cargarEncuesta() {
+    this.loading = true;
+    this.encuestaService.getEncuestaByCapacitacion(this.capacitacionId).subscribe({
+      next: (data) => {
+        this.encuestaData = data;
+        this.encuestaId = data.id;
+        
+        // Verificar si ya respondió
+        this.encuestaService.checkIfResponded(this.encuestaId).subscribe({
+          next: (res) => {
+            this.yaRespondio = res.responded;
+            this.loading = false;
+            this.cdr.detectChanges();
+          },
+          error: () => {
+            this.loading = false;
+            this.cdr.detectChanges();
+          }
+        });
+      },
+      error: (err) => {
+        this.showToast('No se pudo cargar la encuesta', 'danger');
         this.navCtrl.back();
       }
     });

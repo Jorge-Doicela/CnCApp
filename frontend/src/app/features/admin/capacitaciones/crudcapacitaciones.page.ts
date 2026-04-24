@@ -20,7 +20,7 @@ import {
   videocamOutline, people, createOutline, peopleOutline, checkmarkDoneOutline, 
   trashBinOutline, ellipse, checkmarkCircle, eyeOutline, closeOutline,
   linkOutline, time, businessOutline, qrCodeOutline, printOutline,
-  copyOutline, chevronUpOutline
+  copyOutline, chevronUpOutline, statsChartOutline
 } from 'ionicons/icons';
 
 @Component({
@@ -75,7 +75,7 @@ export class CrudcapacitacionesPage implements OnInit {
       videocamOutline, people, createOutline, peopleOutline, checkmarkDoneOutline,
       trashBinOutline, ellipse, checkmarkCircle, eyeOutline, closeOutline,
       linkOutline, time, businessOutline, qrCodeOutline, printOutline,
-      copyOutline, chevronUpOutline
+      copyOutline, chevronUpOutline, statsChartOutline
     });
   }
 
@@ -264,6 +264,11 @@ export class CrudcapacitacionesPage implements OnInit {
   iraVisualizarinscritos(id: number) {
     const prefix = this.router.url.includes('/conferencista/') ? '/conferencista' : '';
     this.router.navigate([`${prefix}/gestionar-capacitaciones/visualizar-inscritos`, id]);
+  }
+
+  iraVisualizarResultados(id: number) {
+    const prefix = this.router.url.includes('/conferencista/') ? '/conferencista' : '';
+    this.router.navigate([`${prefix}/gestionar-capacitaciones/resultados`, id]);
   }
 
   // Finalizar capacitación (nueva funcionalidad)

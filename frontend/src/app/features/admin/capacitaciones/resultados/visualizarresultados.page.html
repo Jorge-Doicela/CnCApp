@@ -1,0 +1,93 @@
+<ion-content>
+  <div class="main-container">
+    <div class="page-back-nav fade-up">
+      <ion-button fill="clear" (click)="volver()">
+        <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
+        Volver a la Gestión
+      </ion-button>
+    </div>
+
+    <div *ngIf="loading" class="loading-wrapper fade-up">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>Analizando respuestas...</p>
+    </div>
+
+    <div *ngIf="!loading && encuesta" class="fade-up">
+      <header class="admin-header">
+        <span class="eyebrow">
+          <ion-icon name="stats-chart-outline"></ion-icon> Métrica de Satisfacción
+        </span>
+        <h1>Resultados de la Encuesta</h1>
+        <p>{{ encuesta.titulo }}</p>
+      </header>
+
+      <!-- KPI Summary -->
+      <div class="stats-grid-premium">
+        <div class="stat-card-premium">
+          <div class="stat-icon-box primary"><ion-icon name="people-outline"></ion-icon></div>
+          <div class="stat-info">
+            <span class="stat-num">{{ stats.totalRespuestas }}</span>
+            <span class="stat-desc">Respuestas Totales</span>
+          </div>
+        </div>
+        <div class="stat-card-premium">
+          <div class="stat-icon-box success"><ion-icon name="star"></ion-icon></div>
+          <div class="stat-info">
+            <span class="stat-num">{{ stats.promedioSatisfaccion }}/4</span>
+            <span class="stat-desc">Satisfacción Promedio</span>
+          </div>
+        </div>
+        <div class="stat-card-premium">
+          <div class="stat-icon-box warning"><ion-icon name="school-outline"></ion-icon></div>
+          <div class="stat-info">
+            <span class="stat-num">{{ stats.promedioImplementacion }}/4</span>
+            <span class="stat-desc">Índice de Aplicación</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Detalle de Respuestas -->
+      <section class="form-section">
+        <h3 class="section-title">
+          <ion-icon name="chatbubble-ellipses-outline"></ion-icon>
+          Comentarios y Recomendaciones
+        </h3>
+
+        <div class="responses-list">
+          <div class="response-card glass-card" *ngFor="let r of resultados">
+            <div class="response-header">
+              <div class="user-info">
+                <strong>{{ r.usuario?.nombre }}</strong>
+                <span>{{ r.nivelGobierno }}</span>
+              </div>
+              <div class="rating-badge">
+                <ion-icon name="star" *ngFor="let s of getStars((r.satisfaccionObjetivo + r.satisfaccionMetodologia + r.satisfaccionUtilidad + r.satisfaccionConocimiento + r.satisfaccionTiempo)/5)"></ion-icon>
+              </div>
+            </div>
+            
+            <div class="response-body">
+              <div class="comment-item">
+                <label>Recomendaciones:</label>
+                <p>{{ r.recomendaciones || 'Sin comentarios' }}</p>
+              </div>
+              <div class="comment-item">
+                <label>Otros temas de interés:</label>
+                <p>{{ r.temasInteres || 'Sin temas' }}</p>
+              </div>
+              <div class="comment-item" *ngIf="r.causaLimitacion">
+                <label class="warning">Causas de Limitación:</label>
+                <p class="warning">{{ r.causaLimitacion }}</p>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="resultados.length === 0" class="empty-state">
+            <ion-icon name="people-outline"></ion-icon>
+            <h4>Sin respuestas aún</h4>
+            <p>Nadie ha completado la encuesta para esta capacitación todavía.</p>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</ion-content>

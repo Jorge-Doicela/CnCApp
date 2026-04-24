@@ -135,6 +135,15 @@
         </div>
         <div class="card-actions">
           <ion-button 
+            *ngIf="inscripcion.estadoReal === 'Finalizada' && inscripcion.asistio"
+            class="pill-btn survey-btn" 
+            expand="block" 
+            (click)="irAEncuesta(inscripcion.capacitacion.id)">
+            <ion-icon name="clipboard-outline" slot="start"></ion-icon>
+            Llenar Encuesta
+          </ion-button>
+
+          <ion-button 
             *ngIf="inscripcion.capacitacion?.certificado && inscripcion.estadoReal === 'Finalizada' && inscripcion.asistio"
             class="pill-btn main" 
             expand="block" 

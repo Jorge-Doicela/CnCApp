@@ -260,4 +260,8 @@ export class ConferenciasPage implements OnInit {
   iraGenerarCertificado(idCapacitacion: number) {
     this.router.navigate(['/mis-certificados'], { queryParams: { idCapacitacion } });
   }
+
+  irAEncuesta(capacitacionId: number) {
+    this.router.navigate(['/encuesta'], { queryParams: { capacitacionId } });
+  }
 }

@@ -15,7 +15,7 @@ export function parseIdParam(req: Request, res: Response, paramName = 'id'): num
     const raw = req.params[paramName];
     const id = parseInt(raw as string, 10);
     if (isNaN(id) || id <= 0) {
-        res.status(400).json({ message: `Parámetro '${paramName}' debe ser un número entero positivo` });
+        res.status(400).json({ message: `Parámetro '${paramName}' debe ser un número entero positivo. Recibido: [${raw}]` });
         return null;
     }
     return id;

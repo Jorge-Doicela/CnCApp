@@ -1,0 +1,189 @@
+.main-container {
+    padding: 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.page-back-nav {
+    margin-bottom: 24px;
+    ion-button {
+        --color: var(--ion-color-medium);
+        font-weight: 600;
+        letter-spacing: -0.01em;
+    }
+}
+
+.admin-header {
+    margin-bottom: 40px;
+    .eyebrow {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.75rem;
+        font-weight: 800;
+        color: var(--ion-color-primary);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 12px;
+    }
+    h1 {
+        font-size: 2.5rem;
+        font-weight: 900;
+        color: #1e293b;
+        margin: 0 0 8px 0;
+        letter-spacing: -0.03em;
+    }
+    p {
+        color: #64748b;
+        font-size: 1.1rem;
+        max-width: 600px;
+    }
+}
+
+.stats-grid-premium {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+    margin-bottom: 48px;
+}
+
+.stat-card-premium {
+    background: white;
+    padding: 24px;
+    border-radius: 24px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    border: 1px solid #f1f5f9;
+
+    .stat-icon-box {
+        width: 64px;
+        height: 64px;
+        border-radius: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+        
+        &.primary { background: #eff6ff; color: #2563eb; }
+        &.success { background: #f0fdf4; color: #16a34a; }
+        &.warning { background: #fffbeb; color: #d97706; }
+    }
+
+    .stat-info {
+        display: flex;
+        flex-direction: column;
+        .stat-num {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: #0f172a;
+            line-height: 1.2;
+        }
+        .stat-desc {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+        }
+    }
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #1e293b;
+    margin-bottom: 24px;
+    ion-icon { color: var(--ion-color-primary); }
+}
+
+.responses-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.response-card {
+    background: white;
+    padding: 24px;
+    border-radius: 20px;
+    border: 1px solid #f1f5f9;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+
+    .response-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 20px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid #f1f5f9;
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            strong { font-size: 1.1rem; color: #0f172a; }
+            span { font-size: 0.85rem; color: #64748b; }
+        }
+
+        .rating-badge {
+            display: flex;
+            gap: 2px;
+            color: #fbbf24;
+            font-size: 1.1rem;
+        }
+    }
+
+    .response-body {
+        .comment-item {
+            margin-bottom: 16px;
+            &:last-child { margin-bottom: 0; }
+            
+            label {
+                display: block;
+                font-size: 0.75rem;
+                font-weight: 800;
+                color: #94a3b8;
+                text-transform: uppercase;
+                margin-bottom: 4px;
+                &.warning { color: #dc2626; }
+            }
+            p {
+                margin: 0;
+                font-size: 0.95rem;
+                color: #334155;
+                line-height: 1.5;
+                &.warning { color: #991b1b; background: #fef2f2; padding: 8px; border-radius: 8px; }
+            }
+        }
+    }
+}
+
+.loading-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 100px 0;
+    p { margin-top: 16px; color: #64748b; font-weight: 600; }
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    ion-icon { font-size: 4rem; color: #cbd5e1; margin-bottom: 16px; }
+    h4 { font-weight: 800; color: #475569; margin-bottom: 8px; }
+    p { color: #94a3b8; }
+}
+
+.fade-up {
+    animation: f-up 0.6s ease-out forwards;
+}
+
+@keyframes f-up {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}

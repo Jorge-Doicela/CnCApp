@@ -246,19 +246,24 @@ export class CertificateGeneratorService {
         
         doc.fillColor(config.color || '#1e293b').fontSize(config.fontSize || 12);
 
+        // Use provided width or default to a reasonable value for centering if not specified
+        const renderWidth = config.width || 500;
+        
+        doc.fillColor(config.color || '#1e293b').fontSize(config.fontSize || 12);
+
         const options: PDFKit.Mixins.TextOptions = {
-            width: config.width || 500,
+            width: renderWidth,
             align: (config.textAlign as any) || 'center',
             lineGap: 2
         };
 
-        // Calculate heights for precise vertical centering
+        // Match frontend's "transform: translate(-50%, -50%)"
+        // Calculate text height to center vertically
         const cleanText = text.replace(/<b>|<\/b>/g, '');
         const totalHeight = doc.heightOfString(cleanText, options);
         
-        // If config.width is not provided, we center relative to config.x
-        let renderX = config.width ? config.x - (config.width / 2) : config.x - 250;
-        let renderY = config.y - (totalHeight / 2);
+        const renderX = config.x - (renderWidth / 2);
+        const renderY = config.y - (totalHeight / 2);
 
         // Reset cursor to the calculated start position
         doc.text('', renderX, renderY, options);
@@ -307,16 +312,16 @@ export class CertificateGeneratorService {
             }
 
             if (imgSource) {
-                // Signature image
-                doc.image(imgSource, firma.x - (firma.width / 2), firma.y - firma.height + 10, {
+                // Signature image - Matches frontend's "transform: translateX(-50%)"
+                doc.image(imgSource, firma.x - (firma.width / 2), firma.y, {
                     width: firma.width
                 });
             } else {
                 console.warn(`[CERT_GEN] No se pudo cargar imagen de firma para: ${firma.nombrePersona}`);
             }
 
-            // Line and Text
-            const lineY = firma.y + 2;
+            // Line and Text - Centered on firma.x
+            const lineY = firma.y + firma.height - 15;
             doc.moveTo(firma.x - (firma.width / 2.2), lineY)
                .lineTo(firma.x + (firma.width / 2.2), lineY)
                .lineWidth(0.5)
@@ -355,13 +360,13 @@ export class CertificateGeneratorService {
         try {
             const qrBuffer = await QRCode.toBuffer(content, { margin: 1 });
             let size = qrConfig?.fontSize || 100;
+            // QR Matches frontend's "transform: translate(-50%, -50%)"
             let x = qrConfig ? qrConfig.x - (size / 2) : doc.page.width - size - 50;
             let y = qrConfig ? qrConfig.y - (size / 2) : doc.page.height - size - 50;
 
             doc.image(qrBuffer, x, y, { fit: [size, size] });
 
             // Extract hash from content URL to show it as text
-            // content is like: https://dominio.com/validar-certificados?hash=abc123...
             const hashMatch = content.match(/hash=([a-f0-9]+)/i);
             const hash = hashMatch ? hashMatch[1] : null;
 

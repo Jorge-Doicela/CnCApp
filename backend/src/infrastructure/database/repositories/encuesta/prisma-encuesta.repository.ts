@@ -25,9 +25,28 @@ export class PrismaEncuestaRepository implements EncuestaRepository {
     }
 
     async getEncuestaByCapacitacion(capacitacionId: number): Promise<EncuestaSatisfaction | null> {
-        return this.prisma.encuestaSatisfaction.findFirst({
+        let encuesta = await this.prisma.encuestaSatisfaction.findFirst({
             where: { capacitacionId }
         });
+
+        if (!encuesta) {
+            // Si no existe, crear una por defecto para esta capacitación
+            const capacitacion = await this.prisma.capacitacion.findUnique({
+                where: { id: capacitacionId }
+            });
+
+            if (!capacitacion) return null;
+
+            encuesta = await this.prisma.encuestaSatisfaction.create({
+                data: {
+                    capacitacionId: capacitacionId,
+                    titulo: `Encuesta de satisfacción: ${capacitacion.nombre}`,
+                    descripcion: 'El objetivo de ésta encuesta es conocer su opinión sobre el servicio recibido para así mejorar los procesos de fortalecimiento institucional que ejecuta el CNC. La información proporcionada es confidencial y tiene el único objetivo de mejorar nuestra gestión. El CNC será responsable del tratamiento de los datos personales que el usuario proporcione y le informa que se gestionarán de conformidad con lo dispuesto en la Ley Orgánica de Protección de Datos Personales y su Reglamento.'
+                }
+            });
+        }
+
+        return encuesta;
     }
 
     async submitRespuesta(data: any): Promise<EncuestaRespuesta> {

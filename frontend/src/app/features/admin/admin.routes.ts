@@ -99,6 +99,12 @@ export const ADMIN_ROUTES: Routes = [
         data: { requiredModule: 'Gestionar capacitaciones' }
     },
     {
+        path: 'gestionar-capacitaciones/resultados/:id',
+        loadComponent: () => import('./capacitaciones/resultados/visualizarresultados.page').then(m => m.VisualizarresultadosPage),
+        canActivate: [adminGuard, moduleGuard],
+        data: { requiredModule: 'Gestionar capacitaciones' }
+    },
+    {
         path: 'certificados/:id',
         loadComponent: () => import('./certificados/certificados.page').then(m => m.CertificadosPage),
         canActivate: [adminGuard]

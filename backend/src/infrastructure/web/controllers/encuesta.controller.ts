@@ -14,7 +14,7 @@ export class EncuestaController {
 
     getEncuestaByCapacitacion = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
-            const id = parseIdParam(req, res);
+            const id = parseIdParam(req, res, 'capacitacionId');
             if (id === null) return;
             const encuesta = await this.encuestaRepository.getEncuestaByCapacitacion(id);
             if (!encuesta) {

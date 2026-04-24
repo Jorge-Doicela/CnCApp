@@ -215,6 +215,10 @@
                 <ion-icon name="people-outline" slot="start"></ion-icon>
                 Participantes
               </ion-button>
+              <ion-button fill="clear" class="action-btn" (click)="iraVisualizarResultados(cap.id); $event.stopPropagation()">
+                <ion-icon name="stats-chart-outline" slot="start"></ion-icon>
+                Resultados
+              </ion-button>
               <ion-button fill="clear" [color]="cap.certificado ? 'warning' : 'primary'" (click)="mostrarConfirmacion(cap)" *ngIf="!isConferencista">
                 <ion-icon [name]="cap.certificado ? 'refresh-outline' : 'ribbon-outline'" slot="start"></ion-icon>
                 {{ cap.certificado ? 'Re-emitir Certificados' : 'Emitir Certificados' }}
