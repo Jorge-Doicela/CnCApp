@@ -44,5 +44,35 @@ El sistema ya incluye tareas programadas (cron jobs) que se configuran solas al 
 *   **Backups:** Copia de seguridad de la base de datos todos los días a las 2:00 AM.
 *   **Limpieza:** Borrado de archivos temporales y certificados antiguos cada semana para ahorrar espacio.
 
+## 5. Actualización del Sistema (Flujo Git)
+
+Para seguir actualizando el sistema después del despliegue inicial, se recomienda seguir este flujo de trabajo basado en Git:
+
+### Paso A: Subir cambios desde el PC de Desarrollo
+Una vez realizados los cambios en el código localmente:
+1.  Abre una terminal en la carpeta del proyecto.
+2.  Sube los cambios al repositorio:
+    ```bash
+    git add .
+    git commit -m "Descripción de los cambios realizados"
+    git push origin main
+    ```
+
+### Paso B: Actualizar el Servidor (Producción)
+Conéctate al servidor vía SSH y ejecuta los siguientes comandos para aplicar las actualizaciones:
+1.  Entra en la carpeta del proyecto:
+    ```bash
+    cd CnCApp
+    ```
+2.  Descarga los nuevos cambios:
+    ```bash
+    git pull origin main
+    ```
+3.  Ejecuta el script de despliegue para reconstruir los contenedores y aplicar migraciones:
+    ```bash
+    bash setup-server.sh
+    ```
+    *Este comando se encargará de detectar los cambios, recompilar el frontend/backend y asegurar que la base de datos esté al día.*
+
 ---
 *Documento generado automáticamente para el equipo técnico del CNC.*
