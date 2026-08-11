@@ -1,5 +1,5 @@
 {
-  "serverIp": "192.168.1.223",
+  "serverIp": "localhost",
   "backendPort": 3005,
   "frontendPort": 4200
 }

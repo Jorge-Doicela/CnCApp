@@ -17,6 +17,6 @@ echo 🧹 Limpiando imágenes antiguas...
 docker image prune -f
 
 echo ✅ Despliegue completado con éxito!
-echo 🌐 Frontend: http://localhost:80 (o la IP de este servidor: 192.168.3.2)
+echo 🌐 Frontend: http://localhost:80 (o la IP del servidor)
 echo ⚙️  Backend: http://localhost:3000
 pause
