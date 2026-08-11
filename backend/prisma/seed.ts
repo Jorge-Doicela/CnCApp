@@ -329,8 +329,8 @@ async function main() {
         // ============================================
         // STEP 4: USERS (Massive & Realistic)
         // ============================================
-        console.log('Generating User Ecosystem...');
-        const hashedPassword = await bcrypt.hash('AdminPassword123!', SALT_ROUNDS);
+        const defaultSeedPassword = process.env.INITIAL_ADMIN_PASSWORD || 'AdminPassword123!';
+        const hashedPassword = await bcrypt.hash(defaultSeedPassword, SALT_ROUNDS);
 
         const usersData = [
             // Root System Administrator
@@ -338,7 +338,7 @@ async function main() {
                 nombre: 'ADMINISTRADOR DEL SISTEMA', 
                 ci: '1700000000', 
                 email: 'admin@cnc.gob.ec', 
-                password: 'AdminPassword123!', // Change this in production
+                password: defaultSeedPassword, // Change this in production
                 roleId: adminRole.id, 
                 authUid: 'admin-root' 
             }

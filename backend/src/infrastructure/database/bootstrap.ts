@@ -36,7 +36,8 @@ export async function bootstrapSystem(): Promise<void> {
 
         if (!existingAdmin) {
             logger.info(`[Bootstrap] Creating root administrator: ${adminEmail}`);
-            const hashedPassword = await bcrypt.hash('AdminPassword123!', 10);
+            const defaultAdminPass = process.env.INITIAL_ADMIN_PASSWORD || 'AdminPassword123!';
+            const hashedPassword = await bcrypt.hash(defaultAdminPass, 10);
             
             await prisma.usuario.create({
                 data: {
