@@ -1,9 +1,9 @@
 
 const API_URL = 'http://localhost:3000/api';
 const ADMIN_CI = '1234567890';
-const ADMIN_PASS = 'AdminPassword123!';
+const ADMIN_PASS = process.env.ADMIN_PASS || 'AdminPassword123!';
 const CONF_CI = '0911223344'; // Dr. Ricardo Pazmiño
-const CONF_PASS = 'AdminPassword123!';
+const CONF_PASS = process.env.CONF_PASS || 'ConfPassword123!';
 
 // Test Data
 // Generate exactly 8 digits: 10000000 to 99999999

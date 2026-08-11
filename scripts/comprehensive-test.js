@@ -6,7 +6,7 @@
 
 const API_URL = 'http://127.0.0.1:3000/api';
 const ADMIN_CI = '1234567890'; // Assuming this exists from seed
-const ADMIN_PASS = 'AdminPassword123!';
+const ADMIN_PASS = process.env.ADMIN_PASS || 'AdminPassword123!';
 
 // Unique suffix to avoid collisions in DB constraints during multiple runs
 const SUFFIX = Math.floor(10000 + Math.random() * 90000).toString();
